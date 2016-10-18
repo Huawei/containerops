@@ -28,7 +28,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/containerops/pilotage/models"
+	"github.com/Huawei/containerops/pilotage/models"
 
 	log "github.com/Sirupsen/logrus"
 )
