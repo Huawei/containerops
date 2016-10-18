@@ -1,0 +1,230 @@
+/***********************/
+/*       Widget        */
+/***********************/
+
+.widget{
+  position: relative;
+  margin-bottom: $grid-gutter-width;
+  padding: $widget-padding-vertical $widget-padding-horizontal;
+  background: $widget-bg-color;
+  border-radius: $border-radius-sm;
+  > header{
+    margin: (-$widget-padding-vertical) (-$widget-padding-horizontal);
+    padding: $widget-padding-vertical $widget-padding-horizontal;
+    h1,h2,h3,h4,h5,h6{
+      margin: 0;
+    }
+
+    + .widget-body,
+    + .widget-body.no-padding{
+      margin-top: $widget-padding-vertical;
+    }
+  }
+
+  > .widget-body.no-padding{
+    margin: (-$widget-padding-vertical) (-$widget-padding-horizontal);
+
+    + footer{
+      margin-top: $widget-padding-vertical;
+    }
+  }
+
+  > footer{
+    margin: 0 (-$widget-padding-horizontal) (-$widget-padding-vertical);
+    padding: $widget-padding-vertical $widget-padding-horizontal;
+  }
+
+  &:hover .widget-controls-hover{
+    opacity: 1;
+  }
+
+  .loader{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    .spinner{
+      position: absolute;
+      top: 50%;
+      width: 100%; //ie fix
+      margin-top: -10px;
+      font-size: 20px;
+      text-align: center;
+    }
+  }
+
+  .widget-table-overflow{
+    margin: 0 (-$widget-padding-horizontal) (-$widget-padding-vertical);
+  }
+}
+
+.widget-controls{
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  padding: 14px;
+  font-size: $font-size-sm;
+
+  &.left{
+    left: 0;
+    right: auto;
+  }
+
+  &.widget-controls-hover{
+    opacity: 0;
+    @include transition(opacity .15s);
+  }
+
+
+
+  > a{
+    padding: 1px 4px;
+    border-radius: 4px;
+    color: rgba($black, .4);
+    @include transition(color .15s ease-in-out);
+
+    &:hover{
+      color: rgba($black, .1);
+      text-decoration: none;
+    }
+
+    > .glyphicon{
+      vertical-align: 0;
+      font-size: 12px;
+    }
+
+    > .fa{
+      vertical-align: 1px;
+    }
+  }
+
+  > .btn-group{
+    vertical-align: baseline;
+  }
+}
+
+.widget-card { min-height: 135px;}
+
+.widget-icon{
+  opacity: .5;
+  font-size: 42px;
+  height: 70px;
+
+  .glyphicon {
+    top: 5px;
+  }
+}
+
+.widget-image{
+  position: relative;
+  overflow: hidden;
+  margin: (-$widget-padding-vertical) (-$widget-padding-horizontal);
+  border-radius: $border-radius;
+
+  > img{
+    max-width: 100%;
+    border-radius: $border-radius $border-radius 0 0;
+    transition: transform .15s ease;
+  }
+
+  &:hover > img{
+    transform: scale(1.1, 1.1);
+  }
+
+  .title{
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 20px;
+  }
+
+  .info{
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 20px;
+  }
+}
+
+.widget-footer-bottom{
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+.widget-sm{
+  height: 230px;
+}
+
+.widget-md{
+  height: 373px;
+}
+
+.windget-padding-md {
+  padding: $widget-padding-vertical $widget-padding-horizontal;
+}
+
+.windget-padding-lg {
+  padding: $widget-padding-vertical*2 $widget-padding-horizontal*2;
+}
+
+.widget-body-container{
+  position: relative;
+  height: 100%;
+}
+
+.widget-top-overflow,
+.widget-middle-overflow{
+  position: relative;
+  margin: 0 (-$widget-padding-horizontal);
+
+  > img{
+    max-width: 100%;
+  }
+}
+
+.widget-top-overflow{
+  margin-top: (-$widget-padding-vertical);
+  border-top-left-radius: $border-radius;
+  border-top-right-radius: $border-radius;
+  overflow: hidden;
+
+  > img{
+    border-top-left-radius: $border-radius;
+    border-top-right-radius: $border-radius;
+  }
+
+  > .btn-toolbar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+    margin-right: $widget-padding-horizontal;
+
+    @include media-breakpoint-up(md){
+      top: auto;
+      bottom: 0;
+    }
+  }
+}
+
+/***********************************/
+/**         Widgets Grid          **/
+/***********************************/
+
+.widget-container{
+  min-height: 30px;
+
+  .widget:not(.fullscreened) > header{
+    cursor: move;
+  }
+}
+
+.widget-placeholder{
+  background:  rgba($white, .4);
+  border: 1px dashed $gray-light;
+  margin: -1px -1px calc(#{$grid-gutter-width} - 1px) -1px;
+}

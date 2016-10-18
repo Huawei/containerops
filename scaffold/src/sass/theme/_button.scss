@@ -1,0 +1,77 @@
+/***********************/
+/*       Buttons       */
+/***********************/
+
+.btn-inverse {
+  @include button-variant($white, $gray, darken($gray, 10%));
+}
+
+.btn-xs {
+  padding: 1px 5px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px;
+}
+
+.btn {
+  .glyphicon {
+    top: 3px;
+  }
+}
+
+.btn, .btn-inverse, .btn-gray {
+  &:not(.active) {
+    box-shadow: none !important;
+  }
+}
+
+.btn-sm {
+  padding-top: .35rem;
+  padding-bottom: .35rem;
+}
+
+.btn-rounded{
+  @include border-radius(6px);
+}
+
+.btn-gray{
+  @include button-variant($text-color, $gray-semi-lighter, darken($gray-semi-lighter, 5%));
+}
+
+.btn-outline{
+  @include button-variant($white, transparent, $white);
+
+  &:hover,
+  &:focus {
+    background-color: rgba($white, .1);
+  }
+}
+
+.btn-link:focus,
+.btn-link:active:focus,
+.btn-link.active:focus{
+  outline: 0;
+}
+
+.input-group > .input-group-btn:last-child > .btn[data-toggle="dropdown"] {
+  @include border-right-radius($btn-border-radius);
+}
+
+
+.btn-group > .btn[data-toggle="dropdown"][data-original-title][title] {
+  @include border-right-radius($btn-border-radius);
+
+  &:focus,
+  &:active{
+    outline: none !important;
+  }
+}
+
+//
+// Button groups
+// --------------------------------------------------
+
+.btn-toolbar{
+  margin-top: $line-height-computed/2;
+  margin-bottom: $line-height-computed/2;
+}

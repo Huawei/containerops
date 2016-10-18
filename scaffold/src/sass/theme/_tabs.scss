@@ -1,0 +1,124 @@
+// tabs
+.nav-tabs {
+  & .nav-item+.nav-item { margin-left: 0}
+  border-bottom: none;
+  background-color: none;
+  border-top-left-radius: $border-radius;
+  border-top-right-radius: $border-radius;
+  > .nav-item {
+    margin-bottom: -2px;
+    > .nav-link {
+      padding: 12px 18px;
+      border: 1px solid $brand-primary-light;
+      color: $text-muted;
+
+      .label {
+        margin-bottom: -2px;
+      }
+
+      @include transition(color .15s ease-in-out);
+      &:hover {
+        background-color: $brand-primary-light;
+        color: $text-color;
+      }
+    }
+
+    .nav-link.open {
+      &,
+      &:hover,
+      &:focus{
+        background-color: $nav-tabs-active-link-hover-bg;
+        color: $nav-tabs-active-link-hover-color;
+      }
+    }
+
+    .nav-link.active {
+      &,
+      &:hover,
+      &:focus {
+        background-color: $nav-tabs-active-link-hover-bg;
+        color: $nav-tabs-active-link-hover-color;
+        border: none;
+        @include box-shadow(1px 1px 2px #ccc);
+      }
+    }
+  }
+}
+
+.tab-content {
+  position: relative;
+  z-index: 1;
+  background-color: $white;
+  border : 1px solid $brand-primary-light;
+  > .tab-pane {
+    padding: $line-height-computed*2 $line-height-computed*2;
+  }
+}
+
+.tabbable {
+  @include clearfix();
+}
+.tab-content {
+  overflow: auto; // prevent content from running below tabs
+}
+
+// Remove border on bottom, left, right
+.tabs-below > .nav-tabs,
+.tabs-right > .nav-tabs,
+.tabs-left > .nav-tabs {
+  border-bottom: 0;
+}
+
+// Show/hide tabbable areas
+.tab-content > .tab-pane,
+.pill-content > .pill-pane {
+  display: none;
+}
+.tab-content > .active,
+.pill-content > .active {
+  display: block;
+}
+
+// LEFT & RIGHT
+// ------------
+
+// Common styles
+.tabs-left > .nav-tabs > li,
+.tabs-right > .nav-tabs > li {
+  float: none;
+}
+.tabs-left > .nav-tabs > li > a,
+.tabs-right > .nav-tabs > li > a {
+  min-width: 74px;
+  margin-right: 0;
+  margin-bottom: 3px;
+}
+
+.tabs-left > .nav-tabs > li:last-child > a,
+.tabs-right > .nav-tabs > li:last-child > a{
+  margin-bottom: 0;
+}
+
+// Tabs on the left
+.tabs-left > .nav-tabs {
+  float: left;
+  border-top-right-radius: 0;
+}
+.tabs-left > .nav-tabs > li > a {
+  margin-right: -1px;
+  @include border-radius(4px 0 0 4px);
+}
+
+// Tabs on the right
+.tabs-right > .nav-tabs {
+  float: right;
+  border-top-left-radius: 0;
+}
+.tabs-right > .nav-tabs > li > a {
+  margin-left: -1px;
+  @include border-radius(0 4px 4px 0);
+}
+
+.tabs-right > .nav-tabs > li.active > a{
+  @include box-shadow(-1px 1px 2px #ccc);
+}

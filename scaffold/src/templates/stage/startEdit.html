@@ -1,0 +1,99 @@
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <div class="widget-body">
+                <form id="stage-form" class="form-horizontal" role="form">
+                    <fieldset>
+                        <legend><strong>Start Pipeline</strong></legend>
+                        <div class="widget-controls">
+                            <a data-widgster="fullscreen" title="" href="#" data-original-title="Full Screen" style="display: inline;"><i class="glyphicon glyphicon-fullscreen"></i></a>
+                            <a data-widgster="restore" title="" href="#" style="display: none;" data-original-title="Restore"><i class="glyphicon glyphicon-resize-small"></i></a>
+                        </div>
+                        <div class="row col-md-12">
+                            <div class="row col-md-6">
+                                <label class="col-md-4 control-label" for="type-select">Select Type</label>
+                                <div class="col-md-8">
+                                    <select id="type-select" style="width:100%">
+                                        <option value="github">Github</option>
+                                        <!-- <option value="gitlab">Gitlab</option> -->
+                                        <option value="customize">Customize</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row col-md-6" id="event_select">
+                                <label class="col-md-3 control-label" for="event-select">Event</label>
+                                <div class="col-md-9">
+                                    <select id="event-select" style="width:100%">
+                                        <option value="commit_comment">Commit Comment</option>
+                                        <option value="create">Create</option>
+                                        <option value="delete">Delete</option>
+                                        <option value="deployment">Deployment</option>
+                                        <option value="deployment_status">Deployment Status</option>
+                                        <option value="fork">Fork</option>
+                                        <option value="gollum">Gollum</option>
+                                        <option value="issue_comment">Issue Comment</option>
+                                        <option value="issues">Issues</option>
+                                        <option value="member">Member</option>
+                                        <option value="page_build">Page Build</option>
+                                        <option value="public">Public</option>
+                                        <option value="pull_request_review_comment">Pull Request Review Comment</option>
+                                        <option value="pull_request_review">Pull Request Review</option>
+                                        <option value="pull_request">Pull Request</option>
+                                        <option value="push">Push</option>
+                                        <option value="repository">Repository</option>
+                                        <option value="release">Release</option>
+                                        <option value="status">Status</option>
+                                        <option value="team_add">Team Add</option>
+                                        <option value="watch">Watch</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-lg treeview col-md-10 col-md-offset-1" style="margin-top:30px">
+                            <div id="outputTreeViewer" class="col-md-12" style="height:400px"></div>
+                            <div id="outputTreeDesigner">
+                               <div class="clearfix">
+                                    <ul class="nav nav-tabs pull-xs-left" id="actionTabs" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" id="tree-edit-tab" data-toggle="tab" href="#tree_edit" role="tab" aria-controls="tree_edit" aria-expanded="false">Tree Edit</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="output-from-edit-tab" data-toggle="tab" href="#output_from_edit" role="tab" aria-controls="output_from_edit" aria-expanded="true">From Edit</a>
+                                        </li> 
+                                    </ul>
+                                </div>
+                                <div class="tab-content">
+                                   <div class="row tab-pane active" id="tree_edit" class="tab-pane" role="tabpanel" aria-labelledby="tree-edit-tab" aria-expanded="true">
+                                        <div class="col-md-12 import-div">
+                                            <h4 class="pr">Output Tree</h4>
+
+                                            <div id="outputTreeDiv" class="json-editor"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row tab-pane" id="output_from_edit" class="tab-pane" role="tabpanel" aria-labelledby="output-from-edit-tab" aria-expanded="false">
+                                        <div class="col-md-5">
+                                            <div id="outputCodeEditor" style="width: 100%;height:300px"></div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <button id="outputFromJson" type="button" class="btn btn-warning col-md-12">
+                                                <i class="glyphicon glyphicon-triangle-right"></i>
+                                            </button>
+                                            <br/>
+                                            <button id="outputToJson" type="button" class="btn btn-warning col-md-12" style="margin-top:10px">
+                                                <i class="glyphicon glyphicon-triangle-left"></i>
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div id="outputTreeEditor" style="width: 100%;height:300px"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>   
+            </div>
+        </section>
+    </div>
+</div>
