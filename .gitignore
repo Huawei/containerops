@@ -61,13 +61,12 @@ _testmain.go
 *.test
 *.prof
 
-#.editorconfig
-#angular-cli-build.js
-#angular-cli.json
-#config/
-#e2e/
-#package.json
-#public/
-#src/
-#tslint.json
-#typings.json
+pilotage/pilotage
+pilotage/conf
+pilotage/cert
+pilotage/log/*
+pilotage/data/*
+
+docs/_site
+docs/.sass-cache
+docs/.jekyll-metadata
