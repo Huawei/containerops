@@ -1,0 +1,42 @@
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <div class="widget-body">
+                <form id="stage-form" class="form-horizontal" role="form">
+                    <fieldset>
+                        <legend><strong>Action bipartite</strong> setup</legend>
+                        <div class="widget-controls">
+                            <a data-widgster="fullscreen" title="" href="#" data-original-title="Full Screen" style="display: inline;"><i class="glyphicon glyphicon-fullscreen"></i></a>
+                            <a data-widgster="restore" title="" href="#" style="display: none;" data-original-title="Restore"><i class="glyphicon glyphicon-resize-small"></i></a>
+                        </div>
+                        <input type="button" id="removeLink" value="remove link" class="btn btn-inverse"/>
+                        <input type="button" id="removeLine" value="remove relation line" class="btn btn-inverse hide"/>
+                        <div class="row treeview" style="position:relative;">
+                            <svg id="bipatiteLineSvg" class="relation-svg" style="">
+                                
+                            </svg>
+                            <div class="col-md-2 import-div">
+                                <h4 class="pr">Import</h4>
+                                <div id="importDiv" class="json-editor">
+                                    no data
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                
+                            </div>
+                            <div class="col-md-4">
+                                <h4 class="pr">Output</h4>
+                                <div id="outputDiv" class="json-editor">
+                                    no data
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                             <button type="button" class="btn btn-primary">Save</button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </section>
+    </div>
+</div>

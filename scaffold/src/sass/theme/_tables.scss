@@ -1,0 +1,77 @@
+//
+// Tables
+// --------------------------------------------------
+
+.table td > .abc-checkbox,
+.table th > .abc-checkbox{
+  position: relative;
+  top: -8px;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-left: 0;
+  > label:before,
+  > label:after{
+    margin-left: 0;
+  }
+}
+
+.table > thead > tr > th {
+  border-top: none;
+}
+
+.table > thead > tr > th{
+  font-weight: $font-weight-semi-bold;
+  text-transform: uppercase;
+  border-bottom-width: 1px;
+}
+
+.table-bordered th{
+  background-color: $gray-lighter;
+}
+
+.table-lg {
+  > thead,
+  > tbody,
+  > tfoot {
+    > tr {
+      > th,
+      > td {
+        padding: 10px;
+      }
+    }
+  }
+}
+
+.table-sm {
+  > thead,
+  > tbody,
+  > tfoot {
+    > tr {
+      > th,
+      > td {
+        padding: 6px;
+      }
+    }
+  }
+}
+
+.table-hover > tbody > tr:hover .progress{
+  background-color: $white;
+}
+
+.table th, .table td {
+  padding: 0.55rem;
+}
+
+.pptd{
+  padding-top:15px !important
+}
+
+.treeclose{
+  cursor: pointer;
+}
+
+.treeopen{
+  cursor: pointer;
+  display: none;
+}

@@ -1,0 +1,113 @@
+//
+// Navbar Dasboard
+// --------------------------------------------------
+
+.navbar-dashboard {
+  background-color: $navbar-dashboard-bg;
+  border-color: $navbar-dashboard-border;
+
+  // .navbar-brand {
+  //   color: $navbar-dashboard-brand-color;
+  //   margin-right: 0;
+  //   padding-top: 10px;
+  //   font-size: $font-size-lg;
+  //   &:hover,
+  //   &:focus {
+  //     color: $navbar-dashboard-brand-hover-color;
+  //     background-color: $navbar-dashboard-brand-hover-bg;
+  //   }
+  // }
+
+  .navbar-text {
+    color: $navbar-dashboard-color;
+  }
+
+  .navbar-nav {
+    > li > a {
+      color: $navbar-dashboard-link-color;
+
+      &:hover,
+      &:focus {
+        color: $navbar-dashboard-link-hover-color;
+        background-color: $navbar-dashboard-link-hover-bg;
+      }
+    }
+    > .active > a {
+      &,
+      &:hover,
+      &:focus {
+        color: $navbar-dashboard-link-active-color;
+        background-color: $navbar-dashboard-link-active-bg;
+      }
+    }
+    > .disabled > a {
+      &,
+      &:hover,
+      &:focus {
+        color: $navbar-dashboard-link-disabled-color;
+        background-color: $navbar-dashboard-link-disabled-bg;
+      }
+    }
+  }
+
+  .navbar-nav {
+    // Remove background color from open dropdown
+    > .open > a {
+      &,
+      &:hover,
+      &:focus {
+        background-color: $navbar-dashboard-link-active-bg;
+        color: $navbar-dashboard-link-active-color;
+      }
+    }
+
+    // @media (max-width: map_get($grid-breakpoints, md) - 1px) {
+    //   // Dropdowns get custom display when collapsed
+    //   .open .dropdown-menu {
+    //     > li > a {
+    //       color: $navbar-dashboard-link-color;
+    //       &:hover,
+    //       &:focus {
+    //         color: $navbar-dashboard-link-hover-color;
+    //         background-color: $navbar-dashboard-link-hover-bg;
+    //       }
+    //     }
+    //     > .active > a {
+    //       &,
+    //       &:hover,
+    //       &:focus {
+    //         color: $navbar-dashboard-link-active-color;
+    //         background-color: $navbar-dashboard-link-active-bg;
+    //       }
+    //     }
+    //     > .disabled > a {
+    //       &,
+    //       &:hover,
+    //       &:focus {
+    //         color: $navbar-dashboard-link-disabled-color;
+    //         background-color: $navbar-dashboard-link-disabled-bg;
+    //       }
+    //     }
+    //   }
+    // }
+  }
+
+  // Links in navbars
+  //
+  // Add a class to ensure links outside the navbar nav are colored correctly.
+
+  .btn-link {
+    color: $navbar-dashboard-link-color;
+    &:hover,
+    &:focus {
+      color: $navbar-dashboard-link-hover-color;
+    }
+    &[disabled],
+    fieldset[disabled] & {
+      &:hover,
+      &:focus {
+        color: $navbar-dashboard-link-disabled-color;
+      }
+    }
+  }
+}
