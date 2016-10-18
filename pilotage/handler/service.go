@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/containerops/pilotage/models"
+	"github.com/Huawei/containerops/pilotage/models"
 
 	"gopkg.in/macaron.v1"
 )

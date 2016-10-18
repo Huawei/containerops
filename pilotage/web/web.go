@@ -19,8 +19,8 @@ package web
 import (
 	"gopkg.in/macaron.v1"
 
-	"github.com/containerops/pilotage/middleware"
-	"github.com/containerops/pilotage/router"
+	"github.com/Huawei/containerops/pilotage/middleware"
+	"github.com/Huawei/containerops/pilotage/router"
 )
 
 //

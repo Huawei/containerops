@@ -25,7 +25,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/containerops/pilotage/models"
+	"github.com/Huawei/containerops/pilotage/models"
 )
 
 const (

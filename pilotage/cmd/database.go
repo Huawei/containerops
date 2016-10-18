@@ -19,7 +19,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/containerops/pilotage/models"
+	"github.com/Huawei/containerops/pilotage/models"
 )
 
 // databasecmd is subcommand which migrate/backup/restore Pilotage's database.
