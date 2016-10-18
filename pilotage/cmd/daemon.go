@@ -26,10 +26,10 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/macaron.v1"
 
+	"github.com/Huawei/containerops/pilotage/models"
+	"github.com/Huawei/containerops/pilotage/utils"
+	"github.com/Huawei/containerops/pilotage/web"
 	"github.com/containerops/configure"
-	"github.com/containerops/pilotage/models"
-	"github.com/containerops/pilotage/utils"
-	"github.com/containerops/pilotage/web"
 )
 
 var address string
