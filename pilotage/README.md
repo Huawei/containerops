@@ -1,4 +1,4 @@
-# Pilotage - DevOps Workflow Engine 
+# Pilotage - ContainerOps DevOps Engine 
 
 ## What's ContainerOps?
 
