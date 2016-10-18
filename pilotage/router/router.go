@@ -20,7 +20,7 @@ import (
 	"github.com/go-macaron/binding"
 	"gopkg.in/macaron.v1"
 
-	"github.com/containerops/pilotage/handler"
+	"github.com/Huawei/containerops/pilotage/handler"
 )
 
 //SetRouters is pilotage router's definition fucntion.

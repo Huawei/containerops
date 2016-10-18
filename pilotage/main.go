@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/containerops/pilotage/cmd"
+	"github.com/Huawei/containerops/pilotage/cmd"
 )
 
 func init() {
