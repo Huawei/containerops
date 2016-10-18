@@ -1,35 +1,35 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # compiled output
-/dist
-/dev
-/tmp
-/css/
+scaffold/dist
+scaffold/dev
+scaffold/tmp
+scaffold/css/
 
 # dependencies
-/node_modules
-/bower_components
+scaffold/node_modules
+scaffold/bower_components
  
 
 # IDEs and editors
-/.idea
-.project
-.classpath
-*.launch
-.settings/
+scaffold/.idea
+scaffold/.project
+scaffold/.classpath
+scaffold/*.launch
+scaffold/.settings/
 
 # misc
-/.sass-cache
-/connect.lock
-/coverage/*
-/libpeerconnection.log
-npm-debug.log
-testem.log
-/typings
+scaffold/.sass-cache
+scaffold/connect.lock
+scaffold/coverage/*
+scaffold/libpeerconnection.log
+scaffold/npm-debug.log
+scaffold/testem.log
+scaffold//typings
 
 # e2e
-/e2e/*.js
-/e2e/*.map
+scaffold/e2e/*.js
+scaffold/e2e/*.map
 
 #System Files
 .DS_Store
