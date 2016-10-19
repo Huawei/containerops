@@ -149,8 +149,9 @@ func PutPipelineV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
 	body := new(struct {
-		Id     int64                  `json:"id"`
-		Define map[string]interface{} `json:"define"`
+		Id      int64                  `json:"id"`
+		Version string                 `json:"version"`
+		Define  map[string]interface{} `json:"define"`
 	})
 
 	reqBody, err := ctx.Req.Body().Bytes()
@@ -192,8 +193,12 @@ func PutPipelineV1Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	pipelineInfo.Manifest = string(defineByte)
+	if pipelineInfo.Version == body.Version {
+		err = pipelineInfo.GetPipeline().Save(pipelineInfo).Error
+	} else {
+		err = module.CreateNewPipelinVersion(*pipelineInfo, body.Version)
+	}
 
-	err = pipelineInfo.GetPipeline().Save(pipelineInfo).Error
 	if err != nil {
 		result, _ = json.Marshal(map[string]string{"errMsg": "error when save pipeline info:" + err.Error()})
 		return http.StatusBadRequest, result
