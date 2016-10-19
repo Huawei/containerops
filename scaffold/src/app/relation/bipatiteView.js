@@ -2,9 +2,6 @@ import {getPathData} from "./setPath";
 import {isObject,isArray,isBoolean,isNumber,isString} from "../common/util";
 import {addRelation,delRelation,initPipeline} from "./relation";
 
-
-// var relationArray;
-
 var importTreeJson,outputTreeJson;
 
 export function bipatiteView(importJson,outputJson,linePathData){
@@ -41,6 +38,11 @@ function initView(importTree,outputTree,linePathData){
 	
 
 	$("span.property").mousedown(function(event){
+
+		
+		if(event.buttons != 1){
+			return false;
+		}
 
 		var _startX = $(event.target).offset().left,
 	        _startY = $(event.target).offset().top,
@@ -80,12 +82,8 @@ function initView(importTree,outputTree,linePathData){
 	    	
 	    		relationLineInit(linePathData.relation);
 	    	}
-	    	
 	    }
 	})
-
-
-
 
 	$("#removeLine").click(function(){
 		var path = $("#bipatiteLineSvg path.active");
@@ -135,11 +133,6 @@ function initView(importTree,outputTree,linePathData){
 }
 
 
-
-
-
-
-
 function relationLineInit(ary){
 	d3.select("#bipatiteLineSvg").selectAll("path").remove();
 	relationLine(ary);
@@ -158,6 +151,11 @@ function relationLine(ary){
 			parentDom;
 
 		
+		if(fromDom.hasClass("expanded") && toDom.hasClass("expanded")){
+			continue;
+		}
+
+
 		if(fromDom.is(":visible") && toDom.is(":visible")){
 			settingOut([
 				fromDom.offset().left,
@@ -195,13 +193,6 @@ function relationLine(ary){
 		  	
 		}
 
-
-
-		if(ary[i].child){
-			relationLine(ary[i].child);
-		}
-	
-
 	}
 }
 
@@ -213,7 +204,7 @@ function jsonTransformation(json){
 	for(var key in json){
 		newJsonArray.push({
 			"key" : key,
-			"type" : JsonType(json[key]),
+			"type" : jsonType(json[key]),
 			"path" : "."+key
 		});
 		if(isObject(json[key]) || isArray(json[key])){
@@ -232,7 +223,7 @@ function jsonChange(child,json,path){
 		for(var key in json){
 			child.push({
 				"key" : key,
-				"type" : JsonType(json[key]),
+				"type" : jsonType(json[key]),
 				"path" : path+"."+key
 			})
 			if(isObject(json[key]) || isArray(json[key])){
@@ -246,7 +237,7 @@ function jsonChange(child,json,path){
 				for(var key in json[i]){
 					child.push({
 						"key" : key,
-						"type" : JsonType(json[i][key]),
+						"type" : jsonType(json[i][key]),
 						"path" : path+"."+i+"."+key
 					})
 					if(isObject(json[i][key]) || isArray(json[i][key])){
@@ -304,7 +295,7 @@ function getVisibleParent(dom){
 	}
 }
 
-function JsonType(json){
+function jsonType(json){
 	if(isObject(json)){
 		return "object";
 	}else if(isArray(json)){
@@ -352,11 +343,8 @@ function getVisibleInputStr(){
 	var str = "";
 	
 	$("#importDiv div.item").each(function(){
-		
-		// if($(this).is(":visible")){
-			var path = $(this).attr("data-path").replace(/\-/g,'.');
-			str = str + path.substring(5)+";";
-		// }
+		var path = $(this).attr("data-path").replace(/\-/g,'.');
+		str = str + path.substring(5)+";";
 	})
 
 	return str;
@@ -366,11 +354,8 @@ function getVisibleOutputStr(){
 	var str = "";
 	
 	$("#outputDiv div.item").each(function(){
-		
-		// if($(this).is(":visible")){
-			var path = $(this).attr("data-path").replace(/\-/g,'.');
-			str = str + path.substring(5)+";";
-		// }
+		var path = $(this).attr("data-path").replace(/\-/g,'.');
+		str = str + path.substring(5)+";";
 	})
 
 	return str;
