@@ -5,7 +5,9 @@
 .cursor{
   cursor:pointer;
 }
-
+.cursor-default{
+  cursor:default;
+}
 .sidebar{
   position: fixed;
   z-index: 0;

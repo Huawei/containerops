@@ -22,52 +22,55 @@ export function initPipeline(fromNodes,toNodes,visibleFromNode,visibleToNode) {
 
 
 export function addRelation(relation,needDel,fromPath,toPath,visibleFromNode,visibleToNode) {
-    var finalRelation = [];
+   
     if (needDel) {
-        relation = delRelation(relation,fromPath,toPath);
+        relation = delRelation(relation,fromPath);
     }
 
-    if (fromPath.split(".").length == 2) {
-        // 如果是根节点,则直接添加一个即可,
 
-        finalRelation = relation.concat(calcPipelineInfo(fromPath,toPath,visibleFromNode,visibleToNode));
-        
-        // getVisibleNode(finalRelation,fromPath,toPath,visibleFromNode,visibleToNode)
+    relation = relation.concat(calcPipelineInfo(fromPath,toPath,visibleFromNode,visibleToNode));
 
-        
-    }else{
-        for (var i = 0; i < relation.length; i ++ ) {
-            var tempRelation = relation[i];
-            if (tempRelation.from + "." + fromPath.split(".")[fromPath.split(".").length - 1] == fromPath) {
-                // 如果当前点 + 目标点的最后一段 == 目标点 则代表找到了目标点的直接父节点,直接在当前点的child中加入指定的关系即可
-                if (!tempRelation.child) {
-                    tempRelation.child = [];
-                }
 
-                tempRelation.child = tempRelation.child.concat(calcPipelineInfo(fromPath,toPath,visibleFromNode,visibleToNode));
-            } else if (tempRelation.child && fromPath.indexOf(tempRelation.from + ".") == 0) {
-                // 如果当前点存在子节点,并且是目标点的父节点,则进入寻找
-                tempRelation.child = addRelation(tempRelation.child,false,fromPath,toPath,visibleFromNode,visibleToNode)
-            }
+    var _fromChildNode = [],
+        _toChildNode = [],
+        _fromNodeArray = visibleFromNode.split(";"),
+        _toNodeArray = visibleToNode.split(";"),
+        _relation = [];
 
-            finalRelation = finalRelation.concat(tempRelation)
+    for(var i=0;i<_fromNodeArray.length;i++){
+        if(_fromNodeArray[i].indexOf(fromPath) == 0){
+           _fromChildNode.push(_fromNodeArray[i]);
         }
     }
-    return finalRelation;
+
+    for(var i=0;i<_toNodeArray.length;i++){
+        if(_toNodeArray[i].indexOf(toPath) == 0){
+           _toChildNode.push(_toNodeArray[i]);
+        }
+    }
+    
+    
+    for(var i =1;i<_fromChildNode.length;i++){
+        for(var j =1;j<_toChildNode.length;j++){
+            
+            if(_fromChildNode[i].replace(fromPath,"") == _toChildNode[j].replace(toPath,"")){
+
+               relation = relation.concat(calcPipelineInfo(_fromChildNode[i],_toChildNode[j],visibleFromNode,visibleToNode));
+            }
+        }
+
+    }
+
+    return relation;
 }
 
 export function delRelation(relation,fromPath) {
     var finalRelation = [];
     for (var i = 0; i < relation.length; i ++ ) {
         var tempRelation = relation[i];
-
-        if (tempRelation.from == fromPath) {
-            // 如果开始路径相同,则直接删除即可
-            continue;
-        } else if (tempRelation.child && fromPath.indexOf(tempRelation.from+".") == 0) {
-            // 如果当前起始路径含有子节点,则在子节点里找
-            // 这里添加一个判断,只有当前节点是fromPath的父级时才进入判断,这样可以省略很多无用的子节点判断
-            tempRelation.child = delRelation(tempRelation.child,fromPath);
+        
+        if(tempRelation.from.indexOf(fromPath) == 0){
+            continue
         }
 
         // 如果当前路径不是要删除的,则保留下来当前路径
@@ -127,44 +130,35 @@ function getPipelineMap(fromNode,toNodes,visibleFromNode,visibleToNode) {
             // 如果是对象,则匹配其所有子子节点
             if (fromNode.type == "object" && fromNode.childNode && toNodes[i].childNode) {
                 var pipelineInfo = calcPipelineInfo(fromNode.path,toNodes[i].path,visibleFromNode,visibleToNode);
-                pipelineInfo['child'] = [];
+                resultMap = resultMap.concat(pipelineInfo);
+
                 for (var j = 0; j < fromNode.childNode.length; j ++) {
                     var childResult = getPipelineMap(fromNode.childNode[j],toNodes[i].childNode,visibleFromNode,visibleToNode);
-                    pipelineInfo.child = pipelineInfo.child.concat(childResult);
+                    resultMap = resultMap.concat(childResult);
                 }
 
-                resultMap = resultMap.concat(pipelineInfo);
             } else {
                 var pipelineInfo = calcPipelineInfo(fromNode.path,toNodes[i].path,visibleFromNode,visibleToNode);
                 resultMap = resultMap.concat(pipelineInfo);
                 break;
             }
         }
-
-        // // 如果toNodes存在子节点,则寻找子节点有没有可以匹配当前节点的
-        // if (toNodes[i].childNode) {
-        //     var tempResult = getPipelineMap(fromNode,toNodes[i].childNode,visibleFromNode,visibleToNode)
-        //     if (tempResult) {
-        //         resultMap = tempResult;
-        //         break;
-        //     }
-        // }
     }
 
-
     if (resultMap.length > 0) {
-        // console.log(resultMap);
         return resultMap;
     }else {
         return null;
     }
 }
 
-function getVisibleNode(relation,fromPath,toPath,visibleFromNode,visibleToNode){
+function childNodeRelation(fromPath,toPath,visibleFromNode,visibleToNode){
     var _fromChildNode = [],
         _toChildNode = [],
         _fromNodeArray = visibleFromNode.split(";"),
-        _toNodeArray = visibleToNode.split(";");
+        _toNodeArray = visibleToNode.split(";"),
+        _relation = [];
+
     for(var i=0;i<_fromNodeArray.length;i++){
         if(_fromNodeArray[i].indexOf(fromPath) == 0){
            _fromChildNode.push(_fromNodeArray[i]);
@@ -181,13 +175,13 @@ function getVisibleNode(relation,fromPath,toPath,visibleFromNode,visibleToNode){
     for(var i =0;i<_fromChildNode.length;i++){
         for(var j =0;j<_toChildNode.length;j++){
             if(_fromChildNode[i] == _toChildNode[j]){
-                
+               _relation = _relation.concat(calcPipelineInfo(_fromChildNode[i],_toChildNode[j],visibleFromNode,visibleToNode));
             }
         }
 
     }
 
-
+    return _relation;
 
 }
 
