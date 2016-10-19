@@ -1,14 +1,25 @@
+/* Copyright 2014 Huawei Technologies Co., Ltd. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License. */
 
 import {initDesigner} from "./initDesigner";
 import {initPipeline} from "./initPipeline";
 import {initAction} from "./initAction";
-import {getAllPipelines,getPipeline,addPipeline,addPipelineVersion,getEnvs} from "./pipelineData";
+import {getAllPipelines,getPipeline,addPipeline,savePipeline,addPipelineVersion,getEnvs} from "./pipelineData";
 import {notify} from "../common/notify";
+import {setLinePathAry,linePathAry} from "../common/constant";
 
 export let allPipelines;
 
 export let pipelineData;
-let pipelineName, pipelineVersion;
+let pipelineName, pipelineVersion, pipelineVersionID;
 let pipelineEnvs;
 
 export function initPipelinePage(){
@@ -47,7 +58,7 @@ function showPipelineList(){
                         + item.name + '</td><td></td><td></td></tr>';
                 $(".pipelinelist_body").append(pprow);
                 _.each(item.version,function(version){
-                    var vrow = '<tr data-pname="' + item.name + '" data-version="' + version.id + '" style="height:50px">'
+                    var vrow = '<tr data-pname="' + item.name + '" data-version="' + version.version + '" data-versionid="' + version.id + '" style="height:50px">'
                             +'<td></td><td class="pptd">' + version.version + '</td>'
                             +'<td><button type="button" class="btn btn-primary ppview">View</button></td></tr>';
                     $(".pipelinelist_body").append(vrow);
@@ -74,9 +85,22 @@ function showPipelineList(){
                 var target = $(event.currentTarget);
                 pipelineName = target.parent().parent().data("pname");
                 pipelineVersion = target.parent().parent().data("version");
-                showPipelineDesigner();
+                pipelineVersionID = target.parent().parent().data("versionid");
+                getPipelineData();
             });
         }
+    });
+}
+
+function getPipelineData(){
+    var promise = getPipeline(pipelineName,pipelineVersionID);
+    promise.done(function(data){
+        pipelineData = data.stageList;
+        setLinePathAry(data.lineList);
+        showPipelineDesigner();
+    });
+    promise.fail(function(xhr,status,error){
+        notify(xhr.responseJSON.errMsg,"error");
     });
 }
 
@@ -132,14 +156,6 @@ function showPipelineDesigner(){
             $("#main").html($(data));    
             $("#pipelinedesign").show("slow"); 
 
-            // var selectedpp = _.find(allPipelines,function(pp){
-            //     return pp.name == pipelineName;
-            // });
-            // var selectedversion = _.find(selectedpp.versions,function(version){
-            //     return version.version == pipelineVersion;
-            // });
-            pipelineData = getPipeline();
-
             $("#selected_pipeline").text(pipelineName + " / " + pipelineVersion); 
 
             initDesigner();
@@ -149,13 +165,17 @@ function showPipelineDesigner(){
                 initPipelinePage();
             });
 
+            $(".savepipeline").on('click',function(){
+                savePipelineData();
+            });
+
             $(".newpipelineversion").on('click',function(){
                 showNewPipelineVersion();
-            })
+            });
 
             $(".newpipeline").on('click',function(){
                 showNewPipeline();
-            })
+            });
 
             $(".envsetting").on("click",function(event){
                 showPipelineEnv();
@@ -169,6 +189,17 @@ function drawPipeline(){
     
     initPipeline();
     initAction();
+}
+
+function savePipelineData(){
+    var promise = savePipeline(pipelineName,pipelineVersion,pipelineVersionID,pipelineData,linePathAry);
+    promise.done(function(data){
+        notify(data.msg,"success");
+        initPipelinePage();
+    });
+    promise.fail(function(xhr,status,error){
+        notify(xhr.responseJSON.errMsg,"error");
+    });
 }
 
 function showNewPipelineVersion(){
