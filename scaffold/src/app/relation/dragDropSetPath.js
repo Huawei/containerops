@@ -79,7 +79,6 @@ export function dragDropSetPath(options){
                 index: linePathAry.length
             });           
         } 
-        console.log(linePathAry);
         
     }
 }
