@@ -1,3 +1,16 @@
+/* 
+    Copyright 2014 Huawei Technologies Co., Ltd. All rights reserved.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+        http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License. 
+*/
+
 import * as constant from "../common/constant";
 import * as util from "../common/util";
 
@@ -9,7 +22,6 @@ import { clickStage } from "../stage/clickStage";
 import { initAction } from "../pipeline/initAction";
 import { mouseoverRelevantPipeline, mouseoutRelevantPipeline } from "../relation/lineHover";
 import { dragDropSetPath } from "../relation/dragDropSetPath";
-import { removeLinkArray } from "../relation/removeLinkArray";
 import { addAction } from "../action/addOrDeleteAction";
 
 var animationForRemove = function(itemId, itemIndex) {
@@ -80,7 +92,7 @@ export function initPipeline() {
             if (d.type == constant.PIPELINE_ADD_STAGE) {
                 addStage(d, i);
                 initPipeline();
-                initAction();
+                // initAction();
             }
         })
         .on("mouseout", function(d, i) {
@@ -310,6 +322,6 @@ export function initPipeline() {
 
     .call(drag);
 
-
+    initAction();
 
 }
