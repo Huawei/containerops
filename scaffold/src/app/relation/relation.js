@@ -73,7 +73,6 @@ export function delRelation(relation,fromPath) {
             continue
         }
 
-        // 如果当前路径不是要删除的,则保留下来当前路径
         finalRelation = finalRelation.concat(tempRelation);
     }
 
@@ -85,8 +84,7 @@ export function delRelation(relation,fromPath) {
 function calcPipelineInfo(fromPath,toPath,visibleFromNode,visibleToNode) {
     var pipelineInfo = {};
     for (var i = 0; i < visibleToNode.length; i ++ ) {
-        // 通过正则匹配当前路径可以匹配上的,
-        // 因为已经进行过排序+倒序了,所以第一个匹配上的肯定是距离当前节点最近的可见节点
+        
         var regx = new RegExp('^' + visibleToNode[i]);
         var rs = regx.exec(toPath);
         if (rs) {
