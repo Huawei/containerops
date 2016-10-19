@@ -14,7 +14,6 @@ import { initPipeline } from "../pipeline/initPipeline";
 import { initAction } from "../pipeline/initAction";
 import { pipelineData } from "../pipeline/main";
 import { resizeWidget } from "../theme/widget";
-import { removeLinkArray } from "../relation/removeLinkArray";
 import { initStageSetup } from "./stageSetup";
 
 export function clickStage(sd, si) {

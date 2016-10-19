@@ -188,7 +188,7 @@ function drawPipeline(){
     $("#pipeline-info-edit").empty();
     
     initPipeline();
-    initAction();
+    // initAction();
 }
 
 function savePipelineData(){
