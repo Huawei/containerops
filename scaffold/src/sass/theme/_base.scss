@@ -1381,4 +1381,15 @@ div.jsoneditor-contextmenu ul li ul {
 }
 
 
-
+// loading
+.loading{
+  position:fixed;
+  top:0;
+  text-align:center;
+  width:100%;
+  height:100%;
+  background-color:#eaeaea;
+  z-index:3000;
+  opacity: 0.5;
+  padding-top: 200px;
+}
