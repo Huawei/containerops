@@ -1,0 +1,72 @@
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# compiled output
+scaffold/dist
+scaffold/dev
+scaffold/tmp
+scaffold/css/
+
+# dependencies
+scaffold/node_modules
+scaffold/bower_components
+ 
+
+# IDEs and editors
+scaffold/.idea
+scaffold/.project
+scaffold/.classpath
+scaffold/*.launch
+scaffold/.settings/
+
+# misc
+scaffold/.sass-cache
+scaffold/connect.lock
+scaffold/coverage/*
+scaffold/libpeerconnection.log
+scaffold/npm-debug.log
+scaffold/testem.log
+scaffold//typings
+
+# e2e
+scaffold/e2e/*.js
+scaffold/e2e/*.map
+
+#System Files
+.DS_Store
+Thumbs.db
+
+
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
+
+# Folders
+_obj
+_test
+
+# Architecture specific extensions/prefixes
+*.[568vq]
+[568vq].out
+
+*.cgo1.go
+*.cgo2.c
+_cgo_defun.c
+_cgo_gotypes.go
+_cgo_export.*
+
+_testmain.go
+
+*.exe
+*.test
+*.prof
+
+pilotage/pilotage
+pilotage/conf
+pilotage/cert
+pilotage/log/*
+pilotage/data/*
+
+docs/_site
+docs/.sass-cache
+docs/.jekyll-metadata
