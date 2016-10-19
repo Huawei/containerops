@@ -805,8 +805,6 @@ func GetPipelineList(namespace, pipelineName string, pipelineId int64) (map[stri
 	}
 	resultMap["lineList"] = lineList
 
-	// resultMap["stageList"] = stageListMap
-
 	return resultMap, nil
 }
 
@@ -889,4 +887,32 @@ func getStageListByPipeline(pipelineInfo models.Pipeline) ([]map[string]interfac
 
 func getLineListByPipeline(pipelineInfo models.Pipeline) (interface{}, error) {
 	return make([]map[string]interface{}, 0), nil
+}
+
+func CreateNewPipelinVersion(pipelineInfo models.Pipeline, versionName string) error {
+	var count int64
+	new(models.Pipeline).GetPipeline().Where("namespace = ?", pipelineInfo.Namespace).Where("pipeline = ?", pipelineInfo.Pipeline).Where("version = ?", versionName).Count(&count)
+	if count > 0 {
+		return errors.New("version code already exist!")
+	}
+
+	// get current least pipeline's version
+	leastPipeline := new(models.Pipeline)
+	err := leastPipeline.GetPipeline().Where("namespace = ? ", pipelineInfo.Namespace).Where("pipeline = ?", pipelineInfo.Pipeline).Order("-id").First(&pipelineInfo).Error
+	if err != nil {
+		return errors.New("error when get least pipeline info :" + err.Error())
+	}
+
+	newPipelineInfo := new(models.Pipeline)
+	newPipelineInfo.Namespace = pipelineInfo.Namespace
+	newPipelineInfo.Pipeline = pipelineInfo.Pipeline
+	newPipelineInfo.Event = pipelineInfo.Event
+	newPipelineInfo.Version = versionName
+	newPipelineInfo.VersionCode = leastPipeline.VersionCode + 1
+	newPipelineInfo.Manifest = pipelineInfo.Manifest
+	newPipelineInfo.Description = pipelineInfo.Description
+	newPipelineInfo.SourceInfo = pipelineInfo.SourceInfo
+	newPipelineInfo.Env = pipelineInfo.Env
+
+	return newPipelineInfo.GetPipeline().Save(newPipelineInfo).Error
 }
