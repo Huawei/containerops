@@ -1,3 +1,14 @@
+/* Copyright 2014 Huawei Technologies Co., Ltd. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License. */
+
 import {pipelineApi} from "../common/api";
 
 let allPipelines = [];
@@ -6,17 +17,8 @@ export function getAllPipelines(){
     return pipelineApi.list();
 }
 
-export function getPipeline(name,version){
-    // return pipelineApi.data();
-
-    // to be removed below
-    // var pipeline = _.find(allPipelines,function(item){
-    //     return item.name == name;
-    // });
-    // return _.find(pipeline.versions,function(item){
-    //     return item.version = version;
-    // }).data;
-    return newPipelineData;
+export function getPipeline(name,versionid){
+    return pipelineApi.data(name,versionid);
 }
 
 export function addPipeline(){
@@ -29,7 +31,18 @@ export function addPipeline(){
     return pipelineApi.add(name,version);
 }
 
-import {PIPELINE_START , PIPELINE_END, PIPELINE_ADD_STAGE, PIPELINE_ADD_ACTION,PIPELINE_STAGE,PIPELINE_ACTION} from "../common/constant";
+export function savePipeline(name,version,versionid,nodes,lines){
+    var reqbody = {
+        "id" : versionid,
+        "version" : version,
+        "define":{
+            "lineList" : lines,
+            "stageList" : nodes
+        }
+    }
+
+    return pipelineApi.save(name,reqbody);
+}
 
 export function addPipelineVersion(oldversion){
     if(!$('#newpp-version-form').parsley().validate()){
@@ -60,21 +73,3 @@ export function addPipelineVersion(oldversion){
 export function getEnvs(){
     return [];
 }
-
-export var newPipelineData = [
-    {
-        id: "pipeline-start" + "-" + uuid.v1(),
-        type: PIPELINE_START,
-        setupData: {}
-    },
-    
-    {
-        id: "pipeline-add-stage" + "-" + uuid.v1(),
-        type: PIPELINE_ADD_STAGE
-    },
-    {
-        id: "pipeline-end" + "-" + uuid.v1(),
-        type: PIPELINE_END,
-        setupData: {}
-    }
-]
