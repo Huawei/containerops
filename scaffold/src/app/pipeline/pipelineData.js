@@ -34,7 +34,7 @@ export function addPipeline(){
 export function savePipeline(name,version,versionid,nodes,lines){
     var reqbody = {
         "id" : versionid,
-        "version" : version,
+        "version" : version.toString(),
         "define":{
             "lineList" : lines,
             "stageList" : nodes
