@@ -8,9 +8,18 @@
         </div> 
         <div class="col-md-8" style="margin-top:-0.6em">
             <div style="float:right" class="btn-toolbar row">
-                <button type="button" class="btn btn-primary newpipelineversion">
-                    <i class="glyphicon glyphicon-floppy-disk" style="font-size:16px"></i>&nbsp;&nbsp;Save New Version
-                </button>
+                <div class="btn-group">
+                    <button class="btn btn-primary" data-toggle="dropdown" data-original-title="" title="" aria-expanded="false">
+                        <i class="glyphicon glyphicon-floppy-disk" style="font-size:16px"></i>
+                        &nbsp; Save &nbsp;
+                        <i class="fa fa-caret-down"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item savepipeline">Save</a></li>
+                        <li class="dropdown-divider"></li>
+                        <li><a class="dropdown-item newpipelineversion">Save As New Version</a></li>
+                    </ul>
+                </div>
                 <button type="button" class="btn btn-inverse">
                     <i class="fa fa-history" style="font-size:16px"></i>&nbsp;&nbsp;Log History
                 </button>
