@@ -52,7 +52,7 @@ func Migrate() {
 
 	db.AutoMigrate(&ServiceDefinition{}, &Service{}, &Component{}, &ComponentLog{})
 	db.AutoMigrate(&Pipeline{}, &Stage{}, &Action{}, &Outcome{}, &PipelineLog{}, &StageLog{}, &ActionLog{})
-	db.AutoMigrate(&EventDefinition{}, &Event{}, &Environment{})
+	db.AutoMigrate(&EventDefinition{}, &Event{}, &Environment{}, &EventJson{})
 
 	log.Info("AutMigrate database structs.")
 }

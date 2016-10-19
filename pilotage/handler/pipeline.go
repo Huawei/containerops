@@ -83,7 +83,7 @@ func GetPipelineV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	resultMap, err := module.GetPipelineList(namespace, pipelineName, id)
+	resultMap, err := module.GetPipelineInfo(namespace, pipelineName, id)
 	if err != nil {
 		result, _ = json.Marshal(map[string]string{"errMsg": "error when get pipeline info:" + err.Error()})
 		return http.StatusBadRequest, result
@@ -106,7 +106,7 @@ func GetPipelineListV1Handler(ctx *macaron.Context) (int, []byte) {
 
 	resultMap := make([]map[string]interface{}, 0)
 	pipelineList := make([]models.Pipeline, 0)
-	new(models.Pipeline).GetPipeline().Where("namespace = ?", namespace).Order("pipeline").Order("-version_code").Find(&pipelineList)
+	new(models.Pipeline).GetPipeline().Where("namespace = ?", namespace).Order("-id").Order("pipeline").Find(&pipelineList)
 
 	for _, pipelineInfo := range pipelineList {
 
@@ -139,6 +139,12 @@ func GetPipelineListV1Handler(ctx *macaron.Context) (int, []byte) {
 		}
 	}
 
+	// tempResult := make([]map[string]interface{}, len(resultMap))
+
+	// for i, result := range resultMap {
+	// 	tempResult[len(resultMap)-i-1] = result
+	// }
+
 	result, _ = json.Marshal(map[string]interface{}{"list": resultMap})
 
 	return http.StatusOK, result
@@ -167,7 +173,7 @@ func PutPipelineV1Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	pipelineInfo := new(models.Pipeline)
-	err = pipelineInfo.GetPipeline().Where("id = ?", body.Id).Error
+	err = pipelineInfo.GetPipeline().Where("id = ?", body.Id).Find(&pipelineInfo).Error
 	if err != nil {
 		result, _ = json.Marshal(map[string]string{"errMsg": "error when get pipeline info from db:" + err.Error()})
 		return http.StatusBadRequest, result
@@ -179,10 +185,12 @@ func PutPipelineV1Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	defineMap := make(map[string]interface{})
-	err = json.Unmarshal([]byte(pipelineInfo.Manifest), &defineMap)
-	if err != nil {
-		result, _ = json.Marshal(map[string]string{"errMsg": "error when save pipeline info:" + err.Error()})
-		return http.StatusBadRequest, result
+	if pipelineInfo.Manifest != "" {
+		err = json.Unmarshal([]byte(pipelineInfo.Manifest), &defineMap)
+		if err != nil {
+			result, _ = json.Marshal(map[string]string{"errMsg": "error when save pipeline info:" + err.Error()})
+			return http.StatusBadRequest, result
+		}
 	}
 
 	defineMap["define"] = body.Define
@@ -194,9 +202,10 @@ func PutPipelineV1Handler(ctx *macaron.Context) (int, []byte) {
 
 	pipelineInfo.Manifest = string(defineByte)
 	if pipelineInfo.Version == body.Version {
-		err = pipelineInfo.GetPipeline().Save(pipelineInfo).Error
+		err = module.UpdatePipelineInfo(*pipelineInfo)
+		// err = pipelineInfo.GetPipeline().Save(pipelineInfo).Error
 	} else {
-		err = module.CreateNewPipelinVersion(*pipelineInfo, body.Version)
+		err = module.CreateNewPipelineVersion(*pipelineInfo, body.Version)
 	}
 
 	if err != nil {
@@ -204,6 +213,88 @@ func PutPipelineV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
+	result, _ = json.Marshal(map[string]string{"message": "success"})
+
+	return http.StatusOK, result
+}
+
+// PutPipelineEnvV1Handler is set a pipeline's env
+func PutPipelineEnvV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{"message": ""})
+
+	body := new(struct {
+		Id  int64                  `json:"id"`
+		Env map[string]interface{} `json:"env"`
+	})
+
+	reqBody, err := ctx.Req.Body().Bytes()
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when get request body:" + err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	err = json.Unmarshal(reqBody, &body)
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when unmarshal request body:" + err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	pipelineInfo := new(models.Pipeline)
+	err = pipelineInfo.GetPipeline().Where("id = ?", body.Id).Find(&pipelineInfo).Error
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when get pipeline info from db:" + err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	if pipelineInfo.ID == 0 {
+		result, _ = json.Marshal(map[string]string{"errMsg": "pipeline is not exist"})
+		return http.StatusBadRequest, result
+	}
+
+	envByte, err := json.Marshal(body.Env)
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when unmarshal env info:" + err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	pipelineInfo.Env = string(envByte)
+	err = pipelineInfo.GetPipeline().Save(pipelineInfo).Error
+
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when save pipeline info:" + err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	result, _ = json.Marshal(map[string]string{"message": "success"})
+	return http.StatusOK, result
+}
+
+// GetPipelineEnvV1Handler
+func GetPipelineEnvV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{"message": ""})
+
+	id := ctx.QueryInt64("id")
+	if id == 0 {
+		result, _ = json.Marshal(map[string]string{"errMsg": "pipeline's id can't be zero"})
+		return http.StatusBadRequest, result
+	}
+
+	pipelineInfo := new(models.Pipeline)
+	err := pipelineInfo.GetPipeline().Where("id = ?", id).Find(&pipelineInfo).Error
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when get pipeline info from db:" + err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	if pipelineInfo.ID == 0 {
+		result, _ = json.Marshal(map[string]string{"errMsg": "pipeline is not exist"})
+		return http.StatusBadRequest, result
+	}
+
+	envMap := make(map[string]interface{})
+	json.Unmarshal([]byte(pipelineInfo.Env), &envMap)
+
+	result, err = json.Marshal(map[string]interface{}{"env": envMap})
 	return http.StatusOK, result
 }
 
@@ -242,14 +333,14 @@ func ExecutePipelineV1Handler(ctx *macaron.Context) (int, []byte) {
 		result, _ = json.Marshal(map[string]string{"result": "error when get pipeline info:" + err.Error()})
 	} else if pipelineInfo.ID == 0 || pipelineInfo.Version == "" {
 		result, _ = json.Marshal(map[string]string{"result": "error when get pipeline info from namespace(" + ctx.Params(":namespace") + ") and pipeline(" + ctx.Params(":pipeline") + ")"})
-	} else if pipelineInfo.SourceInfo == "" {
-		result, _ = json.Marshal(map[string]string{"result": "pipeline does not config source info"})
+		// } else if pipelineInfo.SourceInfo == "" {
+		// result, _ = json.Marshal(map[string]string{"result": "pipeline does not config source info"})
 	} else if pipelineInfo.State == models.PipelineStateDisable {
 		result, _ = json.Marshal(map[string]string{"result": "pipeline is disabled!"})
 	} else if reqBody, err = ctx.Req.Body().Bytes(); err != nil {
 		result, _ = json.Marshal(map[string]string{"result": "error when get request body:" + err.Error()})
-	} else if !module.PipeExecRequestLegal(ctx.Req.Request.Header, reqBody, *pipelineInfo) {
-		result, _ = json.Marshal(map[string]string{"result": "request token is illegal!"})
+		// } else if !module.PipeExecRequestLegal(ctx.Req.Request.Header, reqBody, *pipelineInfo) {
+		// result, _ = json.Marshal(map[string]string{"result": "request token is illegal!"})
 	} else if pipelineLog, err := module.DoPipelineLog(*pipelineInfo); err != nil {
 		// pipeline is ready , copy current pipelin info and all remain action will use the copy data
 		result, _ = json.Marshal(map[string]string{"result": "error when do pipeline log:" + err.Error()})
@@ -269,5 +360,55 @@ func GetOutcomeListV1Handler(ctx *macaron.Context) (int, []byte) {
 //GetOutcomeV1Handler is
 func GetOutcomeV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
+	return http.StatusOK, result
+}
+
+// PutPipelineStateV1Handler is
+func PutPipelineStateV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{"message": ""})
+
+	body := new(struct {
+		Id    int64 `json:"id"`
+		State int64 `json:"state"`
+	})
+
+	reqBody, err := ctx.Req.Body().Bytes()
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when get request body:" + err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	err = json.Unmarshal(reqBody, &body)
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when unmarshal request body:" + err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	if body.State != models.PipelineStateAble && body.State != models.PipelineStateDisable {
+		result, _ = json.Marshal(map[string]string{"errMsg": "state code is illegal"})
+		return http.StatusBadRequest, result
+	}
+
+	pipelineInfo := new(models.Pipeline)
+	err = pipelineInfo.GetPipeline().Where("id = ?", body.Id).Find(&pipelineInfo).Error
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when get pipeline info from db:" + err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	if pipelineInfo.ID == 0 {
+		result, _ = json.Marshal(map[string]string{"errMsg": "pipeline is not exist"})
+		return http.StatusBadRequest, result
+	}
+
+	pipelineInfo.State = body.State
+	err = pipelineInfo.GetPipeline().Save(pipelineInfo).Error
+
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when save pipeline info:" + err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	result, _ = json.Marshal(map[string]string{"message": "success"})
 	return http.StatusOK, result
 }

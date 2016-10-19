@@ -101,9 +101,35 @@ func PutActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusOK, result
 	}
 
+	actionInfo := new(models.ActionLog)
+	actionInfo.GetActionLog().Where("id = ?", actionId).First(actionInfo)
+
+	pipelineInfo := new(models.PipelineLog)
+	pipelineInfo.GetPipelineLog().Where("id = ?", pipelineId).First(pipelineInfo)
+
+	platformSetting, err := module.GetActionPlatformInfo(*actionInfo)
+	if err != nil {
+		// do an extra log for outcome to record action result
+		componentInitErrOutcome := new(models.Outcome)
+
+		componentInitErrOutcome.Pipeline = pipelineId
+		componentInitErrOutcome.Stage = stageId
+		componentInitErrOutcome.Action = actionId
+		componentInitErrOutcome.Event = eventId
+		componentInitErrOutcome.Sequence = pipelineSequence
+		componentInitErrOutcome.Status = false
+		componentInitErrOutcome.Result = "component init error:" + err.Error()
+		componentInitErrOutcome.Output = ""
+
+		componentInitErrOutcome.GetOutcome().Save(componentInitErrOutcome)
+
+		result, _ := json.Marshal(map[string]string{"message": "component init error:" + err.Error()})
+		return http.StatusOK, result
+	}
+
 	componentInfo := new(models.ComponentLog)
 	componentInfo.GetComponentLog().Where("id = ?", componentId).First(&componentInfo)
-	c, err := module.InitComponet(*componentInfo, module.RUNENV_KUBE)
+	c, err := module.InitComponet(*actionInfo, platformSetting["platformType"], platformSetting["platformHost"], pipelineInfo.Namespace)
 	if err != nil {
 		// do an extra log for outcome to record action result
 		componentInitErrOutcome := new(models.Outcome)
@@ -149,6 +175,7 @@ func PutActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
 		actionOutcome.Pipeline = pipelineId
 		actionOutcome.Stage = stageId
 		actionOutcome.Action = actionId
+		actionOutcome.RealAction = actionInfo.FromAction
 		actionOutcome.Event = eventId
 		actionOutcome.Sequence = pipelineSequence
 		actionOutcome.Status = status
