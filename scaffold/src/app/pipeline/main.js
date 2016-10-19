@@ -14,6 +14,7 @@ import {initPipeline} from "./initPipeline";
 import {initAction} from "./initAction";
 import {getAllPipelines,getPipeline,addPipeline,savePipeline,addPipelineVersion,getEnvs} from "./pipelineData";
 import {notify} from "../common/notify";
+import {loading} from "../common/loading";
 import {setLinePathAry,linePathAry} from "../common/constant";
 
 export let allPipelines;
@@ -23,8 +24,10 @@ let pipelineName, pipelineVersion, pipelineVersionID;
 let pipelineEnvs;
 
 export function initPipelinePage(){
+    loading.show();
     var promise = getAllPipelines();
     promise.done(function(data){
+        loading.hide();
         allPipelines = data.list;
         if(allPipelines.length>0){
             showPipelineList();
@@ -33,7 +36,12 @@ export function initPipelinePage(){
         }
     });
     promise.fail(function(xhr,status,error){
-        notify(xhr.responseJSON.errMsg,"error");
+        loading.hide();
+        if(xhr.responseJSON.errMsg){
+            notify(xhr.responseJSON.errMsg,"error");
+        }else{
+            notify("Server is unreachable","error");
+        }
     });
 }
 
@@ -93,14 +101,21 @@ function showPipelineList(){
 }
 
 function getPipelineData(){
+    loading.show();
     var promise = getPipeline(pipelineName,pipelineVersionID);
     promise.done(function(data){
+        loading.hide();
         pipelineData = data.stageList;
         setLinePathAry(data.lineList);
         showPipelineDesigner();
     });
     promise.fail(function(xhr,status,error){
-        notify(xhr.responseJSON.errMsg,"error");
+        loading.hide();
+        if(xhr.responseJSON.errMsg){
+            notify(xhr.responseJSON.errMsg,"error");
+        }else{
+            notify("Server is unreachable","error");
+        }
     });
 }
 
@@ -131,12 +146,19 @@ function showNewPipeline(){
             $("#newppBtn").on('click',function(){
                 var promise = addPipeline();
                 if(promise){
+                    loading.show();
                     promise.done(function(data){
-                        notify(data.msg,"success");
+                        loading.hide();
+                        notify(data.message,"success");
                         initPipelinePage();
                     });
                     promise.fail(function(xhr,status,error){
-                        notify(xhr.responseJSON.errMsg,"error");
+                        loading.hide();
+                        if(xhr.responseJSON.errMsg){
+                            notify(xhr.responseJSON.errMsg,"error");
+                        }else{
+                            notify("Server is unreachable","error");
+                        }
                     });
                 }
             })
@@ -191,14 +213,28 @@ function drawPipeline(){
     // initAction();
 }
 
-function savePipelineData(){
+export function savePipelineData(silence){
+    if(!silence){
+        loading.show();
+    }
+    
     var promise = savePipeline(pipelineName,pipelineVersion,pipelineVersionID,pipelineData,linePathAry);
     promise.done(function(data){
-        notify(data.msg,"success");
-        initPipelinePage();
+        if(!silence){
+            loading.hide();
+            notify(data.message,"success");
+        }
+        
     });
     promise.fail(function(xhr,status,error){
-        notify(xhr.responseJSON.errMsg,"error");
+        if(!silence){
+            loading.hide();
+            if(xhr.responseJSON.errMsg){
+                notify(xhr.responseJSON.errMsg,"error");
+            }else{
+                notify("Server is unreachable","error");
+            }
+        } 
     });
 }
 
