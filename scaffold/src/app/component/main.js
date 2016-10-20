@@ -9,25 +9,37 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. */
 
-import {getAllComponents,getComponent,addComponent,addComponentVersion,saveComponent} from "./componentData";
+import {getAllComponents,getComponent,addComponent,addComponentVersion,saveComponent,validateComponent} from "./componentData";
 import {initComponentIO} from "./componentIO";
 import {initComponentSetup} from "./componentSetup";
+import {notify} from "../common/notify";
+import {loading} from "../common/loading";
 
 export let allComponents;
 
 export let componentData;
-let componentName, componentVersion;
+let componentName, componentVersion,componentVersionID;
 
 export function initComponentPage(){
-    // handle promise
-
-    // to be removed
-    allComponents = getAllComponents();
-    if(allComponents.length>0){
-        showComponentList();
-    }else{
-        showNoComponent();
-    }
+    loading.show();
+    var promise = getAllComponents();
+    promise.done(function(data){
+        loading.hide();
+        allComponents = data.list;
+        if(allComponents.length>0){
+            showComponentList();
+        }else{
+            showNoComponent();
+        }
+    });
+    promise.fail(function(xhr,status,error){
+        loading.hide();
+        if(xhr.responseJSON.errMsg){
+            notify(xhr.responseJSON.errMsg,"error");
+        }else{
+            notify("Server is unreachable","error");
+        }
+    });    
 }
 
 function showComponentList(){
@@ -50,8 +62,8 @@ function showComponentList(){
                         +'<span class="glyphicon glyphicon-menu-right treeopen" data-name="'+item.name+'"></span>&nbsp;' 
                         + item.name + '</td><td></td><td></td></tr>';
                 $(".componentlist_body").append(pprow);
-                _.each(item.versions,function(version){
-                    var vrow = '<tr data-pname="' + item.name + '" data-version="' + version.version + '" style="height:50px">'
+                _.each(item.version,function(version){
+                    var vrow = '<tr data-pname="' + item.name + '" data-version="' + version.version + '" data-versionid="' + version.id + '" style="height:50px">'
                             +'<td></td><td class="pptd">' + version.version + '</td>'
                             +'<td><button type="button" class="btn btn-primary ppview">View</button></td></tr>';
                     $(".componentlist_body").append(vrow);
@@ -78,8 +90,27 @@ function showComponentList(){
                 var target = $(event.currentTarget);
                 componentName = target.parent().parent().data("pname");
                 componentVersion = target.parent().parent().data("version");
-                showComponentDesigner();
+                componentVersionID = target.parent().parent().data("versionid");
+                getComponentData();
             })
+        }
+    });
+}
+
+function getComponentData(){
+    loading.show();
+    var promise = getComponent(componentName,componentVersionID);
+    promise.done(function(data){
+        loading.hide();
+        componentData = data;
+        showComponentDesigner();
+    });
+    promise.fail(function(xhr,status,error){
+        loading.hide();
+        if(xhr.responseJSON.errMsg){
+            notify(xhr.responseJSON.errMsg,"error");
+        }else{
+            notify("Server is unreachable","error");
         }
     });
 }
@@ -109,12 +140,23 @@ export function showNewComponent(fromPipeline){
             $("#main").append($(data));    
             $("#newcomponent").show("slow");
             $("#newComponentBtn").on('click',function(){
-                // addPipeline();
-
-                // to be removed below
-                if(addComponent()){
-                    initComponentPage();
-                }  
+                var promise = addComponent();
+                if(promise){
+                    loading.show();
+                    promise.done(function(data){
+                        loading.hide();
+                        notify(data.message,"success");
+                        initComponentPage();
+                    });
+                    promise.fail(function(xhr,status,error){
+                        loading.hide();
+                        if(xhr.responseJSON.errMsg){
+                            notify(xhr.responseJSON.errMsg,"error");
+                        }else{
+                            notify("Server is unreachable","error");
+                        }
+                    });
+                }
             })
             $("#cancelNewComponentBtn").on('click',function(){
                 if(fromPipeline){
@@ -136,8 +178,6 @@ function showComponentDesigner(){
             $("#main").html($(data));    
             $("#componentdesign").show("slow"); 
 
-            componentData = getComponent(componentName,componentVersion);
-
             $("#selected_component").text(componentName + " / " + componentVersion); 
 
             $(".backtolist").on('click',function(){
@@ -145,11 +185,28 @@ function showComponentDesigner(){
             });
 
             $(".savecomponent").on('click',function(){
-                saveComponent(componentName, componentVersion, componentData);
+                if(validateComponent(componentData)){
+                    var promise = saveComponent(componentName, componentVersion, componentVersionID, componentData);
+                    loading.show();
+                    promise.done(function(data){
+                        loading.hide();
+                        notify(data.message,"success");
+                    });
+                    promise.fail(function(xhr,status,error){
+                        loading.hide();
+                        if(xhr.responseJSON.errMsg){
+                            notify(xhr.responseJSON.errMsg,"error");
+                        }else{
+                            notify("Server is unreachable","error");
+                        }
+                    });
+                } 
             });
 
             $(".newcomponentversion").on('click',function(){
-                showNewComponentVersion();
+                if(validateComponent(componentData)){
+                    showNewComponentVersion();
+                }
             });
 
             $(".newcomponent").on('click',function(){
@@ -177,9 +234,9 @@ function initComponentEdit(){
             $("#action-component-select").select2({
                minimumResultsForSearch: Infinity
              });
-            $("#k8s-service-protocol").select2({
-               minimumResultsForSearch: Infinity
-            });      
+            // $("#k8s-service-protocol").select2({
+            //    minimumResultsForSearch: Infinity
+            // });      
         }
     });
 }
@@ -197,12 +254,23 @@ function showNewComponentVersion(){
             $("#c-name-newversion").val(componentName);
 
             $("#newComponentVersionBtn").on('click',function(){
-                // addPipelineVersion(pipelineVersion);
-
-                // to be removed below
-                if(addComponentVersion(componentVersion)){
-                    initComponentPage();
-                } 
+                var promise = addComponentVersion(componentName,componentVersionID,componentData);
+                if(promise){
+                    loading.show();
+                    promise.done(function(data){
+                        loading.hide();
+                        notify(data.message,"success");
+                        initComponentPage();
+                    });
+                    promise.fail(function(xhr,status,error){
+                        loading.hide();
+                        if(xhr.responseJSON.errMsg){
+                            notify(xhr.responseJSON.errMsg,"error");
+                        }else{
+                            notify("Server is unreachable","error");
+                        }
+                    });
+                }
             })
             $("#cancelNewComponentVersionBtn").on('click',function(){
                 cancelNewComponentVersionPage();

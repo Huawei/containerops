@@ -10,26 +10,16 @@ See the License for the specific language governing permissions and
 limitations under the License. */
 
 import {notify} from "../common/notify";
+import {componentApi} from "../common/api";
 
 let allComponents = [];
 
 export function getAllComponents(){
-    // call api, return ajax promise
-
-    // to be removed below
-    return allComponents;
+     return componentApi.list();
 }
 
-export function getComponent(name,version){
-    // call api, return ajax promise
-
-    // to be removed below
-    var component = _.find(allComponents,function(item){
-        return item.name == name;
-    });
-    return _.find(component.versions,function(item){
-        return item.version = version;
-    }).data;
+export function getComponent(name,versionid){
+    return componentApi.data(name,versionid);
 }
 
 export function addComponent(){
@@ -39,69 +29,44 @@ export function addComponent(){
     var name = $("#c-name").val();
     var version = $("#c-version").val();
 
-    // call api here, return promise
-
-    // to be removed
-    var component = _.find(allComponents,function(item){
-        return item.name == name;
-    })
-    if(!_.isUndefined(component)){
-        var newversion = {
-            "version" : version,
-            "data" : [].concat(newComponentData)
-        }
-        component.versions.push(newversion);
-    }else{
-        component = {
-            "name" : name,
-            "versions" : [
-                {
-                    "version" : version,
-                    "data" : [].concat(newComponentData)
-                }
-            ]
-        }
-        allComponents.push(component);
-    }
-    return true;
+    return componentApi.add(name,version);
 }
 
-export function addComponentVersion(oldversion){
+export function addComponentVersion(name, versionid, componentData){
     if(!$('#newcomponent-version-form').parsley().validate()){
         return false;
+    }else{
+        var version = $("#c-newversion").val();
+        return saveComponent(name, version, versionid, componentData)
     }
-    var name = $("#c-name-newversion").val();
-    var version = $("#c-newversion").val();
-
-    // call api here, return promise
-
-    // to be removed
-    var component = _.find(allComponents,function(item){
-        return item.name == name;
-    });
-
-    var oldversion = _.find(component.versions,function(item){
-        return item.version == oldversion;
-    });
-
-    var newversion = {
-        "version" : version,
-        "data" : [].concat(oldversion.data)
-    }
-    component.versions.push(newversion);
-    return true;
 }
 
-export function saveComponent(componentName, componentVersion, componentData){
+export function saveComponent(name, version, versionid, componentData){
+    var reqbody = {
+        "id" : versionid,
+        "version" : version.toString(),
+        "define": componentData
+    }
+
+    return componentApi.save(name,reqbody); 
+}
+
+export function validateComponent(componentData){
     if(!$('#component-form').parsley().validate()){
-        notify("missed some required base config.","error");
+        notify("Missed some required base config.","error");
+        return false;
+    }else if(!componentData.setupData.action.useAdvanced && !$('#base-setting-form').parsley().validate()){
+        notify("Missed some required base setting of kubernetes.","error");
+        return false;
     }else if(_.isEmpty(componentData.inputJson)){
-        notify("component input json is empty.","error");
+        notify("Component input json is empty.","error");
+        return false;
     }else if(_.isEmpty(componentData.outputJson)){
-        notify("component output json is empty.","error");
+        notify("Component output json is empty.","error");
+        return false;
     }else{
-        notify("component saved.","success");
-    }  
+        return true;
+    }
 }
 
 export var newComponentData = {
