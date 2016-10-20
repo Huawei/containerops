@@ -66,64 +66,129 @@
                             </div>
                         </div>
                     </div>
+                </fieldset>
+                <fieldset>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="normal-field" class="col-sm-3 control-label">
-                                    Service Port
+                                    Kubernetes
                                 </label>
-                                <div class="col-sm-6">
-                                    <input type="text" id="k8s-service-port" name="k8s-service-port" class="form-control" required pattern="/^([0-9]|[1-9]\d|[1-9]\d{2}|[1-9]\d{3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/">
+                                <div class="col-sm-9" style="margin-top:8px">
+                                    <input type="radio" id="setting-way-base" name="k8s-setting-way"> &nbsp;&nbsp;Base Setting
+                                    <input type="radio" id="setting-way-advanced" name="k8s-setting-way" style="margin-left:10px">&nbsp;&nbsp;Advanced Setting
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="normal-field" class="col-sm-3 control-label">
-                                    CPU Limits
-                                </label>
-                                <div class="col-sm-6">
-                                    <input type="text" id="k8s-cpu-limits" name="k8s-cpu-limits" class="form-control" required>
+                    <hr/>
+                </fieldset>
+            </form>
+            <form id="base-setting-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
+                <fieldset>
+                    <div id="basesetting" class="hide">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="normal-field" class="col-sm-3 control-label">
+                                        Service Port
+                                    </label>
+                                    <div class="col-sm-6">
+                                        <input type="text" id="k8s-service-port" name="k8s-service-port" class="form-control" required pattern="/^([0-9]|[1-9]\d|[1-9]\d{2}|[1-9]\d{3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/">
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="normal-field" class="col-sm-3 control-label">
-                                    CPU Requests
-                                </label>
-                                <div class="col-sm-6">
-                                    <input type="text" id="k8s-cpu-requests" name="k8s-cpu-requests" class="form-control" required>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="normal-field" class="col-sm-3 control-label">
+                                        CPU Limits
+                                    </label>
+                                    <div class="col-sm-6">
+                                        <input type="text" id="k8s-cpu-limits" name="k8s-cpu-limits" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="normal-field" class="col-sm-3 control-label">
+                                        CPU Requests
+                                    </label>
+                                    <div class="col-sm-6">
+                                        <input type="text" id="k8s-cpu-requests" name="k8s-cpu-requests" class="form-control" required>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="normal-field" class="col-sm-3 control-label">
-                                    Memory Limits
-                                </label>
-                                <div class="col-sm-6">
-                                    <input type="text" id="k8s-memory-limits" name="k8s-memory-limits" class="form-control" required>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="normal-field" class="col-sm-3 control-label">
+                                        Memory Limits
+                                    </label>
+                                    <div class="col-sm-6">
+                                        <input type="text" id="k8s-memory-limits" name="k8s-memory-limits" class="form-control" required>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="normal-field" class="col-sm-3 control-label">
-                                    Memory Requests
-                                </label>
-                                <div class="col-sm-6">
-                                    <input type="text" id="k8s-memory-requests" name="k8s-memory-requests" class="form-control" required>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="normal-field" class="col-sm-3 control-label">
+                                        Memory Requests
+                                    </label>
+                                    <div class="col-sm-6">
+                                        <input type="text" id="k8s-memory-requests" name="k8s-memory-requests" class="form-control" required>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </fieldset>
+            </form>
+            <form id="advanced-setting-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
                 <fieldset>
+                    <div id="advancedsetting" class="hide">
+                        <div class="clearfix">
+                            <ul class="nav nav-tabs pull-xs-left" id="advancedTabs" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="ad-service-tab" data-toggle="tab" href="#ad_service" role="tab" aria-controls="ad_service" aria-expanded="false">Service</a>
+                                </li> 
+                                <li class="nav-item">
+                                   <a class="nav-link" id="ad-pod-tab" data-toggle="tab" href="#ad_pod" role="tab" aria-controls="ad_pod" aria-expanded="true">Pod</a>
+                               </li> 
+                           </ul>
+                       </div>
+                       <div class="tab-content">
+                            <div class="row tab-pane active" id="ad_service" class="tab-pane" role="tabpanel" aria-labelledby="ad-service-tab" aria-expanded="false">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="normal-field" class="col-sm-3 control-label">
+                                            Service Setting (Json / Yaml)
+                                        </label>
+                                        <div class="col-sm-9">
+                                            <textarea id="serviceCodeEditor" style="width: 100%;height:300px" required></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row tab-pane" id="ad_pod" class="tab-pane" role="tabpanel" aria-labelledby="ad-pod-tab" aria-expanded="false">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="normal-field" class="col-sm-3 control-label">
+                                            Pod Setting (Json / Yaml)
+                                        </label>
+                                        <div class="col-sm-9">
+                                            <textarea id="podCodeEditor" style="width: 100%;height:300px" required></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <!-- <fieldset>
                  <div class="row">
                     <button type="button" class="btn btn-primary" id="k8s-advanced">
                         <i class="glyphicon glyphicon-chevron-down"></i>&nbsp;&nbsp;Advanced Settings
@@ -136,7 +201,7 @@
                 <div class="row" style="display:none">
                     <div id="advanced" style="width: 100%;height:500px"></div>
                 </div>
-            </fieldset>
+            </fieldset> -->
                 <br/>
                 <div class="form-actions">
                     <div class="row">
