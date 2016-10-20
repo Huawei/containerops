@@ -20,26 +20,25 @@ import {initActionSetup} from "./actionSetup";
 import {getAllComponents,getComponent} from "../component/componentData";
 import {showNewComponent} from "../component/main";
 import {notify} from "../common/notify";
+import {loading} from "../common/loading";
 
 export function clickAction(sd, si) {
-    if(sd.component){
-        showActionEditor(sd);
-    }else{
-        $.ajax({
-            url: "../../templates/action/actionMain.html",
-            type: "GET",
-            cache: false,
-            success: function (data) {
-                $("#pipeline-info-edit").html($(data));
-
+    $.ajax({
+        url: "../../templates/action/actionMain.html",
+        type: "GET",
+        cache: false,
+        success: function (data) {
+            $("#pipeline-info-edit").html($(data));
+            if(sd.component){
+                showActionEditor(sd);
+            }else{
                 $(".usecomponent").on('click',function(){
                     getComponents(sd);
                 });
-            }
-        });
-    }
+            }   
+        }
+    });
     resizeWidget();
-
 }
 
 function showActionEditor(action){
@@ -60,22 +59,33 @@ function showActionEditor(action){
             $("#action-component-select").select2({
                 minimumResultsForSearch: Infinity
             });
-            $("#k8s-service-protocol").select2({
-                minimumResultsForSearch: Infinity
-            });     
+            // $("#k8s-service-protocol").select2({
+            //     minimumResultsForSearch: Infinity
+            // });     
         }
     });
 }
 
 let allComponents;
 function getComponents(action){
-    allComponents = getAllComponents();
-
-    showComponentList(action);
-
-    if(allComponents.length == 0){
-        notify("You have no components to reuse, please go to 'Component' to create one.","info");     
-    }
+    loading.show();
+    var promise = getAllComponents();
+    promise.done(function(data){
+        loading.hide();
+        allComponents = data.list;
+        showComponentList(action);
+        if(allComponents.length == 0){
+            notify("You have no components to reuse, please go to 'Component' to create one.","info");     
+        }
+    });
+    promise.fail(function(xhr,status,error){
+        loading.hide();
+        if(xhr.responseJSON.errMsg){
+            notify(xhr.responseJSON.errMsg,"error");
+        }else{
+            notify("Server is unreachable","error");
+        }
+    });     
 }
 
 function showComponentList(action){
@@ -100,8 +110,8 @@ function showComponentList(action){
                 +'<span class="glyphicon glyphicon-menu-right treeopen" data-name="'+item.name+'"></span>&nbsp;' 
                 + item.name + '</td><td></td><td></td></tr>';
                 $(".componentlist_body").append(pprow);
-                _.each(item.versions,function(version){
-                    var vrow = '<tr data-pname="' + item.name + '" data-version="' + version.version + '" style="height:50px">'
+                _.each(item.version,function(version){
+                    var vrow = '<tr data-pname="' + item.name + '" data-version="' + version.version + '" data-versionid="' + version.id + '" style="height:50px">'
                     +'<td></td><td class="pptd">' + version.version + '</td>'
                     +'<td><button type="button" class="btn btn-primary cload">Load</button></td></tr>';
                     $(".componentlist_body").append(vrow);
@@ -127,23 +137,43 @@ function showComponentList(action){
             $(".cload").on("click",function(event){
                 var target = $(event.currentTarget);
                 var componentName = target.parent().parent().data("pname");
-                var componentVersion = target.parent().parent().data("version");
-                LoadComponentToAction(componentName,componentVersion,action);
+                var componentVersionID = target.parent().parent().data("versionid");
+                LoadComponentToAction(componentName,componentVersionID,action);
             })
         }
     });
 }
 
-function LoadComponentToAction(componentName,componentVersion,action){
-    var component = getComponent(componentName,componentVersion);
-    action.setupData = $.extend(true,{},component.setupData);
-    action.inputJson = $.extend(true,{},component.inputJson);
-    action.outputJson = $.extend(true,{},component.outputJson);
-    action.component = {
-        "name" : componentName,
-        "version" : componentVersion
-    }
-    showActionEditor(action);
+function LoadComponentToAction(componentName,componentVersionID,action){
+    loading.show();
+    var promise = getComponent(componentName,componentVersionID);
+    promise.done(function(data){
+        loading.hide();
+        if(_.isEmpty(data.setupData)){
+            notify("Selected component lack base config, can not be loaded.","error");
+        }else if(_.isEmpty(data.inputJson)){
+            notify("Selected component lack input json, can not be loaded.","error");
+        }else if(_.isEmpty(data.outputJson)){
+            notify("Selected component lack output json, can not be loaded.","error");
+        }else{
+            action.setupData = $.extend(true,{},data.setupData);
+            action.inputJson = $.extend(true,{},data.inputJson);
+            action.outputJson = $.extend(true,{},data.outputJson);
+            action.component = {
+                "name" : componentName,
+                "versionid" : componentVersionID
+            }
+            showActionEditor(action);
+        }
+    });
+    promise.fail(function(xhr,status,error){
+        loading.hide();
+        if(xhr.responseJSON.errMsg){
+            notify(xhr.responseJSON.errMsg,"error");
+        }else{
+            notify("Server is unreachable","error");
+        }
+    });
 }
 
 function jsonChanged(root,json){
