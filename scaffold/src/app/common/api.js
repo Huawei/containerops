@@ -19,11 +19,10 @@ let apiUrlConf = {
 		"eventOutput" : ""
 	},
 	"component" : {
-		"list" : "",
-		"data" : "",
-		"add" : "",
-		"newVersion" : "",
-		"save" : ""
+		"list" : "/pipeline/v1/demo/component",
+		"data" : "/pipeline/v1/demo/component/{componentName}?id={componentID}",
+		"add" : "/pipeline/v1/demo/component",
+		"save" : "/pipeline/v1/demo/component/{componentName}"
 	}
 }
 
@@ -85,43 +84,39 @@ export let pipelineApi = {
 export let componentApi = {
 	"list" : function(){
 		var promise = $.ajax({
-	        "url": apiUrlConf.component.list,
+	        "url": apiUrlConf.host + apiUrlConf.component.list,
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
 	    }); 
 	    return promise;
 	},
-	"data" : function(){
+	"data" : function(name,id){
 		var promise = $.ajax({
-	        "url": apiUrlConf.component.data,
+	        "url": apiUrlConf.host + apiUrlConf.component.data.replace(/{componentName}/g, name).replace(/{componentID}/g, id),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
 	    }); 
 	    return promise;
 	},
-	"add" : function(data){
+	"add" : function(name,version){
+		var data = JSON.stringify({
+				"name":name,
+				"version":version
+			});
 		var promise = $.ajax({
-	        "url": apiUrlConf.component.add,
+	        "url": apiUrlConf.host + apiUrlConf.component.add,
 	        "type": "POST",
 	        "dataType": "json",
 	        "data": data 
 	    }); 
 	    return promise;
 	},
-	"newVersion" : function(data){
+	"save" : function(name,reqbody){
+		var data = JSON.stringify(reqbody);
 		var promise = $.ajax({
-	        "url": apiUrlConf.component.newVersion,
-	        "type": "POST",
-	        "dataType": "json",
-	        "data": data 
-	    }); 
-	    return promise;
-	},
-	"save" : function(data){
-		var promise = $.ajax({
-	        "url": apiUrlConf.component.save,
+	        "url": apiUrlConf.host + apiUrlConf.component.save.replace(/{componentName}/g, name),
 	        "type": "PUT",
 	        "dataType": "json",
 	        "data": data 
