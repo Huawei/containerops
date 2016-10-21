@@ -1368,6 +1368,7 @@ div.jsoneditor-contextmenu ul li ul {
     z-index: 1000;
     padding:20px 20px;
     color:white;
+    overflow: auto;
 }
 
 .new-kv , .rm-kv, .close-env{
