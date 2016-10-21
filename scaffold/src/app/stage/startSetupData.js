@@ -40,7 +40,7 @@ var metadata = {
   "type" : "github",
   "url" : "",
   "token" : "",
-  "event" : "pull_request"
+  "event" : "PullRequest"
 }
 
 
