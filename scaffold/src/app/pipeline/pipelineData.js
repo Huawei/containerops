@@ -44,30 +44,13 @@ export function savePipeline(name,version,versionid,nodes,lines){
     return pipelineApi.save(name,reqbody);
 }
 
-export function addPipelineVersion(oldversion){
+export function addPipelineVersion(name, versionid, nodes,lines){
     if(!$('#newpp-version-form').parsley().validate()){
         return false;
+    }else{
+        var version = $("#pp-newversion").val();
+        return savePipeline(name, version, versionid, nodes,lines)
     }
-    var name = $("#pp-name-newversion").val();
-    var version = $("#pp-newversion").val();
-
-    // call api here, return promise
-
-    // to be removed
-    var pipeline = _.find(allPipelines,function(item){
-        return item.name == name;
-    });
-
-    var oldversion = _.find(pipeline.versions,function(item){
-        return item.version == oldversion;
-    });
-
-    var newversion = {
-        "version" : version,
-        "data" : [].concat(oldversion.data)
-    }
-    pipeline.versions.push(newversion);
-    return true;
 }
 
 export function getEnvs(){

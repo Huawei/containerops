@@ -251,12 +251,23 @@ function showNewPipelineVersion(){
             $("#pp-name-newversion").val(pipelineName);
 
             $("#newppVersionBtn").on('click',function(){
-                // addPipelineVersion(pipelineVersion);
-
-                // to be removed below
-                if(addPipelineVersion(pipelineVersion)){
-                    initPipelinePage();
-                } 
+                var promise = addPipelineVersion(pipelineName,pipelineVersionID,pipelineData,linePathAry);
+                if(promise){
+                    loading.show();
+                    promise.done(function(data){
+                        loading.hide();
+                        notify(data.message,"success");
+                        initPipelinePage();
+                    });
+                    promise.fail(function(xhr,status,error){
+                        loading.hide();
+                        if(xhr.responseJSON.errMsg){
+                            notify(xhr.responseJSON.errMsg,"error");
+                        }else{
+                            notify("Server is unreachable","error");
+                        }
+                    });
+                }
             })
             $("#cancelNewppVersionBtn").on('click',function(){
                 cancelNewPPVersionPage();
