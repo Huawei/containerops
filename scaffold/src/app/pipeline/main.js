@@ -12,7 +12,7 @@ limitations under the License. */
 import {initDesigner} from "./initDesigner";
 import {initPipeline} from "./initPipeline";
 import {initAction} from "./initAction";
-import {getAllPipelines,getPipeline,addPipeline,savePipeline,addPipelineVersion,getEnvs} from "./pipelineData";
+import {getAllPipelines,getPipeline,addPipeline,savePipeline,addPipelineVersion,getEnvs,setEnvs} from "./pipelineData";
 import {notify} from "../common/notify";
 import {loading} from "../common/loading";
 import {setLinePathAry,linePathAry} from "../common/constant";
@@ -305,10 +305,7 @@ function showPipelineEnv(){
                 $("#env-setting").html($(data));
               
                 $(".new-kv").on('click',function(){
-                    pipelineEnvs.push({
-                        "key" : "",
-                        "value" : ""
-                    });
+                    pipelineEnvs.push(["",""]);
                     showEnvKVs();
                 });
 
@@ -336,17 +333,30 @@ function hidePipelineEnv(){
 }
 
 function getEnvList(){
-    pipelineEnvs = getEnvs();
-    showEnvKVs();   
+    loading.show();
+    var promise = getEnvs(pipelineName,pipelineVersionID);
+    promise.done(function(data){
+        loading.hide();
+        pipelineEnvs = _.pairs(data.env);
+        showEnvKVs();
+    });
+    promise.fail(function(xhr,status,error){
+        loading.hide();
+        if(xhr.responseJSON.errMsg){
+            notify(xhr.responseJSON.errMsg,"error");
+        }else{
+            notify("Server is unreachable","error");
+        }
+    });  
 }
 
 function showEnvKVs(){
     $("#envs").empty();
     _.each(pipelineEnvs,function(item,index){
         var row = '<tr data-index="'+index+'"><td>'
-                    +'<input type="text" class="form-control col-md-5 env-key" value="'+item.key+'">'
+                    +'<input type="text" class="form-control col-md-5 env-key" value="'+item[0]+'" required>'
                     + '</td><td>'
-                    +'<input type="text" class="form-control col-md-5 env-value" value="'+item.value+'">'
+                    +'<input type="text" class="form-control col-md-5 env-value" value="'+item[1]+'" required>'
                     + '</td><td>'
                     +'<span class="glyphicon glyphicon-minus rm-kv"></span>'
                     +'</td></tr>';
@@ -360,12 +370,12 @@ function showEnvKVs(){
 
     $(".env-key").on('blur',function(event){
         var index = $(event.currentTarget).parent().parent().data("index");
-        pipelineEnvs[index].key = $(event.currentTarget).val();
+        pipelineEnvs[index][0] = $(event.currentTarget).val();
     });
 
     $(".env-value").on('blur',function(event){
         var index = $(event.currentTarget).parent().parent().data("index");
-        pipelineEnvs[index].value = $(event.currentTarget).val();
+        pipelineEnvs[index][1] = $(event.currentTarget).val();
     });
 
     $(".rm-kv").on('click',function(event){
@@ -374,6 +384,28 @@ function showEnvKVs(){
         showEnvKVs();
     });
 }
+
+function savePipelineEnvs(){
+    var promise = setEnvs(pipelineName,pipelineVersionID,pipelineEnvs);
+    if(promise){
+        loading.show();
+        promise.done(function(data){
+            loading.hide();
+            notify(data.message,"success");
+            hidePipelineEnv();
+        });
+        promise.fail(function(xhr,status,error){
+            loading.hide();
+            if(xhr.responseJSON.errMsg){
+                notify(xhr.responseJSON.errMsg,"error");
+            }else{
+                notify("Server is unreachable","error");
+            }
+            hidePipelineEnv();
+        });
+    }
+}
+
 // $("#pipeline-select").on('change',function(){
 //     showVersionList();
 // })

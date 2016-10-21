@@ -53,6 +53,15 @@ export function addPipelineVersion(name, versionid, nodes,lines){
     }
 }
 
-export function getEnvs(){
-    return [];
+export function getEnvs(name,versionid){
+    return pipelineApi.getEnv(name,versionid);
+}
+
+export function setEnvs(name,versionid,envs){
+    var reqbody = {
+        "id" : versionid,
+        "env" : _.object(envs)
+    }
+
+    return pipelineApi.setEnv(name,reqbody);
 }

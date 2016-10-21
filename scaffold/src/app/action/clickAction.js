@@ -35,10 +35,10 @@ export function clickAction(sd, si) {
                 $(".usecomponent").on('click',function(){
                     getComponents(sd);
                 });
-            }   
+            }  
+            resizeWidget(); 
         }
     });
-    resizeWidget();
 }
 
 function showActionEditor(action){

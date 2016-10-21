@@ -11,6 +11,8 @@ limitations under the License. */
 
 import {jsonEditor} from "../../vendor/jquery.jsoneditor";
 import {notify} from "../common/notify";
+import {pipelineApi} from "../common/api";
+import {loading} from "../common/loading";
 
 var treeEdit_OutputContainer;
 var fromEdit_OutputCodeContainer,fromEdit_OutputTreeContainer;
@@ -130,9 +132,19 @@ export function initFromView(){
 }
 
 export function getOutputForEvent(selecetedEvent){
-    // call api
-
-    var fakereturn = {"event":selecetedEvent};
-    startIOData.outputJson = fakereturn;
-    initFromView();
+    loading.show();
+    var promise = pipelineApi.eventOutput(selecetedEvent);
+    promise.done(function(data){
+        loading.hide();
+        startIOData.outputJson = data.output;
+        initFromView();
+    });
+    promise.fail(function(xhr,status,error){
+        loading.hide();
+        if(xhr.responseJSON.errMsg){
+            notify(xhr.responseJSON.errMsg,"error");
+        }else{
+            notify("Server is unreachable","error");
+        }
+    });
 }
