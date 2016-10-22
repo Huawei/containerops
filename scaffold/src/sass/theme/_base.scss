@@ -1079,23 +1079,47 @@ limitations under the License. */
   .item.array  > .property { background-color: #2D5B89; }
   .item.object > .property { background-color: #E17000; }
   .item.number > .property { background-color: #497B8D; }
+  .item.null > .property { background-color: red;width:150px; }
   .item:after{
     position:absolute;
     left:131px;
     top:0;
     color:#fff;
-    background-color:#aaa;
     line-height:26px;
     width:20px;
     text-align:center;
     border-radius:0 4px 4px 0;
+    border-left:1px solid #fff;
   }
-  .item.string:after{content:"S";}
-  .item.array:after{content:"A";}
-  .item.object:after{content:"O";}
-  .item.number:after{content:"N";}
-  .item.boolean:after{content:"B";}
+  .item.string:after{
+    content:"S";
+    background-color:#009408;
+  }
+  .item.array:after{
+    content:"A";
+    background-color: #2D5B89;
+  }
+  .item.object:after{
+    content:"O";
+    background-color: #E17000;
+  }
+  .item.number:after{
+    content:"N";
+    background-color: #497B8D;
+  }
+  .item.boolean:after{
+    content:"B";
+    background-color:#B1C639;
+  }
 
+  .item.null:after{
+    content:"\e014";
+    background-color:red;
+  }
+  .item.null{
+    font-family:'Glyphicons Halflings';
+
+  }
 }
 
 .bipartite-view.json-editor .appender{
