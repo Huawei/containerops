@@ -33,7 +33,7 @@ var animationForRemove = function(parentId, parentIndex, itemId, itemIndex) {
     var dispappearArray = [target, inputCircle, outputCircle, linkPath];
     var relatedLines = util.findAllRelatedLines(itemId);
     _.each(relatedLines, function(item) {
-        var selector = "." + item.defaultClass;
+        var selector = "#" + item.id;
         dispappearArray.push(selector);
     });
     util.disappearAnimation(dispappearArray);
@@ -152,6 +152,9 @@ export function initAction() {
                                     .attr("xlink:href", function(ed, ei) {
                                         return "../../assets/svg/edit-mouseover-2.svg";
                                     })
+                                    .style({
+                                        "cursor": "pointer"
+                                    })
                             })
                             .on("mouseout", function(ed, ei) {
                                 editBtnShow = false;
@@ -188,6 +191,9 @@ export function initAction() {
                                 constant.buttonView.select("#delete-image-" + ad.id)
                                     .attr("xlink:href", function(d, i) {
                                         return "../../assets/svg/delete-mouseover.svg";
+                                    })
+                                    .style({
+                                        "cursor": "pointer"
                                     })
                             })
                             .on("mouseout", function(dd, di) {

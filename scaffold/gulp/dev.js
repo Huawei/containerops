@@ -144,7 +144,8 @@ gulp.task("dev:watch",  () => {
    browserSync.init({
      server:{
         baseDir:"dev/src"
-     }
+     },
+     ghostMode: false
    })
 });
 
