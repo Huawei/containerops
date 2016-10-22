@@ -17,6 +17,7 @@ import { resizeWidget } from "../theme/widget";
 import { pipelineData } from "../pipeline/main";
 import * as constant from "../common/constant";
 
+
 export var lineInputJSON = {};
 
 export var lineOutputJSON = {};
@@ -26,7 +27,6 @@ export function editLine(editPage, currentLine) {
     var index = currentLine.attr("data-index");
     var id = currentLine.attr("id");
     $("#pipeline-info-edit").html($(editPage));
-
 
     $("#removeLink").click(function() {
         currentLine.remove();
@@ -48,5 +48,14 @@ export function editLine(editPage, currentLine) {
         $("#outputDiv").html("no data");
     }
     bipatiteView(lineInputJSON, lineOutputJSON, constant.linePathAry[index]);
+
+
+    $("#afreshRelation").click(function() {
+        constant.linePathAry[index].relation = undefined;
+        bipatiteView(lineInputJSON, lineOutputJSON, constant.linePathAry[index]);
+        
+    })
+
+
     resizeWidget();
 }
