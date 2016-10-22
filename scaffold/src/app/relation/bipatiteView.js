@@ -38,19 +38,20 @@ function getRelationArray(){
 
 
 function initView(importTree,outputTree,linePathData){
-
+	
 	
 	if(linePathData.relation == undefined){
 		linePathData.relation = getRelationArray();
 	}
 
+	$("#importDiv").html("");
+	$("#outputDiv").html("");
 	construct($("#importDiv"),importTree,linePathData.relation);
 	construct($("#outputDiv"),outputTree,linePathData.relation);
 
 	relationLineInit(linePathData.relation);
-
 	
-
+	
 	$("span.property").mousedown(function(event){
 
 		
@@ -99,6 +100,8 @@ function initView(importTree,outputTree,linePathData){
 	    }
 	})
 
+	
+
 	$("#removeLine").click(function(){
 		var path = $("#bipatiteLineSvg path.active");
 		
@@ -114,6 +117,7 @@ function initView(importTree,outputTree,linePathData){
 
 
 	function construct(root,json){
+
 		for(var i=0;i<json.length;i++){
 
 			var item     = $('<div>',   { 'class': 'item row '+json[i].type, 'data-path': replacePoint(json[i].path) }),
@@ -143,6 +147,8 @@ function initView(importTree,outputTree,linePathData){
 	        item.prepend(expander);
 	    }
 	}
+
+
 
 }
 

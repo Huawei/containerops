@@ -54,7 +54,6 @@ export function dragDropSetPath(options) {
 
         }
 
-
         if (toNodeData != undefined && toNodeData.translateX > fromNodeData.translateX && toNodeData.type === "pipeline-action") {
             setPath({
                 pipelineLineViewId: "pipeline-line-view",
@@ -75,10 +74,5 @@ export function dragDropSetPath(options) {
                 index: linePathAry.length
             });
         }
-
-        // console.log("line data");
-        // console.log(linePathAry);
-
-
     }
 }
