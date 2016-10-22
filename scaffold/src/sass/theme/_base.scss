@@ -1394,3 +1394,14 @@ div.jsoneditor-contextmenu ul li ul {
   opacity: 0.5;
   padding-top: 200px;
 }
+
+// save
+.dropdown-divider {
+  height: 1px;
+  margin: .5rem 0;
+  overflow: hidden;
+  background-color: #e5e5e5;
+}
+.dropdown-item{
+  cursor:pointer;
+}
