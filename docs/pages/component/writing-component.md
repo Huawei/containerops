@@ -3,7 +3,7 @@ title: How Write A DevOps Component
 keywords: component
 tags: [component]
 sidebar: home_sidebar
-permalink: write-component.html
+permalink: writing-component.html
 summary: How Write A DevOps Component
 folder: component
 ---
