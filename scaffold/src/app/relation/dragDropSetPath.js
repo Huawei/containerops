@@ -61,7 +61,6 @@ export function dragDropSetPath(options) {
                 endData: toNodeData,
                 startPoint: { x: fromNodeData.translateX, y: fromNodeData.translateY },
                 endPoint: { x: toNodeData.translateX, y: toNodeData.translateY },
-                defaultClass: _id,
                 id: _id,
                 index: linePathAry.length
             });
@@ -71,7 +70,6 @@ export function dragDropSetPath(options) {
                 endData: toNodeData,
                 startPoint: { x: fromNodeData.translateX, y: fromNodeData.translateY },
                 endPoint: { x: toNodeData.translateX, y: toNodeData.translateY },
-                defaultClass: _id,
                 id: _id,
                 index: linePathAry.length
             });

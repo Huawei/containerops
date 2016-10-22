@@ -97,7 +97,7 @@ entries:
 
     - title: What's Component
       output: web
-      url: /concept-component.html
+      url: /what-component.html
 
     - title: Writing Component
       output: web
@@ -130,7 +130,7 @@ entries:
 
         - title: Java
           output: web
-          url: /web-component.html
+          url: /java-component.html
 
         - title: PHP
           output: web
@@ -174,7 +174,7 @@ entries:
 
       - title: Writing Trigger
         output: web
-        url: /writing-trigger.html
+        url: /writting-trigger.html
 
   - title: Community
     output: web
