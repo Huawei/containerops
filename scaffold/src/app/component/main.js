@@ -12,7 +12,7 @@ limitations under the License. */
 import {getAllComponents,getComponent,addComponent,addComponentVersion,saveComponent,validateComponent} from "./componentData";
 import {initComponentIO} from "./componentIO";
 import {initComponentSetup} from "./componentSetup";
-import {notify} from "../common/notify";
+import {notify,confirm} from "../common/notify";
 import {loading} from "../common/loading";
 
 export let allComponents;
@@ -75,7 +75,7 @@ function showComponentList(){
                 target.hide();
                 target.next().show();
                 var name = target.data("name");
-                $('*[data-pname='+name+']').hide();
+                $('*[data-pname="'+name+'"]').hide();
             });
 
             $(".treeopen").on("click",function(event){
@@ -83,7 +83,7 @@ function showComponentList(){
                 target.hide();
                 target.prev().show();
                 var name = target.data("name");
-                $('*[data-pname='+name+']').show();
+                $('*[data-pname="'+name+'"]').show();
             });
 
             $(".ppview").on("click",function(event){
@@ -181,26 +181,11 @@ function showComponentDesigner(){
             $("#selected_component").text(componentName + " / " + componentVersion); 
 
             $(".backtolist").on('click',function(){
-                initComponentPage();
+                beforeBackToList();
             });
 
             $(".savecomponent").on('click',function(){
-                if(validateComponent(componentData)){
-                    var promise = saveComponent(componentName, componentVersion, componentVersionID, componentData);
-                    loading.show();
-                    promise.done(function(data){
-                        loading.hide();
-                        notify(data.message,"success");
-                    });
-                    promise.fail(function(xhr,status,error){
-                        loading.hide();
-                        if(xhr.responseJSON.errMsg){
-                            notify(xhr.responseJSON.errMsg,"error");
-                        }else{
-                            notify("Server is unreachable","error");
-                        }
-                    });
-                } 
+                saveComponentData();
             });
 
             $(".newcomponentversion").on('click',function(){
@@ -209,8 +194,8 @@ function showComponentDesigner(){
                 }
             });
 
-            $(".newcomponent").on('click',function(){
-                showNewComponent();
+            $(".newcomponentindesigner").on('click',function(){
+                beforeShowNewComponent();
             });
 
             initComponentEdit();
@@ -294,6 +279,70 @@ function cancelNewComponentVersionPage(){
     $("#main").children().show("slow");
 }
 
+function beforeBackToList(){
+    var actions = [
+        {
+            "name":"save",
+            "label":"Yes",
+            "action":function(){
+                saveComponentData(initComponentPage);
+            }
+        },{
+            "name":"back",
+            "label":"No",
+            "action":function(){
+                initComponentPage();
+            }
+        }
+    ]
+    confirm("The component design may be modified, would you like to save the component before go back to list.","info",actions);
+}
+
+function saveComponentData(next){
+    if(validateComponent(componentData)){
+        var promise = saveComponent(componentName, componentVersion, componentVersionID, componentData);
+        loading.show();
+        promise.done(function(data){
+            loading.hide();
+            if(!next){
+                notify(data.message,"success");
+            }else{
+                next();
+            }
+        });
+        promise.fail(function(xhr,status,error){
+            loading.hide();
+            if(!next){
+                if(xhr.responseJSON.errMsg){
+                    notify(xhr.responseJSON.errMsg,"error");
+                }else{
+                    notify("Server is unreachable","error");
+                }
+            }else{
+                next();
+            } 
+        });
+    } 
+}
+
+function beforeShowNewComponent(){
+    var actions = [
+        {
+            "name":"save",
+            "label":"Yes",
+            "action":function(){
+                saveComponentData(showNewComponent);
+            }
+        },{
+            "name":"show",
+            "label":"No",
+            "action":function(){
+                showNewComponent();
+            }
+        }
+    ]
+    confirm("The component design may be modified, would you like to save the component at first.","info",actions);
+}
 // $("#pipeline-select").on('change',function(){
 //     showVersionList();
 // })
