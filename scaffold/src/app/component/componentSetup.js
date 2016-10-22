@@ -35,18 +35,28 @@ export function initComponentSetup(component){
         componentSetupData.setActionTimeout();
     });
 
-    $("#k8s-ip").val(componentSetupData.data.action.ip);
-    $("#k8s-ip").on("blur",function(){
-        componentSetupData.setActionIP();
-    });
+    // $("#k8s-ip").val(componentSetupData.data.action.ip);
+    // $("#k8s-ip").on("blur",function(){
+    //     componentSetupData.setActionIP();
+    // });
 
     // $("#k8s-pod-image").val(componentSetupData.data.pod.spec.containers[0].image);
     // $("#k8s-pod-image").on("blur",function(){
     //     componentSetupData.setK8s(k8sAdvancedEditor);
     // });
-    $("#k8s-pod-image").val(componentSetupData.data.action.image);
-    $("#k8s-pod-image").on("blur",function(){
-        componentSetupData.setActionImage();
+    $("#k8s-pod-image-name").val(componentSetupData.data.action.image.name);
+    $("#k8s-pod-image-name").on("blur",function(){
+        componentSetupData.setActionImageName();
+    });
+
+    $("#k8s-pod-image-tag").val(componentSetupData.data.action.image.tag);
+    $("#k8s-pod-image-tag").on("blur",function(){
+        componentSetupData.setActionImageTag();
+    });
+
+    $("#action-data-from").val(componentSetupData.data.action.datafrom);
+    $("#action-data-from").on("blur",function(){
+        componentSetupData.setActionDataFrom();
     });
 
     // setting way
@@ -68,11 +78,11 @@ export function initComponentSetup(component){
     showSetting();
 
     // base setting
-    $("#k8s-service-port").val(componentSetupData.data.service.spec.ports[0].port);
-    $("#k8s-service-port").on("blur",function(){
-        // componentSetupData.setK8s(k8sAdvancedEditor);
-        componentSetupData.setServicePort();
-    });
+    // $("#k8s-service-port").val(componentSetupData.data.service.spec.ports[0].port);
+    // $("#k8s-service-port").on("blur",function(){
+    //     // componentSetupData.setK8s(k8sAdvancedEditor);
+    //     componentSetupData.setServicePort();
+    // });
 
     $("#k8s-cpu-limits").val(componentSetupData.data.pod.spec.containers[0].resources.limits[0].cpu);
     $("#k8s-cpu-limits").on("blur",function(){
@@ -97,6 +107,9 @@ export function initComponentSetup(component){
         // componentSetupData.setK8s(k8sAdvancedEditor);
         componentSetupData.setMemoryRequest();
     });
+
+    // ports
+    showPorts();
 
     // advanced setting
     $("#serviceCodeEditor").val(JSON.stringify(componentSetupData.data.service_advanced,null,2));
@@ -147,6 +160,59 @@ function showSetting(){
         $("#basesetting").removeClass("hide");
         $("#advancedsetting").addClass("hide");
     }
+}
+
+function showPorts(){
+    $("#ports-setting").empty();
+    _.each(componentSetupData.data.service.spec.ports,function(item,index){
+        var row = '<div class="row"><div class="col-md-5">'
+                        +'<div class="form-group">'
+                            +'<label for="normal-field" class="col-sm-4 control-label">'
+                                +'Service Port'
+                            +'</label>'
+                            +'<div class="col-sm-6" data-index="' + index + '">'
+                                +'<input type="number" name="k8s-service-port" value="' + item.port + '" class="form-control" required min="0" max="65535">'
+                            +'</div>'
+                        +'</div>'
+                    +'</div>'
+                    +'<div class="col-md-5">'
+                        +'<div class="form-group">'
+                            +'<label for="normal-field" class="col-sm-4 control-label">'
+                                +'Node Port'
+                            +'</label>'
+                            +'<div class="col-sm-6" data-index="' + index + '">' 
+                                +'<input type="number" name="k8s-service-node-port" value="' + item.nodePort + '" class="form-control" required min="0" max="65535">'
+                            +'</div>'
+                        +'</div>'
+                    +'</div>'
+                    +'<div class="col-md-2" data-index="' + index + '">'
+                        +'<span class="glyphicon glyphicon-minus rm-port"></span>'
+                    +'</div></div>';
+        $("#ports-setting").append(row);
+    });
+    
+    var addrow = `<div class="row"><div class="col-md-2 col-md-offset-10">
+                        <span class="glyphicon glyphicon-plus add-port"></span>
+                    </div></div>`;
+    $("#ports-setting").append(addrow);
+
+    $("input[name=k8s-service-port]").on("blur",function(event){
+        componentSetupData.setServicePort(event);
+    });
+
+    $("input[name=k8s-service-node-port]").on("blur",function(event){
+        componentSetupData.setServiceNodePort(event);
+    });
+
+    $(".rm-port").on("click",function(event){
+        componentSetupData.removeServicePorts(event);
+        showPorts();
+    });
+
+    $(".add-port").on("click",function(){
+        componentSetupData.addServicePort();
+        showPorts();
+    });
 }
 
 function toJsonYaml(type){

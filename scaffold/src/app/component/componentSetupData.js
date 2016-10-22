@@ -32,21 +32,58 @@ export function setActionTimeout(){
     data.action.timeout = $("#action-timeout").val();
 }
 
-export function setActionIP(){
-    data.action.ip = $("#k8s-ip").val();
+// export function setActionIP(){
+//     data.action.ip = $("#k8s-ip").val();
+// }
+
+// export function setActionImage(){
+//   data.action.image = $("#k8s-pod-image").val();
+// }
+
+export function setActionImageName(){
+  data.action.image.name = $("#k8s-pod-image-name").val();
 }
 
-export function setActionImage(){
-  data.action.image = $("#k8s-pod-image").val();
+export function setActionImageTag(){
+  data.action.image.tag = $("#k8s-pod-image-tag").val();
 }
 
+export function setActionDataFrom(){
+    data.action.datafrom = $("#action-data-from").val();
+}
+
+// setting way
 export function setActionUseAdvanced(value){
   data.action.useAdvanced = value;
 }
 
-export function setServicePort(){
-  data.service.spec.ports[0].port = $("#k8s-service-port").val();
+// ports
+export function setServicePort(event){
+  var target = $(event.currentTarget);
+  var index = target.parent().data("index");
+  var value = target.val();
+  data.service.spec.ports[index].port = value;
 }
+
+export function setServiceNodePort(event){
+  var target = $(event.currentTarget);
+  var index = target.parent().data("index");
+  var value = target.val();
+  data.service.spec.ports[index].nodePort = value;
+}
+
+export function removeServicePorts(event){
+  var index = $(event.currentTarget).parent().data("index");
+  data.service.spec.ports.splice(index,1);
+}
+
+export function addServicePort(){
+  data.service.spec.ports.push({
+    "port" : "",
+    "nodePort" : ""
+  })
+}
+// ports end
 
 export function setCPULimit(){
   data.pod.spec.containers[0].resources.limits[0].cpu = $("#k8s-cpu-limits").val();
@@ -98,14 +135,18 @@ var metadata = {
     "name" : "",
     "timeout" : "",
     "ip" : "",
-    "image" : "",
+    "image" : {
+      "name" : "",
+      "tag" : ""
+    },
     "useAdvanced" : false
   },
   "service" : {
     "spec": {
       "ports": [
         {
-          "port": ""
+          "port": "",
+          "nodePort" : ""
         }
       ]
     }
