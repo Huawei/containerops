@@ -99,7 +99,8 @@ function showComponentList(action){
             $(".newcomponent").on('click',function(){
                 $(".menu-component").parent().addClass("active");
                 $(".menu-pipeline").parent().removeClass("active");
-                savePipelineData(true);
+                notify("Saving current pipeline automatically.","info");
+                savePipelineData();
                 showNewComponent(true);
             })
 

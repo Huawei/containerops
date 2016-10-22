@@ -65,3 +65,12 @@ export function setEnvs(name,versionid,envs){
 
     return pipelineApi.setEnv(name,reqbody);
 }
+
+export function changeState(name,versionid,state){
+    var reqbody = {
+        "id" : versionid,
+        "state" : state
+    }
+
+    return pipelineApi.changeState(name,reqbody);
+}

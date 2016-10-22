@@ -12,8 +12,8 @@ limitations under the License. */
 import {initDesigner} from "./initDesigner";
 import {initPipeline} from "./initPipeline";
 import {initAction} from "./initAction";
-import {getAllPipelines,getPipeline,addPipeline,savePipeline,addPipelineVersion,getEnvs,setEnvs} from "./pipelineData";
-import {notify} from "../common/notify";
+import {getAllPipelines,getPipeline,addPipeline,savePipeline,addPipelineVersion,getEnvs,setEnvs,changeState} from "./pipelineData";
+import {notify,confirm} from "../common/notify";
 import {loading} from "../common/loading";
 import {setLinePathAry,linePathAry} from "../common/constant";
 
@@ -78,7 +78,7 @@ function showPipelineList(){
                 target.hide();
                 target.next().show();
                 var name = target.data("name");
-                $('*[data-pname='+name+']').hide();
+                $('*[data-pname="'+name+'"]').hide();
             });
 
             $(".treeopen").on("click",function(event){
@@ -86,7 +86,7 @@ function showPipelineList(){
                 target.hide();
                 target.prev().show();
                 var name = target.data("name");
-                $('*[data-pname='+name+']').show();
+                $('*[data-pname="'+name+'"]').show();
             });
 
             $(".ppview").on("click",function(event){
@@ -132,6 +132,25 @@ function showNoPipeline(){
             })  
         }
     });
+}
+
+function beforeShowNewPipeline(){
+    var actions = [
+        {
+            "name":"save",
+            "label":"Yes",
+            "action":function(){
+                savePipelineData(showNewPipeline);
+            }
+        },{
+            "name":"show",
+            "label":"No",
+            "action":function(){
+                showNewPipeline();
+            }
+        }
+    ]
+    confirm("The pipeline design may be modified, would you like to save the pipeline at first.","info",actions);
 }
 
 function showNewPipeline(){
@@ -184,7 +203,15 @@ function showPipelineDesigner(){
             drawPipeline();
 
             $(".backtolist").on('click',function(){
-                initPipelinePage();
+                beforeBackToList();
+            });
+
+            $(".runpipeline").on('click',function(){
+                beforeRunPipeline();
+            });
+
+            $(".stoppipeline").on('click',function(){
+                beforeStopPipeline();
             });
 
             $(".savepipeline").on('click',function(){
@@ -195,8 +222,8 @@ function showPipelineDesigner(){
                 showNewPipelineVersion();
             });
 
-            $(".newpipeline").on('click',function(){
-                showNewPipeline();
+            $(".newpipelineindesigner").on('click',function(){
+                beforeShowNewPipeline();
             });
 
             $(".envsetting").on("click",function(event){
@@ -213,27 +240,27 @@ function drawPipeline(){
     // initAction();
 }
 
-export function savePipelineData(silence){
-    if(!silence){
-        loading.show();
-    }
-    
+export function savePipelineData(next){
+    loading.show();
     var promise = savePipeline(pipelineName,pipelineVersion,pipelineVersionID,pipelineData,linePathAry);
     promise.done(function(data){
-        if(!silence){
-            loading.hide();
+        loading.hide();
+        if(!next){
             notify(data.message,"success");
+        }else{
+            next();
         }
-        
     });
     promise.fail(function(xhr,status,error){
-        if(!silence){
-            loading.hide();
+        loading.hide();
+        if(!next){
             if(xhr.responseJSON.errMsg){
                 notify(xhr.responseJSON.errMsg,"error");
             }else{
                 notify("Server is unreachable","error");
             }
+        }else{
+            next();
         } 
     });
 }
@@ -404,6 +431,99 @@ function savePipelineEnvs(){
             hidePipelineEnv();
         });
     }
+}
+
+// run pipeline
+function beforeRunPipeline(){
+    var actions = [
+        {
+            "name":"saveAndRun",
+            "label":"Yes, save it first.",
+            "action":function(){
+                savePipelineData(runPipeline);
+            }
+        },{
+            "name":"run",
+            "label":"No, just run it.",
+            "action":function(){
+                runPipeline();
+            }
+        }
+    ]
+    confirm("The pipeline design may be modified, would you like to save the pipeline before run it.","info",actions);
+}
+
+function runPipeline(){
+    loading.show();
+    var promise = changeState(pipelineName,pipelineVersionID,1);
+    promise.done(function(data){
+        loading.hide();
+        notify(data.message,"success");
+    });
+    promise.fail(function(xhr,status,error){
+        loading.hide();
+        if(xhr.responseJSON.errMsg){
+            notify(xhr.responseJSON.errMsg,"error");
+        }else{
+            notify("Server is unreachable","error");
+        }
+    });
+}
+
+//stop pipeline
+function beforeStopPipeline(){
+    var actions = [
+        {
+            "name":"saveAndStop",
+            "label":"Yes, save it first.",
+            "action":function(){
+                savePipelineData(stopPipeline);
+            }
+        },{
+            "name":"stop",
+            "label":"No, just stop it.",
+            "action":function(){
+                stopPipeline();
+            }
+        }
+    ]
+    confirm("The pipeline design may be modified, would you like to save the pipeline before stop it.","info",actions);
+}
+
+function stopPipeline(){
+    loading.show();
+    var promise = changeState(pipelineName,pipelineVersionID,0);
+    promise.done(function(data){
+        loading.hide();
+        notify(data.message,"success");
+    });
+    promise.fail(function(xhr,status,error){
+        loading.hide();
+        if(xhr.responseJSON.errMsg){
+            notify(xhr.responseJSON.errMsg,"error");
+        }else{
+            notify("Server is unreachable","error");
+        }
+    });
+}
+
+function beforeBackToList(){
+    var actions = [
+        {
+            "name":"save",
+            "label":"Yes",
+            "action":function(){
+                savePipelineData(initPipelinePage);
+            }
+        },{
+            "name":"back",
+            "label":"No",
+            "action":function(){
+                initPipelinePage();
+            }
+        }
+    ]
+    confirm("The pipeline design may be modified, would you like to save the pipeline before go back to list.","info",actions);
 }
 
 // $("#pipeline-select").on('change',function(){

@@ -16,6 +16,32 @@ export function notify(msg, type) {
         "message": msg,
         "type": type,
         /* success, error, info*/
-        "showCloseButton": true
+        "showCloseButton": true,
+        "hideAfter" : 3
     });
+}
+
+export function confirm(msg, type,actions) {
+    // actions is an array of {"name":"","label":"","action":function}
+    var options = {
+        "message": msg,
+        "type": type,
+        /* success, error, info*/
+        "showCloseButton": true,
+        "hideAfter" : 60,
+        "actions" : {}
+    }
+
+    _.each(actions,function(item){
+        var oneAction = {
+            "label" : item.label,
+            "action" : function(){
+                item.action();
+                this.hide();
+            }
+        }
+        options.actions[item.name] = oneAction;
+    })
+
+    Messenger().post(options);
 }

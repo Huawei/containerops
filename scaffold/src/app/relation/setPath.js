@@ -37,7 +37,6 @@ export function setPath(options) {
         .attr("stroke-opacity", "0.2")
         .attr("stroke", "green")
         .attr("stroke-width", 15)
-        .attr("class", options.defaultClass)
         .attr("data-index", options.index)
         .attr("id", options.id)
         .on("mouseover", function() {
