@@ -72,5 +72,6 @@ export function validateComponent(componentData){
 export var newComponentData = {
     "setupData" : {},
     "inputJson" : {},
-    "outputJson" : {}
+    "outputJson" : {},
+    "env" :{}
 }

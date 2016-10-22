@@ -12,6 +12,8 @@ limitations under the License. */
 import {getAllComponents,getComponent,addComponent,addComponentVersion,saveComponent,validateComponent} from "./componentData";
 import {initComponentIO} from "./componentIO";
 import {initComponentSetup} from "./componentSetup";
+import {initComponentEnv} from "./componentEnv";
+import {getWholeEnvs} from "./componentEnvData";
 import {notify,confirm} from "../common/notify";
 import {loading} from "../common/loading";
 
@@ -215,6 +217,8 @@ function initComponentEdit(){
 
             initComponentIO(componentData);
 
+            initComponentEnv(componentData);
+
             // view select init
             $("#action-component-select").select2({
                minimumResultsForSearch: Infinity
@@ -300,6 +304,7 @@ function beforeBackToList(){
 
 function saveComponentData(next){
     if(validateComponent(componentData)){
+        componentData.env = getWholeEnvs();
         var promise = saveComponent(componentName, componentVersion, componentVersionID, componentData);
         loading.show();
         promise.done(function(data){
