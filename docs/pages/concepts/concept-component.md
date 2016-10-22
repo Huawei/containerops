@@ -1,11 +1,11 @@
 ---
-title: What's Customized DevOps Component 
+title:  Concepts Of Component 
 keywords: component
 tags: [component]
 sidebar: home_sidebar
 permalink: concept-component.html
 summary: What's Customized DevOps Component
-folder: component
+folder: concept
 ---
 
 ## What's Customized DevOps Component
