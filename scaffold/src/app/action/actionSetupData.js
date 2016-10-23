@@ -36,32 +36,74 @@ export function setActionIP(){
     data.action.ip = $("#k8s-ip").val();
 }
 
-export function setActionImage(){
-  data.action.image = $("#k8s-pod-image").val();
+export function setActionAPIServer(){
+    data.action.apiserver = $("#k8s-api-server").val();
 }
 
+// export function setActionImage(){
+//   data.action.image = $("#k8s-pod-image").val();
+// }
+
+export function setActionImageName(){
+  data.action.image.name = $("#k8s-pod-image-name").val();
+}
+
+export function setActionImageTag(){
+  data.action.image.tag = $("#k8s-pod-image-tag").val();
+}
+
+export function setActionDataFrom(){
+    data.action.datafrom = $("#action-data-from").val();
+}
+
+// setting way
 export function setActionUseAdvanced(value){
   data.action.useAdvanced = value;
 }
 
-export function setServicePort(){
-  data.service.spec.ports[0].port = $("#k8s-service-port").val();
+// ports
+export function setServicePort(event){
+  var target = $(event.currentTarget);
+  var index = target.parent().data("index");
+  var value = target.val();
+  data.service.spec.ports[index].port = value;
+  data.service.spec.ports[index].targetPort = value;
 }
 
+export function setServiceNodePort(event){
+  var target = $(event.currentTarget);
+  var index = target.parent().data("index");
+  var value = target.val();
+  data.service.spec.ports[index].nodePort = value;
+}
+
+export function removeServicePorts(event){
+  var index = $(event.currentTarget).parent().data("index");
+  data.service.spec.ports.splice(index,1);
+}
+
+export function addServicePort(){
+  data.service.spec.ports.push({
+    "port" : "",
+    "nodePort" : ""
+  })
+}
+// ports end
+
 export function setCPULimit(){
-  data.pod.spec.containers[0].resources.limits[0].cpu = $("#k8s-cpu-limits").val();
+  data.pod.spec.containers[0].resources.limits.cpu = $("#k8s-cpu-limits").val();
 }
 
 export function setCPURequest(){
-  data.pod.spec.containers[0].resources.requests[0].cpu = $("#k8s-cpu-requests").val();
+  data.pod.spec.containers[0].resources.requests.cpu = $("#k8s-cpu-requests").val();
 }
 
 export function setMemoryLimit(){
-  data.pod.spec.containers[0].resources.limits[0].memory = $("#k8s-memory-limits").val();
+  data.pod.spec.containers[0].resources.limits.memory = $("#k8s-memory-limits").val();
 }
 
 export function setMemoryRequest(){
-  data.pod.spec.containers[0].resources.requests[0].memory = $("#k8s-memory-requests").val();
+  data.pod.spec.containers[0].resources.requests.memory = $("#k8s-memory-requests").val();
 }
 
 export function setServiceAdvanced(value){
@@ -98,14 +140,21 @@ var metadata = {
     "name" : "",
     "timeout" : "",
     "ip" : "",
-    "image" : "",
+    "apiserver" : "",
+    "image" : {
+      "name" : "",
+      "tag" : ""
+    },
     "useAdvanced" : false
   },
   "service" : {
     "spec": {
+      "type":"NodePort",
       "ports": [
         {
-          "port": ""
+          "port": "",
+          "targetPort" : "",
+          "nodePort" : ""
         }
       ]
     }
@@ -115,8 +164,8 @@ var metadata = {
       "containers": [
         {
           "resources": {
-            "limits":[ {"cpu": 4.0, "memory": "99Mi"} ],
-            "requests":[ {"cpu": 4.0, "memory": "99Mi"} ]
+            "limits":{"cpu": 4.0, "memory": "99Mi"},
+            "requests":{"cpu": 4.0, "memory": "99Mi"}
           }
         }
       ]

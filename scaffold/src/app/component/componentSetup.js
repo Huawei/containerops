@@ -84,25 +84,25 @@ export function initComponentSetup(component){
     //     componentSetupData.setServicePort();
     // });
 
-    $("#k8s-cpu-limits").val(componentSetupData.data.pod.spec.containers[0].resources.limits[0].cpu);
+    $("#k8s-cpu-limits").val(componentSetupData.data.pod.spec.containers[0].resources.limits.cpu);
     $("#k8s-cpu-limits").on("blur",function(){
         // componentSetupData.setK8s(k8sAdvancedEditor);
         componentSetupData.setCPULimit();
     });
 
-    $("#k8s-cpu-requests").val(componentSetupData.data.pod.spec.containers[0].resources.requests[0].cpu);
+    $("#k8s-cpu-requests").val(componentSetupData.data.pod.spec.containers[0].resources.requests.cpu);
     $("#k8s-cpu-requests").on("blur",function(){
         // componentSetupData.setK8s(k8sAdvancedEditor);
         componentSetupData.setCPURequest();
     });
 
-    $("#k8s-memory-limits").val(componentSetupData.data.pod.spec.containers[0].resources.limits[0].memory);
+    $("#k8s-memory-limits").val(componentSetupData.data.pod.spec.containers[0].resources.limits.memory);
     $("#k8s-memory-limits").on("blur",function(){
         // componentSetupData.setK8s(k8sAdvancedEditor);
         componentSetupData.setMemoryLimit();
     });
 
-    $("#k8s-memory-requests").val(componentSetupData.data.pod.spec.containers[0].resources.requests[0].memory);
+    $("#k8s-memory-requests").val(componentSetupData.data.pod.spec.containers[0].resources.requests.memory);
     $("#k8s-memory-requests").on("blur",function(){
         // componentSetupData.setK8s(k8sAdvancedEditor);
         componentSetupData.setMemoryRequest();

@@ -9,22 +9,22 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. */
 
-import * as componentEnvData from "./componentEnvData";
+import * as actionEnvData from "./actionEnvData";
 
-export function initComponentEnv(component){
-    componentEnvData.getComponentEnvData(component);
+export function initActionEnv(action){
+    actionEnvData.getActionEnvData(action);
 
-    showComponentEnvKVs();  
+    showActionEnvKVs();  
 
     $(".c-new-kv").on('click',function(){
-        componentEnvData.addEnv();
-        showComponentEnvKVs();
+        actionEnvData.addEnv();
+        showActionEnvKVs();
     });
 }
 
-function showComponentEnvKVs(){
-    $("#component-envs").empty();
-    _.each(componentEnvData.data,function(item,index){
+function showActionEnvKVs(){
+    $("#action-envs").empty();
+    _.each(actionEnvData.data,function(item,index){
         var row = '<tr data-index="'+index+'"><td>'
                     +'<input type="text" class="form-control col-md-5 c-env-key" value="'+item.key+'" required>'
                     + '</td><td>'
@@ -32,7 +32,7 @@ function showComponentEnvKVs(){
                     + '</td><td>'
                     +'<span class="glyphicon glyphicon-minus c-rm-kv"></span>'
                     +'</td></tr>';
-        $("#component-envs").append(row);
+        $("#action-envs").append(row);
     });
     
 
@@ -42,15 +42,15 @@ function showComponentEnvKVs(){
     });
 
     $(".c-env-key").on('blur',function(event){
-        componentEnvData.setEnvKey(event);
+        actionEnvData.setEnvKey(event);
     });
 
     $(".c-env-value").on('blur',function(event){
-        componentEnvData.setEnvValue(event);
+        actionEnvData.setEnvValue(event);
     });
 
     $(".c-rm-kv").on('click',function(event){
-        componentEnvData.removeEnv(event);
-        showComponentEnvKVs();
+        actionEnvData.removeEnv(event);
+        showActionEnvKVs();
     }); 
 }
