@@ -63,6 +63,7 @@ export function setServicePort(event){
   var index = target.parent().data("index");
   var value = target.val();
   data.service.spec.ports[index].port = value;
+  data.service.spec.ports[index].targetPort = value;
 }
 
 export function setServiceNodePort(event){
@@ -86,19 +87,19 @@ export function addServicePort(){
 // ports end
 
 export function setCPULimit(){
-  data.pod.spec.containers[0].resources.limits[0].cpu = $("#k8s-cpu-limits").val();
+  data.pod.spec.containers[0].resources.limits.cpu = $("#k8s-cpu-limits").val();
 }
 
 export function setCPURequest(){
-  data.pod.spec.containers[0].resources.requests[0].cpu = $("#k8s-cpu-requests").val();
+  data.pod.spec.containers[0].resources.requests.cpu = $("#k8s-cpu-requests").val();
 }
 
 export function setMemoryLimit(){
-  data.pod.spec.containers[0].resources.limits[0].memory = $("#k8s-memory-limits").val();
+  data.pod.spec.containers[0].resources.limits.memory = $("#k8s-memory-limits").val();
 }
 
 export function setMemoryRequest(){
-  data.pod.spec.containers[0].resources.requests[0].memory = $("#k8s-memory-requests").val();
+  data.pod.spec.containers[0].resources.requests.memory = $("#k8s-memory-requests").val();
 }
 
 export function setServiceAdvanced(value){
@@ -135,6 +136,7 @@ var metadata = {
     "name" : "",
     "timeout" : "",
     "ip" : "",
+    "apiserver" : "",
     "image" : {
       "name" : "",
       "tag" : ""
@@ -143,9 +145,11 @@ var metadata = {
   },
   "service" : {
     "spec": {
+      "type":"NodePort",
       "ports": [
         {
           "port": "",
+          "targetPort" : "",
           "nodePort" : ""
         }
       ]
@@ -156,8 +160,8 @@ var metadata = {
       "containers": [
         {
           "resources": {
-            "limits":[ {"cpu": 4.0, "memory": "99Mi"} ],
-            "requests":[ {"cpu": 4.0, "memory": "99Mi"} ]
+            "limits":{"cpu": 4.0, "memory": "99Mi"},
+            "requests":{"cpu": 4.0, "memory": "99Mi"}
           }
         }
       ]
