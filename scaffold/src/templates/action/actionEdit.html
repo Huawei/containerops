@@ -15,7 +15,9 @@
             <li class="nav-item">
                 <a class="nav-link" id="input-output-tab" data-toggle="tab" href="#input_output" role="tab" aria-controls="input_output" aria-expanded="true">Input &amp; Output</a>
             </li> 
-
+            <li class="nav-item">
+                <a class="nav-link" id="env-tab" data-toggle="tab" href="#env" role="tab" aria-controls="env" aria-expanded="true">Env Setting</a>
+            </li>
         </ul>
     </div>
     <div class="tab-content mb-lg" id="actionTabsContent">
@@ -48,10 +50,32 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="normal-field" class="col-sm-3 control-label">
-                                    Image
+                                    Image Name
                                 </label>
                                 <div class="col-sm-6">
-                                    <input type="text" id="k8s-pod-image" name="k8s-pod-image" class="form-control" required>
+                                    <input type="text" id="k8s-pod-image-name" name="k8s-pod-image-name" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="normal-field" class="col-sm-3 control-label">
+                                    Image Tag
+                                </label>
+                                <div class="col-sm-6">
+                                    <input type="text" id="k8s-pod-image-tag" name="k8s-pod-image-tag" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="normal-field" class="col-sm-3 control-label">
+                                    Data From
+                                </label>
+                                <div class="col-sm-6">
+                                    <input type="text" id="action-data-from" name="action-data-from" class="form-control" required>
                                 </div>
                             </div>
                         </div>
@@ -62,6 +86,18 @@
                                 </label>
                                 <div class="col-sm-6">
                                     <input type="text" id="k8s-ip" name="k8s-ip" class="form-control" required pattern="/((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d))))/">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="normal-field" class="col-sm-3 control-label">
+                                    Kubernetes API Server
+                                </label>
+                                <div class="col-sm-6">
+                                    <input type="text" id="k8s-api-server" name="k8s-api-server" class="form-control" required>
                                 </div>
                             </div>
                         </div>
@@ -87,19 +123,7 @@
             <form id="base-setting-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
                 <fieldset>
                     <div id="basesetting" class="hide">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="normal-field" class="col-sm-3 control-label">
-                                        Service Port
-                                    </label>
-                                    <div class="col-sm-6">
-                                        <input type="text" id="k8s-service-port" name="k8s-service-port" class="form-control" required pattern="/^([0-9]|[1-9]\d|[1-9]\d{2}|[1-9]\d{3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
+                        <div class="row" style="background-color:#eaeaea;padding-top:20px">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="normal-field" class="col-sm-3 control-label">
@@ -121,7 +145,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row" style="background-color:#eaeaea;">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="normal-field" class="col-sm-3 control-label">
@@ -142,6 +166,8 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <div style="background-color:#c8c8c8;padding-top:20px;padding-bottom:20px" id="ports-setting" class="row">
                         </div>
                     </div>
                 </fieldset>
@@ -280,6 +306,20 @@
         </div>
     </div>
 </div>
-
-</div>
+        <div class="tab-pane" id="env" role="tabpanel" aria-labelledby="env-tab" aria-expanded="false">
+           <div class="col-lg-12" style="padding:30px">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                        <th><span class="glyphicon glyphicon-plus c-new-kv"></span></th>
+                    </tr>
+                </thead>
+                <tbody id="action-envs">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </div>
 </div>
