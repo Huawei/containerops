@@ -13,7 +13,6 @@ import {getAllComponents,getComponent,addComponent,addComponentVersion,saveCompo
 import {initComponentIO} from "./componentIO";
 import {initComponentSetup} from "./componentSetup";
 import {initComponentEnv} from "./componentEnv";
-import {getWholeEnvs} from "./componentEnvData";
 import {notify,confirm} from "../common/notify";
 import {loading} from "../common/loading";
 
@@ -304,7 +303,6 @@ function beforeBackToList(){
 
 function saveComponentData(next){
     if(validateComponent(componentData)){
-        componentData.env = getWholeEnvs();
         var promise = saveComponent(componentName, componentVersion, componentVersionID, componentData);
         loading.show();
         promise.done(function(data){

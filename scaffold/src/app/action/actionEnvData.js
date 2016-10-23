@@ -11,12 +11,12 @@ limitations under the License. */
 
 export let data;
 
-export function getComponentEnvData(component){
-    if(!_.isUndefined(component.env) && !_.isEmpty(component.env)){
-      data = component.env;
+export function getActionEnvData(action){
+    if(!_.isUndefined(action.env) && !_.isEmpty(action.env)){
+      data = action.env;
     }else{
       data = [];
-      component.env = data;
+      action.env = data;
     } 
 }
 

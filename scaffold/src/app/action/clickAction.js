@@ -17,6 +17,7 @@ import {pipelineData,savePipelineData} from "../pipeline/main";
 import {resizeWidget} from "../theme/widget";
 import {initActionIO} from "./actionIO";
 import {initActionSetup} from "./actionSetup";
+import {initActionEnv} from "./actionEnv";
 import {getAllComponents,getComponent} from "../component/componentData";
 import {showNewComponent} from "../component/main";
 import {notify} from "../common/notify";
@@ -52,6 +53,8 @@ function showActionEditor(action){
             initActionSetup(action);
 
             initActionIO(action);
+
+            initActionEnv(action);
 
             $("#uuid").attr("value", action.id);
 
@@ -160,6 +163,7 @@ function LoadComponentToAction(componentName,componentVersionID,action){
             action.setupData = $.extend(true,{},data.setupData);
             action.inputJson = $.extend(true,{},data.inputJson);
             action.outputJson = $.extend(true,{},data.outputJson);
+            action.env = [].concat(data.env);
             action.component = {
                 "name" : componentName,
                 "versionid" : componentVersionID
