@@ -10,37 +10,29 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import * as util from "../common/util";
+import * as constant from "../common/constant";
 
-export function mouseoverRelevantPipeline(thisData){
-    var pathAry = d3.selectAll("#pipeline-line-view path")[0];
-    pathAry.forEach(function(i){
-       try{
-            var _path = d3.select(i),
-                _class = _path.attr("class");
-            if(!!_class){
-                // _path.attr("stroke-opacity","0.1");
-            }
-           
-            if(_class.indexOf(thisData.id) == 0){
-                i.parentNode.appendChild(i);
-                _path.attr("stroke-opacity","1");
-            }
-       }catch(e){
-
-       }
-      
-    })
+export function mouseoverRelevantPipeline(param) {
+    var outputLines = util.findOutputLines(param.id);
+    _.each(outputLines, function(line) {
+        d3.select("#" + line.id).attr("stroke", "#81D9EC");
+    });
 }
 
 
-export function mouseoutRelevantPipeline(){
-    var pathAry = d3.selectAll("#pipeline-line-view path")[0];
-    pathAry.forEach(function(i){
-        var _path = d3.select(i),
-             _class = _path.attr("class");
-        if(!!_class){
-            _path.attr("stroke-opacity","0.2");
-         }
-      
-    })
+export function mouseoutRelevantPipeline(param) {
+    var outputLines = util.findOutputLines(param.id);
+    var tempLines = constant.linePathAry;
+    if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "line") {
+        var id = constant.currentSelectedItem.data.attr("id");
+        var currentLineData = _.find(constant.linePathAry, function(line) {
+            return id == line.id;
+        })
+        tempLines = _.without(outputLines, currentLineData);
+    }
+
+    _.each(tempLines, function(line) {
+        d3.select("#" + line.id).attr("stroke", "#E6F3E9");
+    });
 }

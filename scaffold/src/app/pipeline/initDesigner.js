@@ -12,7 +12,7 @@
 */
 
 import * as constant from "../common/constant";
-
+import * as initButton from "./initButton";
 let linesView, actionsView, pipelineView, buttonView;
 
 export function initDesigner() {
@@ -22,7 +22,7 @@ export function initDesigner() {
     constant.setSvgWidth("100%");
     constant.setSvgHeight($div.height());
     constant.setPipelineNodeStartX(50);
-    constant.setPipelineNodeStartY($div.height() * 0.2);
+    constant.setPipelineNodeStartY(($div.height() + 2 * initButton.buttonVerticalSpace + initButton.buttonHeight) * 0.2);
 
     $div.empty();
 
@@ -69,6 +69,11 @@ export function initDesigner() {
         .attr("height", constant.svgHeight)
         .attr("id", "actionLinkView");
 
+    let treeView = g.append("g")
+        .attr("width", constant.svgWidth)
+        .attr("height", constant.svgHeight)
+        .attr("id", "treeView");
+
 
     constant.setSvg(svg);
     constant.setG(g);
@@ -77,10 +82,11 @@ export function initDesigner() {
     constant.setActionsView(actionsView);
     constant.setPipelineView(pipelineView);
     constant.setButtonView(buttonView);
+    constant.setTreeView(treeView);
 }
 
 function clicked(d, i) {
-    constant.buttonView.selectAll("image").remove();
+    // constant.buttonView.selectAll("image").remove();
     if (d3.event.defaultPrevented) return; // zoomed
     d3.select(this).transition()
         .transition()
@@ -89,7 +95,7 @@ function clicked(d, i) {
 function zoomed() {
     pipelineView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
     actionsView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
-    buttonView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+    // buttonView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
     linesView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
 }
 
