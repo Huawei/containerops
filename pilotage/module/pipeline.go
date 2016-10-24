@@ -1428,6 +1428,30 @@ func createActionByDefine(actionDefineList []map[string]interface{}, stageId int
 			outputStr = string(outputDescBytes)
 		}
 
+		allEnvMap := make(map[string]string)
+		if envMap, ok := actionDefine["env"].([]interface{}); ok {
+			for _, envInfo := range envMap {
+				envInfoMap, ok := envInfo.(map[string]interface{})
+				if !ok {
+					fmt.Println(envInfo)
+					fmt.Println(envInfo.(int64))
+					return nil, errors.New("action's env set is not a json")
+				}
+
+				key, ok := envInfoMap["key"].(string)
+				if !ok {
+					return nil, errors.New("action's key is not a string")
+				}
+
+				value, ok := envInfoMap["value"].(string)
+				if !ok {
+					return nil, errors.New("action's value is not a string")
+				}
+				allEnvMap[key] = value
+			}
+		}
+		envBytes, _ := json.Marshal(allEnvMap)
+
 		// get aciont line info
 		actionId, ok := actionDefine["id"].(string)
 		if !ok {
@@ -1451,6 +1475,7 @@ func createActionByDefine(actionDefineList []map[string]interface{}, stageId int
 		action.Input = inputStr
 		action.Output = outputStr
 		action.Timeout = actionTimeout
+		action.Environment = string(envBytes)
 
 		err := action.GetAction().Save(action).Error
 		if err != nil {
