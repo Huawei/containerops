@@ -45,7 +45,7 @@ export function dragDropSetPath(options) {
         try {
             var toNodeData = d3.select(e.target)[0][0].__data__; /* target node(action) data */
             var _id = fromNodeData.id + "-" + toNodeData.id; /* id is set to from data id add target id */
-            if (d3.selectAll("." + _id)[0].length > 0) {
+            if (d3.selectAll("#" + _id)[0].length > 0) {
                 notify("Duplicate addition is prohibited", "error");
                 return false;
             }
