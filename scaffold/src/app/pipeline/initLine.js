@@ -80,6 +80,7 @@ export function initLine() {
                 })
                 /* mouse over the circle to draw line from start stage */
                 .on("mousedown", function(cd, ci) {
+                    // this.parentNode.appendChild(this); 
                     d3.event.stopPropagation();
                     dragDropSetPath({
                         "data": d,
