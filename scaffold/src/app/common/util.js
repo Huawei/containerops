@@ -39,11 +39,13 @@ export function findInputLines(itemId) {
     var relatedLines = _.filter(constant.linePathAry, function(item) {
         return (item.endData != undefined) && (item.endData.id == itemId)
     });
+    return relatedLines;
 }
 export function findOutputLines(itemId) {
     var relatedLines = _.filter(constant.linePathAry, function(item) {
         return (item.startData != undefined) && (item.startData.id == itemId)
     });
+    return relatedLines;
 }
 export function removeRelatedLines(args) {
     if (isString(args)) {
@@ -99,5 +101,43 @@ export function transformAnimation(args, type) {
 
             });
     })
+
+}
+
+export function judgeType(target) {
+    if (isObject(target)) {
+        return "object";
+    } else if (isArray(target)) {
+        return "array";
+    } else if (isBoolean(target)) {
+        return "boolean";
+    } else if (isString(target)) {
+        return "string";
+    } else if (isNumber(target)) {
+        return "number";
+    } else {
+        return "null";
+    }
+}
+
+export function changeCurrentElement(previousData) {
+    if (previousData != null) {
+        switch (previousData.type) {
+            case "stage":
+                d3.select("#" + previousData.data.id).attr("href", "../../assets/svg/stage-latest.svg");
+                break;
+            case "start":
+                d3.select("#" + previousData.data.id).attr("href", "../../assets/svg/start-latest.svg");
+                break;
+            case "action":
+                d3.select("#" + previousData.data.id).attr("href", "../../assets/svg/action-bottom.svg");
+                break;
+            case "line":
+                d3.select("#" + previousData.data.attr("id")).attr("stroke", "#E6F3E9");
+                break;
+
+        }
+
+    }
 
 }

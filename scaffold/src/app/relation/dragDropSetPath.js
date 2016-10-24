@@ -32,7 +32,7 @@ export function dragDropSetPath(options) {
             _path.attr("d", getPathData({ x: _startX - 60, y: _startY - (105 + _pageTitleHeight) }, { x: _startX + diffX - 40, y: _startY + diffY - (130 + _pageTitleHeight) }))
                 .attr("fill", "none")
                 .attr("stroke-opacity", "1")
-                .attr("stroke", "green")
+                .attr("stroke", "#81D9EC")
                 .attr("stroke-width", 10);
         }
         /* remove temporary line and draw the real line between nodes with data */
@@ -46,7 +46,6 @@ export function dragDropSetPath(options) {
             var toNodeData = d3.select(e.target)[0][0].__data__; /* target node(action) data */
             var _id = fromNodeData.id + "-" + toNodeData.id; /* id is set to from data id add target id */
             if (d3.selectAll("." + _id)[0].length > 0) {
-                // alert("Repeated addition");
                 notify("Duplicate addition is prohibited", "error");
                 return false;
             }
@@ -61,8 +60,7 @@ export function dragDropSetPath(options) {
                 endData: toNodeData,
                 startPoint: { x: fromNodeData.translateX, y: fromNodeData.translateY },
                 endPoint: { x: toNodeData.translateX, y: toNodeData.translateY },
-                id: _id,
-                index: linePathAry.length
+                id: _id
             });
             linePathAry.push({
                 pipelineLineViewId: "pipeline-line-view",
@@ -70,8 +68,7 @@ export function dragDropSetPath(options) {
                 endData: toNodeData,
                 startPoint: { x: fromNodeData.translateX, y: fromNodeData.translateY },
                 endPoint: { x: toNodeData.translateX, y: toNodeData.translateY },
-                id: _id,
-                index: linePathAry.length
+                id: _id
             });
         }
     }

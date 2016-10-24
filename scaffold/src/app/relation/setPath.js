@@ -14,6 +14,8 @@
 import * as constant from "../common/constant";
 import { drag } from "../common/drag";
 import { editLine } from "./editLine";
+import * as util from "../common/util";
+import * as initButton from "../pipeline/initButton";
 
 /* draw real line between from node and to node */
 export function setPath(options) {
@@ -24,44 +26,41 @@ export function setPath(options) {
     var startPoint = {},
         endPoint = {};
     if (fromDom.type == constant.PIPELINE_START) {
-        startPoint = { x: fromDom.translateX - 1, y: fromDom.translateY + 42 };
+        startPoint = { x: fromDom.translateX + 1, y: fromDom.translateY + 57 };
     } else if (fromDom.type == constant.PIPELINE_ACTION) {
-        startPoint = { x: fromDom.translateX + 12, y: fromDom.translateY };
+        startPoint = { x: fromDom.translateX + 19, y: fromDom.translateY + 4 };
     }
-    endPoint = { x: toDom.translateX - 12, y: toDom.translateY };
+    endPoint = { x: toDom.translateX - 12, y: toDom.translateY + 4 };
 
     constant.lineView[options.pipelineLineViewId]
         .append("path")
         .attr("d", getPathData(startPoint, endPoint))
         .attr("fill", "none")
-        .attr("stroke-opacity", "0.2")
-        .attr("stroke", "green")
+        .attr("stroke-opacity", "1")
+        .attr("stroke", "#E6F3E9")
         .attr("stroke-width", 15)
         .attr("data-index", options.index)
         .attr("id", options.id)
-        .on("mouseover", function() {
-            // this.parentNode.appendChild(this);
-
-            d3.select(this).attr("stroke-opacity", "1");
-        })
-        .on("mouseout", function() {
-            d3.select(this).attr("stroke-opacity", "0.2");
-        })
+        .style("cursor", "pointer")
         .on("click", function(d) {
             var self = $(this);
+            util.changeCurrentElement(constant.currentSelectedItem);
+            constant.setCurrentSelectedItem({ "data": self, "type": "line" });
+            initButton.updateButtonGroup("line");
+            d3.select(this).attr("stroke", "#81D9EC");
             $.ajax({
                 url: "../../templates/relation/editLine.html",
                 type: "GET",
                 cache: false,
                 success: function(data) {
+
                     editLine(data, self);
                 }
             });
+
         });
 
 }
-
-
 
 export function getPathData(startPoint, endPoint) {
     var curvature = .5;

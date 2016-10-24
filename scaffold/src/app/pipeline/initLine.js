@@ -38,12 +38,12 @@ export function initLine() {
                 .append("path")
                 .attr("d", function() {
                     return diagonal({
-                        source: { x: d.translateX - constant.PipelineNodeSpaceSize, y: constant.pipelineNodeStartY + 22.5 },
-                        target: { x: d.translateX + 2, y: constant.pipelineNodeStartY + 22.5 }
+                        source: { x: d.translateX - constant.PipelineNodeSpaceSize, y: constant.pipelineNodeStartY + constant.svgStageHeight / 2 },
+                        target: { x: d.translateX + 2, y: constant.pipelineNodeStartY + constant.svgStageHeight / 2 }
                     });
                 })
                 .attr("fill", "none")
-                .attr("stroke", "#333")
+                .attr("stroke", "#1F6D84")
                 .attr("stroke-width", 2);
         }
         if (d.type == constant.PIPELINE_START) {
@@ -52,12 +52,12 @@ export function initLine() {
                 .append("path")
                 .attr("d", function() {
                     return diagonal({
-                        source: { x: d.translateX + constant.svgStageWidth / 2, y: constant.pipelineNodeStartY + constant.svgStageWidth / 2 },
-                        target: { x: d.translateX + constant.svgStageWidth / 2, y: constant.pipelineNodeStartY + constant.svgStageWidth + 6 }
+                        source: { x: d.translateX + constant.svgStageWidth / 2, y: constant.pipelineNodeStartY + constant.svgStageHeight / 2 },
+                        target: { x: d.translateX + constant.svgStageWidth / 2, y: constant.pipelineNodeStartY + constant.svgStageHeight + 10 }
                     })
                 })
                 .attr("fill", "none")
-                .attr("stroke", "#aaa")
+                .attr("stroke", "#1F6D84")
                 .attr("stroke-width", 1);
             constant.lineView[pipelineLineViewId]
                 .append("circle")
@@ -65,14 +65,15 @@ export function initLine() {
                     return d.translateX + constant.svgStageWidth / 2;
                 })
                 .attr("cy", function(cd, ci) {
-                    return constant.pipelineNodeStartY + constant.svgStageWidth + 12;
+                    return constant.pipelineNodeStartY + constant.svgStageHeight + 19;
                 })
                 .attr("r", function(cd, ci) {
                     return 8;
                 })
                 .attr("fill", "#fff")
-                .attr("stroke", "#aaa")
+                .attr("stroke", "#1F6D84")
                 .attr("stroke-width", 2)
+                .style("cursor","pointer")
                 /* mouse over the circle show relevant lines of start stage */
                 .on("mouseover", function(cd, ci) {
                     mouseoverRelevantPipeline(d);
@@ -111,29 +112,29 @@ export function initLine() {
                         .append("path")
                         .attr("d", function(fd, fi) {
                             return diagonal({
-                                source: { x: ad.translateX + 15, y: ad.translateY + 28 },
-                                target: { x: ad.translateX + 15, y: ad.translateY + 40 }
+                                source: { x: ad.translateX + constant.svgActionWidth / 2, y: ad.translateY + constant.svgActionHeight },
+                                target: { x: ad.translateX + constant.svgActionWidth / 2, y: ad.translateY + constant.svgActionHeight + 8 }
                             });
                         })
                         .attr("fill", "none")
-                        .attr("stroke", "black")
+                        .attr("stroke", "#1F6D84")
                         .attr("stroke-width", 1)
                         .attr("stroke-dasharray", "2,2");
                     /* draw different length line group by stage index */
                     if (i % 2 == 0) {
                         return diagonal({
-                            source: { x: ad.translateX + 15, y: ad.translateY },
-                            target: { x: ad.translateX + 15, y: ad.translateY - 40 }
+                            source: { x: ad.translateX + constant.svgActionWidth / 2, y: ad.translateY },
+                            target: { x: ad.translateX + constant.svgActionWidth / 2, y: ad.translateY - 40 }
                         });
                     } else {
                         return diagonal({
-                            source: { x: ad.translateX + 15, y: ad.translateY },
-                            target: { x: ad.translateX + 15, y: ad.translateY - 70 }
+                            source: { x: ad.translateX + constant.svgActionWidth / 2, y: ad.translateY },
+                            target: { x: ad.translateX + constant.svgActionWidth / 2, y: ad.translateY - 70 }
                         });
                     }
                 })
                 .attr("fill", "none")
-                .attr("stroke", "black")
+                .attr("stroke", "#1F6D84")
                 .attr("stroke-width", 1)
                 .attr("stroke-dasharray", "2,2");
 
@@ -155,11 +156,8 @@ export function initLine() {
                 .attr("id", function(ad, ai) {
                     return "action-self-line-path-" + ad.id;
                 })
-                // .attr("transform", function(ad, ai){
-                //     return "translate(0,0)"
-                // })
                 .attr("fill", "none")
-                .attr("stroke", "#aaa")
+                .attr("stroke", "#1F6D84")
                 .attr("stroke-width", 1);
 
             /* circle on the left */
@@ -179,12 +177,10 @@ export function initLine() {
                 .attr("id", function(ad, ai) {
                     return "action-self-line-input-" + ad.id;
                 })
-                // .attr("transform", function(ad, ai){
-                //      return "translate(0,0)"
-                // })
                 .attr("fill", "#fff")
-                .attr("stroke", "#aaa")
+                .attr("stroke", "#84C1BC")
                 .attr("stroke-width", 2)
+                .style("cursor","pointer")
                 /* mouse down to drag lines */
                 .on("mousedown", function(ad, ai) {
                     d3.event.stopPropagation();
@@ -193,22 +189,8 @@ export function initLine() {
                         "node": ai
                     });
                 })
-                // .on("mouseover", function(ad, ai){
-                //     var translateX = 0 ;
-                //     var translateY = 0;
-                //     d3.select(this).attr("transform","translate(-250,-190) scale(2)");
-                // })
-                // .on("mouseup", function(ad, ai){
-                //     var translateX = ad.translateX - 16;
-                //     var translateY =  ad.translateY + constant.svgActionHeight/2;
-                //     d3.select(this).attr("transform","translate(0,0) scale(1)");
-                // })
-                // .on("mouseout", function(ad, ai){
-                //     var translateX = ad.translateX - 16;
-                //     var translateY =  ad.translateY + constant.svgActionHeight/2;
-                //     d3.select(this).attr("transform","translate(0,0) scale(1)");
-                // })
-                /* circle on the right */
+
+            /* circle on the right */
             constant.lineView[actionSelfLine].selectAll(".action-self-line-output")
                 .data(d.actions).enter()
                 .append("circle")
@@ -225,12 +207,10 @@ export function initLine() {
                 .attr("id", function(ad, ai) {
                     return "action-self-line-output-" + ad.id
                 })
-                // .attr("transform", function(ad, ai){                     
-                //      return "translate(0,0)"
-                // })
                 .attr("fill", "#fff")
-                .attr("stroke", "#aaa")
+                .attr("stroke", "#84C1BC")
                 .attr("stroke-width", 2)
+                .style("cursor","pointer")
                 .on("mouseover", function(ad, ai) {
                     mouseoverRelevantPipeline(ad);
                 })
