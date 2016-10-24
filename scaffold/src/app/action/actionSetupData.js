@@ -85,6 +85,7 @@ export function removeServicePorts(event){
 export function addServicePort(){
   data.service.spec.ports.push({
     "port" : "",
+    "targetPort" : "",
     "nodePort" : ""
   })
 }
