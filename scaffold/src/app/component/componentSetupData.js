@@ -62,15 +62,15 @@ export function setServicePort(event){
   var target = $(event.currentTarget);
   var index = target.parent().data("index");
   var value = target.val();
-  data.service.spec.ports[index].port = value;
-  data.service.spec.ports[index].targetPort = value;
+  data.service.spec.ports[index].port = parseInt(value);
+  data.service.spec.ports[index].targetPort = parseInt(value);
 }
 
 export function setServiceNodePort(event){
   var target = $(event.currentTarget);
   var index = target.parent().data("index");
   var value = target.val();
-  data.service.spec.ports[index].nodePort = value;
+  data.service.spec.ports[index].nodePort = parseInt(value);
 }
 
 export function removeServicePorts(event){
@@ -81,6 +81,7 @@ export function removeServicePorts(event){
 export function addServicePort(){
   data.service.spec.ports.push({
     "port" : "",
+    "targetPort" : "",
     "nodePort" : ""
   })
 }

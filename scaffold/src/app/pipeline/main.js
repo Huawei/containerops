@@ -16,6 +16,7 @@ import {getAllPipelines,getPipeline,addPipeline,savePipeline,addPipelineVersion,
 import {notify,confirm} from "../common/notify";
 import {loading} from "../common/loading";
 import {setLinePathAry,linePathAry} from "../common/constant";
+import {pipelineCheck} from "../common/check";
 
 export let allPipelines;
 
@@ -212,6 +213,10 @@ function showPipelineDesigner(){
 
             $(".stoppipeline").on('click',function(){
                 beforeStopPipeline();
+            });
+
+            $(".checkpipeline").on('click',function(){
+                pipelineCheck(pipelineData);
             });
 
             $(".savepipeline").on('click',function(){
