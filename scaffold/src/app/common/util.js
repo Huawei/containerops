@@ -130,7 +130,7 @@ export function changeCurrentElement(previousData) {
                 d3.select("#" + previousData.data.id).attr("href", "../../assets/svg/start-latest.svg");
                 break;
             case "action":
-                d3.select("#" + previousData.data.id).attr("href", "../../assets/svg/action-bottom.svg");
+                d3.select("#" + previousData.data.id).attr("href", "../../assets/svg/action-latest.svg");
                 break;
             case "line":
                 d3.select("#" + previousData.data.attr("id")).attr("stroke", "#E6F3E9");
