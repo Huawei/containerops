@@ -49,6 +49,7 @@ export function setPath(options) {
         .attr("id", options.id)
         .style("cursor", "pointer")
         .on("click", function(d) {
+            this.parentNode.appendChild(this); // make this line to front layer
             var self = $(this);
             util.changeCurrentElement(constant.currentSelectedItem);
             constant.setCurrentSelectedItem({ "data": self, "type": "line" });
