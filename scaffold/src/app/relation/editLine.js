@@ -23,16 +23,8 @@ export var lineInputJSON = {};
 export var lineOutputJSON = {};
 
 export function editLine(editPage, currentLine) {
-
-    var index = currentLine.attr("data-index");
     var id = currentLine.attr("id");
     $("#pipeline-info-edit").html($(editPage));
-
-    $("#removeLink").click(function() {
-        currentLine.remove();
-        constant.linePathAry.splice(index, 1);
-        $("#pipeline-info-edit").html("");
-    })
 
     $("#importDiv").html("");
     $("#outputDiv").html("");
@@ -47,13 +39,13 @@ export function editLine(editPage, currentLine) {
     if (_.isEmpty(lineOutputJSON)) {
         $("#outputDiv").html("no data");
     }
-    bipatiteView(lineInputJSON, lineOutputJSON, constant.linePathAry[index]);
+    bipatiteView(lineInputJSON, lineOutputJSON, currentLineData);
 
 
     $("#afreshRelation").click(function() {
-        constant.linePathAry[index].relation = undefined;
-        bipatiteView(lineInputJSON, lineOutputJSON, constant.linePathAry[index]);
-        
+        currentLineData.relation = undefined;
+        bipatiteView(lineInputJSON, lineOutputJSON, currentLineData);
+
     })
 
 

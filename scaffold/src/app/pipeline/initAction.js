@@ -22,8 +22,9 @@ import { pipelineData } from "./main";
 import { initLine } from "./initLine";
 import { initPipeline } from "./initPipeline";
 import { deleteAction } from "../action/addOrDeleteAction";
+import * as initButton from "./initButton";
 
-var animationForRemove = function(parentId, parentIndex, itemId, itemIndex) {
+export function animationForRemoveAction(parentId, itemId, itemIndex) {
     var actionViewId = "action-" + parentId;
     /* make target action and reference items disappear */
     var target = "#" + itemId;
@@ -62,14 +63,14 @@ export function initAction() {
                 .attr("height", constant.svgHeight)
                 .attr("id", actionViewId);
 
-            var actionStartX = d.translateX + 7.5;
+            var actionStartX = d.translateX + (constant.svgStageWidth - constant.svgActionWidth) / 2;
             var actionStartY = d.translateY;
 
             constant.actionView[actionViewId].selectAll("image")
                 .data(d.actions).enter()
                 .append("image")
                 .attr("xlink:href", function(ad, ai) {
-                    return "../../assets/svg/action-bottom.svg";
+                    return "../../assets/svg/action-latest.svg";
                 })
                 .attr("id", function(ad, ai) {
                     return ad.id;
@@ -107,129 +108,26 @@ export function initAction() {
 
                     return "translate(" + ad.translateX + "," + ad.translateY + ")";
                 })
+                .on("click", function(ad, ai) {
+                    clickAction(ad, ai);
+                    util.changeCurrentElement(constant.currentSelectedItem);
+                    constant.setCurrentSelectedItem({ "data": ad, "parentData": d, "type": "action" });
+                    initButton.updateButtonGroup("action");
+                    d3.select("#" + ad.id).attr("href", "../../assets/svg/action-selected-latest.svg");
+                    constant.pipelineView.selectAll("#pipeline-element-popup").remove();
+                })
+                .on("mouseout", function(ad, ai) {
+                    constant.pipelineView.selectAll("#pipeline-element-popup").remove();
+                })
                 .on("mouseover", function(ad, ai) {
-                    // mouseoverRelevantPipeline(ad);
-                    if (d3.event.movementX != 0 || d3.event.movementY != 0) {
-                        constant.buttonView.selectAll("#button-group").remove();
-                        var editBtnShow = false,
-                            deleteBtnShow = false;
-                        /* add g as button group to buttonView when mouse over nodes of pipeline */
-                        constant.buttonView
-                            .append("g")
-                            .attr("id", "button-group")
-                            .attr("width", constant.svgActionWidth * 2)
-                            .attr("height", constant.svgActionHeight * 2)
-                            .on("mouseout", function(rd, ri) {
-                                setTimeout(function() {
-                                    if (!(editBtnShow || deleteBtnShow)) {
-                                        constant.buttonView.selectAll("#button-group").remove();
-                                    }
-
-                                }, 100)
-                            })
-                            /* add edit image to edit setup data and input output data*/
-                        constant.buttonView.select("#button-group")
-                            .append("image")
-                            .attr("id", "edit-image-" + ad.id)
-                            .attr("xlink:href", function(ed, ei) {
-                                return "../../assets/svg/edit-mouseout-2.svg";
-                            })
-                            .attr("width", function(ed, ei) {
-                                return constant.svgActionWidth * 2;
-                            })
-                            .attr("height", function(ed, ei) {
-                                return constant.svgActionHeight * 2 * 0.5;
-                            })
-                            .attr("transform", function(ed, ei) {
-                                let translateX = ad.translateX - constant.svgActionWidth * 0.5;
-                                let translateY = ad.translateY - constant.svgActionHeight * 0.5 + 1;
-                                return "translate(" + translateX + "," + translateY + ")";
-                            })
-                            .on("mouseover", function(ed, ei) {
-                                d3.event.stopPropagation();
-                                editBtnShow = true;
-                                constant.buttonView.select("#edit-image-" + ad.id)
-                                    .attr("xlink:href", function(ed, ei) {
-                                        return "../../assets/svg/edit-mouseover-2.svg";
-                                    })
-                                    .style({
-                                        "cursor": "pointer"
-                                    })
-                            })
-                            .on("mouseout", function(ed, ei) {
-                                editBtnShow = false;
-                                constant.buttonView.select("#edit-image-" + ad.id)
-                                    .attr("xlink:href", function(ed, ei) {
-                                        return "../../assets/svg/edit-mouseout-2.svg";
-                                    })
-                            })
-                            .on("click", function(ed, ei) {
-                                constant.buttonView.selectAll("#button-group").remove();
-                                clickAction(ad, ai);
-
-                            })
-                        constant.buttonView.select("#button-group")
-                            .append("image")
-                            .attr("id", "delete-image-" + ad.id)
-                            .attr("xlink:href", function(dd, di) {
-                                return "../../assets/svg/delete-mouseout.svg";
-                            })
-                            .attr("width", function(dd, di) {
-                                return constant.svgActionWidth * 2;
-                            })
-                            .attr("height", function(dd, di) {
-                                return constant.svgActionHeight * 2 * 0.5;
-                            })
-                            .attr("transform", function(dd, di) {
-                                let translateX = ad.translateX - constant.svgActionWidth * 0.5;
-                                let translateY = ad.translateY + constant.svgActionHeight * 0.5 - 1;
-                                return "translate(" + translateX + "," + translateY + ")";
-                            })
-                            .on("mouseover", function(dd, di) {
-                                d3.event.stopPropagation();
-                                deleteBtnShow = true;
-                                constant.buttonView.select("#delete-image-" + ad.id)
-                                    .attr("xlink:href", function(d, i) {
-                                        return "../../assets/svg/delete-mouseover.svg";
-                                    })
-                                    .style({
-                                        "cursor": "pointer"
-                                    })
-                            })
-                            .on("mouseout", function(dd, di) {
-                                deleteBtnShow = false;
-                                constant.buttonView.select("#delete-image-" + ad.id)
-                                    .attr("xlink:href", function(dd, di) {
-                                        return "../../assets/svg/delete-mouseout.svg";
-                                    })
-                            })
-                            .on("click", function(dd, di) {
-                                constant.buttonView.selectAll("#button-group").remove();
-                                $("#pipeline-info-edit").html("");
-
-                                var timeout = 0;
-                                /* if remove the node is not the last one, add animation to action */
-                                if (ai < d.actions.length - 1) {
-                                    timeout = 400;
-                                    animationForRemove(d.id, i, ad.id, ai);
-                                }
-
-                                /* reload pipeline after the animation */
-                                setTimeout(function() {
-                                    deleteAction(ad, ai);
-                                    initPipeline();
-                                    // initAction();
-                                }, timeout)
-                                constant.buttonView.selectAll("#button-group").remove();
-
-                            })
-                    }
-
+                    d3.select(this)
+                        .style("cursor", "pointer");
+                    var x = ad.translateX;
+                    var y = ad.translateY + constant.svgActionHeight;
+                    initButton.showToolTip(x, y, "Click to Edit", "pipeline-element-popup", constant.pipelineView);
                 })
 
             // .call(drag);
-
-
         }
 
     });
