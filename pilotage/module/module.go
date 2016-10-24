@@ -15,3 +15,39 @@ limitations under the License.
 */
 
 package module
+
+func describeJSON(jsonObj map[string]interface{}, path string) ([]map[string]string, error) {
+	resultList := make([]map[string]string, 0)
+
+	for key, value := range jsonObj {
+		temp := make(map[string]string)
+
+		typeStr := ""
+		switch value.(type) {
+		case string:
+			typeStr = "string"
+		case float64:
+			typeStr = "float64"
+		case bool:
+			typeStr = "boolean"
+		case []interface{}:
+			typeStr = "array"
+		case map[string]interface{}:
+			typeStr = "object"
+			childResult, err := describeJSON(value.(map[string]interface{}), temp["path"])
+			if err != nil {
+				return nil, err
+			}
+
+			resultList = append(resultList, childResult...)
+		}
+
+		temp["key"] = key
+		temp["path"] = path + "." + key
+		temp["type"] = typeStr
+
+		resultList = append(resultList, temp)
+	}
+
+	return resultList, nil
+}

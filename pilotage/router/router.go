@@ -30,6 +30,12 @@ func SetRouters(m *macaron.Macaron) {
 
 	m.Group("/pipeline", func() {
 		m.Group("/v1", func() {
+			m.Group("/eventJson", func() {
+				m.Group("/github", func() {
+					m.Get("/:event", handler.GetEventJsonGithubV1Handler)
+				})
+			})
+
 			//Definie the supported service.
 			m.Group("/service", func() {
 				m.Post("/", binding.Bind(handler.PostServiceDefinitionForm{}), handler.PostServiceDefinitionV1Handler)
@@ -44,6 +50,7 @@ func SetRouters(m *macaron.Macaron) {
 
 			//Registry the component in the system.
 			m.Group("/:namespace/component", func() {
+				m.Get("/", handler.GetComponentListV1Handler)
 				m.Post("/", handler.PostComponentV1Handler)
 
 				m.Group("/:component", func() {
@@ -76,6 +83,13 @@ func SetRouters(m *macaron.Macaron) {
 					m.Get("/:format", handler.GetPipelineV1Handler)
 					m.Put("/", handler.PutPipelineV1Handler)
 					m.Delete("/", handler.DeletePipelineV1Handler)
+
+					// set a pipeline's env
+					m.Put("/env", handler.PutPipelineEnvV1Handler)
+					m.Get("/env", handler.GetPipelineEnvV1Handler)
+
+					// enable or disable a pipeline
+					m.Put("/state", handler.PutPipelineStateV1Handler)
 
 					//Definie the stage
 					m.Group("/stage", func() {
