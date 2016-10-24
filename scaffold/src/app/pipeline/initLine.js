@@ -189,6 +189,14 @@ export function initLine() {
                         "node": ai
                     });
                 })
+                // .on("mouseover", function(ad, ai) {
+                //     d3.select(this).attr("transform",function(ad, ai){
+                //         return "translate (" + (ad.translateX - 16 - 8) + "," + (ad.translateY + constant.svgActionHeight / 2 - 8)+") scale(2)"; 
+                //     });
+                // })
+                // .on("mouseout", function(ad, ai){
+                //     d3.select(this).attr("transform","scale(1)");
+                // })
 
             /* circle on the right */
             constant.lineView[actionSelfLine].selectAll(".action-self-line-output")
