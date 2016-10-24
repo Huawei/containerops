@@ -43,14 +43,27 @@ export function initPipeline() {
         .enter()
         .append("image")
         .attr("xlink:href", function(d, i) {
-            if (d.type == constant.PIPELINE_START) {
-                return "../../assets/svg/start-latest.svg";
-            } else if (d.type == constant.PIPELINE_ADD_STAGE) {
-                return "../../assets/svg/add-stage-latest.svg";
-            } else if (d.type == constant.PIPELINE_END) {
-                return "../../assets/svg/end-latest.svg";
-            } else if (d.type == constant.PIPELINE_STAGE) {
-                return "../../assets/svg/stage-latest.svg";
+            if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "stage" && constant.currentSelectedItem.data.id == d.id) {
+                    if (d.type == constant.PIPELINE_START) {
+                        return "../../assets/svg/start-selected-latest.svg";
+                    } else if (d.type == constant.PIPELINE_ADD_STAGE) {
+                        return "../../assets/svg/add-stage-selected-latest.svg";
+                    } else if (d.type == constant.PIPELINE_END) {
+                        return "../../assets/svg/end-latest.svg";
+                    } else if (d.type == constant.PIPELINE_STAGE) {
+                        return "../../assets/svg/stage-selected-latest.svg";
+                    }
+
+            } else {
+                if (d.type == constant.PIPELINE_START) {
+                    return "../../assets/svg/start-latest.svg";
+                } else if (d.type == constant.PIPELINE_ADD_STAGE) {
+                    return "../../assets/svg/add-stage-latest.svg";
+                } else if (d.type == constant.PIPELINE_END) {
+                    return "../../assets/svg/end-latest.svg";
+                } else if (d.type == constant.PIPELINE_STAGE) {
+                    return "../../assets/svg/stage-latest.svg";
+                }
             }
         })
         .attr("id", function(d, i) {
@@ -92,8 +105,6 @@ export function initPipeline() {
             if (d.type == constant.PIPELINE_ADD_STAGE) {
                 addStage(d, i);
                 initPipeline();
-                constant.setCurrentSelectedItem(null);
-                initButton.updateButtonGroup("addStage");
             } else if (d.type == constant.PIPELINE_STAGE) {
                 clickStage(d, i);
                 util.changeCurrentElement(constant.currentSelectedItem);

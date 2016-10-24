@@ -70,7 +70,12 @@ export function initAction() {
                 .data(d.actions).enter()
                 .append("image")
                 .attr("xlink:href", function(ad, ai) {
-                    return "../../assets/svg/action-latest.svg";
+                    if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "action" && constant.currentSelectedItem.data.id == ad.id){
+                        return "../../assets/svg/action-selected-latest.svg";
+                    }else{
+                        return "../../assets/svg/action-latest.svg";
+                    }
+                    
                 })
                 .attr("id", function(ad, ai) {
                     return ad.id;

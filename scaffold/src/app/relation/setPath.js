@@ -37,7 +37,13 @@ export function setPath(options) {
         .attr("d", getPathData(startPoint, endPoint))
         .attr("fill", "none")
         .attr("stroke-opacity", "1")
-        .attr("stroke", "#E6F3E9")
+        .attr("stroke", function(d, i) {
+            if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "line" && constant.currentSelectedItem.data.attr("id") == options.id) {
+                return "#81D9EC";
+            } else {
+                return "#E6F3E9";
+            }
+        })
         .attr("stroke-width", 15)
         .attr("data-index", options.index)
         .attr("id", options.id)
@@ -53,13 +59,10 @@ export function setPath(options) {
                 type: "GET",
                 cache: false,
                 success: function(data) {
-
                     editLine(data, self);
                 }
             });
-
         });
-
 }
 
 export function getPathData(startPoint, endPoint) {
