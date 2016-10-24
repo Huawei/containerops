@@ -43,7 +43,7 @@ var (
 type component interface {
 	// start a component
 	// id contains pipelineId stageId actionId pipelineSequence
-	Start(id string, eventList []models.EventDefinition) error
+	Start(id string, eventList []models.EventDefinition, envMap map[string]string) error
 	Stop(string) (string, error)
 	GetIp(...interface{}) (string, error)
 }
@@ -351,7 +351,7 @@ type kubeComponent struct {
 }
 
 // start a component in kube env
-func (kube *kubeComponent) Start(id string, eventList []models.EventDefinition) error {
+func (kube *kubeComponent) Start(id string, eventList []models.EventDefinition, envMap map[string]string) error {
 	// get componentName for service selector
 	reqMap := kube.podConfig
 	if len(reqMap) == 0 {
@@ -369,16 +369,16 @@ func (kube *kubeComponent) Start(id string, eventList []models.EventDefinition) 
 		return err
 	}
 
-	err = kube.startPod(id, serviceAddr, eventList)
+	err = kube.startPod(id, serviceAddr, eventList, envMap)
 
 	return err
 }
 
 // to start a pod, except podConfig,also need add some extra info
 // for example , env call back url or event list need to callback or current pod's run id use to id itself when make a call back
-func (kube *kubeComponent) startPod(id, serviceAddr string, eventList []models.EventDefinition) error {
+func (kube *kubeComponent) startPod(id, serviceAddr string, eventList []models.EventDefinition, envMap map[string]string) error {
 
-	podInfoMap, err := kube.getPodInfo(id, serviceAddr, eventList)
+	podInfoMap, err := kube.getPodInfo(id, serviceAddr, eventList, envMap)
 	if err != nil {
 		return err
 	}
@@ -418,7 +418,7 @@ func (kube *kubeComponent) startPod(id, serviceAddr string, eventList []models.E
 	return nil
 }
 
-func (kube *kubeComponent) getPodInfo(id, serviceAddr string, eventList []models.EventDefinition) (map[string]interface{}, error) {
+func (kube *kubeComponent) getPodInfo(id, serviceAddr string, eventList []models.EventDefinition, envMap map[string]string) (map[string]interface{}, error) {
 	reqMap := kube.podConfig
 	if len(reqMap) == 0 {
 		reqMap = make(map[string]interface{})
@@ -491,8 +491,13 @@ func (kube *kubeComponent) getPodInfo(id, serviceAddr string, eventList []models
 		containers = append(containers, containerInfo)
 	}
 
-	// prepare envMap
-	envMap := make([]interface{}, 0)
+	// add event envMap
+	envList := make([]interface{}, 0)
+	for key, value := range envMap {
+		tempEnv := make(map[string]string)
+		tempEnv["name"] = key
+		tempEnv["value"] = value
+	}
 
 	eventListStr := ""
 	for _, event := range eventList {
@@ -500,18 +505,18 @@ func (kube *kubeComponent) getPodInfo(id, serviceAddr string, eventList []models
 		tempEnv["name"] = event.Title
 		tempEnv["value"] = event.Definition
 
-		envMap = append(envMap, tempEnv)
+		envList = append(envList, tempEnv)
 
 		eventListStr += ";" + event.Title + "," + strconv.FormatInt(event.ID, 10)
 	}
 
 	if serviceAddr != "" {
-		envMap = append(envMap, map[string]string{"name": "SERVICE_ADDR", "value": serviceAddr})
+		envList = append(envList, map[string]string{"name": "SERVICE_ADDR", "value": serviceAddr})
 	}
 
-	envMap = append(envMap, map[string]string{"name": "POD_NAME", "value": podName})
-	envMap = append(envMap, map[string]string{"name": "RUN_ID", "value": id})
-	envMap = append(envMap, map[string]string{"name": "EVENT_LIST", "value": strings.TrimPrefix(eventListStr, ";")})
+	envList = append(envList, map[string]string{"name": "POD_NAME", "value": podName})
+	envList = append(envList, map[string]string{"name": "RUN_ID", "value": id})
+	envList = append(envList, map[string]string{"name": "EVENT_LIST", "value": strings.TrimPrefix(eventListStr, ";")})
 
 	// set env to each container
 	for _, container := range containers {
@@ -524,14 +529,14 @@ func (kube *kubeComponent) getPodInfo(id, serviceAddr string, eventList []models
 
 		env, ok := container["env"]
 		if !ok {
-			container["env"] = envMap
+			container["env"] = envList
 		} else {
 			cEnvMap, ok := env.([]interface{})
 			if !ok {
 				return nil, errors.New("component's kube config error, container's env is not a array")
 			}
 
-			container["env"] = append(cEnvMap, envMap...)
+			container["env"] = append(cEnvMap, envList...)
 		}
 
 		ports := make([]map[string]interface{}, 0)
@@ -727,7 +732,7 @@ func (kube *kubeComponent) Stop(id string) (string, error) {
 	client := &http.Client{}
 
 	// set rc's replicas = 0 then delete rc
-	podInfoMap, err := kube.getPodInfo(id, "", nil)
+	podInfoMap, err := kube.getPodInfo(id, "", nil, nil)
 	if err != nil {
 		return "", err
 	}
