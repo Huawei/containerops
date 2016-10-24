@@ -116,3 +116,19 @@ func (e *Environment) TableName() string {
 func (e *Environment) GetEnvironment() *gorm.DB {
 	return db.Model(&Environment{})
 }
+
+type EventJson struct {
+	ID     int64  `json:"id" gorm:"primary_key"`        //
+	Site   string `json:"site" sql:"type:varchar(255)"` //
+	Type   string `json:"type" sql:"type:varchar(255)"` //
+	Output string `json:"output" sql:"type:"text"`      //
+}
+
+//TableName is return the name of Outcome in MySQL database.
+func (e *EventJson) TableName() string {
+	return "event_json"
+}
+
+func (e *EventJson) GetEventJson() *gorm.DB {
+	return db.Model(&EventJson{})
+}

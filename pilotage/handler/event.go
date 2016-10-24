@@ -20,6 +20,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/Huawei/containerops/pilotage/models"
+
 	"gopkg.in/macaron.v1"
 )
 
@@ -44,5 +46,30 @@ func PutEventV1Handler(ctx *macaron.Context) (int, []byte) {
 //DeleteEventV1Handler is
 func DeleteEventV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
+	return http.StatusOK, result
+}
+
+// GetEventJsonGithubV1Handler is
+func GetEventJsonGithubV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{"message": ""})
+	eventName := ctx.Params(":event")
+
+	if eventName == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "event name can't be empty!"})
+		return http.StatusBadRequest, result
+	}
+
+	eventDefine := new(models.EventJson)
+	eventDefine.GetEventJson().Where("site = ?", "github.com").Where("type = ?", eventName).Find(&eventDefine)
+
+	if eventDefine.ID == 0 {
+		result, _ = json.Marshal(map[string]string{"errMsg": "can't get github.com : " + eventName + " define json"})
+		return http.StatusBadRequest, result
+	}
+
+	outputMap := make(map[string]interface{}, 0)
+	json.Unmarshal([]byte(eventDefine.Output), &outputMap)
+
+	result, _ = json.Marshal(map[string]interface{}{"output": outputMap})
 	return http.StatusOK, result
 }

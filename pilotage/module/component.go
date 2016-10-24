@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -30,9 +31,13 @@ import (
 
 const (
 	// RUNENV_KUBE means component will run in k8s
-	RUNENV_KUBE = "KUBE"
+	RUNENV_KUBE = "KUBERNETES"
 	// RUNENV_SWARM means component will run in swarm
 	RUNENV_SWARM = "SWARM"
+)
+
+var (
+	createComponentChan chan bool
 )
 
 type component interface {
@@ -43,8 +48,12 @@ type component interface {
 	GetIp(...interface{}) (string, error)
 }
 
-func InitComponet(componentInfo models.ComponentLog, runenv string) (component, error) {
-	if componentInfo.ID == 0 {
+func init() {
+	createComponentChan = make(chan bool, 1)
+}
+
+func InitComponet(actionInfo models.ActionLog, runenv, host, namespace string) (component, error) {
+	if actionInfo.Component == 0 {
 		return nil, errors.New("component's id is 0")
 	}
 
@@ -52,27 +61,19 @@ func InitComponet(componentInfo models.ComponentLog, runenv string) (component, 
 		kubeCom := new(kubeComponent)
 
 		ComponentConfigMap := make(map[string]interface{}, 0)
-		err := json.Unmarshal([]byte(componentInfo.Kubernetes), &ComponentConfigMap)
+		err := json.Unmarshal([]byte(actionInfo.Kubernetes), &ComponentConfigMap)
 		if err != nil {
 			return kubeCom, errors.New("component kube config error:" + err.Error())
 		}
 
-		if _, ok := ComponentConfigMap["host"]; !ok {
-			return kubeCom, errors.New("component kube config error ,host is not set")
-		}
-		host, ok := ComponentConfigMap["host"].(string)
-		if !ok {
-			return kubeCom, errors.New("component kube config error ,host is not a string")
-		}
-
-		if _, ok := ComponentConfigMap["port"]; !ok {
-			return kubeCom, errors.New("component kube config error ,port is not set")
-		}
-		portF, ok := ComponentConfigMap["port"].(float64)
-		if !ok {
-			return kubeCom, errors.New("component kube config error ,port is not a int")
-		}
-		port := int64(portF)
+		// if _, ok := ComponentConfigMap["port"]; !ok {
+		// 	return kubeCom, errors.New("component kube config error ,port is not set")
+		// }
+		// portF, ok := ComponentConfigMap["port"].(float64)
+		// if !ok {
+		// 	return kubeCom, errors.New("component kube config error ,port is not a int")
+		// }
+		// port := int64(portF)
 
 		if _, ok := ComponentConfigMap["reachableIPs"]; !ok {
 			return kubeCom, errors.New("component kube config error ,reachableIPs is not set")
@@ -108,25 +109,245 @@ func InitComponet(componentInfo models.ComponentLog, runenv string) (component, 
 		}
 
 		kubeCom.host = host
-		kubeCom.port = port
+		// kubeCom.port = port
+		kubeCom.namespace = namespace
 		kubeCom.reachableIPs = reachableIPStrs
 		kubeCom.podConfig = podConfig
 		kubeCom.serviceConfig = serviceConfig
-		kubeCom.componentInfo = componentInfo
+		kubeCom.componentInfo = actionInfo
 
 		return kubeCom, nil
 	}
 
-	return nil, errors.New("can't get a component in" + runenv)
+	return nil, errors.New("can't create a component in" + runenv)
+}
+
+// GetComponentInfo is
+func GetComponentInfo(namespace, componentName string, componentId int64) (map[string]interface{}, error) {
+	resultMap := make(map[string]interface{})
+	componentInfo := new(models.Component)
+	err := componentInfo.GetComponent().Where("id = ?", componentId).First(&componentInfo).Error
+	if err != nil {
+		return nil, errors.New("error when get component info from db:" + err.Error())
+	}
+
+	if componentInfo.Component != componentName {
+		return nil, errors.New("component's name is not equal to target component")
+	}
+
+	// get component define json first, if has a define json,return it
+	if componentInfo.Manifest != "" {
+		defineMap := make(map[string]interface{})
+		json.Unmarshal([]byte(componentInfo.Manifest), &defineMap)
+		if defineInfo, ok := defineMap["define"]; ok {
+			if defineInfoMap, ok := defineInfo.(map[string]interface{}); ok {
+				return defineInfoMap, nil
+			}
+		}
+	}
+
+	resultMap["setupData"] = make(map[string]interface{})
+	resultMap["inputJson"] = make(map[string]interface{})
+	resultMap["outputJson"] = make(map[string]interface{})
+
+	return resultMap, nil
+}
+
+// CreateNewComponent is
+func CreateNewComponent(namespace, componentName, componentVersion string) (string, error) {
+	createComponentChan <- true
+	defer func() {
+		<-createComponentChan
+	}()
+
+	var count int64
+	err := new(models.Component).GetComponent().Where("namespace = ?", namespace).Where("component = ?", componentName).Order("-id").Count(&count).Error
+	if err != nil {
+		return "", errors.New("error when query component data in database:" + err.Error())
+	}
+
+	if count > 0 {
+		return "", errors.New("component name is exist!")
+	}
+
+	componentInfo := new(models.Component)
+	componentInfo.Namespace = namespace
+	componentInfo.Component = componentName
+	componentInfo.Version = componentVersion
+	componentInfo.VersionCode = 1
+
+	err = componentInfo.GetComponent().Save(componentInfo).Error
+	if err != nil {
+		return "", errors.New("error when save component info:" + err.Error())
+	}
+
+	return "create new component success", nil
+}
+
+// CreateNewComponentVersion is
+func CreateNewComponentVersion(componentInfo models.Component, versionName string) error {
+	var count int64
+	new(models.Component).GetComponent().Where("namespace = ?", componentInfo.Namespace).Where("component = ?", componentInfo.Component).Where("version = ?", versionName).Count(&count)
+	if count > 0 {
+		return errors.New("version code already exist!")
+	}
+
+	// get current least component's version
+	leastComponent := new(models.Component)
+	err := leastComponent.GetComponent().Where("namespace = ? ", componentInfo.Namespace).Where("component = ?", componentInfo.Component).Order("-id").First(&leastComponent).Error
+	if err != nil {
+		return errors.New("error when get least component info :" + err.Error())
+	}
+
+	newComponentInfo := new(models.Component)
+	newComponentInfo.Namespace = componentInfo.Namespace
+	newComponentInfo.Version = versionName
+	newComponentInfo.VersionCode = leastComponent.VersionCode + 1
+	newComponentInfo.Component = componentInfo.Component
+	newComponentInfo.Type = componentInfo.Type
+	newComponentInfo.Title = componentInfo.Title
+	newComponentInfo.Gravatar = componentInfo.Gravatar
+	newComponentInfo.Description = componentInfo.Description
+	newComponentInfo.Endpoint = componentInfo.Endpoint
+	newComponentInfo.Source = componentInfo.Source
+	newComponentInfo.Environment = componentInfo.Environment
+	newComponentInfo.Tag = componentInfo.Tag
+	newComponentInfo.VolumeLocation = componentInfo.VolumeLocation
+	newComponentInfo.VolumeData = componentInfo.VolumeData
+	newComponentInfo.Makefile = componentInfo.Makefile
+	newComponentInfo.Kubernetes = componentInfo.Kubernetes
+	newComponentInfo.Swarm = componentInfo.Swarm
+	newComponentInfo.Input = componentInfo.Input
+	newComponentInfo.Output = componentInfo.Output
+	newComponentInfo.Manifest = componentInfo.Manifest
+
+	return newComponentInfo.GetComponent().Save(newComponentInfo).Error
+}
+
+func UpdateComponentInfo(componentInfo models.Component) error {
+	manifestMap := make(map[string]interface{})
+	err := json.Unmarshal([]byte(componentInfo.Manifest), &manifestMap)
+	if err != nil {
+		return errors.New("error when unmarshal component's define info:" + err.Error())
+	}
+
+	defineMap, ok := manifestMap["define"].(map[string]interface{})
+	if !ok {
+		return errors.New("component define is not a json:" + err.Error())
+	}
+
+	inputMap, ok := defineMap["inputJson"].(map[string]interface{})
+	if ok {
+		inputDescribe, err := describeJSON(inputMap, "")
+		if err != nil {
+			return errors.New("error in component output json define:" + err.Error())
+		}
+
+		inputDescBytes, _ := json.Marshal(inputDescribe)
+		componentInfo.Input = string(inputDescBytes)
+	}
+
+	outputMap, ok := defineMap["outputJson"].(map[string]interface{})
+	if ok {
+		outputDescribe, err := describeJSON(outputMap, "")
+		if err != nil {
+			return errors.New("error in component output json define:" + err.Error())
+		}
+
+		outputDescBytes, _ := json.Marshal(outputDescribe)
+		componentInfo.Output = string(outputDescBytes)
+	}
+
+	setupDataMap, ok := defineMap["setupData"].(map[string]interface{})
+	if !ok {
+		return errors.New("error in component setup data: setup data is not a json")
+	}
+
+	envMap := make(map[string]interface{})
+	envDefind, ok := defineMap["env"].([]interface{})
+	if ok {
+		for _, env := range envDefind {
+			if tempEnvMap, ok := env.(map[string]interface{}); ok {
+				envMap[tempEnvMap["key"].(string)] = tempEnvMap["value"].(string)
+			}
+		}
+
+		envByte, _ := json.Marshal(envMap)
+		componentInfo.Environment = string(envByte)
+	}
+
+	componentSetupDetail, ok := setupDataMap["action"].(map[string]interface{})
+	if ok {
+		// if name, ok := componentSetupDetail["name"].(string); ok {
+		// componentInfo.Component = name
+		// }
+
+		if imageInfo, ok := componentSetupDetail["image"].(map[string]interface{}); ok {
+			imageName := ""
+			if name, ok := imageInfo["name"].(string); ok {
+				imageName = name + ":"
+				if tag, ok := imageInfo["tag"].(string); ok {
+					imageName += tag
+				} else {
+					imageName += "latest"
+				}
+			}
+
+			componentInfo.Endpoint = imageName
+		}
+
+		if env, ok := componentSetupDetail["env"].(string); ok {
+			componentInfo.Environment = env
+		}
+
+		if timeout, ok := componentSetupDetail["timeout"].(string); ok {
+			timeoutInt, err := strconv.ParseInt(timeout, 10, 64)
+			if err != nil {
+				return errors.New("component's timeout is not a string")
+			}
+			componentInfo.Timeout = timeoutInt
+		}
+
+		// unmarshal k8s info
+		if useAdvanced, ok := componentSetupDetail["useAdvanced"].(bool); ok {
+			configMap := make(map[string]interface{})
+			podConfigKey := "pod"
+			serviceConfigKey := "service"
+			if useAdvanced {
+				podConfigKey = "pod_advanced"
+				serviceConfigKey = "service_advanced"
+			}
+
+			podConfig, ok := setupDataMap[podConfigKey].(map[string]interface{})
+			if !ok {
+				configMap["podConfig"] = make(map[string]interface{})
+			} else {
+				configMap["podConfig"] = podConfig
+			}
+
+			serviceConfig, ok := setupDataMap[serviceConfigKey].(map[string]interface{})
+			if !ok {
+				configMap["serviceConfig"] = make(map[string]interface{})
+			} else {
+				configMap["serviceConfig"] = serviceConfig
+			}
+
+			kuberSetting, _ := json.Marshal(configMap)
+			componentInfo.Kubernetes = string(kuberSetting)
+		}
+	}
+
+	return componentInfo.GetComponent().Save(componentInfo).Error
 }
 
 type kubeComponent struct {
-	host          string
-	port          int64
+	host string
+	// port          int64
+	namespace     string
 	reachableIPs  []string
 	podConfig     map[string]interface{}
 	serviceConfig map[string]interface{}
-	componentInfo models.ComponentLog
+	componentInfo models.ActionLog
 }
 
 // start a component in kube env
@@ -137,31 +358,11 @@ func (kube *kubeComponent) Start(id string, eventList []models.EventDefinition) 
 		reqMap = make(map[string]interface{})
 	}
 
-	// // first set kube metadata
-	metaInfoMap := make(map[string]interface{})
-	metaInfo, ok := reqMap["metadata"]
-	if ok {
-		metaInfoMap, ok = metaInfo.(map[string]interface{})
-		if !ok {
-			return errors.New("component's kube config error, metadata is not a json!")
-		}
+	componentName := strings.Replace(id, ",", "-", -1)
+	if len(componentName) > 250 {
+		componentName = componentName[len(componentName)-250:]
 	}
-
-	componentName := ""
-	comName, ok := metaInfoMap["name"]
-	if ok {
-		cName, ok := comName.(string)
-		if !ok {
-			return errors.New("component's kube config error, compoent name is not a string!")
-		} else {
-			componentName = cName + strings.Replace(id, ",", "-", -1) + "-pod"
-		}
-	} else {
-		componentName = kube.componentInfo.Component + strings.Replace(id, ",", "-", -1) + "-pod"
-	}
-	if len(componentName) > 24 {
-		componentName = componentName[len(componentName)-24:]
-	}
+	componentName = "pod-" + componentName
 
 	serviceAddr, err := kube.startService(id, componentName)
 	if err != nil {
@@ -182,10 +383,11 @@ func (kube *kubeComponent) startPod(id, serviceAddr string, eventList []models.E
 		return err
 	}
 
-	rcName := kube.componentInfo.Component + strings.Replace(id, ",", "-", -1) + "-rc"
-	if len(rcName) > 254 {
-		rcName = rcName[len(rcName)-254:]
+	rcName := strings.Replace(id, ",", "-", -1)
+	if len(rcName) > 250 {
+		rcName = rcName[len(rcName)-250:]
 	}
+	rcName = "rc-" + rcName
 
 	rcMap := make(map[string]interface{})
 	rcMetaData := make(map[string]interface{})
@@ -199,7 +401,12 @@ func (kube *kubeComponent) startPod(id, serviceAddr string, eventList []models.E
 	rcMap["spec"] = rcSpecMap
 
 	reqBody, _ := json.Marshal(rcMap)
-	resp, err := http.Post(kube.componentInfo.Source+"/api/v1/namespaces/"+kube.componentInfo.Namespace+"/replicationcontrollers", "application/json", bytes.NewReader(reqBody))
+
+	fmt.Println("=====================replicationcontrollers=============================")
+	fmt.Println(string(reqBody))
+	fmt.Println(kube.host + "/api/v1/namespaces/" + kube.namespace + "/replicationcontrollers")
+	fmt.Println("=====================replicationcontrollers=============================")
+	resp, err := http.Post(kube.host+"/api/v1/namespaces/"+kube.namespace+"/replicationcontrollers", "application/json", bytes.NewReader(reqBody))
 	if err != nil {
 		return err
 	}
@@ -227,10 +434,11 @@ func (kube *kubeComponent) getPodInfo(id, serviceAddr string, eventList []models
 		}
 	}
 
-	podName := kube.componentInfo.Component + strings.Replace(id, ",", "-", -1) + "-pod"
-	if len(podName) > 254 {
-		podName = podName[len(podName)-254:]
+	podName := strings.Replace(id, ",", "-", -1)
+	if len(podName) > 250 {
+		podName = podName[len(podName)-250:]
 	}
+	podName = "pod-" + podName
 
 	metaInfoMap["name"] = podName
 
@@ -277,7 +485,7 @@ func (kube *kubeComponent) getPodInfo(id, serviceAddr string, eventList []models
 
 	if len(containers) < 1 {
 		containerInfo := make(map[string]interface{})
-		containerInfo["name"] = kube.componentInfo.Component + strings.Replace(id, ",", "-", -1) + "-pod"
+		containerInfo["name"] = strings.Replace(id, ",", "-", -1) + "-pod"
 		containerInfo["image"] = kube.componentInfo.Endpoint
 
 		containers = append(containers, containerInfo)
@@ -308,7 +516,7 @@ func (kube *kubeComponent) getPodInfo(id, serviceAddr string, eventList []models
 	// set env to each container
 	for _, container := range containers {
 		if _, ok := container["name"]; !ok {
-			container["name"] = kube.componentInfo.Component + strings.Replace(id, ",", "-", -1) + "-pod"
+			container["name"] = strings.Replace(id, ",", "-", -1) + "-pod"
 		}
 		if _, ok := container["image"]; !ok {
 			container["image"] = kube.componentInfo.Endpoint
@@ -370,10 +578,11 @@ func (kube *kubeComponent) startService(id, podName string) (string, error) {
 		}
 	}
 
-	serviceName := kube.componentInfo.Component + strings.Replace(id, ",", "-", -1) + "-service"
-	if len(serviceName) > 24 {
-		serviceName = serviceName[len(serviceName)-24:]
+	serviceName := strings.Replace(id, ",", "-", -1)
+	if len(serviceName) > 20 {
+		serviceName = serviceName[len(serviceName)-20:]
 	}
+	serviceName = "ser-" + serviceName
 	metaInfoMap["name"] = serviceName
 
 	reqMap["metadata"] = metaInfoMap
@@ -417,14 +626,19 @@ func (kube *kubeComponent) startService(id, podName string) (string, error) {
 	selectorMap["PIPELINE_DEFAULT_POD_LABLE"] = podName
 
 	specMap["selector"] = selectorMap
+	specMap["type"] = "NodePort"
 
-	if len(kube.reachableIPs) > 0 {
-		specMap["externalIPs"] = kube.reachableIPs
-	}
+	// if len(kube.reachableIPs) > 0 {
+	// 	specMap["externalIPs"] = kube.reachableIPs
+	// }
 
 	// create service
 	reqBody, _ := json.Marshal(reqMap)
-	resp, err := http.Post(kube.componentInfo.Source+"/api/v1/namespaces/"+kube.componentInfo.Namespace+"/services", "application/json", bytes.NewReader(reqBody))
+	fmt.Println("=====================service=============================")
+	fmt.Println(string(reqBody))
+	fmt.Println(kube.host + "/api/v1/namespaces/" + kube.namespace + "/services")
+	fmt.Println("=====================service=============================")
+	resp, err := http.Post(kube.host+"/api/v1/namespaces/"+kube.namespace+"/services", "application/json", bytes.NewReader(reqBody))
 	if err != nil {
 		return "", err
 	}
@@ -490,7 +704,7 @@ func (kube *kubeComponent) startService(id, podName string) (string, error) {
 	}
 
 	for _, port := range respPorts {
-		portF, ok := port["port"].(float64)
+		portF, ok := port["nodePort"].(float64)
 		if !ok {
 			return "", errors.New("error when parse create service resp: nodePort is not a number!")
 		}
@@ -518,10 +732,11 @@ func (kube *kubeComponent) Stop(id string) (string, error) {
 		return "", err
 	}
 
-	rcName := kube.componentInfo.Component + strings.Replace(id, ",", "-", -1) + "-rc"
-	if len(rcName) > 254 {
-		rcName = rcName[len(rcName)-254:]
+	rcName := strings.Replace(id, ",", "-", -1)
+	if len(rcName) > 250 {
+		rcName = rcName[len(rcName)-250:]
 	}
+	rcName = "rc-" + rcName
 
 	rcMap := make(map[string]interface{})
 	rcMetaData := make(map[string]interface{})
@@ -535,7 +750,11 @@ func (kube *kubeComponent) Stop(id string) (string, error) {
 	rcMap["spec"] = rcSpecMap
 
 	reqBody, _ := json.Marshal(rcMap)
-	req, err := http.NewRequest("PUT", kube.componentInfo.Source+"/api/v1/namespaces/"+kube.componentInfo.Namespace+"/replicationcontrollers/"+rcName, bytes.NewReader(reqBody))
+	fmt.Println("=====================replicationcontrollers=============================")
+	fmt.Println(string(reqBody))
+	fmt.Println(kube.host + "/api/v1/namespaces/" + kube.namespace + "/replicationcontrollers/" + rcName)
+	fmt.Println("=====================replicationcontrollers=============================")
+	req, err := http.NewRequest("PUT", kube.host+"/api/v1/namespaces/"+kube.namespace+"/replicationcontrollers/"+rcName, bytes.NewReader(reqBody))
 	if err != nil {
 		return "", err
 	}
@@ -550,7 +769,10 @@ func (kube *kubeComponent) Stop(id string) (string, error) {
 	}
 
 	// delete rc
-	req, err = http.NewRequest("DELETE", kube.componentInfo.Source+"/api/v1/namespaces/"+kube.componentInfo.Namespace+"/replicationcontrollers/"+rcName, nil)
+	fmt.Println("=====================replicationcontrollers=============================")
+	fmt.Println(kube.host + "/api/v1/namespaces/" + kube.namespace + "/replicationcontrollers/" + rcName)
+	fmt.Println("=====================replicationcontrollers=============================")
+	req, err = http.NewRequest("DELETE", kube.host+"/api/v1/namespaces/"+kube.namespace+"/replicationcontrollers/"+rcName, nil)
 	if err != nil {
 		return "", err
 	}
@@ -565,12 +787,16 @@ func (kube *kubeComponent) Stop(id string) (string, error) {
 	}
 
 	// delete service
-	serviceName := kube.componentInfo.Component + strings.Replace(id, ",", "-", -1) + "-service"
-	if len(serviceName) > 24 {
-		serviceName = serviceName[len(serviceName)-24:]
+	serviceName := strings.Replace(id, ",", "-", -1)
+	if len(serviceName) > 20 {
+		serviceName = serviceName[len(serviceName)-20:]
 	}
+	serviceName = "ser-" + serviceName
 
-	req, err = http.NewRequest("DELETE", kube.componentInfo.Source+"/api/v1/namespaces/"+kube.componentInfo.Namespace+"/services/"+serviceName, nil)
+	fmt.Println("=====================service=============================")
+	fmt.Println(kube.host + "/api/v1/namespaces/" + kube.namespace + "/services/" + serviceName)
+	fmt.Println("=====================service=============================")
+	req, err = http.NewRequest("DELETE", kube.host+"/api/v1/namespaces/"+kube.namespace+"/services/"+serviceName, nil)
 	if err != nil {
 		return "", err
 	}
