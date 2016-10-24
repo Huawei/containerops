@@ -348,6 +348,7 @@ func handleStage(pipelineInfo models.PipelineLog, stageInfo models.StageLog, pip
 				handleStage(pipelineInfo, *nextStage, pipelineSequence, pipelineEnvMap)
 			} else {
 				// if has a failer action ,then stop all other action's
+				log.Info("stage " + stageInfo.Stage + " is stop with an action's error!")
 				stopStage(actionList, pipelineInfo, stageInfo, pipelineSequence)
 				return
 			}
@@ -423,7 +424,7 @@ func startComponent(pipelineInfo models.PipelineLog, stageInfo models.StageLog, 
 		startErrOutcome.GetOutcome().Save(startErrOutcome)
 		return
 	}
-	err = c.Start(componentId, eventList)
+	err = c.Start(componentId, eventList, envMap)
 	if err != nil {
 		// if has start error,stop this action and log it as start error
 		startErrOutcome := new(models.Outcome)
