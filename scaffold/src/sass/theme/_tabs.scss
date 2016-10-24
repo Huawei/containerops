@@ -133,3 +133,39 @@ limitations under the License. */
 .tabs-right > .nav-tabs > li.active > a{
   @include box-shadow(-1px 1px 2px #ccc);
 }
+
+// customize
+.arrow {
+  width:0;
+  height:0;
+  overflow:hidden;
+  border-top-width:24px;
+  border-bottom-width:24px;
+  border-left-width:13px;
+  border-right-width:13px;
+  border-color:transparent;
+  border-style:solid;
+  position:absolute;
+  background-color:#fff;
+}
+.nav-tabs > .nav-item > .nav-link {
+  padding: 12px 40px
+}
+.nav > li > a {
+  position: static;
+}
+
+.arrow-left {
+  top:0;
+  left:0;
+  border-top-color:#fff;
+  border-left-color:#fff;
+  background-color:transparent
+}
+.arrow-right {
+  bottom:0;
+  right:0;
+  border-bottom-color:#fff;
+  border-right-color:#fff;
+  background-color:transparent
+}

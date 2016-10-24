@@ -15,7 +15,7 @@ import {notify} from "../common/notify";
 var treeEdit_InputContainer,treeEdit_OutputContainer;
 var fromEdit_InputCodeContainer,fromEdit_InputTreeContainer,fromEdit_OutputCodeContainer,fromEdit_OutputTreeContainer;
 var fromEdit_OutputViewContainer;
-var fromEdit_CodeEditor,fromEdit_TreeEditor;
+var fromEdit_InputCodeEditor,fromEdit_InputTreeEditor,fromEdit_OutputCodeEditor,fromEdit_OutputTreeEditor;
 
 let componentIOData;
 export function initComponentIO(component){
@@ -39,15 +39,16 @@ export function initComponentIO(component){
         initTreeEdit();
     })
 
-    $("#input-from-edit-tab").on('click',function(){
+    $("#event-edit-tab").on('click',function(){
         initFromEdit("input");
+        initFromEdit("output");
     })
 
-    $("#output-from-edit-tab").on('click',function(){
-        initFromEdit("output");
-    });
+    // $("#output-from-edit-tab").on('click',function(){
+    //     initFromEdit("output");
+    // });
 
-    initTreeEdit();
+    // initTreeEdit();
 }
 
 function initTreeEdit(){
@@ -73,14 +74,6 @@ function initTreeEdit(){
 }
 
 function initFromEdit(type){
-    if(fromEdit_CodeEditor){
-        fromEdit_CodeEditor.destroy();
-    }
-
-    if(fromEdit_TreeEditor){
-        fromEdit_TreeEditor.destroy();
-    }
-
     var codeOptions = {
         "mode": "code",
         "indentation": 2
@@ -92,64 +85,78 @@ function initFromEdit(type){
     };
 
     if(type == "input"){
-        fromEdit_CodeEditor = new JSONEditor(fromEdit_InputCodeContainer, codeOptions);
-        fromEdit_TreeEditor = new JSONEditor(fromEdit_InputTreeContainer, treeOptions);
-        fromEdit_CodeEditor.set(componentIOData.inputJson);
-        fromEdit_TreeEditor.set(componentIOData.inputJson);
+        if(fromEdit_InputCodeEditor){
+            fromEdit_InputCodeEditor.destroy();
+        }
+        if(fromEdit_InputTreeEditor){
+            fromEdit_InputTreeEditor.destroy();
+        }
+        fromEdit_InputCodeEditor = new JSONEditor(fromEdit_InputCodeContainer, codeOptions);
+        fromEdit_InputTreeEditor = new JSONEditor(fromEdit_InputTreeContainer, treeOptions);
+        fromEdit_InputCodeEditor.set(componentIOData.inputJson);
+        fromEdit_InputTreeEditor.set(componentIOData.inputJson);
         $("#inputFromJson").on('click',function(){
             fromCodeToTree("input");
         })  
         $("#inputToJson").on('click',function(){
             fromTreeToCode("input");
         })       
+
+        fromEdit_InputTreeEditor.expandAll();
     }else if(type == "output"){
-        fromEdit_CodeEditor = new JSONEditor(fromEdit_OutputCodeContainer, codeOptions);
-        fromEdit_TreeEditor = new JSONEditor(fromEdit_OutputTreeContainer, treeOptions);
-        fromEdit_CodeEditor.set(componentIOData.outputJson);
-        fromEdit_TreeEditor.set(componentIOData.outputJson);
+        if(fromEdit_OutputCodeEditor){
+            fromEdit_OutputCodeEditor.destroy();
+        }
+        if(fromEdit_OutputTreeEditor){
+            fromEdit_OutputTreeEditor.destroy();
+        }
+        fromEdit_OutputCodeEditor = new JSONEditor(fromEdit_OutputCodeContainer, codeOptions);
+        fromEdit_OutputTreeEditor = new JSONEditor(fromEdit_OutputTreeContainer, treeOptions);
+        fromEdit_OutputCodeEditor.set(componentIOData.outputJson);
+        fromEdit_OutputTreeEditor.set(componentIOData.outputJson);
         $("#outputFromJson").on('click',function(){
             fromCodeToTree("output");
         })
         $("#outputToJson").on('click',function(){
             fromTreeToCode("output");
         })
+
+        fromEdit_OutputTreeEditor.expandAll();
     }
-    
-    fromEdit_TreeEditor.expandAll();
 }
 
 function fromCodeToTree(type){
     if(type == "input"){
         try{
-            componentIOData.inputJson = fromEdit_CodeEditor.get();
-            fromEdit_TreeEditor.set(componentIOData.inputJson);
+            componentIOData.inputJson = fromEdit_InputCodeEditor.get();
+            fromEdit_InputTreeEditor.set(componentIOData.inputJson);
         }catch(e){
             notify("Input Code Changes Error in parsing json.","error");
         }  
+        fromEdit_InputTreeEditor.expandAll();
     }else if(type == "output"){
         try{
-            componentIOData.outputJson = fromEdit_CodeEditor.get();
-            fromEdit_TreeEditor.set(componentIOData.outputJson);
+            componentIOData.outputJson = fromEdit_OutputCodeEditor.get();
+            fromEdit_OutputTreeEditor.set(componentIOData.outputJson);
         }catch(e){
             notify("Output Code Changes Error in parsing json.","error");
         } 
+        fromEdit_OutputTreeEditor.expandAll();
     }
-    
-    fromEdit_TreeEditor.expandAll();
 }
 
 function fromTreeToCode(type){
     if(type == "input"){
         try{
-            componentIOData.inputJson = fromEdit_TreeEditor.get();
-            fromEdit_CodeEditor.set(componentIOData.inputJson);
+            componentIOData.inputJson = fromEdit_InputTreeEditor.get();
+            fromEdit_InputCodeEditor.set(componentIOData.inputJson);
         }catch(e){
             notify("Input Tree Changes Error in parsing json.","error");
         }  
     }else if(type == "output"){
         try{
-            componentIOData.outputJson = fromEdit_TreeEditor.get();
-            fromEdit_CodeEditor.set(componentIOData.outputJson);
+            componentIOData.outputJson = fromEdit_OutputTreeEditor.get();
+            fromEdit_OutputCodeEditor.set(componentIOData.outputJson);
         }catch(e){
             notify("Output Tree Changes Error in parsing json.","error");
         } 
