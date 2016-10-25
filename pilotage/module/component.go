@@ -497,6 +497,8 @@ func (kube *kubeComponent) getPodInfo(id, serviceAddr string, eventList []models
 		tempEnv := make(map[string]string)
 		tempEnv["name"] = key
 		tempEnv["value"] = value
+
+		envList = append(envList, tempEnv)
 	}
 
 	eventListStr := ""
