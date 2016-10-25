@@ -125,12 +125,12 @@ export function initLine() {
                     if (i % 2 == 0) {
                         return diagonal({
                             source: { x: ad.translateX + constant.svgActionWidth / 2, y: ad.translateY },
-                            target: { x: ad.translateX + constant.svgActionWidth / 2, y: ad.translateY - 40 }
+                            target: { x: ad.translateX + constant.svgActionWidth / 2, y: ad.translateY - 44 }
                         });
                     } else {
                         return diagonal({
                             source: { x: ad.translateX + constant.svgActionWidth / 2, y: ad.translateY },
-                            target: { x: ad.translateX + constant.svgActionWidth / 2, y: ad.translateY - 70 }
+                            target: { x: ad.translateX + constant.svgActionWidth / 2, y: ad.translateY - 68 }
                         });
                     }
                 })
