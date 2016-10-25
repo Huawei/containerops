@@ -1,29 +1,16 @@
-<!-- 
-    Copyright 2014 Huawei Technologies Co., Ltd. All rights reserved.
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-        http://www.apache.org/licenses/LICENSE-2.0
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License. 
--->
 <div class="row">
     <div class="col-lg-12">
         <section class="widget">
             <div class="widget-body">
                 <form id="stage-form" class="form-horizontal cursor-default" role="form">
                     <fieldset>
-                        <legend>Action bipartite setup</legend>
+                        <legend><strong>Action bipartite</strong> setup</legend>
                         <div class="widget-controls">
                             <a data-widgster="fullscreen" title="" href="#" data-original-title="Full Screen" style="display: inline;"><i class="glyphicon glyphicon-fullscreen"></i></a>
                             <a data-widgster="restore" title="" href="#" style="display: none;" data-original-title="Restore"><i class="glyphicon glyphicon-resize-small"></i></a>
                         </div>
                         <input type="button" id="refreshRelation" value="Refresh Relation" class="btn btn-success"/>
                         <input type="button" id="removeLine" value="Remove Relation Line" class="btn btn-inverse hide"/>
-                     
                         <div class="row treeview" style="position:relative;" onselectstart="return false;">
                             <svg id="bipatiteLineSvg" class="relation-svg"></svg>
                             <div class="col-md-2 import-div">
@@ -36,13 +23,13 @@
                                 
                             </div>
                             <div class="col-md-4">
-                                <h4 class="pr"> Output</h4>
+                                <h4 class="pr">Output</h4>
                                 <div id="outputDiv" class="json-editor">
                                     no data
                                 </div>
                             </div>
                         </div>
-                       
+                        
                     </fieldset>
                 </form>
             </div>
