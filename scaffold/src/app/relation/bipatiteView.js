@@ -282,8 +282,8 @@ function settingOut(point,fromPath,toPath){
 	d3.select("#bipatiteLineSvg")
 	.append("path")
 	.attr("d",d)
-	.attr("stroke", "green")
-    .attr("stroke-width", 3)
+	.attr("stroke", "#75c880")
+    .attr("stroke-width", 6)
     .attr("fill","none")
     .attr("stroke-opacity", "0.8")
     .attr("class","cursor")
@@ -291,7 +291,7 @@ function settingOut(point,fromPath,toPath){
     .attr("to",toPath)
     .on("click",function(d,i){
     	$("#removeLine").removeClass("hide");
-    	$("#bipatiteLineSvg path").attr("stroke","green").removeClass("active");
+    	$("#bipatiteLineSvg path").attr("stroke","#75c880").removeClass("active");
     	$(this).attr("class","cursor active").attr("stroke","red");
     });
 
