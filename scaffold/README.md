@@ -17,7 +17,7 @@ bower install
 gulp
 ```
 <br>
-####Compile all items and output to specified directory but without start web server
+####Compile all items and output to specified directory without start web server
 ```
 gulp --dist {directory}
 ```
