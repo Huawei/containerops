@@ -1074,12 +1074,12 @@ limitations under the License. */
      cursor: pointer;
      width: 150px;
   }
-
-  .item.string > .property { background-color: #009408; }
-  .item.array  > .property { background-color: #2D5B89; }
-  .item.object > .property { background-color: #E17000; }
-  .item.number > .property { background-color: #497B8D; }
-  .item.null > .property { background-color: red;width:150px; }
+  .item.boolean >.property { background-color: #8fc320; }
+  .item.string > .property { background-color: #12b5b0; }
+  .item.array  > .property { background-color: #c490c0; }
+  .item.object > .property { background-color: #eb6876; }
+  .item.number > .property { background-color: #32b16c; }
+  .item.null > .property { background-color:#cfcfcf;width:150px;color:#938f90;text-shadow:none; }
   .item:after{
     position:absolute;
     left:131px;
@@ -1089,37 +1089,29 @@ limitations under the License. */
     width:20px;
     text-align:center;
     border-radius:0 4px 4px 0;
-    border-left:1px solid #fff;
   }
   .item.string:after{
     content:"S";
-    background-color:#009408;
+    background-color:#5bcbcc;
   }
   .item.array:after{
     content:"A";
-    background-color: #2D5B89;
+    background-color: #d7b2d3;
   }
   .item.object:after{
     content:"O";
-    background-color: #E17000;
+    background-color: #f1989e;
   }
   .item.number:after{
     content:"N";
-    background-color: #497B8D;
+    background-color: #71c999;
   }
   .item.boolean:after{
     content:"B";
-    background-color:#B1C639;
+    background-color:#afd663;
   }
 
-  .item.null:after{
-    content:"\e014";
-    background-color:red;
-  }
-  .item.null{
-    font-family:'Glyphicons Halflings';
-
-  }
+ 
 }
 
 .bipartite-view.json-editor .appender{
