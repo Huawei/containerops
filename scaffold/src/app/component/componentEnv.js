@@ -28,7 +28,7 @@ function showComponentEnvKVs(){
         var row = '<tr data-index="'+index+'"><td>'
                     +'<input type="text" class="form-control col-md-5 c-env-key" value="'+item.key+'" required>'
                     + '</td><td>'
-                    +'<input type="text" class="form-control col-md-5 c-env-value" value="'+item.value+'" required>'
+                    +'<input type="text" class="form-control col-md-5 c-env-value" required value='+item.value+'>'
                     + '</td><td>'
                     +'<span class="glyphicon glyphicon-minus c-rm-kv"></span>'
                     +'</td></tr>';
