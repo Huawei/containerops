@@ -57,24 +57,50 @@ export function initActionIO(action){
 }
 
 export function initTreeEdit(){
-    try{
-        jsonEditor(treeEdit_InputContainer,actionIOData.inputJson, {
-            change:function(data){
-                actionIOData.inputJson = data;
+    if(_.isUndefined(actionIOData.inputJson) || _.isEmpty(actionIOData.inputJson)){
+        $("#inputTreeStart").show();
+        $("#inputTreeDiv").hide();
+        $("#inputStartBtn").on('click',function(){
+            actionIOData.inputJson = {
+                "newKey" : null
             }
-        });
-    }catch(e){
-        notify("Input Error in parsing json.","error");
+            initTreeEdit();
+        })
+    }else{
+        try{
+            $("#inputTreeStart").hide();
+            $("#inputTreeDiv").show();
+            jsonEditor(treeEdit_InputContainer,actionIOData.inputJson, {
+                change:function(data){
+                    actionIOData.inputJson = data;
+                }
+            },"action");
+        }catch(e){
+            notify("Input Error in parsing json.","error");
+        }
     }
-
-    try{
-        jsonEditor(treeEdit_OutputContainer,actionIOData.outputJson, {
-            change:function(data){
-                actionIOData.outputJson = data;
+    
+    if(_.isUndefined(actionIOData.outputJson) || _.isEmpty(actionIOData.outputJson)){
+        $("#outputTreeStart").show();
+        $("#outputTreeDiv").hide();
+        $("#outputStartBtn").on('click',function(){
+            actionIOData.outputJson = {
+                "newKey" : null
             }
-        });
-    }catch(e){
-        notify("Output Error in parsing json.","error");
+            initTreeEdit();
+        })
+    }else{
+        try{
+            $("#outputTreeStart").hide();
+            $("#outputTreeDiv").show();
+            jsonEditor(treeEdit_OutputContainer,actionIOData.outputJson, {
+                change:function(data){
+                    actionIOData.outputJson = data;
+                }
+            },"action");
+        }catch(e){
+            notify("Output Error in parsing json.","error");
+        }
     }
 }
 
