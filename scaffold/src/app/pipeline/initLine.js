@@ -183,21 +183,19 @@ export function initLine() {
                 .attr("stroke-width", 2)
                 .style("cursor","pointer")
                 /* mouse down to drag lines */
-                .on("mousedown", function(ad, ai) {
-                    d3.event.stopPropagation();
-                    dragDropSetPath({
-                        "data": ad,
-                        "node": ai
-                    });
-                })
-                // .on("mouseover", function(ad, ai) {
-                //     d3.select(this).attr("transform",function(ad, ai){
-                //         return "translate (" + (ad.translateX - 16 - 8) + "," + (ad.translateY + constant.svgActionHeight / 2 - 8)+") scale(2)"; 
+                // .on("mousedown", function(ad, ai) {
+                //     d3.event.stopPropagation();
+                //     dragDropSetPath({
+                //         "data": ad,
+                //         "node": ai
                 //     });
                 // })
-                // .on("mouseout", function(ad, ai){
-                //     d3.select(this).attr("transform","scale(1)");
-                // })
+                .on("mouseover", function(ad, ai) {
+                    d3.select(this).attr("r",16);
+                })
+                .on("mouseout", function(ad, ai){
+                    d3.select(this).attr("r",8);
+                })
 
             /* circle on the right */
             constant.lineView[actionSelfLine].selectAll(".action-self-line-output")
