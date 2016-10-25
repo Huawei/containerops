@@ -18,6 +18,10 @@
 //     /* opt.valueElement = '<textarea>'; */  // element of the value field, <input> is default
 //     $('#mydiv').jsonEditor(myjson, opt);
 import {ContextMenu} from "./jquery.jsoneditor.menu";
+import * as actionIO from "../app/action/actionIO";
+import * as componentIO from "../app/component/componentIO";
+
+let from;
 
 var items = [];
 
@@ -96,7 +100,8 @@ items.push({
 
 
 
-export function jsonEditor (container,json, options) {
+export function jsonEditor (container,json, options,caller) {
+    from = caller;
     options = options || {};
     // Make sure functions or other non-JSON data types are stripped down.
     json = parse(stringify(json));
@@ -202,6 +207,12 @@ function removeItem (button,opt){
     
     item.find(">.property").val("").change();
     item.remove();
+    
+    if(from == "component"){
+        componentIO.initTreeEdit();
+    }else if(from == "action"){
+        actionIO.initTreeEdit();
+    }
     
 }
 

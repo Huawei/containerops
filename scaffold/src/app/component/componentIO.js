@@ -27,7 +27,7 @@ export function initComponentIO(component){
         componentIOData.outputJson = {};
     }
     treeEdit_InputContainer = $('#inputTreeDiv');
-    treeEdit_OutputContainer = $('#outputTreeDiv');
+    treeEdit_OutputContainer = $('#outputTreeDiv'); 
     fromEdit_InputCodeContainer = $("#inputCodeEditor")[0];
     fromEdit_InputTreeContainer = $("#inputTreeEditor")[0];
     fromEdit_OutputCodeContainer = $("#outputCodeEditor")[0];
@@ -51,25 +51,51 @@ export function initComponentIO(component){
     // initTreeEdit();
 }
 
-function initTreeEdit(){
-    try{
-        jsonEditor(treeEdit_InputContainer,componentIOData.inputJson, {
-            change:function(data){
-                componentIOData.inputJson = data;
+export function initTreeEdit(){
+    if(_.isUndefined(componentIOData.inputJson) || _.isEmpty(componentIOData.inputJson)){
+        $("#inputTreeStart").show();
+        $("#inputTreeDiv").hide();
+        $("#inputStartBtn").on('click',function(){
+            componentIOData.inputJson = {
+                "newKey" : null
             }
-        });
-    }catch(e){
-        notify("Input Error in parsing json.","error");
+            initTreeEdit();
+        })
+    }else{
+        try{
+            $("#inputTreeStart").hide();
+            $("#inputTreeDiv").show();
+            jsonEditor(treeEdit_InputContainer,componentIOData.inputJson, {
+                change:function(data){
+                    componentIOData.inputJson = data;
+                }
+            },"component");
+        }catch(e){
+            notify("Input Error in parsing json.","error");
+        }
     }
-
-    try{
-        jsonEditor(treeEdit_OutputContainer,componentIOData.outputJson, {
-            change:function(data){
-                componentIOData.outputJson = data;
+    
+    if(_.isUndefined(componentIOData.outputJson) || _.isEmpty(componentIOData.outputJson)){
+        $("#outputTreeStart").show();
+        $("#outputTreeDiv").hide();
+        $("#outputStartBtn").on('click',function(){
+            componentIOData.outputJson = {
+                "newKey" : null
             }
-        });
-    }catch(e){
-        notify("Output Error in parsing json.","error");
+            initTreeEdit();
+        })
+    }else{
+        try{
+            $("#outputTreeStart").hide();
+            $("#outputTreeDiv").show();
+            jsonEditor(treeEdit_OutputContainer,componentIOData.outputJson, {
+                change:function(data){
+                    componentIOData.outputJson = data;
+                }
+            },"component");
+        }catch(e){
+            notify("Output Error in parsing json.","error");
+        }
     }
 }
 
