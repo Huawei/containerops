@@ -16,7 +16,7 @@ import { drag } from "../common/drag";
 import { editLine } from "./editLine";
 import * as util from "../common/util";
 import * as initButton from "../pipeline/initButton";
-
+import { makeFrontLayer, makeBackLayer } from "./lineHover";
 /* draw real line between from node and to node */
 export function setPath(options) {
     var fromDom = $("#" + options.startData.id)[0].__data__;
@@ -39,12 +39,14 @@ export function setPath(options) {
         .attr("stroke-opacity", "1")
         .attr("stroke", function(d, i) {
             if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "line" && constant.currentSelectedItem.data.attr("id") == options.id) {
+                makeFrontLayer(this);
                 return "#81D9EC";
             } else {
+                makeBackLayer(this);
                 return "#E6F3E9";
             }
         })
-        .attr("stroke-width", 15)
+        .attr("stroke-width", 10)
         .attr("data-index", options.index)
         .attr("id", options.id)
         .style("cursor", "pointer")

@@ -16,7 +16,10 @@ import * as constant from "../common/constant";
 export function mouseoverRelevantPipeline(param) {
     var outputLines = util.findOutputLines(param.id);
     _.each(outputLines, function(line) {
-        d3.select("#" + line.id).attr("stroke", "#81D9EC");
+        d3.select("#" + line.id).attr("stroke", function() {
+            makeFrontLayer(this);
+            return "#81D9EC";
+        });
     });
 }
 
@@ -33,6 +36,20 @@ export function mouseoutRelevantPipeline(param) {
     }
 
     _.each(tempLines, function(line) {
-        d3.select("#" + line.id).attr("stroke", "#E6F3E9");
+        d3.select("#" + line.id).attr("stroke", function() {
+            makeBackLayer(this);
+            return "#E6F3E9";
+        });
     });
+}
+
+export function makeFrontLayer(element) {
+    element.parentNode.appendChild(element);
+}
+
+export function makeBackLayer(element) {
+    var firstChild = element.parentNode.firstChild;
+    if (firstChild) {
+        element.parentNode.insertBefore(element, firstChild);
+    }
 }
