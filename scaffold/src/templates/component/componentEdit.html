@@ -4,18 +4,10 @@
             <div class="widget-body">
                     <fieldset>
                         <legend><strong>Component</strong> setup</legend>
-                        <div class="row col-md-offset-7 col-md-5 form-horizontal" style="z-index:10">
-                            <label class="col-md-7 control-label" for="action-component-select">Select Component Type</label>
-                            <div class="col-md-5">
-                                <select id="action-component-select" style="width:100%">
-                                    <option value="Kubernetes">Kubernetes</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row mb-lg treeview col-md-12" style="margin-top:-30px">
+                        <div class="row mb-lg treeview col-md-12">
                             <div class="col-lg-12">
                                 <div class="clearfix">
-                                    <ul class="nav nav-tabs pull-xs-left" id="componentTabs" role="tablist">
+                                    <ul class="nav nav-tabs pull-xs-left" id="componentTabs" role="tablist" style="background-color:#f7f7f7">
                                         <li class="nav-item">
                                             <a class="nav-link active" id="base-tab" data-toggle="tab" href="#base" role="tab" aria-controls="base" aria-expanded="false">
                                                 <span>Base Config</span>
@@ -44,6 +36,14 @@
                                                 <i class="arrow arrow-right"></i>
                                             </a>
                                         </li>
+                                        <div class="component-type-select-div">
+                                            <label for="action-component-select" class="select-label">Select Component Type</label>
+                                            <div class="select-div">
+                                                <select id="action-component-select" style="width:100%">
+                                                    <option value="Kubernetes">Kubernetes</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </ul>
                                 </div>
                                 <div class="tab-content mb-lg" id="componentTabsContent">
@@ -242,7 +242,7 @@
                                                     <span class="panel-title">Input Tree</span>
                                                     <span class="panel-subtitle">The action default input json data</span> 
                                                 </div>
-                                                <div class="panel-body">
+                                                <div class="panel-body" style="min-height:500px">
                                                     <div id="inputTreeDiv" class="json-editor"></div>
                                                 </div>
                                             </div>
@@ -254,7 +254,7 @@
                                                     <span class="panel-title">Output Tree</span>
                                                     <span class="panel-subtitle">The action default output json data</span> 
                                                 </div>
-                                                <div class="panel-body">
+                                                <div class="panel-body" style="min-height:500px">
                                                     <div id="outputTreeDiv" class="json-editor"></div>
                                                 </div>
                                             </div>

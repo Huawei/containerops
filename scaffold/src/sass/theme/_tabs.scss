@@ -149,7 +149,8 @@ limitations under the License. */
   background-color:#fff;
 }
 .nav-tabs > .nav-item > .nav-link {
-  padding: 12px 40px
+  padding: 12px 40px;
+  border:none
 }
 .nav > li > a {
   position: static;
@@ -158,14 +159,14 @@ limitations under the License. */
 .arrow-left {
   top:0;
   left:0;
-  border-top-color:#fff;
-  border-left-color:#fff;
+  border-top-color:#f7f7f7;
+  border-left-color:#f7f7f7;
   background-color:transparent
 }
 .arrow-right {
   bottom:0;
   right:0;
-  border-bottom-color:#fff;
-  border-right-color:#fff;
+  border-bottom-color:#f7f7f7;
+  border-right-color:#f7f7f7;
   background-color:transparent
 }
