@@ -24,22 +24,22 @@ import {notify} from "../common/notify";
 import {loading} from "../common/loading";
 
 export function clickAction(sd, si) {
-    $.ajax({
-        url: "../../templates/action/actionMain.html",
-        type: "GET",
-        cache: false,
-        success: function (data) {
-            $("#pipeline-info-edit").html($(data));
-            if(sd.component){
-                showActionEditor(sd);
-            }else{
+    if(sd.component){
+        showActionEditor(sd);  
+    }else{
+        $.ajax({
+            url: "../../templates/action/actionMain.html",
+            type: "GET",
+            cache: false,
+            success: function (data) {
+                $("#pipeline-info-edit").html($(data));
                 $(".usecomponent").on('click',function(){
                     getComponents(sd);
                 });
-            }  
-            resizeWidget(); 
-        }
-    });
+                resizeWidget();
+            }
+        })
+    } 
 }
 
 function showActionEditor(action){
@@ -48,7 +48,7 @@ function showActionEditor(action){
         type: "GET",
         cache: false,
         success: function (data) {
-            $("#actionMain").html($(data));
+            $("#pipeline-info-edit").html($(data));
 
             initActionSetup(action);
 
@@ -64,7 +64,8 @@ function showActionEditor(action){
             });
             // $("#k8s-service-protocol").select2({
             //     minimumResultsForSearch: Infinity
-            // });     
+            // });  
+            resizeWidget();   
         }
     });
 }
