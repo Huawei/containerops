@@ -42,7 +42,7 @@ export function editLine(editPage, currentLine) {
     bipatiteView(lineInputJSON, lineOutputJSON, currentLineData);
 
 
-    $("#afreshRelation").click(function() {
+    $("#refreshRelation").click(function() {
         currentLineData.relation = undefined;
         bipatiteView(lineInputJSON, lineOutputJSON, currentLineData);
 
