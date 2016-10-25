@@ -14,5 +14,10 @@ bower install
 <br>
 ####Compile all items and start web server
 ```
-gulp dev
+gulp
+```
+<br>
+####Compile all items and output to specified directory without start web server
+```
+gulp --dist {directory}
 ```
