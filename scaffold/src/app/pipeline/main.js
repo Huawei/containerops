@@ -379,7 +379,7 @@ function getEnvList() {
 function showEnvKVs() {
     $("#envs").empty();
     _.each(pipelineEnvs, function(item, index) {
-        var row = '<tr data-index="' + index + '"><td>' + '<input type="text" class="form-control col-md-5 env-key" value="' + item[0] + '" required>' + '</td><td>' + '<input type="text" class="form-control col-md-5 env-value" value="' + item[1] + '" required>' + '</td><td>' + '<span class="glyphicon glyphicon-minus rm-kv"></span>' + '</td></tr>';
+        var row = '<tr data-index="' + index + '"><td>' + '<input type="text" class="form-control col-md-5 env-key" value="' + item[0] + '" required>' + '</td><td>' + '<input type="text" class="form-control col-md-5 env-value" required value=' + item[1] + '>' + '</td><td>' + '<span class="glyphicon glyphicon-minus rm-kv"></span>' + '</td></tr>';
         $("#envs").append(row);
     });
 

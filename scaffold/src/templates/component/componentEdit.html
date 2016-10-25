@@ -67,7 +67,8 @@
                                                                 Component Timeout
                                                             </label>
                                                             <div class="col-sm-6">
-                                                                <input type="number" id="action-timeout" name="action-timeout" class="form-control" required> (Seconds)
+                                                                <label style="position:absolute;right:20px;top:7px">( S )</label>
+                                                                <input type="number" id="action-timeout" name="action-timeout" class="form-control" required> 
                                                             </div>
                                                         </div>
                                                     </div>
@@ -243,6 +244,17 @@
                                                     <span class="panel-subtitle">The action default input json data</span> 
                                                 </div>
                                                 <div class="panel-body" style="min-height:500px">
+                                                    <div id="inputTreeStart" class="tree-add-button">
+                                                        <div id="inputStartBtn" class="btn-div">
+                                                            <span class="glyphicon glyphicon-plus nohover"></span>
+                                                            <div class="desc">
+                                                                <label class="desc-label">Add New Value</label>
+                                                                <div class="desc-btn">
+                                                                    <span class="glyphicon glyphicon-plus"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                     <div id="inputTreeDiv" class="json-editor"></div>
                                                 </div>
                                             </div>
@@ -255,6 +267,17 @@
                                                     <span class="panel-subtitle">The action default output json data</span> 
                                                 </div>
                                                 <div class="panel-body" style="min-height:500px">
+                                                    <div id="outputTreeStart" class="tree-add-button">
+                                                        <div id="outputStartBtn" class="btn-div">
+                                                            <span class="glyphicon glyphicon-plus nohover"></span>
+                                                            <div class="desc">
+                                                                <label class="desc-label">Add New Value</label>
+                                                                <div class="desc-btn">
+                                                                    <span class="glyphicon glyphicon-plus"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                     <div id="outputTreeDiv" class="json-editor"></div>
                                                 </div>
                                             </div>
