@@ -19,7 +19,8 @@ let apiUrlConf = {
 		"eventOutput" : "/pipeline/v1/eventJson/github/{eventName}",
 		"getEnv" : "/pipeline/v1/demo/demo/{pipelineName}/env?id={pipelineID}",
 		"setEnv" : "/pipeline/v1/demo/demo/{pipelineName}/env",
-		"changeState" : "/pipeline/v1/demo/demo/{pipelineName}/state"
+		"changeState" : "/pipeline/v1/demo/demo/{pipelineName}/state",
+		"getToken" : "/pipeline/v1/demo/demo/{pipelineName}/token?id={pipelineID}"
 	},
 	"component" : {
 		"list" : "/pipeline/v1/demo/component",
@@ -107,6 +108,15 @@ export let pipelineApi = {
 	        "type": "PUT",
 	        "dataType": "json",
 	        "data": data 
+	    }); 
+	    return promise;
+	},
+	"getToken" : function(name,id){
+		var promise = $.ajax({
+	        "url": apiUrlConf.host + apiUrlConf.pipeline.getToken.replace(/{pipelineName}/g, name).replace(/{pipelineID}/g, id),
+	        "type": "GET",
+	        "dataType": "json",
+	        "cache": false
 	    }); 
 	    return promise;
 	}
