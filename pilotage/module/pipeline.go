@@ -254,7 +254,7 @@ func checkToken(sourceType, secretKey, token string, reqHeader http.Header, reqB
 	legal := false
 
 	switch sourceType {
-	case "Github", "Manual":
+	case "Github":
 		mac := hmac.New(sha1.New, []byte(secretKey))
 		mac.Write(reqBody)
 		expectedMAC := mac.Sum(nil)
@@ -263,6 +263,12 @@ func checkToken(sourceType, secretKey, token string, reqHeader http.Header, reqB
 		if expectedSig == token {
 			legal = true
 		}
+		break
+	case "customize":
+		if token == secretKey {
+			legal = true
+		}
+		break
 	}
 
 	return legal
@@ -1266,6 +1272,10 @@ func saveStageByStageDefine(stageDefine map[string]interface{}, pipelineInfo mod
 		stageType = models.StageTypeStart
 		stageName = pipelineInfo.Pipeline + "-start-stage"
 		timeout = 0
+
+		if stageSetupDataMap, ok := stageDefine["setupData"].(map[string]interface{}); ok {
+			updatePipelineSourceInfo(stageSetupDataMap, pipelineInfo)
+		}
 	} else if stageDefineType == PIPELINE_STAGE_TYPE_END {
 		stageType = models.StageTypeEnd
 		stageName = pipelineInfo.Pipeline + "-end-stage"
@@ -1344,6 +1354,46 @@ func saveStageByStageDefine(stageDefine map[string]interface{}, pipelineInfo mod
 	}
 
 	return stage.ID, idStr, actionIdMap, err
+}
+
+func updatePipelineSourceInfo(stageSetupDataMap map[string]interface{}, pipelineInfo models.Pipeline) {
+	sourceMap := make(map[string]interface{})
+	json.Unmarshal([]byte(pipelineInfo.SourceInfo), &sourceMap)
+	sourceType, ok := stageSetupDataMap["type"].(string)
+	if !ok {
+		return
+	}
+
+	eventType, ok := stageSetupDataMap["event"].(string)
+	if !ok {
+		return
+	}
+
+	headerKey := ""
+	switch sourceType {
+	case "github":
+		headerKey = "X-Hub-Signature"
+	case "customize":
+		headerKey = "X-Pipeline-Signature"
+	}
+
+	tempSourceMap := make(map[string]string)
+	tempSourceMap["sourceType"] = sourceType
+	tempSourceMap["eventList"] = "," + eventType + ","
+	tempSourceMap["headerKey"] = headerKey
+
+	sourceList := make([]interface{}, 0)
+	// if _, ok := sourceMap["sourceList"].([]interface{}); ok {
+	// 	sourceList = sourceMap["sourceList"].([]interface{})
+	// }
+
+	sourceList = append(sourceList, tempSourceMap)
+
+	sourceMap["sourceList"] = sourceList
+
+	sourceInfoBytes, _ := json.Marshal(sourceMap)
+	pipelineInfo.SourceInfo = string(sourceInfoBytes)
+	pipelineInfo.GetPipeline().Save(pipelineInfo)
 }
 
 func createActionByDefine(actionDefineList []map[string]interface{}, stageId int64) (map[string]int64, error) {
