@@ -135,6 +135,14 @@ limitations under the License. */
 }
 
 // customize
+.componentTabs{
+  background-color:#f7f7f7;
+}
+
+.tab-content{
+  border:none;
+}
+
 .arrow {
   width:0;
   height:0;
@@ -152,6 +160,7 @@ limitations under the License. */
   padding: 12px 40px;
   border:none
 }
+
 .nav > li > a {
   position: static;
 }

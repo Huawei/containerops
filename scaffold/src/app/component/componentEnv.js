@@ -15,28 +15,48 @@ export function initComponentEnv(component){
     componentEnvData.getComponentEnvData(component);
 
     showComponentEnvKVs();  
-
-    $(".c-new-kv").on('click',function(){
-        componentEnvData.addEnv();
-        showComponentEnvKVs();
-    });
 }
 
 function showComponentEnvKVs(){
     $("#component-envs").empty();
     _.each(componentEnvData.data,function(item,index){
-        var row = '<tr data-index="'+index+'"><td>'
-                    +'<input type="text" class="form-control col-md-5 c-env-key" value="'+item.key+'" required>'
-                    + '</td><td>'
-                    +'<input type="text" class="form-control col-md-5 c-env-value" required value='+item.value+'>'
-                    + '</td><td>'
-                    +'<span class="glyphicon glyphicon-minus c-rm-kv"></span>'
-                    +'</td></tr>';
+         var row = '<div class="port-row"><div class="port-div">'
+                        +'<div>'
+                            +'<label for="normal-field" class="col-sm-4 control-label">'
+                                +'Key'
+                            +'</label>'
+                            +'<div class="col-sm-7" data-index="' + index + '">'
+                                +'<input type="text" value="' + item.key + '" class="form-control c-env-key" required>'
+                            +'</div>'
+                        +'</div>'
+                    +'</div>'
+                    +'<div class="target-port-div">'
+                        +'<div>'
+                            +'<label for="normal-field" class="col-sm-4 control-label">'
+                                +'Value'
+                            +'</label>'
+                            +'<div class="col-sm-7" data-index="' + index + '">' 
+                                +'<input type="text" value="' + item.value + '" class="form-control c-env-value" required>'
+                            +'</div>'
+                        +'</div>'
+                    +'</div>'
+                    +'<div class="port-remove-div c-rm-kv" data-index="' + index + '">'
+                        +'<span class="glyphicon glyphicon-remove"></span>'
+                    +'</div></div>';
         $("#component-envs").append(row);
     });
     
+    var addrow = `<button type="button" class="btn btn-success c-new-kv">
+                        <i class="glyphicon glyphicon-plus" style="top:1px"></i>&nbsp;&nbsp;Add Env
+                    </button>`;
+    $("#component-envs").append(addrow);
 
-   $(".c-env-key").on('input',function(event){
+    $(".c-new-kv").on('click',function(){
+        componentEnvData.addEnv();
+        showComponentEnvKVs();
+    });
+
+    $(".c-env-key").on('input',function(event){
         var key = $(event.currentTarget).val();
         $(event.currentTarget).val(key.toUpperCase());
     });
