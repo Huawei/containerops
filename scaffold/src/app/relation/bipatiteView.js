@@ -15,6 +15,7 @@ limitations under the License.
 import {getPathData} from "./setPath";
 import {isObject,isArray,isBoolean,isNumber,isString} from "../common/util";
 import {addRelation,delRelation,initPipeline} from "./relation";
+import { notify } from "../common/notify";
 
 var importTreeJson,outputTreeJson;
 
@@ -87,7 +88,7 @@ function initView(importTree,outputTree,linePathData){
 	    	if(toPath != undefined){
 
 	    		if(startClass != endClass){
-		    		alert("difference type");
+		    		notify("Difference type", "error");
 		    		return false;
 		    	}
 

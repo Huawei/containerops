@@ -1319,6 +1319,133 @@ div.jsoneditor-contextmenu ul li ul {
     transition: all .3s ease-out
 }
 
+.tree-tips{
+  overflow:hidden;
+  padding:10px 20px;
+  background-color:#fafafa;
+  border:1px solid #eee;
+  .tip{
+    display:inline-block;
+    float:left;
+    padding-left:21px;
+    padding-right:25px;
+    position:relative;
+    height:24px;
+    line-height:24px;
+  }
+  .tip:before{
+    position:absolute;
+    width:18px;
+    height:20px;
+    display:block;
+    color:#fff;
+    left:0;
+    top:0;
+    text-align:center;
+    line-height:20px;
+    border-radius:3px;
+  }
+  .string:before{background-color:#13b6b1; content:"S";}
+  .object:before{background-color:#ec6875;content:"O";}
+  .number:before{background-color:#31b36d;content:"N";}
+  .array:before{background-color:#c293c1;content:"A";}
+  .boolean:before{background-color:#8ec31d;content:"B";}
+  .other:before{background-color:#89abd9;content:""}
+
+  .tip.clash{
+    padding-left:40px;
+
+    >span{
+      width:12px;
+      height:12px;
+      position:absolute;
+      display:block;
+      left:5px;
+      top:4px;
+      background-color:#fe3315;
+      z-index:2;
+    }
+  }
+  .clash:before{background-color:#000;content:"";width:35px;z-index:1;}
+  .tip.success{
+    padding-left:47px;
+  }
+  .success:before{
+    width:41px;
+    height:7px;
+    background-color:#23ac38;
+    content:"";
+    top:8px;
+  }
+
+  .tip.show-clash{
+    padding-left:47px;
+  }
+  .show-clash:before{
+    width:41px;
+    height:7px;
+    background-color:#e70012;
+    content:"";
+    top:8px;
+  }
+
+}
+
+.tree-wrap{
+  padding:20px;
+  border:1px solid #eee;
+}
+
+.tree-container{
+  position:relative;
+  padding-top:120px;
+  padding-bottom:100px;
+  margin-top:15px;
+
+  h4{
+    height:74px;
+    margin:0;
+    line-height:74px;
+    padding-left:25px;
+  }
+  .tree-bg-left{
+    left:0;
+    top:0;
+    bottom:0;
+    width:50%;
+    position:absolute;
+    background-color:#f2f2f2;
+
+    h4{
+      background-color:#ebebeb;
+      border-bottom:1px solid #e0e0e0;
+    }
+  }
+
+  .tree-bg-right{
+    width:50%;
+    right:0;
+    top:0;
+    bottom:0;
+    position:absolute;
+    background-color:#e8e8e8;
+
+    h4{
+      background-color:#e0e0e0;
+      border-bottom:1px solid #cecece;
+    }
+  }
+
+  .treeview{
+    position:relative;
+    width:675px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+}
+
+
+
 .relation-svg{
   position:absolute;
   right:0;
