@@ -68,22 +68,22 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <label for="hint-field" class="col-sm-3 control-label">
+                                                        <label for="hint-field" class="col-sm-4 control-label">
                                                             Action Name
                                                         </label>
-                                                        <div class="col-sm-6">
+                                                        <div class="col-sm-7">
                                                             <input type="text" id="action-name" name="action-name" class="form-control" required>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <label for="hint-field" class="col-sm-3 control-label">
+                                                        <label for="hint-field" class="col-sm-4 control-label">
                                                             Action Timeout
                                                         </label>
-                                                        <div class="col-sm-6">
-                                                            <label style="position:absolute;right:20px;top:7px">( S )</label>
-                                                            <input type="text" id="action-timeout" name="action-timeout" class="form-control" required>
+                                                        <div class="col-sm-7">
+                                                            <label class="unit">(S)</label>
+                                                            <input type="number" id="action-timeout" name="action-timeout" class="form-control" required>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -91,20 +91,20 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <label for="normal-field" class="col-sm-3 control-label">
-                                                            Endpoint
+                                                        <label for="normal-field" class="col-sm-4 control-label">
+                                                            End Point
                                                         </label>
-                                                        <div class="col-sm-6">
+                                                        <div class="col-sm-7">
                                                             <input type="text" id="k8s-pod-image-name" name="k8s-pod-image-name" class="form-control" required>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <label for="normal-field" class="col-sm-3 control-label">
+                                                        <label for="normal-field" class="col-sm-4 control-label">
                                                             Image Tag
                                                         </label>
-                                                        <div class="col-sm-6">
+                                                        <div class="col-sm-7">
                                                             <input type="text" id="k8s-pod-image-tag" name="k8s-pod-image-tag" class="form-control" required>
                                                         </div>
                                                     </div>
@@ -113,20 +113,20 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <label for="normal-field" class="col-sm-3 control-label">
+                                                        <label for="normal-field" class="col-sm-4 control-label">
                                                             Data From
                                                         </label>
-                                                        <div class="col-sm-6">
+                                                        <div class="col-sm-7">
                                                             <input type="text" id="action-data-from" name="action-data-from" class="form-control" required>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <label for="normal-field" class="col-sm-3 control-label">
+                                                        <label for="normal-field" class="col-sm-4 control-label">
                                                             Kubernetes IP
                                                         </label>
-                                                        <div class="col-sm-6">
+                                                        <div class="col-sm-7">
                                                             <input type="text" id="k8s-ip" name="k8s-ip" class="form-control" required pattern="/((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d))))/">
                                                         </div>
                                                     </div>
@@ -135,141 +135,103 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <label for="normal-field" class="col-sm-3 control-label">
+                                                        <label for="normal-field" class="col-sm-4 control-label">
                                                             Kubernetes API Service
                                                         </label>
-                                                        <div class="col-sm-6">
+                                                        <div class="col-sm-7">
                                                             <input type="text" id="k8s-api-server" name="k8s-api-server" class="form-control" required>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </fieldset>
-                                        <fieldset>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="normal-field" class="col-sm-3 control-label">
-                                                            Kubernetes
-                                                        </label>
-                                                        <div class="col-sm-9" style="margin-top:8px">
-                                                            <input type="radio" id="setting-way-base" name="k8s-setting-way"> &nbsp;&nbsp;Base Setting
-                                                            <input type="radio" id="setting-way-advanced" name="k8s-setting-way" style="margin-left:10px">&nbsp;&nbsp;Advanced Setting
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <hr/>
-                                        </fieldset>
                                     </form>
+                                    <div class="row type-header">
+                                        <div class="type-label">Kubernetes</div>
+                                        <div class="type-setting">
+                                            <input type="radio" id="setting-way-base" name="k8s-setting-way"> &nbsp;&nbsp;Base Setting
+                                            <input type="radio" id="setting-way-advanced" name="k8s-setting-way" style="margin-left:30px">&nbsp;&nbsp;Advanced Setting
+                                        </div>
+                                    </div>
                                     <form id="base-setting-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
                                         <fieldset>
                                             <div id="basesetting" class="hide">
-                                                <div class="row" style="background-color:#eaeaea;padding-top:20px">
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label for="normal-field" class="col-sm-3 control-label">
-                                                                CPU Limits
-                                                            </label>
-                                                            <div class="col-sm-6">
-                                                                <input type="text" id="k8s-cpu-limits" name="k8s-cpu-limits" class="form-control" required>
+                                                <div class="row resource-setting-div">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label for="normal-field" class="col-sm-4 control-label">
+                                                                    CPU Limits
+                                                                </label>
+                                                                <div class="col-sm-7">
+                                                                    <input type="number" id="k8s-cpu-limits" name="k8s-cpu-limits" class="form-control" required>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label for="normal-field" class="col-sm-4 control-label">
+                                                                    CPU Requests
+                                                                </label>
+                                                                <div class="col-sm-7">
+                                                                    <input type="number" id="k8s-cpu-requests" name="k8s-cpu-requests" class="form-control" required>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label for="normal-field" class="col-sm-3 control-label">
-                                                                CPU Requests
-                                                            </label>
-                                                            <div class="col-sm-6">
-                                                                <input type="text" id="k8s-cpu-requests" name="k8s-cpu-requests" class="form-control" required>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label for="normal-field" class="col-sm-4 control-label">
+                                                                    Memory Limits
+                                                                </label>
+                                                                <div class="col-sm-7">
+                                                                   <!--  <label class="unit">(MB)</label> -->
+                                                                    <input type="text" id="k8s-memory-limits" name="k8s-memory-limits" class="form-control" required>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label for="normal-field" class="col-sm-4 control-label">
+                                                                    Memory Requests
+                                                                </label>
+                                                                <div class="col-sm-7">
+                                                                    <!-- <label class="unit">(MB)</label> -->
+                                                                    <input type="text" id="k8s-memory-requests" name="k8s-memory-requests" class="form-control" required>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="row" style="background-color:#eaeaea;">
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label for="normal-field" class="col-sm-3 control-label">
-                                                                Memory Limits
-                                                            </label>
-                                                            <div class="col-sm-6">
-                                                                <input type="text" id="k8s-memory-limits" name="k8s-memory-limits" class="form-control" required>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label for="normal-field" class="col-sm-3 control-label">
-                                                                Memory Requests
-                                                            </label>
-                                                            <div class="col-sm-6">
-                                                                <input type="text" id="k8s-memory-requests" name="k8s-memory-requests" class="form-control" required>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div style="background-color:#c8c8c8;padding-top:20px;padding-bottom:20px" id="ports-setting" class="row">
+                                                <div id="ports-setting" class="row port-setting-div">
                                                 </div>
                                             </div>
                                         </fieldset>
                                     </form>
                                     <form id="advanced-setting-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
-                                        <fieldset>
-                                            <div id="advancedsetting" class="hide">
-                                                <div class="clearfix">
-                                                    <ul class="nav nav-tabs pull-xs-left" id="advancedTabs" role="tablist">
-                                                        <li class="nav-item">
-                                                            <a class="nav-link active" id="ad-service-tab" data-toggle="tab" href="#ad_service" role="tab" aria-controls="ad_service" aria-expanded="false">Service</a>
-                                                        </li> 
-                                                        <li class="nav-item">
-                                                           <a class="nav-link" id="ad-pod-tab" data-toggle="tab" href="#ad_pod" role="tab" aria-controls="ad_pod" aria-expanded="true">Pod</a>
-                                                       </li> 
-                                                   </ul>
-                                               </div>
-                                               <div class="tab-content">
-                                                    <div class="row tab-pane active" id="ad_service" class="tab-pane" role="tabpanel" aria-labelledby="ad-service-tab" aria-expanded="false">
-                                                        <div class="col-md-12">
-                                                            <div class="form-group">
-                                                                <label for="normal-field" class="col-sm-3 control-label">
-                                                                    Service Setting (Json / Yaml)
-                                                                </label>
-                                                                <div class="col-sm-9">
-                                                                    <textarea id="serviceCodeEditor" style="width: 100%;height:300px" required></textarea>
-                                                                </div>
-                                                            </div>
+                                        <fieldset id="advancedsetting" class="row advanced-setting-div hide">
+                                                <div class="advanced-content">
+                                                    <div class="col-md-6 panel">
+                                                        <div class="panel-heading clearfix">
+                                                            <span class="panel-title">Service</span>
+                                                            <!-- <span class="panel-subtitle">Service Setting (Json / Yaml)</span> -->
+                                                        </div>
+                                                        <div class="panel-body" style="min-height:500px;padding:0">
+                                                            <textarea class="advanced-service-textarea" id="serviceCodeEditor" required></textarea>
                                                         </div>
                                                     </div>
-
-                                                    <div class="row tab-pane" id="ad_pod" class="tab-pane" role="tabpanel" aria-labelledby="ad-pod-tab" aria-expanded="false">
-                                                        <div class="col-md-12">
-                                                            <div class="form-group">
-                                                                <label for="normal-field" class="col-sm-3 control-label">
-                                                                    Pod Setting (Json / Yaml)
-                                                                </label>
-                                                                <div class="col-sm-9">
-                                                                    <textarea id="podCodeEditor" style="width: 100%;height:300px" required></textarea>
-                                                                </div>
-                                                            </div>
+                                                    <div class="col-md-6 panel">
+                                                        <div class="panel-heading clearfix">
+                                                            <span class="panel-title">Pod</span>
+                                                            <!-- <span class="panel-subtitle">Pod Setting (Json / Yaml)</span> -->
+                                                        </div>
+                                                        <div class="panel-body" style="min-height:500px;padding:0">
+                                                            <textarea class="advanced-pod-textarea" id="podCodeEditor" required></textarea>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
                                         </fieldset>
-                                        <!-- <fieldset>
-                                         <div class="row">
-                                            <button type="button" class="btn btn-primary" id="k8s-advanced">
-                                                <i class="glyphicon glyphicon-chevron-down"></i>&nbsp;&nbsp;Advanced Settings
-                                            </button>
-                                            <button type="button" class="btn btn-primary" style="display:none" id="close-k8s-advanced">
-                                                <i class="glyphicon glyphicon-chevron-up"></i>&nbsp;&nbsp;Close Advanced Settings
-                                            </button>
-                                        </div>
-                                        <br/>
-                                        <div class="row" style="display:none">
-                                            <div id="advanced" style="width: 100%;height:500px"></div>
-                                        </div>
-                                    </fieldset> -->
                                         <br/>
                                         <div class="form-actions">
                                             <div class="row">
@@ -373,18 +335,7 @@
                                     </div>
                                 </div>
                                 <div class="tab-pane" id="env" role="tabpanel" aria-labelledby="env-tab" aria-expanded="false">
-                                   <div class="col-lg-12" style="padding:30px">
-                                        <table class="table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Key</th>
-                                                    <th>Value</th>
-                                                    <th><span class="glyphicon glyphicon-plus c-new-kv"></span></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="action-envs">
-                                            </tbody>
-                                        </table>
+                                   <div class="col-lg-12 form-horizontal" id="action-envs">
                                     </div>
                                 </div>
                             </div>

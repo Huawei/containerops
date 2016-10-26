@@ -66,7 +66,9 @@ function showComponentList(){
                 _.each(item.version,function(version){
                     var vrow = '<tr data-pname="' + item.name + '" data-version="' + version.version + '" data-versionid="' + version.id + '" style="height:50px">'
                             +'<td></td><td class="pptd">' + version.version + '</td>'
-                            +'<td><button type="button" class="btn btn-primary ppview">View</button></td></tr>';
+                            +'<td><button type="button" class="btn btn-success ppview">'
+                                +'<i class="glyphicon glyphicon-eye-open" style="font-size:16px"></i>&nbsp;&nbsp;View'
+                            +'</button></td></tr>';
                     $(".componentlist_body").append(vrow);
                 })
             }) ;

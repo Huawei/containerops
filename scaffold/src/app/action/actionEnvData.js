@@ -21,17 +21,17 @@ export function getActionEnvData(action){
 }
 
 export function setEnvKey(event){
-    var index = $(event.currentTarget).parent().parent().data("index");
+    var index = $(event.currentTarget).parent().data("index");
     data[index].key = $(event.currentTarget).val();
 }
 
 export function setEnvValue(event){
-    var index = $(event.currentTarget).parent().parent().data("index");
+    var index = $(event.currentTarget).parent().data("index");
     data[index].value = $(event.currentTarget).val();
 }
 
 export function removeEnv(event){
-    var index = $(event.currentTarget).parent().parent().data("index");
+    var index = $(event.currentTarget).data("index");
     data.splice(index,1);
 }
 

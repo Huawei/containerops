@@ -165,35 +165,35 @@ function showSetting(){
 function showPorts(){
     $("#ports-setting").empty();
     _.each(componentSetupData.data.service.spec.ports,function(item,index){
-        var row = '<div class="row"><div class="col-md-5">'
-                        +'<div class="form-group">'
+        var row = '<div class="port-row"><div class="port-div">'
+                        +'<div>'
                             +'<label for="normal-field" class="col-sm-4 control-label">'
-                                +'Service Port'
+                                +'Target Port'
                             +'</label>'
-                            +'<div class="col-sm-6" data-index="' + index + '">'
+                            +'<div class="col-sm-7" data-index="' + index + '">'
                                 +'<input type="number" name="k8s-service-port" value="' + item.port + '" class="form-control" required min="0" max="65535">'
                             +'</div>'
                         +'</div>'
                     +'</div>'
-                    +'<div class="col-md-5">'
-                        +'<div class="form-group">'
+                    +'<div class="target-port-div">'
+                        +'<div>'
                             +'<label for="normal-field" class="col-sm-4 control-label">'
                                 +'Node Port'
                             +'</label>'
-                            +'<div class="col-sm-6" data-index="' + index + '">' 
+                            +'<div class="col-sm-7" data-index="' + index + '">' 
                                 +'<input type="number" name="k8s-service-node-port" value="' + item.nodePort + '" class="form-control" required min="0" max="65535">'
                             +'</div>'
                         +'</div>'
                     +'</div>'
-                    +'<div class="col-md-2" data-index="' + index + '">'
-                        +'<span class="glyphicon glyphicon-minus rm-port"></span>'
+                    +'<div class="port-remove-div rm-port" data-index="' + index + '">'
+                        +'<span class="glyphicon glyphicon-remove"></span>'
                     +'</div></div>';
         $("#ports-setting").append(row);
     });
     
-    var addrow = `<div class="row"><div class="col-md-2 col-md-offset-10">
-                        <span class="glyphicon glyphicon-plus add-port"></span>
-                    </div></div>`;
+    var addrow = `<button type="button" class="btn btn-success add-port">
+                        <i class="glyphicon glyphicon-plus" style="top:1px"></i>&nbsp;&nbsp;Add Port
+                    </button>`;
     $("#ports-setting").append(addrow);
 
     $("input[name=k8s-service-port]").on("blur",function(event){
