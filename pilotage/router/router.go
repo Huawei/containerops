@@ -84,6 +84,9 @@ func SetRouters(m *macaron.Macaron) {
 					m.Put("/", handler.PutPipelineV1Handler)
 					m.Delete("/", handler.DeletePipelineV1Handler)
 
+					// get pipeline's token and request url
+					m.Get("/token", handler.GetPipelineTokenV1Handler)
+
 					// set a pipeline's env
 					m.Put("/env", handler.PutPipelineEnvV1Handler)
 					m.Get("/env", handler.GetPipelineEnvV1Handler)
