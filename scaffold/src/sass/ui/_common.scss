@@ -70,9 +70,36 @@ limitations under the License. */
    // margin-top:10px
 }
 
-// list view btn
+legend{
+  height: 46px;
+  border-bottom: 1px solid #787878;
+}
+
+// list
+.list-content{
+  padding:20px;
+}
+
 .ppview{
   background-color:#d9f7e8;
   color:#A1D2BA;
   border:none;
+}
+
+.pp-row{
+  height:50px;
+  background-color:#f7f7f7;
+}
+
+.ppversion-row{
+  height:50px;
+  background-color:#fbfbfb;
+}
+
+.pptd{
+  padding-top:15px !important
+}
+
+.treeclose, .treeopen{
+  cursor: pointer;
 }
