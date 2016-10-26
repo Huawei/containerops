@@ -1387,9 +1387,9 @@ div.jsoneditor-contextmenu ul li ul {
     overflow: auto;
 }
 
-.new-kv , .rm-kv, .close-env, .add-port, .rm-port, .c-new-kv, .c-rm-kv{
+.new-kv , .rm-kv, .close-env, .c-new-kv, .c-rm-kv{
    cursor: pointer;
-   margin-top:10px
+   // margin-top:10px
 }
 
 .table-responsive{
@@ -1514,4 +1514,114 @@ div.jsoneditor-contextmenu ul li ul {
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
   border-radius: 2px;
+}
+
+// component base config customize
+.type-header{
+  height:40px;
+  background-color:#f9f9f9;
+  border:2px solid #f0f0f0;
+  margin-top: 30px;
+}
+
+.type-label{
+  float:left;
+  width:150px;
+  height:100%;
+  padding:10px 20px;
+  border-right:2px solid #f0f0f0;
+}
+
+.type-setting{
+  float:left;
+  height:100%;
+  margin-left: 2px;
+  padding:8px 20px;
+  border-left:2px solid #f0f0f0;
+  font-size:12px
+}
+
+.resource-setting-div{
+  border:2px solid #f0f0f0;
+  border-top:none;
+  padding:30px 0px;
+}
+
+.port-setting-div{
+  border:2px solid #f0f0f0;
+  border-top:none;
+  padding:30px;
+}
+
+.port-row{
+  background-color:#f3f3f3;
+  width:92%;
+  height: 50px;
+  margin:10px 4%;
+}
+
+.port-remove-div{
+  width:50px;
+  height: 50px;
+  float: right;
+  background-color:#c9c9c9;
+  padding:16px;
+  cursor:pointer;
+  font-size: 18px;
+  color: #787878;
+}
+
+.port-remove-div:hover{
+  background-color:#333;
+  color: #f7f7f7;
+}
+
+.port-div{
+  width:45%;
+  float:left;
+  padding:8px;
+}
+
+.target-port-div{
+  width:45%;
+  float:left;
+  margin-left:10px;
+  padding:8px;
+}
+
+.add-port, .c-new-kv{
+  font-size:14px;
+  margin-left:50px;
+  margin-top:10px;
+}
+
+.unit{
+  position:absolute;
+  right:16px;
+  top:7px;
+  opacity: 0.4;
+}
+
+.advanced-service-textarea{
+  width: 100%;
+  height:500px;
+  border:none;
+  background-color:#f9f9f9;
+}
+
+.advanced-pod-textarea{
+  width: 100%;
+  height:500px;
+  border:none;
+  background-color:#f5f5f5;
+}
+
+.advanced-setting-div{
+  border:2px solid #f0f0f0;
+  border-top:none;
+  padding:20px;
+}
+
+.advanced-content{
+  background-color:#eaeaea;
 }
