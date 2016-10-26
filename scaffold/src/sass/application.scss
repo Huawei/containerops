@@ -34,3 +34,8 @@ limitations under the License. */
 @import "./theme/tables";
 @import "./theme/panel";
 @import "./vendor/jsoneditor";
+
+@import "./ui/component/baseconfig";
+@import "./ui/component/treeedit";
+@import "./ui/component/eventedit";
+@import "./ui/common";

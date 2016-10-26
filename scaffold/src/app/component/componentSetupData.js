@@ -74,7 +74,7 @@ export function setServiceNodePort(event){
 }
 
 export function removeServicePorts(event){
-  var index = $(event.currentTarget).parent().data("index");
+  var index = $(event.currentTarget).data("index");
   data.service.spec.ports.splice(index,1);
 }
 
