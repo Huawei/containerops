@@ -58,35 +58,45 @@ function showComponentList(){
 
             $(".componentlist_body").empty();
             _.each(allComponents,function(item){
-                var pprow = '<tr style="height:50px"><td class="pptd">'
-                        +'<span class="glyphicon glyphicon-menu-down treeclose" data-name="'+item.name+'"></span>&nbsp;'
-                        +'<span class="glyphicon glyphicon-menu-right treeopen" data-name="'+item.name+'"></span>&nbsp;' 
-                        + item.name + '</td><td></td><td></td></tr>';
+                var pprow = `<tr class="pp-row">
+                                <td class="pptd">
+                                    <span class="glyphicon glyphicon-menu-down treeclose treecontroller" data-name=` 
+                                    + item.name +`></span>&nbsp;&nbsp;&nbsp;&nbsp;`
+                                    + item.name 
+                                +`</td><td></td><td></td></tr>`;
                 $(".componentlist_body").append(pprow);
+
                 _.each(item.version,function(version){
-                    var vrow = '<tr data-pname="' + item.name + '" data-version="' + version.version + '" data-versionid="' + version.id + '" style="height:50px">'
-                            +'<td></td><td class="pptd">' + version.version + '</td>'
-                            +'<td><button type="button" class="btn btn-success ppview">'
-                                +'<i class="glyphicon glyphicon-eye-open" style="font-size:16px"></i>&nbsp;&nbsp;View'
-                            +'</button></td></tr>';
-                    $(".componentlist_body").append(vrow);
+                    var vrow = `<tr data-pname=` + item.name + ` data-version=` + version.version + ` data-versionid=` 
+                                + version.id + ` class="ppversion-row">
+                                    <td></td>
+                                    <td class="pptd">` + version.version + `</td>
+                                    <td>
+                                        <button type="button" class="btn btn-success ppview">
+                                            <i class="glyphicon glyphicon-eye-open" style="font-size:16px"></i>&nbsp;&nbsp;View
+                                        </button>
+                                    </td>
+                                </tr>`;
+                
+                $(".componentlist_body").append(vrow);
                 })
             }) ;
 
-            $(".treeclose").on("click",function(event){
+            $(".treecontroller").on("click",function(event){
                 var target = $(event.currentTarget);
-                target.hide();
-                target.next().show();
-                var name = target.data("name");
-                $('*[data-pname="'+name+'"]').hide();
-            });
+                if(target.hasClass("treeclose")){
+                    target.removeClass("glyphicon-menu-down treeclose");
+                    target.addClass("glyphicon-menu-right treeopen");
 
-            $(".treeopen").on("click",function(event){
-                var target = $(event.currentTarget);
-                target.hide();
-                target.prev().show();
-                var name = target.data("name");
-                $('*[data-pname="'+name+'"]').show();
+                    var name = target.data("name");
+                    $('*[data-pname="'+name+'"]').hide();
+                }else{
+                    target.addClass("glyphicon-menu-down treeclose");
+                    target.removeClass("glyphicon-menu-right treeopen");
+
+                    var name = target.data("name");
+                    $('*[data-pname="'+name+'"]').show();
+                }  
             });
 
             $(".ppview").on("click",function(event){
