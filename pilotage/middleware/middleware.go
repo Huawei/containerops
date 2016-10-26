@@ -31,5 +31,13 @@ func SetMiddlewares(m *macaron.Macaron) {
 
 	m.Use(func(ctx *macaron.Context) {
 		ctx.Resp.Header().Set("Access-Control-Allow-Origin", "*")
+		ctx.Resp.Header().Set("Access-Control-Allow-Methods", "POST,PUT,DELETE")
+	})
+
+	m.Use(func(ctx *macaron.Context) {
+		if ctx.Req.Method == "OPTIONS" {
+			ctx.Resp.Write([]byte("success"))
+			ctx.Resp.Flush()
+		}
 	})
 }
