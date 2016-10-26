@@ -412,3 +412,34 @@ func PutPipelineStateV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ = json.Marshal(map[string]string{"message": "success"})
 	return http.StatusOK, result
 }
+
+// GetPipelineTokenV1Handler is
+func GetPipelineTokenV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{"message": ""})
+
+	namespace := ctx.Params(":namespace")
+	pipelineName := ctx.Params(":pipeline")
+	id := ctx.QueryInt64("id")
+
+	if namespace == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "namespace can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	if pipelineName == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "pipeline can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	tokenInfo, err := module.GetPipelineToken(namespace, pipelineName, id)
+
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	result, _ = json.Marshal(tokenInfo)
+
+	return http.StatusOK, result
+
+}

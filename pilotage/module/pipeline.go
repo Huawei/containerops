@@ -30,8 +30,10 @@ import (
 	"time"
 
 	"github.com/Huawei/containerops/pilotage/models"
+	"github.com/Huawei/containerops/pilotage/utils"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/containerops/configure"
 )
 
 var (
@@ -190,14 +192,36 @@ func DoPipelineLog(pipelineInfo models.Pipeline) (*models.PipelineLog, error) {
 				return nil, errors.New("error when create new action log:" + err.Error())
 			}
 
+			protocol := ""
+			listenMode := configure.GetString("listenmode")
+			switch listenMode {
+			case "http":
+				protocol = "http://"
+				break
+			case "https":
+				protocol = "https://"
+				break
+			default:
+				protocol = "https://"
+				break
+			}
+
+			projectAddr := ""
+			if configure.GetString("projectaddr") == "" {
+				projectAddr = "localhost"
+			} else {
+				projectAddr = configure.GetString("projectaddr")
+			}
+			projectAddr = strings.TrimSuffix(projectAddr, "/")
+
 			// add default event to actionlog
 			eventList := []map[string]string{
-				{"event": "COMPONENT_START", "value": "http://192.168.137.1/pipeline/v1/" + pipelineInfo.Namespace + "/demo/" + pipelineInfo.Pipeline + "/event"},
-				{"event": "COMPONENT_STOP", "value": "http://192.168.137.1/pipeline/v1/" + pipelineInfo.Namespace + "/demo/" + pipelineInfo.Pipeline + "/event"},
-				{"event": "TASK_START", "value": "http://192.168.137.1/pipeline/v1/" + pipelineInfo.Namespace + "/demo/" + pipelineInfo.Pipeline + "/event"},
-				{"event": "TASK_RESULT", "value": "http://192.168.137.1/pipeline/v1/" + pipelineInfo.Namespace + "/demo/" + pipelineInfo.Pipeline + "/event"},
-				{"event": "TASK_STATUS", "value": "http://192.168.137.1/pipeline/v1/" + pipelineInfo.Namespace + "/demo/" + pipelineInfo.Pipeline + "/event"},
-				{"event": "REGISTER_URL", "value": "http://192.168.137.1/pipeline/v1/" + pipelineInfo.Namespace + "/demo/" + pipelineInfo.Pipeline + "/register"}}
+				{"event": "COMPONENT_START", "value": protocol + projectAddr + "/pipeline/v1/" + pipelineInfo.Namespace + "/demo/" + pipelineInfo.Pipeline + "/event"},
+				{"event": "COMPONENT_STOP", "value": protocol + projectAddr + "/pipeline/v1/" + pipelineInfo.Namespace + "/demo/" + pipelineInfo.Pipeline + "/event"},
+				{"event": "TASK_START", "value": protocol + projectAddr + "/pipeline/v1/" + pipelineInfo.Namespace + "/demo/" + pipelineInfo.Pipeline + "/event"},
+				{"event": "TASK_RESULT", "value": protocol + projectAddr + "/pipeline/v1/" + pipelineInfo.Namespace + "/demo/" + pipelineInfo.Pipeline + "/event"},
+				{"event": "TASK_STATUS", "value": protocol + projectAddr + "/pipeline/v1/" + pipelineInfo.Namespace + "/demo/" + pipelineInfo.Pipeline + "/event"},
+				{"event": "REGISTER_URL", "value": protocol + projectAddr + "/pipeline/v1/" + pipelineInfo.Namespace + "/demo/" + pipelineInfo.Pipeline + "/register"}}
 
 			for _, event := range eventList {
 				tempEvent := new(models.EventDefinition)
@@ -1560,6 +1584,69 @@ func GetActionPlatformInfo(actionInfo models.ActionLog) (map[string]string, erro
 	result := make(map[string]string)
 	result["platformType"] = platformType
 	result["platformHost"] = platformHost
+
+	return result, nil
+}
+
+func GetPipelineToken(namespace, pipelineName string, pipelineId int64) (map[string]interface{}, error) {
+	result := make(map[string]interface{})
+
+	pipelineInfo := new(models.Pipeline)
+	pipelineInfo.GetPipeline().Where("id = ?", pipelineId).First(&pipelineInfo)
+
+	if pipelineInfo.ID == 0 {
+		return nil, errors.New("pipeline's info is empty")
+	}
+
+	token := ""
+	tokenMap := make(map[string]interface{})
+	if pipelineInfo.SourceInfo == "" {
+		// if sourceInfo is empty generate a token
+		token = utils.MD5(pipelineInfo.Pipeline)
+	} else {
+		json.Unmarshal([]byte(pipelineInfo.SourceInfo), &tokenMap)
+
+		if _, ok := tokenMap["token"].(string); !ok {
+			token = utils.MD5(pipelineInfo.Pipeline)
+		} else {
+			token = tokenMap["token"].(string)
+		}
+	}
+
+	tokenMap["token"] = token
+	sourceInfo, _ := json.Marshal(tokenMap)
+	pipelineInfo.SourceInfo = string(sourceInfo)
+	pipelineInfo.GetPipeline().Save(pipelineInfo)
+
+	result["token"] = token
+
+	url := ""
+
+	listenMode := configure.GetString("listenmode")
+	switch listenMode {
+	case "http":
+		url = "http://"
+		break
+	case "https":
+		url = "https://"
+		break
+	default:
+		url = "https://"
+		break
+	}
+
+	projectAddr := ""
+	if configure.GetString("projectaddr") == "" {
+		projectAddr = "current-pipeline's-ip:port"
+	} else {
+		projectAddr = configure.GetString("projectaddr")
+	}
+
+	url += projectAddr
+	url = strings.TrimSuffix(url, "/")
+	url += "/" + pipelineInfo.Namespace + "/" + "demo" + "/" + pipelineInfo.Pipeline
+
+	result["url"] = url
 
 	return result, nil
 }
