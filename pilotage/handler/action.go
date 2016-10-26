@@ -18,6 +18,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -57,19 +58,42 @@ func DeleteActionV1Handler(ctx *macaron.Context) (int, []byte) {
 func PutActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": "ok"})
 
-	eventKey := ctx.Query("event")
-	eventId := ctx.QueryInt64("eventId")
-	runId := ctx.Query("runId")
+	// eventKey := ctx.Query("event")
+	// eventId := ctx.QueryInt64("eventId")
+	// runId := ctx.Query("runId")
 	bodyByte, _ := ctx.Req.Body().Bytes()
+
+	reqBody := make(map[string]interface{})
+	json.Unmarshal(bodyByte, &reqBody)
+
+	fmt.Println("=============================reqBody==================================")
+	fmt.Println(reqBody)
+	fmt.Println("=============================reqBody==================================")
+
+	eventKey, ok := reqBody["EVENT"].(string)
+	if !ok {
+		result, _ := json.Marshal(map[string]string{"message": "illegal eventKey, is not a string"})
+		return http.StatusOK, result
+	}
+
+	eventIdF, ok := reqBody["EVENTID"].(float64)
+	if !ok {
+		result, _ := json.Marshal(map[string]string{"message": "illegal eventId, eventId is not a number"})
+		return http.StatusOK, result
+	}
+	eventId := int64(eventIdF)
+
+	runId, ok := reqBody["RUN_ID"].(string)
+	if !ok {
+		result, _ := json.Marshal(map[string]string{"message": "illegal runId, runId is not a string"})
+		return http.StatusOK, result
+	}
 
 	if len(strings.Split(runId, ",")) != 5 {
 		// illegal runId return
 		result, _ := json.Marshal(map[string]string{"message": "illegal id"})
 		return http.StatusOK, result
 	}
-
-	reqBody := make(map[string]interface{})
-	json.Unmarshal(bodyByte, &reqBody)
 
 	pipelineId, err := strconv.ParseInt(strings.Split(runId, ",")[0], 10, 64)
 	if err != nil {
@@ -150,6 +174,12 @@ func PutActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	if eventKey == models.EVENT_TASK_RESULT {
+		reqBody, ok = reqBody["INFO"].(map[string]interface{})
+		if !ok {
+			result, _ := json.Marshal(map[string]string{"message": "illegal info, info is not a json"})
+			return http.StatusOK, result
+		}
+
 		status, ok := reqBody["status"].(bool)
 		if !ok {
 			status = false
@@ -242,13 +272,46 @@ func PutActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
 // PutActionRegisterV1Handler is all action register here
 func PutActionRegisterV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": "ok"})
-	runId := ctx.Query("runId")
-	podName := ctx.Query("podName")
-	receiveUrl := ctx.Query("receiveUrl")
+
+	// runId := ctx.Query("runId")
+	// podName := ctx.Query("podName")
+	// receiveUrl := ctx.Query("receiveUrl")
+
+	bodyByte, _ := ctx.Req.Body().Bytes()
+
+	reqBody := make(map[string]interface{})
+	json.Unmarshal(bodyByte, &reqBody)
+	// reqBody, ok = reqBody["INFO"].(map[string]interface{})
+	// if !ok {
+	// 	result, _ := json.Marshal(map[string]string{"message": "illegal reqData, reqData.INFO is not a json"})
+	// 	return http.StatusOK, result
+	// }
+
+	fmt.Println("========================================register=======================================")
+	fmt.Println(reqBody)
+	fmt.Println("========================================register=======================================")
+
+	runId, ok := reqBody["RUN_ID"].(string)
+	if !ok {
+		result, _ := json.Marshal(map[string]string{"message": "illegal runId, runId is not a string"})
+		return http.StatusOK, result
+	}
+
+	podName, ok := reqBody["POD_NAME"].(string)
+	if !ok {
+		result, _ := json.Marshal(map[string]string{"message": "illegal podName, podName is not a string"})
+		return http.StatusOK, result
+	}
+
+	receiveUrl, ok := reqBody["RECEIVE_URL"].(string)
+	if !ok {
+		result, _ := json.Marshal(map[string]string{"message": "illegal receiveUrl, receiveUrl is not a string"})
+		return http.StatusOK, result
+	}
 
 	if len(strings.Split(runId, ",")) != 5 {
 		// illegal runId return
-		result, _ := json.Marshal(map[string]string{"message": "illegal id"})
+		result, _ := json.Marshal(map[string]string{"message": "illegal id:" + runId})
 		return http.StatusOK, result
 	}
 

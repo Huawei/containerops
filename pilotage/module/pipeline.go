@@ -192,12 +192,12 @@ func DoPipelineLog(pipelineInfo models.Pipeline) (*models.PipelineLog, error) {
 
 			// add default event to actionlog
 			eventList := []map[string]string{
-				{"event": "COMPONENT_START", "value": "http://192.168.137.1/pipeline/v1/demo/demo/demo/event"},
-				{"event": "COMPONENT_STOP", "value": "http://192.168.137.1/pipeline/v1/demo/demo/demo/event"},
-				{"event": "TASK_START", "value": "http://192.168.137.1/pipeline/v1/demo/demo/demo/event"},
-				{"event": "TASK_RESULT", "value": "http://192.168.137.1/pipeline/v1/demo/demo/demo/event"},
-				{"event": "TASK_STATE", "value": "http://192.168.137.1/pipeline/v1/demo/demo/demo/event"},
-				{"event": "REGISTER_URL", "value": "http://192.168.137.1/pipeline/v1/demo/demo/demo/register"}}
+				{"event": "COMPONENT_START", "value": "http://192.168.137.1/pipeline/v1/" + pipelineInfo.Namespace + "/demo/" + pipelineInfo.Pipeline + "/event"},
+				{"event": "COMPONENT_STOP", "value": "http://192.168.137.1/pipeline/v1/" + pipelineInfo.Namespace + "/demo/" + pipelineInfo.Pipeline + "/event"},
+				{"event": "TASK_START", "value": "http://192.168.137.1/pipeline/v1/" + pipelineInfo.Namespace + "/demo/" + pipelineInfo.Pipeline + "/event"},
+				{"event": "TASK_RESULT", "value": "http://192.168.137.1/pipeline/v1/" + pipelineInfo.Namespace + "/demo/" + pipelineInfo.Pipeline + "/event"},
+				{"event": "TASK_STATUS", "value": "http://192.168.137.1/pipeline/v1/" + pipelineInfo.Namespace + "/demo/" + pipelineInfo.Pipeline + "/event"},
+				{"event": "REGISTER_URL", "value": "http://192.168.137.1/pipeline/v1/" + pipelineInfo.Namespace + "/demo/" + pipelineInfo.Pipeline + "/register"}}
 
 			for _, event := range eventList {
 				tempEvent := new(models.EventDefinition)
@@ -348,6 +348,7 @@ func handleStage(pipelineInfo models.PipelineLog, stageInfo models.StageLog, pip
 				handleStage(pipelineInfo, *nextStage, pipelineSequence, pipelineEnvMap)
 			} else {
 				// if has a failer action ,then stop all other action's
+				log.Info("stage " + stageInfo.Stage + " is stop with an action's error!")
 				stopStage(actionList, pipelineInfo, stageInfo, pipelineSequence)
 				return
 			}
@@ -368,6 +369,17 @@ func stopStage(actionList []models.ActionLog, pipelineInfo models.PipelineLog, s
 
 // exec a action
 func execAction(pipelineInfo models.PipelineLog, stageInfo models.StageLog, actionInfo models.ActionLog, pipelineSequence int64, envMap map[string]string) {
+	fmt.Println("----------------------------------------------")
+	fmt.Println(actionInfo.Environment)
+	fmt.Println("=====>", envMap)
+	if actionInfo.Environment != "" {
+		err := json.Unmarshal([]byte(actionInfo.Environment), &envMap)
+		if err != nil {
+			log.Error("error when load action's env when try to start action" + actionInfo.Action + "(" + strconv.FormatInt(actionInfo.ID, 10) + ")")
+		}
+	}
+	fmt.Println("=====>", envMap["CO_DATA"])
+
 	if actionInfo.Component != 0 {
 		startComponent(pipelineInfo, stageInfo, actionInfo, pipelineSequence, envMap)
 	} else {
@@ -423,7 +435,7 @@ func startComponent(pipelineInfo models.PipelineLog, stageInfo models.StageLog, 
 		startErrOutcome.GetOutcome().Save(startErrOutcome)
 		return
 	}
-	err = c.Start(componentId, eventList)
+	err = c.Start(componentId, eventList, envMap)
 	if err != nil {
 		// if has start error,stop this action and log it as start error
 		startErrOutcome := new(models.Outcome)
@@ -755,7 +767,9 @@ func getJsonDataByPath(path string, data map[string]interface{}) (interface{}, e
 	depth := len(strings.Split(path, "."))
 	if depth == 1 {
 		if info, ok := data[path]; !ok {
-			return nil, errors.New("key not exist:" + path)
+			// return nil, errors.New("key not exist:" + path)
+			log.Error("error when get data from action,action's key not exist :" + path)
+			return "", nil
 		} else {
 			return info, nil
 		}
@@ -763,7 +777,9 @@ func getJsonDataByPath(path string, data map[string]interface{}) (interface{}, e
 
 	childDataInterface, ok := data[strings.Split(path, ".")[0]]
 	if !ok {
-		return nil, errors.New("key not exist:" + path)
+		log.Error("error when get data from action,action's key not exist :" + path)
+		return "", nil
+		// return nil, errors.New("key not exist:" + path)
 	}
 	childData, ok := childDataInterface.(map[string]interface{})
 	if !ok {
@@ -1427,6 +1443,30 @@ func createActionByDefine(actionDefineList []map[string]interface{}, stageId int
 			outputStr = string(outputDescBytes)
 		}
 
+		allEnvMap := make(map[string]string)
+		if envMap, ok := actionDefine["env"].([]interface{}); ok {
+			for _, envInfo := range envMap {
+				envInfoMap, ok := envInfo.(map[string]interface{})
+				if !ok {
+					fmt.Println(envInfo)
+					fmt.Println(envInfo.(int64))
+					return nil, errors.New("action's env set is not a json")
+				}
+
+				key, ok := envInfoMap["key"].(string)
+				if !ok {
+					return nil, errors.New("action's key is not a string")
+				}
+
+				value, ok := envInfoMap["value"].(string)
+				if !ok {
+					return nil, errors.New("action's value is not a string")
+				}
+				allEnvMap[key] = value
+			}
+		}
+		envBytes, _ := json.Marshal(allEnvMap)
+
 		// get aciont line info
 		actionId, ok := actionDefine["id"].(string)
 		if !ok {
@@ -1450,6 +1490,7 @@ func createActionByDefine(actionDefineList []map[string]interface{}, stageId int
 		action.Input = inputStr
 		action.Output = outputStr
 		action.Timeout = actionTimeout
+		action.Environment = string(envBytes)
 
 		err := action.GetAction().Save(action).Error
 		if err != nil {
