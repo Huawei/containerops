@@ -9,26 +9,63 @@
                             <a data-widgster="fullscreen" title="" href="#" data-original-title="Full Screen" style="display: inline;"><i class="glyphicon glyphicon-fullscreen"></i></a>
                             <a data-widgster="restore" title="" href="#" style="display: none;" data-original-title="Restore"><i class="glyphicon glyphicon-resize-small"></i></a>
                         </div>
-                        <input type="button" id="refreshRelation" value="Refresh Relation" class="btn btn-success"/>
-                        <input type="button" id="removeLine" value="Remove Relation Line" class="btn btn-inverse hide"/>
-                        <div class="row treeview" style="position:relative;" onselectstart="return false;">
-                            <svg id="bipatiteLineSvg" class="relation-svg"></svg>
-                            <div class="col-md-2 import-div">
-                                <h4 class="pr">Import</h4>
-                                <div id="importDiv" class="json-editor">
-                                    no data
-                                </div>
+                        
+                        <div class="tree-tips">
+                            <div class="tip string">String</div>
+                            <div class="tip object">Object</div>
+                            <div class="tip number">Number</div>
+                            <div class="tip array">Array</div>
+                            <div class="tip boolean">Boolean</div>
+                            <div class="tip other">Other</div>
+
+                            <div class="tip clash">
+                                <span></span>
+                                Clash
                             </div>
-                            <div class="col-md-6">
-                                
-                            </div>
-                            <div class="col-md-4">
-                                <h4 class="pr">Output</h4>
-                                <div id="outputDiv" class="json-editor">
-                                    no data
+
+                            <div class="tip success">Success</div>
+                            <div class="tip show-clash">Show Clash</div>
+                        </div>
+                        
+                        <div class="tree-wrap">
+                            <input type="button" id="refreshRelation" value="Refresh Relation" class="btn btn-success"/>
+                            <input type="button" id="removeLine" value="Remove Relation Line" class="btn btn-inverse hide"/>
+                            
+                            <div class="tree-container">
+                                <div class="tree-bg-left">
+                                    <h4 class="pr">
+                                        <i class="glyphicon glyphicon-cloud-upload inputicon"></i>
+                                        Import
+                                    </h4>
                                 </div>
+                                <div class="tree-bg-right">
+                                    <h4 class="pr">
+                                        <i class="glyphicon glyphicon-cloud-download outputicon"></i>
+                                        Output
+                                    </h4>
+                                </div>
+
+                                <div class="row treeview" onselectstart="return false;">
+                                    <svg id="bipatiteLineSvg" class="relation-svg"></svg>
+                                    <div class="col-md-2 import-div">
+                                        <div id="importDiv" class="json-editor">
+                                            no data
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div id="outputDiv" class="json-editor">
+                                            no data
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
+
+                            
                         
                     </fieldset>
                 </form>
