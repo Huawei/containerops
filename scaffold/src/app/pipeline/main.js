@@ -66,7 +66,10 @@ function showPipelineList() {
                 var pprow = '<tr style="height:50px"><td class="pptd">' + '<span class="glyphicon glyphicon-menu-down treeclose" data-name="' + item.name + '"></span>&nbsp;' + '<span class="glyphicon glyphicon-menu-right treeopen" data-name="' + item.name + '"></span>&nbsp;' + item.name + '</td><td></td><td></td></tr>';
                 $(".pipelinelist_body").append(pprow);
                 _.each(item.version, function(version) {
-                    var vrow = '<tr data-pname="' + item.name + '" data-version="' + version.version + '" data-versionid="' + version.id + '" style="height:50px">' + '<td></td><td class="pptd">' + version.version + '</td>' + '<td><button type="button" class="btn btn-primary ppview">View</button></td></tr>';
+                    var vrow = '<tr data-pname="' + item.name + '" data-version="' + version.version + '" data-versionid="'
+                     + version.id + '" style="height:50px">' + '<td></td><td class="pptd">' + version.version + '</td>' 
+                     + '<td><button type="button" class="btn btn-success ppview">'
+                     +'<i class="glyphicon glyphicon-eye-open" style="font-size:16px"></i>&nbsp;&nbsp;View</button></td></tr>';
                     $(".pipelinelist_body").append(vrow);
                 })
             });
