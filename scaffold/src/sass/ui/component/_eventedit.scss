@@ -33,3 +33,36 @@ limitations under the License. */
 .hidden-div{
   display: none;
 }
+
+.editor-transfer{
+    padding: 15px 0px;
+    width:30%;
+}
+
+.code-to-tree{
+    background-image:url(/assets/svg/code-to-tree.svg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    width:50px;
+    height:40px;
+    float:left;
+    cursor:pointer;
+}
+
+.code-to-tree:hover{
+    background-image:url(/assets/svg/code-to-tree-hover.svg);
+}
+
+.tree-to-code{
+    background-image:url(/assets/svg/tree-to-code.svg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    width:50px;
+    height:40px;
+    float:right;
+    cursor:pointer;
+}
+
+.tree-to-code:hover{
+    background-image:url(/assets/svg/tree-to-code-hover.svg);
+}

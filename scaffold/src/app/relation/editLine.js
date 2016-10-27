@@ -41,7 +41,7 @@ export function editLine(editPage, currentLine) {
         $("#outputDiv").html("no data");
     }
     
-    // bipatiteView(lineInputJSON, lineOutputJSON, currentLineData);
+    bipatiteView(lineInputJSON, lineOutputJSON, currentLineData);
 
 
     $("#refreshRelation").click(function() {
