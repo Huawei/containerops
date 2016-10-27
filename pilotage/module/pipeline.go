@@ -24,6 +24,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -97,7 +98,7 @@ func DoPipelineLog(pipelineInfo models.Pipeline) (*models.PipelineLog, error) {
 		Sequence int64
 	})
 
-	err := new(models.Outcome).GetOutcome().Table("outcome").Where("pipeline = ?", pipelineInfo.ID).Order("-sequence").First(&tempSequence).Error
+	err := new(models.Outcome).GetOutcome().Table("outcome").Where("real_pipeline = ?", pipelineInfo.ID).Order("-sequence").First(&tempSequence).Error
 	if err != nil && err.Error() == "record not found" {
 		tempSequence.Sequence = 0
 	} else if err != nil {
@@ -109,6 +110,7 @@ func DoPipelineLog(pipelineInfo models.Pipeline) (*models.PipelineLog, error) {
 
 	pipelineLog.Namespace = pipelineInfo.Namespace
 	pipelineLog.Pipeline = pipelineInfo.Pipeline
+	pipelineLog.FromPipeline = pipelineInfo.ID
 	pipelineLog.Event = pipelineInfo.Event
 	pipelineLog.Version = pipelineInfo.Version
 	pipelineLog.VersionCode = pipelineInfo.VersionCode
@@ -143,6 +145,7 @@ func DoPipelineLog(pipelineInfo models.Pipeline) (*models.PipelineLog, error) {
 		stageLog.Type = stageInfo.Type
 		stageLog.PreStage = preStage
 		stageLog.Stage = stageInfo.Stage
+		stageLog.FromStage = stageInfo.ID
 		stageLog.Title = stageInfo.Title
 		stageLog.Description = stageInfo.Description
 		stageLog.Event = stageInfo.Event
@@ -295,9 +298,9 @@ func StartPipeline(pipelineInfo models.PipelineLog, reqBody string) string {
 
 	startOutcome.Sequence = pipelineSequence
 	startOutcome.Pipeline = pipelineInfo.ID
+	startOutcome.RealPipeline = pipelineInfo.FromPipeline
 	startOutcome.Stage = startStage.ID
-	startOutcome.Action = 0
-	startOutcome.Event = 0
+	startOutcome.RealStage = startStage.FromStage
 	startOutcome.Status = false
 	startOutcome.Result = "success"
 	startOutcome.Output = reqBody
@@ -323,9 +326,39 @@ func StartPipeline(pipelineInfo models.PipelineLog, reqBody string) string {
 func handleStage(pipelineInfo models.PipelineLog, stageInfo models.StageLog, pipelineSequence int64, pipelineEnvMap map[string]string) {
 	nextStage := new(models.StageLog)
 	actionList := make([]models.ActionLog, 0)
-	// if current stage is nil or is end stage, stop run
-	if stageInfo.ID == 0 || stageInfo.Type == models.StageTypeEnd {
+
+	// if current stage is end stage, this pipeline run result is success, record success, stop run
+	if stageInfo.Type == models.StageTypeEnd {
 		log.Info("current stage is ", stageInfo, " now pipeline("+strconv.FormatInt(pipelineSequence, 10)+") is finish...")
+		finalOutcome := new(models.Outcome)
+
+		finalOutcome.Pipeline = pipelineInfo.ID
+		finalOutcome.RealPipeline = pipelineInfo.FromPipeline
+		finalOutcome.Stage = stageInfo.ID
+		finalOutcome.RealStage = stageInfo.FromStage
+		finalOutcome.Action = -1
+		finalOutcome.RealAction = -1
+		finalOutcome.Sequence = pipelineSequence
+		finalOutcome.Status = true
+
+		finalOutcome.GetOutcome().Save(finalOutcome)
+	}
+
+	// if current stage is nil , stop run
+	if stageInfo.ID == 0 {
+		log.Info("current stage is ", stageInfo, " now pipeline("+strconv.FormatInt(pipelineSequence, 10)+") is finish...")
+		finalOutcome := new(models.Outcome)
+
+		finalOutcome.Pipeline = pipelineInfo.ID
+		finalOutcome.RealPipeline = pipelineInfo.FromPipeline
+		finalOutcome.Stage = stageInfo.ID
+		finalOutcome.RealStage = stageInfo.FromStage
+		finalOutcome.Action = -1
+		finalOutcome.RealAction = -1
+		finalOutcome.Sequence = pipelineSequence
+		finalOutcome.Status = false
+
+		finalOutcome.GetOutcome().Save(finalOutcome)
 		return
 	}
 
@@ -435,9 +468,11 @@ func startComponent(pipelineInfo models.PipelineLog, stageInfo models.StageLog, 
 	if err != nil {
 		startErrOutcome := new(models.Outcome)
 		startErrOutcome.Pipeline = pipelineInfo.ID
+		startErrOutcome.RealPipeline = pipelineInfo.FromPipeline
 		startErrOutcome.Stage = stageInfo.ID
+		startErrOutcome.RealStage = stageInfo.FromStage
 		startErrOutcome.Action = actionInfo.ID
-		startErrOutcome.Event = 0
+		startErrOutcome.RealAction = actionInfo.FromAction
 		startErrOutcome.Sequence = pipelineSequence
 		startErrOutcome.Status = false
 		startErrOutcome.Result = err.Error()
@@ -454,9 +489,11 @@ func startComponent(pipelineInfo models.PipelineLog, stageInfo models.StageLog, 
 		// if has init error,stop this action and log it as start error
 		startErrOutcome := new(models.Outcome)
 		startErrOutcome.Pipeline = pipelineInfo.ID
+		startErrOutcome.RealPipeline = pipelineInfo.FromPipeline
 		startErrOutcome.Stage = stageInfo.ID
+		startErrOutcome.RealStage = stageInfo.FromStage
 		startErrOutcome.Action = actionInfo.ID
-		startErrOutcome.Event = 0
+		startErrOutcome.RealAction = actionInfo.FromAction
 		startErrOutcome.Sequence = pipelineSequence
 		startErrOutcome.Status = false
 		startErrOutcome.Result = "init error:" + err.Error()
@@ -470,9 +507,11 @@ func startComponent(pipelineInfo models.PipelineLog, stageInfo models.StageLog, 
 		// if has start error,stop this action and log it as start error
 		startErrOutcome := new(models.Outcome)
 		startErrOutcome.Pipeline = pipelineInfo.ID
+		startErrOutcome.RealPipeline = pipelineInfo.FromPipeline
 		startErrOutcome.Stage = stageInfo.ID
+		startErrOutcome.RealStage = stageInfo.FromStage
 		startErrOutcome.Action = actionInfo.ID
-		startErrOutcome.Event = 0
+		startErrOutcome.RealAction = actionInfo.FromAction
 		startErrOutcome.Sequence = pipelineSequence
 		startErrOutcome.Status = false
 		startErrOutcome.Result = "start error:" + err.Error()
@@ -487,9 +526,11 @@ func stopComponent(pipelineInfo models.PipelineLog, stageInfo models.StageLog, a
 	if err != nil {
 		initErrOutcome := new(models.Outcome)
 		initErrOutcome.Pipeline = pipelineInfo.ID
+		initErrOutcome.RealPipeline = pipelineInfo.FromPipeline
 		initErrOutcome.Stage = stageInfo.ID
+		initErrOutcome.RealStage = stageInfo.FromStage
 		initErrOutcome.Action = actionInfo.ID
-		initErrOutcome.Event = 0
+		initErrOutcome.RealAction = actionInfo.FromAction
 		initErrOutcome.Sequence = pipelineSequence
 		initErrOutcome.Status = false
 		initErrOutcome.Result = err.Error()
@@ -504,9 +545,11 @@ func stopComponent(pipelineInfo models.PipelineLog, stageInfo models.StageLog, a
 		// if has init error,stop this action and log it as start error
 		initErrOutcome := new(models.Outcome)
 		initErrOutcome.Pipeline = pipelineInfo.ID
+		initErrOutcome.RealPipeline = pipelineInfo.FromPipeline
 		initErrOutcome.Stage = stageInfo.ID
+		initErrOutcome.RealStage = stageInfo.FromStage
 		initErrOutcome.Action = actionInfo.ID
-		initErrOutcome.Event = 0
+		initErrOutcome.RealAction = actionInfo.FromAction
 		initErrOutcome.Sequence = pipelineSequence
 		initErrOutcome.Status = false
 		initErrOutcome.Result = "component init error:" + err.Error()
@@ -524,9 +567,11 @@ func stopComponent(pipelineInfo models.PipelineLog, stageInfo models.StageLog, a
 func startService(pipelineInfo models.PipelineLog, stageInfo models.StageLog, actionInfo models.ActionLog, pipelineSequence int64, envMap map[string]string) {
 	startErrOutcome := new(models.Outcome)
 	startErrOutcome.Pipeline = pipelineInfo.ID
+	startErrOutcome.RealPipeline = pipelineInfo.FromPipeline
 	startErrOutcome.Stage = stageInfo.ID
+	startErrOutcome.RealStage = stageInfo.FromStage
 	startErrOutcome.Action = actionInfo.ID
-	startErrOutcome.Event = 0
+	startErrOutcome.RealAction = actionInfo.FromAction
 	startErrOutcome.Sequence = pipelineSequence
 	startErrOutcome.Status = false
 	startErrOutcome.Result = "start error: action component is 0"
@@ -674,7 +719,8 @@ func SendDataToAction(runId, targetUrl, podName string) {
 	if err != nil {
 		payload["error"] = err.Error()
 	} else {
-		payload["resp"] = resp
+		respBody, _ := ioutil.ReadAll(resp.Body)
+		payload["resp"] = string(respBody)
 	}
 
 	payloadInfo, err := json.Marshal(payload)
@@ -711,7 +757,7 @@ func merageFromActionsOutputData(pipelineId, stageId, actionId, pipelineSequence
 		}
 
 		fromOutcome := new(models.Outcome)
-		err := fromOutcome.GetOutcome().Where("pipeline = ? ", pipelineId).Where("stage = ?", stageId).Where("real_action = ?", fromAction).Where("sequence = ?", pipelineSequence).First(&fromOutcome).Error
+		err := fromOutcome.GetOutcome().Where("pipeline = ? ", pipelineId).Where("real_action = ?", fromAction).Where("sequence = ?", pipelineSequence).First(&fromOutcome).Error
 		if err != nil {
 			return nil, errors.New("error when get from outcome, error:" + err.Error())
 		}
@@ -1393,7 +1439,7 @@ func updatePipelineSourceInfo(stageSetupDataMap map[string]interface{}, pipeline
 
 	sourceInfoBytes, _ := json.Marshal(sourceMap)
 	pipelineInfo.SourceInfo = string(sourceInfoBytes)
-	pipelineInfo.GetPipeline().Save(pipelineInfo)
+	pipelineInfo.GetPipeline().Save(&pipelineInfo)
 }
 
 func createActionByDefine(actionDefineList []map[string]interface{}, stageId int64) (map[string]int64, error) {
@@ -1699,4 +1745,79 @@ func GetPipelineToken(namespace, pipelineName string, pipelineId int64) (map[str
 	result["url"] = url
 
 	return result, nil
+}
+
+func GetPipelineHistoriesList(namespace string) ([]map[string]interface{}, error) {
+	resultList := make([]map[string]interface{}, 0)
+	pipelinesMap := make(map[int64]interface{})
+	pipelineList := make([]models.Pipeline, 0)
+	new(models.Pipeline).GetPipeline().Where("namespace = ?", namespace).Find(&pipelineList)
+
+	for _, pipelineInfo := range pipelineList {
+		if _, ok := pipelinesMap[pipelineInfo.ID]; !ok {
+			tempMap := make(map[string]interface{})
+			tempMap["versionsMap"] = make(map[int64]interface{})
+			pipelinesMap[pipelineInfo.ID] = tempMap
+		}
+
+		pipelineMap := pipelinesMap[pipelineInfo.ID].(map[string]interface{})
+		versionMap := pipelineMap["versionsMap"].(map[int64]interface{})
+
+		versionMap[pipelineInfo.VersionCode] = pipelineInfo
+		pipelineMap["id"] = pipelineInfo.ID
+		pipelineMap["name"] = pipelineInfo.Pipeline
+		pipelineMap["versionsMap"] = versionMap
+	}
+
+	for _, pipeline := range pipelinesMap {
+		pipelineMap := pipeline.(map[string]interface{})
+		tempPipelineMap := make(map[string]interface{})
+		versionList := make([]map[string]interface{}, 0)
+
+		versionsMap, ok := pipelineMap["versionsMap"].(map[int64]interface{})
+		if ok {
+			for _, version := range versionsMap {
+				pipelineVersionInfo := version.(models.Pipeline)
+				// 获取version所有运行信息
+				startSequenceList := make([]models.Outcome, 0)
+				new(models.Outcome).GetOutcome().Where("real_pipeline = ?", pipelineVersionInfo.ID).Where("action = ?", 0).Find(&startSequenceList)
+
+				sequencesMap := make([]map[string]interface{}, 0)
+				successNum := int64(0)
+				sumNum := int64(0)
+				for _, outcome := range startSequenceList {
+					sumNum++
+					resultOutcome := new(models.Outcome)
+					resultOutcome.GetOutcome().Where("real_pipeline = ?", outcome.RealPipeline).Where("real_stage = ?", outcome.RealStage).Where("real_action = ?", outcome.RealAction).Where("sequence = ?", outcome.Sequence).First(resultOutcome)
+
+					tempMap := make(map[string]interface{})
+					tempMap["sequence"] = outcome.Sequence
+					tempMap["status"] = false
+					tempMap["time"] = outcome.CreatedAt.Format("2006-01-02 15:04:05")
+
+					if resultOutcome.ID != 0 && resultOutcome.Status {
+						successNum++
+						tempMap["status"] = resultOutcome.Status
+					}
+
+					sequencesMap = append(sequencesMap, tempMap)
+				}
+
+				versionMap := make(map[string]interface{})
+				versionMap["id"] = pipelineVersionInfo.ID
+				versionMap["name"] = pipelineVersionInfo.Version
+				versionMap["info"] = "Success :" + strconv.FormatInt(successNum, 10) + " Total :" + strconv.FormatInt(sumNum, 10)
+				versionMap["sequenceList"] = sequencesMap
+
+				versionList = append(versionList, versionMap)
+			}
+		}
+
+		tempPipelineMap["id"] = pipelineMap["id"]
+		tempPipelineMap["name"] = pipelineMap["name"]
+		tempPipelineMap["versionList"] = versionList
+		resultList = append(resultList, tempPipelineMap)
+	}
+
+	return resultList, nil
 }
