@@ -13,6 +13,7 @@
 
 import { setPath, getPathData } from "./setPath";
 import { linePathAry } from "../common/constant";
+import { bipatiteView } from "./bipatiteView";
 import { notify } from "../common/notify";
 
 export function dragDropSetPath(options) {
@@ -55,22 +56,20 @@ export function dragDropSetPath(options) {
         }
 
         if (toNodeData != undefined && toNodeData.translateX > fromNodeData.translateX && toNodeData.type === "pipeline-action") {
-            setPath({
+            
+            let dataJson = {
                 pipelineLineViewId: "pipeline-line-view",
                 startData: fromNodeData,
                 endData: toNodeData,
                 startPoint: { x: fromNodeData.translateX, y: fromNodeData.translateY },
                 endPoint: { x: toNodeData.translateX, y: toNodeData.translateY },
                 id: _id
-            });
-            linePathAry.push({
-                pipelineLineViewId: "pipeline-line-view",
-                startData: fromNodeData,
-                endData: toNodeData,
-                startPoint: { x: fromNodeData.translateX, y: fromNodeData.translateY },
-                endPoint: { x: toNodeData.translateX, y: toNodeData.translateY },
-                id: _id
-            });
+            };
+
+            setPath(dataJson);
+            linePathAry.push(dataJson);
+
+            bipatiteView(fromNodeData.outputJson,toNodeData.inputJson,dataJson);
         }
     }
 }
