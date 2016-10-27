@@ -170,7 +170,7 @@ export function initPipeline() {
     //         type = "number";
     //     }
 
-    //     drawTreeNode(1200 + (i + 1) * 50, 30 + (i + 1) * 35, "text" + i, type, 0.6);
+    //     drawTreeNode(100 + (i + 1) * 50, 30 + (i + 1) * 35, "text" + i, type, 0.6);
     // }
 
 
