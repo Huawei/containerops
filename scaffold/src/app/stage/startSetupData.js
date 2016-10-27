@@ -38,8 +38,6 @@ export function getEventSelect(){
 
 var metadata = {
   "type" : "github",
-  "url" : "",
-  "token" : "",
   "event" : "PullRequest"
 }
 
