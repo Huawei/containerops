@@ -21,12 +21,24 @@
                     </button>
                 </legend>
                 <div>
-                    
+                    <div class="state-desc">
+                        <div class="state-icon-desc state-fail"></div>
+                        <span class="state-label-desc">Fail To Run</span>
+                    </div>
+                    <div class="state-desc">
+                        <div class="state-icon-desc state-success"></div>
+                        <span class="state-label-desc">Succeed To Run</span>
+                    </div>
+                    <div class="state-desc">
+                        <div class="state-icon-desc state-norun"></div>
+                        <span class="state-label-desc">Not Run Yet</span>
+                    </div>
                     <table class="table">
                         <thead>
                             <tr>
                                 <th>Pipeline Name</th>
                                 <th>Version</th>
+                                <th>State</th>
                                 <th>Operation</th>
                             </tr>
                         </thead>
