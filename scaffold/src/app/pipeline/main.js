@@ -67,20 +67,37 @@ function showPipelineList() {
                                 <td class="pptd">
                                     <span class="glyphicon glyphicon-menu-down treeclose treecontroller" data-name=` 
                                     + item.name + `></span>&nbsp;&nbsp;&nbsp;&nbsp;` 
-                                    + item.name + `</td><td></td><td></td></tr>`;
+                                    + item.name + `</td><td></td><td></td><td></td></tr>`;
                 $(".pipelinelist_body").append(pprow);
 
                 _.each(item.version, function(version) {
                     var vrow = `<tr data-pname=` + item.name + ` data-version=` + version.version + ` data-versionid=`
                                 + version.id + ` class="ppversion-row">
                                     <td></td>
-                                    <td class="pptd">` + version.version + `</td>
-                                    <td>
-                                        <button type="button" class="btn btn-success ppview">
-                                            <i class="glyphicon glyphicon-eye-open" style="font-size:16px"></i>&nbsp;&nbsp;View
-                                        </button>
-                                    </td>
-                                </tr>`;
+                                    <td class="pptd">` + version.version + `</td><td>`;
+
+                    if(_.isUndefined(version.status)){
+                        vrow += `<div class="state-list">
+                                    <div class="state-icon-list state-norun"></div>
+                                </div>`;
+                    }else if(version.status.status){
+                        vrow += `<div class="state-list">
+                                    <div class="state-icon-list state-success"></div>
+                                    <span class="state-label-list">` + version.status.time + `</span>
+                                </div>`;
+                    }else{
+                        vrow += `<div class="state-list">
+                                    <div class="state-icon-list state-fail"></div>
+                                    <span class="state-label-list">` + version.status.time + `</span>
+                                </div>`
+                    }
+
+                    vrow += `</td><td>
+                                <button type="button" class="btn btn-success ppview">
+                                    <i class="glyphicon glyphicon-eye-open" style="font-size:16px"></i>&nbsp;&nbsp;View
+                                </button>
+                            </td></tr>`;
+
                     $(".pipelinelist_body").append(vrow);
                 })
             });
