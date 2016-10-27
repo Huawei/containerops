@@ -11,14 +11,13 @@ limitations under the License. */
 
 // tree add button
 .tree-add-button{
-  margin-top:100px;
-  height:150px;
+  margin-top:6em;
 }
 
 .tree-add-button > .btn-div{
-  width:150px;
-  padding:35px 40px;
-  font-size:40px;
+  width:4em;
+  padding:1.1em 1em;
+  font-size:5em;
   margin:auto;
   background-color:#ee9911;
   text-align:center;
@@ -30,8 +29,7 @@ limitations under the License. */
 }
 
 .tree-add-button > .btn-div:hover{
-  padding:25px 20px;
-  font-size:24px;
+  padding:0.1em 0.5em;
   background-color:#333;
   color:#fff;
   cursor:pointer;
@@ -53,21 +51,106 @@ limitations under the License. */
   display: block;
 }
 
+.desc{
+  height:3em;
+}
+
 .desc > .desc-label{
-  font-size:12px;
+  font-size:0.3em;
   cursor: pointer;
 }
 
 .desc > .desc-btn{
-  width:35px;
-  height:25px;
-  padding:4px 5px;
-  font-size:14px;
+  width:2em;
+  height:1.8em;
+  padding:1 1.2em;
+  font-size:0.2em;
   margin:auto;
   background-color:#ee9911;
   text-align:center;
   color:#fff;
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  border-radius: 2px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
 }
+
+// tree icon description
+.tree-icon-desc-row{
+  background-color: #f7f7f7;
+  height:40px;
+  width:100%;
+  padding:10px;
+}
+
+.tree-icon-desc-item{
+  margin-left: 20px;
+  float:left;
+}
+
+.tree-icon{
+  width:20px;
+  height:20px;
+  float: left;
+}
+
+.tree-icon-label{
+  float:right;
+  margin:2px 8px;
+}
+
+.icon-s{
+  background-image:url(/assets/svg/icon-s.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width:20px;
+  height:20px;
+}
+
+.icon-o{
+  background-image:url(/assets/svg/icon-o.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width:20px;
+  height:20px;
+}
+
+.icon-n{
+  background-image:url(/assets/svg/icon-n.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width:20px;
+  height:20px;
+}
+
+.icon-a{
+  background-image:url(/assets/svg/icon-a.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width:20px;
+  height:20px;
+}
+
+.icon-b{
+  background-image:url(/assets/svg/icon-b.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width:20px;
+  height:20px;
+}
+
+.icon-none{
+  background-image:url(/assets/svg/icon-none.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width:20px;
+  height:20px;
+}
+
+.icon-add{
+  background-image:url(/assets/svg/icon-add.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width:20px;
+  height:20px;
+}
+
