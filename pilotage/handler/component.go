@@ -39,6 +39,7 @@ func GetComponentListV1Handler(ctx *macaron.Context) (int, []byte) {
 
 	resultMap := make([]map[string]interface{}, 0)
 	componentList := make([]models.Component, 0)
+	componentsMap := make(map[int64]interface{})
 	new(models.Component).GetComponent().Where("namespace = ?", namespace).Order("-id").Find(&componentList)
 
 	for _, componentInfo := range componentList {
