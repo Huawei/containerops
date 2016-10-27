@@ -39,44 +39,46 @@ func GetComponentListV1Handler(ctx *macaron.Context) (int, []byte) {
 
 	resultMap := make([]map[string]interface{}, 0)
 	componentList := make([]models.Component, 0)
-	new(models.Component).GetComponent().Where("namespace = ?", namespace).Order("-id").Order("component").Find(&componentList)
+	new(models.Component).GetComponent().Where("namespace = ?", namespace).Order("-id").Find(&componentList)
 
 	for _, componentInfo := range componentList {
+		if _, ok := componentsMap[componentInfo.ID]; !ok {
+			tempMap := make(map[string]interface{})
+			tempMap["version"] = make(map[int64]interface{})
+			componentsMap[componentInfo.ID] = tempMap
+		}
 
-		shouldAppend := false
-		componentMap := make(map[string]interface{}, 0)
+		componentMap := componentsMap[componentInfo.ID].(map[string]interface{})
+		versionMap := componentMap["version"].(map[int64]interface{})
 
-		if len(resultMap) > 0 {
-			if resultMap[len(resultMap)-1]["name"] == componentInfo.Component {
-				componentMap = resultMap[len(resultMap)-1]
+		versionMap[componentInfo.VersionCode] = componentInfo
+		componentMap["id"] = componentInfo.ID
+		componentMap["name"] = componentInfo.Component
+		componentMap["version"] = versionMap
+	}
+
+	for _, component := range componentList {
+		componentInfo := componentsMap[component.ID].(map[string]interface{})
+
+		versionList := make([]map[string]interface{}, 0)
+		for _, componentVersion := range componentList {
+			if componentVersion.Component == componentInfo["name"].(string) {
+				versionMap := make(map[string]interface{})
+				versionMap["id"] = componentVersion.ID
+				versionMap["version"] = componentVersion.Version
+				versionMap["versionCode"] = componentVersion.VersionCode
+
+				versionList = append(versionList, versionMap)
 			}
 		}
 
-		if componentMap["id"] == nil {
-			componentMap["id"] = componentInfo.ID
-			componentMap["name"] = componentInfo.Component
-			componentMap["version"] = make([]map[string]interface{}, 0)
-			shouldAppend = true
-		}
+		tempResult := make(map[string]interface{})
+		tempResult["id"] = componentInfo["id"]
+		tempResult["name"] = componentInfo["name"]
+		tempResult["version"] = versionList
 
-		versionMap := make(map[string]interface{})
-		versionMap["id"] = componentInfo.ID
-		versionMap["version"] = componentInfo.Version
-		versionMap["versionCode"] = componentInfo.VersionCode
-
-		versionList := componentMap["version"].([]map[string]interface{})
-		componentMap["version"] = append(versionList, versionMap)
-
-		if shouldAppend {
-			resultMap = append(resultMap, componentMap)
-		}
+		resultMap = append(resultMap, tempResult)
 	}
-
-	// tempResult := make([]map[string]interface{}, len(resultMap))
-
-	// for i, result := range resultMap {
-	// 	tempResult[len(resultMap)-i-1] = result
-	// }
 
 	result, _ = json.Marshal(map[string]interface{}{"list": resultMap})
 
