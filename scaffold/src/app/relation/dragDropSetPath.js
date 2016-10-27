@@ -71,6 +71,10 @@ export function dragDropSetPath(options) {
                 endPoint: { x: toNodeData.translateX, y: toNodeData.translateY },
                 id: _id
             });
+            // if(checkConflict(fromNodeData.id, toNodeData.id)){
+            //     notify("Conflict with other inputs, please click target action to resolve conflict first", "error");
+            //     return false;
+            // }
         }
     }
 }
