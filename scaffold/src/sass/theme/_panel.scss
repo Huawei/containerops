@@ -74,26 +74,3 @@ limitations under the License. */
 	background-color: #4A607C;
 	border-bottom: 1px solid #4A607C;
 }
-
-.editor-transfer{
-	padding: 15px 0px;
-	height:70px;
-}
-
-#inputFromJson, #outputFromJson{
-	background-color: #3E4B5B;
-	border: 1px solid #3E4B5B;
-}
-#inputFromJson:hover, #outputFromJson:hover{
-	background-color: #f0b518;
-	border: 1px solid #f0b518;
-}
-
-#inputToJson, #outputToJson{
-	background-color: #4A607C;
-	border: 1px solid #4A607C;
-}
-#inputToJson:hover, #outputToJson:hover{
-	background-color: #f0b518;
-	border: 1px solid #f0b518;
-}

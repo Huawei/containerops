@@ -33,6 +33,20 @@ limitations under the License. */
   cursor:pointer;
 }
 
+// back to list
+.backtolist{
+  background-image:url(/assets/svg/back.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width:30px;
+  height:40px;
+  margin:5px;
+}
+
+.backtolist:hover{
+  background-image:url(/assets/svg/back-hover.svg);
+}
+
 /* env setting */
 .env-setting-closed{
     position: fixed;
