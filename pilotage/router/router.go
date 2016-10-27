@@ -77,6 +77,7 @@ func SetRouters(m *macaron.Macaron) {
 				m.Get("/", handler.GetPipelineListV1Handler)
 				m.Post("/", handler.PostPipelineV1Handler)
 				m.Post("/json", handler.PostPipelineJSONV1Handler)
+				m.Get("/histories", handler.GetPipelineHistoriesV1Handler)
 
 				m.Group("/:pipeline", func() {
 					//Get/Put/Delete Pipeline

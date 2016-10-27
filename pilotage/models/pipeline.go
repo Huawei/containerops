@@ -49,7 +49,7 @@ type Pipeline struct {
 	State       int64      `json:"state" sql:"null;type:bigint"`               //pipeline state
 	Manifest    string     `json:"manifest" sql:"null;type:text"`              //
 	Description string     `json:"description" sql:"null;type:text"`           //
-	SourceInfo  string     `json:"source"`                                     // define of source like : [{"sourceType":"Github","headerKey":"X-Hub-Signature","eventList":",pull request,","secretKey":"asdfFDSA!@d12"}]
+	SourceInfo  string     `json:"source"`                                     // define of source like : {"token":"","sourceList":[{"sourceType":"Github","headerKey":"X-Hub-Signature","eventList":",pull request,"]}
 	Env         string     `json:"env"`                                        // env that all action in this pipeline will get
 	CreatedAt   time.Time  `json:"created" sql:""`                             //
 	UpdatedAt   time.Time  `json:"updated" sql:""`                             //
@@ -67,21 +67,22 @@ func (p *Pipeline) GetPipeline() *gorm.DB {
 
 //PipelineLog is pipeline run history log.
 type PipelineLog struct {
-	ID          int64      `json:"id" gorm:"primary_key"`                      //
-	Namespace   string     `json:"namespace" sql:"not null;type:varchar(255)"` //Username or organization
-	Pipeline    string     `json:"pipeline" sql:"not null;type:varchar(255)"`  //pipeline name
-	Event       int64      `json:"event" sql:"null;default:0"`                 //
-	Version     string     `json:"version" sql:"null;type:varchar(255)"`       //User define Pipeline version
-	VersionCode int64      `json:"versionCode" sql:"null;type:varchar(255)"`   //System define Pipeline version,unique,for query
-	Sequence    int64      `json:"sequence"`                                   //
-	State       int64      `json:"state" sql:"null;type:bigint"`               //pipeline state
-	Manifest    string     `json:"manifest" sql:"null;type:text"`              //
-	Description string     `json:"description" sql:"null;type:text"`           //
-	SourceInfo  string     `json:"source"`                                     // define of source like : [{"sourceType":"Github","headerKey":"X-Hub-Signature","eventList":",pull request,","secretKey":"asdfFDSA!@d12"}]
-	Env         string     `json:"env"`                                        // env that all action in this pipeline will get
-	CreatedAt   time.Time  `json:"created" sql:""`                             //
-	UpdatedAt   time.Time  `json:"updated" sql:""`                             //
-	DeletedAt   *time.Time `json:"deleted" sql:"index"`                        //
+	ID           int64      `json:"id" gorm:"primary_key"`                      //
+	Namespace    string     `json:"namespace" sql:"not null;type:varchar(255)"` //Username or organization
+	Pipeline     string     `json:"pipeline" sql:"not null;type:varchar(255)"`  //pipeline name
+	FromPipeline int64      `json:"fromPipeline" sql:"not null;default:0"`      //
+	Event        int64      `json:"event" sql:"null;default:0"`                 //
+	Version      string     `json:"version" sql:"null;type:varchar(255)"`       //User define Pipeline version
+	VersionCode  int64      `json:"versionCode" sql:"null;type:varchar(255)"`   //System define Pipeline version,unique,for query
+	Sequence     int64      `json:"sequence"`                                   //
+	State        int64      `json:"state" sql:"null;type:bigint"`               //pipeline state
+	Manifest     string     `json:"manifest" sql:"null;type:text"`              //
+	Description  string     `json:"description" sql:"null;type:text"`           //
+	SourceInfo   string     `json:"source"`                                     // define of source like : [{"sourceType":"Github","headerKey":"X-Hub-Signature","eventList":",pull request,","secretKey":"asdfFDSA!@d12"}]
+	Env          string     `json:"env"`                                        // env that all action in this pipeline will get
+	CreatedAt    time.Time  `json:"created" sql:""`                             //
+	UpdatedAt    time.Time  `json:"updated" sql:""`                             //
+	DeletedAt    *time.Time `json:"deleted" sql:"index"`                        //
 }
 
 //TableName is return the table name of Pipeline in MySQL database.
@@ -124,6 +125,7 @@ func (s *Stage) GetStage() *gorm.DB {
 type StageLog struct {
 	ID          int64      `json:"id" gorm:"primary_key"`                  //
 	Pipeline    int64      `json:"pipeline" sql:"not null;default:0"`      //PipelineLog's ID.
+	FromStage   int64      `json:"fromStage" sql:"not null;default:0"`     //
 	Type        int64      `json:"type" sql:"not null;default:0"`          //StageTypeStart, StageTypeEnd or StageTypeRun
 	PreStage    int64      `json:"preStage" sql:"not null;default:0"`      //Pre stage ID ,first stage is -1
 	Stage       string     `json:"stage" sql:"not null;type:varchar(255)"` //Stage name for query.
@@ -185,7 +187,7 @@ type ActionLog struct {
 	Stage       int64      `json:"stage" sql:"not null;default:0"`         //
 	Component   int64      `json:"component" sql:"not null;default:0"`     //
 	Service     int64      `json:"service" sql:"not null;default:0"`       //
-	FromAction  int64      `json:"fromAction"`                             //
+	FromAction  int64      `json:"fromAction" sql:"not null;default:0"`    //
 	Action      string     `json:"action" sql:"not null;varchar(255)"`     //
 	Title       string     `json:"title" sql:"not null;type:varchar(255)"` //
 	Description string     `json:"description" sql:"null;type:text"`       //
@@ -213,21 +215,24 @@ func (a *ActionLog) GetActionLog() *gorm.DB {
 }
 
 //Outcome is Stage running results.
-//When StageID point to the StageTypeStart or StageTypeEnd, the Action ID is 0.
+//When StageID point to the StageTypeStart , the Action ID is 0.
+//When StageID point to the StageTypeEnd , the Action ID is -1.
 type Outcome struct {
-	ID         int64      `json:"id" gorm:"primary_key"`             //
-	Pipeline   int64      `json:"pipeline" sql:"not null;default:0"` //PipelineLog id
-	Stage      int64      `json:"stage" sql:"not null;default:0"`    //stageLog id
-	Action     int64      `json:"action" sql:"not null;default:0"`   //actionLog id
-	RealAction int64      `json:"realAction"`
-	Event      int64      `json:"event" sql:"null;default:0"`        //event id
-	Sequence   int64      `json:"sequence" sql:"not null;default:0"` //pipeline run sequence
-	Status     bool       `json:"status" sql:"null;varchar(255)"`    //
-	Result     string     `json:"result" sql:"null;default:true"`    //
-	Output     string     `json:"output" sql:"null;type:text"`       //
-	CreatedAt  time.Time  `json:"created" sql:""`                    //
-	UpdatedAt  time.Time  `json:"updated" sql:""`                    //
-	DeletedAt  *time.Time `json:"deleted" sql:"index"`               //
+	ID           int64      `json:"id" gorm:"primary_key"`                 //
+	Pipeline     int64      `json:"pipeline" sql:"not null;default:0"`     //PipelineLog id
+	RealPipeline int64      `json:"realPipeline" sql:"not null;default:0"` //Pipeline id
+	Stage        int64      `json:"stage" sql:"not null;default:0"`        //stageLog id
+	RealStage    int64      `json:"realStage" sql:"not null;default:0"`    //stage id
+	Action       int64      `json:"action" sql:"not null;default:0"`       //actionLog id
+	RealAction   int64      `json:"realAction" sql:"not null;default:0"`   //
+	Event        int64      `json:"event" sql:"null;default:0"`            //event id
+	Sequence     int64      `json:"sequence" sql:"not null;default:0"`     //pipeline run sequence
+	Status       bool       `json:"status" sql:"null;varchar(255)"`        //
+	Result       string     `json:"result" sql:"null;default:true"`        //
+	Output       string     `json:"output" sql:"null;type:text"`           //
+	CreatedAt    time.Time  `json:"created" sql:""`                        //
+	UpdatedAt    time.Time  `json:"updated" sql:""`                        //
+	DeletedAt    *time.Time `json:"deleted" sql:"index"`                   //
 }
 
 //TableName is return the name of Outcome in MySQL database.

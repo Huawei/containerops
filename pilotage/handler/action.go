@@ -18,7 +18,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -65,10 +64,6 @@ func PutActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
 
 	reqBody := make(map[string]interface{})
 	json.Unmarshal(bodyByte, &reqBody)
-
-	fmt.Println("=============================reqBody==================================")
-	fmt.Println(reqBody)
-	fmt.Println("=============================reqBody==================================")
 
 	eventKey, ok := reqBody["EVENT"].(string)
 	if !ok {
@@ -125,11 +120,14 @@ func PutActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusOK, result
 	}
 
-	actionInfo := new(models.ActionLog)
-	actionInfo.GetActionLog().Where("id = ?", actionId).First(actionInfo)
-
 	pipelineInfo := new(models.PipelineLog)
 	pipelineInfo.GetPipelineLog().Where("id = ?", pipelineId).First(pipelineInfo)
+
+	stageInfo := new(models.StageLog)
+	stageInfo.GetStageLog().Where("id = ?", stageId).First(stageInfo)
+
+	actionInfo := new(models.ActionLog)
+	actionInfo.GetActionLog().Where("id = ?", actionId).First(actionInfo)
 
 	platformSetting, err := module.GetActionPlatformInfo(*actionInfo)
 	if err != nil {
@@ -137,8 +135,11 @@ func PutActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
 		componentInitErrOutcome := new(models.Outcome)
 
 		componentInitErrOutcome.Pipeline = pipelineId
+		componentInitErrOutcome.RealPipeline = pipelineInfo.FromPipeline
 		componentInitErrOutcome.Stage = stageId
+		componentInitErrOutcome.RealStage = stageInfo.FromStage
 		componentInitErrOutcome.Action = actionId
+		componentInitErrOutcome.RealAction = actionInfo.FromAction
 		componentInitErrOutcome.Event = eventId
 		componentInitErrOutcome.Sequence = pipelineSequence
 		componentInitErrOutcome.Status = false
@@ -159,8 +160,11 @@ func PutActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
 		componentInitErrOutcome := new(models.Outcome)
 
 		componentInitErrOutcome.Pipeline = pipelineId
+		componentInitErrOutcome.RealPipeline = pipelineInfo.FromPipeline
 		componentInitErrOutcome.Stage = stageId
+		componentInitErrOutcome.RealStage = stageInfo.FromStage
 		componentInitErrOutcome.Action = actionId
+		componentInitErrOutcome.RealAction = actionInfo.FromAction
 		componentInitErrOutcome.Event = eventId
 		componentInitErrOutcome.Sequence = pipelineSequence
 		componentInitErrOutcome.Status = false
@@ -203,7 +207,9 @@ func PutActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
 		actionOutcome := new(models.Outcome)
 
 		actionOutcome.Pipeline = pipelineId
+		actionOutcome.RealPipeline = pipelineInfo.FromPipeline
 		actionOutcome.Stage = stageId
+		actionOutcome.RealStage = stageInfo.FromStage
 		actionOutcome.Action = actionId
 		actionOutcome.RealAction = actionInfo.FromAction
 		actionOutcome.Event = eventId
@@ -286,10 +292,6 @@ func PutActionRegisterV1Handler(ctx *macaron.Context) (int, []byte) {
 	// 	result, _ := json.Marshal(map[string]string{"message": "illegal reqData, reqData.INFO is not a json"})
 	// 	return http.StatusOK, result
 	// }
-
-	fmt.Println("========================================register=======================================")
-	fmt.Println(reqBody)
-	fmt.Println("========================================register=======================================")
 
 	runId, ok := reqBody["RUN_ID"].(string)
 	if !ok {
