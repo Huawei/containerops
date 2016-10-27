@@ -106,17 +106,17 @@ func GetPipelineListV1Handler(ctx *macaron.Context) (int, []byte) {
 
 	resultMap := make([]map[string]interface{}, 0)
 	pipelineList := make([]models.Pipeline, 0)
-	pipelinesMap := make(map[int64]interface{}, 0)
+	pipelinesMap := make(map[string]interface{}, 0)
 	new(models.Pipeline).GetPipeline().Where("namespace = ?", namespace).Order("-updated_at").Find(&pipelineList)
 
 	for _, pipelineInfo := range pipelineList {
-		if _, ok := pipelinesMap[pipelineInfo.ID]; !ok {
+		if _, ok := pipelinesMap[pipelineInfo.Pipeline]; !ok {
 			tempMap := make(map[string]interface{})
 			tempMap["version"] = make(map[int64]interface{})
-			pipelinesMap[pipelineInfo.ID] = tempMap
+			pipelinesMap[pipelineInfo.Pipeline] = tempMap
 		}
 
-		pipelineMap := pipelinesMap[pipelineInfo.ID].(map[string]interface{})
+		pipelineMap := pipelinesMap[pipelineInfo.Pipeline].(map[string]interface{})
 		versionMap := pipelineMap["version"].(map[int64]interface{})
 
 		versionMap[pipelineInfo.VersionCode] = pipelineInfo
@@ -126,7 +126,15 @@ func GetPipelineListV1Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	for _, pipeline := range pipelineList {
-		pipelineInfo := pipelinesMap[pipeline.ID].(map[string]interface{})
+
+		pipelineInfo := pipelinesMap[pipeline.Pipeline].(map[string]interface{})
+		// fmt.Println(pipelineInfo)
+		if isSign, ok := pipelineInfo["isSign"].(bool); ok && isSign {
+			continue
+		}
+
+		pipelineInfo["isSign"] = true
+		pipelinesMap[pipeline.Pipeline] = pipelineInfo
 
 		versionList := make([]map[string]interface{}, 0)
 		for _, pipelineVersion := range pipelineList {
