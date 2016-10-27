@@ -43,11 +43,11 @@ class Listener(BaseHTTPRequestHandler):
         content =""
       
         datas = self.rfile.read(int(self.headers['content-length']))
-        datas = urllib.unquote(datas).decode("utf-8", 'ignore')#指定编码方式
-        content = str(datas) +"\r\n"
-	q.put(content)
+        datas = urllib.unquote(datas).decode("utf-8", 'ignore')
+        content = str(datas) +"\r\n" #datas is dict string, if no data, input {"":""}
+	q.put(content) # store in queue
 	
-        #指定返回编码
+        
         enc="UTF-8"  
         content = content.encode(enc)          
         f = io.BytesIO()  
@@ -57,7 +57,7 @@ class Listener(BaseHTTPRequestHandler):
         self.send_header("Content-type", "text/html; charset=%s" % enc)  
         self.send_header("Content-Length", str(len(content)))  
         self.end_headers()  
-        shutil.copyfileobj(f,self.wfile)  
+        shutil.copyfileobj(f,self.wfile)  # return
 	       
 
 
@@ -68,13 +68,17 @@ class ExecTask(threading.Thread):
         threading.Thread.__init__(self)
         self.info = info
 	
-
+    """
+	get require	
+    """
     def _http_get(self, url):
 	
         response = urllib2.urlopen(url)
         return response.read()
 
-
+    """
+	put require
+    """
     def _http_put(self, url, paras):
 	try:
             jdata = json.dumps(paras) #{'':''}
@@ -88,7 +92,9 @@ class ExecTask(threading.Thread):
             return ""
 
 	
-        
+    """
+	exec shell script
+    """    
     def _execCommand(self, cmd):
         try:
             p = subprocess.Popen(cmd, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
@@ -98,17 +104,26 @@ class ExecTask(threading.Thread):
         except:
             self.info['status'] = False
 
-    
+    """
+	generate sonar project file
+    """    
     def _writeFile(self):
         with open(self.info['CO_DATA']["filename"], 'w') as f:            
             f.write(self.info['CO_DATA']["contents"])
  
+    """
+	parse git url, get repo
+    """
     def _parserGitUrl(self):
         if self.info["gitUrl"][-4:] == ".git":
             self.info["project"]=self.info["gitUrl"][:-4].split("/")[-1]    
 	else:
 	    self.info['status'] = False
             
+
+    """
+	parser EventList, get eventid, event
+    """
     def _parserEventList(self):
 	eventlsts = self.info["EVENT_LIST"].split(";")
         events = {}
@@ -116,6 +131,9 @@ class ExecTask(threading.Thread):
 	    events[eventlst.split(",")[0]] = eventlst.split(",")[1]
         self.info['EVENT_LIST'] = events
 
+    """
+	init env
+    """
     def _initEvent(self):
 	try:
             self.info['CO_DATA'] = eval(os.getenv("CO_DATA"))
@@ -139,7 +157,9 @@ class ExecTask(threading.Thread):
 	    
 
     
-	
+    """
+	run check 
+    """	
     def run(self):
        	logger.debug("start .....") 
 	self._initEvent() 

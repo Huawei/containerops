@@ -1,10 +1,6 @@
 #encoding=utf-8
 '''
-Created on 2012-11-7
-
-@author: Steven
-http://www.lifeba.org
-基于BaseHTTPServer的http server实现，包括get，post方法，get参数接收，post参数接收。
+http server 
 '''
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import io,shutil  
@@ -23,15 +19,15 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         
     def process(self,type):
         content =""
-        if type==1:#post方法，接收post参数
+        if type==1: #put, post method
             datas = self.rfile.read(int(self.headers['content-length']))
-            datas = urllib.unquote(datas).decode("utf-8", 'ignore')#指定编码方式
+            datas = urllib.unquote(datas).decode("utf-8", 'ignore')
 	    print datas
-#            datas = eval(datas)#将参数转换为字典
+#            datas = eval(data)
             content = str(datas)+"\r\n"
                 
                     
-            #指定返回编码
+            
             enc="UTF-8"  
             content = content.encode(enc)          
             f = io.BytesIO()  
