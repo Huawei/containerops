@@ -11,8 +11,13 @@ limitations under the License. */
 
 import * as startSetupData from "./startSetupData";
 import {initStartIO,initTreeEdit,initFromEdit,initFromView,getOutputForEvent} from "./startIO";
+import {getPipelineToken} from "../pipeline/main";
+import { notify } from "../common/notify";
+import { loading } from "../common/loading";
 
 export function initStartSetup(start){
+    showPipeline_URL_Token();
+
     startSetupData.getStartSetupData(start);
     initStartIO(start);
 
@@ -55,4 +60,22 @@ function selectType(pipelineType){
         initTreeEdit();
         initFromEdit("output");
     }
+}
+
+function showPipeline_URL_Token(){
+    loading.show();
+    var promise = getPipelineToken();
+    promise.done(function(data) {
+        loading.hide();
+        $("#pp-url").val(data.url);
+        $("#pp-token").val(data.token);
+    });
+    promise.fail(function(xhr, status, error) {
+        loading.hide();
+        if (xhr.responseJSON.errMsg) {
+            notify(xhr.responseJSON.errMsg, "error");
+        } else {
+            notify("Server is unreachable", "error");
+        }
+    });
 }
