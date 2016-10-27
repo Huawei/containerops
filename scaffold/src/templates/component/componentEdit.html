@@ -209,51 +209,83 @@
                                             </fieldset>
                                         </form>
                                     </div>
-                                    <div class="row tab-pane" id="tree_edit" class="tab-pane" role="tabpanel" aria-labelledby="tree-edit-tab" aria-expanded="false">
-                                        <div class="col-md-6 import-div">
-                                            <div class="panel">
-                                                <div class="panel-heading clearfix">
-                                                    <i class="glyphicon glyphicon-cloud-upload inputicon"></i>
-                                                    <span class="panel-title">Input Tree</span>
-                                                    <span class="panel-subtitle">The action default input json data</span> 
-                                                </div>
-                                                <div class="panel-body" style="min-height:500px">
-                                                    <div id="inputTreeStart" class="tree-add-button">
-                                                        <div id="inputStartBtn" class="btn-div">
-                                                            <span class="glyphicon glyphicon-plus nohover"></span>
-                                                            <div class="desc">
-                                                                <label class="desc-label">Add New Value</label>
-                                                                <div class="desc-btn">
-                                                                    <span class="glyphicon glyphicon-plus"></span>
+                                    <div class="tab-pane" id="tree_edit" class="tab-pane" role="tabpanel" aria-labelledby="tree-edit-tab" aria-expanded="false">
+                                        <div class="row">
+                                            <div class="col-md-6 import-div">
+                                                <div class="panel">
+                                                    <div class="panel-heading clearfix">
+                                                        <i class="glyphicon glyphicon-cloud-upload inputicon"></i>
+                                                        <span class="panel-title">Input Tree</span>
+                                                        <span class="panel-subtitle">The action default input json data</span> 
+                                                    </div>
+                                                    <div class="panel-body" style="min-height:500px">
+                                                        <div id="inputTreeStart" class="tree-add-button">
+                                                            <div id="inputStartBtn" class="btn-div">
+                                                                <span class="glyphicon glyphicon-plus nohover"></span>
+                                                                <div class="desc">
+                                                                    <label class="desc-label">Add New Value</label>
+                                                                    <div class="desc-btn">
+                                                                        <span class="glyphicon glyphicon-plus"></span>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                        <div id="inputTreeDiv" class="json-editor"></div>
                                                     </div>
-                                                    <div id="inputTreeDiv" class="json-editor"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 import-div">
+                                                <div class="panel">
+                                                    <div class="panel-heading clearfix">
+                                                        <i class="glyphicon glyphicon-cloud-download outputicon"></i>
+                                                        <span class="panel-title">Output Tree</span>
+                                                        <span class="panel-subtitle">The action default output json data</span> 
+                                                    </div>
+                                                    <div class="panel-body" style="min-height:500px">
+                                                        <div id="outputTreeStart" class="tree-add-button">
+                                                            <div id="outputStartBtn" class="btn-div">
+                                                                <span class="glyphicon glyphicon-plus nohover"></span>
+                                                                <div class="desc">
+                                                                    <label class="desc-label">Add New Value</label>
+                                                                    <div class="desc-btn">
+                                                                        <span class="glyphicon glyphicon-plus"></span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div id="outputTreeDiv" class="json-editor"></div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-6 import-div">
-                                            <div class="panel">
-                                                <div class="panel-heading clearfix">
-                                                    <i class="glyphicon glyphicon-cloud-download outputicon"></i>
-                                                    <span class="panel-title">Output Tree</span>
-                                                    <span class="panel-subtitle">The action default output json data</span> 
-                                                </div>
-                                                <div class="panel-body" style="min-height:500px">
-                                                    <div id="outputTreeStart" class="tree-add-button">
-                                                        <div id="outputStartBtn" class="btn-div">
-                                                            <span class="glyphicon glyphicon-plus nohover"></span>
-                                                            <div class="desc">
-                                                                <label class="desc-label">Add New Value</label>
-                                                                <div class="desc-btn">
-                                                                    <span class="glyphicon glyphicon-plus"></span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div id="outputTreeDiv" class="json-editor"></div>
-                                                </div>
+                                        <div class="tree-icon-desc-row">
+                                            <div class="tree-icon-desc-item">
+                                                <div class="tree-icon icon-s"></div>
+                                                <div class="tree-icon-label">String</div>
+                                            </div>
+                                            <div class="tree-icon-desc-item">
+                                                <div class="tree-icon icon-o"></div>
+                                                <div class="tree-icon-label">Object</div>
+                                            </div>
+                                            <div class="tree-icon-desc-item">
+                                                <div class="tree-icon icon-n"></div>
+                                                <div class="tree-icon-label">Number</div>
+                                            </div>
+                                            <div class="tree-icon-desc-item">
+                                                <div class="tree-icon icon-a"></div>
+                                                <div class="tree-icon-label">Array</div>
+                                            </div>
+                                            <div class="tree-icon-desc-item">
+                                                <div class="tree-icon icon-b"></div>
+                                                <div class="tree-icon-label">Boolean</div>
+                                            </div>
+                                            <div class="tree-icon-desc-item">
+                                                <div class="tree-icon icon-none"></div>
+                                                <div class="tree-icon-label">Null</div>
+                                            </div>
+                                            <div class="tree-icon-desc-item">
+                                                <div class="tree-icon icon-add"></div>
+                                                <div class="tree-icon-label">Add New Value</div>
                                             </div>
                                         </div>
                                     </div>
@@ -268,12 +300,8 @@
                                                 <div class="panel-body">
                                                     <div id="inputCodeEditor" class="codeEditor"></div>
                                                     <div class="col-md-4 col-md-offset-4 row editor-transfer">
-                                                        <button id="inputFromJson" type="button" class="btn btn-warning col-md-4" style="float:left">
-                                                            <i class="glyphicon glyphicon-triangle-right"></i>
-                                                        </button>
-                                                        <button id="inputToJson" type="button" class="btn btn-warning col-md-4" style="float:right">
-                                                            <i class="glyphicon glyphicon-triangle-left"></i>
-                                                        </button>
+                                                        <span id="inputFromJson" class="col-md-4 code-to-tree"></span>
+                                                        <span id="inputToJson" class="col-md-4 tree-to-code"></span>
                                                     </div>
                                                     <div id="inputTreeEditor" class="treeEditor"></div>
                                                 </div>
@@ -289,12 +317,8 @@
                                                 <div class="panel-body">
                                                     <div id="outputCodeEditor" class="codeEditor"></div>
                                                     <div class="col-md-4 col-md-offset-4 row editor-transfer">
-                                                        <button id="outputFromJson" type="button" class="btn btn-warning col-md-4" style="float:left">
-                                                            <i class="glyphicon glyphicon-triangle-right"></i>
-                                                        </button>
-                                                        <button id="outputToJson" type="button" class="btn btn-warning col-md-4" style="float:right">
-                                                            <i class="glyphicon glyphicon-triangle-left"></i>
-                                                        </button>
+                                                        <span id="outputFromJson" class="col-md-4 code-to-tree"></span>
+                                                        <span id="outputToJson" class="col-md-4 tree-to-code"></span>
                                                     </div>
                                                     <div id="outputTreeEditor" class="treeEditor"></div>
                                                 </div>
