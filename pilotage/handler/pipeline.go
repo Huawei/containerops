@@ -106,44 +106,47 @@ func GetPipelineListV1Handler(ctx *macaron.Context) (int, []byte) {
 
 	resultMap := make([]map[string]interface{}, 0)
 	pipelineList := make([]models.Pipeline, 0)
-	new(models.Pipeline).GetPipeline().Where("namespace = ?", namespace).Order("-id").Order("pipeline").Find(&pipelineList)
+	pipelinesMap := make(map[int64]interface{}, 0)
+	new(models.Pipeline).GetPipeline().Where("namespace = ?", namespace).Order("-updated_at").Find(&pipelineList)
 
 	for _, pipelineInfo := range pipelineList {
+		if _, ok := pipelinesMap[pipelineInfo.ID]; !ok {
+			tempMap := make(map[string]interface{})
+			tempMap["version"] = make(map[int64]interface{})
+			pipelinesMap[pipelineInfo.ID] = tempMap
+		}
 
-		shouldAppend := false
-		pipelineMap := make(map[string]interface{}, 0)
+		pipelineMap := pipelinesMap[pipelineInfo.ID].(map[string]interface{})
+		versionMap := pipelineMap["version"].(map[int64]interface{})
 
-		if len(resultMap) > 0 {
-			if resultMap[len(resultMap)-1]["name"] == pipelineInfo.Pipeline {
-				pipelineMap = resultMap[len(resultMap)-1]
+		versionMap[pipelineInfo.VersionCode] = pipelineInfo
+		pipelineMap["id"] = pipelineInfo.ID
+		pipelineMap["name"] = pipelineInfo.Pipeline
+		pipelineMap["version"] = versionMap
+	}
+
+	for _, pipeline := range pipelineList {
+		pipelineInfo := pipelinesMap[pipeline.ID].(map[string]interface{})
+
+		versionList := make([]map[string]interface{}, 0)
+		for _, pipelineVersion := range pipelineList {
+			if pipelineVersion.Pipeline == pipelineInfo["name"].(string) {
+				versionMap := make(map[string]interface{})
+				versionMap["id"] = pipelineVersion.ID
+				versionMap["version"] = pipelineVersion.Version
+				versionMap["versionCode"] = pipelineVersion.VersionCode
+
+				versionList = append(versionList, versionMap)
 			}
 		}
 
-		if pipelineMap["id"] == nil {
-			pipelineMap["id"] = pipelineInfo.ID
-			pipelineMap["name"] = pipelineInfo.Pipeline
-			pipelineMap["version"] = make([]map[string]interface{}, 0)
-			shouldAppend = true
-		}
+		tempResult := make(map[string]interface{})
+		tempResult["id"] = pipelineInfo["id"]
+		tempResult["name"] = pipelineInfo["name"]
+		tempResult["version"] = versionList
 
-		versionMap := make(map[string]interface{})
-		versionMap["id"] = pipelineInfo.ID
-		versionMap["version"] = pipelineInfo.Version
-		versionMap["versionCode"] = pipelineInfo.VersionCode
-
-		versionList := pipelineMap["version"].([]map[string]interface{})
-		pipelineMap["version"] = append(versionList, versionMap)
-
-		if shouldAppend {
-			resultMap = append(resultMap, pipelineMap)
-		}
+		resultMap = append(resultMap, tempResult)
 	}
-
-	// tempResult := make([]map[string]interface{}, len(resultMap))
-
-	// for i, result := range resultMap {
-	// 	tempResult[len(resultMap)-i-1] = result
-	// }
 
 	result, _ = json.Marshal(map[string]interface{}{"list": resultMap})
 
@@ -441,5 +444,24 @@ func GetPipelineTokenV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ = json.Marshal(tokenInfo)
 
 	return http.StatusOK, result
+}
 
+// GetPipelineHistoriesV1Handler is
+func GetPipelineHistoriesV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{"message": ""})
+
+	namespace := ctx.Params(":namespace")
+	if namespace == "" {
+		result, _ = json.Marshal(map[string]string{"message": "namespace can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	resultMap, err := module.GetPipelineHistoriesList(namespace)
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	result, _ = json.Marshal(map[string]interface{}{"pipelineList": resultMap})
+	return http.StatusOK, result
 }
