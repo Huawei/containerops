@@ -26,6 +26,7 @@ export function editLine(editPage, currentLine) {
     var id = currentLine.attr("id");
     $("#pipeline-info-edit").html($(editPage));
 
+
     $("#importDiv").html("");
     $("#outputDiv").html("");
     var currentLineData = _.find(constant.linePathAry, function(line) {
