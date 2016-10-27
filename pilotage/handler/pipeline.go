@@ -135,6 +135,24 @@ func GetPipelineListV1Handler(ctx *macaron.Context) (int, []byte) {
 				versionMap["id"] = pipelineVersion.ID
 				versionMap["version"] = pipelineVersion.Version
 				versionMap["versionCode"] = pipelineVersion.VersionCode
+				// get current version latest run result
+				outcome := new(models.Outcome)
+				outcome.GetOutcome().Where("real_pipeline = ?", pipelineVersion.ID).Where("real_action = ?", 0).Order("-id").First(outcome)
+				if outcome.ID != 0 {
+					statusMap := make(map[string]interface{})
+
+					statusMap["status"] = false
+					statusMap["time"] = outcome.CreatedAt.Format("2006-01-02 15:04:05")
+
+					finalResult := new(models.Outcome)
+					finalResult.GetOutcome().Where("pipeline = ?", outcome.Pipeline).Where("sequence = ?", outcome.Sequence).Where("action = ?", -1).First(finalResult)
+
+					if finalResult.ID != 0 && finalResult.Status {
+						statusMap["status"] = finalResult.Status
+					}
+
+					versionMap["status"] = statusMap
+				}
 
 				versionList = append(versionList, versionMap)
 			}

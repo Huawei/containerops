@@ -1788,7 +1788,7 @@ func GetPipelineHistoriesList(namespace string) ([]map[string]interface{}, error
 				for _, outcome := range startSequenceList {
 					sumNum++
 					resultOutcome := new(models.Outcome)
-					resultOutcome.GetOutcome().Where("real_pipeline = ?", outcome.RealPipeline).Where("real_stage = ?", outcome.RealStage).Where("real_action = ?", outcome.RealAction).Where("sequence = ?", outcome.Sequence).First(resultOutcome)
+					resultOutcome.GetOutcome().Where("pipeline = ?", outcome.Pipeline).Where("sequence = ?", outcome.Sequence).Where("real_action = ?", -1).First(resultOutcome)
 
 					tempMap := make(map[string]interface{})
 					tempMap["sequence"] = outcome.Sequence
