@@ -74,3 +74,7 @@ export function changeState(name,versionid,state){
 
     return pipelineApi.changeState(name,reqbody);
 }
+
+export function getToken(name,versionid){
+    return pipelineApi.getToken(name,versionid);
+}
