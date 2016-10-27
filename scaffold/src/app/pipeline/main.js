@@ -12,7 +12,7 @@ limitations under the License. */
 import { initDesigner } from "./initDesigner";
 import { initPipeline } from "./initPipeline";
 import { initAction } from "./initAction";
-import { getAllPipelines, getPipeline, addPipeline, savePipeline, addPipelineVersion, getEnvs, setEnvs, changeState } from "./pipelineData";
+import * as pipelineDataService from "./pipelineData";
 import { notify, confirm } from "../common/notify";
 import { loading } from "../common/loading";
 import { setLinePathAry, linePathAry } from "../common/constant";
@@ -28,7 +28,7 @@ let pipelineEnvs;
 
 export function initPipelinePage() {
     loading.show();
-    var promise = getAllPipelines();
+    var promise = pipelineDataService.getAllPipelines();
     promise.done(function(data) {
         loading.hide();
         allPipelines = data.list;
@@ -115,7 +115,7 @@ function showPipelineList() {
 
 function getPipelineData() {
     loading.show();
-    var promise = getPipeline(pipelineName, pipelineVersionID);
+    var promise = pipelineDataService.getPipeline(pipelineName, pipelineVersionID);
     promise.done(function(data) {
         loading.hide();
         pipelineData = data.stageList;
@@ -174,7 +174,7 @@ function showNewPipeline() {
             $("#main").append($(data));
             $("#newpipeline").show("slow");
             $("#newppBtn").on('click', function() {
-                var promise = addPipeline();
+                var promise = pipelineDataService.addPipeline();
                 if (promise) {
                     loading.show();
                     promise.done(function(data) {
@@ -256,7 +256,7 @@ function drawPipeline() {
 
 export function savePipelineData(next) {
     loading.show();
-    var promise = savePipeline(pipelineName, pipelineVersion, pipelineVersionID, pipelineData, linePathAry);
+    var promise = pipelineDataService.savePipeline(pipelineName, pipelineVersion, pipelineVersionID, pipelineData, linePathAry);
     promise.done(function(data) {
         loading.hide();
         if (!next) {
@@ -292,7 +292,7 @@ function showNewPipelineVersion() {
             $("#pp-name-newversion").val(pipelineName);
 
             $("#newppVersionBtn").on('click', function() {
-                var promise = addPipelineVersion(pipelineName, pipelineVersionID, pipelineData, linePathAry);
+                var promise = pipelineDataService.addPipelineVersion(pipelineName, pipelineVersionID, pipelineData, linePathAry);
                 if (promise) {
                     loading.show();
                     promise.done(function(data) {
@@ -375,7 +375,7 @@ function hidePipelineEnv() {
 
 function getEnvList() {
     loading.show();
-    var promise = getEnvs(pipelineName, pipelineVersionID);
+    var promise = pipelineDataService.getEnvs(pipelineName, pipelineVersionID);
     promise.done(function(data) {
         loading.hide();
         pipelineEnvs = _.pairs(data.env);
@@ -421,7 +421,7 @@ function showEnvKVs() {
 }
 
 function savePipelineEnvs() {
-    var promise = setEnvs(pipelineName, pipelineVersionID, pipelineEnvs);
+    var promise = pipelineDataService.setEnvs(pipelineName, pipelineVersionID, pipelineEnvs);
     if (promise) {
         loading.show();
         promise.done(function(data) {
@@ -461,7 +461,7 @@ function beforeRunPipeline() {
 
 function runPipeline() {
     loading.show();
-    var promise = changeState(pipelineName, pipelineVersionID, 1);
+    var promise = pipelineDataService.changeState(pipelineName, pipelineVersionID, 1);
     promise.done(function(data) {
         loading.hide();
         notify(data.message, "success");
@@ -496,7 +496,7 @@ function beforeStopPipeline() {
 
 function stopPipeline() {
     loading.show();
-    var promise = changeState(pipelineName, pipelineVersionID, 0);
+    var promise = pipelineDataService.changeState(pipelineName, pipelineVersionID, 0);
     promise.done(function(data) {
         loading.hide();
         notify(data.message, "success");
@@ -528,6 +528,9 @@ function beforeBackToList() {
     confirm("The pipeline design may be modified, would you like to save the pipeline before go back to list.", "info", actions);
 }
 
+export function getPipelineToken(){
+    return pipelineDataService.getToken(pipelineName,pipelineVersionID);
+}
 // $("#pipeline-select").on('change',function(){
 //     showVersionList();
 // })
