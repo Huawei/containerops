@@ -32,6 +32,7 @@ export function editLine(editPage, currentLine) {
     var currentLineData = _.find(constant.linePathAry, function(line) {
         return id == line.id;
     })
+
     lineInputJSON = currentLineData.startData.outputJson;
     lineOutputJSON = currentLineData.endData.inputJson;
     if (_.isEmpty(lineInputJSON)) {
