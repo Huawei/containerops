@@ -9,6 +9,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. */
 
+// panel body
+.input-panel-heading{
+  background-color:#f0f0f0 !important;
+} 
+
+.input-panel-body{
+  background-color:#fafafa !important;
+} 
+
 // tree add button
 .tree-add-button{
   margin-top:6em;
@@ -77,14 +86,17 @@ limitations under the License. */
 // tree icon description
 .tree-icon-desc-row{
   background-color: #f7f7f7;
-  height:40px;
   width:100%;
-  padding:10px;
+  padding-bottom:10px;
+  clear:both;
+  float:left;
 }
 
 .tree-icon-desc-item{
   margin-left: 20px;
   float:left;
+  height:20px;
+  margin-top: 10px;
 }
 
 .tree-icon{
