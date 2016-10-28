@@ -4,7 +4,11 @@
 ```
 git clone 
 ```
-
+<br>	
+####Install gulp and bower in global
+```
+npm install -g gulp bower
+```
 <br>	
 ####Enter directory and install dependencies
 ```
