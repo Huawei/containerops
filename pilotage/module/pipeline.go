@@ -1883,6 +1883,8 @@ func GetPipelineDefineByRunSequence(sequenceId int64) (map[string]interface{}, e
 		for _, action := range actionList {
 			actionInfoMap := make(map[string]interface{})
 
+			actionStatus := true
+
 			actionSetupData := make(map[string]interface{})
 			actionSetupData["name"] = action.Action
 
@@ -1891,6 +1893,16 @@ func GetPipelineDefineByRunSequence(sequenceId int64) (map[string]interface{}, e
 			actionInfoMap["stetupData"] = actionSetupData
 			actionInfoMap["id"] = "a-" + strconv.FormatInt(action.ID, 10)
 			actionInfoMap["type"] = actionType
+
+			actionOutput := new(models.Outcome)
+			actionOutput.GetOutcome().Where("action = ?", action.ID).First(actionOutput)
+
+			if actionOutput.ID == 0 && !actionOutput.Status {
+				actionStatus = false
+				stagetStatus = false
+			}
+
+			actionInfoMap["status"] = actionStatus
 
 			actionListMap = append(actionListMap, actionInfoMap)
 
@@ -1948,6 +1960,7 @@ func GetPipelineDefineByRunSequence(sequenceId int64) (map[string]interface{}, e
 					}
 				}
 			}
+
 		}
 
 		if len(actionListMap) > 0 {
