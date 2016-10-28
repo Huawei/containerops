@@ -40,7 +40,7 @@ export function editLine(editPage, currentLine) {
     if (_.isEmpty(lineOutputJSON)) {
         $("#outputDiv").html("no data");
     }
-    
+
     bipatiteView(lineInputJSON, lineOutputJSON, currentLineData);
 
 
