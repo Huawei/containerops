@@ -1966,6 +1966,11 @@ func GetPipelineDefineByRunSequence(sequenceId int64) (map[string]interface{}, e
 		if len(actionListMap) > 0 {
 			stageInfoMap["actions"] = actionListMap
 		}
+
+		if stage.Type == models.StageTypeEnd {
+			stagetStatus = pipelineStatus
+		}
+
 		stageInfoMap["id"] = "s-" + strconv.FormatInt(stage.ID, 10)
 		stageInfoMap["setupData"] = stageSetupData
 		stageInfoMap["type"] = stageType
