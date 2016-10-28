@@ -14,68 +14,10 @@ limitations under the License.
 
 import { isObject, isArray, isBoolean, isNumber, isString, judgeType } from '../common/util';
 import * as conflictUtil from "../relation/conflict";
-import {getPathData} from "../relation/setPath";
 
-export function checkConflict(fromNodeId, toNodeId) {
+import { getPathData } from "../relation/setPath";
 
-}
-// var conflict = {
-//     "node": [{
-//         "name": "action1",
-//         "id": "action1ID",
-//         "conflicts": [
-//             { "aaa": "" },
-//             { "bbb": { "name": { "ddd": "" } } },
-//             { "ccc": [] }
-//         ]
-//     }, {
-//         "name": "action2",
-//         "id": "action2ID",
-//         "conflicts": [
-//             { "ccc": "" },
-//             { "eee": [] }
-//         ]
-//     }, {
-//         "name": "action3",
-//         "id": "action3ID",
-//         "conflicts": [
-//             { "aaa": "" },
-//             { "bbb": {} },
-//             { "eee": [] }
-//         ]
-//     }, {
-//         "name": "currentAction",
-//         "id": "currentActionID",
-//         "conflicts": [
-//             { "aaa": "" },
-//             { "bbb": {} },
-//             { "ccc": "" },
-//             { "eee": [] }
-//         ]
-//     }, {
-//         "name": "currentAction",
-//         "id": "currentActionID",
-//         "conflicts": [
-//             { "aaa": "" },
-//             { "bbb": {} },
-//             { "ccc": "" },
-//             { "eee": [] }
-//         ]
-//     }, {
-//         "name": "currentAction",
-//         "id": "currentActionID",
-//         "conflicts": [
-//             { "aaa": "" },
-//             { "bbb": {} },
-//             { "ccc": "" },
-//             { "eee": [] }
-//         ]
-//     }],
-//     "line": [{
-//         "fromData": "action1ID.bbb.name.ddd",
-//         "toData": "action1ID.aa.bb"
-//     }]
-// };
+import { notify } from "../common/notify";
 
 export function getConflict(targetAction) {
     let actionId = targetAction.id;
@@ -87,58 +29,50 @@ export function getConflict(targetAction) {
             "</h4>";
         $("#conflictTreeView").append(noconflict);
     } else {
-        svgTree(d3.select("#conflictTreeView"), conflict,actionId);
+        svgTree(d3.select("#conflictTreeView"), conflict, actionId);
     }
 }
 
+export function svgTree(container, data, actionId) {
 
-export function svgTree(container, data,actionId) {
-    
-    let svgWidth = ($("#actionTabsContent").width()-110)/2;
-    
-
-    let conflictActions = _.filter(data.node,function(node){
+    let svgWidth = ($("#actionTabsContent").width() - 110) / 2;
+    let conflictActions = _.filter(data.node, function(node) {
         return node.id != actionId;
     });
-
-    let curAction = _.filter(data.node,function(node){
+    let curAction = _.filter(data.node, function(node) {
         return node.id == actionId;
     });
-
-
-    let conflictArray = transformJson(conflictActions,60);
-    let curActionArray = transformJson(curAction,svgWidth+60);
-
+    let conflictArray = transformJson(conflictActions, 60);
+    let curActionArray = transformJson(curAction, svgWidth + 60);
     let svg = container.append("svg")
         .attr("width", "100%")
         .attr("height", 600)
         .style("fill", "white");
-
-
     for (let i = 0; i < conflictArray.length; i++) {
-        construct(svg, conflictArray[i]);
+        construct(svg, conflictArray[i], "conflict-source");
     }
 
     for (let i = 0; i < curActionArray.length; i++) {
-        construct(svg, curActionArray[i]);
+        construct(svg, curActionArray[i], "conflict-base");
     }
 
     drawLine(data.line);
 
-    function transformJson(data,initX) {
+    function transformJson(data, initX) {
 
         let jsonArray = [];
         let depthY = 0;
         let depthX = 1;
 
-        for(let i =0;i<data.length;i++){
+        for (let i = 0; i < data.length; i++) {
             depthY++;
             jsonArray.push({
                 depthX: depthX,
                 depthY: depthY,
                 type: "object",
-                initX : initX,
-                name: data[i].name
+                initX: initX,
+                name: data[i].name,
+                category: "action"
             });
 
             for (let j = 0; j < data[i].conflicts.length; j++) {
@@ -152,27 +86,30 @@ export function svgTree(container, data,actionId) {
                         depthX: 2,
                         depthY: depthY,
                         type: judgeType(conflicts[key]),
-                        initX:initX,
-                        path:data[i].name+"_"+key,
-                        name: key
+                        initX: initX,
+                        path: data[i].name + "_" + key,
+                        name: key,
+                        category: "property"
                     });
 
-                    getChildJson(conflicts[key], 3,data[i].name+"_"+key);
+                    getChildJson(conflicts[key], 3, data[i].name + "_" + key);
+
                 }
             }
         }
 
-        function getChildJson(data, depthX,path){
-             if (isObject(data)) {
+        function getChildJson(data, depthX, path) {
+            if (isObject(data)) {
                 for (let key in data) {
                     depthY++;
                     jsonArray.push({
                         depthX: depthX,
                         depthY: depthY,
                         type: judgeType(data[key]),
-                        initX:initX,
-                        path:path+"_"+key,
-                        name: key
+                        initX: initX,
+                        path: path + "_" + key,
+                        name: key,
+                        category: "property"
                     });
                     getChildJson(data[key], depthX + 1);
                 }
@@ -188,18 +125,94 @@ export function svgTree(container, data,actionId) {
     }
 
 
-
-    function construct(svg, options) {
+    function construct(svg, options, type) {
         let gLine = svg.append("g")
-            .attr("id","conflictLine");
-
+            .attr("id", "conflictLine");
 
         let g = svg.append("g")
             .attr("transform", "translate(" + (options.depthX * 20 + options.initX) + "," + (options.depthY * 28) + ")")
-            .attr("class",options.path)
-            .attr("tx",(options.depthX * 20 + options.initX))
-            .attr("ty",(options.depthY * 28));
+            .attr("id", options.path)
+            .attr("tx", (options.depthX * 20 + options.initX))
+            .attr("ty", (options.depthY * 28))
+            .attr("data-type", type)
+            .attr("data-class", options.name)
+            .style("cursor", "pointer")
 
+        .on("mouseover", function() {
+                // var selectedConflict = callFunction(options.path);
+                if (options.category == "property") {
+                    d3.selectAll("[data-class=" + options.name + "]").select("rect")
+                        .attr("fill", "#333");
+                    d3.selectAll("[data-class=" + options.name + "]").each(function(d, i){
+                          var d3DOM = d3.select(this);
+                          var elementType = d3DOM.attr("data-type");
+                          d3.select(this).select(".conflict-image").attr("xlink:href", function() {
+                            if (elementType == "conflict-source") {
+                                return "../../assets/svg/remove-conflict.svg";
+                            } else if (elementType == "conflict-base") {
+                                return "../../assets/svg/highlight-conflict.svg";
+                            }
+                        });
+                    })
+                        
+                }
+
+            })
+            .on("mouseout", function() {
+                if (options.category == "property") {
+                    d3.selectAll("[data-class=" + options.name + "]").select("rect")
+                        .attr("fill", function() {
+                            switch (options.type) {
+                                case "string":
+                                    return "#13b5b1";
+                                    break;
+                                case "object":
+                                    return "#eb6876";
+                                    break;
+                                case "number":
+                                    return "#32b16c";
+                                    break;
+                                case "array":
+                                    return "#c490c0";
+                                    break;
+                                case "boolean":
+                                    return "#8fc320";
+                                    break;
+                                default:
+                                    return "#cfcfcf";
+                            };
+                        });
+                    d3.selectAll("[data-class=" + options.name + "]").select(".conflict-image")
+                        .attr("xlink:href", "../../assets/svg/conflict.svg");
+                }
+                // var selectedConflict = callFunction(options.path);
+                // d3.select(this).select("rect")
+                //     .attr("fill", function() {
+                //         switch (options.type) {
+                //             case "string":
+                //                 return "#13b5b1";
+                //                 break;
+                //             case "object":
+                //                 return "#eb6876";
+                //                 break;
+                //             case "number":
+                //                 return "#32b16c";
+                //                 break;
+                //             case "array":
+                //                 return "#c490c0";
+                //                 break;
+                //             case "boolean":
+                //                 return "#8fc320";
+                //                 break;
+                //             default:
+                //                 return "#cfcfcf";
+                //         };
+
+                //     });
+                // d3.select(this).select(".conflict-image")
+                //     .attr("xlink:href", "../../assets/svg/conflict.svg")
+
+            })
         let rect = g.append('rect')
             .attr("ry", 4)
             .attr("rx", 4)
@@ -234,10 +247,16 @@ export function svgTree(container, data,actionId) {
             .attr("x", 2)
             .attr("y", 2)
             .attr("width", 20)
-            .attr("height", 20);
+            .attr("height", 20)
+            .attr("class", "conflict-image")
+            .on("click", function() {
+                if (type == "conflict-source") {
+                    // removeConflict(options.href);
+                    notify("Remove conflict", "success");
+                    return false;
+                }
 
-
-
+            });
         let typeImage = g.append('image')
             .attr("transform", "translate(115,0)")
             .attr("xlink:href", function() {
@@ -265,6 +284,7 @@ export function svgTree(container, data,actionId) {
             .attr("y", "0")
             .attr("width", "20")
             .attr("height", "24")
+            .attr("class", "type-image")
 
         let text = g.append('text')
             .attr("dx", 28)
@@ -286,33 +306,33 @@ export function svgTree(container, data,actionId) {
     }
 }
 
-function drawLine(lineArray){
-    for(let i=0;i<lineArray.length;i++){
-        let start = $("."+(lineArray[i].fromData).replace(/\./g,"_") );
-        let end = $("."+(lineArray[i].toData).replace(/\./g,"_"));      
-        let point = [start.attr("tx"),start.attr("ty"),end.attr("tx"),end.attr("ty")];
-        
-        drawLinePath(point,"","");           
+function drawLine(lineArray) {
+    for (let i = 0; i < lineArray.length; i++) {
+        let start = $("#" + (lineArray[i].fromData).replace(/\./g, "_"));
+        let end = $("#" + (lineArray[i].toData).replace(/\./g, "_"));
+        let point = [start.attr("tx"), start.attr("ty"), end.attr("tx"), end.attr("ty")];
+
+        drawLinePath(point, "", "");
     }
 }
 
 
-function drawLinePath(point,fromPath,toPath){
+function drawLinePath(point, fromPath, toPath) {
     // var offsetTop = $("#bipatiteLineSvg").offset().top;
     // var offsetLeft = $("#bipatiteLineSvg").offset().left;
-    var x1 = parseInt(point[0])+70;
+    var x1 = parseInt(point[0]) + 70;
     var y1 = parseInt(point[1]);
     var x2 = parseInt(point[2]);
     var y2 = parseInt(point[3]);
-    var d = getPathData({x:x1,y:y1},{x:x2,y:y2});
+    var d = getPathData({ x: x1, y: y1 }, { x: x2, y: y2 });
 
     d3.select("#conflictLine")
-    .append("path")
-    .attr("d",d)
-    .attr("stroke", "#f9f065")
-    .attr("stroke-width", 6)
-    .attr("fill","none")
-    .attr("stroke-opacity", "0.8")
-    .attr("class","cursor");
+        .append("path")
+        .attr("d", d)
+        .attr("stroke", "#f9f065")
+        .attr("stroke-width", 6)
+        .attr("fill", "none")
+        .attr("stroke-opacity", "0.8")
+        .attr("class", "cursor");
 
 }
