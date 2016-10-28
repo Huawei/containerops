@@ -36,7 +36,7 @@ function showActionEnvKVs(){
                                 +'Value'
                             +'</label>'
                             +'<div class="col-sm-7" data-index="' + index + '">' 
-                                +'<input type="text" value="' + item.value + '" class="form-control c-env-value" required>'
+                                +'<input type="text" class="form-control c-env-value" required value=' + item.value + '>'
                             +'</div>'
                         +'</div>'
                     +'</div>'
