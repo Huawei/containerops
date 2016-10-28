@@ -2023,3 +2023,31 @@ func GetStageHistoryInfo(stageLogId int64) (map[string]interface{}, error) {
 
 	return result, nil
 }
+
+func GetActionHistoryInfo(actionLogId int64) (map[string]interface{}, error) {
+	result := make(map[string]interface{})
+
+	inputInfo := new(models.Event)
+	inputInfo.GetEvent().Where("action = ?", actionLogId).Where("title = ?", "SEND_DATA").First(inputInfo)
+
+	outputInfo := new(models.Event)
+	outputInfo.GetEvent().Where("action = ?", actionLogId).Where("title = ?", "TASK_RESULT").First(outputInfo)
+
+	dataMap := make(map[string]interface{})
+	dataMap["input"] = inputInfo.Payload
+	dataMap["output"] = outputInfo.Payload
+
+	logList := make([]models.Event, 0)
+	new(models.Event).GetEvent().Where("action = ?", actionLogId).Order("id").Find(&logList)
+
+	logListStr := make([]string, 0)
+	for _, log := range logList {
+		logStr := log.CreatedAt.Format("2006-01-02 15:04:05") + " -> " + log.Payload
+
+		logListStr = append(logListStr, logStr)
+	}
+
+	result["data"] = dataMap
+	result["logList"] = logListStr
+	return result, nil
+}
