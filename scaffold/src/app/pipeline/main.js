@@ -136,8 +136,8 @@ function getPipelineData() {
     promise.done(function(data) {
         loading.hide();
         pipelineData = data.stageList;
-        setLinePathAry(data.lineList);
-        showPipelineDesigner();
+        setLinePathAry(data.lineList); 
+        showPipelineDesigner(data.status);
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
@@ -216,7 +216,7 @@ function showNewPipeline() {
     });
 }
 
-function showPipelineDesigner() {
+function showPipelineDesigner(state) {
     $.ajax({
         url: "../../templates/pipeline/pipelineDesign.html",
         type: "GET",
@@ -227,6 +227,12 @@ function showPipelineDesigner() {
 
             $("#selected_pipeline").text(pipelineName + " / " + pipelineVersion);
 
+            if(state){
+                $(".pipeline-state").addClass("pipeline-on");
+            }else{
+                $(".pipeline-state").addClass("pipeline-off");
+            }
+
             initDesigner();
             drawPipeline();
 
@@ -234,12 +240,16 @@ function showPipelineDesigner() {
                 beforeBackToList();
             });
 
-            $(".runpipeline").on('click', function() {
-                beforeRunPipeline();
-            });
-
-            $(".stoppipeline").on('click', function() {
-                beforeStopPipeline();
+            $(".pipeline-state").on('click',function(event){
+                if($(event.currentTarget).hasClass("pipeline-off")){
+                    if(!pipelineCheck(pipelineData)){
+                        notify("This pipeline does not pass the availability check, please make it available before ", "error");
+                    }else{
+                        beforeRunPipeline();
+                    }
+                }else if($(event.currentTarget).hasClass("pipeline-on")){
+                    beforeStopPipeline();
+                }
             });
 
             $(".checkpipeline").on('click', function() {
@@ -482,6 +492,7 @@ function runPipeline() {
     promise.done(function(data) {
         loading.hide();
         notify(data.message, "success");
+        $(".pipeline-state").removeClass("pipeline-off").addClass("pipeline-on");
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
@@ -517,6 +528,7 @@ function stopPipeline() {
     promise.done(function(data) {
         loading.hide();
         notify(data.message, "success");
+        $(".pipeline-state").removeClass("pipeline-on").addClass("pipeline-off");
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
