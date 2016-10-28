@@ -1008,6 +1008,7 @@ func GetPipelineInfo(namespace, pipelineName string, pipelineId int64) (map[stri
 
 		if defineInfo, ok := defineMap["define"]; ok {
 			if defineInfoMap, ok := defineInfo.(map[string]interface{}); ok {
+				defineInfoMap["status"] = pipelineInfo.State == models.PipelineStateAble
 				return defineInfoMap, nil
 			}
 		}
@@ -1016,13 +1017,15 @@ func GetPipelineInfo(namespace, pipelineName string, pipelineId int64) (map[stri
 	// get all stage info of current pipeline
 	// if a pipeline done have a define of itself
 	// then the pipeline is a new pipeline ,so only get it's stage list is ok
-	stageList, err := getStageListByPipeline(*pipelineInfo)
-	if err != nil {
-		return nil, err
-	}
-	resultMap["stageList"] = stageList
+	// stageList, err := getStageListByPipeline(*pipelineInfo)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	resultMap["stageList"] = make([]map[string]interface{}, 0)
 
 	resultMap["lineList"] = make([]map[string]interface{}, 0)
+
+	resultMap["status"] = false
 
 	return resultMap, nil
 }
@@ -1791,6 +1794,7 @@ func GetPipelineHistoriesList(namespace string) ([]map[string]interface{}, error
 					resultOutcome.GetOutcome().Where("pipeline = ?", outcome.Pipeline).Where("sequence = ?", outcome.Sequence).Where("real_action = ?", -1).First(resultOutcome)
 
 					tempMap := make(map[string]interface{})
+					tempMap["pipelineSequenceID"] = outcome.ID
 					tempMap["sequence"] = outcome.Sequence
 					tempMap["status"] = false
 					tempMap["time"] = outcome.CreatedAt.Format("2006-01-02 15:04:05")
