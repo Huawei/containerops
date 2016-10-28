@@ -1971,3 +1971,55 @@ func GetPipelineDefineByRunSequence(sequenceId int64) (map[string]interface{}, e
 
 	return defineMap, nil
 }
+
+func GetStageHistoryInfo(stageLogId int64) (map[string]interface{}, error) {
+	result := make(map[string]interface{})
+	// get all actions that belong to current stage ,
+	// return stage info and action{id:actionId, name:actionName, status:true/false}
+	actionList := make([]models.ActionLog, 0)
+	actionListMap := make([]map[string]interface{}, 0)
+	stageInfo := new(models.StageLog)
+	stageStatus := true
+
+	stageInfo.GetStageLog().Where("id = ?", stageLogId).First(stageInfo)
+	new(models.ActionLog).GetActionLog().Where("stage = ?", stageLogId).Find(&actionList)
+
+	for _, action := range actionList {
+		actionOutcome := new(models.Outcome)
+		new(models.Outcome).GetOutcome().Where("action = ?", action.ID).First(actionOutcome)
+
+		actionMap := make(map[string]interface{})
+		actionMap["id"] = "a-" + strconv.FormatInt(action.ID, 10)
+		actionMap["name"] = action.Action
+		if actionOutcome.Status {
+			actionMap["status"] = true
+		} else {
+			actionMap["status"] = false
+			stageStatus = false
+		}
+
+		actionListMap = append(actionListMap, actionMap)
+	}
+
+	firstActionStartEvent := new(models.Event)
+	leastActionStopEvent := new(models.Event)
+
+	firstActionStartEvent.GetEvent().Where("stage = ?", stageInfo.ID).Where("title = ?", "COMPONENT_START").Order("created_at").First(firstActionStartEvent)
+	leastActionStopEvent.GetEvent().Where("stage = ?", stageInfo.ID).Where("title = ?", "COMPONENT_STOP").Order("-created_at").First(leastActionStopEvent)
+
+	stageRunTime := ""
+	if firstActionStartEvent.ID != 0 {
+		stageRunTime = firstActionStartEvent.CreatedAt.Format("2006-01-02 15:04:05")
+		stageRunTime += " - "
+		if leastActionStopEvent.ID != 0 {
+			stageRunTime += leastActionStopEvent.CreatedAt.Format("2006-01-02 15:04:05")
+		}
+	}
+
+	result["name"] = stageInfo.Stage
+	result["status"] = stageStatus
+	result["actions"] = actionListMap
+	result["runTime"] = stageRunTime
+
+	return result, nil
+}
