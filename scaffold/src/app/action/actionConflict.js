@@ -14,6 +14,8 @@ limitations under the License.
 
 import { isObject, isArray, isBoolean, isNumber, isString, judgeType } from '../common/util';
 import * as conflictUtil from "../relation/conflict";
+import {getPathData} from "../relation/setPath";
+
 export function checkConflict(fromNodeId, toNodeId) {
 
 }
@@ -92,17 +94,20 @@ export function getConflict(targetAction) {
 
 export function svgTree(container, data,actionId) {
     
+    let svgWidth = ($("#actionTabsContent").width()-110)/2;
+    
+
     let conflictActions = _.filter(data.node,function(node){
         return node.id != actionId;
-    })
+    });
 
     let curAction = _.filter(data.node,function(node){
         return node.id == actionId;
-    })
+    });
 
 
-    let conflictArray = transformJson(conflictActions,100);
-    let curActionArray = transformJson(curAction,650);
+    let conflictArray = transformJson(conflictActions,60);
+    let curActionArray = transformJson(curAction,svgWidth+60);
 
     let svg = container.append("svg")
         .attr("width", "100%")
@@ -152,7 +157,7 @@ export function svgTree(container, data,actionId) {
                         name: key
                     });
 
-                    getChildJson(conflicts[key], 3,data[i].name+"."+key);
+                    getChildJson(conflicts[key], 3,data[i].name+"_"+key);
                 }
             }
         }
@@ -182,25 +187,18 @@ export function svgTree(container, data,actionId) {
 
     }
 
-    
-
-    function drawLine(lineArray){
-        for(let i=0;i<lineArray.length;i++){
-            let start = d3.select("."+(lineArray[i].fromData).replace(/./g,"_") );
-            let ent = d3.select("."+(lineArray[i].toData).replace(/./g,"_"));
-
-            console.log(start);
-
-        }
-    }
-
 
 
     function construct(svg, options) {
+        let gLine = svg.append("g")
+            .attr("id","conflictLine");
+
 
         let g = svg.append("g")
             .attr("transform", "translate(" + (options.depthX * 20 + options.initX) + "," + (options.depthY * 28) + ")")
-            .attr("class",options.path);
+            .attr("class",options.path)
+            .attr("tx",(options.depthX * 20 + options.initX))
+            .attr("ty",(options.depthY * 28));
 
         let rect = g.append('rect')
             .attr("ry", 4)
@@ -286,4 +284,35 @@ export function svgTree(container, data,actionId) {
                 }
             });
     }
+}
+
+function drawLine(lineArray){
+    for(let i=0;i<lineArray.length;i++){
+        let start = $("."+(lineArray[i].fromData).replace(/\./g,"_") );
+        let end = $("."+(lineArray[i].toData).replace(/\./g,"_"));      
+        let point = [start.attr("tx"),start.attr("ty"),end.attr("tx"),end.attr("ty")];
+        
+        drawLinePath(point,"","");           
+    }
+}
+
+
+function drawLinePath(point,fromPath,toPath){
+    // var offsetTop = $("#bipatiteLineSvg").offset().top;
+    // var offsetLeft = $("#bipatiteLineSvg").offset().left;
+    var x1 = parseInt(point[0])+70;
+    var y1 = parseInt(point[1]);
+    var x2 = parseInt(point[2]);
+    var y2 = parseInt(point[3]);
+    var d = getPathData({x:x1,y:y1},{x:x2,y:y2});
+
+    d3.select("#conflictLine")
+    .append("path")
+    .attr("d",d)
+    .attr("stroke", "#f9f065")
+    .attr("stroke-width", 6)
+    .attr("fill","none")
+    .attr("stroke-opacity", "0.8")
+    .attr("class","cursor");
+
 }
