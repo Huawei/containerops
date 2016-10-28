@@ -33,7 +33,10 @@ export function dragDropSetPath(options) {
     document.onmousemove = function(e) {
             var diffX = e.pageX - _startX - _offsetX,
                 diffY = e.pageY - _startY - _offsetY;
-            _path.attr("d", getPathData({ x: _startX - 60, y: _startY - (105 + _pageTitleHeight) }, { x: _startX + diffX - 40, y: _startY + diffY - (130 + _pageTitleHeight) }))
+            var translateX = parseInt(d3.select("#linesView")[0][0].attributes["translateX"] ? d3.select("#linesView")[0][0].attributes["translateX"].value : 0);
+            var translateY = parseInt(d3.select("#linesView")[0][0].attributes["translateY"] ? d3.select("#linesView")[0][0].attributes["translateY"].value : 0);
+            var scale = parseFloat(d3.select("#linesView")[0][0].attributes["scale"] ? d3.select("#linesView")[0][0].attributes["scale"].value : 1);
+            _path.attr("d", getPathData({ x: (_startX - 60 - translateX) / scale, y: (_startY - (105 + _pageTitleHeight) - translateY) / scale}, { x: (_startX + diffX - 40 - translateX) / scale, y: (_startY + diffY - (130 + _pageTitleHeight) - translateY)/scale}))
                 .attr("fill", "none")
                 .attr("stroke-opacity", "1")
                 .attr("stroke", "#81D9EC")
