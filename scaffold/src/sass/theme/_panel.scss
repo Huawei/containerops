@@ -35,42 +35,4 @@ limitations under the License. */
 	min-height:700px;
 }
 
-// input output related
-.inputicon{
-	transform:scaleY(-1) rotate(90deg);
-	-ms-transform:scaleY(-1) rotate(90deg); 	/* IE 9 */
-	-moz-transform:scaleY(-1) rotate(90deg); 	/* Firefox */
-	-webkit-transform:scaleY(-1) rotate(90deg); /* Safari and Chrome */
-	-o-transform:scaleY(-1) rotate(90deg); 	/* Opera */
-}
 
-.outputicon{
-	transform:rotate(-90deg);
-	-ms-transform:rotate(-90deg); 	/* IE 9 */
-	-moz-transform:rotate(-90deg); 	/* Firefox */
-	-webkit-transform:rotate(-90deg); /* Safari and Chrome */
-	-o-transform:rotate(-90deg); 	/* Opera */
-}
-
-.codeEditor, .treeEditor{
-	width: 100%;
-	height:300px;
-}
-
-.codeEditor > .jsoneditor{
-	border: 1px solid #3E4B5B;
-}
-
-.codeEditor > .jsoneditor > .jsoneditor-menu{
-	background-color: #3E4B5B;
-	border-bottom: 1px solid #3E4B5B;
-}
-
-.treeEditor > .jsoneditor{
-	border: 1px solid #4A607C;
-}
-
-.treeEditor > .jsoneditor > .jsoneditor-menu{
-	background-color: #4A607C;
-	border-bottom: 1px solid #4A607C;
-}
