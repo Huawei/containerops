@@ -69,7 +69,7 @@ export function dragDropSetPath(options) {
             setPath(dataJson);
             linePathAry.push(dataJson);
 
-            // bipatiteView(fromNodeData.outputJson,toNodeData.inputJson,dataJson);
+            bipatiteView(fromNodeData.outputJson,toNodeData.inputJson,dataJson);
 
             // if(checkConflict(fromNodeData.id, toNodeData.id)){
             //     notify("Conflict with other inputs, please click target action to resolve conflict first", "error");
