@@ -193,7 +193,7 @@ function showPorts(){
                         +'</div>'
                     +'</div>'
                     +'<div class="port-remove-div rm-port" data-index="' + index + '">'
-                        +'<span class="glyphicon glyphicon-minus"></span>'
+                        +'<span class="glyphicon glyphicon-remove"></span>'
                     +'</div></div>';
         $("#ports-setting").append(row);
     });
