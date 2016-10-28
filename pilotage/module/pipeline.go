@@ -1825,3 +1825,149 @@ func GetPipelineHistoriesList(namespace string) ([]map[string]interface{}, error
 
 	return resultList, nil
 }
+
+func GetPipelineDefineByRunSequence(sequenceId int64) (map[string]interface{}, error) {
+	defineMap := make(map[string]interface{})
+
+	pipelineStatus := true
+
+	startOutcome := new(models.Outcome)
+	startOutcome.GetOutcome().Where("id = ?", sequenceId).First(startOutcome)
+
+	pipelineInfo := new(models.PipelineLog)
+	new(models.PipelineLog).GetPipelineLog().Where("id = ?", startOutcome.Pipeline).First(pipelineInfo)
+
+	if startOutcome.ID == 0 {
+		return nil, errors.New("error sequence, can't get target sequence")
+	}
+
+	stageList := make([]models.StageLog, 0)
+	new(models.StageLog).GetStageLog().Where("pipeline = ?", startOutcome.Pipeline).Order("id").Find(&stageList)
+
+	// init pipeline id map
+	idMap := make(map[string]string)
+	for _, stageInfo := range stageList {
+		idMap["s-"+strconv.FormatInt(stageInfo.FromStage, 10)] = "s-" + strconv.FormatInt(stageInfo.ID, 10)
+
+		actionList := make([]models.ActionLog, 0)
+		new(models.ActionLog).GetActionLog().Where("stage = ?", stageInfo.ID).Find(&actionList)
+
+		for _, actionInfo := range actionList {
+			idMap["a-"+strconv.FormatInt(actionInfo.FromAction, 10)] = "a-" + strconv.FormatInt(actionInfo.ID, 10)
+		}
+	}
+
+	lineListMap := make([]map[string]interface{}, 0)
+
+	stageListMap := make([]map[string]interface{}, 0)
+	new(models.StageLog).GetStageLog().Where("pipeline = ?", startOutcome.Pipeline).Order("id").Find(&stageList)
+
+	for _, stage := range stageList {
+		stageInfoMap := make(map[string]interface{})
+
+		stageSetupData := make(map[string]interface{})
+		stageSetupData["name"] = stage.Stage
+
+		stageType := "pipeline-stage"
+		if stage.Type == models.StageTypeStart {
+			stageType = "pipeline-start"
+		} else if stage.Type == models.StageTypeEnd {
+			stageType = "pipeline-end"
+		}
+
+		stagetStatus := true
+		actionList := make([]models.ActionLog, 0)
+		actionListMap := make([]map[string]interface{}, 0)
+		new(models.ActionLog).GetActionLog().Where("stage = ?", stage.ID).Find(&actionList)
+
+		for _, action := range actionList {
+			actionInfoMap := make(map[string]interface{})
+
+			actionSetupData := make(map[string]interface{})
+			actionSetupData["name"] = action.Action
+
+			actionType := "pipeline-action"
+
+			actionInfoMap["stetupData"] = actionSetupData
+			actionInfoMap["id"] = "a-" + strconv.FormatInt(action.ID, 10)
+			actionInfoMap["type"] = actionType
+
+			actionListMap = append(actionListMap, actionInfoMap)
+
+			// if current action has relation ,add line info to lineList
+			if action.Manifest != "" {
+				manifestMap := make(map[string]interface{})
+
+				json.Unmarshal([]byte(action.Manifest), &manifestMap)
+				if relationMap, ok := manifestMap["relation"].([]interface{}); ok {
+					for _, relation := range relationMap {
+						if _, ok := relation.(map[string]interface{}); !ok {
+							continue
+						}
+
+						relationInfo := relation.(map[string]interface{})
+
+						fromActionIdF := relationInfo["fromAction"].(float64)
+						toActionIdF := relationInfo["toAction"].(float64)
+
+						fromActionId := int64(fromActionIdF)
+						toActionId := int64(toActionIdF)
+
+						startDataMap := make(map[string]interface{})
+						endDataMap := make(map[string]interface{})
+
+						if fromActionId == 0 {
+							// get start stage info
+							startStage := new(models.StageLog)
+							startStage.GetStageLog().Where("pipeline = ?", pipelineInfo.ID).Where("type = ? ", models.StageTypeStart).First(startStage)
+							startDataMap["id"] = "s-" + strconv.FormatInt(startStage.ID, 10)
+							startDataMap["type"] = "pipeline-start"
+						} else {
+							actionInfo := new(models.ActionLog)
+							actionInfo.GetActionLog().Where("id = ?", strings.TrimPrefix(idMap["a-"+strconv.FormatInt(fromActionId, 10)], "a-")).First(actionInfo)
+
+							startDataMap["id"] = "a-" + strconv.FormatInt(actionInfo.ID, 10)
+							startDataMap["type"] = "pipeline-action"
+							startDataMap["setupData"] = map[string]interface{}{"action": map[string]interface{}{"name": actionInfo.Action}}
+						}
+
+						endActionInfo := new(models.ActionLog)
+						endActionInfo.GetActionLog().Where("id = ?", strings.TrimPrefix(idMap["a-"+strconv.FormatInt(toActionId, 10)], "a-")).First(endActionInfo)
+
+						endDataMap["id"] = "a-" + strconv.FormatInt(endActionInfo.ID, 10)
+						endDataMap["type"] = "pipeline-action"
+						endDataMap["setupData"] = map[string]interface{}{"action": map[string]interface{}{"name": endActionInfo.Action}}
+
+						lineInfoMap := make(map[string]interface{})
+						lineInfoMap["pipelineLineViewId"] = "pipeline-line-view"
+						lineInfoMap["startData"] = startDataMap
+						lineInfoMap["endData"] = endDataMap
+						lineInfoMap["id"] = startDataMap["id"].(string) + "-" + endDataMap["id"].(string)
+
+						lineListMap = append(lineListMap, lineInfoMap)
+					}
+				}
+			}
+		}
+
+		if len(actionListMap) > 0 {
+			stageInfoMap["actions"] = actionListMap
+		}
+		stageInfoMap["id"] = "s-" + strconv.FormatInt(stage.ID, 10)
+		stageInfoMap["setupData"] = stageSetupData
+		stageInfoMap["type"] = stageType
+		stageInfoMap["status"] = stagetStatus
+
+		if !stagetStatus {
+			pipelineStatus = stagetStatus
+		}
+
+		stageListMap = append(stageListMap, stageInfoMap)
+	}
+
+	defineMap["stageList"] = stageListMap
+	defineMap["status"] = pipelineStatus
+	defineMap["lineList"] = lineListMap
+
+	return defineMap, nil
+}
