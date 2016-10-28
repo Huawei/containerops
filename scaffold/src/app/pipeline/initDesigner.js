@@ -89,7 +89,10 @@ function zoomed() {
     pipelineView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
     actionsView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
     // buttonView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
-    linesView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+    linesView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")")
+    .attr("translateX", d3.event.translate[0])
+    .attr("translateY", d3.event.translate[1])
+    .attr("scale", d3.event.scale);
 }
 
 function nozoom() {
