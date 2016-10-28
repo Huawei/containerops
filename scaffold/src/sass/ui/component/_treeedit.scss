@@ -18,6 +18,23 @@ limitations under the License. */
   background-color:#fafafa !important;
 } 
 
+// panel heading icons
+.inputicon{
+  transform:scaleY(-1) rotate(90deg);
+  -ms-transform:scaleY(-1) rotate(90deg);   /* IE 9 */
+  -moz-transform:scaleY(-1) rotate(90deg);  /* Firefox */
+  -webkit-transform:scaleY(-1) rotate(90deg); /* Safari and Chrome */
+  -o-transform:scaleY(-1) rotate(90deg);  /* Opera */
+}
+
+.outputicon{
+  transform:rotate(-90deg);
+  -ms-transform:rotate(-90deg);   /* IE 9 */
+  -moz-transform:rotate(-90deg);  /* Firefox */
+  -webkit-transform:rotate(-90deg); /* Safari and Chrome */
+  -o-transform:rotate(-90deg);  /* Opera */
+}
+
 // tree add button
 .tree-add-button{
   margin-top:6em;
