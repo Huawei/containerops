@@ -72,7 +72,7 @@ function showPipeline_URL_Token(){
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
-        if (xhr.responseJSON.errMsg) {
+        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
         } else {
             notify("Server is unreachable", "error");

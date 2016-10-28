@@ -40,7 +40,7 @@ export function initPipelinePage() {
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
-        if (xhr.responseJSON.errMsg) {
+        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
         } else {
             notify("Server is unreachable", "error");
@@ -141,7 +141,7 @@ function getPipelineData() {
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
-        if (xhr.responseJSON.errMsg) {
+        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
         } else {
             notify("Server is unreachable", "error");
@@ -201,7 +201,7 @@ function showNewPipeline() {
                     });
                     promise.fail(function(xhr, status, error) {
                         loading.hide();
-                        if (xhr.responseJSON.errMsg) {
+                        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
                             notify(xhr.responseJSON.errMsg, "error");
                         } else {
                             notify("Server is unreachable", "error");
@@ -285,7 +285,7 @@ export function savePipelineData(next) {
     promise.fail(function(xhr, status, error) {
         loading.hide();
         if (!next) {
-            if (xhr.responseJSON.errMsg) {
+            if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
                 notify(xhr.responseJSON.errMsg, "error");
             } else {
                 notify("Server is unreachable", "error");
@@ -319,7 +319,7 @@ function showNewPipelineVersion() {
                     });
                     promise.fail(function(xhr, status, error) {
                         loading.hide();
-                        if (xhr.responseJSON.errMsg) {
+                        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
                             notify(xhr.responseJSON.errMsg, "error");
                         } else {
                             notify("Server is unreachable", "error");
@@ -400,7 +400,7 @@ function getEnvList() {
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
-        if (xhr.responseJSON.errMsg) {
+        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
         } else {
             notify("Server is unreachable", "error");
@@ -448,7 +448,7 @@ function savePipelineEnvs() {
         });
         promise.fail(function(xhr, status, error) {
             loading.hide();
-            if (xhr.responseJSON.errMsg) {
+            if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
                 notify(xhr.responseJSON.errMsg, "error");
             } else {
                 notify("Server is unreachable", "error");
@@ -485,7 +485,7 @@ function runPipeline() {
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
-        if (xhr.responseJSON.errMsg) {
+        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
         } else {
             notify("Server is unreachable", "error");
@@ -520,7 +520,7 @@ function stopPipeline() {
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
-        if (xhr.responseJSON.errMsg) {
+        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
         } else {
             notify("Server is unreachable", "error");
