@@ -9,6 +9,29 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. */
 
+// nav sidebar control
+.nav-control{
+  color:#777;
+  cursor: pointer;
+  font-size:16px;
+  margin-top:5px;
+}
+
+.sidebar-close{
+  float:right;
+  margin-right:6px;
+}
+
+.sidebar-open{
+  float:left;
+  margin-left:30px;
+}
+
+// override content
+.content{
+  padding: 30px 40px 40px !important;
+}
+
 // loading
 .loading{
   position:fixed;
@@ -168,3 +191,38 @@ legend{
   float:right;
   margin:7px 20px;
 }
+
+// pipeline run and stop
+.pipeline-on{
+  background-image:url(/assets/images/pipeline-on.png);
+  background-repeat:no-repeat;
+  background-size:contain;
+  width: 65px;
+  height: 26px;
+  display: inline-block;
+  float:left;
+  margin:6px 20px;
+  cursor: pointer;
+}
+
+.pipeline-off{
+  background-image:url(/assets/images/pipeline-off.png);
+  background-repeat:no-repeat;
+  background-size:contain;
+  width: 65px;
+  height: 26px;
+  display: inline-block;
+  float:left;
+  margin:6px 20px;
+  cursor: pointer;
+}
+
+.pipeline-on:hover{
+  opacity: 0.5;
+}
+
+.pipeline-off:hover{
+  opacity: 0.5;
+}
+
+
