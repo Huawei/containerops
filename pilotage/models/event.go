@@ -46,17 +46,17 @@ const (
 //EventDefinition is the event type, source and definition in the customized DevOps workflow processing.
 //And the system events will be initlization with pilotage system.
 type EventDefinition struct {
-	ID         int64      `json:"id" gorm:"primary_key"`                         //
-	Event      string     `json:"event" sql:"unique;not null;type:varchar(255)"` //Event name for query.
-	Title      string     `json:"title" sql:"null;type:varchar(255)"`            //Event name for display.
-	Action     int64      `json:"action" sql:"not null;default:0"`               // action's id that event bind
-	Character  int64      `json:"character" sql:"not null;default:0"`            //CharacterServiceEvent or CharacterComponentEvent.
-	Type       int64      `json:"type" sql:"not null;default:0"`                 //TypeSystemEvent or TypeUserEvent.
-	Source     int64      `json:"source" sql:"not null;default:0"`               //SourceInnerEvent or SourceOutsideEvent.
-	Definition string     `json:"type" sql:"null;type:text"`                     //Event Definition.
-	CreatedAt  time.Time  `json:"created" sql:""`                                //
-	UpdatedAt  time.Time  `json:"updated" sql:""`                                //
-	DeletedAt  *time.Time `json:"deleted" sql:"index"`                           //
+	ID         int64      `json:"id" gorm:"primary_key"`                  //
+	Event      string     `json:"event" sql:"not null;type:varchar(255)"` //Event name for query.
+	Title      string     `json:"title" sql:"null;type:varchar(255)"`     //Event name for display.
+	Action     int64      `json:"action" sql:"not null;default:0"`        // action's id that event bind
+	Character  int64      `json:"character" sql:"not null;default:0"`     //CharacterServiceEvent or CharacterComponentEvent.
+	Type       int64      `json:"type" sql:"not null;default:0"`          //TypeSystemEvent or TypeUserEvent.
+	Source     int64      `json:"source" sql:"not null;default:0"`        //SourceInnerEvent or SourceOutsideEvent.
+	Definition string     `json:"type" sql:"null;type:text"`              //Event Definition.
+	CreatedAt  time.Time  `json:"created" sql:""`                         //
+	UpdatedAt  time.Time  `json:"updated" sql:""`                         //
+	DeletedAt  *time.Time `json:"deleted" sql:"index"`                    //
 }
 
 //TableName is return the table name of Event in MySQL database.
