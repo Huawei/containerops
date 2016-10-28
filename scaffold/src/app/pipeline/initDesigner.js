@@ -69,12 +69,6 @@ export function initDesigner() {
         .attr("height", constant.svgHeight)
         .attr("id", "actionLinkView");
 
-    let treeView = g.append("g")
-        .attr("width", constant.svgWidth)
-        .attr("height", constant.svgHeight)
-        .attr("id", "treeView");
-
-
     constant.setSvg(svg);
     constant.setG(g);
     constant.setSvgMainRect(svgMainRect);
@@ -82,7 +76,6 @@ export function initDesigner() {
     constant.setActionsView(actionsView);
     constant.setPipelineView(pipelineView);
     constant.setButtonView(buttonView);
-    constant.setTreeView(treeView);
 }
 
 function clicked(d, i) {
