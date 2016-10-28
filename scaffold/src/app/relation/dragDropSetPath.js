@@ -15,6 +15,7 @@ import { setPath, getPathData } from "./setPath";
 import { linePathAry } from "../common/constant";
 import { bipatiteView } from "./bipatiteView";
 import { notify } from "../common/notify";
+import * as conflictUtil from "../relation/conflict";
 
 export function dragDropSetPath(options) {
 
@@ -72,10 +73,10 @@ export function dragDropSetPath(options) {
 
             bipatiteView(fromNodeData.outputJson,toNodeData.inputJson,dataJson);
 
-            // if(checkConflict(fromNodeData.id, toNodeData.id)){
-            //     notify("Conflict with other inputs, please click target action to resolve conflict first", "error");
-            //     return false;
-            // }
+            if(conflictUtil.hasConflict(fromNodeData.id, toNodeData.id)){
+                notify("Conflict with other inputs, please click target action to resolve conflict first", "error");
+                return false;
+            }
         }
     }
 }

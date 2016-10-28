@@ -13,55 +13,73 @@ limitations under the License.
 
 
 import { isObject, isArray, isBoolean, isNumber, isString, judgeType } from '../common/util';
-
+import * as conflictUtil from "../relation/conflict";
 export function checkConflict(fromNodeId, toNodeId) {
 
 }
-var conflict = {
-    "node": [{
-        "name": "action1",
-        "id": "action1ID",
-        "conflicts": [
-            { "aaa": "" },
-            { "bbb": { "name": { "ddd": "" } } },
-            { "ccc": [] }
-        ]
-    }, {
-        "name": "action2",
-        "id": "action2ID",
-        "conflicts": [
-            { "ccc": "" },
-            { "eee": [] }
-        ]
-    }, {
-        "name": "action3",
-        "id": "action3ID",
-        "conflicts": [
-            { "aaa": "" },
-            { "bbb": {} },
-            { "eee": [] }
-        ]
-    }, {
-        "name": "currentAction",
-        "id": "currentActionID",
-        "conflicts": [
-            { "aaa": "" },
-            { "bbb": {} },
-            { "ccc": "" },
-            { "eee": [] }
-        ]
-    }],
-    "line": [{
-        "fromData": "action1ID.bbb.name.ddd",
-        "toData": "action1ID.aa.bb"
-    }]
-};
+// var conflict = {
+//     "node": [{
+//         "name": "action1",
+//         "id": "action1ID",
+//         "conflicts": [
+//             { "aaa": "" },
+//             { "bbb": { "name": { "ddd": "" } } },
+//             { "ccc": [] }
+//         ]
+//     }, {
+//         "name": "action2",
+//         "id": "action2ID",
+//         "conflicts": [
+//             { "ccc": "" },
+//             { "eee": [] }
+//         ]
+//     }, {
+//         "name": "action3",
+//         "id": "action3ID",
+//         "conflicts": [
+//             { "aaa": "" },
+//             { "bbb": {} },
+//             { "eee": [] }
+//         ]
+//     }, {
+//         "name": "currentAction",
+//         "id": "currentActionID",
+//         "conflicts": [
+//             { "aaa": "" },
+//             { "bbb": {} },
+//             { "ccc": "" },
+//             { "eee": [] }
+//         ]
+//     }, {
+//         "name": "currentAction",
+//         "id": "currentActionID",
+//         "conflicts": [
+//             { "aaa": "" },
+//             { "bbb": {} },
+//             { "ccc": "" },
+//             { "eee": [] }
+//         ]
+//     }, {
+//         "name": "currentAction",
+//         "id": "currentActionID",
+//         "conflicts": [
+//             { "aaa": "" },
+//             { "bbb": {} },
+//             { "ccc": "" },
+//             { "eee": [] }
+//         ]
+//     }],
+//     "line": [{
+//         "fromData": "action1ID.bbb.name.ddd",
+//         "toData": "action1ID.aa.bb"
+//     }]
+// };
+
 export function getConflict(targetAction) {
     var actionId = targetAction.id;
     $("#conflictTreeView").empty();
-    // var conflict = callFunction(actionId);
-    var testData = {};
-    if (!_.isEmpty(testData)) {
+    var conflict = conflictUtil.getActionConflict(actionId);
+    if (_.isEmpty(conflict)) {
         var noconflict = "<h4 class='pr'>" +
             "<em>No Conflict</em>" +
             "</h4>";
@@ -70,10 +88,11 @@ export function getConflict(targetAction) {
         svgTree(d3.select("#conflictTreeView"), conflict);
     }
 }
+
+
 export function svgTree(container, data) {
     var depthY = 0;
     var jsonArray = [];
-
     var svg = container.append("svg")
         .attr("width", "100%")
         .attr("height", 600)
@@ -117,8 +136,8 @@ export function svgTree(container, data) {
                 getChildJson(conflicts[key], 3);
             }
         }
-    }
 
+    }
 
     function getChildJson(data, depthX) {
 
@@ -141,97 +160,93 @@ export function svgTree(container, data) {
     }
 
 
-}
+    function construct(svg, options) {
+
+        var g = svg.append("g")
+            .attr("transform", "translate(" + (options.depthX * 20 + 100) + "," + (options.depthY * 28) + ")");
+
+        var rect = g.append('rect')
+            .attr("ry", 4)
+            .attr("rx", 4)
+            .attr("y", 0)
+            .attr("width", 135)
+            .attr("height", 24)
+            .attr("fill", function() {
+                switch (options.type) {
+                    case "string":
+                        return "#13b5b1";
+                        break;
+                    case "object":
+                        return "#eb6876";
+                        break;
+                    case "number":
+                        return "#32b16c";
+                        break;
+                    case "array":
+                        return "#c490c0";
+                        break;
+                    case "boolean":
+                        return "#8fc320";
+                        break;
+                    default:
+                        return "#cfcfcf";
+                }
+            });
+
+        var clashImage = g.append('image')
+            .attr("transform", "translate(0,0)")
+            .attr("xlink:href", "../../assets/svg/conflict.svg")
+            .attr("x", 2)
+            .attr("y", 2)
+            .attr("width", 20)
+            .attr("height", 20);
 
 
 
+        var typeImage = g.append('image')
+            .attr("transform", "translate(115,0)")
+            .attr("xlink:href", function() {
+                switch (options.type) {
+                    case "string":
+                        return "../../assets/images/string.png";
+                        break;
+                    case "object":
+                        return "../../assets/images/object.png";
+                        break;
+                    case "number":
+                        return "../../assets/images/number.png";
+                        break;
+                    case "array":
+                        return "../../assets/images/array.png";
+                        break;
+                    case "boolean":
+                        return "../../assets/images/boolean.png";
+                        break;
+                    default:
+                        return "";
+                }
+            })
+            .attr("x", "0")
+            .attr("y", "0")
+            .attr("width", "20")
+            .attr("height", "24")
 
-function construct(svg, options) {
-
-    var g = svg.append("g")
-        .attr("transform", "translate(" + (options.depthX * 20 + 100) + "," + (options.depthY * 28) + ")");
-
-    var rect = g.append('rect')
-        .attr("ry", 4)
-        .attr("rx", 4)
-        .attr("y", 0)
-        .attr("width", 135)
-        .attr("height", 24)
-        .attr("fill", function() {
-            switch (options.type) {
-                case "string":
-                    return "#13b5b1";
-                    break;
-                case "object":
-                    return "#eb6876";
-                    break;
-                case "number":
-                    return "#32b16c";
-                    break;
-                case "array":
-                    return "#c490c0";
-                    break;
-                case "boolean":
-                    return "#8fc320";
-                    break;
-                default:
-                    return "#cfcfcf";
-            }
-        });
-
-    var clashImage = g.append('image')
-        .attr("transform", "translate(0,0)")
-        .attr("xlink:href", "../../assets/svg/conflict.svg")
-        .attr("x", 2)
-        .attr("y", 2)
-        .attr("width", 20)
-        .attr("height", 20);
-
-
-
-    var typeImage = g.append('image')
-        .attr("transform", "translate(115,0)")
-        .attr("xlink:href", function() {
-            switch (options.type) {
-                case "string":
-                    return "../../assets/images/string.png";
-                    break;
-                case "object":
-                    return "../../assets/images/object.png";
-                    break;
-                case "number":
-                    return "../../assets/images/number.png";
-                    break;
-                case "array":
-                    return "../../assets/images/array.png";
-                    break;
-                case "boolean":
-                    return "../../assets/images/boolean.png";
-                    break;
-                default:
-                    return "";
-            }
-        })
-        .attr("x", "0")
-        .attr("y", "0")
-        .attr("width", "20")
-        .attr("height", "24")
-
-    var text = g.append('text')
-        .attr("dx", 28)
-        .attr("dy", 17)
-        .attr("fill", function() {
-            if (options.type == "null") {
-                return "#8e8a89";
-            } else {
-                return "#fff";
-            }
-        })
-        .text(function() {
-            if (options.name.length > 12) {
-                return options.name.substring(0, 10) + "...";
-            } else {
-                return options.name;
-            }
-        });
+        var text = g.append('text')
+            .attr("dx", 28)
+            .attr("dy", 17)
+            .attr("fill", function() {
+                if (options.type == "null") {
+                    return "#8e8a89";
+                } else {
+                    return "#fff";
+                }
+            })
+            .text(function() {
+                if (options.name.length > 12) {
+                    return options.name.substring(0, 10) + "...";
+                } else {
+                    return options.name;
+                }
+            });
+    }
 }
