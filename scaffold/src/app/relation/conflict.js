@@ -19,7 +19,7 @@ export  function hasConflict(startActionID,endActionID) {
 
     for(let i = 0; i < linePathAry.length; i ++) {
         let lineInfo = linePathAry[i];
-        if (lineInfo.endData.id == endActionID && lineInfo.startData.id == startActionID) {
+        if (lineInfo.endData.id == endActionID && lineInfo.startData.id == startActionID && lineInfo.relation) {
             for (let j = 0; j < lineInfo.relation.length; j ++) {
                 let currentRelation = lineInfo.relation[j];
 
@@ -31,7 +31,7 @@ export  function hasConflict(startActionID,endActionID) {
 
     for (let i =0; i < linePathAry.length; i ++) {
         let lineInfo = linePathAry[i];
-        if (lineInfo.endData.id == endActionID && lineInfo.startData.id != startActionID) {
+        if (lineInfo.endData.id == endActionID && lineInfo.startData.id != startActionID && lineInfo.relation) {
             for (let j = 0; j < lineInfo.relation.length; j ++) {
                 let currentRelation = lineInfo.relation[j];
 
@@ -53,7 +53,7 @@ export function getActionConflict(actionID) {
 
     for (let i = 0; i < linePathAry.length; i ++) {
         let lineInfo = linePathAry[i];
-        if (lineInfo.endData.id == actionID) {
+        if (lineInfo.endData.id == actionID && lineInfo.relation) {
             for (let j = 0; j < lineInfo.relation.length; j ++) {
                 let currentRelation = lineInfo.relation[j];
                 let currentPath = lineInfo.startData.id + currentRelation.from
@@ -100,6 +100,7 @@ export function getActionConflict(actionID) {
         }
 
         node.id = p;
+        node.name = p;
         node.conflicts = nodeConflicts;
 
         result.node.push(node);
@@ -110,7 +111,7 @@ export function getActionConflict(actionID) {
 
 function setConflictPath(obj,path) {
     path = path.substring(1);
-    currentProp = path.split(".")[0];
+    let currentProp = path.split(".")[0];
 
     if (path.split(".").length > 1) {
         if (!obj[currentProp]) {obj[currentProp] = {};}
