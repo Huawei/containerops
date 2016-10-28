@@ -76,96 +76,133 @@ export function checkConflict(fromNodeId, toNodeId) {
 // };
 
 export function getConflict(targetAction) {
-    var actionId = targetAction.id;
+    let actionId = targetAction.id;
     $("#conflictTreeView").empty();
-    var conflict = conflictUtil.getActionConflict(actionId);
+    let conflict = conflictUtil.getActionConflict(actionId);
     if (_.isEmpty(conflict)) {
-        var noconflict = "<h4 class='pr'>" +
+        let noconflict = "<h4 class='pr'>" +
             "<em>No Conflict</em>" +
             "</h4>";
         $("#conflictTreeView").append(noconflict);
     } else {
-        svgTree(d3.select("#conflictTreeView"), conflict);
+        svgTree(d3.select("#conflictTreeView"), conflict,actionId);
     }
 }
 
 
-export function svgTree(container, data) {
-    var depthY = 0;
-    var jsonArray = [];
-    var svg = container.append("svg")
+export function svgTree(container, data,actionId) {
+    
+    let conflictActions = _.filter(data.node,function(node){
+        return node.id != actionId;
+    })
+
+    let curAction = _.filter(data.node,function(node){
+        return node.id == actionId;
+    })
+
+
+    let conflictArray = transformJson(conflictActions,100);
+    let curActionArray = transformJson(curAction,650);
+
+    let svg = container.append("svg")
         .attr("width", "100%")
         .attr("height", 600)
         .style("fill", "white");
 
-    for (var i = 0; i < data.node.length; i++) {
-        transformJson(data.node[i]);
+
+    for (let i = 0; i < conflictArray.length; i++) {
+        construct(svg, conflictArray[i]);
     }
 
-    for (var i = 0; i < jsonArray.length; i++) {
-        construct(svg, jsonArray[i]);
+    for (let i = 0; i < curActionArray.length; i++) {
+        construct(svg, curActionArray[i]);
     }
 
+    drawLine(data.line);
 
-    function transformJson(data) {
+    function transformJson(data,initX) {
 
-        var depthX = 1;
-        depthY++;
-        jsonArray.push({
-            depthX: depthX,
-            depthY: depthY,
-            type: "object",
-            name: data.name
-        });
+        let jsonArray = [];
+        let depthY = 0;
+        let depthX = 1;
 
+        for(let i =0;i<data.length;i++){
+            depthY++;
+            jsonArray.push({
+                depthX: depthX,
+                depthY: depthY,
+                type: "object",
+                initX : initX,
+                name: data[i].name
+            });
 
-        for (var i = 0; i < data.conflicts.length; i++) {
+            for (let j = 0; j < data[i].conflicts.length; j++) {
 
-            var conflicts = data.conflicts[i];
+                let conflicts = data[i].conflicts[j];
 
-            for (var key in conflicts) {
-                depthY++;
+                for (let key in conflicts) {
+                    depthY++;
 
-                jsonArray.push({
-                    depthX: 2,
-                    depthY: depthY,
-                    type: judgeType(conflicts[key]),
-                    name: key
-                });
+                    jsonArray.push({
+                        depthX: 2,
+                        depthY: depthY,
+                        type: judgeType(conflicts[key]),
+                        initX:initX,
+                        path:data[i].name+"_"+key,
+                        name: key
+                    });
 
-                getChildJson(conflicts[key], 3);
+                    getChildJson(conflicts[key], 3,data[i].name+"."+key);
+                }
             }
         }
 
-    }
+        function getChildJson(data, depthX,path){
+             if (isObject(data)) {
+                for (let key in data) {
+                    depthY++;
+                    jsonArray.push({
+                        depthX: depthX,
+                        depthY: depthY,
+                        type: judgeType(data[key]),
+                        initX:initX,
+                        path:path+"_"+key,
+                        name: key
+                    });
+                    getChildJson(data[key], depthX + 1);
+                }
+            }
 
-    function getChildJson(data, depthX) {
+            if (isArray(data) && data.length > 0) {
 
-        if (isObject(data)) {
-            for (var key in data) {
-                depthY++;
-                jsonArray.push({
-                    depthX: depthX,
-                    depthY: depthY,
-                    type: judgeType(data[key]),
-                    name: key
-                });
-                getChildJson(data[key], depthX + 1);
             }
         }
 
-        if (isArray(data) && data.length > 0) {
+        return jsonArray;
+
+    }
+
+    
+
+    function drawLine(lineArray){
+        for(let i=0;i<lineArray.length;i++){
+            let start = d3.select("."+(lineArray[i].fromData).replace(/./g,"_") );
+            let ent = d3.select("."+(lineArray[i].toData).replace(/./g,"_"));
+
+            console.log(start);
 
         }
     }
+
 
 
     function construct(svg, options) {
 
-        var g = svg.append("g")
-            .attr("transform", "translate(" + (options.depthX * 20 + 100) + "," + (options.depthY * 28) + ")");
+        let g = svg.append("g")
+            .attr("transform", "translate(" + (options.depthX * 20 + options.initX) + "," + (options.depthY * 28) + ")")
+            .attr("class",options.path);
 
-        var rect = g.append('rect')
+        let rect = g.append('rect')
             .attr("ry", 4)
             .attr("rx", 4)
             .attr("y", 0)
@@ -193,7 +230,7 @@ export function svgTree(container, data) {
                 }
             });
 
-        var clashImage = g.append('image')
+        let clashImage = g.append('image')
             .attr("transform", "translate(0,0)")
             .attr("xlink:href", "../../assets/svg/conflict.svg")
             .attr("x", 2)
@@ -203,7 +240,7 @@ export function svgTree(container, data) {
 
 
 
-        var typeImage = g.append('image')
+        let typeImage = g.append('image')
             .attr("transform", "translate(115,0)")
             .attr("xlink:href", function() {
                 switch (options.type) {
@@ -231,7 +268,7 @@ export function svgTree(container, data) {
             .attr("width", "20")
             .attr("height", "24")
 
-        var text = g.append('text')
+        let text = g.append('text')
             .attr("dx", 28)
             .attr("dy", 17)
             .attr("fill", function() {
