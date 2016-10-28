@@ -9,7 +9,49 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. */
 
+// panel heading icons
+.input-from-edit-icon{
+    background-image:url(/assets/svg/input-from-edit.svg);
+    background-repeat:no-repeat;
+    background-size: contain;
+    width:18px;
+    height:13px;
+    display: inline-block;
+} 
+
+.output-from-edit-icon{
+    background-image:url(/assets/svg/output-from-edit.svg);
+    background-repeat:no-repeat;
+    background-size: contain;
+    width:18px;
+    height:13px;
+    display: inline-block;
+} 
+
 // from edit
+.codeEditor, .treeEditor{
+    width: 100%;
+    height:300px;
+}
+
+.codeEditor > .jsoneditor{
+    border: 1px solid #3E4B5B;
+}
+
+.codeEditor > .jsoneditor > .jsoneditor-menu{
+    background-color: #3E4B5B;
+    border-bottom: 1px solid #3E4B5B;
+}
+
+.treeEditor > .jsoneditor{
+    border: 1px solid #4A607C;
+}
+
+.treeEditor > .jsoneditor > .jsoneditor-menu{
+    background-color: #4A607C;
+    border-bottom: 1px solid #4A607C;
+}
+
 #inputTreeEditor .jsoneditor-contextmenu-root {
     position: relative;
     width: 0;
@@ -43,8 +85,8 @@ limitations under the License. */
     background-image:url(/assets/svg/code-to-tree.svg);
     background-repeat: no-repeat;
     background-size: contain;
-    width:50px;
-    height:40px;
+    width:43px;
+    height:33px;
     float:left;
     cursor:pointer;
 }
@@ -57,8 +99,8 @@ limitations under the License. */
     background-image:url(/assets/svg/tree-to-code.svg);
     background-repeat: no-repeat;
     background-size: contain;
-    width:50px;
-    height:40px;
+    width:43px;
+    height:33px;
     float:right;
     cursor:pointer;
 }
