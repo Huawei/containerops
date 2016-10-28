@@ -30,7 +30,7 @@ export  function hasConflict(startActionID,endActionID) {
     }
 
     for (let i =0; i < linePathAry.length; i ++) {
-        let lineInfo == linePathAry[i];
+        let lineInfo = linePathAry[i];
         if (lineInfo.endData.id == endActionID && lineInfo.startData.id != startActionID) {
             for (let j = 0; j < lineInfo.relation.length; j ++) {
                 let currentRelation = lineInfo.relation[j];
