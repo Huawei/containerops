@@ -14,8 +14,8 @@ limitations under the License.
 export function initPipeline(fromNodes,toNodes) {
         var result = [];
         
-        visibleFromNode.sort().reverse();
-        visibleToNode.sort().reverse();
+        // visibleFromNode.sort().reverse();
+        // visibleToNode.sort().reverse();
 
         for (var i = 0; i < fromNodes.length; i ++){
             var tempFromNode = [];
@@ -32,7 +32,7 @@ export function initPipeline(fromNodes,toNodes) {
 }
 
 
-export function addRelation(relation,needDel,fromPath,toPath) {
+export function addRelation(relation,needDel,fromPath,toPath,visibleFromNode,visibleToNode) {
    
     if (needDel) {
         relation = delRelation(relation,fromPath);
