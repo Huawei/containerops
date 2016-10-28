@@ -105,11 +105,15 @@ func SetRouters(m *macaron.Macaron) {
 							m.Put("/", handler.PutStageV1Handler)
 							m.Delete("/", handler.DeleteStageV1Handler)
 
+							m.Get("/history", handler.GetStageHistoryInfoV1Handler)
+
 							m.Post("/action", handler.PostActionV1Handler)
 							m.Group("/:action", func() {
 								m.Get("/", handler.GetActionV1Handler)
 								m.Put("/", handler.PutActionV1Handler)
 								m.Delete("/", handler.DeleteActionV1Handler)
+
+								m.Get("/history", handler.GetActionHistoryInfoV1Handler)
 
 								//Binding the service supported with User/Organization
 								m.Group("/service", func() {
