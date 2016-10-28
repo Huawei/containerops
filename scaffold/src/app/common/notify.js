@@ -11,24 +11,24 @@
     limitations under the License. 
 */
 
-export function notify(msg, type) {
+export function notify(msg, type, showtime) {
     Messenger().post({
         "message": msg,
         "type": type,
         /* success, error, info*/
         "showCloseButton": true,
-        "hideAfter" : 3
+        "hideAfter" : showtime ? showtime : 3
     });
 }
 
-export function confirm(msg, type,actions) {
+export function confirm(msg, type,actions, showtime) {
     // actions is an array of {"name":"","label":"","action":function}
     var options = {
         "message": msg,
         "type": type,
         /* success, error, info*/
         "showCloseButton": true,
-        "hideAfter" : 60,
+        "hideAfter" : showtime ? showtime : 60,
         "actions" : {}
     }
 
