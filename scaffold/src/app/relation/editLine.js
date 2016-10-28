@@ -33,6 +33,7 @@ export function editLine(editPage, currentLine) {
         return id == line.id;
     })
 
+    console.log(constant);
     lineInputJSON = currentLineData.startData.outputJson;
     lineOutputJSON = currentLineData.endData.inputJson;
     if (_.isEmpty(lineInputJSON)) {

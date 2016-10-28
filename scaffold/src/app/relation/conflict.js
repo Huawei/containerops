@@ -109,6 +109,20 @@ export function getActionConflict(actionID) {
     return result;
 }
 
+export function cleanConflict(fromActionId,toActionId,path){
+    let ary = path.split("_");
+    let formPath = "";
+    for(var i=1;i<ary.length;i++){
+      formPath = formPath+"."+ary[i];
+    }
+
+    let line = _.find(linePathAry, function(line) {
+        return (fromActionId+""+toActionId) == line.id;
+    })
+
+    line.relation = delRelation(line.relation,formPath);
+}
+
 function setConflictPath(obj,path) {
     path = path.substring(1);
     let currentProp = path.split(".")[0];
@@ -122,3 +136,21 @@ function setConflictPath(obj,path) {
 
     return obj;
 }
+
+
+
+function delRelation(relation,fromPath) {
+    var finalRelation = [];
+    for (var i = 0; i < relation.length; i ++ ) {
+        var tempRelation = relation[i];
+        
+        if(tempRelation.from.indexOf(fromPath) == 0){
+            continue
+        }
+
+        finalRelation = finalRelation.concat(tempRelation);
+    }
+
+    return finalRelation;
+}
+
