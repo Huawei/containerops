@@ -19,15 +19,16 @@ import {isObject,isArray,isBoolean,isNumber,isString} from "../common/util";
 import {addRelation,delRelation,initPipeline} from "./relation";
 import { notify } from "../common/notify";
 
-var importTreeJson,outputTreeJson;
+var importTreeJson,outputTreeJson,fromParentDom,toParentDom;
 
 export function bipatiteView(importJson,outputJson,linePathData){
+	
 	
 
     var importTree = importTreeJson = jsonTransformation(importJson);
     var outputTree = outputTreeJson = jsonTransformation(outputJson);
     initView(importTree,outputTree,linePathData);
-       
+     
 }
 
 function getRelationArray(){
@@ -43,6 +44,7 @@ function getRelationArray(){
 
 function initView(importTree,outputTree,linePathData){
 	
+
 	
 	if(linePathData.relation == undefined){
 		linePathData.relation = getRelationArray();
@@ -108,11 +110,8 @@ function initView(importTree,outputTree,linePathData){
 
 	$("#removeLine").click(function(){
 		var path = $("#bipatiteLineSvg path.active");
-		
-		var fromPath = path.attr("from"); 
-		fromPath = fromPath.replace(/\-/g,'.').substring(5);
-		
-		linePathData.relation = delRelation(linePathData.relation,fromPath);
+		var index = path.attr("data-index"); 
+		linePathData.relation.splice(index,1);
 		relationLineInit(linePathData.relation);
 		$(this).addClass("hide");
 	});
@@ -167,12 +166,13 @@ function relationLine(ary){
 	var rootImport = $("#importDiv"),
 		rootOutput = $("#outputDiv");
 		
-	for(var i=0;i<ary.length;i++){
-		var fromPath = replacePoint(ary[i].from),
-			toPath = replacePoint(ary[i].to),
-			fromDom = rootImport.find("div[data-path="+fromPath+"]"),
-			toDom = rootOutput.find("div[data-path="+toPath+"]"),
-			fromParentDom,toParentDom;
+	for(let i=0;i<ary.length;i++){
+
+		let fromPath = replacePoint(ary[i].from);
+		let	toPath = replacePoint(ary[i].to);
+		let	fromDom = rootImport.find("div[data-path="+fromPath+"]");
+		let	toDom = rootOutput.find("div[data-path="+toPath+"]");
+
 
 		
 		if(fromDom.hasClass("expanded") && toDom.hasClass("expanded")){
@@ -186,41 +186,42 @@ function relationLine(ary){
 				fromDom.offset().top,
 				toDom.offset().left,
 				toDom.offset().top	
-			],fromPath,toPath);	
+			],fromPath,toPath,i);	
 		}
 
 
 		if(fromDom.is(":visible") && toDom.is(":hidden")){
-			
-		  	toParentDom = getVisibleParent(toDom);
+			getVisibleToParent(toDom);
 		  	if(toParentDom != undefined){
 			  	settingOut([
 					fromDom.offset().left,
 					fromDom.offset().top,
 					toParentDom.offset().left,
 					toParentDom.offset().top	
-				],fromPath,toPath);	
+				],fromPath,toPath,i);	
 			  }
 		}
 
 		if(fromDom.is(":hidden") && toDom.is(":visible")){
 
-		  	fromParentDom = getVisibleParent(fromDom);
+		  
+		  	getVisibleFromParent(fromDom);
+
 		  	if(fromParentDom != undefined){
 		  		settingOut([
 					fromParentDom.offset().left,
 					fromParentDom.offset().top,
 					toDom.offset().left,
 					toDom.offset().top	
-				],fromPath,toPath);	
+				],fromPath,toPath,i);	
 		  	}
 		  	
 		}
 
 		if(fromDom.is(":hidden") && toDom.is(":hidden")){
 
-		  	fromParentDom = getVisibleParent(fromDom);
-		  	toParentDom = getVisibleParent(toDom);
+		  	getVisibleFromParent(fromDom);
+		  	getVisibleToParent(toDom);
 
 		  	if(fromParentDom != undefined && toParentDom != undefined){
 		  		settingOut([
@@ -228,7 +229,7 @@ function relationLine(ary){
 					fromParentDom.offset().top,
 					toParentDom.offset().left,
 					toParentDom.offset().top	
-				],fromPath,toPath);	
+				],fromPath,toPath,i);	
 		  	}
 		  	
 		}
@@ -290,7 +291,7 @@ function jsonChange(child,json,path){
 	}
 }
 
-function settingOut(point,fromPath,toPath){
+function settingOut(point,fromPath,toPath,index){
 	var offsetTop = $("#bipatiteLineSvg").offset().top;
 	var offsetLeft = $("#bipatiteLineSvg").offset().left;
 	var x1 = point[0]-offsetLeft+51;
@@ -309,6 +310,7 @@ function settingOut(point,fromPath,toPath){
     .attr("class","cursor")
     .attr("from",fromPath)
     .attr("to",toPath)
+    .attr("data-index",index)
     .on("click",function(d,i){
     	$("#removeLine").removeClass("hide");
     	$("#bipatiteLineSvg path").attr("stroke","#75c880").removeClass("active");
@@ -324,15 +326,26 @@ function replacePoint(str){
 	return str;
 }
 
-function getVisibleParent(dom){
+function getVisibleFromParent(dom){
+	var parent = $(dom).parent();
 
-	var parent = dom.parent();
-
-	if(parent.is(":visible")){
-		return parent;
+	if(parent.is(":hidden")){
+		getVisibleFromParent(parent);
 	}else{
-		getVisibleParent(parent);
+	  fromParentDom = parent;
 	}
+	
+}
+
+function getVisibleToParent(dom){
+	var parent = $(dom).parent();
+
+	if(parent.is(":hidden")){
+		getVisibleToParent(parent);
+	}else{
+	  	toParentDom = parent;
+	}
+	
 }
 
 function jsonType(json){
