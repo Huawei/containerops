@@ -34,6 +34,7 @@ export function pipelineCheck(data){
     if(completeness){
         notify("Pipeline is available.","success");
     }
+    return completeness;
 }
 
 function checkPipelineStart(data){

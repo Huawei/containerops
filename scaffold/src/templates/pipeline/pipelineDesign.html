@@ -13,18 +13,13 @@
 <div id="pipelinedesign" class="hidden-div">
     <div class="h5 row" id="designerMenubar">
         <div class="col-md-1">
-            <span class="glyphicon glyphicon-backward btn backtolist" title="back to list"></span>
+            <span class="btn backtolist" title="back to list"></span>
         </div>
-        <div class="col-md-4 row">
+        <div class="col-md-3 row">
             <div id="selected_pipeline" style="font-size:1.2em;margin-top:0.6em;float:left"></div>
-            <button type="button" class="btn btn-primary runpipeline" style="float:left;margin-left:20px">
-                <i class="glyphicon glyphicon-play" style="font-size:16px"></i>&nbsp;&nbsp;Run
-            </button>
-            <button type="button" class="btn btn-danger stoppipeline" style="float:left;margin-left:10px">
-                <i class="glyphicon glyphicon-stop" style="font-size:16px"></i>&nbsp;&nbsp;Stop
-            </button>
+            <span class="pipeline-state"></span>
         </div> 
-        <div class="col-md-7" style="margin-top:-0.6em">
+        <div class="col-md-8" style="margin-top:-0.6em">
             <div style="float:right" class="btn-toolbar row">
                 <button type="button" class="btn btn-info checkpipeline">
                     <i class="glyphicon glyphicon-check" style="font-size:16px"></i>&nbsp;&nbsp;Check

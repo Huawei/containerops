@@ -36,7 +36,7 @@ function getRelationArray(){
 	var visibleInput = visibleInputStr.split(";");
     var visibleOutput = visibleOutputStr.split(";");
 
-	return initPipeline(importTreeJson,outputTreeJson,visibleInput,visibleOutput);
+	return initPipeline(importTreeJson,outputTreeJson);
 }
 
 

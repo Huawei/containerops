@@ -14,243 +14,251 @@
     <div class="col-lg-12">
         <section class="widget">
             <div class="widget-body">
-                    <fieldset>
-                        <legend><strong>Action</strong> setup</legend>
-                        <div class="widget-controls">
-                            <a data-widgster="fullscreen" title="" href="#" data-original-title="Full Screen" style="display: inline;"><i class="glyphicon glyphicon-fullscreen"></i></a>
-                            <a data-widgster="restore" title="" href="#" style="display: none;" data-original-title="Restore"><i class="glyphicon glyphicon-resize-small"></i></a>
-                        </div>
-                        <div class="col-lg-12">
-                            <div class="clearfix">
-                                <ul class="nav nav-tabs pull-xs-left" id="actionTabs" role="tablist" style="background-color:#f7f7f7">
-                                    <li class="nav-item">
-                                        <a class="nav-link active" id="base-tab" data-toggle="tab" href="#base" role="tab" aria-controls="base" aria-expanded="false">
-                                            <span>Base Config</span>
-                                            <i class="arrow arrow-left"></i>
-                                            <i class="arrow arrow-right"></i>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" id="tree-edit-tab" data-toggle="tab" href="#tree_edit" role="tab" aria-controls="tree_edit" aria-expanded="false">
-                                            <span>Tree Edit</span>
-                                            <i class="arrow arrow-left"></i>
-                                            <i class="arrow arrow-right"></i>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" id="event-edit-tab" data-toggle="tab" href="#event_edit" role="tab" aria-controls="event_edit" aria-expanded="true">
-                                            <span>Event Edit</span>
-                                            <i class="arrow arrow-left"></i>
-                                            <i class="arrow arrow-right"></i>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" id="env-tab" data-toggle="tab" href="#env" role="tab" aria-controls="env" aria-expanded="true">
-                                            <span>Env Setting</span>
-                                            <i class="arrow arrow-left"></i>
-                                            <i class="arrow arrow-right"></i>
-                                        </a>
-                                    </li>
-                                    <div class="component-type-select-div">
-                                        <label for="action-component-select" class="select-label">Select Component Type</label>
-                                        <div class="select-div">
-                                            <select id="action-component-select" style="width:100%">
-                                                <option value="Kubernetes">Kubernetes</option>
-                                            </select>
-                                        </div>
+                <fieldset>
+                    <legend><strong>Action</strong> setup</legend>
+                    <div class="widget-controls">
+                        <a data-widgster="fullscreen" title="" href="#" data-original-title="Full Screen" style="display: inline;"><i class="glyphicon glyphicon-fullscreen"></i></a>
+                        <a data-widgster="restore" title="" href="#" style="display: none;" data-original-title="Restore"><i class="glyphicon glyphicon-resize-small"></i></a>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="clearfix">
+                            <ul class="nav nav-tabs pull-xs-left" id="actionTabs" role="tablist" style="background-color:#f7f7f7">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="base-tab" data-toggle="tab" href="#base" role="tab" aria-controls="base" aria-expanded="false">
+                                        <span>Base Config</span>
+                                        <i class="arrow arrow-left"></i>
+                                        <i class="arrow arrow-right"></i>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tree-edit-tab" data-toggle="tab" href="#tree_edit" role="tab" aria-controls="tree_edit" aria-expanded="false">
+                                        <span>Tree Edit</span>
+                                        <i class="arrow arrow-left"></i>
+                                        <i class="arrow arrow-right"></i>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="event-edit-tab" data-toggle="tab" href="#event_edit" role="tab" aria-controls="event_edit" aria-expanded="true">
+                                        <span>Event Edit</span>
+                                        <i class="arrow arrow-left"></i>
+                                        <i class="arrow arrow-right"></i>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="env-tab" data-toggle="tab" href="#env" role="tab" aria-controls="env" aria-expanded="true">
+                                        <span>Env Setting</span>
+                                        <i class="arrow arrow-left"></i>
+                                        <i class="arrow arrow-right"></i>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="conflict-tab" data-toggle="tab" href="#conflict" role="tab" aria-controls="conflict" aria-expanded="true">
+                                        <span>Conflict</span>
+                                        <i class="arrow arrow-left"></i>
+                                        <i class="arrow arrow-right"></i>
+                                    </a>
+                                </li>
+                                <div class="component-type-select-div">
+                                    <label for="action-component-select" class="select-label">Select Component Type</label>
+                                    <div class="select-div">
+                                        <select id="action-component-select" style="width:100%">
+                                            <option value="Kubernetes">Kubernetes</option>
+                                        </select>
                                     </div>
-                                </ul>
-                            </div>
-                            <div class="tab-content mb-lg" id="actionTabsContent">
-                                <div role="tabpanel" class="tab-pane clearfix active" id="base" aria-labelledby="base-tab" aria-expanded="true">
-                                    <form id="action-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
-                                        <fieldset>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="hint-field" class="col-sm-4 control-label">
-                                                            Action Name
-                                                        </label>
-                                                        <div class="col-sm-7">
-                                                            <input type="text" id="action-name" name="action-name" class="form-control" required>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="hint-field" class="col-sm-4 control-label">
-                                                            Action Timeout
-                                                        </label>
-                                                        <div class="col-sm-7">
-                                                            <label class="unit">(S)</label>
-                                                            <input type="number" id="action-timeout" name="action-timeout" class="form-control" required>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="normal-field" class="col-sm-4 control-label">
-                                                            End Point
-                                                        </label>
-                                                        <div class="col-sm-7">
-                                                            <input type="text" id="k8s-pod-image-name" name="k8s-pod-image-name" class="form-control" required>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="normal-field" class="col-sm-4 control-label">
-                                                            Image Tag
-                                                        </label>
-                                                        <div class="col-sm-7">
-                                                            <input type="text" id="k8s-pod-image-tag" name="k8s-pod-image-tag" class="form-control" required>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="normal-field" class="col-sm-4 control-label">
-                                                            Data From
-                                                        </label>
-                                                        <div class="col-sm-7">
-                                                            <input type="text" id="action-data-from" name="action-data-from" class="form-control" required>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="normal-field" class="col-sm-4 control-label">
-                                                            Kubernetes IP
-                                                        </label>
-                                                        <div class="col-sm-7">
-                                                            <input type="text" id="k8s-ip" name="k8s-ip" class="form-control" required pattern="/((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d))))/">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="normal-field" class="col-sm-4 control-label">
-                                                            Kubernetes API Service
-                                                        </label>
-                                                        <div class="col-sm-7">
-                                                            <input type="text" id="k8s-api-server" name="k8s-api-server" class="form-control" required>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </fieldset>
-                                    </form>
-                                    <div class="row type-header">
-                                        <div class="type-label">Kubernetes</div>
-                                        <div class="type-setting">
-                                            <input type="radio" id="setting-way-base" name="k8s-setting-way"> &nbsp;&nbsp;Base Setting
-                                            <input type="radio" id="setting-way-advanced" name="k8s-setting-way" style="margin-left:30px">&nbsp;&nbsp;Advanced Setting
-                                        </div>
-                                    </div>
-                                    <form id="base-setting-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
-                                        <fieldset>
-                                            <div id="basesetting" class="hide">
-                                                <div class="row resource-setting-div">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <div class="form-group">
-                                                                <label for="normal-field" class="col-sm-4 control-label">
-                                                                    CPU Limits
-                                                                </label>
-                                                                <div class="col-sm-7">
-                                                                    <input type="number" id="k8s-cpu-limits" name="k8s-cpu-limits" class="form-control" required>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <div class="form-group">
-                                                                <label for="normal-field" class="col-sm-4 control-label">
-                                                                    CPU Requests
-                                                                </label>
-                                                                <div class="col-sm-7">
-                                                                    <input type="number" id="k8s-cpu-requests" name="k8s-cpu-requests" class="form-control" required>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <div class="form-group">
-                                                                <label for="normal-field" class="col-sm-4 control-label">
-                                                                    Memory Limits
-                                                                </label>
-                                                                <div class="col-sm-7">
-                                                                   <!--  <label class="unit">(MB)</label> -->
-                                                                    <input type="text" id="k8s-memory-limits" name="k8s-memory-limits" class="form-control" required>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <div class="form-group">
-                                                                <label for="normal-field" class="col-sm-4 control-label">
-                                                                    Memory Requests
-                                                                </label>
-                                                                <div class="col-sm-7">
-                                                                    <!-- <label class="unit">(MB)</label> -->
-                                                                    <input type="text" id="k8s-memory-requests" name="k8s-memory-requests" class="form-control" required>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div id="ports-setting" class="row port-setting-div">
-                                                </div>
-                                            </div>
-                                        </fieldset>
-                                    </form>
-                                    <form id="advanced-setting-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
-                                        <fieldset id="advancedsetting" class="row advanced-setting-div hide">
-                                                <div class="advanced-content">
-                                                    <div class="col-md-6 panel">
-                                                        <div class="panel-heading clearfix">
-                                                            <span class="panel-title">Service</span>
-                                                            <!-- <span class="panel-subtitle">Service Setting (Json / Yaml)</span> -->
-                                                        </div>
-                                                        <div class="panel-body" style="min-height:500px;padding:0">
-                                                            <textarea class="advanced-service-textarea" id="serviceCodeEditor" required></textarea>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6 panel">
-                                                        <div class="panel-heading clearfix">
-                                                            <span class="panel-title">Pod</span>
-                                                            <!-- <span class="panel-subtitle">Pod Setting (Json / Yaml)</span> -->
-                                                        </div>
-                                                        <div class="panel-body" style="min-height:500px;padding:0">
-                                                            <textarea class="advanced-pod-textarea" id="podCodeEditor" required></textarea>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                        </fieldset>
-                                        <br/>
-                                        <div class="form-actions">
-                                            <div class="row">
-                                                <div style="float:right">
-                                                    <input type="hidden" id="uuid" name="uuid" class="form-control">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </form>
                                 </div>
-                                <div class="row tab-pane" id="tree_edit" class="tab-pane" role="tabpanel" aria-labelledby="tree-edit-tab" aria-expanded="false">
+                            </ul>
+                        </div>
+                        <div class="tab-content mb-lg" id="actionTabsContent">
+                            <div role="tabpanel" class="tab-pane clearfix active" id="base" aria-labelledby="base-tab" aria-expanded="true">
+                                <form id="action-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
+                                    <fieldset>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="hint-field" class="col-sm-4 control-label">
+                                                        Action Name
+                                                    </label>
+                                                    <div class="col-sm-7">
+                                                        <input type="text" id="action-name" name="action-name" class="form-control" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="hint-field" class="col-sm-4 control-label">
+                                                        Action Timeout
+                                                    </label>
+                                                    <div class="col-sm-7">
+                                                        <label class="unit">(S)</label>
+                                                        <input type="number" id="action-timeout" name="action-timeout" class="form-control" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="normal-field" class="col-sm-4 control-label">
+                                                        End Point
+                                                    </label>
+                                                    <div class="col-sm-7">
+                                                        <input type="text" id="k8s-pod-image-name" name="k8s-pod-image-name" class="form-control" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="normal-field" class="col-sm-4 control-label">
+                                                        Image Tag
+                                                    </label>
+                                                    <div class="col-sm-7">
+                                                        <input type="text" id="k8s-pod-image-tag" name="k8s-pod-image-tag" class="form-control" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="normal-field" class="col-sm-4 control-label">
+                                                        Data From
+                                                    </label>
+                                                    <div class="col-sm-7">
+                                                        <input type="text" id="action-data-from" name="action-data-from" class="form-control" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="normal-field" class="col-sm-4 control-label">
+                                                        Kubernetes IP
+                                                    </label>
+                                                    <div class="col-sm-7">
+                                                        <input type="text" id="k8s-ip" name="k8s-ip" class="form-control" required pattern="/((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d))))/">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="normal-field" class="col-sm-4 control-label">
+                                                        Kubernetes API Service
+                                                    </label>
+                                                    <div class="col-sm-7">
+                                                        <input type="text" id="k8s-api-server" name="k8s-api-server" class="form-control" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                                <div class="row type-header">
+                                    <div class="type-label">Kubernetes</div>
+                                    <div class="type-setting">
+                                        <input type="radio" id="setting-way-base" name="k8s-setting-way"> &nbsp;&nbsp;Base Setting
+                                        <input type="radio" id="setting-way-advanced" name="k8s-setting-way" style="margin-left:30px">&nbsp;&nbsp;Advanced Setting
+                                    </div>
+                                </div>
+                                <form id="base-setting-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
+                                    <fieldset>
+                                        <div id="basesetting" class="hide">
+                                            <div class="row resource-setting-div">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="normal-field" class="col-sm-4 control-label">
+                                                                CPU Limits
+                                                            </label>
+                                                            <div class="col-sm-7">
+                                                                <input type="number" id="k8s-cpu-limits" name="k8s-cpu-limits" class="form-control" required>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="normal-field" class="col-sm-4 control-label">
+                                                                CPU Requests
+                                                            </label>
+                                                            <div class="col-sm-7">
+                                                                <input type="number" id="k8s-cpu-requests" name="k8s-cpu-requests" class="form-control" required>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="normal-field" class="col-sm-4 control-label">
+                                                                Memory Limits
+                                                            </label>
+                                                            <div class="col-sm-7">
+                                                                <!--  <label class="unit">(MB)</label> -->
+                                                                <input type="text" id="k8s-memory-limits" name="k8s-memory-limits" class="form-control" required>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="normal-field" class="col-sm-4 control-label">
+                                                                Memory Requests
+                                                            </label>
+                                                            <div class="col-sm-7">
+                                                                <!-- <label class="unit">(MB)</label> -->
+                                                                <input type="text" id="k8s-memory-requests" name="k8s-memory-requests" class="form-control" required>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="ports-setting" class="row port-setting-div">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                                <form id="advanced-setting-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
+                                    <fieldset id="advancedsetting" class="row advanced-setting-div hide">
+                                        <div class="advanced-content">
+                                            <div class="col-md-6 panel">
+                                                <div class="panel-heading clearfix">
+                                                    <span class="panel-title">Service</span>
+                                                    <!-- <span class="panel-subtitle">Service Setting (Json / Yaml)</span> -->
+                                                </div>
+                                                <div class="panel-body" style="min-height:500px;padding:0">
+                                                    <textarea class="advanced-service-textarea" id="serviceCodeEditor" required></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 panel">
+                                                <div class="panel-heading clearfix">
+                                                    <span class="panel-title">Pod</span>
+                                                    <!-- <span class="panel-subtitle">Pod Setting (Json / Yaml)</span> -->
+                                                </div>
+                                                <div class="panel-body" style="min-height:500px;padding:0">
+                                                    <textarea class="advanced-pod-textarea" id="podCodeEditor" required></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                    <br/>
+                                    <div class="form-actions">
+                                        <div class="row">
+                                            <div style="float:right">
+                                                <input type="hidden" id="uuid" name="uuid" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="tab-pane" id="tree_edit" class="tab-pane" role="tabpanel" aria-labelledby="tree-edit-tab" aria-expanded="false">
+                                <div class="row">
                                     <div class="col-md-6 import-div">
                                         <div class="panel">
-                                            <div class="panel-heading clearfix">
+                                            <div class="panel-heading input-panel-heading">
                                                 <i class="glyphicon glyphicon-cloud-upload inputicon"></i>
                                                 <span class="panel-title">Input Tree</span>
-                                                <span class="panel-subtitle">The action default input json data</span> 
+                                                <span class="panel-subtitle">The action default input json data</span>
                                             </div>
-                                            <div class="panel-body" style="min-height:500px">
+                                            <div class="panel-body input-panel-body" style="min-height:500px">
                                                 <div id="inputTreeStart" class="tree-add-button">
                                                     <div id="inputStartBtn" class="btn-div">
                                                         <span class="glyphicon glyphicon-plus nohover"></span>
@@ -271,7 +279,7 @@
                                             <div class="panel-heading clearfix">
                                                 <i class="glyphicon glyphicon-cloud-download outputicon"></i>
                                                 <span class="panel-title">Output Tree</span>
-                                                <span class="panel-subtitle">The action default output json data</span> 
+                                                <span class="panel-subtitle">The action default output json data</span>
                                             </div>
                                             <div class="panel-body" style="min-height:500px">
                                                 <div id="outputTreeStart" class="tree-add-button">
@@ -290,57 +298,138 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row tab-pane" id="event_edit" class="tab-pane" role="tabpanel" aria-labelledby="event-edit-tab" aria-expanded="false">
-                                    <div class="col-md-6 import-div">
-                                        <div class="panel">
-                                            <div class="panel-heading clearfix">
-                                                <i class="glyphicon glyphicon-cloud-upload inputicon"></i>
-                                                <span class="panel-title">Input From Edit</span>
-                                                <span class="panel-subtitle">The action default input json data</span> 
-                                            </div>
-                                            <div class="panel-body">
-                                                <div id="inputCodeEditor" class="codeEditor"></div>
-                                                <div class="col-md-4 col-md-offset-4 row editor-transfer">
-                                                    <button id="inputFromJson" type="button" class="btn btn-warning col-md-4" style="float:left">
-                                                        <i class="glyphicon glyphicon-triangle-right"></i>
-                                                    </button>
-                                                    <button id="inputToJson" type="button" class="btn btn-warning col-md-4" style="float:right">
-                                                        <i class="glyphicon glyphicon-triangle-left"></i>
-                                                    </button>
-                                                </div>
-                                                <div id="inputTreeEditor" class="treeEditor"></div>
-                                            </div>
-                                        </div>
+                                <div class="tree-icon-desc-row">
+                                    <div class="tree-icon-desc-item">
+                                        <div class="tree-icon icon-s"></div>
+                                        <div class="tree-icon-label">String</div>
                                     </div>
-                                    <div class="col-md-6 import-div">
-                                        <div class="panel">
-                                            <div class="panel-heading clearfix">
-                                                <i class="glyphicon glyphicon-cloud-download outputicon"></i>
-                                                <span class="panel-title">Output From Edit</span>
-                                                <span class="panel-subtitle">The action default output json data</span> 
+                                    <div class="tree-icon-desc-item">
+                                        <div class="tree-icon icon-o"></div>
+                                        <div class="tree-icon-label">Object</div>
+                                    </div>
+                                    <div class="tree-icon-desc-item">
+                                        <div class="tree-icon icon-n"></div>
+                                        <div class="tree-icon-label">Number</div>
+                                    </div>
+                                    <div class="tree-icon-desc-item">
+                                        <div class="tree-icon icon-a"></div>
+                                        <div class="tree-icon-label">Array</div>
+                                    </div>
+                                    <div class="tree-icon-desc-item">
+                                        <div class="tree-icon icon-b"></div>
+                                        <div class="tree-icon-label">Boolean</div>
+                                    </div>
+                                    <div class="tree-icon-desc-item">
+                                        <div class="tree-icon icon-none"></div>
+                                        <div class="tree-icon-label">Null</div>
+                                    </div>
+                                    <div class="tree-icon-desc-item">
+                                        <div class="tree-icon icon-add"></div>
+                                        <div class="tree-icon-label">Add New Value</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row tab-pane" id="event_edit" class="tab-pane" role="tabpanel" aria-labelledby="event-edit-tab" aria-expanded="false">
+                                <div class="col-md-6 import-div">
+                                    <div class="panel">
+                                        <div class="panel-heading input-panel-heading">
+                                            <i class="glyphicon glyphicon-cloud-upload inputicon"></i>
+                                            <span class="panel-title">Input From Edit</span>
+                                            <span class="panel-subtitle">The action default input json data</span>
+                                        </div>
+                                        <div class="panel-body input-panel-body">
+                                            <div id="inputCodeEditor" class="codeEditor"></div>
+                                            <div class="col-md-4 col-md-offset-4 row editor-transfer">
+                                                <span id="inputFromJson" class="col-md-4 code-to-tree"></span>
+                                                <span id="inputToJson" class="col-md-4 tree-to-code"></span>
                                             </div>
-                                            <div class="panel-body">
-                                                <div id="outputCodeEditor" class="codeEditor"></div>
-                                                <div class="col-md-4 col-md-offset-4 row editor-transfer">
-                                                    <button id="outputFromJson" type="button" class="btn btn-warning col-md-4" style="float:left">
-                                                        <i class="glyphicon glyphicon-triangle-right"></i>
-                                                    </button>
-                                                    <button id="outputToJson" type="button" class="btn btn-warning col-md-4" style="float:right">
-                                                        <i class="glyphicon glyphicon-triangle-left"></i>
-                                                    </button>
-                                                </div>
-                                                <div id="outputTreeEditor" class="treeEditor"></div>
-                                            </div>
+                                            <div id="inputTreeEditor" class="treeEditor"></div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="tab-pane" id="env" role="tabpanel" aria-labelledby="env-tab" aria-expanded="false">
-                                   <div class="col-lg-12 form-horizontal" id="action-envs">
+                                <div class="col-md-6 import-div">
+                                    <div class="panel">
+                                        <div class="panel-heading clearfix">
+                                            <i class="glyphicon glyphicon-cloud-download outputicon"></i>
+                                            <span class="panel-title">Output From Edit</span>
+                                            <span class="panel-subtitle">The action default output json data</span>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div id="outputCodeEditor" class="codeEditor"></div>
+                                            <div class="col-md-4 col-md-offset-4 row editor-transfer">
+                                                <span id="outputFromJson" class="col-md-4 code-to-tree"></span>
+                                                <span id="outputToJson" class="col-md-4 tree-to-code"></span>
+                                            </div>
+                                            <div id="outputTreeEditor" class="treeEditor"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="env" role="tabpanel" aria-labelledby="env-tab" aria-expanded="false">
+                                <div class="col-lg-12 form-horizontal" id="action-envs">
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="conflict" role="tabpanel" aria-labelledby="conflict-tab" aria-expanded="false">
+                                <div class="col-lg-12 form-horizontal" id="action-conflict">
+                                    <div class="tree-icon-desc-row">
+                                        <div class="tree-icon-desc-item">
+                                            <div class="tree-icon icon-s"></div>
+                                            <div class="tree-icon-label">String</div>
+                                        </div>
+                                        <div class="tree-icon-desc-item">
+                                            <div class="tree-icon icon-o"></div>
+                                            <div class="tree-icon-label">Object</div>
+                                        </div>
+                                        <div class="tree-icon-desc-item">
+                                            <div class="tree-icon icon-n"></div>
+                                            <div class="tree-icon-label">Number</div>
+                                        </div>
+                                        <div class="tree-icon-desc-item">
+                                            <div class="tree-icon icon-a"></div>
+                                            <div class="tree-icon-label">Array</div>
+                                        </div>
+                                        <div class="tree-icon-desc-item">
+                                            <div class="tree-icon icon-b"></div>
+                                            <div class="tree-icon-label">Boolean</div>
+                                        </div>
+                                        <div class="tree-icon-desc-item">
+                                            <div class="tree-icon icon-none"></div>
+                                            <div class="tree-icon-label">Null</div>
+                                        </div>
+                                        <div class="tree-icon-desc-item pull-right">
+                                            <div class="tree-icon icon-remove-conflict"></div>
+                                            <div class="tree-icon-label">Remove Conflict</div>
+                                        </div>
+                                        <div class="tree-icon-desc-item pull-right">
+                                            <div class="tree-icon icon-highlight-conflict"></div>
+                                            <div class="tree-icon-label">Highlight Conflict</div>
+                                        </div>
+                                        <div class="tree-icon-desc-item pull-right">
+                                            <div class="tree-icon icon-conflict"></div>
+                                            <div class="tree-icon-label">Conflict</div>
+                                        </div>
+                                    </div>
+                                    <br/>
+                                    <div class="tree-container">
+                                        <div class="tree-bg-left">
+                                            <h4 class="pr">
+                                                <i class="glyphicon glyphicon-cloud-download outputicon"></i>
+                                                Outputs of Other Actions
+                                            </h4>
+                                        </div>
+                                        <div class="tree-bg-right">
+                                            <h4 class="pr">
+                                                <i class="glyphicon glyphicon-cloud-upload inputicon"></i>
+                                                Inputs of Current Action
+                                            </h4>
+                                        </div>
+                                        <div id="conflictTreeView" style="position:relative;height: 800px;overflow: auto"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </fieldset>  
+                    </div>
+                </fieldset>
             </div>
         </section>
     </div>

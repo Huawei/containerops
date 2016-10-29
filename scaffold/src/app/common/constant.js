@@ -37,7 +37,6 @@ export let PIPELINE_START = "pipeline-start",
     buttonView = null,
     linesView = null,
     lineView = [],
-    treeView = null,
     clickNodeData = {},
     linePathAry = [],
 
@@ -89,9 +88,7 @@ export function setLinesView(v) {
 export function setLineView(v) {
     lineView = v;
 }
-export function setTreeView(v) {
-    treeView = v;
-}
+
 export function setClickNodeData(v) {
     clickNodeData = v;
 }

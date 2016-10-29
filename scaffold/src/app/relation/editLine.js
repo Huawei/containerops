@@ -29,11 +29,14 @@ export function editLine(editPage, currentLine) {
     var id = currentLine.attr("id");
     $("#pipeline-info-edit").html($(editPage));
 
+
     $("#importDiv").html("");
     $("#outputDiv").html("");
     var currentLineData = _.find(constant.linePathAry, function(line) {
         return id == line.id;
     })
+
+    console.log(constant);
     lineInputJSON = currentLineData.startData.outputJson;
     lineOutputJSON = currentLineData.endData.inputJson;
     if (_.isEmpty(lineInputJSON)) {
@@ -42,13 +45,13 @@ export function editLine(editPage, currentLine) {
     if (_.isEmpty(lineOutputJSON)) {
         $("#outputDiv").html("no data");
     }
+
     bipatiteView(lineInputJSON, lineOutputJSON, currentLineData);
 
 
     $("#refreshRelation").click(function() {
         currentLineData.relation = undefined;
         bipatiteView(lineInputJSON, lineOutputJSON, currentLineData);
-
     })
 
 

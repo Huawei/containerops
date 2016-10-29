@@ -16,13 +16,16 @@ limitations under the License.
 
 import { setPath, getPathData } from "./setPath";
 import { linePathAry } from "../common/constant";
+import { bipatiteView } from "./bipatiteView";
 import { notify } from "../common/notify";
+import * as conflictUtil from "../relation/conflict";
 
 export function dragDropSetPath(options) {
 
     var fromNodeData = options.data; /* from node data */
     // var _path = d3.select("svg>g").insert("path", ":nth-child(2)").attr("class", "drag-drop-line"),
-    var _path = d3.select("svg>g").append("path").attr("class", "drag-drop-line"),
+    // var _path = d3.select("svg>g").append("path").attr("class", "drag-drop-line"),
+    var _path = d3.select("#pipeline-line-view").append("path").attr("class", "drag-drop-line"),
         _offsetX = $("main").offset().left,
         _offsetY = $("#designerMenubar").height(),
         _startX = $(window.event.target).offset().left - _offsetX,
@@ -33,7 +36,10 @@ export function dragDropSetPath(options) {
     document.onmousemove = function(e) {
             var diffX = e.pageX - _startX - _offsetX,
                 diffY = e.pageY - _startY - _offsetY;
-            _path.attr("d", getPathData({ x: _startX - 60, y: _startY - (105 + _pageTitleHeight) }, { x: _startX + diffX - 40, y: _startY + diffY - (130 + _pageTitleHeight) }))
+            var translateX = parseInt(d3.select("#linesView")[0][0].attributes["translateX"] ? d3.select("#linesView")[0][0].attributes["translateX"].value : 0);
+            var translateY = parseInt(d3.select("#linesView")[0][0].attributes["translateY"] ? d3.select("#linesView")[0][0].attributes["translateY"].value : 0);
+            var scale = parseFloat(d3.select("#linesView")[0][0].attributes["scale"] ? d3.select("#linesView")[0][0].attributes["scale"].value : 1);
+            _path.attr("d", getPathData({ x: (_startX - 60 - translateX) / scale, y: (_startY - (105 + _pageTitleHeight) - translateY) / scale}, { x: (_startX + diffX - 40 - translateX) / scale, y: (_startY + diffY - (130 + _pageTitleHeight) - translateY)/scale}))
                 .attr("fill", "none")
                 .attr("stroke-opacity", "1")
                 .attr("stroke", "#81D9EC")
@@ -58,22 +64,25 @@ export function dragDropSetPath(options) {
         }
 
         if (toNodeData != undefined && toNodeData.translateX > fromNodeData.translateX && toNodeData.type === "pipeline-action") {
-            setPath({
+            
+            let dataJson = {
                 pipelineLineViewId: "pipeline-line-view",
                 startData: fromNodeData,
                 endData: toNodeData,
                 startPoint: { x: fromNodeData.translateX, y: fromNodeData.translateY },
                 endPoint: { x: toNodeData.translateX, y: toNodeData.translateY },
                 id: _id
-            });
-            linePathAry.push({
-                pipelineLineViewId: "pipeline-line-view",
-                startData: fromNodeData,
-                endData: toNodeData,
-                startPoint: { x: fromNodeData.translateX, y: fromNodeData.translateY },
-                endPoint: { x: toNodeData.translateX, y: toNodeData.translateY },
-                id: _id
-            });
+            };
+
+            setPath(dataJson);
+            linePathAry.push(dataJson);
+
+            bipatiteView(fromNodeData.outputJson,toNodeData.inputJson,dataJson);
+
+            if(conflictUtil.hasConflict(fromNodeData.id, toNodeData.id)){
+                notify("Conflict with other inputs, please click target action to resolve conflict first", "error");
+                return false;
+            }
         }
     }
 }
