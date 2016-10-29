@@ -1,12 +1,9 @@
 /*
 Copyright 2014 Huawei Technologies Co., Ltd. All rights reserved.
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
-
     http://www.apache.org/licenses/LICENSE-2.0
-
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +14,8 @@ limitations under the License.
 import { loading } from "../common/loading";
 import * as constant  from "../common/constant";
 import * as historyDataService from "./historyData";
+import { setPath } from "../relation/setPath";
+import * as util from "../common/util";
 
 let pipelineSequenceRunStatus;
 
@@ -26,13 +25,8 @@ export function initHistoryPage() {
     promise.done(function(data) {
         loading.hide();
         pipelineSequenceRunStatus = data.define.status;
-            console.log(data);
-            console.log("================");
-            console.log(pipelineSequenceRunStatus)
-            console.log(data.define.status)
-            console.log(JSON.stringify(data));
-
         constant.sequenceRunData = data.define.stageList;
+        constant.sequenceLinePathArray = data.define.lineList;
         if (constant.sequenceRunData.length > 0) {
             initSequenceView();
         } else {
@@ -121,7 +115,7 @@ function showSequenceView(pipelineSequenceData,pipelineSequenceRunStatus) {
         .enter()
         .append("image")
         .attr("xlink:href", function(d, i) {
-            if (pipelineSequenceRunStatus == true){
+            if ( d.status == true){
 
                 if (d.type == constant.PIPELINE_END) {
                     return "../../assets/svg/history-end-success.svg";
@@ -195,19 +189,38 @@ function showSequenceView(pipelineSequenceData,pipelineSequenceRunStatus) {
         //     }
         // })
         .on("click", function(d, i) {
-            constant.pipelineView.selectAll("#pipeline-element-popup").remove();
-            if (d.type == constant.PIPELINE_STAGE) {
-                // clickStage(d, i);
-                // util.changeCurrentElement(constant.currentSelectedItem);
-                // constant.setCurrentSelectedItem({ "data": d, "type": "stage" });
-                // initButton.updateButtonGroup("stage");
-                // d3.select("#" + d.id).attr("href", "../../assets/svg/stage-selected-latest.svg");
-            } else if (d.type == constant.PIPELINE_START) {
-                // clickStart(d, i);
-                // util.changeCurrentElement(constant.currentSelectedItem);
-                // constant.setCurrentSelectedItem({ "data": d, "type": "start" });
-                // initButton.updateButtonGroup("start");
-                // d3.select("#" + d.id).attr("href", "../../assets/svg/start-selected-latest.svg");
+            // constant.pipelineView.selectAll("#pipeline-element-popup").remove();
+            if (d.status == true){
+
+                if (d.type == constant.PIPELINE_STAGE) {
+                    // clickStage(d, i);
+                    historyChangeCurrentElement(constant.currentSelectedItem);
+                    constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status});
+                    // initButton.updateButtonGroup("stage");
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-success.svg");
+                } else if (d.type == constant.PIPELINE_START) {
+                    // clickStart(d, i);
+                    historyChangeCurrentElement(constant.currentSelectedItem);
+                    constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status});
+                    // initButton.updateButtonGroup("start");
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-success.svg");
+                }
+
+            } else {
+             
+                if (d.type == constant.PIPELINE_STAGE) {
+                    // clickStage(d, i);
+                    historyChangeCurrentElement(constant.currentSelectedItem);
+                    constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status});
+                    // initButton.updateButtonGroup("stage");
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-fail.svg");
+                } else if (d.type == constant.PIPELINE_START) {
+                    // clickStart(d, i);
+                    historyChangeCurrentElement(constant.currentSelectedItem);
+                    constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status});
+                    // initButton.updateButtonGroup("start");
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-fail.svg");
+                }
             }
         })
         .on("mouseout", function(d, i) {
@@ -221,23 +234,14 @@ function showSequenceView(pipelineSequenceData,pipelineSequenceRunStatus) {
             // constant.pipelineView.selectAll("#pipeline-element-popup").remove();
         })
         .on("mouseover", function(d, i) {
-            // if (d.type == constant.PIPELINE_ADD_STAGE) {
-            //     d3.select(this)
-            //         .attr("xlink:href", function(d, i) {
-            //             return "../../assets/svg/add-stage-selected-latest.svg";
-            //         })
-            //         .style({
-            //             "cursor": "pointer"
-            //         })
-            //     initButton.showToolTip(i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX, constant.pipelineNodeStartY + constant.svgStageHeight, "Add Stage", "pipeline-element-popup", constant.pipelineView);
+            if (d.type == constant.PIPELINE_STAGE || d.type == constant.PIPELINE_START) {
+                d3.select(this)
+                    .style("cursor", "pointer");
+                // initButton.showToolTip(i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX, constant.pipelineNodeStartY + constant.svgStageHeight, "Click to Edit", "pipeline-element-popup", constant.pipelineView);
 
-            // } else if (d.type == constant.PIPELINE_STAGE || d.type == constant.PIPELINE_START) {
-            //     d3.select(this)
-            //         .style("cursor", "pointer");
-            //     initButton.showToolTip(i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX, constant.pipelineNodeStartY + constant.svgStageHeight, "Click to Edit", "pipeline-element-popup", constant.pipelineView);
-
-            // }
+            }
         })
+      
     initSequenceStageLine();
     // initAction();
 }
@@ -317,19 +321,19 @@ function initSequenceStageLine() {
                 .style("cursor","pointer")
                 /* mouse over the circle show relevant lines of start stage */
                 .on("mouseover", function(cd, ci) {
-                    mouseoverRelevantPipeline(d);
+                    // mouseoverRelevantPipeline(d);
                 })
                 /* mouse over the circle to draw line from start stage */
                 .on("mousedown", function(cd, ci) {
                     // this.parentNode.appendChild(this);
-                    d3.event.stopPropagation();
-                    dragDropSetPath({
-                        "data": d,
-                        "node": i
-                    });
+                    // d3.event.stopPropagation();
+                    // dragDropSetPath({
+                    //     "data": d,
+                    //     "node": i
+                    // });
                 })
                 .on("mouseout", function(cd, ci) {
-                    mouseoutRelevantPipeline(d);
+                    // mouseoutRelevantPipeline(d);
                 });
         }
 
@@ -339,11 +343,11 @@ function initSequenceStageLine() {
     initSequenceAction2StageLine();
     initSequenceActionLinkBase();
     initSequenceActionLinkBasePoint();
+    initSequencePath();
 }
 
 function initSequenceActionByStage() {
     constant.sequenceActionsView.selectAll("g").remove();
-console.log(constant.sequenceActionsView)
     /* draw actions in actionView , data source is stage.actions */
     constant.sequencePipelineView.selectAll("image").each(function(d, i) {
         if (d.type == constant.PIPELINE_STAGE && d.actions != null && d.actions.length > 0) {
@@ -360,19 +364,17 @@ console.log(constant.sequenceActionsView)
                 .data(d.actions).enter()
                 .append("image")
                 .attr("xlink:href", function(ad, ai) {
-            console.log( "ID" , ad.id)
-            console.log( "ActionsTATUS",ad.status)
 
                     if(ad.status == true){
                         if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "action" && constant.currentSelectedItem.data.id == ad.id){
-                            return "../../assets/svg/action-selected-latest.svg";
+                            return "../../assets/svg/history-action-selected-success.svg";
                         }else{
                             return "../../assets/svg/history-action-success.svg";
                         }
 
                     } else {
                         if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "action" && constant.currentSelectedItem.data.id == ad.id){
-                            return "../../assets/svg/action-selected-latest.svg";
+                            return "../../assets/svg/history-action-selected-fail.svg";
                         }else{
                             return "../../assets/svg/history-action-fail.svg";
                         }
@@ -416,23 +418,32 @@ console.log(constant.sequenceActionsView)
                     return "translate(" + ad.translateX + "," + ad.translateY + ")";
                 })
                 .on("click", function(ad, ai) {
-                    // clickAction(ad, ai);
-                    // util.changeCurrentElement(constant.currentSelectedItem);
-                    // constant.setCurrentSelectedItem({ "data": ad, "parentData": d, "type": "action" });
-                    // initButton.updateButtonGroup("action");
-                    // d3.select("#" + ad.id).attr("href", "../../assets/svg/action-selected-latest.svg");
-                    // constant.sequencePipelineView.selectAll("#pipeline-element-popup").remove();
+                    if( ad.status == true ){
+                        // clickAction(ad, ai);
+                        historyChangeCurrentElement(constant.currentSelectedItem);
+                        constant.setCurrentSelectedItem({ "data": ad, "parentData": d, "type": "action", "status": ad.status });
+                        // initButton.updateButtonGroup("action");
+                        d3.select("#" + ad.id).attr("href", "../../assets/svg/history-action-selected-success.svg");
+                    } else {
+                        // clickAction(ad, ai);
+                        historyChangeCurrentElement(constant.currentSelectedItem);
+                        constant.setCurrentSelectedItem({ "data": ad, "parentData": d, "type": "action", "status": ad.status });
+                        // initButton.updateButtonGroup("action");
+                        d3.select("#" + ad.id).attr("href", "../../assets/svg/history-action-selected-fail.svg");
+                        // constant.sequencePipelineView.selectAll("#pipeline-element-popup").remove();
+                        
+                    }
                 })
-                .on("mouseout", function(ad, ai) {
-                    // constant.sequencePipelineView.selectAll("#pipeline-element-popup").remove();
-                })
-                .on("mouseover", function(ad, ai) {
-                    // d3.select(this)
-                    //     .style("cursor", "pointer");
-                    // var x = ad.translateX;
-                    // var y = ad.translateY + constant.svgActionHeight;
-                    // initButton.showToolTip(x, y, "Click to Edit", "pipeline-element-popup", constant.sequencePipelineView);
-                })
+                // .on("mouseout", function(ad, ai) {
+                //     // constant.sequencePipelineView.selectAll("#pipeline-element-popup").remove();
+                // })
+                // .on("mouseover", function(ad, ai) {
+                //     // d3.select(this)
+                //     //     .style("cursor", "pointer");
+                //     // var x = ad.translateX;
+                //     // var y = ad.translateY + constant.svgActionHeight;
+                //     // initButton.showToolTip(x, y, "Click to Edit", "pipeline-element-popup", constant.sequencePipelineView);
+                // })
 
             // .call(drag);
         }
@@ -603,3 +614,118 @@ function initSequenceActionLinkBasePoint() {
     });
  }
 
+function initSequencePath() {
+    constant.sequenceLinePathArray.forEach(function(i) {
+        setSequencePath(i)
+    });
+}
+
+function setSequencePath(options) {
+    var fromDom = $("#" + options.startData.id)[0].__data__;
+    var toDom = $("#" + options.endData.id)[0].__data__;
+
+    /* line start point(x,y) is the circle(x,y) */
+    var startPoint = {},
+        endPoint = {};
+    if (fromDom.type == constant.PIPELINE_START) {
+        startPoint = { x: fromDom.translateX + 1, y: fromDom.translateY + 57 };
+    } else if (fromDom.type == constant.PIPELINE_ACTION) {
+        startPoint = { x: fromDom.translateX + 19, y: fromDom.translateY + 4 };
+    }
+    endPoint = { x: toDom.translateX - 12, y: toDom.translateY + 4 };
+
+    constant.sequenceLineView[options.pipelineLineViewId]
+        .append("path")
+        .attr("d", getPathData(startPoint, endPoint))
+        .attr("fill", "none")
+        .attr("stroke-opacity", "1")
+        .attr("stroke", function(d, i) {
+
+            if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "line" && constant.currentSelectedItem.data.attr("id") == options.id) {
+                // makeFrontLayer(this);
+                return "#81D9EC";
+            } else {
+                // makeBackLayer(this);
+                return "#E6F3E9";
+            }
+        })
+        .attr("stroke-width", 10)
+        .attr("data-index", options.index)
+        .attr("id", options.id)
+        .style("cursor", "pointer")
+        .on("click", function(d) {
+            // this.parentNode.appendChild(this); // make this line to front layer
+            var self = $(this);
+            historyChangeCurrentElement(constant.currentSelectedItem);
+            constant.setCurrentSelectedItem({ "data": self, "type": "line"});
+            // initButton.updateButtonGroup("line");
+            d3.select(this).attr("stroke", "#81D9EC");
+            // $.ajax({
+            //     url: "../../templates/relation/editLine.html",
+            //     type: "GET",
+            //     cache: false,
+            //     success: function(data) {
+            //         editLine(data, self);
+            //     }
+            // });
+        });
+}
+
+function getPathData(startPoint, endPoint) {
+    var curvature = .5;
+    var x0 = startPoint.x + 30,
+        x1 = endPoint.x + 2,
+        xi = d3.interpolateNumber(x0, x1),
+        x2 = xi(curvature),
+        x3 = xi(1 - curvature),
+        y0 = startPoint.y + 30 / 2,
+        y1 = endPoint.y + 30 / 2;
+
+    return "M" + x0 + "," + y0 + "C" + x2 + "," + y0 + " " + x3 + "," + y1 + " " + x1 + "," + y1;
+}
+
+ function historyChangeCurrentElement(previousData) {
+    if (previousData != null) {
+
+        if( previousData.status == true || previousData.type == "line") {
+
+            switch (previousData.type) {
+                case "stage":
+                    d3.select("#" + previousData.data.id).attr("href", "../../assets/svg/history-stage-success.svg");
+                    break;
+                case "start":
+                    d3.select("#" + previousData.data.id).attr("href", "../../assets/svg/history-start-success.svg");
+                    break;
+                case "action":
+                    d3.select("#" + previousData.data.id).attr("href", "../../assets/svg/history-action-success.svg");
+                    break;
+                case "line":
+                    d3.select("#" + previousData.data.attr("id")).attr("stroke", "#E6F3E9");
+                    break;
+
+            
+            }
+        }
+    }
+
+    if (previousData != null) {
+
+        if( previousData.status == false || previousData.type == "line" ) {
+
+            switch (previousData.type) {
+                case "stage":
+                    d3.select("#" + previousData.data.id).attr("href", "../../assets/svg/history-stage-fail.svg");
+                    break;
+                case "start":
+                    d3.select("#" + previousData.data.id).attr("href", "../../assets/svg/history-start-fail.svg");
+                    break;
+                case "action":
+                    d3.select("#" + previousData.data.id).attr("href", "../../assets/svg/history-action-fail.svg");
+                    break;
+                case "line":
+                    d3.select("#" + previousData.data.attr("id")).attr("stroke", "#E6F3E9");
+                    break;
+            }
+        }
+    }
+}
