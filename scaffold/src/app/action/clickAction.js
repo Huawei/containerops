@@ -62,7 +62,7 @@ function showActionEditor(action) {
 
             initActionEnv(action);
 
-            getConflict(action);
+            getConflict(action.id);
 
             $("#uuid").attr("value", action.id);
 

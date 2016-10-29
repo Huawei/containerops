@@ -19,10 +19,10 @@ import { getPathData } from "../relation/setPath";
 
 import { notify } from "../common/notify";
 
-export function getConflict(targetAction) {
-    let actionId = targetAction.id;
+export function getConflict(actionId) {
     $("#conflictTreeView").empty();
     let conflict = conflictUtil.getActionConflict(actionId);
+    console.log(conflict);
     if (_.isEmpty(conflict)) {
         let noconflict = "<h4 class='pr'>" +
             "<em>No Conflict</em>" +
@@ -72,7 +72,9 @@ export function svgTree(container, data, actionId) {
                 type: "object",
                 initX: initX,
                 name: data[i].name,
-                category: "action"
+                class: "",
+                category: "action",
+                id:data[i].id
             });
 
             for (let j = 0; j < data[i].conflicts.length; j++) {
@@ -87,18 +89,20 @@ export function svgTree(container, data, actionId) {
                         depthY: depthY,
                         type: judgeType(conflicts[key]),
                         initX: initX,
-                        path: data[i].name + "_" + key,
+                        path: data[i].id + "_" + key,
                         name: key,
+                        class: key,
                         category: "property"
                     });
 
-                    getChildJson(conflicts[key], 3, data[i].name + "_" + key);
+                    getChildJson(conflicts[key], 3, data[i].id + "_" + key, key);
+                    // getChildJson(conflicts[key], 3, data[i], key);
 
                 }
             }
         }
 
-        function getChildJson(data, depthX, path) {
+        function getChildJson(data, depthX, path, parentPath) {
             if (isObject(data)) {
                 for (let key in data) {
                     depthY++;
@@ -109,9 +113,11 @@ export function svgTree(container, data, actionId) {
                         initX: initX,
                         path: path + "_" + key,
                         name: key,
-                        category: "property"
+                        class: parentPath + "_" + key,
+                        category: "property",
+
                     });
-                    getChildJson(data[key], depthX + 1);
+                    getChildJson(data[key], depthX + 1, parentPath + "_" + key, key);
                 }
             }
 
@@ -135,32 +141,38 @@ export function svgTree(container, data, actionId) {
             .attr("tx", (options.depthX * 20 + options.initX))
             .attr("ty", (options.depthY * 28))
             .attr("data-type", type)
-            .attr("data-class", options.name)
+            .attr("data-class", options.class)
             .style("cursor", "pointer")
 
         .on("mouseover", function() {
                 // var selectedConflict = callFunction(options.path);
                 if (options.category == "property") {
-                    d3.selectAll("[data-class=" + options.name + "]").select("rect")
-                        .attr("fill", "#333");
-                    d3.selectAll("[data-class=" + options.name + "]").each(function(d, i){
-                          var d3DOM = d3.select(this);
-                          var elementType = d3DOM.attr("data-type");
-                          d3.select(this).select(".conflict-image").attr("xlink:href", function() {
-                            if (elementType == "conflict-source") {
-                                return "../../assets/svg/remove-conflict.svg";
-                            } else if (elementType == "conflict-base") {
-                                return "../../assets/svg/highlight-conflict.svg";
-                            }
-                        });
+                    // d3.selectAll("[data-class=" + options.class + "]").select("rect")
+                    //     .attr("fill", "#333");
+                    d3.selectAll("[data-class=" + options.class + "]").each(function(d, i) {
+                        var d3DOM = d3.select(this);
+                        d3DOM.select("rect").attr("fill", "#333");
+                        var elementType = d3DOM.attr("data-type");
+                        if (elementType == "conflict-line") {
+                            d3DOM.attr("stroke", "#333");
+                        } else {
+                            d3DOM.select(".conflict-image").attr("xlink:href", function() {
+                                if (elementType == "conflict-source") {
+                                    return "../../assets/svg/remove-conflict.svg";
+                                } else if (elementType == "conflict-base") {
+                                    return "../../assets/svg/highlight-conflict.svg";
+                                }
+                            });
+                        }
+
                     })
-                        
+
                 }
 
             })
             .on("mouseout", function() {
                 if (options.category == "property") {
-                    d3.selectAll("[data-class=" + options.name + "]").select("rect")
+                    d3.selectAll("[data-class=" + options.class + "]").select("rect")
                         .attr("fill", function() {
                             switch (options.type) {
                                 case "string":
@@ -182,35 +194,20 @@ export function svgTree(container, data, actionId) {
                                     return "#cfcfcf";
                             };
                         });
-                    d3.selectAll("[data-class=" + options.name + "]").select(".conflict-image")
-                        .attr("xlink:href", "../../assets/svg/conflict.svg");
-                }
-                // var selectedConflict = callFunction(options.path);
-                // d3.select(this).select("rect")
-                //     .attr("fill", function() {
-                //         switch (options.type) {
-                //             case "string":
-                //                 return "#13b5b1";
-                //                 break;
-                //             case "object":
-                //                 return "#eb6876";
-                //                 break;
-                //             case "number":
-                //                 return "#32b16c";
-                //                 break;
-                //             case "array":
-                //                 return "#c490c0";
-                //                 break;
-                //             case "boolean":
-                //                 return "#8fc320";
-                //                 break;
-                //             default:
-                //                 return "#cfcfcf";
-                //         };
 
-                //     });
-                // d3.select(this).select(".conflict-image")
-                //     .attr("xlink:href", "../../assets/svg/conflict.svg")
+                    // d3.selectAll("[data-class=" + options.class + "]").select(".conflict-image")
+                    //     .attr("xlink:href", "../../assets/svg/conflict.svg");
+                    d3.selectAll("[data-class=" + options.class + "]").each(function() {
+                        var d3DOM = d3.select(this);
+                        var type = d3DOM.attr("data-type");
+                        if (type == "conflict-line") {
+                            d3DOM.attr("stroke", "#f9f065")
+                        } else {
+                            d3DOM.select(".conflict-image")
+                                .attr("xlink:href", "../../assets/svg/conflict.svg");
+                        }
+                    })
+                }
 
             })
         let rect = g.append('rect')
@@ -251,9 +248,15 @@ export function svgTree(container, data, actionId) {
             .attr("class", "conflict-image")
             .on("click", function() {
                 if (type == "conflict-source") {
-                    // removeConflict(options.href);
-                    notify("Remove conflict", "success");
-                    return false;
+                    
+                    if(options.path){
+                        var conflictSourceId = options.path.split("_")[0];
+                        conflictUtil.cleanConflict(conflictSourceId,actionId,options.path);
+                        getConflict(actionId);
+                        notify("Remove conflict", "success");
+                        return false;
+                    }
+                    
                 }
 
             });
@@ -311,13 +314,14 @@ function drawLine(lineArray) {
         let start = $("#" + (lineArray[i].fromData).replace(/\./g, "_"));
         let end = $("#" + (lineArray[i].toData).replace(/\./g, "_"));
         let point = [start.attr("tx"), start.attr("ty"), end.attr("tx"), end.attr("ty")];
-
-        drawLinePath(point, "", "");
+        var dataClass = _.rest(lineArray[i].fromData.split(".")).join("_");
+        // drawLinePath(point, "", "");
+        drawLinePath(point, dataClass, "conflict-line");
     }
 }
 
 
-function drawLinePath(point, fromPath, toPath) {
+function drawLinePath(point, dataClass, type, fromPath, toPath) {
     // var offsetTop = $("#bipatiteLineSvg").offset().top;
     // var offsetLeft = $("#bipatiteLineSvg").offset().left;
     var x1 = parseInt(point[0]) + 70;
@@ -333,6 +337,8 @@ function drawLinePath(point, fromPath, toPath) {
         .attr("stroke-width", 6)
         .attr("fill", "none")
         .attr("stroke-opacity", "0.8")
-        .attr("class", "cursor");
+        .attr("class", "cursor")
+        .attr("data-class", dataClass)
+        .attr("data-type", type);
 
 }
