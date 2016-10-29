@@ -15,9 +15,6 @@ import { linePathAry } from "../common/constant";
 import { pipelineData } from "../pipeline/main";
 
 export  function hasConflict(startActionID,endActionID) {
-    console.log(pipelineData);
-    console.log(JSON.stringify(pipelineData));
-
     let result = false;
     let receiveData = {};
 
