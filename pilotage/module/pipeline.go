@@ -1017,11 +1017,12 @@ func GetPipelineInfo(namespace, pipelineName string, pipelineId int64) (map[stri
 	// get all stage info of current pipeline
 	// if a pipeline done have a define of itself
 	// then the pipeline is a new pipeline ,so only get it's stage list is ok
-	// stageList, err := getStageListByPipeline(*pipelineInfo)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	resultMap["stageList"] = make([]map[string]interface{}, 0)
+	stageList, err := getStageListByPipeline(*pipelineInfo)
+	if err != nil {
+		return nil, err
+	}
+	resultMap["stageList"] = stageList
+	// resultMap["stageList"] = make([]map[string]interface{}, 0)
 
 	resultMap["lineList"] = make([]map[string]interface{}, 0)
 
