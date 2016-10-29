@@ -158,14 +158,12 @@ function setReceiveData(actionReceiveData, actionId, relationList) {
 }
 
 export function cleanConflict(fromActionId,toActionId,path){
-    let ary = path.split("_");
-    let formPath = "";
-    for(var i=1;i<ary.length;i++){
-      formPath = formPath+"."+ary[i];
-    }
-
-    let line = _.find(linePathAry, function(line) {
-        return (fromActionId+""+toActionId) == line.id;
+  
+    let formPath = "."+path;
+    let actionId = fromActionId+"-"+toActionId;
+    
+    let line = _.find(linePathAry, function(obj) {
+        return actionId == obj.id;
     })
 
     line.relation = delRelation(line.relation,formPath);
