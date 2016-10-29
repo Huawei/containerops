@@ -81,7 +81,7 @@ export function dragDropSetPath(options) {
             bipatiteView(fromNodeData.outputJson,toNodeData.inputJson,dataJson);
 
             if(conflictUtil.hasConflict(fromNodeData.id, toNodeData.id)){
-                notify("Conflict with other inputs, please click target action to resolve conflict first", "error");
+                notify("Conflict with other inputs, please click target action to resolve conflict first", "error",10);
                 return false;
             }
         }
