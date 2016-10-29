@@ -20,7 +20,9 @@ export function initPipeline(fromNodes,toNodes) {
         for (var i = 0; i < fromNodes.length; i ++){
             var tempFromNode = [];
 
-            var relation = getPipelineMap(fromNodes[i],toNodes);
+            var tempResult = getPipelineMap(fromNodes[i],toNodes);
+            var relation = tempResult.resultMap
+            var isAllEqual = tempResult. isAllEqual
             if (relation) {
                 tempFromNode = tempFromNode.concat(relation);
             }
@@ -132,18 +134,32 @@ function calcPipelineInfo(fromPath,toPath) {
 
 function getPipelineMap(fromNode,toNodes) {
     var resultMap = [];
+    var isAllEqual = true;
 
     for (var i = 0; i < toNodes.length; i ++) {
         // 只有类型和名字相等才可以自动匹配上
         if (fromNode.key == toNodes[i].key && fromNode.type == toNodes[i].type){
             // 如果是对象,则匹配其所有子子节点
             if (fromNode.type == "object" && fromNode.childNode && toNodes[i].childNode) {
-                var pipelineInfo = calcPipelineInfo(fromNode.path,toNodes[i].path);
-                resultMap = resultMap.concat(pipelineInfo);
+                var isChildAllEqual = true;
 
                 for (var j = 0; j < fromNode.childNode.length; j ++) {
-                    var childResult = getPipelineMap(fromNode.childNode[j],toNodes[i].childNode);
-                    resultMap = resultMap.concat(childResult);
+                    var result = getPipelineMap(fromNode.childNode[j],toNodes[i].childNode);
+                    var childResult=result.resultMap;
+                    var isChildEqual = result.isAllEqual;
+                    if (childResult) {
+                        resultMap = resultMap.concat(childResult);
+                    }
+
+                    if (!isChildEqual) {
+                        isAllEqual = false;
+                        isChildAllEqual = false;
+                    }
+                }
+
+                if (isChildAllEqual) {
+                    var pipelineInfo = calcPipelineInfo(fromNode.path,toNodes[i].path);
+                    resultMap = resultMap.concat(pipelineInfo);
                 }
 
             } else {
@@ -151,13 +167,17 @@ function getPipelineMap(fromNode,toNodes) {
                 resultMap = resultMap.concat(pipelineInfo);
                 break;
             }
+        } else {
+            isAllEqual = false;
         }
     }
 
     if (resultMap.length > 0) {
-        return resultMap;
+        var result = {"resultMap":resultMap,"isAllEqual":isAllEqual};
+        return result;
     }else {
-        return null;
+        var result = {"resultMap":resultMap,"isAllEqual":isAllEqual};
+        return null, isAllEqual;
     }
 }
 
