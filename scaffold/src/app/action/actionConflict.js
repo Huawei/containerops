@@ -74,7 +74,7 @@ export function svgTree(container, data, actionId) {
                 name: data[i].name,
                 class: "",
                 category: "action",
-                id:data[i].id
+                parentActionId:data[i].id
             });
 
             for (let j = 0; j < data[i].conflicts.length; j++) {
@@ -89,20 +89,19 @@ export function svgTree(container, data, actionId) {
                         depthY: depthY,
                         type: judgeType(conflicts[key]),
                         initX: initX,
-                        path: data[i].id + "_" + key,
+                        parentActionId:data[i].id,
                         name: key,
                         class: key,
                         category: "property"
                     });
 
-                    getChildJson(conflicts[key], 3, data[i].id + "_" + key, key);
-                    // getChildJson(conflicts[key], 3, data[i], key);
+                    getChildJson(conflicts[key], 3, data[i].id, key);
 
                 }
             }
         }
 
-        function getChildJson(data, depthX, path, parentPath) {
+        function getChildJson(data, depthX, parentActionId, parentPath) {
             if (isObject(data)) {
                 for (let key in data) {
                     depthY++;
@@ -111,13 +110,13 @@ export function svgTree(container, data, actionId) {
                         depthY: depthY,
                         type: judgeType(data[key]),
                         initX: initX,
-                        path: path + "_" + key,
+                        parentActionId:parentActionId,
                         name: key,
-                        class: parentPath + "_" + key,
+                        class: parentPath + "." + key,
                         category: "property",
 
                     });
-                    getChildJson(data[key], depthX + 1, parentPath + "_" + key, key);
+                    getChildJson(data[key], depthX + 1, parentActionId, parentPath + "." + key);
                 }
             }
 
@@ -137,11 +136,12 @@ export function svgTree(container, data, actionId) {
 
         let g = svg.append("g")
             .attr("transform", "translate(" + (options.depthX * 20 + options.initX) + "," + (options.depthY * 28) + ")")
-            .attr("id", options.path)
+            .attr("id",options.parentActionId+"_"+options.class.replace(/\./g, "_"))
             .attr("tx", (options.depthX * 20 + options.initX))
             .attr("ty", (options.depthY * 28))
             .attr("data-type", type)
-            .attr("data-class", options.class)
+            .attr("data-class", options.class.replace(/\./g, "_"))
+            .attr("data-clean",options.class)
             .style("cursor", "pointer")
 
         .on("mouseover", function() {
@@ -149,7 +149,7 @@ export function svgTree(container, data, actionId) {
                 if (options.category == "property") {
                     // d3.selectAll("[data-class=" + options.class + "]").select("rect")
                     //     .attr("fill", "#333");
-                    d3.selectAll("[data-class=" + options.class + "]").each(function(d, i) {
+                    d3.selectAll("[data-class=" + options.class.replace(/\./g, "_") + "]").each(function(d, i) {
                         var d3DOM = d3.select(this);
                         d3DOM.select("rect").attr("fill", "#333");
                         var elementType = d3DOM.attr("data-type");
@@ -172,7 +172,7 @@ export function svgTree(container, data, actionId) {
             })
             .on("mouseout", function() {
                 if (options.category == "property") {
-                    d3.selectAll("[data-class=" + options.class + "]").select("rect")
+                    d3.selectAll("[data-class=" + options.class.replace(/\./g, "_") + "]").select("rect")
                         .attr("fill", function() {
                             switch (options.type) {
                                 case "string":
@@ -197,7 +197,7 @@ export function svgTree(container, data, actionId) {
 
                     // d3.selectAll("[data-class=" + options.class + "]").select(".conflict-image")
                     //     .attr("xlink:href", "../../assets/svg/conflict.svg");
-                    d3.selectAll("[data-class=" + options.class + "]").each(function() {
+                    d3.selectAll("[data-class=" + options.class.replace(/\./g, "_") + "]").each(function() {
                         var d3DOM = d3.select(this);
                         var type = d3DOM.attr("data-type");
                         if (type == "conflict-line") {
@@ -249,9 +249,9 @@ export function svgTree(container, data, actionId) {
             .on("click", function() {
                 if (type == "conflict-source") {
                     
-                    if(options.path){
-                        var conflictSourceId = options.path.split("_")[0];
-                        conflictUtil.cleanConflict(conflictSourceId,actionId,options.path);
+                    if(options.parentActionId){
+                        var conflictSourceId = options.parentActionId;
+                        conflictUtil.cleanConflict(conflictSourceId,actionId,options.class);
                         getConflict(actionId);
                         notify("Remove conflict", "success");
                         return false;
