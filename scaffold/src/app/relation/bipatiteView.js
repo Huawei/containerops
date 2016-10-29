@@ -23,6 +23,7 @@ var importTreeJson,outputTreeJson;
 
 export function bipatiteView(importJson,outputJson,linePathData){
 	
+
     var importTree = importTreeJson = jsonTransformation(importJson);
     var outputTree = outputTreeJson = jsonTransformation(outputJson);
     initView(importTree,outputTree,linePathData);

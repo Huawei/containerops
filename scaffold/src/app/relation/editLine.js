@@ -53,8 +53,8 @@ export function editLine(editPage, currentLine) {
         currentLineData = _.find(constant.linePathAry, function(line) {
             return id == line.id;
         })
-        lineInputJSON = currentLineData.startData.outputJson;
-        lineOutputJSON = currentLineData.endData.inputJson; 
+        lineInputJSON = getAction(currentLineData.startData.id).outputJson;
+        lineOutputJSON = getAction(currentLineData.endData.id).inputJson; 
         currentLineData.relation = undefined;
         bipatiteView(lineInputJSON, lineOutputJSON, currentLineData);
     })
@@ -62,3 +62,21 @@ export function editLine(editPage, currentLine) {
 
     resizeWidget();
 }
+
+
+function getAction(actionId) {
+    for (let i = 0; i < pipelineData.length; i ++) {
+        let stage = pipelineData[i];
+        if (stage.actions) {
+            for (let j = 0; j < stage.actions.length; j ++ ) {
+                let action = stage.actions[j];
+                if (action.id == actionId) {
+                    return action;
+                }
+            }
+        }
+    }
+
+    return "";
+}
+

@@ -35,8 +35,6 @@ export function initLine() {
 
     constant.pipelineView.selectAll("image").each(function(d, i) {
 
-
-console.log(d);
         /* draw the main line of pipeline */
         if (i != 0) {
             constant.lineView[pipelineLineViewId]
