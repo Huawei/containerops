@@ -21,7 +21,7 @@ import { notify } from "../common/notify";
 import * as conflictUtil from "../relation/conflict";
 
 export function dragDropSetPath(options) {
-
+   
     var fromNodeData = options.data; /* from node data */
     // var _path = d3.select("svg>g").insert("path", ":nth-child(2)").attr("class", "drag-drop-line"),
     // var _path = d3.select("svg>g").append("path").attr("class", "drag-drop-line"),
