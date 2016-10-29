@@ -1,13 +1,18 @@
-/* Copyright 2014 Huawei Technologies Co., Ltd. All rights reserved.
+/*
+Copyright 2014 Huawei Technologies Co., Ltd. All rights reserved.
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
+
     http://www.apache.org/licenses/LICENSE-2.0
+
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
-limitations under the License. */
+limitations under the License.
+ */
 
 let apiUrlConf = {
 	"host" : "https://test-1.containerops.sh",
@@ -27,6 +32,9 @@ let apiUrlConf = {
 		"data" : "/pipeline/v1/demo/component/{componentName}?id={componentID}",
 		"add" : "/pipeline/v1/demo/component",
 		"save" : "/pipeline/v1/demo/component/{componentName}"
+	},
+	"history" : {
+		"sequenceData" : "/pipeline/v1/demo/demo/{pipelineName}/historyDefine?sequenceId={pipelineSequenceID}"
 	}
 }
 
@@ -38,7 +46,7 @@ export let pipelineApi = {
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
-	    }); 
+	    });
 	    return promise;
 	},
 	"data" : function(name,id){
@@ -47,7 +55,7 @@ export let pipelineApi = {
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
-	    }); 
+	    });
 	    return promise;
 	},
 	"add" : function(name,version){
@@ -59,8 +67,8 @@ export let pipelineApi = {
 	        "url": apiUrlConf.host + apiUrlConf.pipeline.add,
 	        "type": "POST",
 	        "dataType": "json",
-	        "data": data 
-	    }); 
+	        "data": data
+	    });
 	    return promise;
 	},
 	"save" : function(name,reqbody){
@@ -69,8 +77,8 @@ export let pipelineApi = {
 	        "url": apiUrlConf.host + apiUrlConf.pipeline.save.replace(/{pipelineName}/g, name),
 	        "type": "PUT",
 	        "dataType": "json",
-	        "data": data 
-	    }); 
+	        "data": data
+	    });
 	    return promise;
 	},
 	"eventOutput" : function(name){
@@ -79,7 +87,7 @@ export let pipelineApi = {
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
-	    }); 
+	    });
 	    return promise;
 	},
 	"getEnv" : function(name,id){
@@ -88,7 +96,7 @@ export let pipelineApi = {
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
-	    }); 
+	    });
 	    return promise;
 	},
 	"setEnv" : function(name,reqbody){
@@ -97,8 +105,8 @@ export let pipelineApi = {
 	        "url": apiUrlConf.host + apiUrlConf.pipeline.setEnv.replace(/{pipelineName}/g, name),
 	        "type": "PUT",
 	        "dataType": "json",
-	        "data": data 
-	    }); 
+	        "data": data
+	    });
 	    return promise;
 	},
 	"changeState" : function(name,reqbody){
@@ -107,8 +115,8 @@ export let pipelineApi = {
 	        "url": apiUrlConf.host + apiUrlConf.pipeline.changeState.replace(/{pipelineName}/g, name),
 	        "type": "PUT",
 	        "dataType": "json",
-	        "data": data 
-	    }); 
+	        "data": data
+	    });
 	    return promise;
 	},
 	"getToken" : function(name,id){
@@ -117,7 +125,7 @@ export let pipelineApi = {
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
-	    }); 
+	    });
 	    return promise;
 	}
 }
@@ -130,7 +138,7 @@ export let componentApi = {
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
-	    }); 
+	    });
 	    return promise;
 	},
 	"data" : function(name,id){
@@ -139,7 +147,7 @@ export let componentApi = {
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
-	    }); 
+	    });
 	    return promise;
 	},
 	"add" : function(name,version){
@@ -151,8 +159,8 @@ export let componentApi = {
 	        "url": apiUrlConf.host + apiUrlConf.component.add,
 	        "type": "POST",
 	        "dataType": "json",
-	        "data": data 
-	    }); 
+	        "data": data
+	    });
 	    return promise;
 	},
 	"save" : function(name,reqbody){
@@ -161,8 +169,22 @@ export let componentApi = {
 	        "url": apiUrlConf.host + apiUrlConf.component.save.replace(/{componentName}/g, name),
 	        "type": "PUT",
 	        "dataType": "json",
-	        "data": data 
-	    }); 
+	        "data": data
+	    });
+	    return promise;
+	}
+}
+
+// history
+export let historyApi = {
+	// "sequenceData" : function(pipelineName,pipelineRunSequenceID){
+	"sequenceData" : function(pipelineName,pipelineRunSequenceID){
+		var promise = $.ajax({
+	        "url": apiUrlConf.host + apiUrlConf.history.sequenceData.replace(/{pipelineName}/g, pipelineName).replace(/{pipelineSequenceID}/g, pipelineRunSequenceID),
+	        "type": "GET",
+	        "dataType": "json",
+	        "cache": false
+	    });
 	    return promise;
 	}
 }
