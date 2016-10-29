@@ -12,8 +12,12 @@ limitations under the License.
 */
 
 import { linePathAry } from "../common/constant";
+import { pipelineData } from "../pipeline/main";
 
 export  function hasConflict(startActionID,endActionID) {
+    console.log(pipelineData);
+    console.log(JSON.stringify(pipelineData));
+
     let result = false;
     let receiveData = {};
 
@@ -54,14 +58,7 @@ export function getActionConflict(actionID) {
     for (let i = 0; i < linePathAry.length; i ++) {
         let lineInfo = linePathAry[i];
         if (lineInfo.endData.id == actionID && lineInfo.relation) {
-            for (let j = 0; j < lineInfo.relation.length; j ++) {
-                let currentRelation = lineInfo.relation[j];
-                let currentPath = lineInfo.startData.id + currentRelation.from
-
-                if (!actionReceiveData[currentRelation.to]) { actionReceiveData[currentRelation.to] = [];}
-
-                actionReceiveData[currentRelation.to].push(currentPath);
-            }
+            actionReceiveData = setReceiveData(actionReceiveData, lineInfo.startData.id, lineInfo.relation);
         }
     }
 
@@ -77,8 +74,25 @@ export function getActionConflict(actionID) {
                 if (!conflicts[actionID]) {conflicts[actionID] = {};}
                 if (!conflicts[fromActionId]) {conflicts[fromActionId] = {};}
 
-                conflicts[fromActionId] = setConflictPath(conflicts[fromActionId], fromNodePath);
-                conflicts[actionID] = setConflictPath(conflicts[actionID], p);
+                let fromAction = getAction(fromActionId);
+                let toAction = getAction(actionID);
+
+                let fromActionValue;
+                if (fromAction.outputJson) {
+                    getObjValue(fromAction.outputJson,fromNodePath)
+                } else {
+                    fromActionValue = null;
+                }
+
+                let toActionValue;
+                if (toAction.inputJson) {
+                    getObjValue(toAction.inputJson,p)
+                } else {
+                    toActionValue = null;
+                }
+
+                conflicts[fromActionId] = setConflictPath(conflicts[fromActionId], fromNodePath, fromActionValue);
+                conflicts[actionID] = setConflictPath(conflicts[actionID], p, toActionValue);
 
                 line.fromData = fromPath;
                 line.toData = actionID + p;
@@ -99,14 +113,50 @@ export function getActionConflict(actionID) {
             nodeConflicts.push(nodeConflict);
         }
 
+        let action = getAction(p);
+        let actionName = "";
+        if (action.setupData.action.name) {
+            actionName = action.setupData.action.name;
+        }
+
         node.id = p;
-        node.name = p;
+        node.name = actionName;
         node.conflicts = nodeConflicts;
 
         result.node.push(node);
     }
 
     return result;
+}
+
+function setReceiveData(actionReceiveData, actionId, relationList) {
+    let allLeafNodes = [];
+    for (let i = 0; i < relationList.length; i ++ ) {
+        let relation = relationList[i];
+        let isLeafNode = true;
+
+        for (let j = 0; j < relationList.length; j ++) {
+            if ((relation.from+".").indexOf(relationList[j].from+".") == -1) {
+                isLeafNode = false;
+                break;
+            }
+        }
+
+        if (isLeafNode) {
+            relation.finalPath = actionId + relation.from;
+            allLeafNodes.push(relation);
+        }
+    }
+
+    for (let i = 0; i < allLeafNodes.length; i ++ ) {
+        let currentRelation = allLeafNodes[i];
+
+        if (!actionReceiveData[currentRelation.to]) { actionReceiveData[currentRelation.to] = [];}
+
+        actionReceiveData[currentRelation.to].push(currentRelation.finalPath);
+    }
+
+    return actionReceiveData;
 }
 
 export function cleanConflict(fromActionId,toActionId,path){
@@ -123,21 +173,19 @@ export function cleanConflict(fromActionId,toActionId,path){
     line.relation = delRelation(line.relation,formPath);
 }
 
-function setConflictPath(obj,path) {
+function setConflictPath(obj,path,info) {
     path = path.substring(1);
     let currentProp = path.split(".")[0];
 
     if (path.split(".").length > 1) {
         if (!obj[currentProp]) {obj[currentProp] = {};}
-        obj[currentProp] = setConflictPath(obj[currentProp], path.substring(path.indexOf(".")));            
+        obj[currentProp] = setConflictPath(obj[currentProp], path.substring(path.indexOf(".")), info);            
     } else {
-        if (!obj[currentProp]) {obj[currentProp] = "";}
+        if (!obj[currentProp]) {obj[currentProp] = info;}
     }
 
     return obj;
 }
-
-
 
 function delRelation(relation,fromPath) {
     var finalRelation = [];
@@ -154,3 +202,34 @@ function delRelation(relation,fromPath) {
     return finalRelation;
 }
 
+function getAction(actionId) {
+    for (let i = 0; i < pipelineData.length; i ++) {
+        stage = pipelineData[i];
+        if (stage.actions) {
+            for (let j = 0; j < stage.actions.length; j ++ ) {
+                let action = stage.actions[j];
+                if (action.id == actionId) {
+                    return action;
+                }
+            }
+        }
+    }
+
+    return "";
+}
+
+function getObjValue(obj, path) {
+    path = path.substring(1);
+    let value;
+    let currentProp = path.split(".")[0];
+
+    if (path.split(".").length > 1) {
+        if (typeof(obj[currentProp]) == "undefined") {return null;}
+        value = getObjValue(obj[currentProp], path.substring(path.indexOf(".")));
+    } else {
+        if (typeof(obj[currentProp]) == "undefined") {return null;}
+        value = obj[currentProp];
+    }
+
+    return value;
+}
