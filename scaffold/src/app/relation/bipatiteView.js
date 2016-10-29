@@ -171,7 +171,7 @@ function relationLine(ary){
 			toPath = replacePoint(ary[i].to),
 			fromDom = rootImport.find("div[data-path="+fromPath+"]"),
 			toDom = rootOutput.find("div[data-path="+toPath+"]"),
-			parentDom;
+			fromParentDom,toParentDom;
 
 		
 		if(fromDom.hasClass("expanded") && toDom.hasClass("expanded")){
@@ -191,26 +191,42 @@ function relationLine(ary){
 
 		if(fromDom.is(":visible") && toDom.is(":hidden")){
 			
-		  	parentDom = getVisibleParent(toDom);
-		  	if(parentDom != undefined){
+		  	toParentDom = getVisibleParent(toDom);
+		  	if(toParentDom != undefined){
 			  	settingOut([
 					fromDom.offset().left,
 					fromDom.offset().top,
-					parentDom.offset().left,
-					parentDom.offset().top	
+					toParentDom.offset().left,
+					toParentDom.offset().top	
 				],fromPath,toPath);	
 			  }
 		}
 
 		if(fromDom.is(":hidden") && toDom.is(":visible")){
 
-		  	parentDom = getVisibleParent(fromDom);
-		  	if(parentDom != undefined){
+		  	fromParentDom = getVisibleParent(fromDom);
+		  	if(fromParentDom != undefined){
 		  		settingOut([
-					parentDom.offset().left,
-					parentDom.offset().top,
+					fromParentDom.offset().left,
+					fromParentDom.offset().top,
 					toDom.offset().left,
 					toDom.offset().top	
+				],fromPath,toPath);	
+		  	}
+		  	
+		}
+
+		if(fromDom.is(":hidden") && toDom.is(":hidden")){
+
+		  	fromParentDom = getVisibleParent(fromDom);
+		  	toParentDom = getVisibleParent(toDom);
+
+		  	if(fromParentDom != undefined && toParentDom != undefined){
+		  		settingOut([
+					fromParentDom.offset().left,
+					fromParentDom.offset().top,
+					toParentDom.offset().left,
+					toParentDom.offset().top	
 				],fromPath,toPath);	
 		  	}
 		  	

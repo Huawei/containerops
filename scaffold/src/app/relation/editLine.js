@@ -36,7 +36,7 @@ export function editLine(editPage, currentLine) {
         return id == line.id;
     })
 
-    console.log(constant);
+    console.log(constant.linePathAry);
     lineInputJSON = currentLineData.startData.outputJson;
     lineOutputJSON = currentLineData.endData.inputJson;
     if (_.isEmpty(lineInputJSON)) {
@@ -50,6 +50,12 @@ export function editLine(editPage, currentLine) {
 
 
     $("#refreshRelation").click(function() {
+
+        currentLineData = _.find(constant.linePathAry, function(line) {
+            return id == line.id;
+        })
+        lineInputJSON = currentLineData.startData.outputJson;
+        lineOutputJSON = currentLineData.endData.inputJson; 
         currentLineData.relation = undefined;
         bipatiteView(lineInputJSON, lineOutputJSON, currentLineData);
     })
