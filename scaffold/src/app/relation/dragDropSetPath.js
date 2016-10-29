@@ -25,25 +25,26 @@ export function dragDropSetPath(options) {
     var fromNodeData = options.data; /* from node data */
     // var _path = d3.select("svg>g").insert("path", ":nth-child(2)").attr("class", "drag-drop-line"),
     // var _path = d3.select("svg>g").append("path").attr("class", "drag-drop-line"),
-    var _path = d3.select("#pipeline-line-view").append("path").attr("class", "drag-drop-line"),
-        _offsetX = $("main").offset().left,
-        _offsetY = $("#designerMenubar").height(),
-        _startX = $(window.event.target).offset().left - _offsetX,
-        _startY = $(window.event.target).offset().top - _offsetY - 12,
-        _pageTitleHeight = $(".page-title").height();
+    var _path = d3.select("#pipeline-line-view").append("path").attr("class", "drag-drop-line");
+    var svgDOM = $("#div-d3-main-svg > svg"),
+        svgOffsetX = svgDOM.offset().left,
+        svgOffsetY = svgDOM.offset().top,
+        _startX = $(window.event.target).offset().left - svgOffsetX,
+        _startY = $(window.event.target).offset().top - svgOffsetY;
 
     /* draw temporary line by mouse move*/
     document.onmousemove = function(e) {
-            var diffX = e.pageX - _startX - _offsetX,
-                diffY = e.pageY - _startY - _offsetY;
+            var diffX = e.pageX - svgOffsetX,
+                diffY = e.pageY - svgOffsetY;
             var translateX = parseInt(d3.select("#linesView")[0][0].attributes["translateX"] ? d3.select("#linesView")[0][0].attributes["translateX"].value : 0);
             var translateY = parseInt(d3.select("#linesView")[0][0].attributes["translateY"] ? d3.select("#linesView")[0][0].attributes["translateY"].value : 0);
             var scale = parseFloat(d3.select("#linesView")[0][0].attributes["scale"] ? d3.select("#linesView")[0][0].attributes["scale"].value : 1);
-            _path.attr("d", getPathData({ x: (_startX - 60 - translateX) / scale, y: (_startY - (105 + _pageTitleHeight) - translateY) / scale}, { x: (_startX + diffX - 40 - translateX) / scale, y: (_startY + diffY - (130 + _pageTitleHeight) - translateY)/scale}))
+            _path.attr("d", getPathData({ x: (_startX - 15 * scale - translateX) / scale, y: (_startY - 8 * scale - translateY) / scale}, { x: (diffX - translateX) / scale, y: (diffY - 10 * scale - translateY)/scale}))
                 .attr("fill", "none")
                 .attr("stroke-opacity", "1")
                 .attr("stroke", "#81D9EC")
-                .attr("stroke-width", 10);
+                .attr("stroke-width", 10)
+                .style("cursor","pointer");
         }
         /* remove temporary line and draw the real line between nodes with data */
     document.onmouseup = function(e) {
