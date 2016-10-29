@@ -55,6 +55,7 @@ export function getActionConflict(actionID) {
     for (let i = 0; i < linePathAry.length; i ++) {
         let lineInfo = linePathAry[i];
         if (lineInfo.endData.id == actionID && lineInfo.relation) {
+
             actionReceiveData = setReceiveData(actionReceiveData, lineInfo.startData.id, lineInfo.relation);
         }
     }
@@ -76,14 +77,14 @@ export function getActionConflict(actionID) {
 
                 let fromActionValue;
                 if (fromAction.outputJson) {
-                    getObjValue(fromAction.outputJson,fromNodePath)
+                    fromActionValue = getObjValue(fromAction.outputJson,fromNodePath)
                 } else {
                     fromActionValue = null;
                 }
 
                 let toActionValue;
                 if (toAction.inputJson) {
-                    getObjValue(toAction.inputJson,p)
+                    toActionValue = getObjValue(toAction.inputJson,p)
                 } else {
                     toActionValue = null;
                 }
@@ -133,7 +134,7 @@ function setReceiveData(actionReceiveData, actionId, relationList) {
         let isLeafNode = true;
 
         for (let j = 0; j < relationList.length; j ++) {
-            if ((relation.from+".").indexOf(relationList[j].from+".") == -1) {
+            if ((relationList[j].from+".").indexOf(relation.from+".") == 0 && relation.from != relationList[j].from) {
                 isLeafNode = false;
                 break;
             }
@@ -201,7 +202,7 @@ function delRelation(relation,fromPath) {
 
 function getAction(actionId) {
     for (let i = 0; i < pipelineData.length; i ++) {
-        stage = pipelineData[i];
+        let stage = pipelineData[i];
         if (stage.actions) {
             for (let j = 0; j < stage.actions.length; j ++ ) {
                 let action = stage.actions[j];
