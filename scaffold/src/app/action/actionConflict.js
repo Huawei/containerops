@@ -34,7 +34,7 @@ export function getConflict(actionId) {
 }
 
 export function svgTree(container, data, actionId) {
-
+    var conflictDIV = $("#conflictTreeView");
     let svgWidth = ($("#actionTabsContent").width() - 110) / 2;
     let conflictActions = _.filter(data.node, function(node) {
         return node.id != actionId;
@@ -42,11 +42,12 @@ export function svgTree(container, data, actionId) {
     let curAction = _.filter(data.node, function(node) {
         return node.id == actionId;
     });
-    let conflictArray = transformJson(conflictActions, 60);
-    let curActionArray = transformJson(curAction, svgWidth + 60);
+    let conflictArray = transformJson(conflictActions, svgWidth/5);
+    let curActionArray = transformJson(curAction, svgWidth + svgWidth/5);
+    console.log(conflictDIV.height());
     let svg = container.append("svg")
         .attr("width", "100%")
-        .attr("height", 600)
+        .attr("height", conflictDIV.height() - 100)
         .style("fill", "white");
     for (let i = 0; i < conflictArray.length; i++) {
         construct(svg, conflictArray[i], "conflict-source");
@@ -92,7 +93,7 @@ export function svgTree(container, data, actionId) {
                         parentActionId:data[i].id,
                         name: key,
                         class: key,
-                        category: "property"
+                        category: judgeType(conflicts[key]) == "object" ? "path": "property"
                     });
 
                     getChildJson(conflicts[key], 3, data[i].id, key);
@@ -113,10 +114,11 @@ export function svgTree(container, data, actionId) {
                         parentActionId:parentActionId,
                         name: key,
                         class: parentPath + "." + key,
-                        category: "property",
+                        category: judgeType(data[key]) == "object" ? "path": "property"
 
                     });
                     getChildJson(data[key], depthX + 1, parentActionId, parentPath + "." + key);
+
                 }
             }
 
@@ -135,6 +137,7 @@ export function svgTree(container, data, actionId) {
             .attr("id", "conflictLine");
 
         let g = svg.append("g")
+            // .attr("transform", "translate(" + (options.depthX * 20 + options.initX) + "," + (options.depthY * 28) + ")")
             .attr("transform", "translate(" + (options.depthX * 20 + options.initX) + "," + (options.depthY * 28) + ")")
             .attr("id",options.parentActionId+"_"+options.class.replace(/\./g, "_"))
             .attr("tx", (options.depthX * 20 + options.initX))
@@ -145,20 +148,23 @@ export function svgTree(container, data, actionId) {
             .style("cursor", "pointer")
 
         .on("mouseover", function() {
-                // var selectedConflict = callFunction(options.path);
                 if (options.category == "property") {
-                    // d3.selectAll("[data-class=" + options.class + "]").select("rect")
-                    //     .attr("fill", "#333");
                     d3.selectAll("[data-class=" + options.class.replace(/\./g, "_") + "]").each(function(d, i) {
+
                         var d3DOM = d3.select(this);
-                        d3DOM.select("rect").attr("fill", "#333");
+                        d3DOM.select("rect").attr("fill", "#555");
                         var elementType = d3DOM.attr("data-type");
                         if (elementType == "conflict-line") {
-                            d3DOM.attr("stroke", "#333");
+                            d3DOM.attr("stroke", "#555");
                         } else {
                             d3DOM.select(".conflict-image").attr("xlink:href", function() {
                                 if (elementType == "conflict-source") {
-                                    return "../../assets/svg/remove-conflict.svg";
+                                    if(options.type != "object"){
+                                    	return "../../assets/svg/remove-conflict.svg";
+                                    }else{
+                                    	return "../../assets/svg/highlight-conflict.svg";
+                                    }
+                                    
                                 } else if (elementType == "conflict-base") {
                                     return "../../assets/svg/highlight-conflict.svg";
                                 }
@@ -195,13 +201,12 @@ export function svgTree(container, data, actionId) {
                             };
                         });
 
-                    // d3.selectAll("[data-class=" + options.class + "]").select(".conflict-image")
-                    //     .attr("xlink:href", "../../assets/svg/conflict.svg");
                     d3.selectAll("[data-class=" + options.class.replace(/\./g, "_") + "]").each(function() {
+
                         var d3DOM = d3.select(this);
                         var type = d3DOM.attr("data-type");
                         if (type == "conflict-line") {
-                            d3DOM.attr("stroke", "#f9f065")
+                            d3DOM.attr("stroke", "#e0e004")
                         } else {
                             d3DOM.select(".conflict-image")
                                 .attr("xlink:href", "../../assets/svg/conflict.svg");
@@ -211,8 +216,8 @@ export function svgTree(container, data, actionId) {
 
             })
         let rect = g.append('rect')
-            .attr("ry", 4)
-            .attr("rx", 4)
+            .attr("ry", 5)
+            .attr("rx", 5)
             .attr("y", 0)
             .attr("width", 135)
             .attr("height", 24)
@@ -248,15 +253,17 @@ export function svgTree(container, data, actionId) {
             .attr("class", "conflict-image")
             .on("click", function() {
                 if (type == "conflict-source") {
+
                     
                     if(options.parentActionId){
                         var conflictSourceId = options.parentActionId;
                         conflictUtil.cleanConflict(conflictSourceId,actionId,options.class);
+
                         getConflict(actionId);
-                        notify("Remove conflict", "success");
+                        notify("Remove conflict successfully", "success");
                         return false;
                     }
-                    
+
                 }
 
             });
@@ -333,7 +340,7 @@ function drawLinePath(point, dataClass, type, fromPath, toPath) {
     d3.select("#conflictLine")
         .append("path")
         .attr("d", d)
-        .attr("stroke", "#f9f065")
+        .attr("stroke", "#e0e004")
         .attr("stroke-width", 6)
         .attr("fill", "none")
         .attr("stroke-opacity", "0.8")
