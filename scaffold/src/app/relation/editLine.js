@@ -53,8 +53,11 @@ export function editLine(editPage, currentLine) {
         currentLineData = _.find(constant.linePathAry, function(line) {
             return id == line.id;
         })
-        lineInputJSON = getAction(currentLineData.startData.id).outputJson;
-        lineOutputJSON = getAction(currentLineData.endData.id).inputJson; 
+
+        currentLineData.startData = getAction(currentLineData.startData.id);
+        currentLineData.endData = getAction(currentLineData.endData.id);
+        lineInputJSON = currentLineData.startData.outputJson;
+        lineOutputJSON = currentLineData.endData.inputJson; 
         currentLineData.relation = undefined;
         bipatiteView(lineInputJSON, lineOutputJSON, currentLineData);
     })

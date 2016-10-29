@@ -1070,9 +1070,19 @@ limitations under the License. */
   }
 
   .item.appender > .property { 
-     background-color: #999999; 
+     background-color: #ea9609; 
      cursor: pointer;
      width: 150px;
+     position:relative;
+  }
+  .item.appender > .property:before { 
+     content:"+";
+     width:20px;
+     height:20px;
+     position:absolute;
+     left:2px;
+     top:4px;
+     font-size:18px;
   }
   .item.boolean >.property { background-color: #8fc320; }
   .item.string > .property { background-color: #12b5b0; }
