@@ -72,12 +72,6 @@ export function initDesigner() {
         .attr("height", constant.svgHeight)
         .attr("id", "actionLinkView");
 
-    let treeView = g.append("g")
-        .attr("width", constant.svgWidth)
-        .attr("height", constant.svgHeight)
-        .attr("id", "treeView");
-
-
     constant.setSvg(svg);
     constant.setG(g);
     constant.setSvgMainRect(svgMainRect);
@@ -85,7 +79,6 @@ export function initDesigner() {
     constant.setActionsView(actionsView);
     constant.setPipelineView(pipelineView);
     constant.setButtonView(buttonView);
-    constant.setTreeView(treeView);
 }
 
 function clicked(d, i) {
@@ -99,7 +92,10 @@ function zoomed() {
     pipelineView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
     actionsView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
     // buttonView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
-    linesView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+    linesView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")")
+    .attr("translateX", d3.event.translate[0])
+    .attr("translateY", d3.event.translate[1])
+    .attr("scale", d3.event.scale);
 }
 
 function nozoom() {

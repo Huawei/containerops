@@ -148,7 +148,7 @@ $(function(){
             /**
              * whether navigation is static (does not collapse automatically)
              */
-            'nav-static': false
+            'nav-static': true
         };
         this.settingName = 'scaffold-app-settings';
         this._settings = JSON.parse(localStorage.getItem(this.settingName)) || defaultSettings;

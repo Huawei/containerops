@@ -39,17 +39,17 @@ func GetComponentListV1Handler(ctx *macaron.Context) (int, []byte) {
 
 	resultMap := make([]map[string]interface{}, 0)
 	componentList := make([]models.Component, 0)
-	componentsMap := make(map[int64]interface{})
+	componentsMap := make(map[string]interface{})
 	new(models.Component).GetComponent().Where("namespace = ?", namespace).Order("-id").Find(&componentList)
 
 	for _, componentInfo := range componentList {
-		if _, ok := componentsMap[componentInfo.ID]; !ok {
+		if _, ok := componentsMap[componentInfo.Component]; !ok {
 			tempMap := make(map[string]interface{})
 			tempMap["version"] = make(map[int64]interface{})
-			componentsMap[componentInfo.ID] = tempMap
+			componentsMap[componentInfo.Component] = tempMap
 		}
 
-		componentMap := componentsMap[componentInfo.ID].(map[string]interface{})
+		componentMap := componentsMap[componentInfo.Component].(map[string]interface{})
 		versionMap := componentMap["version"].(map[int64]interface{})
 
 		versionMap[componentInfo.VersionCode] = componentInfo
@@ -59,7 +59,14 @@ func GetComponentListV1Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	for _, component := range componentList {
-		componentInfo := componentsMap[component.ID].(map[string]interface{})
+		componentInfo := componentsMap[component.Component].(map[string]interface{})
+
+		if isSign, ok := componentInfo["isSign"].(bool); ok && isSign {
+			continue
+		}
+
+		componentInfo["isSign"] = true
+		componentsMap[component.Component] = componentInfo
 
 		versionList := make([]map[string]interface{}, 0)
 		for _, componentVersion := range componentList {

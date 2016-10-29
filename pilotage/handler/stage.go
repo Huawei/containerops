@@ -19,8 +19,12 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"gopkg.in/macaron.v1"
+
+	"github.com/Huawei/containerops/pilotage/module"
 )
 
 //PostStageV1Handler is
@@ -44,5 +48,34 @@ func PutStageV1Handler(ctx *macaron.Context) (int, []byte) {
 //DeleteStageV1Handler is
 func DeleteStageV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
+	return http.StatusOK, result
+}
+
+func GetStageHistoryInfoV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{"message": ""})
+
+	stageLogIdStr := ctx.Query("stageLogId")
+
+	if stageLogIdStr == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "request stage log id can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	stageLogIdStr = strings.TrimPrefix(stageLogIdStr, "s-")
+	stageLogId, err := strconv.ParseInt(stageLogIdStr, 10, 64)
+
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "stage log id is illegal"})
+		return http.StatusBadRequest, result
+	}
+
+	resultMap, err := module.GetStageHistoryInfo(stageLogId)
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	result, _ = json.Marshal(map[string]interface{}{"result": resultMap})
+
 	return http.StatusOK, result
 }

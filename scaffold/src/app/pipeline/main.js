@@ -45,7 +45,7 @@ export function initPipelinePage() {
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
-        if (xhr.responseJSON.errMsg) {
+        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
         } else {
             notify("Server is unreachable", "error");
@@ -72,20 +72,37 @@ function showPipelineList() {
                                 <td class="pptd">
                                     <span class="glyphicon glyphicon-menu-down treeclose treecontroller" data-name=` 
                                     + item.name + `></span>&nbsp;&nbsp;&nbsp;&nbsp;` 
-                                    + item.name + `</td><td></td><td></td></tr>`;
+                                    + item.name + `</td><td></td><td></td><td></td></tr>`;
                 $(".pipelinelist_body").append(pprow);
 
                 _.each(item.version, function(version) {
                     var vrow = `<tr data-pname=` + item.name + ` data-version=` + version.version + ` data-versionid=`
                                 + version.id + ` class="ppversion-row">
                                     <td></td>
-                                    <td class="pptd">` + version.version + `</td>
-                                    <td>
-                                        <button type="button" class="btn btn-success ppview">
-                                            <i class="glyphicon glyphicon-eye-open" style="font-size:16px"></i>&nbsp;&nbsp;View
-                                        </button>
-                                    </td>
-                                </tr>`;
+                                    <td class="pptd">` + version.version + `</td><td>`;
+
+                    if(_.isUndefined(version.status)){
+                        vrow += `<div class="state-list">
+                                    <div class="state-icon-list state-norun"></div>
+                                </div>`;
+                    }else if(version.status.status){
+                        vrow += `<div class="state-list">
+                                    <div class="state-icon-list state-success"></div>
+                                    <span class="state-label-list">` + version.status.time + `</span>
+                                </div>`;
+                    }else{
+                        vrow += `<div class="state-list">
+                                    <div class="state-icon-list state-fail"></div>
+                                    <span class="state-label-list">` + version.status.time + `</span>
+                                </div>`
+                    }
+
+                    vrow += `</td><td>
+                                <button type="button" class="btn btn-success ppview">
+                                    <i class="glyphicon glyphicon-eye-open" style="font-size:16px"></i>&nbsp;&nbsp;View
+                                </button>
+                            </td></tr>`;
+
                     $(".pipelinelist_body").append(vrow);
                 })
             });
@@ -124,12 +141,12 @@ function getPipelineData() {
     promise.done(function(data) {
         loading.hide();
         pipelineData = data.stageList;
-        setLinePathAry(data.lineList);
-        showPipelineDesigner();
+        setLinePathAry(data.lineList); 
+        showPipelineDesigner(data.status);
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
-        if (xhr.responseJSON.errMsg) {
+        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
         } else {
             notify("Server is unreachable", "error");
@@ -189,7 +206,7 @@ function showNewPipeline() {
                     });
                     promise.fail(function(xhr, status, error) {
                         loading.hide();
-                        if (xhr.responseJSON.errMsg) {
+                        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
                             notify(xhr.responseJSON.errMsg, "error");
                         } else {
                             notify("Server is unreachable", "error");
@@ -204,7 +221,7 @@ function showNewPipeline() {
     });
 }
 
-function showPipelineDesigner() {
+function showPipelineDesigner(state) {
     $.ajax({
         url: "../../templates/pipeline/pipelineDesign.html",
         type: "GET",
@@ -215,6 +232,12 @@ function showPipelineDesigner() {
 
             $("#selected_pipeline").text(pipelineName + " / " + pipelineVersion);
 
+            if(state){
+                $(".pipeline-state").addClass("pipeline-on");
+            }else{
+                $(".pipeline-state").addClass("pipeline-off");
+            }
+
             initDesigner();
             drawPipeline();
 
@@ -222,12 +245,16 @@ function showPipelineDesigner() {
                 beforeBackToList();
             });
 
-            $(".runpipeline").on('click', function() {
-                beforeRunPipeline();
-            });
-
-            $(".stoppipeline").on('click', function() {
-                beforeStopPipeline();
+            $(".pipeline-state").on('click',function(event){
+                if($(event.currentTarget).hasClass("pipeline-off")){
+                    if(!pipelineCheck(pipelineData)){
+                        notify("This pipeline does not pass the availability check, please make it available before ", "error");
+                    }else{
+                        beforeRunPipeline();
+                    }
+                }else if($(event.currentTarget).hasClass("pipeline-on")){
+                    beforeStopPipeline();
+                }
             });
 
             $(".checkpipeline").on('click', function() {
@@ -273,7 +300,7 @@ export function savePipelineData(next) {
     promise.fail(function(xhr, status, error) {
         loading.hide();
         if (!next) {
-            if (xhr.responseJSON.errMsg) {
+            if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
                 notify(xhr.responseJSON.errMsg, "error");
             } else {
                 notify("Server is unreachable", "error");
@@ -307,7 +334,7 @@ function showNewPipelineVersion() {
                     });
                     promise.fail(function(xhr, status, error) {
                         loading.hide();
-                        if (xhr.responseJSON.errMsg) {
+                        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
                             notify(xhr.responseJSON.errMsg, "error");
                         } else {
                             notify("Server is unreachable", "error");
@@ -388,7 +415,7 @@ function getEnvList() {
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
-        if (xhr.responseJSON.errMsg) {
+        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
         } else {
             notify("Server is unreachable", "error");
@@ -436,7 +463,7 @@ function savePipelineEnvs() {
         });
         promise.fail(function(xhr, status, error) {
             loading.hide();
-            if (xhr.responseJSON.errMsg) {
+            if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
                 notify(xhr.responseJSON.errMsg, "error");
             } else {
                 notify("Server is unreachable", "error");
@@ -470,10 +497,11 @@ function runPipeline() {
     promise.done(function(data) {
         loading.hide();
         notify(data.message, "success");
+        $(".pipeline-state").removeClass("pipeline-off").addClass("pipeline-on");
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
-        if (xhr.responseJSON.errMsg) {
+        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
         } else {
             notify("Server is unreachable", "error");
@@ -505,10 +533,11 @@ function stopPipeline() {
     promise.done(function(data) {
         loading.hide();
         notify(data.message, "success");
+        $(".pipeline-state").removeClass("pipeline-on").addClass("pipeline-off");
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
-        if (xhr.responseJSON.errMsg) {
+        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
         } else {
             notify("Server is unreachable", "error");

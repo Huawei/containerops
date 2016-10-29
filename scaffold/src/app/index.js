@@ -43,6 +43,20 @@ $(".menu-history").on('click',function(){
 })
 // initActionLinkView();
 
+// sidebar nav control
+$(".nav-control").on("click",function(event){
+    var target = $(event.currentTarget);
+    if(target.hasClass("sidebar-close")){
+        target.removeClass("sidebar-close").addClass("sidebar-open");
+        target.removeClass("fa-chevron-circle-left").addClass("fa-chevron-circle-right");
+        $("body").removeClass("nav-static").addClass("nav-collapsed");
+    }else if(target.hasClass("sidebar-open")){
+        target.removeClass("sidebar-open").addClass("sidebar-close");
+        target.removeClass("fa-chevron-circle-right").addClass("fa-chevron-circle-left");
+        $("body").removeClass("nav-collapsed").addClass("nav-static");
+    }
+})
+
 function initActionLinkView() {
     actionLinkView.append("rect")
         .attr("x",10)

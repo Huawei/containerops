@@ -40,7 +40,7 @@ export function initComponentPage(){
     });
     promise.fail(function(xhr,status,error){
         loading.hide();
-        if(xhr.responseJSON.errMsg){
+        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg,"error");
         }else{
             notify("Server is unreachable","error");
@@ -125,7 +125,7 @@ function getComponentData(){
     });
     promise.fail(function(xhr,status,error){
         loading.hide();
-        if(xhr.responseJSON.errMsg){
+        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg,"error");
         }else{
             notify("Server is unreachable","error");
@@ -168,7 +168,7 @@ export function showNewComponent(fromPipeline){
                     });
                     promise.fail(function(xhr,status,error){
                         loading.hide();
-                        if(xhr.responseJSON.errMsg){
+                        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
                             notify(xhr.responseJSON.errMsg,"error");
                         }else{
                             notify("Server is unreachable","error");
@@ -269,7 +269,7 @@ function showNewComponentVersion(){
                     });
                     promise.fail(function(xhr,status,error){
                         loading.hide();
-                        if(xhr.responseJSON.errMsg){
+                        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
                             notify(xhr.responseJSON.errMsg,"error");
                         }else{
                             notify("Server is unreachable","error");
@@ -333,7 +333,7 @@ function saveComponentData(next){
         promise.fail(function(xhr,status,error){
             loading.hide();
             if(!next){
-                if(xhr.responseJSON.errMsg){
+                if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
                     notify(xhr.responseJSON.errMsg,"error");
                 }else{
                     notify("Server is unreachable","error");

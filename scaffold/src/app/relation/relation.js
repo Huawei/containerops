@@ -14,16 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export function initPipeline(fromNodes,toNodes,visibleFromNode,visibleToNode) {
+export function initPipeline(fromNodes,toNodes) {
         var result = [];
         
-        visibleFromNode.sort().reverse();
-        visibleToNode.sort().reverse();
+        // visibleFromNode.sort().reverse();
+        // visibleToNode.sort().reverse();
 
         for (var i = 0; i < fromNodes.length; i ++){
             var tempFromNode = [];
 
-            var relation = getPipelineMap(fromNodes[i],toNodes,visibleFromNode,visibleToNode);
+            var relation = getPipelineMap(fromNodes[i],toNodes);
             if (relation) {
                 tempFromNode = tempFromNode.concat(relation);
             }
@@ -42,7 +42,7 @@ export function addRelation(relation,needDel,fromPath,toPath,visibleFromNode,vis
     }
 
 
-    relation = relation.concat(calcPipelineInfo(fromPath,toPath,visibleFromNode,visibleToNode));
+    relation = relation.concat(calcPipelineInfo(fromPath,toPath));
 
 
     var _fromChildNode = [],
@@ -69,7 +69,7 @@ export function addRelation(relation,needDel,fromPath,toPath,visibleFromNode,vis
             
             if(_fromChildNode[i].replace(fromPath,"") == _toChildNode[j].replace(toPath,"")){
 
-               relation = relation.concat(calcPipelineInfo(_fromChildNode[i],_toChildNode[j],visibleFromNode,visibleToNode));
+               relation = relation.concat(calcPipelineInfo(_fromChildNode[i],_toChildNode[j]));
             }
         }
 
@@ -95,45 +95,45 @@ export function delRelation(relation,fromPath) {
 
 
 
-function calcPipelineInfo(fromPath,toPath,visibleFromNode,visibleToNode) {
+function calcPipelineInfo(fromPath,toPath) {
     var pipelineInfo = {};
-    for (var i = 0; i < visibleToNode.length; i ++ ) {
+    // for (var i = 0; i < visibleToNode.length; i ++ ) {
         
-        var regx = new RegExp('^' + visibleToNode[i]);
-        var rs = regx.exec(toPath);
-        if (rs) {
+    //     var regx = new RegExp('^' + visibleToNode[i]);
+    //     var rs = regx.exec(toPath);
+    //     if (rs) {
             pipelineInfo['to'] = toPath;
-            pipelineInfo['toShow'] = visibleToNode[i];
+    //         pipelineInfo['toShow'] = visibleToNode[i];
 
-            if (toPath== visibleToNode[i]) {
-                pipelineInfo["isToEqual"] = true;
-            }else {
-                pipelineInfo["isToEqual"] = false;
-            }
-            break;
-        }
-    }
+    //         if (toPath== visibleToNode[i]) {
+    //             pipelineInfo["isToEqual"] = true;
+    //         }else {
+    //             pipelineInfo["isToEqual"] = false;
+    //         }
+    //         break;
+    //     }
+    // }
 
-    for (var i = 0; i < visibleFromNode.length; i ++ ) {
-        var regx = new RegExp('^' + visibleFromNode[i]);
-        var rs = regx.exec(fromPath);
-        if (rs) {
+    // for (var i = 0; i < visibleFromNode.length; i ++ ) {
+    //     var regx = new RegExp('^' + visibleFromNode[i]);
+    //     var rs = regx.exec(fromPath);
+    //     if (rs) {
             pipelineInfo['from'] = fromPath;
-            pipelineInfo['fromShow'] = visibleFromNode[i];
-            if (fromPath == visibleFromNode[i]) {
-                pipelineInfo["isFromEqual"] = true;
-            }else {
-                pipelineInfo["isFromEqual"] = false;
-            }
-            break;
-        }
-    }
+    //         pipelineInfo['fromShow'] = visibleFromNode[i];
+    //         if (fromPath == visibleFromNode[i]) {
+    //             pipelineInfo["isFromEqual"] = true;
+    //         }else {
+    //             pipelineInfo["isFromEqual"] = false;
+    //         }
+    //         break;
+    //     }
+    // }
 
     return pipelineInfo;
 }
 
 
-function getPipelineMap(fromNode,toNodes,visibleFromNode,visibleToNode) {
+function getPipelineMap(fromNode,toNodes) {
     var resultMap = [];
 
     for (var i = 0; i < toNodes.length; i ++) {
@@ -141,16 +141,16 @@ function getPipelineMap(fromNode,toNodes,visibleFromNode,visibleToNode) {
         if (fromNode.key == toNodes[i].key && fromNode.type == toNodes[i].type){
             // 如果是对象,则匹配其所有子子节点
             if (fromNode.type == "object" && fromNode.childNode && toNodes[i].childNode) {
-                var pipelineInfo = calcPipelineInfo(fromNode.path,toNodes[i].path,visibleFromNode,visibleToNode);
+                var pipelineInfo = calcPipelineInfo(fromNode.path,toNodes[i].path);
                 resultMap = resultMap.concat(pipelineInfo);
 
                 for (var j = 0; j < fromNode.childNode.length; j ++) {
-                    var childResult = getPipelineMap(fromNode.childNode[j],toNodes[i].childNode,visibleFromNode,visibleToNode);
+                    var childResult = getPipelineMap(fromNode.childNode[j],toNodes[i].childNode);
                     resultMap = resultMap.concat(childResult);
                 }
 
             } else {
-                var pipelineInfo = calcPipelineInfo(fromNode.path,toNodes[i].path,visibleFromNode,visibleToNode);
+                var pipelineInfo = calcPipelineInfo(fromNode.path,toNodes[i].path);
                 resultMap = resultMap.concat(pipelineInfo);
                 break;
             }
@@ -187,7 +187,7 @@ function childNodeRelation(fromPath,toPath,visibleFromNode,visibleToNode){
     for(var i =0;i<_fromChildNode.length;i++){
         for(var j =0;j<_toChildNode.length;j++){
             if(_fromChildNode[i] == _toChildNode[j]){
-               _relation = _relation.concat(calcPipelineInfo(_fromChildNode[i],_toChildNode[j],visibleFromNode,visibleToNode));
+               _relation = _relation.concat(calcPipelineInfo(_fromChildNode[i],_toChildNode[j]));
             }
         }
 

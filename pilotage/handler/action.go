@@ -350,3 +350,32 @@ func PutDeleteActionV1Handle(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 	return http.StatusOK, result
 }
+
+func GetActionHistoryInfoV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{"message": ""})
+
+	actionLogIdStr := ctx.Query("actionLogId")
+
+	if actionLogIdStr == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "request action log id can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	actionLogIdStr = strings.TrimPrefix(actionLogIdStr, "a-")
+	actionLogId, err := strconv.ParseInt(actionLogIdStr, 10, 64)
+
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "action log id is illegal"})
+		return http.StatusBadRequest, result
+	}
+
+	resultMap, err := module.GetActionHistoryInfo(actionLogId)
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	result, _ = json.Marshal(map[string]interface{}{"result": resultMap})
+
+	return http.StatusOK, result
+}

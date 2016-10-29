@@ -170,8 +170,8 @@ var metadata = {
       "containers": [
         {
           "resources": {
-            "limits":{"cpu": 4.0, "memory": "99Mi"},
-            "requests":{"cpu": 4.0, "memory": "99Mi"}
+            "limits":{"cpu": 2.0, "memory": "1024Mi"},
+            "requests":{"cpu": 1.0, "memory": "128Mi"}
           }
         }
       ]
