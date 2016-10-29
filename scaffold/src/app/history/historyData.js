@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright 2014 Huawei Technologies Co., Ltd. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-export let loading = {
-	"show" : function (){
-		$(".loading").removeClass("hide");
-	},
-	"hide" : function(){
-		$(".loading").addClass("hide");
-	}
+import {historyApi} from "../common/api";
+
+export function sequenceData(pipelineName,pipelineRunSequenceID){
+    return historyApi.sequenceData(pipelineName,pipelineRunSequenceID);
 }
+
