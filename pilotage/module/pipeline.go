@@ -1332,26 +1332,23 @@ func saveStageByStageDefine(stageDefine map[string]interface{}, pipelineInfo mod
 	} else if stageDefineType == PIPELINE_STAGE_TYPE_RUN {
 		setupData, ok := stageDefine["setupData"]
 		if ok {
-			setupDataMap, ok := setupData.(map[string]interface{})
-			if !ok {
-				return 0, "", nil, errors.New("stage's setupData is not a json")
-			}
-			defineName, ok := setupDataMap["name"]
-			if ok {
-				defineNameStr, ok := defineName.(string)
-				if !ok {
-					return 0, "", nil, errors.New("stage's name is not a string")
+			if setupDataMap, ok := setupData.(map[string]interface{}); ok {
+				defineName, ok := setupDataMap["name"]
+				if ok {
+					defineNameStr, ok := defineName.(string)
+					if !ok {
+						defineNameStr = ""
+					}
+					stageName = defineNameStr
 				}
 
-				stageName = defineNameStr
-			}
-
-			defineTimeoutStr, ok := setupDataMap["timeout"].(string)
-			if ok {
-				var err error
-				timeout, err = strconv.ParseInt(defineTimeoutStr, 10, 64)
-				if err != nil {
-					return 0, "", nil, errors.New("stage's timeout is not a string")
+				defineTimeoutStr, ok := setupDataMap["timeout"].(string)
+				if ok {
+					var err error
+					timeout, err = strconv.ParseInt(defineTimeoutStr, 10, 64)
+					if err != nil {
+						timeout = 0
+					}
 				}
 			}
 		}
@@ -1432,9 +1429,6 @@ func updatePipelineSourceInfo(stageSetupDataMap map[string]interface{}, pipeline
 	tempSourceMap["headerKey"] = headerKey
 
 	sourceList := make([]interface{}, 0)
-	// if _, ok := sourceMap["sourceList"].([]interface{}); ok {
-	// 	sourceList = sourceMap["sourceList"].([]interface{})
-	// }
 
 	sourceList = append(sourceList, tempSourceMap)
 
