@@ -337,7 +337,7 @@ func UpdateComponentInfo(componentInfo models.Component) error {
 		}
 	}
 
-	return componentInfo.GetComponent().Save(componentInfo).Error
+	return componentInfo.GetComponent().Save(&componentInfo).Error
 }
 
 type kubeComponent struct {
@@ -567,8 +567,6 @@ func (kube *kubeComponent) getPodInfo(id, serviceAddr string, eventList []models
 }
 
 func (kube *kubeComponent) startService(id, podName string) (string, error) {
-	serviceAddr := ""
-
 	reqMap := kube.serviceConfig
 	if len(reqMap) == 0 {
 		// if don't have a service config ,will not start a service,start a port directly
@@ -710,6 +708,9 @@ func (kube *kubeComponent) startService(id, podName string) (string, error) {
 		return "", errors.New("error when read create service resp:, service has not set a port！")
 	}
 
+	portsStr := ""
+	listenPortStr := ""
+
 	for _, port := range respPorts {
 		portF, ok := port["nodePort"].(float64)
 		if !ok {
@@ -722,10 +723,13 @@ func (kube *kubeComponent) startService(id, podName string) (string, error) {
 			return "", errors.New("error when parse create service resp: targetPort is not a number!")
 		}
 
-		listenPortStr := strconv.FormatFloat(listenPort, 'f', 0, 64)
+		listenPortStr = strconv.FormatFloat(listenPort, 'f', 0, 64)
 
-		serviceAddr += "," + clusterIp + ":" + portStr + ":" + listenPortStr
+		portsStr += "," + portStr
 	}
+	portsStr = strings.TrimPrefix(portsStr, ",")
+
+	serviceAddr := clusterIp + ":" + portsStr + ":" + listenPortStr
 
 	return strings.TrimPrefix(serviceAddr, ","), nil
 }
