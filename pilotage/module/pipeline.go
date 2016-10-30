@@ -402,6 +402,20 @@ func handleStage(pipelineInfo models.PipelineLog, stageInfo models.StageLog, pip
 		go waitAllActionFinish(actionList, pipelineSequence, actionResultChan)
 		select {
 		case <-time.After(stageTimeoutDuration):
+			finalOutcome := new(models.Outcome)
+
+			finalOutcome.Pipeline = pipelineInfo.ID
+			finalOutcome.RealPipeline = pipelineInfo.FromPipeline
+			finalOutcome.Stage = stageInfo.ID
+			finalOutcome.RealStage = stageInfo.FromStage
+			finalOutcome.Action = -1
+			finalOutcome.RealAction = -1
+			finalOutcome.Sequence = pipelineSequence
+			finalOutcome.Status = false
+			finalOutcome.Result = "stage has a timeout ,auto stop ..."
+
+			finalOutcome.GetOutcome().Save(finalOutcome)
+
 			log.Error("stage " + stageInfo.Stage + " has a timeout ,stop ...")
 			stopStage(actionList, pipelineInfo, stageInfo, pipelineSequence)
 			return
@@ -582,7 +596,6 @@ func startService(pipelineInfo models.PipelineLog, stageInfo models.StageLog, ac
 
 // TODO : stop a service
 func stopService(pipelineInfo models.PipelineLog, stageInfo models.StageLog, actionInfo models.ActionLog, pipelineSequence int64) {
-
 }
 
 // TODO: need modify to ETCD or Redis to reduce DB IO
@@ -692,14 +705,16 @@ func SendDataToAction(runId, targetUrl, podName string) {
 		}
 	}
 
-	if len(dataMap) == 0 {
-		return
-	}
+	var dataByte []byte
 
-	dataByte, err := json.Marshal(dataMap)
-	if err != nil {
-		log.Error("error when marshal dataMap from action:"+err.Error(), ", data map:", dataMap)
-		return
+	if len(dataMap) == 0 {
+		dataByte = make([]byte, 0)
+	} else {
+		dataByte, err = json.Marshal(dataMap)
+		if err != nil {
+			log.Error("error when marshal dataMap from action:"+err.Error(), ", data map:", dataMap)
+			return
+		}
 	}
 
 	// send data to component or service
@@ -779,24 +794,34 @@ func merageFromActionsOutputData(pipelineId, stageId, actionId, pipelineSequence
 		}
 
 		relationList := make([]Relation, 0)
-		for _, realationDefines := range relationArray {
-			realationDefine := realationDefines.([]interface{})[0]
-			fmt.Println("===================================================")
-			fmt.Println("relationList", realationDefine)
-			fmt.Println("===================================================")
-			relationByte, err := json.Marshal(realationDefine.(map[string]interface{}))
-			if err != nil {
-				return nil, errors.New("error when marshal relation array:" + err.Error())
-			}
+		if len(relationArray) > 0 {
+			for _, realationDefines := range relationArray {
+				realationDefinesList, ok := realationDefines.([]interface{})
+				if !ok || len(realationDefinesList) < 1 {
+					// return nuil, errors.New("error to get relation Array")
+					log.Error("error to get relation Array")
+					continue
+				}
 
-			var r Relation
-			err = json.Unmarshal(relationByte, &r)
-			if err != nil {
-				return nil, errors.New("error when parse relation info:" + err.Error())
-			}
+				realationDefine := realationDefines.([]interface{})[0]
+				fmt.Println("===================================================")
+				fmt.Println("relationList", realationDefine)
+				fmt.Println("===================================================")
+				relationByte, err := json.Marshal(realationDefine.(map[string]interface{}))
+				if err != nil {
+					return nil, errors.New("error when marshal relation array:" + err.Error())
+				}
 
-			relationList = append(relationList, r)
+				var r Relation
+				err = json.Unmarshal(relationByte, &r)
+				if err != nil {
+					return nil, errors.New("error when parse relation info:" + err.Error())
+				}
+
+				relationList = append(relationList, r)
+			}
 		}
+
 		actionResult := make(map[string]interface{})
 		err = getResultFromRelation(fromOutcome.Output, relationList, actionResult)
 
@@ -919,12 +944,22 @@ func sendDataToComponent(pipelineId, stageId, actionId, pipelineSequence, compon
 		return nil, err
 	}
 
+	urls := make([]string, 0)
+	ports := strings.Split(strings.Split(targetUrl, "/")[0], ",")
+	router := strings.TrimPrefix(targetUrl, strings.Join(ports, ","))
+
+	for i := 0; i < len(ports); i++ {
+		url := "http://" + ip + ports[i] + router
+		urls = append(urls, url)
+	}
+
 	fmt.Println("===========================================================")
 	fmt.Println("===========================================================")
 	fmt.Println("===========================================================")
 	fmt.Println("===========================================================")
 	fmt.Println("http://" + ip + targetUrl)
 	fmt.Println(string(data))
+	fmt.Println(urls)
 	fmt.Println("===========================================================")
 	fmt.Println("===========================================================")
 	fmt.Println("===========================================================")
@@ -933,22 +968,30 @@ func sendDataToComponent(pipelineId, stageId, actionId, pipelineSequence, compon
 	fmt.Println("===========================================================")
 
 	isSend := false
-	count := 0
+
 	var sendResp *http.Response
-	for !isSend && count < 10 {
-		sendResp, err = http.Post("http://"+ip+targetUrl, "application/json", bytes.NewReader(data))
-		if err == nil {
-			isSend = true
-			break
+	for _, url := range urls {
+		count := 0
+		for !isSend && count < 10 {
+			if len(data) > 0 {
+				sendResp, err = http.Post(url, "application/json", bytes.NewReader(data))
+			} else {
+				sendResp, err = http.Post(url, "application/json", nil)
+			}
+			if err == nil {
+				isSend = true
+				break
+			}
+			count++
+			// wait some time and send again
+			time.Sleep(2 * time.Second)
 		}
-		count++
-		// wait some time and send again
-		time.Sleep(2 * time.Second)
 	}
 
 	if !isSend {
 		return nil, errors.New("error when send data to component:" + err.Error())
 	}
+
 	return sendResp, nil
 }
 
@@ -1749,7 +1792,21 @@ func GetPipelineHistoriesList(namespace string) ([]map[string]interface{}, error
 	resultList := make([]map[string]interface{}, 0)
 	pipelinesMap := make(map[int64]interface{})
 	pipelineList := make([]models.Pipeline, 0)
-	new(models.Pipeline).GetPipeline().Where("namespace = ?", namespace).Find(&pipelineList)
+	// new(models.Pipeline).GetPipeline().Where("namespace = ?", namespace).Find(&pipelineList)
+	pipelineLogList := make([]models.PipelineLog, 0)
+	new(models.PipelineLog).GetPipelineLog().Order("-id").Find(&pipelineLogList)
+	pipelineIdMap := make(map[int64]bool)
+
+	for _, pipelineLog := range pipelineLogList {
+		if _, ok := pipelineIdMap[pipelineLog.FromPipeline]; ok {
+			continue
+		}
+
+		pipelineInfo := new(models.Pipeline)
+		pipelineInfo.GetPipeline().Where("id = ?", pipelineLog.FromPipeline).First(&pipelineInfo)
+		pipelineList = append(pipelineList, *pipelineInfo)
+		pipelineIdMap[pipelineLog.FromPipeline] = true
+	}
 
 	for _, pipelineInfo := range pipelineList {
 		if _, ok := pipelinesMap[pipelineInfo.ID]; !ok {
@@ -1767,7 +1824,8 @@ func GetPipelineHistoriesList(namespace string) ([]map[string]interface{}, error
 		pipelineMap["versionsMap"] = versionMap
 	}
 
-	for _, pipeline := range pipelinesMap {
+	for _, info := range pipelineList {
+		pipeline := pipelinesMap[info.ID]
 		pipelineMap := pipeline.(map[string]interface{})
 		tempPipelineMap := make(map[string]interface{})
 		versionList := make([]map[string]interface{}, 0)
@@ -1778,7 +1836,7 @@ func GetPipelineHistoriesList(namespace string) ([]map[string]interface{}, error
 				pipelineVersionInfo := version.(models.Pipeline)
 				// 获取version所有运行信息
 				startSequenceList := make([]models.Outcome, 0)
-				new(models.Outcome).GetOutcome().Where("real_pipeline = ?", pipelineVersionInfo.ID).Where("action = ?", 0).Find(&startSequenceList)
+				new(models.Outcome).GetOutcome().Where("real_pipeline = ?", pipelineVersionInfo.ID).Where("action = ?", 0).Order("-id").Find(&startSequenceList)
 
 				sequencesMap := make([]map[string]interface{}, 0)
 				successNum := int64(0)
@@ -1892,7 +1950,7 @@ func GetPipelineDefineByRunSequence(sequenceId int64) (map[string]interface{}, e
 			actionOutput := new(models.Outcome)
 			actionOutput.GetOutcome().Where("action = ?", action.ID).First(actionOutput)
 
-			if actionOutput.ID == 0 && !actionOutput.Status {
+			if actionOutput.ID == 0 || !actionOutput.Status {
 				actionStatus = false
 				stagetStatus = false
 			}
