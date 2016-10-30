@@ -41,7 +41,7 @@ function showComponentEnvKVs(){
                                 +'Value'
                             +'</label>'
                             +'<div class="col-sm-7" data-index="' + index + '">' 
-                                +'<input type="text" class="form-control c-env-value" required value=' + item.value + '>'
+                                +'<input type="text" class="form-control c-env-value" required>'
                             +'</div>'
                         +'</div>'
                     +'</div>'
@@ -49,6 +49,7 @@ function showComponentEnvKVs(){
                         +'<span class="glyphicon glyphicon-remove"></span>'
                     +'</div></div>';
         $("#component-envs").append(row);
+        $("#component-envs").find("div[data-index="+index+"]").find(".c-env-value").val(item.value);
     });
     
     var addrow = `<button type="button" class="btn btn-success c-new-kv">
