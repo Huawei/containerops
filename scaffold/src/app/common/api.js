@@ -34,7 +34,12 @@ let apiUrlConf = {
 		"save" : "/pipeline/v1/demo/component/{componentName}"
 	},
 	"history" : {
-		"sequenceData" : "/pipeline/v1/demo/demo/{pipelineName}/historyDefine?sequenceId={pipelineSequenceID}"
+		"sequenceList" : "/pipeline/v1/demo/demo/histories",
+		// "sequenceData" : "/pipeline/v1/demo/demo/{pipelineName}/historyDefine?sequenceId={pipelineSequenceID}",
+		// https://test-1.containerops.sh/pipeline/v1/demo/demo/histories
+		"sequenceData" : ":8080/pipelineInfo?id={pipelineRunSequenceID}",
+		"host" : "http://localhost"
+		// "sequenceEventShow" : ""
 	}
 }
 
@@ -177,14 +182,23 @@ export let componentApi = {
 
 // history
 export let historyApi = {
-	// "sequenceData" : function(pipelineName,pipelineRunSequenceID){
-	"sequenceData" : function(pipelineName,pipelineRunSequenceID){
+	"sequenceData" : function(pipelineRunSequenceID){
 		var promise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.history.sequenceData.replace(/{pipelineName}/g, pipelineName).replace(/{pipelineSequenceID}/g, pipelineRunSequenceID),
+	        "url": apiUrlConf.history.host + apiUrlConf.history.sequenceData.replace(/{pipelineRunSequenceID}/g, pipelineRunSequenceID) ,
+	        // "url": apiUrlConf.host + apiUrlConf.history.sequenceData.replace(/{pipelineName}/g, pipelineName).replace(/{pipelineSequenceID}/g, pipelineRunSequenceID),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
 	    });
 	    return promise;
+	},
+	"sequenceList" : function () {
+		var promise = $.ajax({
+			"url" : apiUrlConf.host + apiUrlConf.history.sequenceList,
+			"type" : "GET",
+			"dataType" : "json",
+			"cache": false
+		});
+		return promise;
 	}
 }
