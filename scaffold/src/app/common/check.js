@@ -62,6 +62,10 @@ function checkPipelineStage(data,index){
         completeness = false;
     }
 
+    if(!completeness){
+        return completeness;
+    }
+    
     for(var i=0;i<data.actions.length;i++){
         var item = data.actions[i];
         completeness = checkPipelineAction(item,index,i);
