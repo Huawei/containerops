@@ -35,7 +35,7 @@ export function editLine(editPage, currentLine) {
     var currentLineData = _.find(constant.linePathAry, function(line) {
         return id == line.id;
     })
-
+    
     lineInputJSON = currentLineData.startData.outputJson;
     lineOutputJSON = currentLineData.endData.inputJson;
     if (_.isEmpty(lineInputJSON)) {
@@ -54,7 +54,12 @@ export function editLine(editPage, currentLine) {
             return id == line.id;
         })
 
-        currentLineData.startData = getAction(currentLineData.startData.id);
+        if(currentLineData.startData.id == "start-stage"){
+            currentLineData.startData =pipelineData[0];
+        }else{
+            currentLineData.startData = getAction(currentLineData.startData.id);
+        }
+        
         currentLineData.endData = getAction(currentLineData.endData.id);
         lineInputJSON = currentLineData.startData.outputJson;
         lineOutputJSON = currentLineData.endData.inputJson; 
