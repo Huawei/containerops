@@ -1,49 +1,34 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Scaffold</title>
-    <link rel="stylesheet">
-
-    <link rel="shortcut icon" href="img/favicon.png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    
-</head>
-<body>
-
-<div class="item item-header">
-	<div class="item_name" data-id="th">PIPELINE NAME</div>
-	<div class="item_version" data-id="th">VERSION</div>
-	<div class="item_state" data-id="th">STATE</div>
-	<div class="item_opt" data-id="th">DETAIL</div>
+<div id="historyPipelinelist" class="row hidden-div">
+		<div class="col-lg-12">
+				<section class="widget">
+						<div class="widget-body">
+								<div>
+										<div class="state-desc">
+												<div class="state-icon-desc state-fail"></div>
+												<span class="state-label-desc">Fail To Run</span>
+										</div>
+										<div class="state-desc">
+												<div class="state-icon-desc state-success"></div>
+												<span class="state-label-desc">Succeed To Run</span>
+										</div>
+										<div class="state-desc">
+												<div class="state-icon-desc state-norun"></div>
+												<span class="state-label-desc">Not Run Yet</span>
+										</div>
+										<table class="table">
+												<thead>
+													<tr>
+														<th>Pipeline Name</th>
+														<th>Version</th>
+														<th>State</th>
+														<th>Operation</th>
+													</tr>
+												</thead>
+												<tbody class="pipelinelist_body">
+												</tbody>
+										</table>
+								</div>
+						</div>
+				</section>
+		</div>
 </div>
-
-<div class="item item-body">
-	<div class="item_name">
-		<i class="icon_open glyphicon glyphicon-menu-down"></i>
-		<span>pipelineName</span>
-	</div>
-	<div class="item_version">
-		<i class="icon_open glyphicon glyphicon-menu-down"></i>
-		<span>versionName</span>
-	</div>
-
-	<div class="item_state">
-		<i class="state_icon icon_suc"></i>
-		<span>2016-10-12 12:00:20</span>
-	</div>
-	<div class="item_state">
-		Success:2 Total:3
-	</div>
-
-	<div class="item_opt">
-		<button type="button" class="btn btn_detail"></button>
-	</div>
-</div>	
-</body>
-<script>
-	
-</script>
