@@ -3,7 +3,9 @@ Copyright 2014 Huawei Technologies Co., Ltd. All rights reserved.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
+
     http://www.apache.org/licenses/LICENSE-2.0
+    
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,26 +16,30 @@ limitations under the License.
 import { loading } from "../common/loading";
 import * as constant  from "../common/constant";
 import * as historyDataService from "./historyData";
+import * as historyListDataService from "./historyList";
 import { setPath } from "../relation/setPath";
-import * as util from "../common/util";
+// import * as util from "../common/util";
 
-let pipelineSequenceRunStatus;
 
 export function initHistoryPage() {
     loading.show();
-    var promise = historyDataService.sequenceData( "python", 9 );
+    // var promise = historyDataService.sequenceData( "python", 9 );
+    var promise = historyDataService.sequenceData("success");
     promise.done(function(data) {
         loading.hide();
-        pipelineSequenceRunStatus = data.define.status;
+                    console.log("initHistoryPage===",data)
         constant.sequenceRunData = data.define.stageList;
         constant.sequenceLinePathArray = data.define.lineList;
+        
         if (constant.sequenceRunData.length > 0) {
             initSequenceView();
+        
         } else {
             notify("Server is unreachable", "error");
         }
     });
     promise.fail(function(xhr, status, error) {
+        console.log(111)
         loading.hide();
         if (xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
@@ -41,6 +47,7 @@ export function initHistoryPage() {
             notify("Server is unreachable", "error");
         }
     });
+
 }
 
 function initSequenceView() {
@@ -51,8 +58,11 @@ function initSequenceView() {
         success: function(data) {
             $("#main").html($(data));
             $("#historyView").show("slow");
+             historyListDataService.initHistoryList();
+            // $("#history-pipeline-list").html("<div style='background:#900; width:500px;height:500px;'>list box area</div>")
 
-            let $div = $("#div-d3-main-svg").height($("main").height() * 2 / 3);
+            let $div = $("#div-d3-main-svg").height($("main").height() * 3 / 7);
+            // let zoom = d3.behavior.zoom().on("zoom", zoomed);
 
             constant.setSvgWidth("100%");
             constant.setSvgHeight($div.height());
@@ -102,13 +112,14 @@ function initSequenceView() {
 
             // $("#selected_pipelineHistory").text(pipelineName + " / " + pipelineVersion);
 
-            showSequenceView(constant.sequenceRunData,pipelineSequenceRunStatus);
+           showSequenceView(constant.sequenceRunData);
+            // showSequenceList(constant.sequenceRunData);
             // drawPipeline();
         }
     });
 }
 
-function showSequenceView(pipelineSequenceData,pipelineSequenceRunStatus) {
+function showSequenceView(pipelineSequenceData) {
     constant.sequencePipelineView.selectAll("image").remove();
     constant.sequencePipelineView.selectAll("image")
         .data(pipelineSequenceData)
@@ -263,7 +274,7 @@ function initSequenceStageLine() {
 
         /* draw the main line of pipeline */
         if (i != 0) {
-            if (pipelineSequenceRunStatus == true ){
+            if (d.status == true ){
                 constant.sequenceLineView[sequencePipelineLineViewId]
                     .append("path")
                     .attr("d", function() {
@@ -684,7 +695,7 @@ function getPathData(startPoint, endPoint) {
     return "M" + x0 + "," + y0 + "C" + x2 + "," + y0 + " " + x3 + "," + y1 + " " + x1 + "," + y1;
 }
 
- function historyChangeCurrentElement(previousData) {
+function historyChangeCurrentElement(previousData) {
     if (previousData != null) {
 
         if( previousData.status == true || previousData.type == "line") {
