@@ -1838,23 +1838,49 @@ func GetPipelineHistoriesList(namespace string) ([]map[string]interface{}, error
 				startSequenceList := make([]models.Outcome, 0)
 				new(models.Outcome).GetOutcome().Where("real_pipeline = ?", pipelineVersionInfo.ID).Where("action = ?", 0).Order("-id").Find(&startSequenceList)
 
+				endStage := new(models.Stage)
+				actionList := make([]models.Action, 0)
+				actionIds := make([]string, 0)
+				if len(startSequenceList) > 0 {
+					endStage.GetStage().Where("pipeline = ?", pipelineVersionInfo.ID).Where("type = ?", models.StageTypeRun).Order("-id").First(&endStage)
+
+					new(models.Action).GetAction().Where("stage = ?", endStage.ID).Find(&actionList)
+
+					for _, action := range actionList {
+						actionIds = append(actionIds, strconv.FormatInt(action.ID, 10))
+					}
+				}
+
 				sequencesMap := make([]map[string]interface{}, 0)
 				successNum := int64(0)
 				sumNum := int64(0)
 				for _, outcome := range startSequenceList {
 					sumNum++
-					resultOutcome := new(models.Outcome)
-					resultOutcome.GetOutcome().Where("pipeline = ?", outcome.Pipeline).Where("sequence = ?", outcome.Sequence).Where("real_action = ?", -1).First(resultOutcome)
+					// resultOutcome := new(models.Outcome)
+					// resultOutcome.GetOutcome().Where("pipeline = ?", outcome.Pipeline).Where("sequence = ?", outcome.Sequence).Where("real_action = ?", -1).First(resultOutcome)
+
+					allActionOutcome := make([]models.Outcome, 0)
+					new(models.Outcome).GetOutcome().Where("real_action in (?)", actionIds).Where("sequence = ?", outcome.Sequence).Find(&allActionOutcome)
+					status := true
+					if len(allActionOutcome) < len(actionIds) {
+						status = false
+					} else {
+						for _, outcome := range allActionOutcome {
+							if !outcome.Status {
+								status = false
+								break
+							}
+						}
+					}
 
 					tempMap := make(map[string]interface{})
 					tempMap["pipelineSequenceID"] = outcome.ID
 					tempMap["sequence"] = outcome.Sequence
-					tempMap["status"] = false
+					tempMap["status"] = status
 					tempMap["time"] = outcome.CreatedAt.Format("2006-01-02 15:04:05")
 
-					if resultOutcome.ID != 0 && resultOutcome.Status {
+					if status {
 						successNum++
-						tempMap["status"] = resultOutcome.Status
 					}
 
 					sequencesMap = append(sequencesMap, tempMap)
