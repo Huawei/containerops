@@ -16,11 +16,11 @@ limitations under the License.
 import { loading } from "../common/loading";
 import * as constant  from "../common/constant";
 import * as historyDataService from "./historyData";
-import * as historyListDataService from "./historyList";
 import { setPath } from "../relation/setPath";
-
+import { notify } from "../common/notify";
 
 export function initHistoryPage() {
+    
     loading.show();
     var promise = historyDataService.sequenceList();
     promise.done(function(data) {
@@ -190,6 +190,7 @@ function initSequenceView(selected_history) {
         type: "GET",
         cache: false,
         success: function(data) {
+            let zoom = d3.behavior.zoom().on("zoom", zoomed);
             $("#main").html($(data));
             $("#historyView").show("slow");
 
@@ -215,8 +216,8 @@ function initSequenceView(selected_history) {
                 .attr("height", constant.svgHeight)
                 .style("fill", "white");
 
-            let g = svg.append("g");
-                // .call(zoom)
+            let g = svg.append("g")
+                .call(zoom);
                 // .on("dblclick.zoom", null);
 
             let svgMainRect = g.append("rect")
@@ -339,6 +340,7 @@ function showSequenceView(pipelineSequenceData) {
         // })
         .on("click", function(d, i) {
             // constant.pipelineView.selectAll("#pipeline-element-popup").remove();
+            notify("click stage now");
             if (d.status == true){
 
                 if (d.type == constant.PIPELINE_STAGE) {
@@ -384,8 +386,8 @@ function showSequenceView(pipelineSequenceData) {
         })
         .on("mouseover", function(d, i) {
             if (d.type == constant.PIPELINE_STAGE || d.type == constant.PIPELINE_START) {
-                d3.select(this)
-                    .style("cursor", "pointer");
+                // d3.select(this)
+                //     .style("cursor", "pointer");
                 // initButton.showToolTip(i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX, constant.pipelineNodeStartY + constant.svgStageHeight, "Click to Edit", "pipeline-element-popup", constant.pipelineView);
 
             }
@@ -467,7 +469,7 @@ function initSequenceStageLine() {
                 .attr("fill", "#fff")
                 .attr("stroke", "#1F6D84")
                 .attr("stroke-width", 2)
-                .style("cursor","pointer")
+                // .style("cursor","pointer")
                 /* mouse over the circle show relevant lines of start stage */
                 .on("mouseover", function(cd, ci) {
                     // mouseoverRelevantPipeline(d);
@@ -566,7 +568,13 @@ function initSequenceActionByStage() {
 
                     return "translate(" + ad.translateX + "," + ad.translateY + ")";
                 })
+                .style("cursor","pointer")
                 .on("click", function(ad, ai) {
+                    notify("click action now");
+                    // console.log(d);
+                    notify("stage name:" + d.setupData.name);
+                    notify("action name: " + ad.setupData.name);
+                    notify("action id: " + ad.id);
                     if( ad.status == true ){
                         // clickAction(ad, ai);
                         historyChangeCurrentElement(constant.currentSelectedItem);
@@ -772,7 +780,6 @@ function initSequencePath() {
 function setSequencePath(options) {
     var fromDom = $("#" + options.startData.id)[0].__data__;
     var toDom = $("#" + options.endData.id)[0].__data__;
-
     /* line start point(x,y) is the circle(x,y) */
     var startPoint = {},
         endPoint = {};
@@ -804,6 +811,9 @@ function setSequencePath(options) {
         .style("cursor", "pointer")
         .on("click", function(d) {
             // this.parentNode.appendChild(this); // make this line to front layer
+            notify("click line now");
+            notify("start node id: " + options.startData.id);
+            notify("end node id: " + options.endData.id);
             var self = $(this);
             historyChangeCurrentElement(constant.currentSelectedItem);
             constant.setCurrentSelectedItem({ "data": self, "type": "line"});
@@ -877,4 +887,13 @@ function historyChangeCurrentElement(previousData) {
             }
         }
     }
+}
+function zoomed() {
+    constant.sequencePipelineView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+    constant.sequenceActionsView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+    // buttonView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+    constant.sequenceLinesView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")")
+    .attr("translateX", d3.event.translate[0])
+    .attr("translateY", d3.event.translate[1])
+    .attr("scale", d3.event.scale);
 }
