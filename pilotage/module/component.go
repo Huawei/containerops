@@ -616,10 +616,13 @@ func (kube *kubeComponent) startService(id, podName string) (string, error) {
 			return "", errors.New("component's kube config error, container info in ports is not a array")
 		}
 
-		for _, port := range tPorts {
+		for i, port := range tPorts {
 			tempPort, ok := port.(map[string]interface{})
 			if !ok {
 				return "", errors.New("component's kube config error, container info in ports is not a json")
+			}
+			if _, ok := tempPort["name"]; !ok {
+				tempPort["name"] = "port-" + strconv.FormatInt(int64(i), 10)
 			}
 
 			ports = append(ports, tempPort)
