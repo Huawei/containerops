@@ -22,6 +22,7 @@ import {historyApi} from "../common/api";
 
 
 export function sequenceData(pipelineName,pipelineRunSequenceID){
+		
     return historyApi.sequenceData(pipelineName,pipelineRunSequenceID);
 }
 
