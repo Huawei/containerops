@@ -35,7 +35,9 @@ let apiUrlConf = {
 	},
 	"history" : {
 		"sequenceList" : "/pipeline/v1/demo/demo/histories",
-		"sequenceData" : "/pipeline/v1/demo/demo/{pipelineName}/historyDefine?versionId={versionID}&sequenceId={pipelineSequenceID}"
+		"sequenceData" : "/pipeline/v1/demo/demo/{pipelineName}/historyDefine?versionId={versionID}&sequenceId={pipelineSequenceID}",
+		"action" : "/pipeline/v1/demo/demo/{pipelineName}/stage/{stageName}/{actionName}/history?actionLogId={actionLogID}",
+		"relation" : "/pipeline/v1/demo/demo/{pipelineName}/{pipelineSequenceID}/lineHistory?startActionId={startActionId}&endActionId={endActionId}"
 	}
 }
 
@@ -180,7 +182,6 @@ export let componentApi = {
 export let historyApi = {
 	"sequenceData" : function(pipelineName,versionID,pipelineRunSequenceID){
 		var promise = $.ajax({
-	        // "url": apiUrlConf.history.host + apiUrlConf.history.sequenceData.replace(/{pipelineRunSequenceID}/g, pipelineRunSequenceID) ,
 	        "url": apiUrlConf.host + apiUrlConf.history.sequenceData.replace(/{pipelineName}/g, pipelineName).replace(/{versionID}/g, versionID).replace(/{pipelineSequenceID}/g, pipelineRunSequenceID),
 	        "type": "GET",
 	        "dataType": "json",
@@ -196,5 +197,23 @@ export let historyApi = {
 			"cache": false
 		});
 		return promise;
+	},
+	"action" : function(pipelineName,stageName,actionName,actionLogID){
+		var promise = $.ajax({
+	        "url": apiUrlConf.host + apiUrlConf.history.action.replace(/{pipelineName}/g, pipelineName).replace(/{stageName}/g, stageName).replace(/{actionName}/g, actionName).replace(/{actionLogID}/g, actionLogID),
+	        "type": "GET",
+	        "dataType": "json",
+	        "cache": false
+	    });
+	    return promise;
+	},
+	"relation" : function(pipelineName,pipelineSequenceID,startActionId,endActionId){
+		var promise = $.ajax({
+	        "url": apiUrlConf.host + apiUrlConf.history.relation.replace(/{pipelineName}/g, pipelineName).replace(/{pipelineSequenceID}/g, pipelineSequenceID).replace(/{startActionId}/g, startActionId).replace(/{endActionId}/g, endActionId),
+	        "type": "GET",
+	        "dataType": "json",
+	        "cache": false
+	    });
+	    return promise;
 	}
 }
