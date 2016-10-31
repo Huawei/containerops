@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
- 
+
 import * as constant from "../common/constant";
 import * as util from "../common/util";
 
@@ -49,15 +49,15 @@ export function initPipeline() {
         .append("image")
         .attr("xlink:href", function(d, i) {
             if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "stage" && constant.currentSelectedItem.data.id == d.id) {
-                    if (d.type == constant.PIPELINE_START) {
-                        return "../../assets/svg/start-selected-latest.svg";
-                    } else if (d.type == constant.PIPELINE_ADD_STAGE) {
-                        return "../../assets/svg/add-stage-selected-latest.svg";
-                    } else if (d.type == constant.PIPELINE_END) {
-                        return "../../assets/svg/end-latest.svg";
-                    } else if (d.type == constant.PIPELINE_STAGE) {
-                        return "../../assets/svg/stage-selected-latest.svg";
-                    }
+                if (d.type == constant.PIPELINE_START) {
+                    return "../../assets/svg/start-selected-latest.svg";
+                } else if (d.type == constant.PIPELINE_ADD_STAGE) {
+                    return "../../assets/svg/add-stage-selected-latest.svg";
+                } else if (d.type == constant.PIPELINE_END) {
+                    return "../../assets/svg/end-latest.svg";
+                } else if (d.type == constant.PIPELINE_STAGE) {
+                    return "../../assets/svg/stage-selected-latest.svg";
+                }
 
             } else {
                 if (d.type == constant.PIPELINE_START) {
@@ -105,6 +105,7 @@ export function initPipeline() {
                 return constant.PIPELINE_STAGE;
             }
         })
+        .style("cursor", "pointer")
         .on("click", function(d, i) {
             constant.pipelineView.selectAll("#pipeline-element-popup").remove();
             if (d.type == constant.PIPELINE_ADD_STAGE) {
@@ -150,9 +151,13 @@ export function initPipeline() {
                 initButton.showToolTip(i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX, constant.pipelineNodeStartY + constant.svgStageHeight, "Add Stage", "pipeline-element-popup", constant.pipelineView);
 
             } else if (d.type == constant.PIPELINE_STAGE || d.type == constant.PIPELINE_START) {
-                d3.select(this)
-                    .style("cursor", "pointer");
-                initButton.showToolTip(i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX, constant.pipelineNodeStartY + constant.svgStageHeight, "Click to Edit", "pipeline-element-popup", constant.pipelineView);
+                let text = "Click to Edit";
+                let width = null;
+                if (d.setupData && d.setupData.name && d.setupData.name != "") {
+                    text = d.setupData.name;
+                    width = text.length * 7 + 20;
+                }
+                initButton.showToolTip(i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX, constant.pipelineNodeStartY + constant.svgStageHeight, text, "pipeline-element-popup", constant.pipelineView,width);
 
             }
 

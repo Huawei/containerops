@@ -55,14 +55,14 @@ export function updateButtonGroup(currentItemType) {
     }
 }
 
-export function showToolTip(x, y, text, popupId, parentView) {
+export function showToolTip(x, y, text, popupId, parentView, width, height) {
     parentView
         .append("g")
         .attr("id", popupId);
     parentView.selectAll("#" + popupId)
         .append("rect")
-        .attr("width", constant.popupWidth)
-        .attr("height", constant.popupHeight)
+        .attr("width", width || constant.popupWidth)
+        .attr("height", height || constant.popupHeight)
         .attr("x", function(pd, pi) {
             return x;
         })

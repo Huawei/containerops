@@ -93,6 +93,7 @@ export function initAction() {
                 .attr("height", function(ad, ai) {
                     return constant.svgActionHeight;
                 })
+                .style("cursor", "pointer")
                 .attr("translateX", actionStartX)
                 .attr("translateY", function(ad, ai) {
                     /* draw difference distance between action and stage grouped by stage index */
@@ -128,11 +129,15 @@ export function initAction() {
                     constant.pipelineView.selectAll("#pipeline-element-popup").remove();
                 })
                 .on("mouseover", function(ad, ai) {
-                    d3.select(this)
-                        .style("cursor", "pointer");
                     var x = ad.translateX;
                     var y = ad.translateY + constant.svgActionHeight;
-                    initButton.showToolTip(x, y, "Click to Edit", "pipeline-element-popup", constant.pipelineView);
+                    let text = "Click to Edit";
+                    let width = null;
+                    if(ad.setupData && ad.setupData.action && ad.setupData.action.name && ad.setupData.action.name != ""){
+                       text = ad.setupData.action.name;
+                       width = text.length * 7 + 20;
+                    }
+                    initButton.showToolTip(x, y, text, "pipeline-element-popup", constant.pipelineView,width);
                 })
 
             // .call(drag);
