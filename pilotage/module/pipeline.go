@@ -1952,7 +1952,7 @@ func GetPipelineDefineByRunSequence(versionId, sequenceId int64) (map[string]int
 
 			actionType := "pipeline-action"
 
-			actionInfoMap["stetupData"] = actionSetupData
+			actionInfoMap["setupData"] = actionSetupData
 			actionInfoMap["id"] = "a-" + strconv.FormatInt(action.ID, 10)
 			actionInfoMap["type"] = actionType
 
@@ -2189,15 +2189,28 @@ func GetSequenceLineHistory(sequenceIdInt int64, startActionId, endActionId stri
 	endOutputDataMap := make(map[string]interface{})
 
 	endOutputId := strings.TrimPrefix(endActionId, "a-")
-	endOutputInfo := new(models.Outcome)
-	endOutputInfo.GetOutcome().Where("action = ?", endOutputId).First(&endOutputInfo)
+	// endOutputInfo := new(models.Outcome)
+	// endOutputInfo.GetOutcome().Where("action = ?", endOutputId).First(&endOutputInfo)
+	endOutputInfo := new(models.Event)
+	endOutputInfo.GetEvent().Where("action = ?", endOutputId).Where("title = ?", "SEND_DATA").First(&endOutputInfo)
 
-	err := json.Unmarshal([]byte(endOutputInfo.Output), &endOutputDataMap)
+	err := json.Unmarshal([]byte(endOutputInfo.Payload), &endOutputDataMap)
 	if err != nil {
 		log.Error("error when get stage outcominfo:"+err.Error(), endOutputInfo)
 	}
 
-	result["output"] = endOutputDataMap
+	endDataMap := make(map[string]interface{})
+	endDataStr, ok := endOutputDataMap["data"].(string)
+	if !ok {
+		log.Error("get line end data error data is not a string")
+		endDataStr = ""
+	}
+	err = json.Unmarshal([]byte(endDataStr), &endDataMap)
+	if err != nil {
+		log.Error("error when unmarshal line end data :" + err.Error())
+	}
+
+	result["output"] = endDataMap
 
 	return result, nil
 }
