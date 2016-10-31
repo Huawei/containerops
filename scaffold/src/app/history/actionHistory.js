@@ -25,7 +25,7 @@ export function getActionHistory(pipelineName,stageName,actionName,actionLogID) 
     var promise = historyDataService.getActionRunHistory(pipelineName,stageName,actionName,actionLogID);
     promise.done(function(data) {
         loading.hide();
-        showActionHistoryView(data.result);
+        showActionHistoryView(data.result,actionName);
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
@@ -37,13 +37,15 @@ export function getActionHistory(pipelineName,stageName,actionName,actionLogID) 
     });
 }
 
-function showActionHistoryView(history) {
+function showActionHistoryView(history,actionname) {
     $.ajax({
         url: "../../templates/history/actionHistory.html",
         type: "GET",
         cache: false,
         success: function(data) {
             $("#history-pipeline-detail").html($(data));
+
+            $("#actionHistoryTitle").text("Action history -- " + actionname);
 
             var inputStream = JSON.stringify(history.data.input,undefined,2);
             $("#action-input-stream").val(inputStream);
