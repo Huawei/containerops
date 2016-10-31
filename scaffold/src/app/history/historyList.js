@@ -17,6 +17,7 @@ limitations under the License.
 import * as historyDataService from "./historyData";
 import * as constant  from "../common/constant";
 import { loading } from "../common/loading";
+import * as historyMain from "./main";
 
 export function initHistoryList() {
     loading.show();
@@ -124,7 +125,7 @@ function getHistoryList (pipelineData) {
                                         </div></td>`
                                 }
                                 
-                                hsRow += `<td data-btnId="sd`+ sd.pipelineSequenceID +`"><button type="button" class="btn btn-success ppview"><i class="glyphicon glyphicon-list-alt" style="font-size:16px"></i>&nbsp;&nbsp;detail</button></td></tr> `
+                                hsRow += `<td  data-name=`  + pd.name + ` data-btnId=`+ sd.pipelineSequenceID +`><button type="button" class="btn btn-success ppview"><i class="glyphicon glyphicon-list-alt" style="font-size:16px"></i>&nbsp;&nbsp;detail</button></td></tr> `
 
                                 hppItem.append(hsRow)
                             });
@@ -132,6 +133,12 @@ function getHistoryList (pipelineData) {
                     }
                 });
             });
+
+                $(".ppview").on("click",function(event){
+                    var pname = $(event.currentTarget).parent().data("name");
+                    var sid = $(event.currentTarget).parent().data("btnid");
+                    historyMain.initHistoryPage(pname,sid)
+                })
         }
     });
 }

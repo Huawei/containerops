@@ -21,9 +21,15 @@ import { setPath } from "../relation/setPath";
 // import * as util from "../common/util";
 
 
-export function initHistoryPage() {
+export function initHistoryPage(pname,sid) {
+    // constant.sequenceAllData = historyDataService.initHistoryList();
     loading.show();
-    var promise = historyDataService.sequenceData( "python", 9 );
+    var promise;
+     if(pname){
+        promise = historyDataService.sequenceData( pname,sid );
+     }else{
+        promise = historyDataService.sequenceData( "HW-PIPELINE-DEMO",162 );
+     } 
     // var promise = historyDataService.sequenceData("success");
     promise.done(function(data) {
         loading.hide();
@@ -56,8 +62,8 @@ function initSequenceView() {
         success: function(data) {
             $("#main").html($(data));
             $("#historyView").show("slow");
-             historyListDataService.initHistoryList();
             // $("#history-pipeline-list").html("<div style='background:#900; width:500px;height:500px;'>list box area</div>")
+             historyListDataService.initHistoryList();
 
             let $div = $("#div-d3-main-svg").height($("main").height() * 3 / 7);
             // let zoom = d3.behavior.zoom().on("zoom", zoomed);
