@@ -24,9 +24,9 @@ import { animationForRemoveAction } from "./initAction";
 import { setPath } from "../relation/setPath";
 import { initLine } from "./initLine";
 
-export var buttonWidth = 18,
-    buttonHeight = 20,
-    buttonVerticalSpace = 15,
+export var buttonWidth = 28,
+    buttonHeight = 28,
+    buttonVerticalSpace = 12,
     background = "#555",
     buttonHorizonSpace = 25;
 
@@ -36,7 +36,7 @@ export function initButton() {
         .attr("width", constant.svgWidth)
         .attr("height", 2 * buttonVerticalSpace + buttonHeight)
         .style({
-            "fill": "#84C1BC"
+            "fill": "#E7F4EA"
         });
 }
 export function updateButtonGroup(currentItemType) {
