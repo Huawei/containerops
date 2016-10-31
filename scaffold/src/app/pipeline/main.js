@@ -20,7 +20,7 @@ import { initAction } from "./initAction";
 import * as pipelineDataService from "./pipelineData";
 import { notify, confirm } from "../common/notify";
 import { loading } from "../common/loading";
-import { setLinePathAry, linePathAry } from "../common/constant";
+import { setLinePathAry, linePathAry, setCurrentSelectedItem } from "../common/constant";
 import { pipelineCheck } from "../common/check";
 import { initButton } from "./initButton";
 
@@ -136,6 +136,7 @@ function showPipelineList() {
 }
 
 function getPipelineData() {
+    setCurrentSelectedItem(null);
     loading.show();
     var promise = pipelineDataService.getPipeline(pipelineName, pipelineVersionID);
     promise.done(function(data) {
