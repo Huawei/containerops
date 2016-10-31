@@ -52,9 +52,9 @@ function showActionHistoryView(history) {
             $("#action-output-stream").val(outputStream);
 
             _.each(history.logList,function(log,index){
-                var row = `<textarea disabled class="history-log" data-index="`+ index +`"></textarea>`;
+                var row = `<p class="history-log" data-index="`+ index +`"></p>`;
                 $("#logs").append(row);
-                $('.history-log[data-index="'+index+'"]').val(log);
+                $('.history-log[data-index="'+index+'"]').text(log);
             });
 
             resizeWidget();
