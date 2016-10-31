@@ -19,6 +19,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/Huawei/containerops/pilotage/models"
 	"github.com/Huawei/containerops/pilotage/module"
@@ -503,6 +504,39 @@ func GetPipelineHistoryDefineV1Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	resultMap, err := module.GetPipelineDefineByRunSequence(sequenceId)
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	result, _ = json.Marshal(map[string]interface{}{"define": resultMap})
+	return http.StatusOK, result
+}
+
+func GetSequenceLineHistoryV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{"message": ""})
+
+	sequenceIdStr := ctx.Params(":sequence")
+	sequenceIdInt, err := strconv.ParseInt(sequenceIdStr, 10, 64)
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "request pipeline sequence id is not a int:" + sequenceIdStr})
+		return http.StatusBadRequest, result
+	}
+
+	if sequenceIdInt == 0 {
+		result, _ = json.Marshal(map[string]string{"errMsg": "request pipeline id can't be zero"})
+		return http.StatusBadRequest, result
+	}
+
+	startActionId := ctx.Query("startActionId")
+	endActionId := ctx.Query("endActionId")
+
+	if startActionId == "" || endActionId == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "request pipeline id can't be zero"})
+		return http.StatusBadRequest, result
+	}
+
+	resultMap, err := module.GetSequenceLineHistory(sequenceIdInt, startActionId, endActionId)
 	if err != nil {
 		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
 		return http.StatusBadRequest, result

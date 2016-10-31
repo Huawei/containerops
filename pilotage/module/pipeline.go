@@ -2151,3 +2151,44 @@ func GetActionHistoryInfo(actionLogId int64) (map[string]interface{}, error) {
 	result["logList"] = logListStr
 	return result, nil
 }
+
+func GetSequenceLineHistory(sequenceIdInt int64, startActionId, endActionId string) (map[string]interface{}, error) {
+	result := make(map[string]interface{})
+
+	inputDataMap := make(map[string]interface{})
+	if strings.HasPrefix(startActionId, "s-") {
+		stageId := strings.TrimPrefix(startActionId, "s-")
+		stageOutcomeInfo := new(models.Outcome)
+		stageOutcomeInfo.GetOutcome().Where("stage = ?", stageId).Where("action = ?", 0).First(stageOutcomeInfo)
+
+		err := json.Unmarshal([]byte(stageOutcomeInfo.Output), &inputDataMap)
+		if err != nil {
+			log.Error("error when get stage outcominfo:"+err.Error(), stageOutcomeInfo)
+		}
+	} else {
+		actionId := strings.TrimPrefix(startActionId, "a-")
+		actionOutcomInfo := new(models.Outcome)
+		actionOutcomInfo.GetOutcome().Where("action = ?", actionId).First(&actionOutcomInfo)
+
+		err := json.Unmarshal([]byte(actionOutcomInfo.Output), &inputDataMap)
+		if err != nil {
+			log.Error("error when get stage outcominfo:"+err.Error(), actionOutcomInfo)
+		}
+	}
+	result["input"] = inputDataMap
+
+	endOutputDataMap := make(map[string]interface{})
+
+	endOutputId := strings.TrimPrefix(endActionId, "a-")
+	endOutputInfo := new(models.Outcome)
+	endOutputInfo.GetOutcome().Where("action = ?", endOutputId).First(&endOutputInfo)
+
+	err := json.Unmarshal([]byte(endOutputInfo.Output), &endOutputDataMap)
+	if err != nil {
+		log.Error("error when get stage outcominfo:"+err.Error(), endOutputInfo)
+	}
+
+	result["output"] = endOutputDataMap
+
+	return result, nil
+}
