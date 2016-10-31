@@ -62,9 +62,7 @@ function getHistoryList (pipelineData) {
                                     <span class="glyphicon glyphicon-menu-down treeclose treecontroller" data-name=` 
                                     + pd.name + `></span>&nbsp;&nbsp;&nbsp;&nbsp;` 
                                     + pd.id + pd.name + `</td><td></td><td></td>
-                                    <td data-btnId="pd`+ pd.id+`"><button type="button" class="btn btn-success ppview">
-                                    <i class="glyphicon glyphicon-list-alt" style="font-size:16px"></i>&nbsp;&nbsp;detail
-                                </button></td></tr>`;
+                                    <td data-btnId="pd`+ pd.id+`"></td></tr>`;
                 hppItem.append(hpRow);
 
                 _.each(pd.versionList, function(vd){
@@ -105,7 +103,7 @@ function getHistoryList (pipelineData) {
                         // }
 
 
-                        hvRow += `<td data-btnId="vd`+ vd.id +`"><button type="button" class="btn btn-success ppview"><i class="glyphicon glyphicon-list-alt" style="font-size:16px"></i>&nbsp;&nbsp;detail</button></td></tr> `
+                        hvRow += `<td data-btnId="vd`+ vd.id +`"></td></tr> `
 
                         hppItem.append(hvRow);
 
