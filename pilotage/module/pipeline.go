@@ -2101,12 +2101,41 @@ func GetActionHistoryInfo(actionLogId int64) (map[string]interface{}, error) {
 	inputInfo := new(models.Event)
 	inputInfo.GetEvent().Where("action = ?", actionLogId).Where("title = ?", "SEND_DATA").First(inputInfo)
 
-	outputInfo := new(models.Event)
-	outputInfo.GetEvent().Where("action = ?", actionLogId).Where("title = ?", "TASK_RESULT").First(outputInfo)
+	// outputInfo := new(models.Event)
+	// outputInfo.GetEvent().Where("action = ?", actionLogId).Where("title = ?", "TASK_RESULT").First(outputInfo)
+	outputInfo := new(models.Outcome)
+	outputInfo.GetOutcome().Where("action = ?", actionLogId).First(outputInfo)
 
 	dataMap := make(map[string]interface{})
-	dataMap["input"] = inputInfo.Payload
-	dataMap["output"] = outputInfo.Payload
+	inputMap := make(map[string]interface{})
+	outputMap := make(map[string]interface{})
+
+	err := json.Unmarshal([]byte(inputInfo.Payload), &inputMap)
+
+	if err != nil {
+		log.Error("error when unmarshal input info:" + err.Error() + "====>" + inputInfo.Payload)
+	}
+
+	inputStr, ok := inputMap["data"].(string)
+	if !ok {
+		log.Error("error when get inputMap str:" + inputInfo.Payload)
+		inputStr = ""
+	}
+
+	realinputMap := make(map[string]interface{})
+	err = json.Unmarshal([]byte(inputStr), &realinputMap)
+	if err != nil {
+		log.Error("error when unmarshal real input info:" + err.Error() + "====>" + inputStr)
+	}
+
+	err = json.Unmarshal([]byte(outputInfo.Output), &outputMap)
+
+	if err != nil {
+		log.Error("error when unmarshal output info:" + err.Error() + "====>" + outputInfo.Output)
+	}
+
+	dataMap["input"] = realinputMap
+	dataMap["output"] = outputMap
 
 	logList := make([]models.Event, 0)
 	new(models.Event).GetEvent().Where("action = ?", actionLogId).Order("id").Find(&logList)
