@@ -35,9 +35,7 @@ let apiUrlConf = {
 	},
 	"history" : {
 		"sequenceList" : "/pipeline/v1/demo/demo/histories",
-		"sequenceData" : "/pipeline/v1/demo/demo/{pipelineName}/historyDefine?sequenceId={pipelineSequenceID}",
-		// "sequenceData" : ":8080/pipelineInfo?id={pipelineRunSequenceID}",
-		// "host" : "http://localhost"
+		"sequenceData" : "/pipeline/v1/demo/demo/{pipelineName}/historyDefine?versionId={versionID}&sequenceId={pipelineSequenceID}"
 	}
 }
 
@@ -180,10 +178,10 @@ export let componentApi = {
 
 // history
 export let historyApi = {
-	"sequenceData" : function(pipelineName,pipelineRunSequenceID){
+	"sequenceData" : function(pipelineName,versionID,pipelineRunSequenceID){
 		var promise = $.ajax({
 	        // "url": apiUrlConf.history.host + apiUrlConf.history.sequenceData.replace(/{pipelineRunSequenceID}/g, pipelineRunSequenceID) ,
-	        "url": apiUrlConf.host + apiUrlConf.history.sequenceData.replace(/{pipelineName}/g, pipelineName).replace(/{pipelineSequenceID}/g, pipelineRunSequenceID),
+	        "url": apiUrlConf.host + apiUrlConf.history.sequenceData.replace(/{pipelineName}/g, pipelineName).replace(/{versionID}/g, versionID).replace(/{pipelineSequenceID}/g, pipelineRunSequenceID),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
