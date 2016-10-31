@@ -1952,7 +1952,7 @@ func GetPipelineDefineByRunSequence(versionId, sequenceId int64) (map[string]int
 
 			actionType := "pipeline-action"
 
-			actionInfoMap["stetupData"] = actionSetupData
+			actionInfoMap["setupData"] = actionSetupData
 			actionInfoMap["id"] = "a-" + strconv.FormatInt(action.ID, 10)
 			actionInfoMap["type"] = actionType
 
