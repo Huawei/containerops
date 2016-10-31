@@ -35,11 +35,9 @@ let apiUrlConf = {
 	},
 	"history" : {
 		"sequenceList" : "/pipeline/v1/demo/demo/histories",
-		// "sequenceData" : "/pipeline/v1/demo/demo/{pipelineName}/historyDefine?sequenceId={pipelineSequenceID}",
-		// https://test-1.containerops.sh/pipeline/v1/demo/demo/histories
-		"sequenceData" : ":8080/pipelineInfo?id={pipelineRunSequenceID}",
-		"host" : "http://localhost"
-		// "sequenceEventShow" : ""
+		"sequenceData" : "/pipeline/v1/demo/demo/{pipelineName}/historyDefine?sequenceId={pipelineSequenceID}",
+		// "sequenceData" : ":8080/pipelineInfo?id={pipelineRunSequenceID}",
+		// "host" : "http://localhost"
 	}
 }
 
@@ -182,10 +180,10 @@ export let componentApi = {
 
 // history
 export let historyApi = {
-	"sequenceData" : function(pipelineRunSequenceID){
+	"sequenceData" : function(pipelineName,pipelineRunSequenceID){
 		var promise = $.ajax({
-	        "url": apiUrlConf.history.host + apiUrlConf.history.sequenceData.replace(/{pipelineRunSequenceID}/g, pipelineRunSequenceID) ,
-	        // "url": apiUrlConf.host + apiUrlConf.history.sequenceData.replace(/{pipelineName}/g, pipelineName).replace(/{pipelineSequenceID}/g, pipelineRunSequenceID),
+	        // "url": apiUrlConf.history.host + apiUrlConf.history.sequenceData.replace(/{pipelineRunSequenceID}/g, pipelineRunSequenceID) ,
+	        "url": apiUrlConf.host + apiUrlConf.history.sequenceData.replace(/{pipelineName}/g, pipelineName).replace(/{pipelineSequenceID}/g, pipelineRunSequenceID),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false

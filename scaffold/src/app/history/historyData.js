@@ -16,14 +16,14 @@ limitations under the License.
 
 import {historyApi} from "../common/api";
 
-export function sequenceData(pipelineRunSequenceID){
-    return historyApi.sequenceData(pipelineRunSequenceID);
-}
-
-
-// export function sequenceData(pipelineName,pipelineRunSequenceID){
-//     return historyApi.sequenceData(pipelineName,pipelineRunSequenceID);
+// export function sequenceData(pipelineRunSequenceID){
+//     return historyApi.sequenceData(pipelineRunSequenceID);
 // }
+
+
+export function sequenceData(pipelineName,pipelineRunSequenceID){
+    return historyApi.sequenceData(pipelineName,pipelineRunSequenceID);
+}
 
 export function sequenceList( ){
     return historyApi.sequenceList( );
