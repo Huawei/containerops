@@ -18,43 +18,173 @@ import * as constant  from "../common/constant";
 import * as historyDataService from "./historyData";
 import * as historyListDataService from "./historyList";
 import { setPath } from "../relation/setPath";
-// import * as util from "../common/util";
 
 
-export function initHistoryPage(pname,sid) {
-    // constant.sequenceAllData = historyDataService.initHistoryList();
+export function initHistoryPage() {
     loading.show();
-    var promise;
-     if(pname){
-        promise = historyDataService.sequenceData( pname,sid );
-     }else{
-        promise = historyDataService.sequenceData( "HW-PIPELINE-DEMO",162 );
-     } 
-    // var promise = historyDataService.sequenceData("success");
+    var promise = historyDataService.sequenceList();
+    promise.done(function(data) {
+        loading.hide();
+        constant.sequenceAllList = data.pipelineList;
+        
+        if (constant.sequenceAllList.length > 0) {
+            getHistoryList();
+        } 
+    });
+    promise.fail(function(xhr, status, error) {
+        loading.hide();
+        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
+            notify(xhr.responseJSON.errMsg, "error");
+        } else {
+            notify("Server is unreachable", "error");
+        }
+    });
+}
+
+function getHistoryList () {
+    $.ajax({
+        url: "../../templates/history/historyList.html",
+        type: "GET",
+        cache: false,
+        success: function(data) {
+            $("#main").html($(data));
+            $("#historyPipelinelist").show("slow");
+
+            $(".pipelinelist_body").empty();
+            var hppItem = $(".pipelinelist_body");
+
+            _.each(constant.sequenceAllList, function (pd){
+                var hpRow = `<tr data-id=`+ pd.id +` class="pp-row">
+                                <td class="pptd">
+                                    <span class="glyphicon glyphicon-menu-down treeclose pp-controller" data-name=` 
+                                    + pd.name + `></span>&nbsp;&nbsp;&nbsp;&nbsp;` 
+                                    + pd.name + `</td><td></td><td></td><td></td></tr>`;
+                hppItem.append(hpRow);
+
+                _.each(pd.versionList, function(vd){
+                    var hvRow =`<tr data-pname=` + pd.name + ` data-version=` + vd.name + ` data-versionid=`+ vd.id + ` class="ppversion-row">
+                                    <td></td>`;
+
+                    if(_.isUndefined(vd.status) && vd.sequenceList.length == 0){
+
+                        hvRow += `<td class="pptd">`+ vd.name + `</td>
+                                    <td><div class="state-list"><div class="state-icon-list state-norun"></div></div></td><td></td>`;
+
+                        hppItem.append(hvRow);
+
+                    } else {
+
+                        hvRow += `<td class="pptd"><span class="glyphicon glyphicon-menu-down treeclose pp-v-controller"></span>&nbsp;&nbsp;&nbsp;&nbsp;` + vd.name + `</td>`;
+
+                        hvRow += `<td>`+ vd.info +`</td>`;
+
+                        hvRow += `<td></td></tr>`;
+
+                        hppItem.append(hvRow);
+
+                        if( vd.sequenceList.length > 0){
+                            _.each(vd.sequenceList, function(sd){
+                                var hsRow =`<tr data-id=`+ sd.pipelineSequenceID + ` data-pname=` + pd.name + ` data-version=` + vd.name + ` data-versionid=` + vd.id + ` class="sequence-row"><td></td><td></td>`;
+
+                                if(sd.status == true){
+                                    hsRow += `<td><div class="state-list">
+                                            <div class="state-icon-list state-success"></div>
+                                            <span class="state-label-list">` + sd.time + `</span>
+                                        </div></td>`;
+                                } else {
+                                    hsRow += `<td><div class="state-list">
+                                            <div class="state-icon-list state-fail"></div>
+                                            <span class="state-label-list">` + sd.time + `</span>
+                                        </div></td>`
+                                }
+                                
+                                hsRow += `<td><button type="button" class="btn btn-success sequence-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:16px"></i>&nbsp;&nbsp;Detail</button></td></tr> `
+
+                                hppItem.append(hsRow)
+                            });
+                        }
+                    }
+                });
+            });
+            
+            $(".pp-controller").on("click",function(event){
+                var target = $(event.currentTarget);
+                if(target.hasClass("treeclose")){
+                    target.removeClass("glyphicon-menu-down treeclose");
+                    target.addClass("glyphicon-menu-right treeopen");
+
+                    var name = target.data("name");
+                    $('tr[data-pname="'+name+'"]').hide();
+                }else{
+                    target.addClass("glyphicon-menu-down treeclose");
+                    target.removeClass("glyphicon-menu-right treeopen");
+
+                    var name = target.data("name");
+                    $('tr[data-pname="'+name+'"]').show();
+
+                    if($('tr[data-pname="'+name+'"]').find(".pp-v-controller").hasClass("treeopen")){
+                        $('tr[data-pname="'+name+'"]').find(".pp-v-controller").trigger("click");
+                    }
+                }  
+            });
+
+            $(".pp-v-controller").on("click",function(event){
+                var target = $(event.currentTarget);
+                var pname = target.parent().parent().data("pname");
+                var vid = target.parent().parent().data("versionid");
+                if(target.hasClass("treeclose")){
+                    target.removeClass("glyphicon-menu-down treeclose");
+                    target.addClass("glyphicon-menu-right treeopen");
+
+                    $('.sequence-row[data-pname="'+pname+'"][data-versionid="'+vid+'"]').hide();
+                }else{
+                    target.addClass("glyphicon-menu-down treeclose");
+                    target.removeClass("glyphicon-menu-right treeopen");
+
+                    $('.sequence-row[data-pname="'+pname+'"][data-versionid="'+vid+'"]').show();
+                }  
+            });
+
+           $(".sequence-detail").on("click",function(event){
+                var pname = $(event.currentTarget).parent().parent().data("pname");
+                var vid = $(event.currentTarget).parent().parent().data("versionid");
+                var vname = $(event.currentTarget).parent().parent().data("version");
+                var sid = $(event.currentTarget).parent().parent().data("id");
+                var selected_history = {
+                    "pipelineName" : pname,
+                    "pipelineVersionID" : vid,
+                    "pipelineVersion" : vname,
+                    "sequenceID" : sid
+                };
+                getSequenceDetail(selected_history);
+            });
+        }
+    });
+}
+
+export function getSequenceDetail(selected_history){
+    loading.show();
+    var promise = historyDataService.sequenceData( selected_history.pipelineName,selected_history.pipelineVersionID,selected_history.sequenceID );
     promise.done(function(data) {
         loading.hide();
         constant.sequenceRunData = data.define.stageList;
         constant.sequenceLinePathArray = data.define.lineList;
         
         if (constant.sequenceRunData.length > 0) {
-            initSequenceView();
-        
-        } else {
-            notify("Server is unreachable", "error");
-        }
+            initSequenceView(selected_history);
+        } 
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
-        if (xhr.responseJSON.errMsg) {
+        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
         } else {
             notify("Server is unreachable", "error");
         }
     });
-
 }
 
-function initSequenceView() {
+function initSequenceView(selected_history) {
     $.ajax({
         url: "../../templates/history/historyView.html",
         type: "GET",
@@ -62,8 +192,12 @@ function initSequenceView() {
         success: function(data) {
             $("#main").html($(data));
             $("#historyView").show("slow");
-            // $("#history-pipeline-list").html("<div style='background:#900; width:500px;height:500px;'>list box area</div>")
-             historyListDataService.initHistoryList();
+
+            $("#selected_pipeline").text(selected_history.pipelineName + " / " + selected_history.pipelineVersion);
+
+            $(".backtolist").on('click', function() {
+                initHistoryPage();
+            });
 
             let $div = $("#div-d3-main-svg").height($("main").height() * 3 / 7);
             // let zoom = d3.behavior.zoom().on("zoom", zoomed);

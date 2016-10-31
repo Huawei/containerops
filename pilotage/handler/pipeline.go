@@ -496,14 +496,16 @@ func GetPipelineHistoriesV1Handler(ctx *macaron.Context) (int, []byte) {
 func GetPipelineHistoryDefineV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
+	versionId := ctx.QueryInt64("versionId")
+
 	sequenceId := ctx.QueryInt64("sequenceId")
 
-	if sequenceId == 0 {
-		result, _ = json.Marshal(map[string]string{"errMsg": "request pipeline id can't be zero"})
+	if versionId == 0 {
+		result, _ = json.Marshal(map[string]string{"errMsg": "request pipeline's version id can't be zero"})
 		return http.StatusBadRequest, result
 	}
 
-	resultMap, err := module.GetPipelineDefineByRunSequence(sequenceId)
+	resultMap, err := module.GetPipelineDefineByRunSequence(versionId, sequenceId)
 	if err != nil {
 		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
 		return http.StatusBadRequest, result
