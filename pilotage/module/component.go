@@ -412,9 +412,13 @@ func (kube *kubeComponent) startPod(id, serviceAddr string, eventList []models.E
 	}
 
 	if resp.StatusCode != 201 {
-		return errors.New(strconv.FormatInt(int64(resp.StatusCode), 10))
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return errors.New("error when get pod err body:" + err.Error() + "==== error code is :" + strconv.FormatInt(int64(resp.StatusCode), 10))
+		} else {
+			return errors.New("error when create pod: msg is :" + string(body))
+		}
 	}
-
 	return nil
 }
 
@@ -649,7 +653,12 @@ func (kube *kubeComponent) startService(id, podName string) (string, error) {
 	}
 
 	if resp.StatusCode != 201 {
-		return "", errors.New(strconv.FormatInt(int64(resp.StatusCode), 10))
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return "", errors.New("error when get service err body:" + err.Error() + "==== error code is :" + strconv.FormatInt(int64(resp.StatusCode), 10))
+		} else {
+			return "", errors.New("error when create service: msg is :" + string(body))
+		}
 	}
 
 	// get resp of create service ,to get service's ip and ports
