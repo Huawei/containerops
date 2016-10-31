@@ -61,7 +61,7 @@ function getHistoryList (pipelineData) {
                                 <td class="pptd">
                                     <span class="glyphicon glyphicon-menu-down treeclose treecontroller" data-name=` 
                                     + pd.name + `></span>&nbsp;&nbsp;&nbsp;&nbsp;` 
-                                    + pd.id + pd.name + `</td><td></td><td></td>
+                                    + pd.name + `</td><td></td><td></td>
                                     <td data-btnId="pd`+ pd.id+`"></td></tr>`;
                 hppItem.append(hpRow);
 
