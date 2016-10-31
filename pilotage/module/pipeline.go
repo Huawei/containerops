@@ -949,7 +949,9 @@ func sendDataToComponent(pipelineId, stageId, actionId, pipelineSequence, compon
 	router := strings.TrimPrefix(targetUrl, strings.Join(ports, ","))
 
 	for i := 0; i < len(ports); i++ {
-		url := "http://" + ip + ports[i] + router
+		port := strings.TrimPrefix(ports[i], ":")
+		port = ":" + port
+		url := "http://" + ip + port + router
 		urls = append(urls, url)
 	}
 
