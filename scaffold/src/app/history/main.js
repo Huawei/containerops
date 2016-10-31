@@ -18,6 +18,8 @@ import * as constant  from "../common/constant";
 import * as historyDataService from "./historyData";
 import { setPath } from "../relation/setPath";
 import { notify } from "../common/notify";
+import {getActionHistory} from "./actionHistory";
+import {getLineHistory} from "./lineHistory";
 
 export function initHistoryPage() {
     
@@ -162,7 +164,9 @@ function getHistoryList () {
     });
 }
 
+let historyAbout;
 export function getSequenceDetail(selected_history){
+    historyAbout = selected_history;
     loading.show();
     var promise = historyDataService.sequenceData( selected_history.pipelineName,selected_history.pipelineVersionID,selected_history.sequenceID );
     promise.done(function(data) {
@@ -340,7 +344,7 @@ function showSequenceView(pipelineSequenceData) {
         // })
         .on("click", function(d, i) {
             // constant.pipelineView.selectAll("#pipeline-element-popup").remove();
-            notify("click stage now");
+            // notify("click stage now");
             if (d.status == true){
 
                 if (d.type == constant.PIPELINE_STAGE) {
@@ -570,11 +574,7 @@ function initSequenceActionByStage() {
                 })
                 .style("cursor","pointer")
                 .on("click", function(ad, ai) {
-                    notify("click action now");
-                    // console.log(d);
-                    notify("stage name:" + d.setupData.name);
-                    notify("action name: " + ad.setupData.name);
-                    notify("action id: " + ad.id);
+                    getActionHistory(historyAbout.pipelineName,d.setupData.name,ad.setupData.name,ad.id);
                     if( ad.status == true ){
                         // clickAction(ad, ai);
                         historyChangeCurrentElement(constant.currentSelectedItem);
@@ -811,9 +811,7 @@ function setSequencePath(options) {
         .style("cursor", "pointer")
         .on("click", function(d) {
             // this.parentNode.appendChild(this); // make this line to front layer
-            notify("click line now");
-            notify("start node id: " + options.startData.id);
-            notify("end node id: " + options.endData.id);
+            getLineHistory(historyAbout.pipelineName,historyAbout.sequenceID,options.startData.id,options.endData.id);
             var self = $(this);
             historyChangeCurrentElement(constant.currentSelectedItem);
             constant.setCurrentSelectedItem({ "data": self, "type": "line"});
