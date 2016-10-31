@@ -1879,7 +1879,16 @@ func GetPipelineHistoriesList(namespace string) ([]map[string]interface{}, error
 	return resultList, nil
 }
 
-func GetPipelineDefineByRunSequence(sequenceId int64) (map[string]interface{}, error) {
+func GetPipelineDefineByRunSequence(versionId, sequenceId int64) (map[string]interface{}, error) {
+	if sequenceId == 0 {
+		latestOutcom := new(models.Outcome)
+		latestOutcom.GetOutcome().Where("real_pipeline = ?", versionId).Where("action = ?", 0).Order("-id").First(latestOutcom)
+		if latestOutcom.ID != 0 {
+			sequenceId = latestOutcom.ID
+		}
+
+	}
+
 	defineMap := make(map[string]interface{})
 
 	pipelineStatus := true
