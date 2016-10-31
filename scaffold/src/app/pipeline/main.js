@@ -23,12 +23,13 @@ import { loading } from "../common/loading";
 import { setLinePathAry, linePathAry, setCurrentSelectedItem } from "../common/constant";
 import { pipelineCheck } from "../common/check";
 import { initButton } from "./initButton";
+import {getSequenceDetail} from "../history/main";
 
 
 export let allPipelines;
 
 export let pipelineData;
-let pipelineName, pipelineVersion, pipelineVersionID;
+let pipelineName, pipelineVersion, pipelineVersionID,pipelineHasHistory;
 let pipelineEnvs;
 
 export function initPipelinePage() {
@@ -84,21 +85,20 @@ function showPipelineList() {
                     if(_.isUndefined(version.status)){
                         vrow += `<div class="state-list">
                                     <div class="state-icon-list state-norun"></div>
-                                </div>`;
+                                </div></td><td data-hashistory="no">`;
                     }else if(version.status.status){
                         vrow += `<div class="state-list">
                                     <div class="state-icon-list state-success"></div>
                                     <span class="state-label-list">` + version.status.time + `</span>
-                                </div>`;
+                                </div></td><td data-hashistory="yes">`;
                     }else{
                         vrow += `<div class="state-list">
                                     <div class="state-icon-list state-fail"></div>
                                     <span class="state-label-list">` + version.status.time + `</span>
-                                </div>`
+                                </div></td><td data-hashistory="yes">`
                     }
 
-                    vrow += `</td><td>
-                                <button type="button" class="btn btn-success ppview">
+                    vrow += `<button type="button" class="btn btn-success ppview">
                                     <i class="glyphicon glyphicon-eye-open" style="font-size:16px"></i>&nbsp;&nbsp;View
                                 </button>
                             </td></tr>`;
@@ -129,6 +129,7 @@ function showPipelineList() {
                 pipelineName = target.parent().parent().data("pname");
                 pipelineVersion = target.parent().parent().data("version");
                 pipelineVersionID = target.parent().parent().data("versionid");
+                pipelineHasHistory = target.parent().data("hashistory");
                 getPipelineData();
             });
         }
@@ -268,6 +269,14 @@ function showPipelineDesigner(state) {
 
             $(".newpipelineversion").on('click', function() {
                 showNewPipelineVersion();
+            });
+
+            $(".loghistory").on('click',function(){
+                if(pipelineHasHistory == "no"){
+                    notify("The pipeline has never been run, there's no logs.", "info");
+                }else if(pipelineHasHistory == "yes"){
+                    beforeShowLog();
+                }
             });
 
             $(".newpipelineindesigner").on('click', function() {
@@ -566,6 +575,36 @@ function beforeBackToList() {
 
 export function getPipelineToken(){
     return pipelineDataService.getToken(pipelineName,pipelineVersionID);
+}
+
+function beforeShowLog() {
+    var actions = [{
+        "name": "saveAndLog",
+        "label": "Yes",
+        "action": function() {
+            savePipelineData(showLogHistory);
+        }
+    }, {
+        "name": "log",
+        "label": "No",
+        "action": function() {
+            showLogHistory();
+        }
+    }]
+    confirm("The pipeline design may be modified, would you like to save the pipeline before show the log history.", "info", actions);
+}
+
+function showLogHistory(){
+    $(".menu-history").parent().addClass("active");
+    $(".menu-pipeline").parent().removeClass("active");
+                    
+    var pipelineInfo = {
+        "pipelineName" : pipelineName,
+        "pipelineVersionID" : pipelineVersionID,
+        "pipelineVersion" : pipelineVersion,
+        "sequenceID" : ""
+    };
+    getSequenceDetail(pipelineInfo);
 }
 // $("#pipeline-select").on('change',function(){
 //     showVersionList();
