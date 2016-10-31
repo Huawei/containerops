@@ -1,0 +1,68 @@
+<!-- 
+    Copyright 2014 Huawei Technologies Co., Ltd. All rights reserved.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+        http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License. 
+-->
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <div class="widget-body">
+                <fieldset>
+                    <legend><strong>Action</strong> history</legend>
+                    <div class="widget-controls">
+                        <a data-widgster="fullscreen" title="" href="#" data-original-title="Full Screen" style="display: inline;"><i class="glyphicon glyphicon-fullscreen"></i></a>
+                        <a data-widgster="restore" title="" href="#" style="display: none;" data-original-title="Restore"><i class="glyphicon glyphicon-resize-small"></i></a>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="clearfix">
+                            <ul class="nav nav-tabs pull-xs-left" id="actionTabs" role="tablist" style="background-color:#f7f7f7">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="stream-tab" data-toggle="tab" href="#stream" role="tab" aria-controls="stream" aria-expanded="false">
+                                        <span>Action Stream Data</span>
+                                        <i class="arrow arrow-left"></i>
+                                        <i class="arrow arrow-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="tab-content mb-lg" id="actionTabsContent">
+                            <div role="tabpanel" class="tab-pane clearfix active" id="stream" aria-labelledby="stream-tab" aria-expanded="true">
+                                <div class="row">
+                                    <div class="col-md-6 import-div">
+                                        <div class="panel">
+                                            <div class="panel-heading input-panel-heading">
+                                                <i class="glyphicon glyphicon-cloud-upload inputicon"></i>
+                                                <span class="panel-title">Show Input</span>
+                                            </div>
+                                            <div class="panel-body input-panel-body" style="min-height:500px;padding:10px">
+                                                <textarea class="advanced-service-textarea" id="action-input-stream" disabled></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 import-div">
+                                        <div class="panel">
+                                            <div class="panel-heading clearfix">
+                                                <i class="glyphicon glyphicon-cloud-download outputicon"></i>
+                                                <span class="panel-title">Show Output</span>
+                                            </div>
+                                            <div class="panel-body" style="min-height:500px;padding:10px">
+                                                <textarea class="advanced-service-textarea" id="action-output-stream" disabled></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </section>
+    </div>
+</div>

@@ -22,11 +22,18 @@ import {historyApi} from "../common/api";
 
 
 export function sequenceData(pipelineName,pipelineRunSequenceID){
-		
     return historyApi.sequenceData(pipelineName,pipelineRunSequenceID);
 }
 
 export function sequenceList( ){
     return historyApi.sequenceList( );
+}
+
+export function getActionRunHistory(pipelineName,stageName,actionName,actionLogID){
+    return historyApi.action(pipelineName,stageName,actionName,actionLogID);
+}
+
+export function getLineDataInfo(pipelineName,pipelineSequenceID,startActionId,endActionId){
+    return historyApi.relation(pipelineName,pipelineSequenceID,startActionId,endActionId);
 }
 
