@@ -23,11 +23,10 @@ import { setPath } from "../relation/setPath";
 
 export function initHistoryPage() {
     loading.show();
-    // var promise = historyDataService.sequenceData( "python", 9 );
-    var promise = historyDataService.sequenceData("success");
+    var promise = historyDataService.sequenceData( "python", 9 );
+    // var promise = historyDataService.sequenceData("success");
     promise.done(function(data) {
         loading.hide();
-                    console.log("initHistoryPage===",data)
         constant.sequenceRunData = data.define.stageList;
         constant.sequenceLinePathArray = data.define.lineList;
         
@@ -39,7 +38,6 @@ export function initHistoryPage() {
         }
     });
     promise.fail(function(xhr, status, error) {
-        console.log(111)
         loading.hide();
         if (xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
