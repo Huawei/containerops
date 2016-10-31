@@ -2101,12 +2101,41 @@ func GetActionHistoryInfo(actionLogId int64) (map[string]interface{}, error) {
 	inputInfo := new(models.Event)
 	inputInfo.GetEvent().Where("action = ?", actionLogId).Where("title = ?", "SEND_DATA").First(inputInfo)
 
-	outputInfo := new(models.Event)
-	outputInfo.GetEvent().Where("action = ?", actionLogId).Where("title = ?", "TASK_RESULT").First(outputInfo)
+	// outputInfo := new(models.Event)
+	// outputInfo.GetEvent().Where("action = ?", actionLogId).Where("title = ?", "TASK_RESULT").First(outputInfo)
+	outputInfo := new(models.Outcome)
+	outputInfo.GetOutcome().Where("action = ?", actionLogId).First(outputInfo)
 
 	dataMap := make(map[string]interface{})
-	dataMap["input"] = inputInfo.Payload
-	dataMap["output"] = outputInfo.Payload
+	inputMap := make(map[string]interface{})
+	outputMap := make(map[string]interface{})
+
+	err := json.Unmarshal([]byte(inputInfo.Payload), &inputMap)
+
+	if err != nil {
+		log.Error("error when unmarshal input info:" + err.Error() + "====>" + inputInfo.Payload)
+	}
+
+	inputStr, ok := inputMap["data"].(string)
+	if !ok {
+		log.Error("error when get inputMap str:" + inputInfo.Payload)
+		inputStr = ""
+	}
+
+	realinputMap := make(map[string]interface{})
+	err = json.Unmarshal([]byte(inputStr), &realinputMap)
+	if err != nil {
+		log.Error("error when unmarshal real input info:" + err.Error() + "====>" + inputStr)
+	}
+
+	err = json.Unmarshal([]byte(outputInfo.Output), &outputMap)
+
+	if err != nil {
+		log.Error("error when unmarshal output info:" + err.Error() + "====>" + outputInfo.Output)
+	}
+
+	dataMap["input"] = realinputMap
+	dataMap["output"] = outputMap
 
 	logList := make([]models.Event, 0)
 	new(models.Event).GetEvent().Where("action = ?", actionLogId).Order("id").Find(&logList)
@@ -2120,5 +2149,46 @@ func GetActionHistoryInfo(actionLogId int64) (map[string]interface{}, error) {
 
 	result["data"] = dataMap
 	result["logList"] = logListStr
+	return result, nil
+}
+
+func GetSequenceLineHistory(sequenceIdInt int64, startActionId, endActionId string) (map[string]interface{}, error) {
+	result := make(map[string]interface{})
+
+	inputDataMap := make(map[string]interface{})
+	if strings.HasPrefix(startActionId, "s-") {
+		stageId := strings.TrimPrefix(startActionId, "s-")
+		stageOutcomeInfo := new(models.Outcome)
+		stageOutcomeInfo.GetOutcome().Where("stage = ?", stageId).Where("action = ?", 0).First(stageOutcomeInfo)
+
+		err := json.Unmarshal([]byte(stageOutcomeInfo.Output), &inputDataMap)
+		if err != nil {
+			log.Error("error when get stage outcominfo:"+err.Error(), stageOutcomeInfo)
+		}
+	} else {
+		actionId := strings.TrimPrefix(startActionId, "a-")
+		actionOutcomInfo := new(models.Outcome)
+		actionOutcomInfo.GetOutcome().Where("action = ?", actionId).First(&actionOutcomInfo)
+
+		err := json.Unmarshal([]byte(actionOutcomInfo.Output), &inputDataMap)
+		if err != nil {
+			log.Error("error when get stage outcominfo:"+err.Error(), actionOutcomInfo)
+		}
+	}
+	result["input"] = inputDataMap
+
+	endOutputDataMap := make(map[string]interface{})
+
+	endOutputId := strings.TrimPrefix(endActionId, "a-")
+	endOutputInfo := new(models.Outcome)
+	endOutputInfo.GetOutcome().Where("action = ?", endOutputId).First(&endOutputInfo)
+
+	err := json.Unmarshal([]byte(endOutputInfo.Output), &endOutputDataMap)
+	if err != nil {
+		log.Error("error when get stage outcominfo:"+err.Error(), endOutputInfo)
+	}
+
+	result["output"] = endOutputDataMap
+
 	return result, nil
 }
