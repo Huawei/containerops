@@ -20,6 +20,7 @@ import { setPath } from "../relation/setPath";
 import { notify } from "../common/notify";
 import {getActionHistory} from "./actionHistory";
 import {getLineHistory} from "./lineHistory";
+import * as initButton from "../pipeline/initButton";
 
 export function initHistoryPage() {
     
@@ -591,16 +592,21 @@ function initSequenceActionByStage() {
                         
                     }
                 })
-                // .on("mouseout", function(ad, ai) {
-                //     // constant.sequencePipelineView.selectAll("#pipeline-element-popup").remove();
-                // })
-                // .on("mouseover", function(ad, ai) {
-                //     // d3.select(this)
-                //     //     .style("cursor", "pointer");
-                //     // var x = ad.translateX;
-                //     // var y = ad.translateY + constant.svgActionHeight;
-                //     // initButton.showToolTip(x, y, "Click to Edit", "pipeline-element-popup", constant.sequencePipelineView);
-                // })
+                .on("mouseout", function(ad, ai) {
+                    constant.sequencePipelineView.selectAll("#pipeline-element-popup").remove();
+                })
+                .on("mouseover", function(ad, ai) {
+                    var x = ad.translateX;
+                    var y = ad.translateY + constant.svgActionHeight;
+                    let text = "";
+                    let width = null;
+                    if(ad.setupData && ad.setupData.name && ad.setupData.name != ""){
+                       text = ad.setupData.name;
+                       width = text.length * 7 + 20;
+                       initButton.showToolTip(x, y, text, "pipeline-element-popup", constant.sequencePipelineView,width);
+                    }
+                    
+                })
 
             // .call(drag);
         }
