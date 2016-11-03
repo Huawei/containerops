@@ -78,10 +78,10 @@ PUT
 # Body
 <pre><code>
 {
-	"id":123, // 这个是version的id
-	"version":"", // version的值
+	"id":123, // version id
+	"version":"", // version value
 	"define":{
-		// 这里放pipeline的整体定义
+		// pipeline define
 	}
 }
 </pre></code>
@@ -93,8 +93,8 @@ PUT
 # Body
 <pre><code>
 {
-    "id":123, // 这个是version 的id
-    "env":{ // 这里是设置的env 的 K-V 对
+    "id":123, // version id
+    "env":{ // env  K-V
         "ENV_KEY_1":"abc",
         "ENV_KEY_2":456
     }
@@ -107,7 +107,7 @@ GET
 # Response Format
 <pre><code>
 {
-    "env":{ // 这里是设置的env 的 K-V 对
+    "env":{ // k-v
         "ENV_KEY_1":"abc",
         "ENV_KEY_2":456,
     },
@@ -120,7 +120,7 @@ GET
 # Body:
 <pre><code>
 {
-    "output":[{}] // 标准格式的json关系
+    "output":[{}] // json
 }
 </pre></code>
 
@@ -131,7 +131,7 @@ PUT
 <pre><code>
 {
     "id":123,
-    "state": 0 // 0 代表把pipelien 改为不可用状态    1 代表把pipelien 改为可用状态
+    "state": 0 // 0 pipelien enabled    1 pipelien disabled
 }
 </pre></code>
 
@@ -187,10 +187,10 @@ PUT
 # Body
 <pre><code>
 {
-    "id":123, // 这个是version的id
-    "version":"", // version的值
+    "id":123, // version id
+    "version":"", // version
     "define":{
-        // 这里放component的整体定义
+        //component
     }
 
 }
