@@ -47,10 +47,10 @@ type Pipeline struct {
 	Version     string     `json:"version" sql:"null;type:varchar(255)"`       //User define Pipeline version
 	VersionCode int64      `json:"versionCode" sql:"null;type:varchar(255)"`   //System define Pipeline version,unique,for query
 	State       int64      `json:"state" sql:"null;type:bigint"`               //pipeline state
-	Manifest    string     `json:"manifest" sql:"null;type:text"`              //
+	Manifest    string     `json:"manifest" sql:"null;type:longtext"`          //
 	Description string     `json:"description" sql:"null;type:text"`           //
 	SourceInfo  string     `json:"source"`                                     // define of source like : {"token":"","sourceList":[{"sourceType":"Github","headerKey":"X-Hub-Signature","eventList":",pull request,"]}
-	Env         string     `json:"env"`                                        // env that all action in this pipeline will get
+	Env         string     `json:"env" sql:"null;type:longtext"`               // env that all action in this pipeline will get
 	CreatedAt   time.Time  `json:"created" sql:""`                             //
 	UpdatedAt   time.Time  `json:"updated" sql:""`                             //
 	DeletedAt   *time.Time `json:"deleted" sql:"index"`                        //
@@ -76,10 +76,10 @@ type PipelineLog struct {
 	VersionCode  int64      `json:"versionCode" sql:"null;type:varchar(255)"`   //System define Pipeline version,unique,for query
 	Sequence     int64      `json:"sequence"`                                   //
 	State        int64      `json:"state" sql:"null;type:bigint"`               //pipeline state
-	Manifest     string     `json:"manifest" sql:"null;type:text"`              //
+	Manifest     string     `json:"manifest"sql:"null;type:longtext"`           //
 	Description  string     `json:"description" sql:"null;type:text"`           //
 	SourceInfo   string     `json:"source"`                                     // define of source like : [{"sourceType":"Github","headerKey":"X-Hub-Signature","eventList":",pull request,","secretKey":"asdfFDSA!@d12"}]
-	Env          string     `json:"env"`                                        // env that all action in this pipeline will get
+	Env          string     `json:"env" sql:"null;type:longtext"`               // env that all action in this pipeline will get
 	CreatedAt    time.Time  `json:"created" sql:""`                             //
 	UpdatedAt    time.Time  `json:"updated" sql:""`                             //
 	DeletedAt    *time.Time `json:"deleted" sql:"index"`                        //
@@ -104,8 +104,8 @@ type Stage struct {
 	Title       string     `json:"title" sql:"not null;type:varchar(255)"` //Stage title for display
 	Description string     `json:"description" sql:"null;type:text"`       //
 	Event       int64      `json:"event" sql:"null;default:0"`             //
-	Manifest    string     `json:"manifest" sql:"null;type:text"`          //
-	Env         string     `json:"env"`                                    //
+	Manifest    string     `json:"manifest" sql:"null;type:longtext"`      //
+	Env         string     `json:"env" sql:"null;type:longtext"`           //
 	Timeout     int64      `json:"timeout"`                                //
 	CreatedAt   time.Time  `json:"created" sql:""`                         //
 	UpdatedAt   time.Time  `json:"updated" sql:""`                         //
@@ -132,8 +132,8 @@ type StageLog struct {
 	Title       string     `json:"title" sql:"not null;type:varchar(255)"` //Stage title for display
 	Description string     `json:"description" sql:"null;type:text"`       //
 	Event       int64      `json:"event" sql:"null;default:0"`             //
-	Manifest    string     `json:"manifest" sql:"null;type:text"`          //
-	Env         string     `json:"env"`                                    //
+	Manifest    string     `json:"manifest" sql:"null;type:longtext"`      //
+	Env         string     `json:"env" sql:"null;type:longtext"`           //
 	Timeout     int64      `json:"timeout"`                                //
 	CreatedAt   time.Time  `json:"created" sql:""`                         //
 	UpdatedAt   time.Time  `json:"updated" sql:""`                         //
@@ -159,7 +159,7 @@ type Action struct {
 	Title       string     `json:"title" sql:"not null;type:varchar(255)"` //
 	Description string     `json:"description" sql:"null;type:text"`       //
 	Event       int64      `json:"event" sql:"null;default:0"`             //
-	Manifest    string     `json:"manifest" sql:"null;type:text"`          // has run platform's type and platform setting
+	Manifest    string     `json:"manifest" sql:"null;type:longtext"`      // has run platform's type and platform setting
 	Environment string     `json:"environment" sql:"null;type:text"`       // Environment parameters.
 	Kubernetes  string     `json:"kubernetes" sql:"null;type:text"`        //
 	Swarm       string     `json:"swarm" sql:"null;type:text"`             //
@@ -192,7 +192,7 @@ type ActionLog struct {
 	Title       string     `json:"title" sql:"not null;type:varchar(255)"` //
 	Description string     `json:"description" sql:"null;type:text"`       //
 	Event       int64      `json:"event" sql:"null;default:0"`             //
-	Manifest    string     `json:"manifest" sql:"null;type:text"`          //
+	Manifest    string     `json:"manifest" sql:"null;type:longtext"`      //
 	Environment string     `json:"environment" sql:"null;type:text"`       // Environment parameters.
 	Kubernetes  string     `json:"kubernetes" sql:"null;type:text"`        //
 	Swarm       string     `json:"swarm" sql:"null;type:text"`             //
@@ -218,21 +218,21 @@ func (a *ActionLog) GetActionLog() *gorm.DB {
 //When StageID point to the StageTypeStart , the Action ID is 0.
 //When StageID point to the StageTypeEnd , the Action ID is -1.
 type Outcome struct {
-	ID           int64      `json:"id" gorm:"primary_key"`                 //
-	Pipeline     int64      `json:"pipeline" sql:"not null;default:0"`     //PipelineLog id
-	RealPipeline int64      `json:"realPipeline" sql:"not null;default:0"` //Pipeline id
-	Stage        int64      `json:"stage" sql:"not null;default:0"`        //stageLog id
-	RealStage    int64      `json:"realStage" sql:"not null;default:0"`    //stage id
-	Action       int64      `json:"action" sql:"not null;default:0"`       //actionLog id
-	RealAction   int64      `json:"realAction" sql:"not null;default:0"`   //
-	Event        int64      `json:"event" sql:"null;default:0"`            //event id
-	Sequence     int64      `json:"sequence" sql:"not null;default:0"`     //pipeline run sequence
-	Status       bool       `json:"status" sql:"null;varchar(255)"`        //
-	Result       string     `json:"result" sql:"null;default:true"`        //
-	Output       string     `json:"output" sql:"null;type:text"`           //
-	CreatedAt    time.Time  `json:"created" sql:""`                        //
-	UpdatedAt    time.Time  `json:"updated" sql:""`                        //
-	DeletedAt    *time.Time `json:"deleted" sql:"index"`                   //
+	ID           int64      `json:"id" gorm:"primary_key"`                        //
+	Pipeline     int64      `json:"pipeline" sql:"not null;default:0"`            //PipelineLog id
+	RealPipeline int64      `json:"realPipeline" sql:"not null;default:0"`        //Pipeline id
+	Stage        int64      `json:"stage" sql:"not null;default:0"`               //stageLog id
+	RealStage    int64      `json:"realStage" sql:"not null;default:0"`           //stage id
+	Action       int64      `json:"action" sql:"not null;default:0"`              //actionLog id
+	RealAction   int64      `json:"realAction" sql:"not null;default:0"`          //
+	Event        int64      `json:"event" sql:"null;default:0"`                   //event id
+	Sequence     int64      `json:"sequence" sql:"not null;default:0"`            //pipeline run sequence
+	Status       bool       `json:"status" sql:"null;varchar(255)"`               //
+	Result       string     `json:"result" sql:"null;default:true;type:longtext"` //
+	Output       string     `json:"output" sql:"null;type:longtext"`              //
+	CreatedAt    time.Time  `json:"created" sql:""`                               //
+	UpdatedAt    time.Time  `json:"updated" sql:""`                               //
+	DeletedAt    *time.Time `json:"deleted" sql:"index"`                          //
 }
 
 //TableName is return the name of Outcome in MySQL database.
