@@ -259,7 +259,7 @@ summary: V1 Specification
 | -------- | ------ |
 | GET  | /pipeline/v1/:namespace/:repository/:pipelineName/historyDefine?versionId={versionId}sequenceId={pipelineSequenceID}|
 
-
+--------------------------------------------------------------
 
 
 #### getStageRunHistory
@@ -267,7 +267,7 @@ summary: V1 Specification
 | -------- | ------ |
 | GET  | /pipeline/v1/:namespace/:repository/:pipelineName/stage/:stageName/history?stageLogId={stageLogID}|
 
-
+--------------------------------------------------------------
 
 #### getActionRunHistory
 | HTTP Method |  Request Address |
@@ -297,7 +297,7 @@ summary: V1 Specification
   }
 }
 ```
-
+--------------------------------------------------------------
 
 #### getLineDataInfo
 
@@ -319,3 +319,4 @@ summary: V1 Specification
   }
 }
 ```
+--------------------------------------------------------------
