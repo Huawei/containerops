@@ -121,7 +121,7 @@ type EventJson struct {
 	ID     int64  `json:"id" gorm:"primary_key"`        //
 	Site   string `json:"site" sql:"type:varchar(255)"` //
 	Type   string `json:"type" sql:"type:varchar(255)"` //
-	Output string `json:"output" sql:"type:"text"`      //
+	Output string `json:"output" sql:"type:"longtext"`  //
 }
 
 //TableName is return the name of Outcome in MySQL database.
