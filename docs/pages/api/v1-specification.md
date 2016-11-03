@@ -7,139 +7,19 @@ permalink: v1-specification.html
 summary: V1 Specification
 ---
 
-## V1 Specification
-
+## API V1 Operations
+-------------------------------------------------------------------
 
 # getPipelineList
-GET /pipeline/v1/demo/demo
-# Response Format
-<pre><code>
-{
-  "list": [
-    {
-      "id": 6,
-      "name": "demo",
-      "version": [
-        {
-          "id": 6,
-          "version": "v1.3",
-          "versionCode": 3
-        }
-      ]
-    },
-    {
-      "id": 11,
-      "name": "test1",
-      "version": [
-        {
-          "id": 11,
-          "version": "v1.1",
-          "versionCode": 1
-        }
-      ]
-    }
-  ]
-}
-</pre></code>
-
-# createPipeline
-POST
-/pipeline/v1/demo/demo
-# reqBody:
-<pre><code>
-{
-	"name":"test1",
-	"version":"v1.1"
-}
-</pre></code>
-
-# Response Format
-<pre><code>
-{
-	"message":"create new pipeline success"
-}
-</pre></code>
 
 
-# getPipelineInfo
-GET
-/pipeline/v1/demo/demo/pipelineName/json?id=pipelineID
-# Response Format
-<pre><code>
-{
-	"stageList":[],
-	"lineList":[]
-}
-</pre></code>
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| GET  | /pipeline/v1/:namespace/:repository|
 
-# savePipelineInfo/savePipelineAsNewVersion
-PUT
-/pipeline/v1/demo/demo/pipelineName
-# Body
-<pre><code>
-{
-	"id":123, // version id
-	"version":"", // version value
-	"define":{
-		// pipeline define
-	}
-}
-</pre></code>
+# response json
 
-
-# set pipeline env
-PUT
-/pipeline/v1/demo/demo/pipelineName/env
-# Body
-<pre><code>
-{
-    "id":123, // version id
-    "env":{ // env  K-V
-        "ENV_KEY_1":"abc",
-        "ENV_KEY_2":456
-    }
-}
-</pre></code>
-
-# get pipeline env
-GET
-/pipeline/v1/demo/demo/pipelineName/env?id=123
-# Response Format
-<pre><code>
-{
-    "env":{ // k-v
-        "ENV_KEY_1":"abc",
-        "ENV_KEY_2":456,
-    },
-}
-</pre></code>
-
-# git event json
-GET
-/pipeline/v1/eventJson/github/eventName
-# Body:
-<pre><code>
-{
-    "output":[{}] // json
-}
-</pre></code>
-
-# change pipeline state
-PUT
-/pipeline/v1/demo/demo/pipelineName/state
-# Body:
-<pre><code>
-{
-    "id":123,
-    "state": 0 // 0 pipelien enabled    1 pipelien disabled
-}
-</pre></code>
-
-# get component list
-GET
-/pipeline/v1/demo/component
-# Response Format
-<pre><code>
+```
 {
     "list":[
         {
@@ -166,71 +46,121 @@ GET
         }
     ]
 }
-
-</pre></code>
-
-# get component info
-GET
-/pipeline/v1/demo/component/componentName?id=componentID
-# Response Format
-<pre><code>
-{
-  "inputJson": {},
-  "outputJson": {},
-  "setupData": {}
-}
-</pre></code>
-
-# saveComponentInfo/saveComponentAsNewVersion
-PUT
-/pipeline/v1/demo/component/componentName
-# Body
-<pre><code>
-{
-    "id":123, // version id
-    "version":"", // version
-    "define":{
-        //component
-    }
-
-}
-</pre></code>
+```
 
 
-# createComponent
-POST
-/pipeline/v1/demo/component
-# Body
-<pre><code>
-{
-    "name":"test1",
-    "version":"v1.1"
-}
-</pre></code>
 
-# Response Format
-<pre><code>
-{
-    "message":"create new pipeline success"
-}
-</pre></code>
+| Response Field |  Field Type |Descripiton|
+| -------- | ------ |--------|
+| id  | integer|id of the pipeLine|
+| name | string | name of the pipeLine|
+|id | integer |--------|
+| version | string |--------|
+| versionCode | integer |--------|
 
-# get pipelien token and url
-GET
-/pipeline/v1/demo/demo/pipelineName/token?id=pipelineId
-# Response Format
-<pre><code>
-{
-  "token": "ed97b3cba1426429423fa13eeb97c1b2",
-  "url": "http://192.168.137.1/demo/demo/go-codecheck"
-}
-</pre></code>
 
-# getPipelineHistories
-GET
-/pipeline/v1/demo/demo/histories
-# Response Format
-<pre><code>
+------------------------------------------------------------
+
+# createPipeline
+
+--------------------------------------------------------------
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| GET  | /pipeline/v1/:namespace/:repository|
+
+#### getPipelineInfo
+
+--------------------------------------------------------------
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| GET  | /pipeline/v1/:namespace/:repository/pipelineName/json?id=pipelineID|
+
+####  savePipelineInfo/savePipelineAsNewVersion
+
+--------------------------------------------------------------
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| PUT  | /pipeline/v1/:namespace/:repository/pipelineName/json?id=pipelineID|
+
+#### set pipeline env
+
+--------------------------------------------------------------
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| PUT  | /pipeline/v1/:namespace/:repository/pipelineName/envD|
+
+#### git event json
+
+--------------------------------------------------------------
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| PUT  | /pipeline/v1/eventJson/github/eventName|
+
+#### change pipeline state
+
+--------------------------------------------------------------
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| PUT  | /pipeline/v1/eventJson/github/eventName|
+
+
+#### get component list
+
+--------------------------------------------------------------
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| PUT  | /pipeline/v1/eventJson/github/eventName|
+
+#### get component info
+
+--------------------------------------------------------------
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| PUT  | /pipeline/v1/eventJson/github/eventName|
+
+#### saveComponentInfo/saveComponentAsNewVersion
+
+--------------------------------------------------------------
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| PUT  | /pipeline/v1/eventJson/github/eventName|
+
+#### createComponent
+
+--------------------------------------------------------------
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| PUT  | /pipeline/v1/eventJson/github/eventName|
+
+
+#### get pipelien token and url
+
+--------------------------------------------------------------
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| PUT  | /pipeline/v1/eventJson/github/eventName|
+
+--------------------------------------------------------------
+#### getPipelineHistories
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| GET  | /pipeline/v1/:namespace/:repository/histories|
+
+# response json
+
+```
 {
   "pipelineList": [
     {
@@ -320,20 +250,33 @@ GET
     }
   ]
 }
-</pre></code>
+```
 
-# getPipelineHistory
-GET
-/pipeline/v1/demo/demo/{pipelineName}/historyDefine?versionId={versionId}sequenceId={pipelineSequenceID}
+--------------------------------------------------------------
+#### getPipelineHistory
 
-# getStageRunHistory
-GET
-/pipeline/v1/demo/demo/{pipelineName}/stage/{stageName}/history?stageLogId={stageLogID}
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/historyDefine?versionId={versionId}sequenceId={pipelineSequenceID}|
 
-# getActionRunHistory
-GET
-/pipeline/v1/demo/demo/{pipelineName}/stage/{stageName}/{actionName}/history?actionLogId={actionLogID}
-<pre><code>
+
+
+
+#### getStageRunHistory
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/stage/:stageName/history?stageLogId={stageLogID}|
+
+
+
+#### getActionRunHistory
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/stage/:stageName/:actionName/history?actionLogId={actionLogID}|
+
+# response json
+
+```
 {
   "result": {
     "data": {
@@ -353,13 +296,18 @@ GET
     ]
   }
 }
-</pre></code>
+```
 
-# getLineDataInfo
-GET
-/pipeline/v1/demo/demo/{pipelineName}/{pipelineSequenceID}/lineHistory?startActionId={startActionId}&endActionId={endActionId}
 
-<pre><code>
+#### getLineDataInfo
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/:pipelineSequenceID/lineHistory?startActionId={startActionId}&endActionId={endActionId}|
+
+# response json
+
+```
 {
   "define": {
     "input": {
@@ -370,4 +318,4 @@ GET
     }
   }
 }
-</pre></code>
+```
