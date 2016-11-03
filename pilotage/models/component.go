@@ -54,7 +54,7 @@ type Component struct {
 	Input          string     `json:"input" sql:"null;type:text"`                 //component input
 	Output         string     `json:"output" sql:"null;type:text"`                //component output
 	Timeout        int64      `json:"timeout"`                                    //
-	Manifest       string     `json:"manifest" sql:"null;type:text"`              //
+	Manifest       string     `json:"manifest" sql:"null;type:longtext"`          //
 	CreatedAt      time.Time  `json:"created" sql:""`                             //
 	UpdatedAt      time.Time  `json:"updated" sql:""`                             //
 	DeletedAt      *time.Time `json:"deleted" sql:"index"`                        //
@@ -91,7 +91,7 @@ type ComponentLog struct {
 	Swarm          string     `json:"swarm" sql:"null;type:text"`                                                         //Docker Swarm execute script.
 	Input          string     `json:"input" sql:"null;type:text"`                                                         //component input
 	Output         string     `json:"output" sql:"null;type:text"`                                                        //component output
-	Manifest       string     `json:"manifest" sql:"null;type:text"`                                                      //
+	Manifest       string     `json:"manifest" sql:"null;type:longtext"`                                                  //
 	Timeout        int64      `json:"timeout"`                                                                            //
 	CreatedAt      time.Time  `json:"created" sql:""`                                                                     //
 	UpdatedAt      time.Time  `json:"updated" sql:""`                                                                     //
