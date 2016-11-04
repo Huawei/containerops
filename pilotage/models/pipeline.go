@@ -218,21 +218,21 @@ func (a *ActionLog) GetActionLog() *gorm.DB {
 //When StageID point to the StageTypeStart , the Action ID is 0.
 //When StageID point to the StageTypeEnd , the Action ID is -1.
 type Outcome struct {
-	ID           int64      `json:"id" gorm:"primary_key"`                        //
-	Pipeline     int64      `json:"pipeline" sql:"not null;default:0"`            //PipelineLog id
-	RealPipeline int64      `json:"realPipeline" sql:"not null;default:0"`        //Pipeline id
-	Stage        int64      `json:"stage" sql:"not null;default:0"`               //stageLog id
-	RealStage    int64      `json:"realStage" sql:"not null;default:0"`           //stage id
-	Action       int64      `json:"action" sql:"not null;default:0"`              //actionLog id
-	RealAction   int64      `json:"realAction" sql:"not null;default:0"`          //
-	Event        int64      `json:"event" sql:"null;default:0"`                   //event id
-	Sequence     int64      `json:"sequence" sql:"not null;default:0"`            //pipeline run sequence
-	Status       bool       `json:"status" sql:"null;varchar(255)"`               //
-	Result       string     `json:"result" sql:"null;default:true;type:longtext"` //
-	Output       string     `json:"output" sql:"null;type:longtext"`              //
-	CreatedAt    time.Time  `json:"created" sql:""`                               //
-	UpdatedAt    time.Time  `json:"updated" sql:""`                               //
-	DeletedAt    *time.Time `json:"deleted" sql:"index"`                          //
+	ID           int64      `json:"id" gorm:"primary_key"`                 //
+	Pipeline     int64      `json:"pipeline" sql:"not null;default:0"`     //PipelineLog id
+	RealPipeline int64      `json:"realPipeline" sql:"not null;default:0"` //Pipeline id
+	Stage        int64      `json:"stage" sql:"not null;default:0"`        //stageLog id
+	RealStage    int64      `json:"realStage" sql:"not null;default:0"`    //stage id
+	Action       int64      `json:"action" sql:"not null;default:0"`       //actionLog id
+	RealAction   int64      `json:"realAction" sql:"not null;default:0"`   //
+	Event        int64      `json:"event" sql:"null;default:0"`            //event id
+	Sequence     int64      `json:"sequence" sql:"not null;default:0"`     //pipeline run sequence
+	Status       bool       `json:"status" sql:"null;varchar(255)"`        //
+	Result       string     `json:"result" sql:"null;type:longtext"`       //
+	Output       string     `json:"output" sql:"null;type:longtext"`       //
+	CreatedAt    time.Time  `json:"created" sql:""`                        //
+	UpdatedAt    time.Time  `json:"updated" sql:""`                        //
+	DeletedAt    *time.Time `json:"deleted" sql:"index"`                   //
 }
 
 //TableName is return the name of Outcome in MySQL database.
