@@ -8,43 +8,68 @@ summary: V1 Specification
 ---
 
 ## API V1 Operations
+
+------------------------------------------------------------
+
+### createPipeline
+
+--------------------------------------------------------------
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| POST  | /pipeline/v1/:namespace/:repository|
+
+#### Body:
+```
+{
+  "name": "pythonSonarCheck",
+  "version": "V1.0"
+}
+```
+
+#### response json
+```
+{
+  "message": "create new pipeline success"
+}
+```
 -------------------------------------------------------------------
 
-# getPipelineList
+### getPipelineList
 
-
+-------------------------------------------------------------------
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | GET  | /pipeline/v1/:namespace/:repository|
 
-# response json
+#### response json
 
 ```
 {
-    "list":[
+  "list" : [
+    {
+      "id" : 15,
+      "name" : "pythonSonarCheck",
+      "version" : [
         {
-            "id":6,
-            "name":"demo",
-            "version":[
-                {
-                    "id":6,
-                    "version":"v1.3",
-                    "versionCode":3
-                }
-            ]
-        },
-        {
-            "id":11,
-            "name":"test1",
-            "version":[
-                {
-                    "id":11,
-                    "version":"v1.1",
-                    "versionCode":1
-                }
-            ]
+          "id" : 15,
+          "version" : "V1.0",
+          "versionCode" : 1
         }
-    ]
+      ]
+    },
+    {
+      "id" : 1,
+      "name" : "python",
+      "version" : [
+        {
+          "id" : 1,
+          "version" : "1.0",
+          "versionCode" : 1
+        }
+      ]
+    }
+  ]
 }
 ```
 
@@ -59,106 +84,444 @@ summary: V1 Specification
 | versionCode | integer |--------|
 
 
-------------------------------------------------------------
 
-# createPipeline
+--------------------------------------------------------------
+### getPipelineInfo
+
+-------------------------------------------------------------------
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/json?id=:pipelineID|
+
+#### response json
+```
+{
+  "lineList" : [ ],
+  "stageList" : [
+    {
+      "id" : "start-stage",
+      "setupData" : { },
+      "type" : "pipeline-start"
+    },
+    {
+      "id" : "add-stage",
+      "type" : "pipeline-add-stage"
+    },
+    {
+      "id" : "end-stage",
+      "setupData" : { },
+      "type" : "pipeline-end"
+    }
+  ],
+  "status" : false
+}
+```
+--------------------------------------------------------------
+###  savePipelineInfo/savePipelineAsNewVersion
+
+-------------------------------------------------------------------
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| PUT  | /pipeline/v1/:namespace/:repository/:pipelineName|
+
+
+#### body
+```
+{
+  "id": 15,
+  "version": "V1.0",
+  "define": {
+    "lineList": [],
+    "stageList": [
+      {
+        "id": "start-stage",
+        "setupData": {},
+        "type": "pipeline-start",
+        "width": 45,
+        "height": 52,
+        "translateX": 50,
+        "translateY": 96.2
+      },
+      {
+        "id": "pipeline-stage-8b3dc560-a2f4-11e6-baa2-615f3fa81dab",
+        "type": "pipeline-stage",
+        "class": "pipeline-stage",
+        "drawX": 0,
+        "drawY": 0,
+        "width": 45,
+        "height": 52,
+        "translateX": 250,
+        "translateY": 96.2,
+        "actions": [
+          {
+            "id": "pipeline-action-8d0cb900-a2f4-11e6-baa2-615f3fa81dab",
+            "type": "pipeline-action",
+            "setupData": {},
+            "translateY": 213.2,
+            "width": 38,
+            "height": 38,
+            "translateX": 253.5
+          }
+        ],
+        "setupData": {
+          "name": "",
+          "timeout": ""
+        }
+      },
+      {
+        "id": "add-stage",
+        "type": "pipeline-add-stage",
+        "width": 45,
+        "height": 52,
+        "translateX": 450,
+        "translateY": 96.2
+      },
+      {
+        "id": "end-stage",
+        "setupData": {},
+        "type": "pipeline-end",
+        "width": 45,
+        "height": 52,
+        "translateX": 650,
+        "translateY": 96.2
+      }
+    ]
+  }
+}
+```
+
+
+#### response json
+```
+{
+  "message": "success"
+}
+```
+--------------------------------------------------------------
+### set pipeline env
+--------------------------------------------------------------
+
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| PUT  |/pipeline/v1/:namespace/:repository/:pipelineName/env|
+#### body
+```
+{
+  "id": 15,
+  "env": {
+    "GITURL": "https://github.com/Huawei/containerops.git"
+  }
+}
+```
+
+#### response json
+```
+{
+  "message": "success"
+}
+```
+
+--------------------------------------------------------------
+### GET pipeline env
+--------------------------------------------------------------
+
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| GET  |/pipeline/v1/:namespace/:repository/:pipelineName/env?id=:pipelineId|
+
+
+#### response json
+```
+{
+  "env": {
+    "GITURL": "https://github.com/Huawei/containerops.git"
+  }
+}
+```
+--------------------------------------------------------------
+### git event json
 
 --------------------------------------------------------------
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository|
-
-#### getPipelineInfo
-
---------------------------------------------------------------
-
-| HTTP Method |  Request Address |
-| -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository/pipelineName/json?id=pipelineID|
-
-####  savePipelineInfo/savePipelineAsNewVersion
+| PUT  | /pipeline/v1/eventJson/github/:eventName|
+-------------------------------------------------------------------
+### change pipeline state
 
 --------------------------------------------------------------
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| PUT  | /pipeline/v1/:namespace/:repository/pipelineName/json?id=pipelineID|
+| PUT  |/pipeline/v1/:namespace/:repository/:pipelineName/state|
 
-#### set pipeline env
+#### body
+```
+{
+  "id": 15,
+  "state": 1 #0 OFF, 1 ON
+}
+```
 
---------------------------------------------------------------
-
-| HTTP Method |  Request Address |
-| -------- | ------ |
-| PUT  | /pipeline/v1/:namespace/:repository/pipelineName/envD|
-
-#### git event json
-
---------------------------------------------------------------
-
-| HTTP Method |  Request Address |
-| -------- | ------ |
-| PUT  | /pipeline/v1/eventJson/github/eventName|
-
-#### change pipeline state
-
---------------------------------------------------------------
-
-| HTTP Method |  Request Address |
-| -------- | ------ |
-| PUT  | /pipeline/v1/eventJson/github/eventName|
-
-
-#### get component list
+#### response json
+```
+{
+  "message": "success"
+}
+```
+-------------------------------------------------------------------
+### get component list
 
 --------------------------------------------------------------
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| PUT  | /pipeline/v1/eventJson/github/eventName|
-
-#### get component info
+| get  |/pipeline/v1/:namespace/component|
+#### response json
+```
+{
+  "list" : [
+    {
+      "id" : 2,
+      "name" : "pythonrun",
+      "version" : [
+        {
+          "id" : 2,
+          "version" : "v1.0",
+          "versionCode" : 1
+        }
+      ]
+    },
+    {
+      "id" : 1,
+      "name" : "pythoncheck",
+      "version" : [
+        {
+          "id" : 1,
+          "version" : "v1.0",
+          "versionCode" : 1
+        }
+      ]
+    }
+  ]
+}
+```
+-------------------------------------------------------------------
+### get component info
 
 --------------------------------------------------------------
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| PUT  | /pipeline/v1/eventJson/github/eventName|
-
-#### saveComponentInfo/saveComponentAsNewVersion
+| GET  |/pipeline/v1/:namespace/component/:componentName?id=:componentID|
+#### response json
+```
+{
+  "env" : [
+    {
+      "key" : "CO_DATA",
+      "value" : "{     \"serverities\": \"MAJOR\",     \"contents\": \"sonar.projectKey=python-sonar-runner\\nsonar.projectName=python-sonar-runner\\nsonar.projectVersion=1.0\\nsonar.sources=src\\nsonar.language=py\\nsonar.sourceEncoding=UTF-8\",     \"filename\": \"sonar-project.properties\" }"
+    }
+  ],
+  "inputJson" : {
+    "gitUrl" : "https://github.com/xiechuanj/python-sonar-runner.git"
+  },
+  "outputJson" : {
+    "EVENT" : "TASK_RESULT",
+    "EVENTID" : "",
+    "INFO" : {
+      "result" : "",
+      "status" : ""
+    },
+    "RUN_ID" : ""
+  },
+  "setupData" : {
+    "action" : {
+      "apiserver" : "",
+      "datafrom" : "{}",
+      "image" : {
+        "name" : "xiechuan/pythoncheck",
+        "tag" : "1.0"
+      },
+      "ip" : "",
+      "name" : "pythoncheck",
+      "timeout" : "9000",
+      "type" : "Kubernetes",
+      "useAdvanced" : false
+    },
+    "pod" : {
+      "spec" : {
+        "containers" : [
+          {
+            "resources" : {
+              "limits" : {
+                "cpu" : 2,
+                "memory" : "1024Mi"
+              },
+              "requests" : {
+                "cpu" : 1,
+                "memory" : "128Mi"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "pod_advanced" : { },
+    "service" : {
+      "spec" : {
+        "ports" : [
+          {
+            "nodePort" : 32007,
+            "port" : 8000,
+            "targetPort" : 8000
+          }
+        ],
+        "type" : "NodePort"
+      }
+    },
+    "service_advanced" : { }
+  }
+}
+```
+-------------------------------------------------------------------
+### saveComponentInfo/saveComponentAsNewVersion
 
 --------------------------------------------------------------
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| PUT  | /pipeline/v1/eventJson/github/eventName|
+| PUT  |/pipeline/v1/:namespace/component/:componentName|
+#### body
+```
+{
+  "id": 1,
+  "version": "v1.0",
+  "define": {
+    "env": [
+      {
+        "key": "CO_DATA",
+        "value": "{     \"serverities\": \"MAJOR\",     \"contents\": \"sonar.projectKey:python-sonar-runner\\nsonar.projectName=python-sonar-runner\\nsonar.projectVersion=1.0\\nsonar.sources=src\\nsonar.language=py\\nsonar.sourceEncoding=UTF-8\",     \"filename\": \"sonar-project.properties\" }"
+      }
+    ],
+    "inputJson": {
+      "gitUrl": "https://github.com/xiechuanj/python-sonar-runner.git"
+    },
+    "outputJson": {
+      "EVENT": "TASK_RESULT",
+      "EVENTID": "",
+      "INFO": {
+        "result": "",
+        "status": ""
+      },
+      "RUN_ID": ""
+    },
+    "setupData": {
+      "action": {
+        "apiserver": "",
+        "datafrom": "{}",
+        "image": {
+          "name": "xiechuan/pythoncheck",
+          "tag": "1.0"
+        },
+        "ip": "",
+        "name": "pythoncheck",
+        "timeout": "9000",
+        "type": "Kubernetes",
+        "useAdvanced": false
+      },
+      "pod": {
+        "spec": {
+          "containers": [
+            {
+              "resources": {
+                "limits": {
+                  "cpu": "0.1",
+                  "memory": "1024Mi"
+                },
+                "requests": {
+                  "cpu": "0.1",
+                  "memory": "128Mi"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "pod_advanced": {},
+      "service": {
+        "spec": {
+          "ports": [
+            {
+              "nodePort": 32007,
+              "port": 8000,
+              "targetPort": 8000
+            }
+          ],
+          "type": "NodePort"
+        }
+      },
+      "service_advanced": {}
+    }
+  }
+}
+```
+#### response json
+```
+{
+  "message": "success"
+}
+```
 
-#### createComponent
+-------------------------------------------------------------------
+### createComponent
 
 --------------------------------------------------------------
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| PUT  | /pipeline/v1/eventJson/github/eventName|
+| PUT  |/pipeline/v1/demo/component|
 
-
-#### get pipelien token and url
+#### body
+```
+{
+  "name": "javaCheck",
+  "version": "v3.0"
+}
+```
+#### response json
+```
+{
+  "message": "create new component success"
+}
+```
+-------------------------------------------------------------------
+### get pipelien token and url
 
 --------------------------------------------------------------
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| PUT  | /pipeline/v1/eventJson/github/eventName|
-
+| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/token?id=:pipelineId|
+#### response json
+```
+{
+  "token": "ed97b3cba1426429423fa13eeb97c1b2",
+  "url": "http://192.168.137.1/demo/demo/go-codecheck"
+}
+```
 --------------------------------------------------------------
-#### getPipelineHistories
-
+### getPipelineHistories
+-------------------------------------------------------------------
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | GET  | /pipeline/v1/:namespace/:repository/histories|
 
-# response json
+#### response json
 
 ```
 {
@@ -253,8 +616,8 @@ summary: V1 Specification
 ```
 
 --------------------------------------------------------------
-#### getPipelineHistory
-
+### getPipelineHistory
+-------------------------------------------------------------------
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | GET  | /pipeline/v1/:namespace/:repository/:pipelineName/historyDefine?versionId={versionId}sequenceId={pipelineSequenceID}|
@@ -262,19 +625,21 @@ summary: V1 Specification
 --------------------------------------------------------------
 
 
-#### getStageRunHistory
+### getStageRunHistory
+-------------------------------------------------------------------
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | GET  | /pipeline/v1/:namespace/:repository/:pipelineName/stage/:stageName/history?stageLogId={stageLogID}|
 
 --------------------------------------------------------------
 
-#### getActionRunHistory
+### getActionRunHistory
+-------------------------------------------------------------------
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | GET  | /pipeline/v1/:namespace/:repository/:pipelineName/stage/:stageName/:actionName/history?actionLogId={actionLogID}|
 
-# response json
+#### response json
 
 ```
 {
@@ -299,13 +664,13 @@ summary: V1 Specification
 ```
 --------------------------------------------------------------
 
-#### getLineDataInfo
-
+### getLineDataInfo
+-------------------------------------------------------------------
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | GET  | /pipeline/v1/:namespace/:repository/:pipelineName/:pipelineSequenceID/lineHistory?startActionId={startActionId}&endActionId={endActionId}|
 
-# response json
+#### response json
 
 ```
 {
