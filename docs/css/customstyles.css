@@ -251,6 +251,11 @@ ul#results-container a: hover {
     float: right;
     margin-top:10px;
 }
+@media (max-width: 800px) {
+    #search-input {
+        float: left;
+    }
+}
 /* end search */
 
 .filter-options {
