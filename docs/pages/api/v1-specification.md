@@ -371,7 +371,9 @@ summary: V1 Specification
 }
 ```
 
-### saveComponentInfo/saveComponentAsNewVersion
+### saveComponentInfo
+
+Save component as new version used the same api.
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
