@@ -379,6 +379,8 @@ function showPipelineEnv() {
     if ($("#env-setting").hasClass("env-setting-closed")) {
         $("#env-setting").removeClass("env-setting-closed");
         $("#env-setting").addClass("env-setting-opened");
+        $("#close_pp_env").removeClass("pipeline-open-env");
+        $("#close_pp_env").addClass("pipeline-close-env");
 
         $.ajax({
             url: "../../templates/pipeline/envSetting.html",
@@ -387,12 +389,12 @@ function showPipelineEnv() {
             success: function(data) {
                 $("#env-setting").html($(data));
 
-                $(".new-kv").on('click', function() {
+                $(".add-env").on('click', function() {
                     pipelineEnvs.push(["", ""]);
                     showEnvKVs();
                 });
 
-                $(".close-env").on('click', function() {
+                $(".pipeline-close-env").on('click', function() {
                     hidePipelineEnv();
                 });
 
@@ -407,12 +409,16 @@ function showPipelineEnv() {
     } else {
         $("#env-setting").removeClass("env-setting-opened");
         $("#env-setting").addClass("env-setting-closed");
+        $("#close_pp_env").removeClass("pipeline-close-env");
+        $("#close_pp_env").addClass("pipeline-open-env");
     }
 }
 
 function hidePipelineEnv() {
     $("#env-setting").removeClass("env-setting-opened");
     $("#env-setting").addClass("env-setting-closed");
+    $("#close_pp_env").removeClass("pipeline-close-env");
+    $("#close_pp_env").addClass("pipeline-open-env");
 }
 
 function getEnvList() {
@@ -435,32 +441,54 @@ function getEnvList() {
 
 function showEnvKVs() {
     $("#envs").empty();
-    _.each(pipelineEnvs, function(item, index) {
-        var row = '<tr data-index="' + index + '"><td>' + '<input type="text" class="form-control col-md-5 env-key" value="' + item[0] + '" required>' + '</td><td>' + '<input type="text" class="form-control col-md-5 env-value" required>' + '</td><td>' + '<span class="glyphicon glyphicon-minus rm-kv"></span>' + '</td></tr>';
+    _.each(pipelineEnvs,function(item,index){
+         var row = '<div class="env-row"><div class="port-div">'
+                        +'<div>'
+                            +'<label for="normal-field" class="col-sm-3 control-label" style="margin-top:5px">'
+                                +'KEY'
+                            +'</label>'
+                            +'<div class="col-sm-9" data-index="' + index + '">'
+                                +'<input type="text" value="' + item[0] + '" class="form-control pp-env-input pp-env-key" required>'
+                            +'</div>'
+                        +'</div>'
+                    +'</div>'
+                    +'<div class="target-port-div" style="margin-left:0">'
+                        +'<div>'
+                            +'<label for="normal-field" class="col-sm-3 control-label" style="margin-top:5px">'
+                                +'VALUE'
+                            +'</label>'
+                            +'<div class="col-sm-9" data-index="' + index + '">' 
+                                +'<input type="text" class="form-control pp-env-input pp-env-value" required>'
+                            +'</div>'
+                        +'</div>'
+                    +'</div>'
+                    +'<div class="env-remove-div pp-rm-kv" data-index="' + index + '">'
+                        +'<span class="glyphicon glyphicon-remove"></span>'
+                    +'</div></div>';
         $("#envs").append(row);
-        $("#envs").find("tr[data-index="+index+"]").find(".env-value").val(item[1]);
+        $("#envs").find("div[data-index="+index+"]").find(".pp-env-value").val(item[1]);
     });
 
-    $(".env-key").on('input', function(event) {
+    $(".pp-env-key").on('input',function(event){
         var key = $(event.currentTarget).val();
         $(event.currentTarget).val(key.toUpperCase());
     });
 
-    $(".env-key").on('blur', function(event) {
-        var index = $(event.currentTarget).parent().parent().data("index");
+    $(".pp-env-key").on('blur',function(event){
+        var index = $(event.currentTarget).parent().data("index");
         pipelineEnvs[index][0] = $(event.currentTarget).val();
     });
 
-    $(".env-value").on('blur', function(event) {
-        var index = $(event.currentTarget).parent().parent().data("index");
+    $(".pp-env-value").on('blur',function(event){
+        var index = $(event.currentTarget).parent().data("index");
         pipelineEnvs[index][1] = $(event.currentTarget).val();
     });
 
-    $(".rm-kv").on('click', function(event) {
-        var index = $(event.currentTarget).parent().parent().data("index");
+    $(".pp-rm-kv").on('click',function(event){
+        var index = $(event.currentTarget).data("index");
         pipelineEnvs.splice(index, 1);
         showEnvKVs();
-    });
+    }); 
 }
 
 function savePipelineEnvs() {

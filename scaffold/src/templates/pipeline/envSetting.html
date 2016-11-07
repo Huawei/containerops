@@ -11,10 +11,10 @@
     limitations under the License. 
 -->
 <div class="col-lg-12">
-    <span class="glyphicon glyphicon-remove close-env" style="font-size:16px;float:right"></span>
+    <span style="font-size:16px;float:right">Env Setting</span>
     <br/>
-    <div>
-        <table class="table">
+    <div id="envs">
+        <!-- <table class="table">
             <thead>
                 <tr>
                     <th>Key</th>
@@ -24,11 +24,13 @@
             </thead>
             <tbody id="envs">
             </tbody>
-        </table>
+        </table> -->
     </div>
-    <br/>
-    <div class="row" style="text-align:center">
-        <button type="button" class="btn btn-primary save-env">
+    <div class="row" style="margin-top:30px">
+        <button type="button" class="btn btn-success add-env" style="margin-left:20px">
+            <i class="glyphicon glyphicon-plus" style="font-size:12px"></i>&nbsp;&nbsp;Add Env
+        </button>
+        <button type="button" class="btn btn-primary save-env" style="margin-left:20px">
             <i class="glyphicon glyphicon-floppy-disk" style="font-size:12px"></i>&nbsp;&nbsp;Save Env
         </button>
     </div>
