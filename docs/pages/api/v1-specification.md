@@ -107,12 +107,14 @@ summary: V1 Specification
   "status" : false
 }
 ```
-###  savePipelineInfo/savePipelineAsNewVersion
+
+###  savePipelineInfo
+
+Save workflow as the new version use same API. 
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | PUT  | /pipeline/v1/:namespace/:repository/:pipelineName|
-
 
 #### body
 
