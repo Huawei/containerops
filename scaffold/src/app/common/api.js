@@ -15,7 +15,7 @@ limitations under the License.
  */
 
 let apiUrlConf = {
-	"host" : "http://test-1.containerops.sh",
+	"host" : "https://test-1.containerops.sh",
 	"pipeline" : {
 		"list" : "/pipeline/v1/demo/demo",
 		"data" : "/pipeline/v1/demo/demo/{pipelineName}/json?id={pipelineID}",
