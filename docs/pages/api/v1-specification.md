@@ -1,7 +1,7 @@
 ---
 title: V1 Specification
 keywords: component
-tags: [component]
+tags: [API]
 sidebar: home_sidebar
 permalink: v1-specification.html
 summary: V1 Specification
@@ -9,17 +9,17 @@ summary: V1 Specification
 
 ## API V1 Operations
 
-### createPipeline
+### Create Workflow 
 
 | HTTP Method |  Request Address |
-| -------- | ------ |
+| -------- | -------- |
 | POST  | /pipeline/v1/:namespace/:repository |
 
 #### Body:
 
 ```
 {
-  "name": "pythonSonarCheck",
+  "name": "PythonSonarCheck",
   "version": "V1.0"
 }
 ```
@@ -31,6 +31,7 @@ summary: V1 Specification
   "message": "create new pipeline success"
 }
 ```
+
 ### getPipelineList
 
 | HTTP Method |  Request Address |
