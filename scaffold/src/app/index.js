@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-import {initPipelinePage} from "./pipeline/main";
+import {initPipelinePage,hidePipelineEnv} from "./pipeline/main";
 import {initComponentPage} from "./component/main";
 import {initHistoryPage} from "./history/main";
 
@@ -56,6 +56,10 @@ $(".nav-control").on("click",function(event){
         $("body").removeClass("nav-collapsed").addClass("nav-static");
     }
 })
+
+$(".pipeline-close-env").on('click', function() {
+    hidePipelineEnv();
+});
 
 function initActionLinkView() {
     actionLinkView.append("rect")
