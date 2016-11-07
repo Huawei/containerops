@@ -75,7 +75,7 @@ limitations under the License. */
     position: fixed;
     top: 0;
     bottom: 0;
-    right: -600px;
+    right: -700px;
     width: 600px;
     background-color: #232323;
     -webkit-transition: right 0.3s ease-in-out;
@@ -83,7 +83,7 @@ limitations under the License. */
     transition: right 0.3s ease-in-out;
     z-index: 1000;
     padding:20px 20px;
-    color:white;
+    color:#a1a1a1;
 }
 
 .env-setting-opened{
@@ -98,8 +98,78 @@ limitations under the License. */
     transition: right 0.3s ease-in-out;
     z-index: 1000;
     padding:20px 20px;
-    color:white;
+    color:#a1a1a1;
     overflow: auto;
+}
+
+.pipeline-open-env{
+    position: fixed;
+    top: 0;
+    right: -100px;
+    background-color: #232323;
+    color:#a1a1a1;
+    z-index: 1000;
+    -webkit-border-top-left-radius: 5px;
+    -moz-border-top-left-radius: 5px;
+    border-top-left-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -moz-border-bottom-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding:10px;
+    font-size: 24px;
+    -webkit-transition: right 0.3s ease-in-out;
+    -o-transition: right 0.3s ease-in-out;
+    transition: right 0.3s ease-in-out;
+}
+
+.pipeline-close-env{
+    position: fixed;
+    top: 0;
+    right: 600px;
+    background-color: #232323;
+    color:#a1a1a1;
+    z-index: 1000;
+    -webkit-border-top-left-radius: 5px;
+    -moz-border-top-left-radius: 5px;
+    border-top-left-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -moz-border-bottom-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding:10px;
+    font-size: 24px;
+    -webkit-transition: right 0.3s ease-in-out;
+    -o-transition: right 0.3s ease-in-out;
+    transition: right 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.env-row{
+  background-color:#313131;
+  width:98%;
+  height: 50px;
+  margin:30px 1%;
+}
+
+.pp-env-input{
+  background-color:#a2a2a2;
+  color:#000;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+
+.env-remove-div{
+  width:50px;
+  height: 50px;
+  float: right;
+  background-color:#424242;
+  padding:16px;
+  cursor:pointer;
+  font-size: 18px;
+}
+
+.env-remove-div:hover{
+  background-color:#696969;
 }
 
 .new-kv , .rm-kv, .close-env, .c-new-kv, .c-rm-kv{
