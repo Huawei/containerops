@@ -9,17 +9,14 @@ summary: V1 Specification
 
 ## API V1 Operations
 
-------------------------------------------------------------
-
 ### createPipeline
-
---------------------------------------------------------------
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| POST  | /pipeline/v1/:namespace/:repository|
+| POST  | /pipeline/v1/:namespace/:repository |
 
 #### Body:
+
 ```
 {
   "name": "pythonSonarCheck",
@@ -28,19 +25,17 @@ summary: V1 Specification
 ```
 
 #### response json
+
 ```
 {
   "message": "create new pipeline success"
 }
 ```
--------------------------------------------------------------------
-
 ### getPipelineList
 
--------------------------------------------------------------------
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository|
+| GET  | /pipeline/v1/:namespace/:repository |
 
 #### response json
 
@@ -73,28 +68,22 @@ summary: V1 Specification
 }
 ```
 
-
-
-| Response Field |  Field Type |Descripiton|
+| Response Field | Field Type | Descripiton |
 | -------- | ------ |--------|
-| id  | integer|id of the pipeLine|
-| name | string | name of the pipeLine|
-|id | integer |--------|
-| version | string |--------|
-| versionCode | integer |--------|
+| id          | integer | id of the pipeLine   |
+| name        | string  | name of the pipeLine |
+| id          | integer | -------- |
+| version     | string  | -------- |
+| versionCode | integer | -------- |
 
-
-
---------------------------------------------------------------
 ### getPipelineInfo
-
--------------------------------------------------------------------
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/json?id=:pipelineID|
+| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/json?id=:pipelineID |
 
 #### response json
+
 ```
 {
   "lineList" : [ ],
@@ -117,10 +106,7 @@ summary: V1 Specification
   "status" : false
 }
 ```
---------------------------------------------------------------
 ###  savePipelineInfo/savePipelineAsNewVersion
-
--------------------------------------------------------------------
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
@@ -128,6 +114,7 @@ summary: V1 Specification
 
 
 #### body
+
 ```
 {
   "id": 15,
@@ -191,23 +178,22 @@ summary: V1 Specification
   }
 }
 ```
-
-
 #### response json
+
 ```
 {
   "message": "success"
 }
 ```
---------------------------------------------------------------
-### set pipeline env
---------------------------------------------------------------
 
+### set pipeline env
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | PUT  |/pipeline/v1/:namespace/:repository/:pipelineName/env|
+
 #### body
+
 ```
 {
   "id": 15,
@@ -218,23 +204,21 @@ summary: V1 Specification
 ```
 
 #### response json
+
 ```
 {
   "message": "success"
 }
 ```
 
---------------------------------------------------------------
 ### GET pipeline env
---------------------------------------------------------------
-
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | GET  |/pipeline/v1/:namespace/:repository/:pipelineName/env?id=:pipelineId|
 
-
 #### response json
+
 ```
 {
   "env": {
@@ -242,24 +226,21 @@ summary: V1 Specification
   }
 }
 ```
---------------------------------------------------------------
-### git event json
 
---------------------------------------------------------------
+### git event json
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | PUT  | /pipeline/v1/eventJson/github/:eventName|
--------------------------------------------------------------------
-### change pipeline state
 
---------------------------------------------------------------
+### change pipeline state
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | PUT  |/pipeline/v1/:namespace/:repository/:pipelineName/state|
 
 #### body
+
 ```
 {
   "id": 15,
@@ -268,20 +249,21 @@ summary: V1 Specification
 ```
 
 #### response json
+
 ```
 {
   "message": "success"
 }
 ```
--------------------------------------------------------------------
-### get component list
 
---------------------------------------------------------------
+### get component list
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | get  |/pipeline/v1/:namespace/component|
+
 #### response json
+
 ```
 {
   "list" : [
@@ -310,15 +292,15 @@ summary: V1 Specification
   ]
 }
 ```
--------------------------------------------------------------------
-### get component info
 
---------------------------------------------------------------
+### get component info
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | GET  |/pipeline/v1/:namespace/component/:componentName?id=:componentID|
+
 #### response json
+
 ```
 {
   "env" : [
@@ -388,15 +370,15 @@ summary: V1 Specification
   }
 }
 ```
--------------------------------------------------------------------
-### saveComponentInfo/saveComponentAsNewVersion
 
---------------------------------------------------------------
+### saveComponentInfo/saveComponentAsNewVersion
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | PUT  |/pipeline/v1/:namespace/component/:componentName|
+
 #### body
+
 ```
 {
   "id": 1,
@@ -470,53 +452,55 @@ summary: V1 Specification
   }
 }
 ```
+
 #### response json
+
 ```
 {
   "message": "success"
 }
 ```
 
--------------------------------------------------------------------
 ### createComponent
-
---------------------------------------------------------------
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | PUT  |/pipeline/v1/demo/component|
 
 #### body
+
 ```
 {
   "name": "javaCheck",
   "version": "v3.0"
 }
 ```
+
 #### response json
+
 ```
 {
   "message": "create new component success"
 }
 ```
--------------------------------------------------------------------
-### get pipelien token and url
 
---------------------------------------------------------------
+### get pipelien token and url
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | GET  | /pipeline/v1/:namespace/:repository/:pipelineName/token?id=:pipelineId|
+
 #### response json
+
 ```
 {
   "token": "ed97b3cba1426429423fa13eeb97c1b2",
   "url": "http://192.168.137.1/demo/demo/go-codecheck"
 }
 ```
---------------------------------------------------------------
+
 ### getPipelineHistories
--------------------------------------------------------------------
+
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | GET  | /pipeline/v1/:namespace/:repository/histories|
@@ -615,26 +599,20 @@ summary: V1 Specification
 }
 ```
 
---------------------------------------------------------------
 ### getPipelineHistory
--------------------------------------------------------------------
+
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | GET  | /pipeline/v1/:namespace/:repository/:pipelineName/historyDefine?versionId={versionId}sequenceId={pipelineSequenceID}|
 
---------------------------------------------------------------
-
-
 ### getStageRunHistory
--------------------------------------------------------------------
+
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | GET  | /pipeline/v1/:namespace/:repository/:pipelineName/stage/:stageName/history?stageLogId={stageLogID}|
 
---------------------------------------------------------------
-
 ### getActionRunHistory
--------------------------------------------------------------------
+
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | GET  | /pipeline/v1/:namespace/:repository/:pipelineName/stage/:stageName/:actionName/history?actionLogId={actionLogID}|
@@ -662,10 +640,9 @@ summary: V1 Specification
   }
 }
 ```
---------------------------------------------------------------
 
 ### getLineDataInfo
--------------------------------------------------------------------
+
 | HTTP Method |  Request Address |
 | -------- | ------ |
 | GET  | /pipeline/v1/:namespace/:repository/:pipelineName/:pipelineSequenceID/lineHistory?startActionId={startActionId}&endActionId={endActionId}|
@@ -684,4 +661,3 @@ summary: V1 Specification
   }
 }
 ```
---------------------------------------------------------------
