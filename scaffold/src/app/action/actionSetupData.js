@@ -63,11 +63,43 @@ export function setActionUseAdvanced(value){
 }
 
 // ports
+export function getUseNodePort(){
+    if(data.service.spec.type == "NodePort"){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+export function setUseNodePort(isuse){
+    if(isuse){
+        data.service.spec.type = "NodePort";
+        _.each(data.service.spec.ports,function(item){
+          if(_.isUndefined(item.nodePort)){
+            item.nodePort = "";
+          }
+        })
+    }else{
+        data.service.spec.type = "ClusterIP";
+        _.each(data.service.spec.ports,function(item){
+          if(!_.isUndefined(item.nodePort)){
+            delete item.nodePort;
+          }
+        })
+    }
+}
+
 export function setServicePort(event){
   var target = $(event.currentTarget);
   var index = target.parent().data("index");
   var value = target.val();
   data.service.spec.ports[index].port = parseInt(value);
+}
+
+export function setServiceTargetPort(event){
+  var target = $(event.currentTarget);
+  var index = target.parent().data("index");
+  var value = target.val();
   data.service.spec.ports[index].targetPort = parseInt(value);
 }
 
@@ -84,11 +116,18 @@ export function removeServicePorts(event){
 }
 
 export function addServicePort(){
-  data.service.spec.ports.push({
-    "port" : "",
-    "targetPort" : "",
-    "nodePort" : ""
-  })
+  if(getUseNodePort()){
+      data.service.spec.ports.push({
+        "port" : "",
+        "targetPort" : "",
+        "nodePort" : ""
+      });
+  }else{
+      data.service.spec.ports.push({
+        "port" : "",
+        "targetPort" : ""
+      });
+  }
 }
 // ports end
 
@@ -127,26 +166,6 @@ export function setServiceAdvanced(value){
 export function setPodAdvanced(value){
   data.pod_advanced = value;
 }
-
-// export function setK8s(k8sAdvancedEditor){
-//     var k8s_ad = k8sAdvancedEditor.get();
-//     k8s_ad.service.spec.ports[0].port = $("#k8s-service-port").val();
-//     k8s_ad.pod.spec.containers[0].image = $("#k8s-pod-image").val();
-//     var resources = {
-//       "limits":[{
-//         "cpu": $("#k8s-cpu-limits").val(), 
-//         "memory": $("#k8s-memory-limits").val()
-//       }],
-//       "requests":[{
-//         "cpu": $("#k8s-cpu-requests").val(), 
-//         "memory": $("#k8s-memory-requests").val()
-//       }]
-//     }
-//     k8s_ad.pod.spec.containers[0].resources = resources;
-
-//     data.service = k8s_ad.service;
-//     data.pod = k8s_ad.pod;
-// }
 
 var metadata = {
   "action" : {
@@ -188,198 +207,3 @@ var metadata = {
    "service_advanced" : {},
    "pod_advanced" : {}
 }
-
-// var metadata = {
-//   "action" : {
-//     "type" : "Kubernetes",
-//     "name" : "",
-//     "timeout" : "",
-//     "ip" : ""
-//   },
-//   "service" : {
-//     "metadata": {
-//       "name": "",
-//       "deletionTimestamp": "",
-//       "deletionGracePeriodSeconds": 0
-//     },
-//     "spec": {
-//       "ports": [
-//         {
-//           "protocol": "tcp",
-//           "port": "",
-//           "targetPort": "",
-//           "nodePort": ""
-//         }
-//       ],
-//       "clusterIP": "",
-//       "type": "",
-//       "sessionAffinity": "",
-//       "loadBalancerIP": ""
-//     }
-//   },
-//   "pod" : {
-//     "metadata": {
-//       "name" : "",
-//       "deletionTimestamp": "",
-//       "deletionGracePeriodSeconds": 0
-//     },
-//     "spec": {
-//       "containers": [
-//         {
-//           "name": "",
-//           "image" : "",
-//           "command": [],
-//           "args": [],
-//           "workingDir": "",
-//           "ports": [
-//             {
-//               "name": "",
-//               "hostPort": 0,
-//               "containerPort": 0,
-//               "protocol": "",
-//               "hostIP": ""
-//             }
-//           ],
-//           "env": [
-//             {
-//               "name": "",
-//               "value": ""
-//             }
-//           ],
-//           "resources": {
-//             "limits":[ {"cpu": 4.0, "memory": "99Mi"} ],
-//             "requests":[ {"cpu": 4.0, "memory": "99Mi"} ]
-//           },
-//           "livenessProbe": {
-//             "exec": {
-//               "command": []
-//             },
-//             "httpGet": {
-//               "path": "",
-//               "port": "",
-//               "host": "",
-//               "scheme": ""
-//             },
-//             "tcpSocket": {
-//               "port": ""
-//             },
-//             "initialDelaySeconds": 0,
-//             "timeoutSeconds": 0,
-//             "periodSeconds": 0,
-//             "successThreshold": 0,
-//             "failureThreshold": 0
-//           },
-//           "readinessProbe": {
-//             "exec": {
-//               "command": [
-//                 "string"
-//               ]
-//             },
-//             "httpGet": {
-//               "path": "",
-//               "port": "",
-//               "host": "",
-//               "scheme": ""
-//             },
-//             "tcpSocket": {
-//               "port": ""
-//             },
-//             "initialDelaySeconds": 0,
-//             "timeoutSeconds": 0,
-//             "periodSeconds": 0,
-//             "successThreshold": 0,
-//             "failureThreshold": 0
-//           },
-//           "lifecycle": {
-//             "postStart": {
-//               "exec": {
-//                 "command": []
-//               },
-//               "httpGet": {
-//                 "path": "",
-//                 "port": "",
-//                 "host": "",
-//                 "scheme": ""
-//               },
-//               "tcpSocket": {
-//                 "port": ""
-//               }
-//             },
-//             "preStop": {
-//               "exec": {
-//                 "command": [
-//                   "string"
-//                 ]
-//               },
-//               "httpGet": {
-//                 "path": "",
-//                 "port": "",
-//                 "host": "",
-//                 "scheme": ""
-//               },
-//               "tcpSocket": {
-//                 "port": ""
-//               }
-//             }
-//           },
-//           "terminationMessagePath": "",
-//           "imagePullPolicy": "", 
-//           "securityContext": {
-//             "capabilities": {
-//               "add": [
-//                 {}
-//               ],
-//               "drop": [
-//                 {}
-//               ]
-//             },
-//             "privileged": true,
-//             "seLinuxOptions": {
-//               "user": "",
-//               "role": "",
-//               "type": "",
-//               "level": ""
-//             },
-//             "runAsUser": 0,
-//             "runAsNonRoot": true
-//           },
-//           "stdin": true,
-//           "stdinOnce": true, 
-//           "tty": true
-//         }
-//       ],
-//       "restartPolicy": "",
-//       "terminationGracePeriodSeconds": 0,
-//       "activeDeadlineSeconds": 0,
-//       "dnsPolicy": "",
-//       "nodeSelector":"",
-//       "serviceAccountName": "",
-//       "nodeName": "",
-//       "hostNetwork": true,
-//       "hostPID": true,
-//       "hostIPC": true,
-//       "securityContext": {
-//         "seLinuxOptions": {
-//           "user": "",
-//           "role": "",
-//           "type": "",
-//           "level": ""
-//         },
-//         "runAsUser": 0,
-//         "runAsNonRoot": true,
-//         "supplementalGroups": [
-//           {}
-//         ],
-//         "fsGroup": 0
-//       },
-//       "imagePullSecrets": [
-//         {
-//           "name": ""
-//         }
-//       ]
-//     }
-//    }
-// }
-
-
-

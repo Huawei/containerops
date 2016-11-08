@@ -30,13 +30,13 @@ $(".menu-pipeline").on('click',function(event){
     $(event.currentTarget).parent().addClass("active");
 })
 
-$(".menu-component").on('click',function(){
+$(".menu-component").on('click',function(event){
     initComponentPage();
     $(event.currentTarget).parent().parent().children().removeClass("active");
     $(event.currentTarget).parent().addClass("active");
 })
 
-$(".menu-history").on('click',function(){
+$(".menu-history").on('click',function(event){
     initHistoryPage();
     $(event.currentTarget).parent().parent().children().removeClass("active");
     $(event.currentTarget).parent().addClass("active");
