@@ -138,7 +138,7 @@ export function initPipeline() {
         })
         .on("mouseover", function(d, i) {
             // console.log(d3.event.movementX);
-            // console.log(d3.event.movementY);
+        // console.log(d3.event.movementY);
 
             if (d.type == constant.PIPELINE_ADD_STAGE) {
                 d3.select(this)
@@ -148,7 +148,7 @@ export function initPipeline() {
                     .style({
                         "cursor": "pointer"
                     })
-                initButton.showToolTip(i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX, constant.pipelineNodeStartY + constant.svgStageHeight, "Add Stage", "pipeline-element-popup", constant.pipelineView);
+                util.showToolTip(i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX, constant.pipelineNodeStartY + constant.svgStageHeight, "Add Stage", "pipeline-element-popup", constant.pipelineView);
 
             } else if (d.type == constant.PIPELINE_STAGE || d.type == constant.PIPELINE_START) {
                 let text = "Click to Edit";
@@ -157,31 +157,13 @@ export function initPipeline() {
                     text = d.setupData.name;
                     width = text.length * 8 + 20;
                 }
-                initButton.showToolTip(i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX, constant.pipelineNodeStartY + constant.svgStageHeight, text, "pipeline-element-popup", constant.pipelineView,width);
+                util.showToolTip(i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX, constant.pipelineNodeStartY + constant.svgStageHeight, text, "pipeline-element-popup", constant.pipelineView,width);
 
             }
 
 
         })
 
-    // .call(drag);
-
     initAction();
-
-    // var type = "string";
-    // for (let i = 0; i < 4; i++) {
-    //     if (i == 0) {
-    //         type = "string";
-    //     } else if (i == 1) {
-    //         type = "object";
-    //     } else if (i == 2) {
-    //         type = "boolean";
-    //     } else if (i == 3) {
-    //         type = "number";
-    //     }
-
-    //     drawTreeNode(100 + (i + 1) * 50, 30 + (i + 1) * 35, "text" + i, type, 0.6);
-    // }
-
 
 }

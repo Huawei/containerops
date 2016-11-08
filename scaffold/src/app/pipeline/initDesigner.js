@@ -16,17 +16,29 @@ limitations under the License.
 
 import * as constant from "../common/constant";
 import * as util from "../common/util";
-import * as initButton from "./initButton";
 
 let linesView, actionsView, pipelineView, buttonView;
 
 export function initDesigner() {
     let $div = $("#div-d3-main-svg").height($("main").height() * 2 / 3);
     // let zoom = d3.behavior.zoom().on("zoom", zoomed);
+    let drag = d3.behavior.drag()
+        .origin(function() {
+            return { "x": 0, "y": 0 };
+        })
+        .on("dragstart", dragStart)
+        .on("drag", util.draged);
+
+    function dragStart() {
+        d3.event.sourceEvent.stopPropagation();
+        drag.origin(function() {
+            return { "x": constant.pipelineView.attr("translateX"), "y": constant.pipelineView.attr("translateY") }
+        });
+    }
     constant.setSvgWidth("100%");
     constant.setSvgHeight($div.height());
     constant.setPipelineNodeStartX(50);
-    constant.setPipelineNodeStartY(($div.height() + 2 * initButton.buttonVerticalSpace + initButton.buttonHeight) * 0.2);
+    constant.setPipelineNodeStartY(($div.height() + 2 * constant.buttonVerticalSpace + constant.buttonHeight) * 0.2);
 
     $div.empty();
 
@@ -40,7 +52,7 @@ export function initDesigner() {
 
     let g = svg.append("g")
         // .call(zoom)
-        .call(util.drag)
+        .call(drag)
         // .on("dblclick.zoom", null)
         // .on("wheel.zoom", null);
 

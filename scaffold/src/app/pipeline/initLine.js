@@ -185,14 +185,7 @@ export function initLine() {
                 .attr("stroke", "#84C1BC")
                 .attr("stroke-width", 2)
                 .style("cursor","pointer")
-                /* mouse down to drag lines */
-                // .on("mousedown", function(ad, ai) {
-                //     d3.event.stopPropagation();
-                //     dragDropSetPath({
-                //         "data": ad,
-                //         "node": ai
-                //     });
-                // })
+        
                 .on("mouseover", function(ad, ai) {
                     d3.select(this).attr("r",16);
                 })
