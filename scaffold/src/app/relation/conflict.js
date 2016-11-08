@@ -209,6 +209,16 @@ function getAction(actionId) {
                 }
             }
         }
+
+        if (stage.type == "pipeline-start" && actionId == stage.id) {
+            let action = {};
+            action.setupData = {};
+            action.setupData.action = {};
+            action.setupData.action.name = "start-stage";
+            action.outputJson = stage.outputJson;
+            action.inputJson = stage.outputJson;
+            return action;
+        }
     }
 
     return "";
