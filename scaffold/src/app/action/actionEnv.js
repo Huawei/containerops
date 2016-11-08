@@ -25,7 +25,7 @@ export function initActionEnv(action){
 function showActionEnvKVs(){
     $("#action-envs").empty();
     _.each(actionEnvData.data,function(item,index){
-        var row = '<div class="port-row"><div class="port-div">'
+        var row = '<div class="port-row"><div class="env-key-div">'
                         +'<div>'
                             +'<label for="normal-field" class="col-sm-4 control-label">'
                                 +'Key'
@@ -35,7 +35,7 @@ function showActionEnvKVs(){
                             +'</div>'
                         +'</div>'
                     +'</div>'
-                    +'<div class="target-port-div">'
+                    +'<div class="env-value-div">'
                         +'<div>'
                             +'<label for="normal-field" class="col-sm-4 control-label">'
                                 +'Value'
