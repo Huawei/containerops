@@ -80,8 +80,10 @@ limitations under the License. */
 .port-row{
   background-color:#f3f3f3;
   width:92%;
-  height: 50px;
+  min-height: 50px;
+  float: left;
   margin:10px 4%;
+  clear:both;
 }
 
 .port-remove-div{
@@ -101,16 +103,13 @@ limitations under the License. */
 }
 
 .port-div{
-  width:45%;
+  width:30%;
   float:left;
   padding:8px;
 }
 
-.target-port-div{
-  width:45%;
-  float:left;
-  margin-left:10px;
-  padding:8px;
+.no-use-node-port{
+  width: 45% !important;
 }
 
 .add-port, .c-new-kv{

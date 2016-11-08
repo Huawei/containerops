@@ -101,6 +101,19 @@ export function initActionSetup(action){
     });
 
     // ports
+    if(actionSetupData.getUseNodePort()){
+        $("#use-node-port").prop("checked",true);
+    }else{
+        $("#use-node-port").prop("checked",false);
+    }
+    $("#use-node-port").on("click",function(){
+        if($("#use-node-port")[0].checked){
+            actionSetupData.setUseNodePort(true);
+        }else{
+            actionSetupData.setUseNodePort(false);
+        }
+        showPorts();
+    });
     showPorts();
 
     // advanced setting
@@ -134,29 +147,56 @@ function showSetting(){
 function showPorts(){
     $("#ports-setting").empty();
     _.each(actionSetupData.data.service.spec.ports,function(item,index){
-        var row = '<div class="port-row"><div class="port-div">'
-                        +'<div>'
-                            +'<label for="normal-field" class="col-sm-4 control-label">'
-                                +'Target Port'
-                            +'</label>'
-                            +'<div class="col-sm-7" data-index="' + index + '">'
-                                +'<input type="number" name="k8s-service-port" value="' + item.port + '" class="form-control" required min="0" max="65535">'
-                            +'</div>'
-                        +'</div>'
-                    +'</div>'
-                    +'<div class="target-port-div">'
-                        +'<div>'
-                            +'<label for="normal-field" class="col-sm-4 control-label">'
-                                +'Node Port'
-                            +'</label>'
-                            +'<div class="col-sm-7" data-index="' + index + '">' 
-                                +'<input type="number" name="k8s-service-node-port" value="' + item.nodePort + '" class="form-control" required min="0" max="65535">'
-                            +'</div>'
-                        +'</div>'
-                    +'</div>'
-                    +'<div class="port-remove-div rm-port" data-index="' + index + '">'
-                        +'<span class="glyphicon glyphicon-remove"></span>'
-                    +'</div></div>';
+        var row = `<div class="port-row">`;
+
+        if(actionSetupData.getUseNodePort()){
+            row +=  `<div class="port-div">`;
+        }else{
+            row += `<div class="port-div no-use-node-port">`;
+        }    
+
+        row += `<div>
+                    <label for="normal-field" class="col-sm-4 control-label">
+                        Port
+                    </label>
+                    <div class="col-sm-7" data-index="` + index + `">
+                        <input type="number" name="k8s-service-port" value="` + item.port + `" class="form-control" required min="0" max="65535">
+                    </div>
+                </div>
+                </div>`;
+        if(actionSetupData.getUseNodePort()){
+            row +=  `<div class="port-div">`;
+        }else{
+            row += `<div class="port-div no-use-node-port">`;
+        }
+        
+        row +=  `<div>
+                    <label for="normal-field" class="col-sm-4 control-label">
+                        Target Port
+                    </label>
+                    <div class="col-sm-7" data-index="` + index + `">
+                        <input type="number" name="k8s-service-target-port" value="` + item.targetPort + `" class="form-control" required min="0" max="65535">
+                    </div>
+                </div>
+                </div>`;
+
+        if(actionSetupData.getUseNodePort()){
+            row += `<div class="port-div">
+                            <div>
+                                <label for="normal-field" class="col-sm-4 control-label">
+                                    Node Port
+                                </label>
+                                <div class="col-sm-7" data-index="` + index + `">
+                                    <input type="number" name="k8s-service-node-port" value="` + item.nodePort + `" class="form-control" required min="0" max="65535">
+                                </div>
+                            </div>
+                        </div>`;
+        }
+                        
+        row +=  `<div class="port-remove-div rm-port" data-index="` + index + `">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </div>
+                    </div>`;
         $("#ports-setting").append(row);
     });
     
@@ -169,6 +209,10 @@ function showPorts(){
         actionSetupData.setServicePort(event);
     });
 
+    $("input[name=k8s-service-target-port]").on("blur",function(event){
+        actionSetupData.setServiceTargetPort(event);
+    });
+    
     $("input[name=k8s-service-node-port]").on("blur",function(event){
         actionSetupData.setServiceNodePort(event);
     });
