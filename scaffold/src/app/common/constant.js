@@ -62,8 +62,15 @@ export let PIPELINE_START = "pipeline-start",
     g = null,
 
     popupWidth = 110,
-    popupHeight = 30,
-    currentSelectedItem = null;
+    popupHeight = 25,
+    currentSelectedItem = null,
+    
+    zoomScale = 1,
+    zoomTargetScale = 1,
+    zoomFactor = 0.2,
+    zoomMinimum = 0.1,
+    zoomMaximum = 3,
+    zoomDuration = 300;
 
 export function setPipelineView(v) {
     pipelineView = v;
