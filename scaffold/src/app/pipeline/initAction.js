@@ -137,10 +137,8 @@ export function initAction() {
                        text = ad.setupData.action.name;
                        width = text.length * 7 + 20;
                     }
-                    initButton.showToolTip(x, y, text, "pipeline-element-popup", constant.pipelineView,width);
+                    util.showToolTip(x, y, text, "pipeline-element-popup", constant.pipelineView,width);
                 })
-
-            // .call(drag);
         }
 
     });
