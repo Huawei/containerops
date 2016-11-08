@@ -17,10 +17,6 @@ limitations under the License.
 import * as actionSetupData from "./actionSetupData";
 import {notify} from "../common/notify";
 
-// let k8sAdvancedEditor,k8sAdvancedContainer;
-
-// let k8sAD;
-
 export function initActionSetup(action){
     actionSetupData.getActionSetupData(action);
 
@@ -40,14 +36,6 @@ export function initActionSetup(action){
         actionSetupData.setActionTimeout();
     });
 
-    // $("#k8s-pod-image").val(actionSetupData.data.pod.spec.containers[0].image);
-    // $("#k8s-pod-image").on("blur",function(){
-    //     actionSetupData.setK8s(k8sAdvancedEditor);
-    // });
-    // $("#k8s-pod-image").val(actionSetupData.data.action.image);
-    // $("#k8s-pod-image").on("blur",function(){
-    //     actionSetupData.setActionImage();
-    // });
     $("#k8s-pod-image-name").val(actionSetupData.data.action.image.name);
     $("#k8s-pod-image-name").on("blur",function(){
         actionSetupData.setActionImageName();
@@ -92,33 +80,23 @@ export function initActionSetup(action){
     showSetting();
 
     // base setting
-    // $("#k8s-service-port").val(actionSetupData.data.service.spec.ports[0].port);
-    // $("#k8s-service-port").on("blur",function(){
-    //     // actionSetupData.setK8s(k8sAdvancedEditor);
-    //     actionSetupData.setServicePort();
-    // });
-
     $("#k8s-cpu-limits").val(actionSetupData.data.pod.spec.containers[0].resources.limits.cpu);
     $("#k8s-cpu-limits").on("blur",function(){
-        // actionSetupData.setK8s(k8sAdvancedEditor);
         actionSetupData.setCPULimit();
     });
 
     $("#k8s-cpu-requests").val(actionSetupData.data.pod.spec.containers[0].resources.requests.cpu);
     $("#k8s-cpu-requests").on("blur",function(){
-        // actionSetupData.setK8s(k8sAdvancedEditor);
         actionSetupData.setCPURequest();
     });
 
-    $("#k8s-memory-limits").val(actionSetupData.data.pod.spec.containers[0].resources.limits.memory);
+    $("#k8s-memory-limits").val(actionSetupData.getMemoryLimit());
     $("#k8s-memory-limits").on("blur",function(){
-        // actionSetupData.setK8s(k8sAdvancedEditor);
         actionSetupData.setMemoryLimit();
     });
 
-    $("#k8s-memory-requests").val(actionSetupData.data.pod.spec.containers[0].resources.requests.memory);
+    $("#k8s-memory-requests").val(actionSetupData.getMemoryRequest());
     $("#k8s-memory-requests").on("blur",function(){
-        // actionSetupData.setK8s(k8sAdvancedEditor);
         actionSetupData.setMemoryRequest();
     });
 
@@ -141,27 +119,6 @@ export function initActionSetup(action){
             actionSetupData.setPodAdvanced(result);
         }    
     });
-
-    // k8sAD = $.extend(true,{},actionSetupData.data);
-    // delete k8sAD.action;
-    // delete k8sAD.service.spec.ports[0].port;
-    // delete k8sAD.pod.spec.containers[0].resources;
-    // delete k8sAD.pod.spec.containers[0].image;
-
-    // initK8sForm();
-
-
-    // $("#k8s-advanced").on("click",function(){
-    //     $("#k8s-advanced").hide();
-    //     $("#close-k8s-advanced").show();
-    //     $("#advanced").parent().show();
-    // })
-
-    // $("#close-k8s-advanced").on("click",function(){
-    //     $("#k8s-advanced").show();
-    //     $("#close-k8s-advanced").hide();
-    //     $("#advanced").parent().hide();
-    // })
 }
 
 function showSetting(){
@@ -250,27 +207,3 @@ function toJsonYaml(type){
     }
     return result;
 }
-
-// function initK8sForm(){
-//     k8sAdvancedContainer = $("#advanced")[0];
-//     initK8sAdvanced();
-// }
-
-// function initK8sAdvanced(){
-//     if(k8sAdvancedEditor){
-//         k8sAdvancedEditor.destroy();
-//     }
-
-//     var treeOptions = {
-//         "mode": "tree",
-//         "search": true,
-//         "onChange" : function(){
-//             actionSetupData.setK8s(k8sAdvancedEditor);
-//         }
-//     };
-
-//     k8sAdvancedEditor = new JSONEditor(k8sAdvancedContainer, treeOptions);
-//     k8sAdvancedEditor.set(k8sAD);
-    
-//     k8sAdvancedEditor.expandAll();
-// }

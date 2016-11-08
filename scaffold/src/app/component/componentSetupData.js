@@ -37,14 +37,6 @@ export function setActionTimeout(){
     data.action.timeout = $("#action-timeout").val();
 }
 
-// export function setActionIP(){
-//     data.action.ip = $("#k8s-ip").val();
-// }
-
-// export function setActionImage(){
-//   data.action.image = $("#k8s-pod-image").val();
-// }
-
 export function setActionImageName(){
   data.action.image.name = $("#k8s-pod-image-name").val();
 }
@@ -100,12 +92,24 @@ export function setCPURequest(){
   data.pod.spec.containers[0].resources.requests.cpu = $("#k8s-cpu-requests").val();
 }
 
+export function getMemoryLimit(){
+  var value = data.pod.spec.containers[0].resources.limits.memory;
+  return Number(value.substring(0,value.length-2));
+}
+
 export function setMemoryLimit(){
-  data.pod.spec.containers[0].resources.limits.memory = $("#k8s-memory-limits").val();
+  var value = $("#k8s-memory-limits").val();
+  data.pod.spec.containers[0].resources.limits.memory = value.toString() + "Mi";
+}
+
+export function getMemoryRequest(){
+  var value = data.pod.spec.containers[0].resources.requests.memory;
+  return Number(value.substring(0,value.length-2));
 }
 
 export function setMemoryRequest(){
-  data.pod.spec.containers[0].resources.requests.memory = $("#k8s-memory-requests").val();
+  var value = $("#k8s-memory-requests").val();
+  data.pod.spec.containers[0].resources.requests.memory = value.toString() + "Mi";
 }
 
 export function setServiceAdvanced(value){
