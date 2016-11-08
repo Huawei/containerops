@@ -21,6 +21,7 @@ import { notify } from "../common/notify";
 import {getActionHistory} from "./actionHistory";
 import {getLineHistory} from "./lineHistory";
 import * as initButton from "../pipeline/initButton";
+import * as util from "../common/util";
 
 export function initHistoryPage() {
     
@@ -606,7 +607,7 @@ function initSequenceActionByStage() {
                     if(ad.setupData && ad.setupData.name && ad.setupData.name != ""){
                        text = ad.setupData.name;
                        width = text.length * 7 + 20;
-                       initButton.showToolTip(x, y, text, "pipeline-element-popup", constant.sequencePipelineView,width);
+                       util.showToolTip(x, y, text, "pipeline-element-popup", constant.sequencePipelineView,width);
                     }
                     
                 })

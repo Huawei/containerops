@@ -144,63 +144,150 @@ export function changeCurrentElement(previousData) {
     }
 
 }
-export let drag = d3.behavior.drag()
-    .origin(function() {
-        return { "x": 0, "y": 0 }; })
-    .on("dragstart", dragStart)
-    .on("drag", draged);
 
-function dragStart() {
-    d3.event.sourceEvent.stopPropagation();
-    drag.origin(function() {
-        return { "x": constant.pipelineView.attr("translateX"), "y": constant.pipelineView.attr("translateY") } });
-}
-
-function draged() {
-    var scale = Number(constant.pipelineView.attr("scale"));
-    var translate = "translate(" + (d3.event.x) + "," + (d3.event.y) + ") scale(" + scale + ")";
-    var targetCollection = [constant.pipelineView, constant.actionsView, constant.linesView];
-    _.each(targetCollection, function(target) {
-        target
-            .attr("translateX", d3.event.x)
+export function draged(d) {
+    if (d && d.name && d.name == "conflictTree") {
+        var scale = Number(d3.select(this).attr("scale"));
+        d3.select(this).attr("translateX", d3.event.x)
             .attr("translateY", d3.event.y)
-            .attr("transform", translate)
             .attr("scale", scale)
-    })
+            .attr("transform", "translate(" + d3.event.x + "," + d3.event.y + ") scale(" + scale + ")");
 
+    } else {
+        var scale = Number(constant.pipelineView.attr("scale"));
+        var translate = "translate(" + (d3.event.x) + "," + (d3.event.y) + ") scale(" + scale + ")";
+        var targetCollection = [constant.pipelineView, constant.actionsView, constant.linesView];
+        _.each(targetCollection, function(target) {
+            target
+                .attr("translateX", d3.event.x)
+                .attr("translateY", d3.event.y)
+                .attr("transform", translate)
+                .attr("scale", scale)
+        })
+    }
 }
+
 let zoom = d3.behavior.zoom()
     .on("zoom", redraw)
     .scaleExtent([constant.zoomMinimum, constant.zoomMaximum]);
 
-function redraw() {
-    var targetCollection = [constant.pipelineView, constant.actionsView, constant.linesView];
-    _.each(targetCollection, function(target) {
-        target
+function redraw(d) {
+    if (d && d.name && d.name == "conflictTree") {
+        d3.select(this)
             .attr("translateX", d3.event.translate[0])
             .attr("translateY", d3.event.translate[1])
             .attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
             .attr("scale", d3.event.scale)
-    })
+    } else {
+        var targetCollection = [constant.pipelineView, constant.actionsView, constant.linesView];
+        _.each(targetCollection, function(target) {
+            target
+                .attr("translateX", d3.event.translate[0])
+                .attr("translateY", d3.event.translate[1])
+                .attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+                .attr("scale", d3.event.scale)
+        })
+    }
+
 }
-export function zoomed(type) {
-    var currentTranslateX = Number(constant.pipelineView.attr("translateX"));
-    var currentTranslateY = Number(constant.pipelineView.attr("translateY"));
+export function zoomed(type, target, scaleObj) {
+    var currentTranslateX = Number(target.attr("translateX"));
+    var currentTranslateY = Number(target.attr("translateY"));
     var currentTranslate = [currentTranslateX, currentTranslateY];
     // zoom.scale(scale).translate(currentTranslate).event(constant.pipelineView);
     d3.transition().duration(constant.zoomDuration).tween("zoom", function() {
         if (type == "zoomin") {
-            constant.zoomTargetScale = (constant.zoomScale + constant.zoomFactor) <= constant.zoomMaximum ? (constant.zoomScale + constant.zoomFactor) : constant.zoomMaximum;
+            scaleObj.zoomTargetScale = (scaleObj.zoomScale + constant.zoomFactor) <= constant.zoomMaximum ? (scaleObj.zoomScale + constant.zoomFactor) : constant.zoomMaximum;
         } else if (type == "zoomout") {
-            constant.zoomTargetScale = (constant.zoomScale - constant.zoomFactor) >= constant.zoomMinimum ? (constant.zoomScale - constant.zoomFactor) : constant.zoomMinimum;
+            scaleObj.zoomTargetScale = (scaleObj.zoomScale - constant.zoomFactor) >= constant.zoomMinimum ? (scaleObj.zoomScale - constant.zoomFactor) : constant.zoomMinimum;
         }
-        var interpolate_scale = d3.interpolate(constant.zoomScale, constant.zoomTargetScale),
+        var interpolate_scale = d3.interpolate(scaleObj.zoomScale, scaleObj.zoomTargetScale),
             interpolate_trans = d3.interpolate(currentTranslate, currentTranslate);
         return function(t) {
             zoom.scale(interpolate_scale(t))
                 .translate(interpolate_trans(t))
-                .event(constant.pipelineView);
-            constant.zoomScale = constant.zoomTargetScale;
+                .event(target);
+            scaleObj.zoomScale = scaleObj.zoomTargetScale;
         };
     });
+}
+export function showZoomBtn(index, type, containerView, target, scaleObj, options) {
+    options = options || {};
+    var horizonSpace = options.horizonSpace || constant.buttonHorizonSpace;
+    var verticalSpace = options.verticalSpace || constant.buttonVerticalSpace;
+    var backgroundY = options.backgroundY || constant.rectBackgroundY;
+
+    containerView
+        .append("image")
+        .attr("xlink:href", function(ad, ai) {
+            if (type == "zoomin") {
+                return "../../assets/svg/zoomin.svg";
+            } else if (type == "zoomout") {
+                return "../../assets/svg/zoomout.svg";
+            }
+
+        })
+        .attr("translateX", function(d, i) {
+            return index * horizonSpace + (index - 1) * constant.buttonWidth;
+        })
+        .attr("translateY", function(d, i) {
+
+            return verticalSpace + backgroundY;
+        })
+        .attr("transform", function(d, i) {
+            let translateX = d3.select(this).attr("translateX");
+            let translateY = d3.select(this).attr("translateY");
+            return "translate(" + translateX + "," + translateY + ")";
+        })
+        .attr("width", constant.buttonWidth)
+        .attr("height", constant.buttonHeight)
+        .style("cursor", "pointer")
+        .on("mouseover", function(d, i) {
+            let content = "";
+            let href = "";
+            if (type == "zoomin") {
+                content = "Zoomin";
+                href = "../../assets/svg/zoomin.svg";
+            } else if (type == "zoomout") {
+                content = "Zoomout";
+                href = "../../assets/svg/zoomout.svg";
+            }
+            d3.select(this).attr("href", href);
+            showToolTip(Number(d3.select(this).attr("translateX")), Number(d3.select(this).attr("translateY")) + constant.buttonHeight, content, "button-element-popup", containerView);
+        })
+        .on("mouseout", function(d, i) {
+            cleanToolTip(containerView);
+        })
+        .on("click", function(d, i) {
+            zoomed(type, target, scaleObj);
+        })
+}
+export function showToolTip(x, y, text, popupId, parentView, width, height) {
+    parentView
+        .append("g")
+        .attr("id", popupId);
+    parentView.selectAll("#" + popupId)
+        .append("rect")
+        .attr("width", width || constant.popupWidth)
+        .attr("height", height || constant.popupHeight)
+        .attr("x", function(pd, pi) {
+            return x;
+        })
+        .attr("y", function(pd, pi) {
+            return y;
+        })
+        .attr("rx", 3)
+        .attr("ry", 3)
+        .style("fill", constant.toolTipBackground)
+        .style("opacity", 0.9)
+    parentView.selectAll("#" + popupId)
+        .append("text")
+        .attr("x", x + 10)
+        .attr("y", y + constant.popupHeight / 2 + 4)
+        .style("fill", "white")
+        .style("opacity", 0.9)
+        .text(text)
+}
+export function cleanToolTip(containerView) {
+    containerView.selectAll("#button-element-popup").remove();
 }

@@ -26,27 +26,27 @@ import { animationForRemoveAction } from "./initAction";
 import { setPath } from "../relation/setPath";
 import { initLine } from "./initLine";
 
-export var buttonWidth = 23,
-    buttonHeight = 23,
-    buttonVerticalSpace = 6,
-    background = "#555",
-    buttonHorizonSpace = 20,
-    rectBackgroundY = 15;
+let rectBackgroundY = 15;
 
 export function initButton() {
-    constant.zoomScale = 1;
-    constant.zoomTargetScale = 1;
+    let scaleObj = { "zoomScale": 1, "zoomTargetScale": 1 };
     constant.buttonView
         .append("rect")
         .attr("width", constant.svgWidth)
-        .attr("height", 2 * buttonVerticalSpace + buttonHeight)
+        .attr("height", rectBackgroundY)
+        .style({
+            "fill": "#ffffff"
+        });
+    constant.buttonView
+        .append("rect")
+        .attr("width", constant.svgWidth)
+        .attr("height", 2 * constant.buttonVerticalSpace + constant.buttonHeight)
         .attr("y", rectBackgroundY)
         .style({
             "fill": "#f7f7f7"
         });
-    showZoomBtn(1, "zoomin");
-    showZoomBtn(2, "zoomout");
-    // showSeperateLine(3);
+    util.showZoomBtn(1, "zoomin", constant.buttonView, constant.pipelineView, scaleObj);
+    util.showZoomBtn(2, "zoomout", constant.buttonView, constant.pipelineView, scaleObj);
 }
 export function updateButtonGroup(currentItemType) {
     cleanOptBtn();
@@ -64,33 +64,6 @@ export function updateButtonGroup(currentItemType) {
     }
 }
 
-export function showToolTip(x, y, text, popupId, parentView, width, height) {
-    parentView
-        .append("g")
-        .attr("id", popupId);
-    parentView.selectAll("#" + popupId)
-        .append("rect")
-        .attr("width", width || constant.popupWidth)
-        .attr("height", height || constant.popupHeight)
-        .attr("x", function(pd, pi) {
-            return x;
-        })
-        .attr("y", function(pd, pi) {
-            return y;
-        })
-        .attr("rx", 3)
-        .attr("ry", 3)
-        .style("fill", background)
-        .style("opacity", 0.9)
-    parentView.selectAll("#" + popupId)
-        .append("text")
-        .attr("x", x + 10)
-        .attr("y", y + constant.popupHeight / 2 + 4)
-        .style("fill", "white")
-        .style("opacity", 0.9)
-        .text(text)
-}
-
 function showOptBtn(index, type) {
     constant.buttonView
         .append("image")
@@ -105,10 +78,10 @@ function showOptBtn(index, type) {
 
         })
         .attr("translateX", function(d, i) {
-            return index * buttonHorizonSpace + (index - 1) * buttonWidth;
+            return index * constant.buttonHorizonSpace + (index - 1) * constant.buttonWidth;
         })
         .attr("translateY", function(d, i) {
-            return buttonVerticalSpace + rectBackgroundY;
+            return constant.buttonVerticalSpace + rectBackgroundY;
         })
         .attr("transform", function(d, i) {
             let translateX = d3.select(this).attr("translateX");
@@ -126,8 +99,8 @@ function showOptBtn(index, type) {
 
         })
         .attr("class", "optBtn")
-        .attr("width", buttonWidth)
-        .attr("height", buttonHeight)
+        .attr("width", constant.buttonWidth)
+        .attr("height", constant.buttonHeight)
         .on("mouseover", function(d, i) {
             d3.select(this).style("cursor", "pointer");
             let content = "";
@@ -145,10 +118,10 @@ function showOptBtn(index, type) {
                 href = "../../assets/svg/remove-link-selected-latest.svg";
             }
             d3.select(this).attr("href", href);
-            showToolTip(Number(d3.select(this).attr("translateX")), Number(d3.select(this).attr("translateY")) + buttonHeight, content, "button-element-popup", constant.buttonView);
+            util.showToolTip(Number(d3.select(this).attr("translateX")), Number(d3.select(this).attr("translateY")) + constant.buttonHeight, content, "button-element-popup", constant.buttonView);
         })
         .on("mouseout", function(d, i) {
-            cleanToolTip();
+            util.cleanToolTip(constant.buttonView);
             let href = "";
             if (type == "add") {
                 href = "../../assets/svg/add-action-latest.svg";
@@ -162,7 +135,7 @@ function showOptBtn(index, type) {
             d3.select(this).attr("href", href);
         })
         .on("click", function(d, i) {
-            cleanToolTip();
+            util.cleanToolTip(constant.buttonView);
             if (type == "add") {
                 addAction(constant.currentSelectedItem.data.actions);
                 initAction();
@@ -220,83 +193,6 @@ function showOptBtn(index, type) {
         })
 }
 
-function showZoomBtn(index, type) {
-    constant.buttonView
-        .append("image")
-        .attr("xlink:href", function(ad, ai) {
-            if (type == "zoomin") {
-                return "../../assets/svg/zoomin.svg";
-            } else if (type == "zoomout") {
-                return "../../assets/svg/zoomout.svg";
-            }
-
-        })
-        .attr("translateX", function(d, i) {
-            return index * buttonHorizonSpace + (index - 1) * buttonWidth;
-        })
-        .attr("translateY", function(d, i) {
-            return buttonVerticalSpace + rectBackgroundY;
-        })
-        .attr("transform", function(d, i) {
-            let translateX = d3.select(this).attr("translateX");
-            let translateY = d3.select(this).attr("translateY");
-            return "translate(" + translateX + "," + translateY + ")";
-        })
-        .attr("id", function(d, i) {
-            if (type == "zoomin") {
-                return "pipeline-zoomin";
-            } else if (type == "zoomout") {
-                return "pipeline-zoomout";
-            }
-        })
-        .attr("width", buttonWidth)
-        .attr("height", buttonHeight)
-        .style("cursor", "pointer")
-        .on("mouseover", function(d, i) {
-            let content = "";
-            let href = "";
-            // let tooltipPosX = index * buttonHorizonSpace + (index - 1) * buttonWidth;
-            if (type == "zoomin") {
-                content = "Zoomin";
-                href = "../../assets/svg/zoomin.svg";
-            } else if (type == "zoomout") {
-                content = "Zoomout";
-                href = "../../assets/svg/zoomout.svg";
-            }
-            d3.select(this).attr("href", href);
-            showToolTip(Number(d3.select(this).attr("translateX")), Number(d3.select(this).attr("translateY")) + buttonHeight, content, "button-element-popup", constant.buttonView);
-        })
-        .on("mouseout", function(d, i) {
-            cleanToolTip();
-        })
-        .on("click", function(d, i) {
-            util.zoomed(type);
-        })
-}
-function showSeperateLine(index){
-    constant.buttonView
-        .append("image")
-        .attr("xlink:href", function(ad, ai) {
-                return "../../assets/svg/seperate-line.svg";
-        })
-        .attr("translateX", function(d, i) {
-            return index * buttonHorizonSpace + (index - 1) * buttonWidth;
-        })
-        .attr("translateY", function(d, i) {
-            return rectBackgroundY;
-        })
-        .attr("transform", function(d, i) {
-            let translateX = d3.select(this).attr("translateX");
-            let translateY = d3.select(this).attr("translateY");
-            return "translate(" + translateX + "," + translateY + ")";
-        })
-        .attr("width", 2 * buttonVerticalSpace + buttonHeight)
-        .attr("height", 2 * buttonVerticalSpace + buttonHeight)
-}
 function cleanOptBtn() {
     constant.buttonView.selectAll("image.optBtn").remove();
-}
-
-function cleanToolTip() {
-    constant.buttonView.selectAll("#button-element-popup").remove();
 }
