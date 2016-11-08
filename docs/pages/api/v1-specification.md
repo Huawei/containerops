@@ -9,7 +9,7 @@ summary: V1 Specification
 
 ## API V1 Operations
 
-### Create Workflow 
+### Create Workflow
 
 | HTTP Method |  Request Address |
 | -------- | -------- |
@@ -19,8 +19,8 @@ summary: V1 Specification
 
 ```
 {
-  "name": "PythonSonarCheck",
-  "version": "V1.0"
+  "name": "pythoncheck",
+  "version": "1.0"
 }
 ```
 
@@ -42,26 +42,15 @@ summary: V1 Specification
 
 ```
 {
-  "list" : [
+  "list": [
     {
-      "id" : 15,
-      "name" : "pythonSonarCheck",
-      "version" : [
+      "id": 68,  //pipelineID
+      "name": "pythoncheck", //pipelineName
+      "version": [
         {
-          "id" : 15,
-          "version" : "V1.0",
-          "versionCode" : 1
-        }
-      ]
-    },
-    {
-      "id" : 1,
-      "name" : "python",
-      "version" : [
-        {
-          "id" : 1,
-          "version" : "1.0",
-          "versionCode" : 1
+          "id": 68,
+          "version": "1.0",
+          "versionCode": 1
         }
       ]
     }
@@ -69,13 +58,6 @@ summary: V1 Specification
 }
 ```
 
-| Response Field | Field Type | Descripiton |
-| -------- | ------ |--------|
-| id          | integer | id of the pipeLine   |
-| name        | string  | name of the pipeLine |
-| id          | integer | -------- |
-| version     | string  | -------- |
-| versionCode | integer | -------- |
 
 ### getPipelineInfo
 
@@ -87,30 +69,242 @@ summary: V1 Specification
 
 ```
 {
-  "lineList" : [ ],
-  "stageList" : [
+  "lineList": [
     {
-      "id" : "start-stage",
-      "setupData" : { },
-      "type" : "pipeline-start"
-    },
-    {
-      "id" : "add-stage",
-      "type" : "pipeline-add-stage"
-    },
-    {
-      "id" : "end-stage",
-      "setupData" : { },
-      "type" : "pipeline-end"
+      "endData": {
+        "component": {
+          "name": "pythoncheck",
+          "versionid": 137
+        },
+        "env": [
+          {
+            "key": "gitUrl",
+            "value": "123456"
+          }
+        ],
+        "height": 38,
+        "id": "pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745",
+        "inputJson": {
+          "gitUrl": "https://github.com/Huawei/containerops.git"
+        },
+        "outputJson": {
+          "status": true
+        },
+        "setupData": {
+          "action": {
+            "apiserver": "http://192.168.10.131:8080",
+            "datafrom": "{}",
+            "image": {
+              "name": "xiechuan/pythoncheck",
+              "tag": "1.0"
+            },
+            "ip": "192.168.10.131",
+            "name": "pythoncheck",
+            "timeout": "30000",
+            "type": "Kubernetes",
+            "useAdvanced": false
+          },
+          "pod": {
+            "spec": {
+              "containers": [
+                {
+                  "resources": {
+                    "limits": {
+                      "cpu": "0.1",
+                      "memory": "128Mi"
+                    },
+                    "requests": {
+                      "cpu": "0.1",
+                      "memory": "64Mi"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "pod_advanced": {},
+          "service": {
+            "spec": {
+              "ports": [
+                {
+                  "nodePort": 32001,
+                  "port": 8000,
+                  "targetPort": 8000
+                }
+              ],
+              "type": "NodePort"
+            }
+          },
+          "service_advanced": {}
+        },
+        "translateX": 253.5,
+        "translateY": 224,
+        "type": "pipeline-action",
+        "width": 38
+      },
+      "endPoint": {
+        "x": 253.5,
+        "y": 224
+      },
+      "id": "start-stage-pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745",
+      "pipelineLineViewId": "pipeline-line-view",
+      "relation": [
+        {
+          "finalPath": "start-stage.gitUrl",
+          "from": ".gitUrl",
+          "to": ".gitUrl"
+        }
+      ],
+      "startData": {
+        "height": 52,
+        "id": "start-stage",
+        "outputJson": {
+          "gitUrl": ""
+        },
+        "setupData": {
+          "event": "PullRequest",
+          "type": "customize"
+        },
+        "translateX": 50,
+        "translateY": 107,
+        "type": "pipeline-start",
+        "width": 45
+      },
+      "startPoint": {
+        "x": 50,
+        "y": 107
+      }
     }
   ],
-  "status" : false
+  "stageList": [
+    {
+      "height": 52,
+      "id": "start-stage",
+      "outputJson": {
+        "gitUrl": ""
+      },
+      "setupData": {
+        "event": "PullRequest",
+        "type": "customize"
+      },
+      "translateX": 50,
+      "translateY": 107,
+      "type": "pipeline-start",
+      "width": 45
+    },
+    {
+      "actions": [
+        {
+          "component": {
+            "name": "pythoncheck",
+            "versionid": 137
+          },
+          "env": [
+            {
+              "key": "TEST",
+              "value": "123456"
+            }
+          ],
+          "height": 38,
+          "id": "pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745",
+          "inputJson": {
+            "gitUrl": "https://github.com/Huawei/containerops.git"
+          },
+          "outputJson": {
+            "status": true
+          },
+          "setupData": {
+            "action": {
+              "apiserver": "http://192.168.10.131:8080",
+              "datafrom": "{}",
+              "image": {
+                "name": "xiechuan/pythoncheck",
+                "tag": "1.0"
+              },
+              "ip": "192.168.10.131",
+              "name": "pythoncheck",
+              "timeout": "30000",
+              "type": "Kubernetes",
+              "useAdvanced": false
+            },
+            "pod": {
+              "spec": {
+                "containers": [
+                  {
+                    "resources": {
+                      "limits": {
+                        "cpu": "0.1",
+                        "memory": "128Mi"
+                      },
+                      "requests": {
+                        "cpu": "0.1",
+                        "memory": "64Mi"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "pod_advanced": {},
+            "service": {
+              "spec": {
+                "ports": [
+                  {
+                    "nodePort": 32001,
+                    "port": 8000,
+                    "targetPort": 8000
+                  }
+                ],
+                "type": "NodePort"
+              }
+            },
+            "service_advanced": {}
+          },
+          "translateX": 253.5,
+          "translateY": 224,
+          "type": "pipeline-action",
+          "width": 38
+        }
+      ],
+      "class": "pipeline-stage",
+      "drawX": 0,
+      "drawY": 0,
+      "height": 52,
+      "id": "pipeline-stage-1d4ce1d0-a3fd-11e6-8e43-dbedb3b31745",
+      "setupData": {
+        "name": "pythoncheck",
+        "timeout": "3000"
+      },
+      "translateX": 250,
+      "translateY": 107,
+      "type": "pipeline-stage",
+      "width": 45
+    },
+    {
+      "height": 52,
+      "id": "add-stage",
+      "translateX": 450,
+      "translateY": 107,
+      "type": "pipeline-add-stage",
+      "width": 45
+    },
+    {
+      "height": 52,
+      "id": "end-stage",
+      "setupData": {},
+      "translateX": 650,
+      "translateY": 107,
+      "type": "pipeline-end",
+      "width": 45
+    }
+  ],
+  "status": false
 }
 ```
 
 ###  savePipelineInfo
 
-Save workflow as the new version use same API. 
+Save workflow as the new version use same API.
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
@@ -120,22 +314,134 @@ Save workflow as the new version use same API.
 
 ```
 {
-  "id": 15,
-  "version": "V1.0",
+  "id": 68,
+  "version": "1.0",
   "define": {
-    "lineList": [],
+    "lineList": [
+      {
+        "pipelineLineViewId": "pipeline-line-view",
+        "startData": {
+          "id": "start-stage",
+          "setupData": {
+            "type": "customize",
+            "event": "PullRequest"
+          },
+          "type": "pipeline-start",
+          "width": 45,
+          "height": 52,
+          "translateX": 50,
+          "translateY": 107,
+          "outputJson": {
+            "gitUrl": ""
+          }
+        },
+        "endData": {
+          "id": "pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745",
+          "type": "pipeline-action",
+          "setupData": {
+            "action": {
+              "apiserver": "http://192.168.10.131:8080",
+              "datafrom": "{}",
+              "image": {
+                "name": "xiechuan/pythoncheck",
+                "tag": "1.0"
+              },
+              "ip": "192.168.10.131",
+              "name": "pythoncheck",
+              "timeout": "30000",
+              "type": "Kubernetes",
+              "useAdvanced": false
+            },
+            "pod": {
+              "spec": {
+                "containers": [
+                  {
+                    "resources": {
+                      "limits": {
+                        "cpu": "0.1",
+                        "memory": "128Mi"
+                      },
+                      "requests": {
+                        "cpu": "0.1",
+                        "memory": "64Mi"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "pod_advanced": {},
+            "service": {
+              "spec": {
+                "ports": [
+                  {
+                    "nodePort": 32001,
+                    "port": 8000,
+                    "targetPort": 8000
+                  }
+                ],
+                "type": "NodePort"
+              }
+            },
+            "service_advanced": {}
+          },
+          "translateY": 224,
+          "width": 38,
+          "height": 38,
+          "translateX": 253.5,
+          "inputJson": {
+            "gitUrl": "https://github.com/Huawei/containerops.git"
+          },
+          "outputJson": {
+            "status": true
+          },
+          "env": [
+            {
+              "key": "TEST",
+              "value": "123456"
+            }
+          ],
+          "component": {
+            "name": "pythoncheck",
+            "versionid": 137
+          }
+        },
+        "startPoint": {
+          "x": 50,
+          "y": 107
+        },
+        "endPoint": {
+          "x": 253.5,
+          "y": 224
+        },
+        "id": "start-stage-pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745",
+        "relation": [
+          {
+            "to": ".gitUrl",
+            "from": ".gitUrl",
+            "finalPath": "start-stage.gitUrl"
+          }
+        ]
+      }
+    ],
     "stageList": [
       {
         "id": "start-stage",
-        "setupData": {},
+        "setupData": {
+          "type": "customize",
+          "event": "PullRequest"
+        },
         "type": "pipeline-start",
         "width": 45,
         "height": 52,
         "translateX": 50,
-        "translateY": 96.2
+        "translateY": 107,
+        "outputJson": {
+          "gitUrl": ""
+        }
       },
       {
-        "id": "pipeline-stage-8b3dc560-a2f4-11e6-baa2-615f3fa81dab",
+        "id": "pipeline-stage-1d4ce1d0-a3fd-11e6-8e43-dbedb3b31745",
         "type": "pipeline-stage",
         "class": "pipeline-stage",
         "drawX": 0,
@@ -143,21 +449,83 @@ Save workflow as the new version use same API.
         "width": 45,
         "height": 52,
         "translateX": 250,
-        "translateY": 96.2,
+        "translateY": 107,
         "actions": [
           {
-            "id": "pipeline-action-8d0cb900-a2f4-11e6-baa2-615f3fa81dab",
+            "id": "pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745",
             "type": "pipeline-action",
-            "setupData": {},
-            "translateY": 213.2,
+            "setupData": {
+              "action": {
+                "apiserver": "http://192.168.10.131:8080",
+                "datafrom": "{}",
+                "image": {
+                  "name": "xiechuan/pythoncheck",
+                  "tag": "1.0"
+                },
+                "ip": "192.168.10.131",
+                "name": "pythoncheck",
+                "timeout": "30000",
+                "type": "Kubernetes",
+                "useAdvanced": false
+              },
+              "pod": {
+                "spec": {
+                  "containers": [
+                    {
+                      "resources": {
+                        "limits": {
+                          "cpu": "0.1",
+                          "memory": "128Mi"
+                        },
+                        "requests": {
+                          "cpu": "0.1",
+                          "memory": "64Mi"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "pod_advanced": {},
+              "service": {
+                "spec": {
+                  "ports": [
+                    {
+                      "nodePort": 32001,
+                      "port": 8000,
+                      "targetPort": 8000
+                    }
+                  ],
+                  "type": "NodePort"
+                }
+              },
+              "service_advanced": {}
+            },
+            "translateY": 224,
             "width": 38,
             "height": 38,
-            "translateX": 253.5
+            "translateX": 253.5,
+            "inputJson": {
+              "gitUrl": "https://github.com/Huawei/containerops.git"
+            },
+            "outputJson": {
+              "status": true
+            },
+            "env": [
+              {
+                "key": "TEST",
+                "value": "123456"
+              }
+            ],
+            "component": {
+              "name": "pythoncheck",
+              "versionid": 137
+            }
           }
         ],
         "setupData": {
-          "name": "",
-          "timeout": ""
+          "name": "pythoncheck",
+          "timeout": "3000"
         }
       },
       {
@@ -166,7 +534,7 @@ Save workflow as the new version use same API.
         "width": 45,
         "height": 52,
         "translateX": 450,
-        "translateY": 96.2
+        "translateY": 107
       },
       {
         "id": "end-stage",
@@ -175,12 +543,14 @@ Save workflow as the new version use same API.
         "width": 45,
         "height": 52,
         "translateX": 650,
-        "translateY": 96.2
+        "translateY": 107
       }
     ]
   }
 }
 ```
+
+
 #### response json
 
 ```
@@ -199,7 +569,7 @@ Save workflow as the new version use same API.
 
 ```
 {
-  "id": 15,
+  "id": 68,
   "env": {
     "GITURL": "https://github.com/Huawei/containerops.git"
   }
@@ -218,7 +588,7 @@ Save workflow as the new version use same API.
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  |/pipeline/v1/:namespace/:repository/:pipelineName/env?id=:pipelineId|
+| GET  |/pipeline/v1/:namespace/:repository/:pipelineName/env?id=:pipelineID|
 
 #### response json
 
@@ -234,7 +604,130 @@ Save workflow as the new version use same API.
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| PUT  | /pipeline/v1/eventJson/github/:eventName|
+| GET  | /pipeline/v1/eventJson/github/:eventName|
+
+#### response json
+
+```
+{
+  "output": {
+    "description": "",
+    "master_branch": "master",
+    "pusher_type": "user",
+    "ref": "0.0.1",
+    "ref_type": "tag",
+    "repository": {
+      "archive_url": "https://api.github.com/repos/baxterthehacker/public-repo/{archive_format}{/ref}",
+      "assignees_url": "https://api.github.com/repos/baxterthehacker/public-repo/assignees{/user}",
+      "blobs_url": "https://api.github.com/repos/baxterthehacker/public-repo/git/blobs{/sha}",
+      "branches_url": "https://api.github.com/repos/baxterthehacker/public-repo/branches{/branch}",
+      "clone_url": "https://github.com/baxterthehacker/public-repo.git",
+      "collaborators_url": "https://api.github.com/repos/baxterthehacker/public-repo/collaborators{/collaborator}",
+      "comments_url": "https://api.github.com/repos/baxterthehacker/public-repo/comments{/number}",
+      "commits_url": "https://api.github.com/repos/baxterthehacker/public-repo/commits{/sha}",
+      "compare_url": "https://api.github.com/repos/baxterthehacker/public-repo/compare/{base}...{head}",
+      "contents_url": "https://api.github.com/repos/baxterthehacker/public-repo/contents/{+path}",
+      "contributors_url": "https://api.github.com/repos/baxterthehacker/public-repo/contributors",
+      "created_at": "2015-05-05T23:40:12Z",
+      "default_branch": "master",
+      "description": "",
+      "downloads_url": "https://api.github.com/repos/baxterthehacker/public-repo/downloads",
+      "events_url": "https://api.github.com/repos/baxterthehacker/public-repo/events",
+      "fork": false,
+      "forks": 0,
+      "forks_count": 0,
+      "forks_url": "https://api.github.com/repos/baxterthehacker/public-repo/forks",
+      "full_name": "baxterthehacker/public-repo",
+      "git_commits_url": "https://api.github.com/repos/baxterthehacker/public-repo/git/commits{/sha}",
+      "git_refs_url": "https://api.github.com/repos/baxterthehacker/public-repo/git/refs{/sha}",
+      "git_tags_url": "https://api.github.com/repos/baxterthehacker/public-repo/git/tags{/sha}",
+      "git_url": "git://github.com/baxterthehacker/public-repo.git",
+      "has_downloads": true,
+      "has_issues": true,
+      "has_pages": true,
+      "has_wiki": true,
+      "homepage": null,
+      "hooks_url": "https://api.github.com/repos/baxterthehacker/public-repo/hooks",
+      "html_url": "https://github.com/baxterthehacker/public-repo",
+      "id": 35129377,
+      "issue_comment_url": "https://api.github.com/repos/baxterthehacker/public-repo/issues/comments{/number}",
+      "issue_events_url": "https://api.github.com/repos/baxterthehacker/public-repo/issues/events{/number}",
+      "issues_url": "https://api.github.com/repos/baxterthehacker/public-repo/issues{/number}",
+      "keys_url": "https://api.github.com/repos/baxterthehacker/public-repo/keys{/key_id}",
+      "labels_url": "https://api.github.com/repos/baxterthehacker/public-repo/labels{/name}",
+      "language": null,
+      "languages_url": "https://api.github.com/repos/baxterthehacker/public-repo/languages",
+      "merges_url": "https://api.github.com/repos/baxterthehacker/public-repo/merges",
+      "milestones_url": "https://api.github.com/repos/baxterthehacker/public-repo/milestones{/number}",
+      "mirror_url": null,
+      "name": "public-repo",
+      "notifications_url": "https://api.github.com/repos/baxterthehacker/public-repo/notifications{?since,all,participating}",
+      "open_issues": 2,
+      "open_issues_count": 2,
+      "owner": {
+        "avatar_url": "https://avatars.githubusercontent.com/u/6752317?v=3",
+        "events_url": "https://api.github.com/users/baxterthehacker/events{/privacy}",
+        "followers_url": "https://api.github.com/users/baxterthehacker/followers",
+        "following_url": "https://api.github.com/users/baxterthehacker/following{/other_user}",
+        "gists_url": "https://api.github.com/users/baxterthehacker/gists{/gist_id}",
+        "gravatar_id": "",
+        "html_url": "https://github.com/baxterthehacker",
+        "id": 6752317,
+        "login": "baxterthehacker",
+        "organizations_url": "https://api.github.com/users/baxterthehacker/orgs",
+        "received_events_url": "https://api.github.com/users/baxterthehacker/received_events",
+        "repos_url": "https://api.github.com/users/baxterthehacker/repos",
+        "site_admin": false,
+        "starred_url": "https://api.github.com/users/baxterthehacker/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/baxterthehacker/subscriptions",
+        "type": "User",
+        "url": "https://api.github.com/users/baxterthehacker"
+      },
+      "private": false,
+      "pulls_url": "https://api.github.com/repos/baxterthehacker/public-repo/pulls{/number}",
+      "pushed_at": "2015-05-05T23:40:38Z",
+      "releases_url": "https://api.github.com/repos/baxterthehacker/public-repo/releases{/id}",
+      "size": 0,
+      "ssh_url": "git@github.com:baxterthehacker/public-repo.git",
+      "stargazers_count": 0,
+      "stargazers_url": "https://api.github.com/repos/baxterthehacker/public-repo/stargazers",
+      "statuses_url": "https://api.github.com/repos/baxterthehacker/public-repo/statuses/{sha}",
+      "subscribers_url": "https://api.github.com/repos/baxterthehacker/public-repo/subscribers",
+      "subscription_url": "https://api.github.com/repos/baxterthehacker/public-repo/subscription",
+      "svn_url": "https://github.com/baxterthehacker/public-repo",
+      "tags_url": "https://api.github.com/repos/baxterthehacker/public-repo/tags",
+      "teams_url": "https://api.github.com/repos/baxterthehacker/public-repo/teams",
+      "trees_url": "https://api.github.com/repos/baxterthehacker/public-repo/git/trees{/sha}",
+      "updated_at": "2015-05-05T23:40:30Z",
+      "url": "https://api.github.com/repos/baxterthehacker/public-repo",
+      "watchers": 0,
+      "watchers_count": 0
+    },
+    "sender": {
+      "avatar_url": "https://avatars.githubusercontent.com/u/6752317?v=3",
+      "events_url": "https://api.github.com/users/baxterthehacker/events{/privacy}",
+      "followers_url": "https://api.github.com/users/baxterthehacker/followers",
+      "following_url": "https://api.github.com/users/baxterthehacker/following{/other_user}",
+      "gists_url": "https://api.github.com/users/baxterthehacker/gists{/gist_id}",
+      "gravatar_id": "",
+      "html_url": "https://github.com/baxterthehacker",
+      "id": 6752317,
+      "login": "baxterthehacker",
+      "organizations_url": "https://api.github.com/users/baxterthehacker/orgs",
+      "received_events_url": "https://api.github.com/users/baxterthehacker/received_events",
+      "repos_url": "https://api.github.com/users/baxterthehacker/repos",
+      "site_admin": false,
+      "starred_url": "https://api.github.com/users/baxterthehacker/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/baxterthehacker/subscriptions",
+      "type": "User",
+      "url": "https://api.github.com/users/baxterthehacker"
+    }
+  }
+}
+```
+
+#### eventName
+|Create | Delete | Deployment | DeploymentStatus | Fork | Gollum | IssueComment | Issues | Member | PageBuild | Public | PullRequestReviewComment | PullRequestReview | PullRequest | Push | Repository|Release|Status|TeamAdd|Watch|
 
 ### change pipeline state
 
@@ -246,7 +739,7 @@ Save workflow as the new version use same API.
 
 ```
 {
-  "id": 15,
+  "id": 68,
   "state": 1 #0 OFF, 1 ON
 }
 ```
@@ -259,36 +752,68 @@ Save workflow as the new version use same API.
 }
 ```
 
-### get component list
+### run pipeline
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| get  |/pipeline/v1/:namespace/component|
+| POST  | /pipeline/v1/:namespace/:repository/:pipelineName|
+
+#### body
+```
+{
+  "gitUrl": "https://github.com/xiechuanj/python-sonar-runner.git"
+}
+```
+
+#### response json
+```
+{
+  "result": "pipeline start ..."
+}
+```
+
+### createComponent
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| PUT  |/pipeline/v1/demo/component|
+
+#### body
+
+```
+{
+  "name": "pythoncheck",
+  "version": "1.0"
+}
+```
 
 #### response json
 
 ```
 {
-  "list" : [
+  "message": "create new component success"
+}
+```
+
+### get component list
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| GET  |/pipeline/v1/:namespace/component|
+
+#### response json
+
+```
+{
+  "list": [
     {
-      "id" : 2,
-      "name" : "pythonrun",
-      "version" : [
+      "id": 248,   //componentID
+      "name": "pythoncheck",   //componentName
+      "version": [
         {
-          "id" : 2,
-          "version" : "v1.0",
-          "versionCode" : 1
-        }
-      ]
-    },
-    {
-      "id" : 1,
-      "name" : "pythoncheck",
-      "version" : [
-        {
-          "id" : 1,
-          "version" : "v1.0",
-          "versionCode" : 1
+          "id": 248,
+          "version": "1.0",
+          "versionCode": 1
         }
       ]
     }
@@ -306,70 +831,64 @@ Save workflow as the new version use same API.
 
 ```
 {
-  "env" : [
+  "env": [
     {
-      "key" : "CO_DATA",
-      "value" : "{     \"serverities\": \"MAJOR\",     \"contents\": \"sonar.projectKey=python-sonar-runner\\nsonar.projectName=python-sonar-runner\\nsonar.projectVersion=1.0\\nsonar.sources=src\\nsonar.language=py\\nsonar.sourceEncoding=UTF-8\",     \"filename\": \"sonar-project.properties\" }"
+      "key": "CO_DATA",
+      "value": "{'contents':'sonar.projectKey:python-sonar-runner sonar.projectName=python-sonar-runner sonar.projectVersion=1.0 sonar.sources=src sonar.language=py sonar.sourceEncoding=UTF-8','filename':'sonar-project.properties'}"
     }
   ],
-  "inputJson" : {
-    "gitUrl" : "https://github.com/xiechuanj/python-sonar-runner.git"
+  "inputJson": {
+    "gitUrl": "https://github.com/xiechuanj/python-sonar-runner.git"
   },
-  "outputJson" : {
-    "EVENT" : "TASK_RESULT",
-    "EVENTID" : "",
-    "INFO" : {
-      "result" : "",
-      "status" : ""
-    },
-    "RUN_ID" : ""
+  "outputJson": {
+    "status": true
   },
-  "setupData" : {
-    "action" : {
-      "apiserver" : "",
-      "datafrom" : "{}",
-      "image" : {
-        "name" : "xiechuan/pythoncheck",
-        "tag" : "1.0"
+  "setupData": {
+    "action": {
+      "apiserver": "",
+      "datafrom": "{}",
+      "image": {
+        "name": "xiechuan/pythoncheck",
+        "tag": "1.0"
       },
-      "ip" : "",
-      "name" : "pythoncheck",
-      "timeout" : "9000",
-      "type" : "Kubernetes",
-      "useAdvanced" : false
+      "ip": "",
+      "name": "pythoncheck",
+      "timeout": "3000",
+      "type": "Kubernetes",
+      "useAdvanced": false
     },
-    "pod" : {
-      "spec" : {
-        "containers" : [
+    "pod": {
+      "spec": {
+        "containers": [
           {
-            "resources" : {
-              "limits" : {
-                "cpu" : 2,
-                "memory" : "1024Mi"
+            "resources": {
+              "limits": {
+                "cpu": "0.1",
+                "memory": "128Mi"
               },
-              "requests" : {
-                "cpu" : 1,
-                "memory" : "128Mi"
+              "requests": {
+                "cpu": "0.1",
+                "memory": "64Mi"
               }
             }
           }
         ]
       }
     },
-    "pod_advanced" : { },
-    "service" : {
-      "spec" : {
-        "ports" : [
+    "pod_advanced": {},
+    "service": {
+      "spec": {
+        "ports": [
           {
-            "nodePort" : 32007,
-            "port" : 8000,
-            "targetPort" : 8000
+            "nodePort": 32001,
+            "port": 8000,
+            "targetPort": 8000
           }
         ],
-        "type" : "NodePort"
+        "type": "NodePort"
       }
     },
-    "service_advanced" : { }
+    "service_advanced": {}
   }
 }
 ```
@@ -386,40 +905,41 @@ Save component as new version used the same api.
 
 ```
 {
-  "id": 1,
-  "version": "v1.0",
+  "id": 248,
+  "version": "1.0",
   "define": {
-    "env": [
-      {
-        "key": "CO_DATA",
-        "value": "{     \"serverities\": \"MAJOR\",     \"contents\": \"sonar.projectKey:python-sonar-runner\\nsonar.projectName=python-sonar-runner\\nsonar.projectVersion=1.0\\nsonar.sources=src\\nsonar.language=py\\nsonar.sourceEncoding=UTF-8\",     \"filename\": \"sonar-project.properties\" }"
-      }
-    ],
     "inputJson": {
       "gitUrl": "https://github.com/xiechuanj/python-sonar-runner.git"
     },
     "outputJson": {
-      "EVENT": "TASK_RESULT",
-      "EVENTID": "",
-      "INFO": {
-        "result": "",
-        "status": ""
-      },
-      "RUN_ID": ""
+      "status": true,
+      "result":""
     },
     "setupData": {
       "action": {
+        "type": "Kubernetes",
+        "name": "pythoncheck",
+        "timeout": "3000",
+        "ip": "",
         "apiserver": "",
-        "datafrom": "{}",
         "image": {
           "name": "xiechuan/pythoncheck",
           "tag": "1.0"
         },
-        "ip": "",
-        "name": "pythoncheck",
-        "timeout": "9000",
-        "type": "Kubernetes",
-        "useAdvanced": false
+        "useAdvanced": false,
+        "datafrom": "{}"
+      },
+      "service": {
+        "spec": {
+          "type": "NodePort",
+          "ports": [
+            {
+              "port": 8000,
+              "targetPort": 8000,
+              "nodePort": 32001
+            }
+          ]
+        }
       },
       "pod": {
         "spec": {
@@ -428,32 +948,26 @@ Save component as new version used the same api.
               "resources": {
                 "limits": {
                   "cpu": "0.1",
-                  "memory": "1024Mi"
+                  "memory": "128Mi"
                 },
                 "requests": {
                   "cpu": "0.1",
-                  "memory": "128Mi"
+                  "memory": "64Mi"
                 }
               }
             }
           ]
         }
       },
-      "pod_advanced": {},
-      "service": {
-        "spec": {
-          "ports": [
-            {
-              "nodePort": 32007,
-              "port": 8000,
-              "targetPort": 8000
-            }
-          ],
-          "type": "NodePort"
-        }
-      },
-      "service_advanced": {}
-    }
+      "service_advanced": {},
+      "pod_advanced": {}
+    },
+    "env": [
+      {
+        "key": "CO_DATA",
+        "value": "{'contents':'sonar.projectKey:python-sonar-runner sonar.projectName=python-sonar-runner sonar.projectVersion=1.0 sonar.sources=src sonar.language=py sonar.sourceEncoding=UTF-8','filename':'sonar-project.properties'}"
+      }
+    ]
   }
 }
 ```
@@ -466,41 +980,20 @@ Save component as new version used the same api.
 }
 ```
 
-### createComponent
 
-| HTTP Method |  Request Address |
-| -------- | ------ |
-| PUT  |/pipeline/v1/demo/component|
-
-#### body
-
-```
-{
-  "name": "javaCheck",
-  "version": "v3.0"
-}
-```
-
-#### response json
-
-```
-{
-  "message": "create new component success"
-}
-```
 
 ### get pipelien token and url
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/token?id=:pipelineId|
+| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/token?id=:pipelineID|
 
 #### response json
 
 ```
 {
-  "token": "ed97b3cba1426429423fa13eeb97c1b2",
-  "url": "http://192.168.137.1/demo/demo/go-codecheck"
+  "token": "621c09e7bf910401b9a514c075def56d",
+  "url": "http://192.168.10.131:10000/demo/demo/pythoncheck"
 }
 ```
 
@@ -516,85 +1009,19 @@ Save component as new version used the same api.
 {
   "pipelineList": [
     {
-      "id": 25,
-      "name": "python-demo",
+      "id": 68,
+      "name": "pythoncheck",
       "versionList": [
         {
-          "id": 25,
-          "info": "Success :0 Total :0",
-          "name": "v1",
-          "sequenceList": []
-        }
-      ]
-    },
-    {
-      "id": 26,
-      "name": "python",
-      "versionList": [
-        {
-          "id": 26,
-          "info": "Success :0 Total :0",
-          "name": "v2",
-          "sequenceList": []
-        }
-      ]
-    },
-    {
-      "id": 24,
-      "name": "python",
-      "versionList": [
-        {
-          "id": 24,
-          "info": "Success :0 Total :8",
-          "name": "v1",
+          "id": 68,
+          "info": "Success :0 Total :1",
+          "name": "1.0",
           "sequenceList": [
             {
-              "pipelineSequenceID": 141,
+              "pipelineSequenceID": 26,   //pipelineSequenceID
               "sequence": 1,
               "status": false,
-              "time": "2016-10-27 11:32:46"
-            },
-            {
-              "pipelineSequenceID": 142,
-              "sequence": 2,
-              "status": false,
-              "time": "2016-10-27 11:34:54"
-            },
-            {
-              "pipelineSequenceID": 143,
-              "sequence": 3,
-              "status": false,
-              "time": "2016-10-27 11:36:51"
-            },
-            {
-              "pipelineSequenceID": 144,
-              "sequence": 4,
-              "status": false,
-              "time": "2016-10-27 11:39:13"
-            },
-            {
-              "pipelineSequenceID": 145,
-              "sequence": 5,
-              "status": false,
-              "time": "2016-10-27 11:42:46"
-            },
-            {
-              "pipelineSequenceID": 146,
-              "sequence": 6,
-              "status": false,
-              "time": "2016-10-27 11:46:26"
-            },
-            {
-              "pipelineSequenceID": 147,
-              "sequence": 7,
-              "status": false,
-              "time": "2016-10-27 11:48:56"
-            },
-            {
-              "pipelineSequenceID": 148,
-              "sequence": 8,
-              "status": false,
-              "time": "2016-10-27 11:52:11"
+              "time": "2016-11-08 14:46:09"
             }
           ]
         }
@@ -608,19 +1035,85 @@ Save component as new version used the same api.
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/historyDefine?versionId={versionId}sequenceId={pipelineSequenceID}|
+| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/historyDefine?versionId=:versionId&sequenceId=:pipelineSequenceID|
+
+#### response json
+
+```
+{
+  "define": {
+    "lineList": [
+      {
+        "endData": {
+          "id": "a-196",   //actionLogID
+          "setupData": {
+            "action": {
+              "name": "pythoncheck"
+            }
+          },
+          "type": "pipeline-action"
+        },
+        "id": "s-400-a-196",
+        "pipelineLineViewId": "pipeline-line-view",
+        "startData": {
+          "id": "s-400",
+          "type": "pipeline-start"
+        }
+      }
+    ],
+    "stageList": [
+      {
+        "id": "s-400",  //stageLogID
+        "setupData": {
+          "name": "pythoncheck-start-stage"
+        },
+        "status": true,
+        "type": "pipeline-start"
+      },
+      {
+        "actions": [
+          {
+            "id": "a-196",
+            "setupData": {
+              "name": "pythoncheck"
+            },
+            "status": false,
+            "type": "pipeline-action"
+          }
+        ],
+        "id": "s-401",
+        "setupData": {
+          "name": "pythoncheck"
+        },
+        "status": false,
+        "type": "pipeline-stage"
+      },
+      {
+        "id": "s-402",
+        "setupData": {
+          "name": "pythoncheck-end-stage"
+        },
+        "status": false,
+        "type": "pipeline-end"
+      }
+    ],
+    "status": false
+  }
+}
+```
 
 ### getStageRunHistory
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/stage/:stageName/history?stageLogId={stageLogID}|
+| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/stage/:stageName/history?stageLogId=:stageLogID|
+
 
 ### getActionRunHistory
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/stage/:stageName/:actionName/history?actionLogId={actionLogID}|
+| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/stage/:stageName/:actionName/history?actionLogId=:actionLogID|
 
 #### response json
 
@@ -634,13 +1127,13 @@ Save component as new version used the same api.
       "output": {}
     },
     "logList": [
-      "2016-10-27 11:52:13 -> {\"EVENTID\": 1048, \"EVENT\": \"COMPONENT_START\", \"RUN_ID\": \"148,497,210,8,9\"}",
-      "2016-10-27 11:52:23 -> {\"data\":\"{\"gitUrl\":\"https://github.com/xiechuanj/python-sonar-runner.git\"}\",\"resp\":\"{\"gitUrl\":\"https://github.com/xiechuanj/python-sonar-runner.git\"}\\r\\n\"}",
-      "2016-10-27 11:52:23 -> {\"EVENTID\": 1050, \"EVENT\": \"TASK_START\", \"RUN_ID\": \"148,497,210,8,9\"}",
-      "2016-10-27 11:53:04 -> {\"EVENTID\": 1052, \"INFO\": {\"TASK_STATUS\": \"RUNNING\"}, \"EVENT\": \"TASK_STATUS\", \"RUN_ID\": \"148,497,210,8,9\"}",
-      "2016-10-27 11:53:12 -> {\"EVENTID\": 1052, \"INFO\": {\"TASK_STATUS\": \"GET RESULT\"}, \"EVENT\": \"TASK_STATUS\", \"RUN_ID\": \"148,497,210,8,9\"}",
-      "2016-10-27 11:53:22 -> {\"EVENTID\": 1051, \"INFO\": {\"status\": false, \"result\": \"{\"total\":27,\"p\":1,\"ps\":100,\"paging\":{\"pageIndex\":1,\"pageSize\":100,\"total\":27},\"issues\":[{\"key\":\"AVf_WUAXuMltxfy4_Gy5\",\"rule\":\"python:S1110\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/badfortune.py\",\"componentId\":4,\"project\":\"python-sonar-runner\",\"line\":30,\"textRange\":{\"startLine\":30,\"endLine\":30,\"startOffset\":12,\"endOffset\":28},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Remove those useless parentheses\",\"effort\":\"1min\",\"debt\":\"1min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"confusing\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUAZuMltxfy4_Gy6\",\"rule\":\"python:PrintStatementUsage\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/badfortune.py\",\"componentId\":4,\"project\":\"python-sonar-runner\",\"line\":90,\"textRange\":{\"startLine\":90,\"endLine\":90,\"startOffset\":8,\"endOffset\":13},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Replace print statement by built-in function.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"obsolete\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUAauMltxfy4_Gy7\",\"rule\":\"python:PrintStatementUsage\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/badfortune.py\",\"componentId\":4,\"project\":\"python-sonar-runner\",\"line\":92,\"textRange\":{\"startLine\":92,\"endLine\":92,\"startOffset\":4,\"endOffset\":9},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Replace print statement by built-in function.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"obsolete\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUB0uMltxfy4_GzZ\",\"rule\":\"python:S1110\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/strfile.py\",\"componentId\":14,\"project\":\"python-sonar-runner\",\"line\":60,\"textRange\":{\"startLine\":60,\"endLine\":60,\"startOffset\":6,\"endOffset\":9},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Remove those useless parentheses\",\"effort\":\"1min\",\"debt\":\"1min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"confusing\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUB1uMltxfy4_Gza\",\"rule\":\"python:PrintStatementUsage\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/strfile.py\",\"componentId\":14,\"project\":\"python-sonar-runner\",\"line\":28,\"textRange\":{\"startLine\":28,\"endLine\":28,\"startOffset\":4,\"endOffset\":9},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Replace print statement by built-in function.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"obsolete\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUB1uMltxfy4_Gzb\",\"rule\":\"python:PrintStatementUsage\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/strfile.py\",\"componentId\":14,\"project\":\"python-sonar-runner\",\"line\":97,\"textRange\":{\"startLine\":97,\"endLine\":97,\"startOffset\":0,\"endOffset\":5},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Replace print statement by built-in function.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"obsolete\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBDuMltxfy4_Gy9\",\"rule\":\"python:S1110\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/fortune.py\",\"componentId\":12,\"project\":\"python-sonar-runner\",\"line\":30,\"textRange\":{\"startLine\":30,\"endLine\":30,\"startOffset\":12,\"endOffset\":28},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Remove those useless parentheses\",\"effort\":\"1min\",\"debt\":\"1min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"confusing\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBEuMltxfy4_Gy-\",\"rule\":\"python:PrintStatementUsage\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/fortune.py\",\"componentId\":12,\"project\":\"python-sonar-runner\",\"line\":90,\"textRange\":{\"startLine\":90,\"endLine\":90,\"startOffset\":8,\"endOffset\":13},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Replace print statement by built-in function.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"obsolete\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBFuMltxfy4_Gy_\",\"rule\":\"python:PrintStatementUsage\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/fortune.py\",\"componentId\":12,\"project\":\"python-sonar-runner\",\"line\":92,\"textRange\":{\"startLine\":92,\"endLine\":92,\"startOffset\":4,\"endOffset\":9},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Replace print statement by built-in function.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"obsolete\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBTuMltxfy4_GzD\",\"rule\":\"python:S1110\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/letters.py\",\"componentId\":13,\"project\":\"python-sonar-runner\",\"line\":84,\"textRange\":{\"startLine\":84,\"endLine\":84,\"startOffset\":10,\"endOffset\":13},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Remove those useless parentheses\",\"effort\":\"1min\",\"debt\":\"1min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"confusing\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBUuMltxfy4_GzE\",\"rule\":\"python:S1110\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/letters.py\",\"componentId\":13,\"project\":\"python-sonar-runner\",\"line\":149,\"textRange\":{\"startLine\":149,\"endLine\":149,\"startOffset\":15,\"endOffset\":44},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Remove those useless parentheses\",\"effort\":\"1min\",\"debt\":\"1min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"confusing\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBVuMltxfy4_GzF\",\"rule\":\"python:S1110\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/letters.py\",\"componentId\":13,\"project\":\"python-sonar-runner\",\"line\":151,\"textRange\":{\"startLine\":151,\"endLine\":151,\"startOffset\":17,\"endOffset\":64},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Remove those useless parentheses\",\"effort\":\"1min\",\"debt\":\"1min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"confusing\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBWuMltxfy4_GzG\",\"rule\":\"python:S125\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/letters.py\",\"componentId\":13,\"project\":\"python-sonar-runner\",\"line\":73,\"textRange\":{\"startLine\":73,\"endLine\":73,\"startOffset\":4,\"endOffset\":73},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Remove this commented out code.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"misra\",\"unused\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBZuMltxfy4_GzH\",\"rule\":\"python:S125\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/letters.py\",\"componentId\":13,\"project\":\"python-sonar-runner\",\"line\":86,\"textRange\":{\"startLine\":86,\"endLine\":86,\"startOffset\":12,\"endOffset\":93},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Remove this commented out code.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"misra\",\"unused\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBcuMltxfy4_GzI\",\"rule\":\"python:PrintStatementUsage\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/letters.py\",\"componentId\":13,\"project\":\"python-sonar-runner\",\"line\":99,\"textRange\":{\"startLine\":99,\"endLine\":99,\"startOffset\":12,\"endOffset\":17},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Replace print statement by built-in function.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"obsolete\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBduMltxfy4_GzJ\",\"rule\":\"python:PrintStatementUsage\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/letters.py\",\"componentId\":13,\"project\":\"python-sonar-runner\",\"line\":110,\"textRange\":{\"startLine\":110,\"endLine\":110,\"startOffset\":16,\"endOffset\":21},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Replace print statement by built-in function.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"obsolete\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBeuMltxfy4_GzK\",\"rule\":\"python:PrintStatementUsage\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/letters.py\",\"componentId\":13,\"project\":\"python-sonar-runner\",\"line\":115,\"textRange\":{\"startLine\":115,\"endLine\":115,\"startOffset\":16,\"endOffset\":21},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Replace print statement by built-in function.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"obsolete\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBfuMltxfy4_GzL\",\"rule\":\"python:PrintStatementUsage\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/letters.py\",\"componentId\":13,\"project\":\"python-sonar-runner\",\"line\":116,\"textRange\":{\"startLine\":116,\"endLine\":116,\"startOffset\":16,\"endOffset\":21},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Replace print statement by built-in function.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"obsolete\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBguMltxfy4_GzM\",\"rule\":\"python:PrintStatementUsage\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/letters.py\",\"componentId\":13,\"project\":\"python-sonar-runner\",\"line\":120,\"textRange\":{\"startLine\":120,\"endLine\":120,\"startOffset\":16,\"endOffset\":21},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Replace print statement by built-in function.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"obsolete\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBhuMltxfy4_GzN\",\"rule\":\"python:PrintStatementUsage\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/letters.py\",\"componentId\":13,\"project\":\"python-sonar-runner\",\"line\":145,\"textRange\":{\"startLine\":145,\"endLine\":145,\"startOffset\":16,\"endOffset\":21},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Replace print statement by built-in function.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"obsolete\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBhuMltxfy4_GzO\",\"rule\":\"python:PrintStatementUsage\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/letters.py\",\"componentId\":13,\"project\":\"python-sonar-runner\",\"line\":146,\"textRange\":{\"startLine\":146,\"endLine\":146,\"startOffset\":16,\"endOffset\":21},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Replace print statement by built-in function.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"obsolete\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBiuMltxfy4_GzP\",\"rule\":\"python:PrintStatementUsage\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/letters.py\",\"componentId\":13,\"project\":\"python-sonar-runner\",\"line\":148,\"textRange\":{\"startLine\":148,\"endLine\":148,\"startOffset\":12,\"endOffset\":17},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Replace print statement by built-in function.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"obsolete\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBjuMltxfy4_GzQ\",\"rule\":\"python:PrintStatementUsage\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/letters.py\",\"componentId\":13,\"project\":\"python-sonar-runner\",\"line\":150,\"textRange\":{\"startLine\":150,\"endLine\":150,\"startOffset\":16,\"endOffset\":21},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Replace print statement by built-in function.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"obsolete\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBjuMltxfy4_GzR\",\"rule\":\"python:PrintStatementUsage\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/letters.py\",\"componentId\":13,\"project\":\"python-sonar-runner\",\"line\":152,\"textRange\":{\"startLine\":152,\"endLine\":152,\"startOffset\":16,\"endOffset\":21},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Replace print statement by built-in function.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"obsolete\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBkuMltxfy4_GzS\",\"rule\":\"python:PrintStatementUsage\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/letters.py\",\"componentId\":13,\"project\":\"python-sonar-runner\",\"line\":154,\"textRange\":{\"startLine\":154,\"endLine\":154,\"startOffset\":12,\"endOffset\":17},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Replace print statement by built-in function.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"obsolete\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBluMltxfy4_GzT\",\"rule\":\"python:PrintStatementUsage\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/letters.py\",\"componentId\":13,\"project\":\"python-sonar-runner\",\"line\":157,\"textRange\":{\"startLine\":157,\"endLine\":157,\"startOffset\":0,\"endOffset\":5},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Replace print statement by built-in function.\",\"effort\":\"5min\",\"debt\":\"5min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"obsolete\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"},{\"key\":\"AVf_WUBzuMltxfy4_GzY\",\"rule\":\"python:S1110\",\"severity\":\"MAJOR\",\"component\":\"python-sonar-runner:src/samples/strfile.py\",\"componentId\":14,\"project\":\"python-sonar-runner\",\"line\":34,\"textRange\":{\"startLine\":34,\"endLine\":34,\"startOffset\":12,\"endOffset\":28},\"flows\":[],\"status\":\"OPEN\",\"message\":\"Remove those useless parentheses\",\"effort\":\"1min\",\"debt\":\"1min\",\"author\":\"xiechuanj@gmail.com\",\"tags\":[\"confusing\"],\"creationDate\":\"2016-10-26T04:56:56+0000\",\"updateDate\":\"2016-10-26T04:56:56+0000\",\"type\":\"CODE_SMELL\"}],\"components\":[{\"id\":12,\"key\":\"python-sonar-runner:src/samples/fortune.py\",\"uuid\":\"AVf_WTteuMltxfy4_Gy1\",\"enabled\":true,\"qualifier\":\"FIL\",\"name\":\"fortune.py\",\"longName\":\"src/samples/fortune.py\",\"path\":\"src/samples/fortune.py\",\"projectId\":1,\"subProjectId\":1},{\"id\":13,\"key\":\"python-sonar-runner:src/samples/letters.py\",\"uuid\":\"AVf_WTteuMltxfy4_Gy2\",\"enabled\":true,\"qualifier\":\"FIL\",\"name\":\"letters.py\",\"longName\":\"src/samples/letters.py\",\"path\":\"src/samples/letters.py\",\"projectId\":1,\"subProjectId\":1},{\"id\":14,\"key\":\"python-sonar-runner:src/samples/strfile.py\",\"uuid\":\"AVf_WTteuMltxfy4_Gy3\",\"enabled\":true,\"qualifier\":\"FIL\",\"name\":\"strfile.py\",\"longName\":\"src/samples/strfile.py\",\"path\":\"src/samples/strfile.py\",\"projectId\":1,\"subProjectId\":1},{\"id\":1,\"key\":\"python-sonar-runner\",\"uuid\":\"AVf_WTIKl7uABRzX3_me\",\"enabled\":true,\"qualifier\":\"TRK\",\"name\":\"python-sonar-runner\",\"longName\":\"python-sonar-runner\"},{\"id\":4,\"key\":\"python-sonar-runner:src/badfortune.py\",\"uuid\":\"AVf_WTtcuMltxfy4_Gyt\",\"enabled\":true,\"qualifier\":\"FIL\",\"name\":\"badfortune.py\",\"longName\":\"src/badfortune.py\",\"path\":\"src/badfortune.py\",\"projectId\":1,\"subProjectId\":1}]}\"}, \"EVENT\": \"TASK_RESULT\", \"RUN_ID\": \"148,497,210,8,9\"}",
-      "2016-10-27 11:53:22 -> \t\t\t{\"EVENTID\": 1049, \"EVENT\": \"COMPONENT_STOP\", \"RUN_ID\": \"148,497,210,8,9\"}"
+      "2016-11-08 19:35:09 -> {\"EVENTID\": 1207, \"EVENT\": \"COMPONENT_START\", \"RUN_ID\": \"30,419,202,1,137\"}",
+      "2016-11-08 19:35:09 -> {\"data\":\"{\\\"gitUrl\\\":\\\"https://github.com/xiechuanj/python-sonar-runner.git\\\"}\",\"resp\":\"{\\\"gitUrl\\\":\\\"https://github.com/xiechuanj/python-sonar-runner.git\\\"}\\r\\n\"}",
+      "2016-11-08 19:35:09 -> {\"EVENTID\": 1209, \"EVENT\": \"TASK_START\", \"RUN_ID\": \"30,419,202,1,137\"}",
+      "2016-11-08 19:35:09 -> {\"EVENTID\": 1211, \"INFO\": {\"TASK_STATUS\": \"RUNNING\"}, \"EVENT\": \"TASK_STATUS\", \"RUN_ID\": \"30,419,202,1,137\"}",
+      "2016-11-08 19:35:09 -> {\"EVENTID\": 1211, \"INFO\": {\"TASK_STATUS\": \"GET RESULT\"}, \"EVENT\": \"TASK_STATUS\", \"RUN_ID\": \"30,419,202,1,137\"}",
+      "2016-11-08 19:35:09 -> {\"EVENTID\": 1210, \"INFO\": {\"status\": true, \"result\": {}}, \"EVENT\": \"TASK_RESULT\", \"RUN_ID\": \"30,419,202,1,137\"}",
+      "2016-11-08 19:35:10 -> {\"EVENTID\": 1208, \"EVENT\": \"COMPONENT_STOP\", \"RUN_ID\": \"30,419,202,1,137\"}"
     ]
   }
 }
@@ -650,7 +1143,7 @@ Save component as new version used the same api.
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/:pipelineSequenceID/lineHistory?startActionId={startActionId}&endActionId={endActionId}|
+| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/:pipelineSequenceID/lineHistory?startActionId=:startActionId&endActionId=:endActionId|
 
 #### response json
 
@@ -658,10 +1151,10 @@ Save component as new version used the same api.
 {
   "define": {
     "input": {
-      "data":"XXXXXXXXXX"
+      "gitUrl": "https://github.com/xiechuanj/python-sonar-runner.git"
     },
     "output": {
-      "gocyclo": "{\"url\":\"https://github.com/baxterthehacker/public-repo.git\"}"
+      "gitUrl": "https://github.com/xiechuanj/python-sonar-runner.git"
     }
   }
 }
