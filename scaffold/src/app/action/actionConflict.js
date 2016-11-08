@@ -47,8 +47,8 @@ export function svgTree(container, data, actionId) {
     console.log(conflictDIV.height());
     let svg = container.append("svg")
         .attr("width", "100%")
-        .attr("height", conflictDIV.height() - 100)
-        .style("fill", "white");
+        .attr("height", "100%")
+        // .style("fill", "white");
     for (let i = 0; i < conflictArray.length; i++) {
         construct(svg, conflictArray[i], "conflict-source");
     }
