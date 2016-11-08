@@ -53,11 +53,11 @@ export function initComponentSetup(component){
 
     // setting way
     if(componentSetupData.data.action.useAdvanced){
-        $("#setting-way-advanced").attr("checked","checked");
-        $("#setting-way-base").removeAttr("checked");
+        $("#setting-way-advanced").prop("checked",true);
+        $("#setting-way-base").prop("checked",false);
     }else{
-        $("#setting-way-advanced").removeAttr("checked");
-        $("#setting-way-base").attr("checked","checked");
+        $("#setting-way-advanced").prop("checked",false);
+        $("#setting-way-base").prop("checked",true);
     }
     $("#setting-way-advanced").on("click",function(){
         componentSetupData.setActionUseAdvanced(true);
@@ -91,7 +91,20 @@ export function initComponentSetup(component){
     });
 
     // ports
-    showPorts();
+    if(componentSetupData.getUseNodePort()){
+        $("#use-node-port").prop("checked",true);
+    }else{
+        $("#use-node-port").prop("checked",false);
+    }
+    $("#use-node-port").on("click",function(){
+        if($("#use-node-port")[0].checked){
+            componentSetupData.setUseNodePort(true);
+        }else{
+            componentSetupData.setUseNodePort(false);
+        }
+        showComponentPorts();
+    });
+    showComponentPorts();
 
     // advanced setting
     $("#serviceCodeEditor").val(JSON.stringify(componentSetupData.data.service_advanced,null,2));
@@ -121,32 +134,59 @@ function showSetting(){
     }
 }
 
-function showPorts(){
+function showComponentPorts(){
     $("#ports-setting").empty();
     _.each(componentSetupData.data.service.spec.ports,function(item,index){
-        var row = '<div class="port-row"><div class="port-div">'
-                        +'<div>'
-                            +'<label for="normal-field" class="col-sm-4 control-label">'
-                                +'Target Port'
-                            +'</label>'
-                            +'<div class="col-sm-7" data-index="' + index + '">'
-                                +'<input type="number" name="k8s-service-port" value="' + item.port + '" class="form-control" required min="0" max="65535">'
-                            +'</div>'
-                        +'</div>'
-                    +'</div>'
-                    +'<div class="target-port-div">'
-                        +'<div>'
-                            +'<label for="normal-field" class="col-sm-4 control-label">'
-                                +'Node Port'
-                            +'</label>'
-                            +'<div class="col-sm-7" data-index="' + index + '">' 
-                                +'<input type="number" name="k8s-service-node-port" value="' + item.nodePort + '" class="form-control" required min="0" max="65535">'
-                            +'</div>'
-                        +'</div>'
-                    +'</div>'
-                    +'<div class="port-remove-div rm-port" data-index="' + index + '">'
-                        +'<span class="glyphicon glyphicon-remove"></span>'
-                    +'</div></div>';
+        var row = `<div class="port-row">`;
+
+        if(componentSetupData.getUseNodePort()){
+            row +=  `<div class="port-div">`;
+        }else{
+            row += `<div class="port-div no-use-node-port">`;
+        }    
+
+        row += `<div>
+                    <label for="normal-field" class="col-sm-4 control-label">
+                        Port
+                    </label>
+                    <div class="col-sm-7" data-index="` + index + `">
+                        <input type="number" name="k8s-service-port" value="` + item.port + `" class="form-control" required min="0" max="65535">
+                    </div>
+                </div>
+                </div>`;
+        if(componentSetupData.getUseNodePort()){
+            row +=  `<div class="port-div">`;
+        }else{
+            row += `<div class="port-div no-use-node-port">`;
+        }
+        
+        row +=  `<div>
+                    <label for="normal-field" class="col-sm-4 control-label">
+                        Target Port
+                    </label>
+                    <div class="col-sm-7" data-index="` + index + `">
+                        <input type="number" name="k8s-service-target-port" value="` + item.targetPort + `" class="form-control" required min="0" max="65535">
+                    </div>
+                </div>
+                </div>`;
+
+        if(componentSetupData.getUseNodePort()){
+            row += `<div class="port-div">
+                            <div>
+                                <label for="normal-field" class="col-sm-4 control-label">
+                                    Node Port
+                                </label>
+                                <div class="col-sm-7" data-index="` + index + `">
+                                    <input type="number" name="k8s-service-node-port" value="` + item.nodePort + `" class="form-control" required min="0" max="65535">
+                                </div>
+                            </div>
+                        </div>`;
+        }
+                        
+        row +=  `<div class="port-remove-div rm-port" data-index="` + index + `">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </div>
+                    </div>`;
         $("#ports-setting").append(row);
     });
     
@@ -159,18 +199,22 @@ function showPorts(){
         componentSetupData.setServicePort(event);
     });
 
+    $("input[name=k8s-service-target-port]").on("blur",function(event){
+        componentSetupData.setServiceTargetPort(event);
+    });
+
     $("input[name=k8s-service-node-port]").on("blur",function(event){
         componentSetupData.setServiceNodePort(event);
     });
 
     $(".rm-port").on("click",function(event){
         componentSetupData.removeServicePorts(event);
-        showPorts();
+        showComponentPorts();
     });
 
     $(".add-port").on("click",function(){
         componentSetupData.addServicePort();
-        showPorts();
+        showComponentPorts();
     });
 }
 

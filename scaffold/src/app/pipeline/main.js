@@ -442,7 +442,7 @@ function getEnvList() {
 function showEnvKVs() {
     $("#envs").empty();
     _.each(pipelineEnvs,function(item,index){
-         var row = '<div class="env-row"><div class="port-div">'
+         var row = '<div class="env-row"><div class="env-key-div">'
                         +'<div>'
                             +'<label for="normal-field" class="col-sm-3 control-label" style="margin-top:5px">'
                                 +'KEY'
@@ -452,7 +452,7 @@ function showEnvKVs() {
                             +'</div>'
                         +'</div>'
                     +'</div>'
-                    +'<div class="target-port-div" style="margin-left:0">'
+                    +'<div class="env-value-div" style="margin-left:0">'
                         +'<div>'
                             +'<label for="normal-field" class="col-sm-3 control-label" style="margin-top:5px">'
                                 +'VALUE'
