@@ -144,3 +144,63 @@ export function changeCurrentElement(previousData) {
     }
 
 }
+export let drag = d3.behavior.drag()
+    .origin(function() {
+        return { "x": 0, "y": 0 }; })
+    .on("dragstart", dragStart)
+    .on("drag", draged);
+
+function dragStart() {
+    d3.event.sourceEvent.stopPropagation();
+    drag.origin(function() {
+        return { "x": constant.pipelineView.attr("translateX"), "y": constant.pipelineView.attr("translateY") } });
+}
+
+function draged() {
+    var scale = Number(constant.pipelineView.attr("scale"));
+    var translate = "translate(" + (d3.event.x) + "," + (d3.event.y) + ") scale(" + scale + ")";
+    var targetCollection = [constant.pipelineView, constant.actionsView, constant.linesView];
+    _.each(targetCollection, function(target) {
+        target
+            .attr("translateX", d3.event.x)
+            .attr("translateY", d3.event.y)
+            .attr("transform", translate)
+            .attr("scale", scale)
+    })
+
+}
+let zoom = d3.behavior.zoom()
+    .on("zoom", redraw)
+    .scaleExtent([constant.zoomMinimum, constant.zoomMaximum]);
+
+function redraw() {
+    var targetCollection = [constant.pipelineView, constant.actionsView, constant.linesView];
+    _.each(targetCollection, function(target) {
+        target
+            .attr("translateX", d3.event.translate[0])
+            .attr("translateY", d3.event.translate[1])
+            .attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+            .attr("scale", d3.event.scale)
+    })
+}
+export function zoomed(type) {
+    var currentTranslateX = Number(constant.pipelineView.attr("translateX"));
+    var currentTranslateY = Number(constant.pipelineView.attr("translateY"));
+    var currentTranslate = [currentTranslateX, currentTranslateY];
+    // zoom.scale(scale).translate(currentTranslate).event(constant.pipelineView);
+    d3.transition().duration(constant.zoomDuration).tween("zoom", function() {
+        if (type == "zoomin") {
+            constant.zoomTargetScale = (constant.zoomScale + constant.zoomFactor) <= constant.zoomMaximum ? (constant.zoomScale + constant.zoomFactor) : constant.zoomMaximum;
+        } else if (type == "zoomout") {
+            constant.zoomTargetScale = (constant.zoomScale - constant.zoomFactor) >= constant.zoomMinimum ? (constant.zoomScale - constant.zoomFactor) : constant.zoomMinimum;
+        }
+        var interpolate_scale = d3.interpolate(constant.zoomScale, constant.zoomTargetScale),
+            interpolate_trans = d3.interpolate(currentTranslate, currentTranslate);
+        return function(t) {
+            zoom.scale(interpolate_scale(t))
+                .translate(interpolate_trans(t))
+                .event(constant.pipelineView);
+            constant.zoomScale = constant.zoomTargetScale;
+        };
+    });
+}

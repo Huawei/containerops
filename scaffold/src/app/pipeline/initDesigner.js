@@ -15,13 +15,14 @@ limitations under the License.
  */
 
 import * as constant from "../common/constant";
+import * as util from "../common/util";
 import * as initButton from "./initButton";
+
 let linesView, actionsView, pipelineView, buttonView;
 
 export function initDesigner() {
     let $div = $("#div-d3-main-svg").height($("main").height() * 2 / 3);
-    let zoom = d3.behavior.zoom().on("zoom", zoomed);
-
+    // let zoom = d3.behavior.zoom().on("zoom", zoomed);
     constant.setSvgWidth("100%");
     constant.setSvgHeight($div.height());
     constant.setPipelineNodeStartX(50);
@@ -38,8 +39,10 @@ export function initDesigner() {
         .style("fill", "white");
 
     let g = svg.append("g")
-        .call(zoom)
-        .on("dblclick.zoom", null);
+        // .call(zoom)
+        .call(util.drag)
+        // .on("dblclick.zoom", null)
+        // .on("wheel.zoom", null);
 
     let svgMainRect = g.append("rect")
         .attr("width", constant.svgWidth)
@@ -49,17 +52,29 @@ export function initDesigner() {
     linesView = g.append("g")
         .attr("width", constant.svgWidth)
         .attr("height", constant.svgHeight)
-        .attr("id", "linesView");
+        .attr("id", "linesView")
+        .attr("translateX", 0)
+        .attr("translateY", 0)
+        .attr("transform", "translate(0,0) scale(1)")
+        .attr("scale", 1);
 
     actionsView = g.append("g")
         .attr("width", constant.svgWidth)
         .attr("height", constant.svgHeight)
-        .attr("id", "actionsView");
+        .attr("id", "actionsView")
+        .attr("translateX", 0)
+        .attr("translateY", 0)
+        .attr("transform", "translate(0,0) scale(1)")
+        .attr("scale", 1);
 
     pipelineView = g.append("g")
         .attr("width", constant.svgWidth)
         .attr("height", constant.svgHeight)
-        .attr("id", "pipelineView");
+        .attr("id", "pipelineView")
+        .attr("translateX", 0)
+        .attr("translateY", 0)
+        .attr("transform", "translate(0,0) scale(1)")
+        .attr("scale", 1);
 
     buttonView = g.append("g")
         .attr("width", constant.svgWidth)
@@ -88,15 +103,6 @@ function clicked(d, i) {
         .transition()
 }
 
-function zoomed() {
-    pipelineView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
-    actionsView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
-    // buttonView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
-    linesView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")")
-    .attr("translateX", d3.event.translate[0])
-    .attr("translateY", d3.event.translate[1])
-    .attr("scale", d3.event.scale);
-}
 
 function nozoom() {
     d3.event.preventDefault();

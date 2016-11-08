@@ -155,7 +155,7 @@ export function initPipeline() {
                 let width = null;
                 if (d.setupData && d.setupData.name && d.setupData.name != "") {
                     text = d.setupData.name;
-                    width = text.length * 7 + 20;
+                    width = text.length * 8 + 20;
                 }
                 initButton.showToolTip(i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX, constant.pipelineNodeStartY + constant.svgStageHeight, text, "pipeline-element-popup", constant.pipelineView,width);
 
@@ -164,7 +164,7 @@ export function initPipeline() {
 
         })
 
-    .call(drag);
+    // .call(drag);
 
     initAction();
 
