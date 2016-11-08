@@ -17,10 +17,6 @@ limitations under the License.
 import * as componentSetupData from "./componentSetupData";
 import {notify} from "../common/notify";
 
-// let k8sAdvancedEditor,k8sAdvancedContainer;
-
-// let k8sAD;
-
 export function initComponentSetup(component){
     componentSetupData.getComponentSetupData(component);
 
@@ -40,15 +36,6 @@ export function initComponentSetup(component){
         componentSetupData.setActionTimeout();
     });
 
-    // $("#k8s-ip").val(componentSetupData.data.action.ip);
-    // $("#k8s-ip").on("blur",function(){
-    //     componentSetupData.setActionIP();
-    // });
-
-    // $("#k8s-pod-image").val(componentSetupData.data.pod.spec.containers[0].image);
-    // $("#k8s-pod-image").on("blur",function(){
-    //     componentSetupData.setK8s(k8sAdvancedEditor);
-    // });
     $("#k8s-pod-image-name").val(componentSetupData.data.action.image.name);
     $("#k8s-pod-image-name").on("blur",function(){
         componentSetupData.setActionImageName();
@@ -83,33 +70,23 @@ export function initComponentSetup(component){
     showSetting();
 
     // base setting
-    // $("#k8s-service-port").val(componentSetupData.data.service.spec.ports[0].port);
-    // $("#k8s-service-port").on("blur",function(){
-    //     // componentSetupData.setK8s(k8sAdvancedEditor);
-    //     componentSetupData.setServicePort();
-    // });
-
     $("#k8s-cpu-limits").val(componentSetupData.data.pod.spec.containers[0].resources.limits.cpu);
     $("#k8s-cpu-limits").on("blur",function(){
-        // componentSetupData.setK8s(k8sAdvancedEditor);
         componentSetupData.setCPULimit();
     });
 
     $("#k8s-cpu-requests").val(componentSetupData.data.pod.spec.containers[0].resources.requests.cpu);
     $("#k8s-cpu-requests").on("blur",function(){
-        // componentSetupData.setK8s(k8sAdvancedEditor);
         componentSetupData.setCPURequest();
     });
 
-    $("#k8s-memory-limits").val(componentSetupData.data.pod.spec.containers[0].resources.limits.memory);
+    $("#k8s-memory-limits").val(componentSetupData.getMemoryLimit());
     $("#k8s-memory-limits").on("blur",function(){
-        // componentSetupData.setK8s(k8sAdvancedEditor);
         componentSetupData.setMemoryLimit();
     });
 
-    $("#k8s-memory-requests").val(componentSetupData.data.pod.spec.containers[0].resources.requests.memory);
+    $("#k8s-memory-requests").val(componentSetupData.getMemoryRequest());
     $("#k8s-memory-requests").on("blur",function(){
-        // componentSetupData.setK8s(k8sAdvancedEditor);
         componentSetupData.setMemoryRequest();
     });
 
@@ -132,29 +109,6 @@ export function initComponentSetup(component){
             componentSetupData.setPodAdvanced(result);
         }    
     });
-
-
-
-    // k8sAD = $.extend(true,{},componentSetupData.data);
-    // delete k8sAD.action;
-    // delete k8sAD.service.spec.ports[0].port;
-    // delete k8sAD.pod.spec.containers[0].resources;
-    // delete k8sAD.pod.spec.containers[0].image;
-
-    // initK8sForm();
-
-
-    // $("#k8s-advanced").on("click",function(){
-    //     $("#k8s-advanced").hide();
-    //     $("#close-k8s-advanced").show();
-    //     $("#advanced").parent().show();
-    // })
-
-    // $("#close-k8s-advanced").on("click",function(){
-    //     $("#k8s-advanced").show();
-    //     $("#close-k8s-advanced").hide();
-    //     $("#advanced").parent().hide();
-    // })
 }
 
 function showSetting(){
@@ -243,27 +197,3 @@ function toJsonYaml(type){
     }
     return result;
 }
-
-// function initK8sForm(){
-//     k8sAdvancedContainer = $("#advanced")[0];
-//     initK8sAdvanced();
-// }
-
-// function initK8sAdvanced(){
-//     if(k8sAdvancedEditor){
-//         k8sAdvancedEditor.destroy();
-//     }
-
-//     var treeOptions = {
-//         "mode": "tree",
-//         "search": true,
-//         "onChange" : function(){
-//             componentSetupData.setK8s(k8sAdvancedEditor);
-//         }
-//     };
-
-//     k8sAdvancedEditor = new JSONEditor(k8sAdvancedContainer, treeOptions);
-//     k8sAdvancedEditor.set(k8sAD);
-    
-//     k8sAdvancedEditor.expandAll();
-// }
