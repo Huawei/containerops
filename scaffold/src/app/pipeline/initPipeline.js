@@ -26,7 +26,6 @@ import { initAction } from "./initAction";
 import { mouseoverRelevantPipeline, mouseoutRelevantPipeline } from "../relation/lineHover";
 import { dragDropSetPath } from "../relation/dragDropSetPath";
 import { addAction } from "../action/addOrDeleteAction";
-import { drawTreeNode } from "../relation/tree";
 import * as initButton from "./initButton";
 
 export function animationForRemoveStage(itemId, itemIndex) {
