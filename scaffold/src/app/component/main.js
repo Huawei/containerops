@@ -24,6 +24,7 @@ import {loading} from "../common/loading";
 export let allComponents;
 
 export let componentData;
+let componentDataOriginalCopy;
 let componentName, componentVersion,componentVersionID;
 
 export function initComponentPage(){
@@ -121,6 +122,7 @@ function getComponentData(){
     promise.done(function(data){
         loading.hide();
         componentData = data;
+        componentDataOriginalCopy = $.extend(true,{},data);
         showComponentDesigner();
     });
     promise.fail(function(xhr,status,error){
@@ -300,22 +302,26 @@ function cancelNewComponentVersionPage(){
 }
 
 function beforeBackToList(){
-    var actions = [
-        {
-            "name":"save",
-            "label":"Yes",
-            "action":function(){
-                saveComponentData(initComponentPage);
+    if(_.isEqual(componentDataOriginalCopy,componentData)){
+        initComponentPage();
+    }else{
+        var actions = [
+            {
+                "name":"save",
+                "label":"Yes",
+                "action":function(){
+                    saveComponentData(initComponentPage);
+                }
+            },{
+                "name":"back",
+                "label":"No",
+                "action":function(){
+                    initComponentPage();
+                }
             }
-        },{
-            "name":"back",
-            "label":"No",
-            "action":function(){
-                initComponentPage();
-            }
-        }
-    ]
-    confirm("The component design may be modified, would you like to save the component before go back to list.","info",actions);
+        ]
+        confirm("The component design has been modified, would you like to save the changes before go back to list.","info",actions);
+    }
 }
 
 function saveComponentData(next){
@@ -323,6 +329,7 @@ function saveComponentData(next){
         var promise = saveComponent(componentName, componentVersion, componentVersionID, componentData);
         loading.show();
         promise.done(function(data){
+            componentDataOriginalCopy = $.extend(true,{},componentData);
             loading.hide();
             if(!next){
                 notify(data.message,"success");
@@ -346,23 +353,28 @@ function saveComponentData(next){
 }
 
 function beforeShowNewComponent(){
-    var actions = [
-        {
-            "name":"save",
-            "label":"Yes",
-            "action":function(){
-                saveComponentData(showNewComponent);
+    if(_.isEqual(componentDataOriginalCopy,componentData)){
+        showNewComponent();
+    }else{
+        var actions = [
+            {
+                "name":"save",
+                "label":"Yes",
+                "action":function(){
+                    saveComponentData(showNewComponent);
+                }
+            },{
+                "name":"show",
+                "label":"No",
+                "action":function(){
+                    showNewComponent();
+                }
             }
-        },{
-            "name":"show",
-            "label":"No",
-            "action":function(){
-                showNewComponent();
-            }
-        }
-    ]
-    confirm("The component design may be modified, would you like to save the component at first.","info",actions);
+        ]
+        confirm("The component design has been modified, would you like to save the changes at first.","info",actions);
+    }
 }
+
 // $("#pipeline-select").on('change',function(){
 //     showVersionList();
 // })
