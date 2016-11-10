@@ -18,6 +18,7 @@
 //     /* opt.valueElement = '<textarea>'; */  // element of the value field, <input> is default
 //     $('#mydiv').jsonEditor(myjson, opt);
 import {ContextMenu} from "./jquery.jsoneditor.menu";
+import * as startIO from "../app/stage/startIO";
 import * as actionIO from "../app/action/actionIO";
 import * as componentIO from "../app/component/componentIO";
 
@@ -212,6 +213,8 @@ function removeItem (button,opt){
         componentIO.initTreeEdit();
     }else if(from == "action"){
         actionIO.initTreeEdit();
+    }else if(from == "start"){
+        startIO.initTreeEdit();
     }
     
 }
