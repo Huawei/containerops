@@ -15,7 +15,6 @@ limitations under the License.
  */
 
 import * as constant from "../common/constant";
-import { drag } from "../common/drag";
 import { editLine } from "./editLine";
 import * as util from "../common/util";
 import * as initButton from "../pipeline/initButton";
@@ -34,7 +33,7 @@ export function setPath(options) {
         startPoint = { x: fromDom.translateX + 19, y: fromDom.translateY + 4 };
     }
     endPoint = { x: toDom.translateX - 12, y: toDom.translateY + 4 };
-
+    
     constant.lineView[options.pipelineLineViewId]
         .append("path")
         .attr("d", getPathData(startPoint, endPoint))
