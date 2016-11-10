@@ -16,7 +16,6 @@ limitations under the License.
  
 import * as constant from "../common/constant";
 import { setPath } from "../relation/setPath";
-import { drag } from "../common/drag";
 import { mouseoverRelevantPipeline, mouseoutRelevantPipeline } from "../relation/lineHover";
 import { dragDropSetPath } from "../relation/dragDropSetPath";
 
