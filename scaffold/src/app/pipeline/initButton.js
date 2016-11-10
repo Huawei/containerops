@@ -118,10 +118,17 @@ function showOptBtn(index, type) {
                 href = "../../assets/svg/remove-link-selected-latest.svg";
             }
             d3.select(this).attr("href", href);
-            util.showToolTip(Number(d3.select(this).attr("translateX")), Number(d3.select(this).attr("translateY")) + constant.buttonHeight, content, "button-element-popup", constant.buttonView);
+            let options = {
+                "x": Number(d3.select(this).attr("translateX")),
+                "y": Number(d3.select(this).attr("translateY")) + constant.buttonHeight,
+                "text": content,
+                "popupId": "button-element-popup",
+                "parentView": constant.buttonView
+            };
+            util.showToolTip(options);
         })
         .on("mouseout", function(d, i) {
-            util.cleanToolTip(constant.buttonView);
+            util.cleanToolTip(constant.buttonView, "#button-element-popup");
             let href = "";
             if (type == "add") {
                 href = "../../assets/svg/add-action-latest.svg";
@@ -135,7 +142,7 @@ function showOptBtn(index, type) {
             d3.select(this).attr("href", href);
         })
         .on("click", function(d, i) {
-            util.cleanToolTip(constant.buttonView);
+            util.cleanToolTip(constant.buttonView, "#button-element-popup");
             if (type == "add") {
                 addAction(constant.currentSelectedItem.data.actions);
                 initAction();
