@@ -75,10 +75,52 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row mb-lg treeview col-md-10 col-md-offset-1" style="margin-top:30px">
+                        <div class="row col-md-11" style="margin-top:30px;margin-left:4.16667%">
                             <div id="outputTreeViewer" class="col-md-12" style="height:400px"></div>
                             <div id="outputTreeDesigner">
-                               <div class="clearfix">
+                                <div class="row">
+                                    <div class="col-md-6 import-div">
+                                        <div class="panel">
+                                            <div class="panel-heading clearfix">
+                                                <i class="glyphicon glyphicon-cloud-download outputicon"></i>
+                                                <span class="panel-title">Output Tree Edit</span>
+                                                <span class="panel-subtitle">The start stage default output json data</span>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div id="outputTreeStart" class="tree-add-button">
+                                                    <div id="outputStartBtn" class="btn-div">
+                                                        <span class="glyphicon glyphicon-plus nohover"></span>
+                                                        <div class="desc">
+                                                            <label class="desc-label">Add New Value</label>
+                                                            <div class="desc-btn">
+                                                                <span class="glyphicon glyphicon-plus"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div id="outputTreeDiv" class="json-editor"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 import-div">
+                                        <div class="panel">
+                                            <div class="panel-heading clearfix">
+                                                <i class="glyphicon glyphicon-cloud-download outputicon"></i>
+                                                <span class="panel-title">Output From Edit</span>
+                                                <span class="panel-subtitle">The start stage default output json data</span>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div id="outputCodeEditor" class="codeEditor"></div>
+                                                <div class="col-md-4 col-md-offset-4 row editor-transfer">
+                                                    <span id="outputFromJson" class="col-md-4 code-to-tree"></span>
+                                                    <span id="outputToJson" class="col-md-4 tree-to-code"></span>
+                                                </div>
+                                                <div id="outputTreeEditor" class="treeEditor"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                               <!-- <div class="clearfix">
                                     <ul class="nav nav-tabs pull-xs-left" id="actionTabs" role="tablist">
                                         <li class="nav-item">
                                             <a class="nav-link active" id="tree-edit-tab" data-toggle="tab" href="#tree_edit" role="tab" aria-controls="tree_edit" aria-expanded="false">Tree Edit</a>
@@ -114,7 +156,7 @@
                                             <div id="outputTreeEditor" style="width: 100%;height:300px"></div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </fieldset>

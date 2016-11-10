@@ -19,9 +19,7 @@ import {notify} from "../common/notify";
 
 var treeEdit_InputContainer,treeEdit_OutputContainer;
 var fromEdit_InputCodeContainer,fromEdit_InputTreeContainer,fromEdit_OutputCodeContainer,fromEdit_OutputTreeContainer;
-var fromEdit_OutputViewContainer;
 var fromEdit_InputCodeEditor,fromEdit_InputTreeEditor,fromEdit_OutputCodeEditor,fromEdit_OutputTreeEditor;
-var fromEdit_ViewTreeEditor;
 
 let actionIOData;
 export function initActionIO(action){
@@ -38,7 +36,6 @@ export function initActionIO(action){
     fromEdit_InputTreeContainer = $("#inputTreeEditor")[0];
     fromEdit_OutputCodeContainer = $("#outputCodeEditor")[0];
     fromEdit_OutputTreeContainer = $("#outputTreeEditor")[0];
-    fromEdit_OutputViewContainer = $("#outputTreeViewer")[0];
 
     // input output from edit
     $("#tree-edit-tab").on('click',function(){
@@ -50,15 +47,7 @@ export function initActionIO(action){
         initFromEdit("output");
     })
 
-    // $("#output-from-edit-tab").on('click',function(){
-    //     initFromEdit("output");
-    // });
-
     initTreeEdit();
-
-    // $("#saveActionIO").on('click',function(){
-    //     saveActionIOData(action,actionIOData);
-    // })
 }
 
 export function initTreeEdit(){
@@ -109,7 +98,7 @@ export function initTreeEdit(){
     }
 }
 
-export function initFromEdit(type){
+function initFromEdit(type){
     var codeOptions = {
         "mode": "code",
         "indentation": 2
@@ -197,20 +186,4 @@ function fromTreeToCode(type){
             notify("Output Tree Changes Error in parsing json.","error");
         } 
     }
-}
-
-export function initFromView(){
-    if(fromEdit_ViewTreeEditor){
-        fromEdit_ViewTreeEditor.destroy();
-    }
-
-    var treeOptions = {
-        "mode": "view",
-        "search": true
-    };
-
-    fromEdit_ViewTreeEditor = new JSONEditor(fromEdit_OutputViewContainer, treeOptions);
-    fromEdit_ViewTreeEditor.set(actionIOData.outputJson);
-    
-    fromEdit_ViewTreeEditor.expandAll();
 }
