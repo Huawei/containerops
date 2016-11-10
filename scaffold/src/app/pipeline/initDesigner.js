@@ -36,7 +36,7 @@ export function initDesigner() {
         });
     }
     constant.setSvgWidth("100%");
-    constant.setSvgHeight($div.height());
+    constant.setSvgHeight("100%");
     constant.setPipelineNodeStartX(50);
     constant.setPipelineNodeStartY(($div.height() + 2 * constant.buttonVerticalSpace + constant.buttonHeight) * 0.2);
 
