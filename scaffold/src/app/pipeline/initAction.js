@@ -17,10 +17,8 @@ limitations under the License.
 import * as constant from "../common/constant";
 import * as util from "../common/util";
 
-import { drag } from "../common/drag";
 import { mouseoverRelevantPipeline, mouseoutRelevantPipeline } from "../relation/lineHover";
 import { clickAction } from "../action/clickAction";
-import { dragDropSetPath } from "../relation/dragDropSetPath";
 import { pipelineData } from "./main";
 import { initLine } from "./initLine";
 import { initPipeline } from "./initPipeline";
@@ -54,6 +52,7 @@ export function animationForRemoveAction(parentId, itemId, itemIndex) {
 }
 
 export function initAction() {
+    // var b = a.name;
     constant.actionsView.selectAll("g").remove();
 
     /* draw actions in actionView , data source is stage.actions */
@@ -73,12 +72,12 @@ export function initAction() {
                 .data(d.actions).enter()
                 .append("image")
                 .attr("xlink:href", function(ad, ai) {
-                    if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "action" && constant.currentSelectedItem.data.id == ad.id){
+                    if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "action" && constant.currentSelectedItem.data.id == ad.id) {
                         return "../../assets/svg/action-selected-latest.svg";
-                    }else{
+                    } else {
                         return "../../assets/svg/action-latest.svg";
                     }
-                    
+
                 })
                 .attr("id", function(ad, ai) {
                     return ad.id;
@@ -133,11 +132,19 @@ export function initAction() {
                     var y = ad.translateY + constant.svgActionHeight;
                     let text = "Click to Edit";
                     let width = null;
-                    if(ad.setupData && ad.setupData.action && ad.setupData.action.name && ad.setupData.action.name != ""){
-                       text = ad.setupData.action.name;
-                       width = text.length * 7 + 20;
+                    if (ad.setupData && ad.setupData.action && ad.setupData.action.name && ad.setupData.action.name != "") {
+                        text = ad.setupData.action.name;
+                        width = text.length * 7 + 20;
                     }
-                    util.showToolTip(x, y, text, "pipeline-element-popup", constant.pipelineView,width);
+                    let options = {
+                        "x": x,
+                        "y": y,
+                        "text": text,
+                        "popupId": "pipeline-element-popup",
+                        "parentView": constant.pipelineView,
+                        "width": width
+                    };
+                    util.showToolTip(options);
                 })
         }
 
