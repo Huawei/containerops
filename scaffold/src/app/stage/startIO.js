@@ -37,27 +37,34 @@ export function initStartIO(start){
     fromEdit_OutputTreeContainer = $("#outputTreeEditor")[0];
     fromEdit_OutputViewContainer = $("#outputTreeViewer")[0];
 
-    // input output from edit
-    $("#tree-edit-tab").on('click',function(){
-        initTreeEdit();
-    })
-
-    $("#output-from-edit-tab").on('click',function(){
-        initFromEdit("output");
-    });
-
     initTreeEdit();
+    initFromEdit("output");
 }
 
 export function initTreeEdit(){
-    try{
-        jsonEditor(treeEdit_OutputContainer,startIOData.outputJson, {
-            change:function(data){
-                startIOData.outputJson = data;
+    if(_.isUndefined(startIOData.outputJson) || _.isEmpty(startIOData.outputJson)){
+        $("#outputTreeStart").show();
+        $("#outputTreeDiv").hide();
+        $("#outputStartBtn").on('click',function(){
+            startIOData.outputJson = {
+                "newKey" : null
             }
-        });
-    }catch(e){
-        notify("Output Error in parsing json.","error");
+            initTreeEdit();
+            initFromEdit("output");
+        })
+    }else{
+        try{
+            $("#outputTreeStart").hide();
+            $("#outputTreeDiv").show();
+            jsonEditor(treeEdit_OutputContainer,startIOData.outputJson, {
+                change:function(data){
+                    startIOData.outputJson = data;
+                    initFromEdit("output");
+                }
+            },"start");
+        }catch(e){
+            notify("Output Error in parsing json.","error");
+        }
     }
 }
 
@@ -101,6 +108,7 @@ function fromCodeToTree(type){
         try{
             startIOData.outputJson = fromEdit_CodeEditor.get();
             fromEdit_TreeEditor.set(startIOData.outputJson);
+            initTreeEdit();
         }catch(e){
             notify("Output Code Changes Error in parsing json.","error");
         } 
@@ -114,13 +122,14 @@ function fromTreeToCode(type){
         try{
             startIOData.outputJson = fromEdit_TreeEditor.get();
             fromEdit_CodeEditor.set(startIOData.outputJson);
+            initTreeEdit();
         }catch(e){
             notify("Output Tree Changes Error in parsing json.","error");
         } 
     }
 }
 
-export function initFromView(){
+function initFromView(){
     if(fromEdit_TreeEditor){
         fromEdit_TreeEditor.destroy();
     }

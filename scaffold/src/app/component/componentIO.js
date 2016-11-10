@@ -48,12 +48,6 @@ export function initComponentIO(component){
         initFromEdit("input");
         initFromEdit("output");
     })
-
-    // $("#output-from-edit-tab").on('click',function(){
-    //     initFromEdit("output");
-    // });
-
-    // initTreeEdit();
 }
 
 export function initTreeEdit(){
