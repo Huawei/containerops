@@ -33,6 +33,8 @@ let pipelineDataOriginalCopy,linePathAryOriginalCopy;
 let pipelineName, pipelineVersion, pipelineVersionID,pipelineHasHistory;
 let pipelineEnvs;
 
+let splitStartY;
+
 export function initPipelinePage() {
     loading.show();
     var promise = pipelineDataService.getAllPipelines();
@@ -297,6 +299,16 @@ function showPipelineDesigner(state) {
             $(".envsetting").on("click", function(event) {
                 showPipelineEnv();
             });
+
+            $(".designer-split").on("dragstart",function(event){
+                splitStartY = event.originalEvent.y;
+            })
+
+            $(".designer-split").on("dragend",function(event){
+                var svgDiv = $("#div-d3-main-svg");
+                svgDiv.height(svgDiv.height() + event.originalEvent.y - splitStartY);
+            })
+            
         }
     });
 }
