@@ -141,14 +141,19 @@ function checkActionBaseSetting(data,stageindex,actionindex){
         notify("Memory requests missed ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
         completeness = false;
     }else{
+        var type = data.setupData.service.spec.type;
         var ports = data.setupData.service.spec.ports;
         if(ports.length == 0){
             notify("No ports setting ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
             completeness = false;
         }
         for(var i=0;i<ports.length;i++){
-            if(_.compact(_.values(ports[i])).length<3){
-                notify("Ports or node ports missed ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
+            if(_.compact(_.values(ports[i])).length<3 && type == "NodePort"){
+                notify("Ports or target ports or node ports missed ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
+                completeness = false;
+                break;
+            }else if(_.compact(_.values(ports[i])).length<2 && type == "ClusterIP"){
+                notify("Ports or target ports missed ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
                 completeness = false;
                 break;
             }
