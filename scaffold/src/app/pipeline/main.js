@@ -75,8 +75,8 @@ function showPipelineList() {
                 var pprow = `<tr class="pp-row">
                                 <td class="pptd">
                                     <span class="glyphicon glyphicon-menu-down treeclose treecontroller" data-name=` 
-                                    + item.name + `></span>&nbsp;&nbsp;&nbsp;&nbsp;` 
-                                    + item.name + `</td><td></td><td></td><td></td></tr>`;
+                                    + item.name + `></span><span style="margin-left:10px">` 
+                                    + item.name + `</span></td><td></td><td></td><td></td></tr>`;
                 $(".pipelinelist_body").append(pprow);
 
                 _.each(item.version, function(version) {
@@ -102,7 +102,8 @@ function showPipelineList() {
                     }
 
                     vrow += `<button type="button" class="btn btn-success ppview">
-                                    <i class="glyphicon glyphicon-eye-open" style="font-size:16px"></i>&nbsp;&nbsp;View
+                                    <i class="glyphicon glyphicon-eye-open" style="font-size:16px"></i>
+                                    <span style="margin-left:5px">View</span>
                                 </button>
                             </td></tr>`;
 
