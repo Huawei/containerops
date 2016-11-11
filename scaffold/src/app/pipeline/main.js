@@ -144,12 +144,12 @@ function getPipelineData() {
     loading.show();
     var promise = pipelineDataService.getPipeline(pipelineName, pipelineVersionID);
     promise.done(function(data) {
-        pipelineDataOriginalCopy = _.map(data.stageList,function(item){
-            return $.extend(true,{},item);
-        });
-        linePathAryOriginalCopy = _.map(data.lineList,function(item){
-            return $.extend(true,{},item);
-        });
+        // pipelineDataOriginalCopy = _.map(data.stageList,function(item){
+        //     return $.extend(true,{},item);
+        // });
+        // linePathAryOriginalCopy = _.map(data.lineList,function(item){
+        //     return $.extend(true,{},item);
+        // });
         loading.hide();
         pipelineData = data.stageList;
         setLinePathAry(data.lineList); 
@@ -308,6 +308,13 @@ function showPipelineDesigner(state) {
                 var svgDiv = $("#div-d3-main-svg");
                 svgDiv.height(svgDiv.height() + event.originalEvent.y - splitStartY);
             })
+
+            pipelineDataOriginalCopy = _.map(pipelineData,function(item){
+                return $.extend(true,{},item);
+            });
+            linePathAryOriginalCopy = _.map(linePathAry,function(item){
+                return $.extend(true,{},item);
+            });
             
         }
     });

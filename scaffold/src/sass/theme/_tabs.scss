@@ -156,9 +156,12 @@ limitations under the License. */
   position:absolute;
   background-color:#fff;
 }
+
 .nav-tabs > .nav-item > .nav-link {
-  padding: 12px 30px;
-  border:none
+  @media (min-width: 1400px){
+     padding: 12px 30px;
+  }
+  border: none;
 }
 
 .nav > li > a {
