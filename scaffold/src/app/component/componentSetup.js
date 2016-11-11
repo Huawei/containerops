@@ -191,7 +191,8 @@ function showComponentPorts(){
     });
     
     var addrow = `<button type="button" class="btn btn-success add-port">
-                        <i class="glyphicon glyphicon-plus" style="top:1px"></i>&nbsp;&nbsp;Add Port
+                        <i class="glyphicon glyphicon-plus" style="top:1px"></i>
+                        <span style="margin-left:5px">Add Port</span>
                     </button>`;
     $("#ports-setting").append(addrow);
 
