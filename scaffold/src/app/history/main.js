@@ -58,7 +58,7 @@ function getHistoryList() {
                 _.each(constant.sequenceAllList, function(pd) {
                     var hpRow = `<tr data-id=` + pd.id + ` class="pp-row">
                                     <td class="pptd">
-                                        <span class="glyphicon glyphicon-menu-down treeclose pp-controller" data-name=` + pd.name + `></span>&nbsp;&nbsp;&nbsp;&nbsp;` + pd.name + `</td><td></td><td></td><td></td></tr>`;
+                                        <span class="glyphicon glyphicon-menu-down treeclose pp-controller" data-name=` + pd.name + `></span><span style="margin-left:10px">` + pd.name + `</span></td><td></td><td></td><td></td></tr>`;
                     hppItem.append(hpRow);
 
                     _.each(pd.versionList, function(vd) {
@@ -74,7 +74,7 @@ function getHistoryList() {
 
                         } else {
 
-                            hvRow += `<td class="pptd"><span class="glyphicon glyphicon-menu-down treeclose pp-v-controller"></span>&nbsp;&nbsp;&nbsp;&nbsp;` + vd.name + `</td>`;
+                            hvRow += `<td class="pptd"><span class="glyphicon glyphicon-menu-down treeclose pp-v-controller"></span><span style="margin-left:10px">` + vd.name + `</span></td>`;
 
                             hvRow += `<td>` + vd.info + `</td>`;
 
@@ -98,7 +98,7 @@ function getHistoryList() {
                                             </div></td>`
                                     }
 
-                                    hsRow += `<td><button type="button" class="btn btn-success sequence-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:16px"></i>&nbsp;&nbsp;Detail</button></td></tr> `
+                                    hsRow += `<td><button type="button" class="btn btn-success sequence-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:16px"></i><span style="margin-left:5px">Detail</span></button></td></tr> `
 
                                     hppItem.append(hsRow)
                                 });

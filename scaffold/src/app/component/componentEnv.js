@@ -53,7 +53,8 @@ function showComponentEnvKVs(){
     });
     
     var addrow = `<button type="button" class="btn btn-success c-new-kv">
-                        <i class="glyphicon glyphicon-plus" style="top:1px"></i>&nbsp;&nbsp;Add Env
+                        <i class="glyphicon glyphicon-plus" style="top:1px"></i>
+                        <span style="margin-left:5px">Add Env</span>
                     </button>`;
     $("#component-envs").append(addrow);
 
