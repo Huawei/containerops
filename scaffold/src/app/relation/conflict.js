@@ -14,6 +14,8 @@ limitations under the License.
 import { linePathAry } from "../common/constant";
 import { pipelineData } from "../pipeline/main";
 
+let linePathArray;
+
 export  function hasConflict(startActionID,endActionID) {
     let result = false;
     let receiveData = {};
@@ -52,8 +54,12 @@ export function getActionConflict(actionID) {
     let conflicts = {};
     let actionReceiveData = {};
 
-    for (let i = 0; i < linePathAry.length; i ++) {
-        let lineInfo = linePathAry[i];
+    linePathArray = _.map(linePathAry,function(item){
+        return $.extend(true,{},item);
+    });
+
+    for (let i = 0; i < linePathArray.length; i ++) {
+        let lineInfo = linePathArray[i];
         if (lineInfo.endData.id == actionID && lineInfo.relation) {
 
             actionReceiveData = setReceiveData(actionReceiveData, lineInfo.startData.id, lineInfo.relation);

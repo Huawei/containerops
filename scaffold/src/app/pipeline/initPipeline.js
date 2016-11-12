@@ -18,13 +18,11 @@ import * as constant from "../common/constant";
 import * as util from "../common/util";
 
 import { pipelineData } from "./main";
-import { drag } from "../common/drag";
 import { clickStart } from "../stage/clickStart";
 import { addStage, deleteStage } from "../stage/addOrDeleteStage";
 import { clickStage } from "../stage/clickStage";
 import { initAction } from "./initAction";
 import { mouseoverRelevantPipeline, mouseoutRelevantPipeline } from "../relation/lineHover";
-import { dragDropSetPath } from "../relation/dragDropSetPath";
 import { addAction } from "../action/addOrDeleteAction";
 import * as initButton from "./initButton";
 
@@ -50,10 +48,6 @@ export function initPipeline() {
             if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "stage" && constant.currentSelectedItem.data.id == d.id) {
                 if (d.type == constant.PIPELINE_START) {
                     return "../../assets/svg/start-selected-latest.svg";
-                } else if (d.type == constant.PIPELINE_ADD_STAGE) {
-                    return "../../assets/svg/add-stage-selected-latest.svg";
-                } else if (d.type == constant.PIPELINE_END) {
-                    return "../../assets/svg/end-latest.svg";
                 } else if (d.type == constant.PIPELINE_STAGE) {
                     return "../../assets/svg/stage-selected-latest.svg";
                 }
@@ -106,16 +100,16 @@ export function initPipeline() {
         })
         .style("cursor", "pointer")
         .on("click", function(d, i) {
-            constant.pipelineView.selectAll("#pipeline-element-popup").remove();
+            util.cleanToolTip(constant.pipelineView, "#pipeline-element-popup");
             if (d.type == constant.PIPELINE_ADD_STAGE) {
                 addStage(d, i);
                 initPipeline();
             } else if (d.type == constant.PIPELINE_STAGE) {
                 clickStage(d, i);
-                util.changeCurrentElement(constant.currentSelectedItem);
-                constant.setCurrentSelectedItem({ "data": d, "type": "stage" });
-                initButton.updateButtonGroup("stage");
-                d3.select("#" + d.id).attr("href", "../../assets/svg/stage-selected-latest.svg");
+                util.changeCurrentElement(constant.currentSelectedItem); /* remove previous selected item style before set current item */
+                constant.setCurrentSelectedItem({ "data": d, "type": "stage" }); /* save current item to constant.currentSelectedItem */
+                initButton.updateButtonGroup("stage"); /* update the buttons on left top according to current item */
+                d3.select("#" + d.id).attr("href", "../../assets/svg/stage-selected-latest.svg"); /* set current item to selected style */
             } else if (d.type == constant.PIPELINE_START) {
                 clickStart(d, i);
                 util.changeCurrentElement(constant.currentSelectedItem);
@@ -123,6 +117,48 @@ export function initPipeline() {
                 initButton.updateButtonGroup("start");
                 d3.select("#" + d.id).attr("href", "../../assets/svg/start-selected-latest.svg");
             }
+        })
+
+    .on("mouseover", function(d, i) {
+            // console.log(d3.event.movementX);
+            // console.log(d3.event.movementY);
+            var options = {};
+            if (d.type == constant.PIPELINE_ADD_STAGE) {
+                d3.select(this)
+                    .attr("xlink:href", function(d, i) {
+                        return "../../assets/svg/add-stage-selected-latest.svg";
+                    })
+                    .style({
+                        "cursor": "pointer"
+                    })
+                options = {
+                    "x": i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX,
+                    "y": constant.pipelineNodeStartY + constant.svgStageHeight,
+                    "text": "Add Stage",
+                    "popupId": "pipeline-element-popup",
+                    "parentView": constant.pipelineView
+                };
+                 util.showToolTip(options);
+
+            } else if (d.type == constant.PIPELINE_STAGE || d.type == constant.PIPELINE_START) {
+                let text = "Click to Edit";
+                let width = null;
+                if (d.setupData && d.setupData.name && d.setupData.name != "") {
+                    text = d.setupData.name;
+                    width = text.length * 8 + 20;
+                }
+                options = {
+                    "x": i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX,
+                    "y": constant.pipelineNodeStartY + constant.svgStageHeight,
+                    "text": text,
+                    "popupId": "pipeline-element-popup",
+                    "parentView": constant.pipelineView,
+                    "width": width
+                };
+                 util.showToolTip(options);
+            }
+           
+
         })
         .on("mouseout", function(d, i) {
             d3.event.stopPropagation();
@@ -132,34 +168,7 @@ export function initPipeline() {
                         return "../../assets/svg/add-stage-latest.svg";
                     })
             }
-            constant.pipelineView.selectAll("#pipeline-element-popup").remove();
-
-        })
-        .on("mouseover", function(d, i) {
-            // console.log(d3.event.movementX);
-        // console.log(d3.event.movementY);
-
-            if (d.type == constant.PIPELINE_ADD_STAGE) {
-                d3.select(this)
-                    .attr("xlink:href", function(d, i) {
-                        return "../../assets/svg/add-stage-selected-latest.svg";
-                    })
-                    .style({
-                        "cursor": "pointer"
-                    })
-                util.showToolTip(i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX, constant.pipelineNodeStartY + constant.svgStageHeight, "Add Stage", "pipeline-element-popup", constant.pipelineView);
-
-            } else if (d.type == constant.PIPELINE_STAGE || d.type == constant.PIPELINE_START) {
-                let text = "Click to Edit";
-                let width = null;
-                if (d.setupData && d.setupData.name && d.setupData.name != "") {
-                    text = d.setupData.name;
-                    width = text.length * 8 + 20;
-                }
-                util.showToolTip(i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX, constant.pipelineNodeStartY + constant.svgStageHeight, text, "pipeline-element-popup", constant.pipelineView,width);
-
-            }
-
+            util.cleanToolTip(constant.pipelineView, "#pipeline-element-popup");
 
         })
 
