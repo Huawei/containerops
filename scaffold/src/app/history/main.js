@@ -78,7 +78,7 @@ function getHistoryList () {
 
                             hvRow += `<td class="pptd"><span class="glyphicon glyphicon-menu-down treeclose pp-v-controller"></span>&nbsp;&nbsp;&nbsp;&nbsp;` + vd.name + `</td>`;
 
-                            hvRow += `<td>`+ vd.info +`</td>`;
+                            hvRow += `<td class="pptd">`+ vd.info +`</td>`;
 
                             hvRow += `<td></td></tr>`;
 
