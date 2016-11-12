@@ -29,8 +29,11 @@ import {getSequenceDetail} from "../history/main";
 export let allPipelines;
 
 export let pipelineData;
+let pipelineDataOriginalCopy,linePathAryOriginalCopy;
 let pipelineName, pipelineVersion, pipelineVersionID,pipelineHasHistory;
 let pipelineEnvs;
+
+let splitStartY;
 
 export function initPipelinePage() {
     loading.show();
@@ -72,8 +75,8 @@ function showPipelineList() {
                 var pprow = `<tr class="pp-row">
                                 <td class="pptd">
                                     <span class="glyphicon glyphicon-menu-down treeclose treecontroller" data-name=` 
-                                    + item.name + `></span>&nbsp;&nbsp;&nbsp;&nbsp;` 
-                                    + item.name + `</td><td></td><td></td><td></td></tr>`;
+                                    + item.name + `></span><span style="margin-left:10px">` 
+                                    + item.name + `</span></td><td></td><td></td><td></td></tr>`;
                 $(".pipelinelist_body").append(pprow);
 
                 _.each(item.version, function(version) {
@@ -99,7 +102,8 @@ function showPipelineList() {
                     }
 
                     vrow += `<button type="button" class="btn btn-success ppview">
-                                    <i class="glyphicon glyphicon-eye-open" style="font-size:16px"></i>&nbsp;&nbsp;View
+                                    <i class="glyphicon glyphicon-eye-open" style="font-size:16px"></i>
+                                    <span style="margin-left:5px">View</span>
                                 </button>
                             </td></tr>`;
 
@@ -141,6 +145,12 @@ function getPipelineData() {
     loading.show();
     var promise = pipelineDataService.getPipeline(pipelineName, pipelineVersionID);
     promise.done(function(data) {
+        // pipelineDataOriginalCopy = _.map(data.stageList,function(item){
+        //     return $.extend(true,{},item);
+        // });
+        // linePathAryOriginalCopy = _.map(data.lineList,function(item){
+        //     return $.extend(true,{},item);
+        // });
         loading.hide();
         pipelineData = data.stageList;
         setLinePathAry(data.lineList); 
@@ -172,20 +182,24 @@ function showNoPipeline() {
 }
 
 function beforeShowNewPipeline() {
-    var actions = [{
-        "name": "save",
-        "label": "Yes",
-        "action": function() {
-            savePipelineData(showNewPipeline);
-        }
-    }, {
-        "name": "show",
-        "label": "No",
-        "action": function() {
-            showNewPipeline();
-        }
-    }]
-    confirm("The pipeline design may be modified, would you like to save the pipeline at first.", "info", actions);
+    if(_.isEqual(pipelineDataOriginalCopy,pipelineData) && _.isEqual(linePathAryOriginalCopy,linePathAry)){
+        showNewPipeline();
+    }else{
+        var actions = [{
+            "name": "save",
+            "label": "Yes",
+            "action": function() {
+                savePipelineData(showNewPipeline);
+            }
+        }, {
+            "name": "show",
+            "label": "No",
+            "action": function() {
+                showNewPipeline();
+            }
+        }]
+        confirm("The pipeline design has been modified, would you like to save the changes at first.", "info", actions);
+    }
 }
 
 function showNewPipeline() {
@@ -286,6 +300,23 @@ function showPipelineDesigner(state) {
             $(".envsetting").on("click", function(event) {
                 showPipelineEnv();
             });
+
+            $(".designer-split").on("dragstart",function(event){
+                splitStartY = event.originalEvent.y;
+            })
+
+            $(".designer-split").on("dragend",function(event){
+                var svgDiv = $("#div-d3-main-svg");
+                svgDiv.height(svgDiv.height() + event.originalEvent.y - splitStartY);
+            })
+
+            pipelineDataOriginalCopy = _.map(pipelineData,function(item){
+                return $.extend(true,{},item);
+            });
+            linePathAryOriginalCopy = _.map(linePathAry,function(item){
+                return $.extend(true,{},item);
+            });
+            
         }
     });
 }
@@ -300,6 +331,12 @@ export function savePipelineData(next) {
     loading.show();
     var promise = pipelineDataService.savePipeline(pipelineName, pipelineVersion, pipelineVersionID, pipelineData, linePathAry);
     promise.done(function(data) {
+        pipelineDataOriginalCopy = _.map(pipelineData,function(item){
+            return $.extend(true,{},item);
+        });
+        linePathAryOriginalCopy = _.map(linePathAry,function(item){
+            return $.extend(true,{},item);
+        });
         loading.hide();
         if (!next) {
             notify(data.message, "success");
@@ -514,20 +551,24 @@ function savePipelineEnvs() {
 
 // run pipeline
 function beforeRunPipeline() {
-    var actions = [{
-        "name": "saveAndRun",
-        "label": "Yes, save it first.",
-        "action": function() {
-            savePipelineData(runPipeline);
-        }
-    }, {
-        "name": "run",
-        "label": "No, just run it.",
-        "action": function() {
-            runPipeline();
-        }
-    }]
-    confirm("The pipeline design may be modified, would you like to save the pipeline before run it.", "info", actions);
+    if(_.isEqual(pipelineDataOriginalCopy,pipelineData) && _.isEqual(linePathAryOriginalCopy,linePathAry)){
+        runPipeline();
+    }else{
+        var actions = [{
+            "name": "saveAndRun",
+            "label": "Yes, save it first.",
+            "action": function() {
+                savePipelineData(runPipeline);
+            }
+        }, {
+            "name": "run",
+            "label": "No, just run it.",
+            "action": function() {
+                runPipeline();
+            }
+        }]
+        confirm("The pipeline design has been modified, would you like to save the changes before run it.", "info", actions);
+    }
 }
 
 function runPipeline() {
@@ -550,20 +591,24 @@ function runPipeline() {
 
 //stop pipeline
 function beforeStopPipeline() {
-    var actions = [{
-        "name": "saveAndStop",
-        "label": "Yes, save it first.",
-        "action": function() {
-            savePipelineData(stopPipeline);
-        }
-    }, {
-        "name": "stop",
-        "label": "No, just stop it.",
-        "action": function() {
-            stopPipeline();
-        }
-    }]
-    confirm("The pipeline design may be modified, would you like to save the pipeline before stop it.", "info", actions);
+    if(_.isEqual(pipelineDataOriginalCopy,pipelineData) && _.isEqual(linePathAryOriginalCopy,linePathAry)){
+        stopPipeline();
+    }else{
+        var actions = [{
+            "name": "saveAndStop",
+            "label": "Yes, save it first.",
+            "action": function() {
+                savePipelineData(stopPipeline);
+            }
+        }, {
+            "name": "stop",
+            "label": "No, just stop it.",
+            "action": function() {
+                stopPipeline();
+            }
+        }]
+        confirm("The pipeline design has been modified, would you like to save the changes before stop it.", "info", actions);
+    }
 }
 
 function stopPipeline() {
@@ -585,20 +630,24 @@ function stopPipeline() {
 }
 
 function beforeBackToList() {
-    var actions = [{
-        "name": "save",
-        "label": "Yes",
-        "action": function() {
-            savePipelineData(initPipelinePage);
-        }
-    }, {
-        "name": "back",
-        "label": "No",
-        "action": function() {
-            initPipelinePage();
-        }
-    }]
-    confirm("The pipeline design may be modified, would you like to save the pipeline before go back to list.", "info", actions);
+    if(_.isEqual(pipelineDataOriginalCopy,pipelineData) && _.isEqual(linePathAryOriginalCopy,linePathAry)){
+        initPipelinePage();
+    }else{
+        var actions = [{
+            "name": "save",
+            "label": "Yes",
+            "action": function() {
+                savePipelineData(initPipelinePage);
+            }
+        }, {
+            "name": "back",
+            "label": "No",
+            "action": function() {
+                initPipelinePage();
+            }
+        }]
+        confirm("The pipeline design has been modified, would you like to save the changes before go back to list.", "info", actions);
+    }
 }
 
 export function getPipelineToken(){
@@ -606,20 +655,24 @@ export function getPipelineToken(){
 }
 
 function beforeShowLog() {
-    var actions = [{
-        "name": "saveAndLog",
-        "label": "Yes",
-        "action": function() {
-            savePipelineData(showLogHistory);
-        }
-    }, {
-        "name": "log",
-        "label": "No",
-        "action": function() {
-            showLogHistory();
-        }
-    }]
-    confirm("The pipeline design may be modified, would you like to save the pipeline before show the log history.", "info", actions);
+    if(_.isEqual(pipelineDataOriginalCopy,pipelineData) && _.isEqual(linePathAryOriginalCopy,linePathAry)){
+        showLogHistory();
+    }else{
+        var actions = [{
+            "name": "saveAndLog",
+            "label": "Yes",
+            "action": function() {
+                savePipelineData(showLogHistory);
+            }
+        }, {
+            "name": "log",
+            "label": "No",
+            "action": function() {
+                showLogHistory();
+            }
+        }]
+        confirm("The pipeline design has been modified, would you like to save the changes before show the log history.", "info", actions);
+    }
 }
 
 function showLogHistory(){

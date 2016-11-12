@@ -253,23 +253,38 @@ export function showZoomBtn(index, type, containerView, target, scaleObj, option
                 href = "../../assets/svg/zoomout.svg";
             }
             d3.select(this).attr("href", href);
-            showToolTip(Number(d3.select(this).attr("translateX")), Number(d3.select(this).attr("translateY")) + constant.buttonHeight, content, "button-element-popup", containerView);
+            let options = {
+                "x": Number(d3.select(this).attr("translateX")),
+                "y": Number(d3.select(this).attr("translateY")) + constant.buttonHeight,
+                "text": content,
+                "popupId": "button-element-popup",
+                "parentView": containerView
+            };
+            showToolTip(options);
         })
         .on("mouseout", function(d, i) {
-            cleanToolTip(containerView);
+            cleanToolTip(containerView, "#button-element-popup");
         })
         .on("click", function(d, i) {
             zoomed(type, target, scaleObj);
         })
 }
-export function showToolTip(x, y, text, popupId, parentView, width, height) {
+export function showToolTip(options) {
+    var x = options.x,
+        y = options.y,
+        text = options.text,
+        popupId = options.popupId,
+        parentView = options.parentView,
+        width = options.width || constant.popupWidth,
+        height = options.height || constant.popupHeight;
+
     parentView
         .append("g")
         .attr("id", popupId);
     parentView.selectAll("#" + popupId)
         .append("rect")
-        .attr("width", width || constant.popupWidth)
-        .attr("height", height || constant.popupHeight)
+        .attr("width", width)
+        .attr("height", height)
         .attr("x", function(pd, pi) {
             return x;
         })
@@ -283,11 +298,12 @@ export function showToolTip(x, y, text, popupId, parentView, width, height) {
     parentView.selectAll("#" + popupId)
         .append("text")
         .attr("x", x + 10)
-        .attr("y", y + constant.popupHeight / 2 + 4)
+        .attr("y", y + height / 2 + 4)
         .style("fill", "white")
         .style("opacity", 0.9)
         .text(text)
 }
-export function cleanToolTip(containerView) {
-    containerView.selectAll("#button-element-popup").remove();
+
+export function cleanToolTip(containerView, id) {
+    containerView.selectAll(id).remove();
 }

@@ -18,6 +18,7 @@
 //     /* opt.valueElement = '<textarea>'; */  // element of the value field, <input> is default
 //     $('#mydiv').jsonEditor(myjson, opt);
 import {ContextMenu} from "./jquery.jsoneditor.menu";
+import * as startIO from "../app/stage/startIO";
 import * as actionIO from "../app/action/actionIO";
 import * as componentIO from "../app/component/componentIO";
 
@@ -53,7 +54,24 @@ items.push({
           click: function (button,opt) {
             changeType('string',button,opt);
           }
+        },
+        {
+          text: 'Boolean',
+          className: 'jsoneditor-type-boolean',
+          title: "titles.boolean",
+          click: function (button,opt) {
+            changeType('boolean',button,opt);
+          }
+        },
+        {
+          text: 'Number',
+          className: 'jsoneditor-type-number',
+          title: "titles.number",
+          click: function (button,opt) {
+            changeType('number',button,opt);
+          }
         }
+
     ]
 });
 
@@ -212,6 +230,8 @@ function removeItem (button,opt){
         componentIO.initTreeEdit();
     }else if(from == "action"){
         actionIO.initTreeEdit();
+    }else if(from == "start"){
+        startIO.initTreeEdit();
     }
     
 }
@@ -384,6 +404,8 @@ function changeType(type,button,opt){
     if(type == "string")value.val('""');
     else if(type == "array") value.val("[]");
     else if(type == "object") value.val("{}");
+    else if(type =="boolean") value.val(true);
+    else if(type == "number") value.val(1);
 
     value.change();
 }

@@ -122,9 +122,9 @@ function showComponentList(action) {
                 var pprow = `<tr class="pp-row">
                                 <td class="pptd">
                                     <span class="glyphicon glyphicon-menu-down treeclose treecontroller" data-name=` 
-                                    + item.name +`></span>&nbsp;&nbsp;&nbsp;&nbsp;`
+                                    + item.name +`></span><span style="margin-left:10px">`
                                     + item.name 
-                                +`</td><td></td><td></td></tr>`;
+                                +`</span></td><td></td><td></td></tr>`;
                 $(".componentlist_body").append(pprow);
                 _.each(item.version, function(version) {
                     var vrow = `<tr data-pname=` + item.name + ` data-version=` + version.version + ` data-versionid=` 
@@ -133,7 +133,8 @@ function showComponentList(action) {
                                     <td class="pptd">` + version.version + `</td>
                                     <td>
                                         <button type="button" class="btn btn-success ppview cload">
-                                            <i class="fa fa-copy" style="font-size:16px"></i>&nbsp;&nbsp;Load
+                                            <i class="fa fa-copy" style="font-size:16px"></i>
+                                            <span style="margin-left:5px">Load</span>
                                         </button>
                                     </td>
                                 </tr>`;
