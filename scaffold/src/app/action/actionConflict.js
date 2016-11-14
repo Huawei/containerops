@@ -19,42 +19,122 @@ import { getPathData } from "../relation/setPath";
 
 import { notify } from "../common/notify";
 
-export function getConflict(actionId) {
-    $("#conflictTreeView").empty();
-    let conflict = conflictUtil.getActionConflict(actionId);
-    if (_.isEmpty(conflict)) {
-        let noconflict = "<h4 class='pr'>" +
-            "<em>No Conflict</em>" +
-            "</h4>";
-        $("#conflictTreeView").append(noconflict);
+let drag = d3.behavior.drag()
+    .origin(function(d) {
+        return { "x": 0, "y": 0 };
+    })
+    .on("dragstart", dragStart)
+    .on("drag", util.draged);
+
+function dragStart() {
+    d3.event.sourceEvent.stopPropagation();
+    drag.origin(function() {
+        return { "x": d3.select(this).attr("translateX"), "y": d3.select(this).attr("translateY") }
+    });
+}
+
+function caclX(id, actionId) {
+    let svgWidth = ($("#actionTabsContent").width() - 110) / 2;
+    let x = 0;
+    if (id != actionId) {
+        x = svgWidth / 5;
     } else {
-        svgTree(d3.select("#conflictTreeView"), conflict, actionId);
+        x = svgWidth + svgWidth / 5;
+    }
+    return x;
+}
+
+function parseNodeType(id, actionId) {
+    let type = "";
+    if (id == actionId) {
+        type = "conflict-base";
+    } else {
+        type = "conflict-source";
+    }
+    return type;
+}
+
+function generateImage(type) {
+    switch (type) {
+        case "string":
+            return "../../assets/images/string.png";
+            break;
+        case "object":
+            return "../../assets/images/object.png";
+            break;
+        case "number":
+            return "../../assets/images/number.png";
+            break;
+        case "array":
+            return "../../assets/images/array.png";
+            break;
+        case "boolean":
+            return "../../assets/images/boolean.png";
+            break;
+        default:
+            return "";
     }
 }
 
-export function svgTree(container, data, actionId) {
-    var conflictDIV = $("#conflictTreeView");
-    let scaleObj = { "zoomScale": 1, "zoomTargetScale": 1 };
-    let svgWidth = ($("#actionTabsContent").width() - 110) / 2;
+function getDOMData(dom, conflictData) {
+    var data = _.find(conflictData, function(item) {
+        return dom.attr("id") == item.parentActionId + "_" + item.class.replace(/\./g, "_");
+    })
+    return data;
+}
 
-    let drag = d3.behavior.drag()
-        .origin(function(d) {
-            return { "x": 0, "y": 0 };
-        })
-        .on("dragstart", dragStart)
-        .on("drag", util.draged);
-
-    function dragStart() {
-        d3.event.sourceEvent.stopPropagation();
-        drag.origin(function() {
-            return { "x": d3.select(this).attr("translateX"), "y": d3.select(this).attr("translateY") }
-        });
+function drawLine(lineArray) {
+    for (let i = 0; i < lineArray.length; i++) {
+        let start = $("#" + (lineArray[i].fromData).replace(/\./g, "_"));
+        let end = $("#" + (lineArray[i].toData).replace(/\./g, "_"));
+        let point = [start.attr("tx"), start.attr("ty"), end.attr("tx"), end.attr("ty")];
+        var dataClass = _.rest(lineArray[i].fromData.split(".")).join("_");
+        drawLinePath(point, dataClass, "conflict-line");
     }
-    let conflictData = transformJson(data.node);
-    let svg = container.append("svg")
-        .attr("width", "100%")
-        .attr("height", "100%")
+}
 
+function drawLinePath(point, dataClass, type, fromPath, toPath) {
+    var x1 = parseInt(point[0]) + 70;
+    var y1 = parseInt(point[1]);
+    var x2 = parseInt(point[2]);
+    var y2 = parseInt(point[3]);
+    var d = getPathData({ x: x1, y: y1 }, { x: x2, y: y2 });
+
+    d3.select("#conflictLine")
+        .append("path")
+        .attr("d", d)
+        .attr("stroke", "#e0e004")
+        .attr("stroke-width", 6)
+        .attr("fill", "none")
+        .attr("stroke-opacity", "0.8")
+        .attr("class", "cursor")
+        .attr("data-class", dataClass)
+        .attr("data-type", type);
+
+}
+function drawTree(conflict, actionId){
+    let options = { "horizonSpace": 13, "verticalSpace": 10, "backgroundY": 1 };
+    let scaleObj = { "zoomScale": 1, "zoomTargetScale": 1 };
+    if (_.isEmpty(conflict)) {
+        d3.select("#conflictTreeView > svg").append("text")
+        .attr("x", 20)
+        .attr("y", 50)
+        .style("fill", "#555")
+        .style("font-size","25px")
+        .style("font-weight","700")
+        .text("No Conflict");
+    } else {
+        util.showZoomBtn(1, "zoomin", d3.select("#conflictZoomBtn"), d3.select("#conflictTreeSVGView"), scaleObj, options);
+        util.showZoomBtn(2, "zoomout", d3.select("#conflictZoomBtn"), d3.select("#conflictTreeSVGView"), scaleObj, options);
+        svgTree(conflict, actionId);
+    }
+}
+
+export function getConflict(actionId) {
+    $("#conflictTreeView").empty();
+    let svg = d3.select("#conflictTreeView").append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%");
     let conflictTreeMainView = svg.append("g")
         .attr("id", "conflictTreeSVGView")
         .data([{ "name": "conflictTree" }])
@@ -71,56 +151,50 @@ export function svgTree(container, data, actionId) {
         .attr("fill", "white")
         .attr("fill-opacity", 0)
         .style("cursor", "pointer")
-    let gLine = conflictTreeMainView.append("g")
-        .attr("id", "conflictLine");
-
-
-    for (let i = 0; i < conflictData.length; i++) {
-        var type = conflictData[i].parentActionId == actionId ? "conflict-base" : "conflict-source";
-        construct(conflictTreeMainView, conflictData[i], type);
-    }
-    drawLine(data.line);
+        // .data(conflict.node);
+    let cLine = conflictTreeMainView.append("g")
+        .attr("id", "conflictLine")
+        // .data(conflict.line);
+    let cNode = conflictTreeMainView.append("g")
+        .attr("id", "conflictNode");
     let buttonMainView = svg.append("g")
         .attr({
             "width": "100%",
             "height": "23",
-            "fill": "white"
+            "fill": "white",
+            "id":"conflictZoomBtn"
         })
-    let options = { "horizonSpace": 13, "verticalSpace": 10, "backgroundY": 1 };
-    util.showZoomBtn(1, "zoomin", buttonMainView, conflictTreeMainView, scaleObj, options);
-    util.showZoomBtn(2, "zoomout", buttonMainView, conflictTreeMainView, scaleObj, options);
+    let conflict = conflictUtil.getActionConflict(actionId);
 
-    function caclX(id) {
-        let x = 0;
-        if (id != actionId) {
-            x = svgWidth / 5;
-        } else {
-            x = svgWidth + svgWidth / 5;
-        }
-        return x;
-    }
+    drawTree(conflict, actionId);
+}
 
-    function parseNodeType(id) {
-        let type = "";
-        if (id == actionId) {
-            type = "conflict-base";
-        } else {
-            type = "conflict-source";
-        }
-        return type;
+export function redrawTree(actionId) {
+    d3.selectAll("#conflictNode > g").remove();
+    d3.selectAll("#conflictLine > path").remove();
+    d3.selectAll("#conflictZoomBtn > image").remove();
+    let conflict = conflictUtil.getActionConflict(actionId);
+    drawTree(conflict, actionId);
+}
+
+export function svgTree(data, actionId) {
+    let conflictData = transformJson(data.node);
+    var container = d3.select("#conflictNode");
+    for (let i = 0; i < conflictData.length; i++) {
+        var type = conflictData[i].parentActionId == actionId ? "conflict-base" : "conflict-source";
+        construct(container, conflictData[i], type);
     }
+    drawLine(data.line);
 
     function transformJson(data) {
-
         let jsonArray = [];
         let depthYLeft = 0;
         let depthYRight = 0;
         let depthX = 1;
         for (let i = 0; i < data.length; i++) {
-            var initX = caclX(data[i].id);
-            var dataType = parseNodeType(data[i].id);
+            var initX = caclX(data[i].id, actionId);
+            var dataType = parseNodeType(data[i].id, actionId);
             dataType == "conflict-source" ? depthYLeft++ : depthYRight++;
-            // depthY++;
             jsonArray.push({
                 depthX: depthX,
                 depthY: dataType == "conflict-source" ? depthYLeft : depthYRight,
@@ -189,6 +263,7 @@ export function svgTree(container, data, actionId) {
     function construct(svg, options, type) {
 
         let g = svg.append("g")
+            .data(data.node)
             .attr("transform", "translate(" + (options.depthX * 20 + options.initX) + "," + (options.depthY * 28) + ")")
             .attr("id", options.parentActionId + "_" + options.class.replace(/\./g, "_"))
             .attr("tx", (options.depthX * 20 + options.initX))
@@ -198,8 +273,7 @@ export function svgTree(container, data, actionId) {
             .attr("data-class", options.class.replace(/\./g, "_"))
             .attr("data-clean", options.class)
             .style("cursor", "pointer")
-
-        .on("mouseover", function() {
+            .on("mouseover", function() {
                 mouseoverOrClick(options, "#797979");
             })
             .on("mouseout", function() {
@@ -258,12 +332,12 @@ export function svgTree(container, data, actionId) {
             .attr("height", 20)
             .attr("class", "conflict-image")
             .on("click", function() {
-                if (type == "conflict-source") {
+                d3.event.stopPropagation();
+                if (type == "conflict-source" && options.category == "property") {
                     if (options.parentActionId) {
                         var conflictSourceId = options.parentActionId;
                         conflictUtil.cleanConflict(conflictSourceId, actionId, options.class);
-
-                        getConflict(actionId);
+                        redrawTree(actionId);
                         notify("Remove conflict successfully", "success");
                         return false;
                     }
@@ -302,7 +376,6 @@ export function svgTree(container, data, actionId) {
 function mouseoverOrClick(options, color) {
     if (options.category == "property") {
         d3.selectAll("[data-class=" + options.class.replace(/\./g, "_") + "]").each(function(d, i) {
-
             var d3DOM = d3.select(this);
             d3DOM.select("rect").attr("fill", color);
             var elementType = d3DOM.attr("data-type");
@@ -367,64 +440,4 @@ function generateColor(type) {
         default:
             return "#cfcfcf";
     };
-}
-
-function generateImage(type) {
-    switch (type) {
-        case "string":
-            return "../../assets/images/string.png";
-            break;
-        case "object":
-            return "../../assets/images/object.png";
-            break;
-        case "number":
-            return "../../assets/images/number.png";
-            break;
-        case "array":
-            return "../../assets/images/array.png";
-            break;
-        case "boolean":
-            return "../../assets/images/boolean.png";
-            break;
-        default:
-            return "";
-    }
-}
-
-function getDOMData(dom, conflictData) {
-    var data = _.find(conflictData, function(item) {
-        return dom.attr("id") == item.parentActionId + "_" + item.class.replace(/\./g, "_");
-    })
-    return data;
-}
-
-function drawLine(lineArray) {
-    for (let i = 0; i < lineArray.length; i++) {
-        let start = $("#" + (lineArray[i].fromData).replace(/\./g, "_"));
-        let end = $("#" + (lineArray[i].toData).replace(/\./g, "_"));
-        let point = [start.attr("tx"), start.attr("ty"), end.attr("tx"), end.attr("ty")];
-        var dataClass = _.rest(lineArray[i].fromData.split(".")).join("_");
-        drawLinePath(point, dataClass, "conflict-line");
-    }
-}
-
-
-function drawLinePath(point, dataClass, type, fromPath, toPath) {
-    var x1 = parseInt(point[0]) + 70;
-    var y1 = parseInt(point[1]);
-    var x2 = parseInt(point[2]);
-    var y2 = parseInt(point[3]);
-    var d = getPathData({ x: x1, y: y1 }, { x: x2, y: y2 });
-
-    d3.select("#conflictLine")
-        .append("path")
-        .attr("d", d)
-        .attr("stroke", "#e0e004")
-        .attr("stroke-width", 6)
-        .attr("fill", "none")
-        .attr("stroke-opacity", "0.8")
-        .attr("class", "cursor")
-        .attr("data-class", dataClass)
-        .attr("data-type", type);
-
 }
