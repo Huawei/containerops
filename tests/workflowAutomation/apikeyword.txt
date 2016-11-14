@@ -1,0 +1,311 @@
+*** Keywords ***
+创建组件
+    [Arguments]    ${url}    ${namespace}    ${body}    ${message}    ${statuscode}
+    Create Session    session    ${url}
+    ${resp}=    Post Request    session    /pipeline/v1/${namespace}/component    ${body}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    ${json}=    To JSON    ${resp.content}
+    log    ${json}
+    Dictionary Should Contain Value    ${json}    ${message}
+    ${values}    Get Dictionary Values    ${json}
+    log    ${values}
+    Delete All Sessions
+
+获取组件列表
+    [Arguments]    ${url}    ${namespace}    ${statuscode}    ${message}
+    Create Session    session    ${url}
+    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/component
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    Should Contain    ${resp.content}    ${message}
+    ${json}    To JSON    ${resp.content}
+    ${componentID}    Set Variable    ${json['list'][0]['id']}
+    ${componentName}    Set Variable    ${json['list'][0]['name']}
+    Delete All Sessions
+    [Return]    ${componentID}    ${componentName}
+
+获取组件信息
+    [Arguments]    ${url}    ${namespace}    ${statuscode}    ${componentName}    ${componentID}    ${message}
+    Create Session    session    ${url}
+    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/component/${componentName}?id=${componentID}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    Should Contain    ${resp.content}    ${message}
+    ${json}    To JSON    ${resp.content}
+    log    ${json}
+    Delete All Sessions
+
+初始化环境
+    Connect To Database    pymysql    containerops    root    123456    192.168.10.131    3306
+    Execute Sql String    delete from action;
+    Execute Sql String    delete from component;
+    Execute Sql String    delete from environment;
+    Execute Sql String    delete from event;
+    Execute Sql String    delete from outcome;
+    Execute Sql String    delete from pipeline;
+    Execute Sql String    delete from serivce_definition;
+    Execute Sql String    delete from service;
+    Execute Sql String    delete from stage;
+    Execute Sql String    delete from pipeline_log;
+    Execute Sql String    delete from stage_log;
+    Disconnect From Database
+
+保存组件
+    [Arguments]    ${url}    ${namespace}    ${body}    ${message}    ${statuscode}    ${componentName}
+    Create Session    session    ${url}
+    ${resp}=    Put Request    session    /pipeline/v1/${namespace}/component/${componentName}    ${body}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    ${json}=    To JSON    ${resp.content}
+    log    ${json}
+    Dictionary Should Contain Value    ${json}    ${message}
+    ${values}    Get Dictionary Values    ${json}
+    log    ${values}
+    Delete All Sessions
+
+创建workflow
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
+    Create Session    session    ${url}
+    ${resp}=    Post Request    session    /pipeline/v1/${namespace}/${repository}    ${body}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    ${json}=    To JSON    ${resp.content}
+    log    ${json}
+    Dictionary Should Contain Value    ${json}    ${message}
+    ${values}    Get Dictionary Values    ${json}
+    log    ${values}
+    Delete All Sessions
+
+获取workflow列表
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${statuscode}
+    Create Session    session    ${url}
+    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    Should Contain    ${resp.content}    id
+    Should Contain    ${resp.content}    name
+    ${json}    To JSON    ${resp.content}
+    Delete All Sessions
+    [Return]    ${json['list'][0]['id']}    ${json['list'][0]['name']}
+
+获取workflow信息
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${statuscode}    ${pipelineID}    ${pipelineName}
+    ...    ${message}
+    Create Session    session    ${url}
+    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/json?id=${pipelineID}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    Should Contain    ${resp.content}    ${message}
+    ${json}    To JSON    ${resp.content}
+    log    ${json}
+    Delete All Sessions
+
+保存workflow
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
+    ...    ${pipelineName}
+    Create Session    session    ${url}
+    ${resp}=    Put Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}    ${body}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    ${json}=    To JSON    ${resp.content}
+    log    ${json}
+    Dictionary Should Contain Value    ${json}    ${message}
+    ${values}    Get Dictionary Values    ${json}
+    log    ${values}
+    Delete All Sessions
+
+设置workflow环境变量
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
+    ...    ${pipelineName}
+    Create Session    session    ${url}
+    ${resp}=    Put Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/env    ${body}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    ${json}=    To JSON    ${resp.content}
+    log    ${json}
+    Dictionary Should Contain Value    ${json}    ${message}
+    ${values}    Get Dictionary Values    ${json}
+    log    ${values}
+    Delete All Sessions
+
+获取workflow环境变量
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}    ${pipelineID}
+    ...    ${pipelineName}
+    Create Session    session    ${url}
+    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/env?id=${pipelineID}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    Should Contain    ${resp.content}    ${message}
+    ${json}    To JSON    ${resp.content}
+    log    ${json}
+    Delete All Sessions
+
+修改workflow状态
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
+    ...    ${pipelineName}
+    Create Session    session    ${url}
+    ${resp}=    Put Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/state    ${body}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    Should Contain    ${resp.content}    ${message}
+    ${json}    To JSON    ${resp.content}
+    log    ${json}
+    Delete All Sessions
+
+运行workflow
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
+    ...    ${pipelineName}
+    Create Session    session    ${url}
+    ${resp}=    Post Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}    ${body}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    ${json}=    To JSON    ${resp.content}
+    log    ${json}
+    Dictionary Should Contain Value    ${json}    ${message}
+    ${values}    Get Dictionary Values    ${json}
+    log    ${values}
+    Delete All Sessions
+
+获取workflow历史列表
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}
+    Create Session    session    ${url}
+    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}/histories
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    Should Contain    ${resp.content}    ${message}
+    ${json}    To JSON    ${resp.content}
+    log    ${json}
+    log    ${json['pipelineList'][0]['versionList'][0]['sequenceList'][0]['pipelineSequenceID']}
+    Delete All Sessions
+    [Return]    ${json['pipelineList'][0]['versionList'][0]['sequenceList'][0]['pipelineSequenceID']}
+
+获取workflow历史
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${statuscode}    ${pipelineID}    ${pipelineName}
+    ...    ${message}    ${sequenceId}
+    Create Session    session    ${url}
+    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/historyDefine?versionId=${pipelineID}&sequenceId=${sequenceId}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    Should Contain    ${resp.content}    ${message}
+    ${json}    To JSON    ${resp.content}
+    log    ${json}
+    log    ${json['define']['lineList'][0]['endData']['id']}
+    log    ${json['define']['stageList'][0]['id']}
+    Delete All Sessions
+    [Return]    ${json['define']['lineList'][0]['endData']['id']}    ${json['define']['stageList'][0]['id']}
+
+获取github事件json
+    [Arguments]    ${url}    ${statuscode}    ${eventName}    ${message}
+    Create Session    session    ${url}
+    ${resp}=    Get Request    session    /pipeline/v1/eventJson/github/${eventName}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    Should Contain    ${resp.content}    ${message}
+    ${json}    To JSON    ${resp.content}
+    log    ${json}
+    Delete All Sessions
+
+获取工作流token和url
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}    ${pipelineID}
+    ...    ${pipelineName}
+    Create Session    session    ${url}
+    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/token?id=${pipelineID}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    Should Contain    ${resp.content}    ${message}
+    ${json}    To JSON    ${resp.content}
+    log    ${json}
+    Delete All Sessions
+
+获取Action运行历史
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}    ${pipelineName}
+    ...    ${stageName}    ${actionName}    ${actionLogID}
+    Create Session    session    ${url}
+    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/stage/${stageName}/${actionName}/history?actionLogId=${actionLogID}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    Should Contain    ${resp.content}    ${message}
+    ${json}    To JSON    ${resp.content}
+    log    ${json}
+    Delete All Sessions
+
+获取Relation信息
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}    ${pipelineSequenceID}
+    ...    ${pipelineName}    ${startActionId}    ${endActionId}
+    Create Session    session    ${url}
+    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/${pipelineSequenceID}/lineHistory?startActionId=${startActionId}&endActionId=${endActionId}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    Should Contain    ${resp.content}    ${message}
+    ${json}    To JSON    ${resp.content}
+    log    ${json}
+    Delete All Sessions
+
+获取workflow列表异常
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${statuscode}    ${message}
+    Create Session    session    ${url}
+    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    Should Contain    ${resp.content}    ${message}
+    Delete All Sessions
+
+组件操作
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
+    ...    ${componentName}
+    Create Session    session    ${url}
+    ${resp}=    Put Request    session    /pipeline/v1/${namespace}/${repository}/${componentName}/event    ${body}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    ${json}=    To JSON    ${resp.content}
+    log    ${json}
+    #Dictionary Should Contain Value    ${json}    ${message}
+    ${values}    Get Dictionary Values    ${json}
+    log    ${values}
+    Delete All Sessions
+
+组件注册
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
+    ...    ${componentName}
+    Create Session    session    ${url}
+    ${resp}=    Put Request    session    /pipeline/v1/${namespace}/${repository}/${componentName}/register    ${body}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    ${json}=    To JSON    ${resp.content}
+    log    ${json}
+    Dictionary Should Contain Value    ${json}    ${message}
+    ${values}    Get Dictionary Values    ${json}
+    log    ${values}
+    Delete All Sessions
+
+获取组件列表异常
+    [Arguments]    ${url}    ${namespace}    ${statuscode}    ${message}
+    Create Session    session    ${url}
+    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/component
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    Should Contain    ${resp.content}    ${message}
+    Delete All Sessions
