@@ -24,8 +24,6 @@ import * as initButton from "../pipeline/initButton";
 import * as util from "../common/util";
 
 export function initHistoryPage() {
-
-    loading.show();
     var promise = historyDataService.sequenceList();
     promise.done(function(data) {
         loading.hide();
@@ -36,7 +34,7 @@ export function initHistoryPage() {
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else {
+        } else if(xhr.statusText != "abort") {
             notify("Server is unreachable", "error");
         }
     });
@@ -170,7 +168,6 @@ function getHistoryList() {
 let historyAbout;
 export function getSequenceDetail(selected_history) {
     historyAbout = selected_history;
-    loading.show();
     var promise = historyDataService.sequenceData(selected_history.pipelineName, selected_history.pipelineVersionID, selected_history.sequenceID);
     promise.done(function(data) {
         loading.hide();
@@ -185,7 +182,7 @@ export function getSequenceDetail(selected_history) {
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else {
+        } else if(xhr.statusText != "abort") {
             notify("Server is unreachable", "error");
         }
     });

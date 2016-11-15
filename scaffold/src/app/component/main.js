@@ -28,7 +28,6 @@ let componentDataOriginalCopy;
 let componentName, componentVersion,componentVersionID;
 
 export function initComponentPage(){
-    loading.show();
     var promise = getAllComponents();
     promise.done(function(data){
         loading.hide();
@@ -43,7 +42,7 @@ export function initComponentPage(){
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg,"error");
-        }else{
+        }else if(xhr.statusText != "abort"){
             notify("Server is unreachable","error");
         }
     });    
@@ -118,7 +117,6 @@ function showComponentList(){
 }
 
 function getComponentData(){
-    loading.show();
     var promise = getComponent(componentName,componentVersionID);
     promise.done(function(data){
         loading.hide();
@@ -130,7 +128,7 @@ function getComponentData(){
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg,"error");
-        }else{
+        }else if(xhr.statusText != "abort"){
             notify("Server is unreachable","error");
         }
     });
@@ -163,7 +161,6 @@ export function showNewComponent(fromPipeline){
             $("#newComponentBtn").on('click',function(){
                 var promise = addComponent();
                 if(promise){
-                    loading.show();
                     promise.done(function(data){
                         loading.hide();
                         notify(data.message,"success");
@@ -173,7 +170,7 @@ export function showNewComponent(fromPipeline){
                         loading.hide();
                         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
                             notify(xhr.responseJSON.errMsg,"error");
-                        }else{
+                        }else if(xhr.statusText != "abort"){
                             notify("Server is unreachable","error");
                         }
                     });
@@ -264,7 +261,6 @@ function showNewComponentVersion(){
             $("#newComponentVersionBtn").on('click',function(){
                 var promise = addComponentVersion(componentName,componentVersionID,componentData);
                 if(promise){
-                    loading.show();
                     promise.done(function(data){
                         loading.hide();
                         notify(data.message,"success");
@@ -274,7 +270,7 @@ function showNewComponentVersion(){
                         loading.hide();
                         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
                             notify(xhr.responseJSON.errMsg,"error");
-                        }else{
+                        }else if(xhr.statusText != "abort"){
                             notify("Server is unreachable","error");
                         }
                     });
@@ -328,7 +324,6 @@ function beforeBackToList(){
 function saveComponentData(next){
     if(validateComponent(componentData)){
         var promise = saveComponent(componentName, componentVersion, componentVersionID, componentData);
-        loading.show();
         promise.done(function(data){
             componentDataOriginalCopy = $.extend(true,{},componentData);
             loading.hide();
@@ -343,7 +338,7 @@ function saveComponentData(next){
             if(!next){
                 if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
                     notify(xhr.responseJSON.errMsg,"error");
-                }else{
+                }else if(xhr.statusText != "abort"){
                     notify("Server is unreachable","error");
                 }
             }else{

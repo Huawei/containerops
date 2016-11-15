@@ -21,7 +21,6 @@ import { loading } from "../common/loading";
 
 
 export function getActionHistory(pipelineName,stageName,actionName,actionLogID) {
-    loading.show();
     var promise = historyDataService.getActionRunHistory(pipelineName,stageName,actionName,actionLogID);
     promise.done(function(data) {
         loading.hide();
@@ -31,7 +30,7 @@ export function getActionHistory(pipelineName,stageName,actionName,actionLogID) 
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else {
+        } else if(xhr.statusText != "abort") {
             notify("Server is unreachable", "error");
         }
     });

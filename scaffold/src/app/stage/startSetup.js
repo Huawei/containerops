@@ -73,7 +73,6 @@ function selectType(pipelineType,isTypeChange){
 }
 
 function showPipeline_URL_Token(){
-    loading.show();
     var promise = getPipelineToken();
     promise.done(function(data) {
         loading.hide();
@@ -84,7 +83,7 @@ function showPipeline_URL_Token(){
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else {
+        } else if(xhr.statusText != "abort") {
             notify("Server is unreachable", "error");
         }
     });
