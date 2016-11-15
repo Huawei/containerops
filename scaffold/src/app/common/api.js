@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
+ import {loading} from "./loading";
 
 let apiUrlConf = {
 	"host" : "https://test-1.containerops.sh",
@@ -41,179 +42,206 @@ let apiUrlConf = {
 	}
 }
 
+let pendingPromise;
+
+// abort
+function abortPendingPromise(){
+	if(pendingPromise){
+		pendingPromise.abort();
+	}
+	loading.show();
+}
+
 // pipeline
 export let pipelineApi = {
 	"list" : function(){
-		var promise = $.ajax({
+		abortPendingPromise();
+		pendingPromise = $.ajax({
 	        "url": apiUrlConf.host + apiUrlConf.pipeline.list,
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
 	    });
-	    return promise;
+	    return pendingPromise;
 	},
 	"data" : function(name,id){
-		var promise = $.ajax({
+		abortPendingPromise();
+		pendingPromise= $.ajax({
 	        "url": apiUrlConf.host + apiUrlConf.pipeline.data.replace(/{pipelineName}/g, name).replace(/{pipelineID}/g, id),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
 	    });
-	    return promise;
+	    return pendingPromise;
 	},
 	"add" : function(name,version){
+		abortPendingPromise();
 		var data = JSON.stringify({
 				"name":name,
 				"version":version
 			});
-		var promise = $.ajax({
+		pendingPromise = $.ajax({
 	        "url": apiUrlConf.host + apiUrlConf.pipeline.add,
 	        "type": "POST",
 	        "dataType": "json",
 	        "data": data
 	    });
-	    return promise;
+	    return pendingPromise;
 	},
 	"save" : function(name,reqbody){
+		abortPendingPromise();
 		var data = JSON.stringify(reqbody);
-		var promise = $.ajax({
+		pendingPromise = $.ajax({
 	        "url": apiUrlConf.host + apiUrlConf.pipeline.save.replace(/{pipelineName}/g, name),
 	        "type": "PUT",
 	        "dataType": "json",
 	        "data": data
 	    });
-	    return promise;
+	    return pendingPromise;
 	},
 	"eventOutput" : function(name){
-		var promise = $.ajax({
+		abortPendingPromise();
+		pendingPromise = $.ajax({
 	        "url": apiUrlConf.host + apiUrlConf.pipeline.eventOutput.replace(/{eventName}/g, name),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
 	    });
-	    return promise;
+	    return pendingPromise;
 	},
 	"getEnv" : function(name,id){
-		var promise = $.ajax({
+		abortPendingPromise();
+		pendingPromise = $.ajax({
 	        "url": apiUrlConf.host + apiUrlConf.pipeline.getEnv.replace(/{pipelineName}/g, name).replace(/{pipelineID}/g, id),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
 	    });
-	    return promise;
+	    return pendingPromise;
 	},
 	"setEnv" : function(name,reqbody){
+		abortPendingPromise();
 		var data = JSON.stringify(reqbody);
-		var promise = $.ajax({
+		pendingPromise = $.ajax({
 	        "url": apiUrlConf.host + apiUrlConf.pipeline.setEnv.replace(/{pipelineName}/g, name),
 	        "type": "PUT",
 	        "dataType": "json",
 	        "data": data
 	    });
-	    return promise;
+	    return pendingPromise;
 	},
 	"changeState" : function(name,reqbody){
+		abortPendingPromise();
 		var data = JSON.stringify(reqbody);
-		var promise = $.ajax({
+		pendingPromise = $.ajax({
 	        "url": apiUrlConf.host + apiUrlConf.pipeline.changeState.replace(/{pipelineName}/g, name),
 	        "type": "PUT",
 	        "dataType": "json",
 	        "data": data
 	    });
-	    return promise;
+	    return pendingPromise;
 	},
 	"getToken" : function(name,id){
-		var promise = $.ajax({
+		abortPendingPromise();
+		pendingPromise = $.ajax({
 	        "url": apiUrlConf.host + apiUrlConf.pipeline.getToken.replace(/{pipelineName}/g, name).replace(/{pipelineID}/g, id),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
 	    });
-	    return promise;
+	    return pendingPromise;
 	}
 }
 
 // component
 export let componentApi = {
 	"list" : function(){
-		var promise = $.ajax({
+		abortPendingPromise();
+		pendingPromise = $.ajax({
 	        "url": apiUrlConf.host + apiUrlConf.component.list,
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
 	    });
-	    return promise;
+	    return pendingPromise;
 	},
 	"data" : function(name,id){
-		var promise = $.ajax({
+		abortPendingPromise();
+		pendingPromise = $.ajax({
 	        "url": apiUrlConf.host + apiUrlConf.component.data.replace(/{componentName}/g, name).replace(/{componentID}/g, id),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
 	    });
-	    return promise;
+	    return pendingPromise;
 	},
 	"add" : function(name,version){
+		abortPendingPromise();
 		var data = JSON.stringify({
 				"name":name,
 				"version":version
 			});
-		var promise = $.ajax({
+		pendingPromise = $.ajax({
 	        "url": apiUrlConf.host + apiUrlConf.component.add,
 	        "type": "POST",
 	        "dataType": "json",
 	        "data": data
 	    });
-	    return promise;
+	    return pendingPromise;
 	},
 	"save" : function(name,reqbody){
+		abortPendingPromise();
 		var data = JSON.stringify(reqbody);
-		var promise = $.ajax({
+		pendingPromise = $.ajax({
 	        "url": apiUrlConf.host + apiUrlConf.component.save.replace(/{componentName}/g, name),
 	        "type": "PUT",
 	        "dataType": "json",
 	        "data": data
 	    });
-	    return promise;
+	    return pendingPromise;
 	}
 }
 
 // history
 export let historyApi = {
 	"sequenceData" : function(pipelineName,versionID,pipelineRunSequenceID){
-		var promise = $.ajax({
+		abortPendingPromise();
+		pendingPromise = $.ajax({
 	        "url": apiUrlConf.host + apiUrlConf.history.sequenceData.replace(/{pipelineName}/g, pipelineName).replace(/{versionID}/g, versionID).replace(/{pipelineSequenceID}/g, pipelineRunSequenceID),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
 	    });
-	    return promise;
+	    return pendingPromise;
 	},
 	"sequenceList" : function () {
-		var promise = $.ajax({
+		abortPendingPromise();
+		pendingPromise = $.ajax({
 			"url" : apiUrlConf.host + apiUrlConf.history.sequenceList,
 			"type" : "GET",
 			"dataType" : "json",
 			"cache": false
 		});
-		return promise;
+		return pendingPromise;
 	},
 	"action" : function(pipelineName,stageName,actionName,actionLogID){
-		var promise = $.ajax({
+		abortPendingPromise();
+		pendingPromise = $.ajax({
 	        "url": apiUrlConf.host + apiUrlConf.history.action.replace(/{pipelineName}/g, pipelineName).replace(/{stageName}/g, stageName).replace(/{actionName}/g, actionName).replace(/{actionLogID}/g, actionLogID),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
 	    });
-	    return promise;
+	    return pendingPromise;
 	},
 	"relation" : function(pipelineName,pipelineSequenceID,startActionId,endActionId){
-		var promise = $.ajax({
+		abortPendingPromise();
+		pendingPromise = $.ajax({
 	        "url": apiUrlConf.host + apiUrlConf.history.relation.replace(/{pipelineName}/g, pipelineName).replace(/{pipelineSequenceID}/g, pipelineSequenceID).replace(/{startActionId}/g, startActionId).replace(/{endActionId}/g, endActionId),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
 	    });
-	    return promise;
+	    return pendingPromise;
 	}
 }
