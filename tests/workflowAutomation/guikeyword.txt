@@ -18,7 +18,8 @@ GUI创建组件
     Element Should Contain    //*[@id="componentlist"]/div/section/div/div/table/tbody/tr[2]/td[3]/button    ${message}
 
 GUI保存组件
-    [Arguments]    ${componentName}    ${k8s-pod-image-name}    ${k8s-pod-image-tag}    ${k8s-service-port}    ${k8s-service-node-port}    ${message}
+    [Arguments]    ${componentName}    ${k8s-pod-image-name}    ${k8s-pod-image-tag}    ${k8s-service-port}    ${k8s-service-target-port}    ${k8s-service-node-port}
+    ...    ${message}
     Wait Until Element Is Visible    //*[@id="componentlist"]/div/section/div/div/table/tbody/tr[2]/td[3]/button
     Click Button    //*[@id="componentlist"]/div/section/div/div/table/tbody/tr[2]/td[3]/button
     Wait Until Element Is Visible    id=action-name
@@ -33,6 +34,7 @@ GUI保存组件
     Input Text    id=k8s-memory-requests    64Mi
     Input Text    id=k8s-memory-limits    256Mi
     Input Text    name=k8s-service-port    ${k8s-service-port}
+    Input Text    name=k8s-service-target-port    ${k8s-service-target-port}
     Input Text    name=k8s-service-node-port    ${k8s-service-node-port}
     sleep    2
     Click Element    css=#tree-edit-tab > span
@@ -54,7 +56,7 @@ GUI保存组件
     sleep    3
     Click Element    //*[@id="outputTreeDiv"]/div[1]/span
     Click Element    //*[@id="outputTreeDiv"]/div[1]/div/div/ul/li[2]/button
-    Click Element    //*[@id="outputTreeDiv"]/div[1]/div/div/ul/li[2]/ul/li[3]/button
+    Click Element    //*[@id="outputTreeDiv"]/div[1]/div/div/ul/li[2]/ul/li[4]/button
     Click Element    css=button.btn.btn-primary
     Click Link    link=Save
 
@@ -95,15 +97,15 @@ GUI保存workflow
     Click Element    id=start-stage
     sleep    2
     Select From List    id=type-select    Customize
-    sleep    2
-    Click Button    //*[@id="outputTreeDiv"]/div[6]/button
     sleep    3
-    Click Element    //*[@id="outputTreeDiv"]/div[6]/input[1]
+    Click Element    //*[@id="outputStartBtn"]/span
+    sleep    3
+    Click Element    css=input.property
     send    {BS 6}
     send    gitUrl
-    Click Element    //*[@id="outputTreeDiv"]/div[6]/span
-    Click Element    //*[@id="outputTreeDiv"]/div[6]/div/div/ul/li[2]/button
-    Click Element    //*[@id="outputTreeDiv"]/div[6]/div/div/ul/li[2]/ul/li[3]/button
+    Click Element    //*[@id="outputTreeDiv"]/div[1]/span
+    Click Element    //*[@id="outputTreeDiv"]/div[1]/div/div/ul/li[2]/button
+    Click Element    //*[@id="outputTreeDiv"]/div[1]/div/div/ul/li[2]/ul/li[3]/button
     sleep    5
     Selenium2Library.Mouse Down    css=circle
     Selenium2Library.Mouse Up    //*[starts-with(@id,"action-self-line-pipeline-stage-")][1]/*[starts-with(@id,"action-self-line-output-pipeline-action-")][1]
@@ -113,24 +115,22 @@ GUI保存workflow
 GUI设置workflow环境变量
     [Arguments]    ${envVar}    ${envVal}
     sleep    5
-    Wait Until Element Is Visible    //*[@id="designerMenubar"]/div[3]/div/button[4]
-    Click Button    //*[@id="designerMenubar"]/div[3]/div/button[4]
+    Wait Until Element Is Visible    //*[@id="designerMenubar"]/div[2]/div/button[4]/span
+    Click Element    //*[@id="designerMenubar"]/div[2]/div/button[4]/span
     sleep    2
-    Wait Until Element Is Visible    //*[@id="env-setting"]/div/div[2]/button[1]
-    Click Button    //*[@id="env-setting"]/div/div[2]/button[1]
+    Wait Until Element Is Visible    //*[@id="env-setting"]/div/div[2]/button[1]/span
+    Click Element    //*[@id="env-setting"]/div/div[2]/button[1]/span
     Input Text    //*[@id="envs"]/div/div[1]/div/div/input    ${envVar}
     Input Text    //*[@id="envs"]/div/div[2]/div/div/input    ${envVal}
     Click Button    //*[@id="env-setting"]/div/div[2]/button[2]
 
 GUI检查workflow
-    Wait Until Element Is Visible    //*[@id="designerMenubar"]/div[3]/div/button[1]
-    Click Button    //*[@id="designerMenubar"]/div[3]/div/button[1]
+    sleep    5
+    Wait Until Element Is Visible    //*[@id="designerMenubar"]/div[2]/div/button[1]/span
+    Click Element    //*[@id="designerMenubar"]/div[2]/div/button[1]/span
 
 GUI开关workflow
     Click Element    css=span.pipeline-state.pipeline-off
-    sleep    3
-    Wait Until Element Is Visible    xpath=/html/body/ul/li[1]/div/div[2]/span[1]/a
-    Click Element    xpath=/html/body/ul/li[1]/div/div[2]/span[1]/a
 
 GUI查看workflow历史
     Click Element    link=History
