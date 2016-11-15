@@ -15,9 +15,9 @@ scaffold/bower_components
 .idea
 pilotage/.idea
 scaffold/.idea
-.idea/
-pilotage/.idea/
-scaffold/.idea/
+.idea/*
+pilotage/.idea/*
+scaffold/.idea/*
 
 
 scaffold/.project
