@@ -13,6 +13,7 @@ limitations under the License.
 
 import { linePathAry } from "../common/constant";
 import { pipelineData } from "../pipeline/main";
+import { judgeType } from "../common/util"
 
 let linePathArray;
 
@@ -166,13 +167,14 @@ function setReceiveData(actionReceiveData, actionId, relationList) {
 export function cleanConflict(fromActionId,toActionId,path){
   
     let formPath = "."+path;
+    let fromAction = getAction(fromActionId);
     let actionId = fromActionId+"-"+toActionId;
     
     let line = _.find(linePathAry, function(obj) {
         return actionId == obj.id;
     })
 
-    line.relation = delRelation(line.relation,formPath);
+    line.relation = delRelation(line.relation,fromAction,formPath);
 }
 
 function setConflictPath(obj,path,info) {
@@ -189,8 +191,10 @@ function setConflictPath(obj,path,info) {
     return obj;
 }
 
-function delRelation(relation,fromPath) {
+function delRelation(relation,fromAction,fromPath) {
     var finalRelation = [];
+
+    var afterDelete = [];
     for (var i = 0; i < relation.length; i ++ ) {
         var tempRelation = relation[i];
         
@@ -198,7 +202,24 @@ function delRelation(relation,fromPath) {
             continue
         }
 
-        finalRelation = finalRelation.concat(tempRelation);
+        afterDelete = afterDelete.concat(tempRelation);
+    }
+
+    afterDelete.sort(function(a, b) {{return (b.fromPath + '').localeCompare(a.fromPath + '')}})
+
+    var hasChild = false;
+    var preFromPath = "";
+    for (var i = 0; i < afterDelete.length; i ++ ) {
+        var tempRelation = afterDelete[i];
+
+        var type = judgeType(getObjValue(fromAction.outputJson,tempRelation.from));
+        if (type != "object") {
+            hasChild = true;
+            preFromPath = tempRelation.from;
+            finalRelation = finalRelation.concat(tempRelation);
+        } else if (type = "object" && hasChild && preFromPath.indexOf(tempRelation.from) == 0) {
+            finalRelation = finalRelation.concat(tempRelation);
+        }
     }
 
     return finalRelation;
