@@ -16,6 +16,7 @@ limitations under the License.
 
 import * as constant from "../common/constant";
 import * as util from "../common/util";
+import * as config from "../common/config";
 
 import { initAction } from "./initAction";
 import { addAction, deleteAction } from "../action/addOrDeleteAction";
@@ -69,11 +70,11 @@ function showOptBtn(index, type) {
         .append("image")
         .attr("xlink:href", function(ad, ai) {
             if (type == "add") {
-                return "../../assets/svg/add-action-latest.svg";
+                return config.getSVG(config.SVG_ADD_ACTION);
             } else if (type == "delete") {
-                return "../../assets/svg/delete-latest.svg";
+                return config.getSVG(config.SVG_DELETE);
             } else if (type == "removeLink") {
-                return "../../assets/svg/remove-link-latest.svg";
+                return config.getSVG(config.SVG_REMOVE_LINK);
             }
 
         })
@@ -107,15 +108,15 @@ function showOptBtn(index, type) {
             let href = "";
             if (type == "add") {
                 content = "Add Action";
-                href = "../../assets/svg/add-action-selected-latest.svg";
+                href = config.getSVG(config.SVG_ADD_ACTION_SELECTED);
 
             } else if (type == "delete") {
                 content = "Delete";
-                href = "../../assets/svg/delete-selected-latest.svg";
+                 href = config.getSVG(config.SVG_DELETE_SELECTED);
 
             } else if (type == "removeLink") {
                 content = "Remove Link";
-                href = "../../assets/svg/remove-link-selected-latest.svg";
+                 href = config.getSVG(config.SVG_REMOVE_LINK_SELECTED);
             }
             d3.select(this).attr("href", href);
             let options = {
@@ -131,13 +132,13 @@ function showOptBtn(index, type) {
             util.cleanToolTip(constant.buttonView, "#button-element-popup");
             let href = "";
             if (type == "add") {
-                href = "../../assets/svg/add-action-latest.svg";
+                href = config.getSVG(config.SVG_ADD_ACTION);
 
             } else if (type == "delete") {
-                href = "../../assets/svg/delete-latest.svg";
+                href = config.getSVG(config.SVG_DELETE);
 
             } else if (type == "removeLink") {
-                href = "../../assets/svg/remove-link-latest.svg";
+                href = config.getSVG(config.SVG_REMOVE_LINK);
             }
             d3.select(this).attr("href", href);
         })
