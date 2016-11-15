@@ -48,7 +48,7 @@ function getHistoryList() {
         type: "GET",
         cache: false,
         success: function(data) {
-            $("#main").html($(data));
+            $(".forHistory").html($(data));
             $("#historyPipelinelist").show("slow");
 
             $(".pipelinelist_body").empty();
