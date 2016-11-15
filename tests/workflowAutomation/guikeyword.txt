@@ -1,11 +1,11 @@
 *** Keywords ***
-打开浏览器
+GUI open browser
     [Arguments]    ${url}    ${browser}    ${title}
     Open Browser    ${url}    ${browser}
     Maximize Browser Window
     Title Should Be    ${title}
 
-GUI创建组件
+GUI create component
     [Arguments]    ${componentName}    ${componentVersion}    ${message}
     Click Link    link=Component
     Wait Until Element Is Visible    //*[@id="nocomponent"]/div/div[2]/button
@@ -17,7 +17,7 @@ GUI创建组件
     sleep    3
     Element Should Contain    //*[@id="componentlist"]/div/section/div/div/table/tbody/tr[2]/td[3]/button    ${message}
 
-GUI保存组件
+GUI save component
     [Arguments]    ${componentName}    ${k8s-pod-image-name}    ${k8s-pod-image-tag}    ${k8s-service-port}    ${k8s-service-target-port}    ${k8s-service-node-port}
     ...    ${message}
     Wait Until Element Is Visible    //*[@id="componentlist"]/div/section/div/div/table/tbody/tr[2]/td[3]/button
@@ -60,7 +60,7 @@ GUI保存组件
     Click Element    css=button.btn.btn-primary
     Click Link    link=Save
 
-GUI新建workflow
+GUI create workflow
     [Arguments]    ${workflowName}    ${workflowVersion}    ${message}
     Click Link    link=Pipeline
     Wait Until Element Is Visible    //*[@id="nopipeline"]/div/div[2]/button
@@ -72,7 +72,7 @@ GUI新建workflow
     sleep    3
     Element Should Contain    xpath=//*[@id="pipelinelist"]/div/section/div/div/table/tbody/tr[2]/td[4]/button    ${message}
 
-GUI保存workflow
+GUI save workflow
     [Arguments]    ${componentName}    ${k8s-ip}    ${k8s-api-server}
     Wait Until Element Is Visible    xpath=//*[@id="pipelinelist"]/div/section/div/div/table/tbody/tr[2]/td[4]/button
     Click Button    xpath=//*[@id="pipelinelist"]/div/section/div/div/table/tbody/tr[2]/td[4]/button
@@ -112,7 +112,7 @@ GUI保存workflow
     Click Element    css=button.btn.btn-primary
     Click Link    link=Save
 
-GUI设置workflow环境变量
+GUI set workflow env
     [Arguments]    ${envVar}    ${envVal}
     sleep    5
     Wait Until Element Is Visible    //*[@id="designerMenubar"]/div[2]/div/button[4]/span
@@ -124,15 +124,15 @@ GUI设置workflow环境变量
     Input Text    //*[@id="envs"]/div/div[2]/div/div/input    ${envVal}
     Click Button    //*[@id="env-setting"]/div/div[2]/button[2]
 
-GUI检查workflow
+GUI check workflow
     sleep    5
     Wait Until Element Is Visible    //*[@id="designerMenubar"]/div[2]/div/button[1]/span
     Click Element    //*[@id="designerMenubar"]/div[2]/div/button[1]/span
 
-GUI开关workflow
+GUI switch workflow
     Click Element    css=span.pipeline-state.pipeline-off
 
-GUI查看workflow历史
+GUI search workflow history
     Click Element    link=History
     Wait Until Element Is Visible    //*[@id="historyPipelinelist"]/div/section/div/div/table/tbody/tr[3]/td[4]/button
     Click Element    //*[@id="historyPipelinelist"]/div/section/div/div/table/tbody/tr[3]/td[4]/button
