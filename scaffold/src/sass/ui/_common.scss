@@ -20,11 +20,19 @@ limitations under the License. */
 .sidebar-close{
   float:right;
   margin-right:6px;
+  display: none;
+  @media (min-width: $screen-md-min) {
+      display: block;
+  }
 }
 
 .sidebar-open{
   float:left;
   margin-left:30px;
+  display: none;
+  @media (min-width: $screen-md-min) {
+      display: block;
+  }
 }
 
 // override content
