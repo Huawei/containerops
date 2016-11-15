@@ -18,168 +18,168 @@ ${actionName}     "pythoncheck"
 ${k8sapiUrl}      http://192.168.10.131:8080
 
 *** Test Cases ***
-workflow API测试
+workflow API Test
     [Tags]    API
-    [Setup]    Run Keywords    初始化数据库环境
-    log    正确创建组件
-    创建组件    ${apiUrl}    ${namespace}    {"name":"pythoncheck","version":"1.0"}    create new component success    200
-    log    正确获取组件列表
-    ${componentID}    ${componentName}    获取组件列表    ${apiUrl}    ${namespace}    200    list
+    [Setup]    InitDBEnv
+    log    Normal to create new components
+    createNewComponent    ${apiUrl}    ${namespace}    {"name":"pythoncheck","version":"1.0"}    create new component success    200
+    log    Get component list and return componentID componentName
+    ${componentID}    ${componentName}    getComponentList    ${apiUrl}    ${namespace}    200    list
     sleep    5
-    log    正确获取组件信息
-    获取组件信息    ${apiUrl}    ${namespace}    200    ${componentName}    ${componentID}    inputJson
-    log    正确保存组件
-    保存组件    ${apiUrl}    ${namespace}    {"id":${componentID},"version":"1.0","define":{"inputJson":{"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"},"outputJson":{"status":true,"result":""},"setupData":{"action":{"type":"Kubernetes","name":"pythoncheck","timeout":"3000","ip":"","apiserver":"","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"useAdvanced":false,"datafrom":"{}"},"service":{"spec":{"type":"NodePort","ports":[{"port":8000,"targetPort":8000,"nodePort":32001}]}},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"service_advanced":{},"pod_advanced":{}},"env":[{"key":"CO_DATA","value":"{'contents':'sonar.projectKey:python-sonar-runner sonar.projectName=python-sonar-runner sonar.projectVersion=1.0 sonar.sources=src sonar.language=py sonar.sourceEncoding=UTF-8','filename':'sonar-project.properties'}"}]}}    success    200    ${componentName}
-    log    保存组件为新版本
-    保存组件    ${apiUrl}    ${namespace}    {"id":${componentID},"version":"1.1","define":{"inputJson":{"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"},"outputJson":{"status":true,"result":""},"setupData":{"action":{"type":"Kubernetes","name":"pythoncheck","timeout":"3000","ip":"","apiserver":"","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"useAdvanced":false,"datafrom":"{}"},"service":{"spec":{"type":"NodePort","ports":[{"port":8000,"targetPort":8000,"nodePort":32001}]}},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"service_advanced":{},"pod_advanced":{}},"env":[{"key":"CO_DATA","value":"{'contents':'sonar.projectKey:python-sonar-runner sonar.projectName=python-sonar-runner sonar.projectVersion=1.0 sonar.sources=src sonar.language=py sonar.sourceEncoding=UTF-8','filename':'sonar-project.properties'}"}]}}    success    200    ${componentName}
-    log    正常创建workflow
-    创建workflow    ${apiUrl}    ${namespace}    ${repository}    {"name":"pythoncheck","version":"1.0"}    create new pipeline success    200
-    log    正常获取workflow列表
-    ${pipelineID}    ${pipelineName}    获取workflow列表    ${apiUrl}    ${namespace}    ${repository}    200
+    log    Get component infomation
+    getComponentInfo    ${apiUrl}    ${namespace}    200    ${componentName}    ${componentID}    inputJson
+    log    Save component info
+    saveComponent    ${apiUrl}    ${namespace}    {"id":${componentID},"version":"1.0","define":{"inputJson":{"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"},"outputJson":{"status":true,"result":""},"setupData":{"action":{"type":"Kubernetes","name":"pythoncheck","timeout":"3000","ip":"","apiserver":"","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"useAdvanced":false,"datafrom":"{}"},"service":{"spec":{"type":"NodePort","ports":[{"port":8000,"targetPort":8000,"nodePort":32001}]}},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"service_advanced":{},"pod_advanced":{}},"env":[{"key":"CO_DATA","value":"{'contents':'sonar.projectKey:python-sonar-runner sonar.projectName=python-sonar-runner sonar.projectVersion=1.0 sonar.sources=src sonar.language=py sonar.sourceEncoding=UTF-8','filename':'sonar-project.properties'}"}]}}    success    200    ${componentName}
+    log    Save component as new version
+    saveComponent    ${apiUrl}    ${namespace}    {"id":${componentID},"version":"1.1","define":{"inputJson":{"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"},"outputJson":{"status":true,"result":""},"setupData":{"action":{"type":"Kubernetes","name":"pythoncheck","timeout":"3000","ip":"","apiserver":"","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"useAdvanced":false,"datafrom":"{}"},"service":{"spec":{"type":"NodePort","ports":[{"port":8000,"targetPort":8000,"nodePort":32001}]}},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"service_advanced":{},"pod_advanced":{}},"env":[{"key":"CO_DATA","value":"{'contents':'sonar.projectKey:python-sonar-runner sonar.projectName=python-sonar-runner sonar.projectVersion=1.0 sonar.sources=src sonar.language=py sonar.sourceEncoding=UTF-8','filename':'sonar-project.properties'}"}]}}    success    200    ${componentName}
+    log    Normal create new workflow
+    createNewWorkflow    ${apiUrl}    ${namespace}    ${repository}    {"name":"pythoncheck","version":"1.0"}    create new pipeline success    200
+    log    Get workflow list info
+    ${workflowID}    ${workflowName}    getWorkflowList    ${apiUrl}    ${namespace}    ${repository}    200
     sleep    5
-    log    正常获取workflow信息
-    获取workflow信息    ${apiUrl}    ${namespace}    ${repository}    200    ${pipelineID}    ${pipelineName}
+    log    Get workflow info
+    getWorkflowInfo    ${apiUrl}    ${namespace}    ${repository}    200    ${workflowID}    ${workflowName}
     ...    lineList
-    log    正常保存workflow信息
-    保存workflow    ${apiUrl}    ${namespace}    ${repository}    {"id":${pipelineID},"version":"1.0","define":{"lineList":[{"pipelineLineViewId":"pipeline-line-view","startData":{"id":"start-stage","setupData":{"type":"customize","event":"PullRequest"},"type":"pipeline-start","width":45,"height":52,"translateX":50,"translateY":107,"outputJson":{"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"}},"endData":{"id":"pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745","type":"pipeline-action","setupData":{"action":{"apiserver":"http://192.168.10.131:8080","datafrom":"{}","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"ip":"192.168.10.131","name":"pythoncheck","timeout":"30000","type":"Kubernetes","useAdvanced":false},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"pod_advanced":{},"service":{"spec":{"ports":[{"nodePort":32001,"port":8000,"targetPort":8000}],"type":"NodePort"}},"service_advanced":{}},"translateY":224,"width":38,"height":38,"translateX":253.5,"inputJson":{"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"},"outputJson":{"status":true},"env":[{"key":"GITURL","value":"https://github.com/xiechuanj/python-sonar-runner.git"}],"component":{"name":"pythoncheck","versionid":137}},"startPoint":{"x":50,"y":107},"endPoint":{"x":253.5,"y":224},"id":"start-stage-pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745","relation":[{"to":".gitUrl","from":".gitUrl","finalPath":"start-stage.gitUrl"}]}],"stageList":[{"id":"start-stage","setupData":{"type":"customize","event":"PullRequest"},"type":"pipeline-start","width":45,"height":52,"translateX":50,"translateY":107,"outputJson":{"gitUrl":""}},{"id":"pipeline-stage-1d4ce1d0-a3fd-11e6-8e43-dbedb3b31745","type":"pipeline-stage","class":"pipeline-stage","drawX":0,"drawY":0,"width":45,"height":52,"translateX":250,"translateY":107,"actions":[{"id":"pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745","type":"pipeline-action","setupData":{"action":{"apiserver":"http://192.168.10.131:8080","datafrom":"{}","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"ip":"192.168.10.131","name":"pythoncheck","timeout":"30000","type":"Kubernetes","useAdvanced":false},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"pod_advanced":{},"service":{"spec":{"ports":[{"nodePort":32001,"port":8000,"targetPort":8000}],"type":"NodePort"}},"service_advanced":{}},"translateY":224,"width":38,"height":38,"translateX":253.5,"inputJson":{"gitUrl":"http://www"},"outputJson":{"status":true},"env":[{"key":"TEST","value":"123456"}],"component":{"name":"pythoncheck","versionid":137}}],"setupData":{"name":"pythoncheck","timeout":"3000"}},{"id":"add-stage","type":"pipeline-add-stage","width":45,"height":52,"translateX":450,"translateY":107},{"id":"end-stage","setupData":{},"type":"pipeline-end","width":45,"height":52,"translateX":650,"translateY":107}]}}    success    200
-    ...    ${pipelineName}
-    log    保存pipeline为新版本
-    保存workflow    ${apiUrl}    ${namespace}    ${repository}    {"id":${pipelineID},"version":"1.1","define":{"lineList":[{"pipelineLineViewId":"pipeline-line-view","startData":{"id":"start-stage","setupData":{"type":"customize","event":"PullRequest"},"type":"pipeline-start","width":45,"height":52,"translateX":50,"translateY":107,"outputJson":{"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"}},"endData":{"id":"pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745","type":"pipeline-action","setupData":{"action":{"apiserver":"http://192.168.10.131:8080","datafrom":"{}","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"ip":"192.168.10.131","name":"pythoncheck","timeout":"30000","type":"Kubernetes","useAdvanced":false},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"pod_advanced":{},"service":{"spec":{"ports":[{"nodePort":32001,"port":8000,"targetPort":8000}],"type":"NodePort"}},"service_advanced":{}},"translateY":224,"width":38,"height":38,"translateX":253.5,"inputJson":{"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"},"outputJson":{"status":true},"env":[{"key":"GITURL","value":"https://github.com/xiechuanj/python-sonar-runner.git"}],"component":{"name":"pythoncheck","versionid":137}},"startPoint":{"x":50,"y":107},"endPoint":{"x":253.5,"y":224},"id":"start-stage-pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745","relation":[{"to":".gitUrl","from":".gitUrl","finalPath":"start-stage.gitUrl"}]}],"stageList":[{"id":"start-stage","setupData":{"type":"customize","event":"PullRequest"},"type":"pipeline-start","width":45,"height":52,"translateX":50,"translateY":107,"outputJson":{"gitUrl":""}},{"id":"pipeline-stage-1d4ce1d0-a3fd-11e6-8e43-dbedb3b31745","type":"pipeline-stage","class":"pipeline-stage","drawX":0,"drawY":0,"width":45,"height":52,"translateX":250,"translateY":107,"actions":[{"id":"pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745","type":"pipeline-action","setupData":{"action":{"apiserver":"http://192.168.10.131:8080","datafrom":"{}","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"ip":"192.168.10.131","name":"pythoncheck","timeout":"30000","type":"Kubernetes","useAdvanced":false},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"pod_advanced":{},"service":{"spec":{"ports":[{"nodePort":32001,"port":8000,"targetPort":8000}],"type":"NodePort"}},"service_advanced":{}},"translateY":224,"width":38,"height":38,"translateX":253.5,"inputJson":{"gitUrl":"http://www"},"outputJson":{"status":true},"env":[{"key":"TEST","value":"123456"}],"component":{"name":"pythoncheck","versionid":137}}],"setupData":{"name":"pythoncheck","timeout":"3000"}},{"id":"add-stage","type":"pipeline-add-stage","width":45,"height":52,"translateX":450,"translateY":107},{"id":"end-stage","setupData":{},"type":"pipeline-end","width":45,"height":52,"translateX":650,"translateY":107}]}}    success    200
-    ...    ${pipelineName}
-    log    正常设置workflow环境变量
-    设置workflow环境变量    ${apiUrl}    ${namespace}    ${repository}    {"id":${pipelineID},"env":{"GITURL":"https://github.com/xiechuanj/python-sonar-runner.git"}}    success    200
-    ...    ${pipelineName}
-    log    重复设置workflow环境变量
-    设置workflow环境变量    ${apiUrl}    ${namespace}    ${repository}    {"id":${pipelineID},"env":{"GITURL":"https://github.com/xiechuanj/python-sonar-runner.git"}}    success    200
-    ...    ${pipelineName}
-    log    正常获取设置workflow环境变量
-    获取workflow环境变量    ${apiUrl}    ${namespace}    ${repository}    env    200    ${pipelineID}
-    ...    ${pipelineName}
-    log    修改workflow为ON状态
-    修改workflow状态    ${apiUrl}    ${namespace}    ${repository}    { "id":${pipelineID},"state":1 }    success    200
-    ...    ${pipelineName}
-    log    修改workflow为ON状态
-    修改workflow状态    ${apiUrl}    ${namespace}    ${repository}    {"id":${pipelineID+1},"state":1}    success    200
-    ...    ${pipelineName}
-    log    运行workflow
-    运行workflow    ${apiUrl}    ${namespace}    ${repository}    {"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"}    pipeline start ...    200
-    ...    ${pipelineName}
-    log    运行指定版本的workflow
-    运行指定版本workflow    ${apiUrl}    ${namespace}    ${repository}    {"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"}    pipeline start ...    200
-    ...    ${pipelineName}    1.1
-    log    修改workflow为OFF状态
-    修改workflow状态    ${apiUrl}    ${namespace}    ${repository}    { "id":${pipelineID},"state":0 }    success    200
-    ...    ${pipelineName}
-    log    修改workflow为OFF状态
-    修改workflow状态    ${apiUrl}    ${namespace}    ${repository}    {"id":${pipelineID+1},"state":0}    success    200
-    ...    ${pipelineName}
-    log    运行workflow
-    运行workflow    ${apiUrl}    ${namespace}    ${repository}    {"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"}    error when get least useable pipeline version:record not found    200
-    ...    ${pipelineName}
-    log    运行指定版本的workflow
-    运行指定版本workflow    ${apiUrl}    ${namespace}    ${repository}    {"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"}    pipeline is disabled!    200
-    ...    ${pipelineName}    1.1
-    log    错误的namespace创建组件
-    创建组件    ${apiUrl}    afafdsa    {"name":"pythoncheck1","version":"1.0"}    create new component success    200
-    log    重复创建组件
-    创建组件    ${apiUrl}    ${namespace}    {"name":"pythoncheck","version":"1.0"}    error when create pipeline:component name is exist!    400
-    log    组件名为空
-    创建组件    ${apiUrl}    ${namespace}    {"name":"","version":"1.0"}    create new component success    200
-    log    组件版本为空
-    创建组件    ${apiUrl}    ${namespace}    {"name":"golinkcheck","version":""}    create new component success    200
-    log    组件名版本都为空
-    创建组件    ${apiUrl}    ${namespace}    {"name":"","version":""}    error when create pipeline:component name is exist!    400
-    log    namespace为空获取组件列表
-    获取组件列表异常    ${apiUrl}    \    400    namespace can't be null
-    log    namespace错误获取组件列表
-    获取组件列表异常    ${apiUrl}    aafds    200    list
-    log    组件名为空获取组件信息
-    获取组件信息    ${apiUrl}    ${namespace}    200    \    ${componentID}    list
-    log    组件ID为空获取组件信息
-    获取组件信息    ${apiUrl}    ${namespace}    400    ${componentName}    \    error when get component info:error when get component info from db:record not found
-    log    组件名错误获取组件信息
-    获取组件信息    ${apiUrl}    ${namespace}    400    aafdafdsa    ${componentID}    error when get component info:component's name is not equal to target component
-    log    组件ID错误获取组件信息
-    获取组件信息    ${apiUrl}    ${namespace}    400    ${componentName}    13431111111111    error when get component info:error when get component info from db:record not found
-    log    获取组件信息namespace为空
-    获取组件信息    ${apiUrl}    \    400    ${componentName}    ${componentID}    namespace can't be empty
-    log    componentID不一致保存组件
-    保存组件    ${apiUrl}    ${namespace}    {"id":1000000,"version":"1.0","define":{"inputJson":{"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"},"outputJson":{"status":true,"result":""},"setupData":{"action":{"type":"Kubernetes","name":"pythoncheck","timeout":"3000","ip":"","apiserver":"","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"useAdvanced":false,"datafrom":"{}"},"service":{"spec":{"type":"NodePort","ports":[{"port":8000,"targetPort":8000,"nodePort":32001}]}},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"service_advanced":{},"pod_advanced":{}},"env":[{"key":"CO_DATA","value":"{'contents':'sonar.projectKey:python-sonar-runner sonar.projectName=python-sonar-runner sonar.projectVersion=1.0 sonar.sources=src sonar.language=py sonar.sourceEncoding=UTF-8','filename':'sonar-project.properties'}"}]}}    error when get component info from db:record not found    400    ${componentName}
-    log    componentName不一致保存组件
-    保存组件    ${apiUrl}    ${namespace}    {"id":${componentID},"version":"1.0","define":{"inputJson":{"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"},"outputJson":{"status":true,"result":""},"setupData":{"action":{"type":"Kubernetes","name":"pythoncheck","timeout":"3000","ip":"","apiserver":"","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"useAdvanced":false,"datafrom":"{}"},"service":{"spec":{"type":"NodePort","ports":[{"port":8000,"targetPort":8000,"nodePort":32001}]}},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"service_advanced":{},"pod_advanced":{}},"env":[{"key":"CO_DATA","value":"{'contents':'sonar.projectKey:python-sonar-runner sonar.projectName=python-sonar-runner sonar.projectVersion=1.0 sonar.sources=src sonar.language=py sonar.sourceEncoding=UTF-8','filename':'sonar-project.properties'}"}]}}    success    200    a1111111
-    log    inputJson为空保存组件
-    保存组件    ${apiUrl}    ${namespace}    {"id":${componentID},"version":"1.0","define":{"inputJson":{},"outputJson":{"status":true,"result":""},"setupData":{"action":{"type":"Kubernetes","name":"pythoncheck","timeout":"3000","ip":"","apiserver":"","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"useAdvanced":false,"datafrom":"{}"},"service":{"spec":{"type":"NodePort","ports":[{"port":8000,"targetPort":8000,"nodePort":32001}]}},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"service_advanced":{},"pod_advanced":{}},"env":[{"key":"CO_DATA","value":"{'contents':'sonar.projectKey:python-sonar-runner sonar.projectName=python-sonar-runner sonar.projectVersion=1.0 sonar.sources=src sonar.language=py sonar.sourceEncoding=UTF-8','filename':'sonar-project.properties'}"}]}}    success    200    ${componentName}
-    log    outputJson为空保存组件
-    保存组件    ${apiUrl}    ${namespace}    {"id":${componentID},"version":"1.0","define":{"inputJson":{"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"},"outputJson":{},"setupData":{"action":{"type":"Kubernetes","name":"pythoncheck","timeout":"3000","ip":"","apiserver":"","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"useAdvanced":false,"datafrom":"{}"},"service":{"spec":{"type":"NodePort","ports":[{"port":8000,"targetPort":8000,"nodePort":32001}]}},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"service_advanced":{},"pod_advanced":{}},"env":[{"key":"CO_DATA","value":"{'contents':'sonar.projectKey:python-sonar-runner sonar.projectName=python-sonar-runner sonar.projectVersion=1.0 sonar.sources=src sonar.language=py sonar.sourceEncoding=UTF-8','filename':'sonar-project.properties'}"}]}}    success    200    ${componentName}
-    log    非json字符串保存组件
-    保存组件    ${apiUrl}    ${namespace}    baafds    error when unmarshal request body:invalid character 'b' looking for beginning of value    400    ${componentName}
-    log    重复创建pipeline
-    创建workflow    ${apiUrl}    ${namespace}    ${repository}    {"name":"pythoncheck","version":"1.0"}    error when create pipeline:pipelien name is exist!    400
-    log    获取workflow列表namespace为空
-    获取workflow列表异常    ${apiUrl}    \    ${repository}    400    namespace can't be null
-    log    获取workflow列表repository为空
-    获取workflow列表异常    ${apiUrl}    ${namespace}    \    404    404 page not found
-    log    获取workflow列表namespace错误
-    获取workflow列表异常    ${apiUrl}    asdaf    ${repository}    200    list
-    log    获取workflow列表repository错误
-    获取workflow列表异常    ${apiUrl}    ${namespace}    dagfda    200    list
-    log    组件开始
-    组件操作    ${apiUrl}    ${namespace}    ${repository}    {"RUN_ID":"38,443,210,1,355","EVENT":"COMPONENT_START","EVENTID":12551}    ok    200
+    log    Save workflow info
+    saveWorkflow    ${apiUrl}    ${namespace}    ${repository}    {"id":${workflowID},"version":"1.0","define":{"lineList":[{"pipelineLineViewId":"pipeline-line-view","startData":{"id":"start-stage","setupData":{"type":"customize","event":"PullRequest"},"type":"pipeline-start","width":45,"height":52,"translateX":50,"translateY":107,"outputJson":{"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"}},"endData":{"id":"pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745","type":"pipeline-action","setupData":{"action":{"apiserver":"http://192.168.10.131:8080","datafrom":"{}","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"ip":"192.168.10.131","name":"pythoncheck","timeout":"30000","type":"Kubernetes","useAdvanced":false},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"pod_advanced":{},"service":{"spec":{"ports":[{"nodePort":32001,"port":8000,"targetPort":8000}],"type":"NodePort"}},"service_advanced":{}},"translateY":224,"width":38,"height":38,"translateX":253.5,"inputJson":{"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"},"outputJson":{"status":true},"env":[{"key":"GITURL","value":"https://github.com/xiechuanj/python-sonar-runner.git"}],"component":{"name":"pythoncheck","versionid":137}},"startPoint":{"x":50,"y":107},"endPoint":{"x":253.5,"y":224},"id":"start-stage-pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745","relation":[{"to":".gitUrl","from":".gitUrl","finalPath":"start-stage.gitUrl"}]}],"stageList":[{"id":"start-stage","setupData":{"type":"customize","event":"PullRequest"},"type":"pipeline-start","width":45,"height":52,"translateX":50,"translateY":107,"outputJson":{"gitUrl":""}},{"id":"pipeline-stage-1d4ce1d0-a3fd-11e6-8e43-dbedb3b31745","type":"pipeline-stage","class":"pipeline-stage","drawX":0,"drawY":0,"width":45,"height":52,"translateX":250,"translateY":107,"actions":[{"id":"pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745","type":"pipeline-action","setupData":{"action":{"apiserver":"http://192.168.10.131:8080","datafrom":"{}","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"ip":"192.168.10.131","name":"pythoncheck","timeout":"30000","type":"Kubernetes","useAdvanced":false},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"pod_advanced":{},"service":{"spec":{"ports":[{"nodePort":32001,"port":8000,"targetPort":8000}],"type":"NodePort"}},"service_advanced":{}},"translateY":224,"width":38,"height":38,"translateX":253.5,"inputJson":{"gitUrl":"http://www"},"outputJson":{"status":true},"env":[{"key":"TEST","value":"123456"}],"component":{"name":"pythoncheck","versionid":137}}],"setupData":{"name":"pythoncheck","timeout":"3000"}},{"id":"add-stage","type":"pipeline-add-stage","width":45,"height":52,"translateX":450,"translateY":107},{"id":"end-stage","setupData":{},"type":"pipeline-end","width":45,"height":52,"translateX":650,"translateY":107}]}}    success    200
+    ...    ${workflowName}
+    log    Save workflow as new version
+    saveWorkflow    ${apiUrl}    ${namespace}    ${repository}    {"id":${workflowID},"version":"1.1","define":{"lineList":[{"pipelineLineViewId":"pipeline-line-view","startData":{"id":"start-stage","setupData":{"type":"customize","event":"PullRequest"},"type":"pipeline-start","width":45,"height":52,"translateX":50,"translateY":107,"outputJson":{"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"}},"endData":{"id":"pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745","type":"pipeline-action","setupData":{"action":{"apiserver":"http://192.168.10.131:8080","datafrom":"{}","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"ip":"192.168.10.131","name":"pythoncheck","timeout":"30000","type":"Kubernetes","useAdvanced":false},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"pod_advanced":{},"service":{"spec":{"ports":[{"nodePort":32001,"port":8000,"targetPort":8000}],"type":"NodePort"}},"service_advanced":{}},"translateY":224,"width":38,"height":38,"translateX":253.5,"inputJson":{"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"},"outputJson":{"status":true},"env":[{"key":"GITURL","value":"https://github.com/xiechuanj/python-sonar-runner.git"}],"component":{"name":"pythoncheck","versionid":137}},"startPoint":{"x":50,"y":107},"endPoint":{"x":253.5,"y":224},"id":"start-stage-pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745","relation":[{"to":".gitUrl","from":".gitUrl","finalPath":"start-stage.gitUrl"}]}],"stageList":[{"id":"start-stage","setupData":{"type":"customize","event":"PullRequest"},"type":"pipeline-start","width":45,"height":52,"translateX":50,"translateY":107,"outputJson":{"gitUrl":""}},{"id":"pipeline-stage-1d4ce1d0-a3fd-11e6-8e43-dbedb3b31745","type":"pipeline-stage","class":"pipeline-stage","drawX":0,"drawY":0,"width":45,"height":52,"translateX":250,"translateY":107,"actions":[{"id":"pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745","type":"pipeline-action","setupData":{"action":{"apiserver":"http://192.168.10.131:8080","datafrom":"{}","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"ip":"192.168.10.131","name":"pythoncheck","timeout":"30000","type":"Kubernetes","useAdvanced":false},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"pod_advanced":{},"service":{"spec":{"ports":[{"nodePort":32001,"port":8000,"targetPort":8000}],"type":"NodePort"}},"service_advanced":{}},"translateY":224,"width":38,"height":38,"translateX":253.5,"inputJson":{"gitUrl":"http://www"},"outputJson":{"status":true},"env":[{"key":"TEST","value":"123456"}],"component":{"name":"pythoncheck","versionid":137}}],"setupData":{"name":"pythoncheck","timeout":"3000"}},{"id":"add-stage","type":"pipeline-add-stage","width":45,"height":52,"translateX":450,"translateY":107},{"id":"end-stage","setupData":{},"type":"pipeline-end","width":45,"height":52,"translateX":650,"translateY":107}]}}    success    200
+    ...    ${workflowName}
+    log    Set workflow env
+    setWorkflowEnv    ${apiUrl}    ${namespace}    ${repository}    {"id":${workflowID},"env":{"GITURL":"https://github.com/xiechuanj/python-sonar-runner.git"}}    success    200
+    ...    ${workflowName}
+    log    Repeat set workflow env
+    setWorkflowEnv    ${apiUrl}    ${namespace}    ${repository}    {"id":${workflowID},"env":{"GITURL":"https://github.com/xiechuanj/python-sonar-runner.git"}}    success    200
+    ...    ${workflowName}
+    log    Get workflow env
+    getWorkflowEnv    ${apiUrl}    ${namespace}    ${repository}    env    200    ${workflowID}
+    ...    ${workflowName}
+    log    modify workflow status as ON
+    modifyWorkflowStatus    ${apiUrl}    ${namespace}    ${repository}    { "id":${workflowID},"state":1 }    success    200
+    ...    ${workflowName}
+    log    modify workflow new version status is ON
+    modifyWorkflowStatus    ${apiUrl}    ${namespace}    ${repository}    {"id":${workflowID+1},"state":1}    success    200
+    ...    ${workflowName}
+    log    run Workflow
+    runWorkflow    ${apiUrl}    ${namespace}    ${repository}    {"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"}    pipeline start ...    200
+    ...    ${workflowName}
+    log    Specifies workflow run version
+    specifiesWorkflowRunVersion    ${apiUrl}    ${namespace}    ${repository}    {"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"}    pipeline start ...    200
+    ...    ${workflowName}    1.1
+    log    Modify workflow status is OFF
+    modifyWorkflowStatus    ${apiUrl}    ${namespace}    ${repository}    { "id":${workflowID},"state":0 }    success    200
+    ...    ${workflowName}
+    log    modify workflow new version status as OFF
+    modifyWorkflowStatus    ${apiUrl}    ${namespace}    ${repository}    {"id":${workflowID+1},"state":0}    success    200
+    ...    ${workflowName}
+    log    runWorkflow
+    runWorkflow    ${apiUrl}    ${namespace}    ${repository}    {"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"}    error when get least useable pipeline version:record not found    200
+    ...    ${workflowName}
+    log    Specifies workflow run version
+    specifiesWorkflowRunVersion    ${apiUrl}    ${namespace}    ${repository}    {"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"}    pipeline is disabled!    200
+    ...    ${workflowName}    1.1
+    log    When error namespace create component
+    createNewComponent    ${apiUrl}    afafdsa    {"name":"pythoncheck1","version":"1.0"}    create new component success    200
+    log    Repeat create component
+    createNewComponent    ${apiUrl}    ${namespace}    {"name":"pythoncheck","version":"1.0"}    error when create pipeline:component name is exist!    400
+    log    Component name is empty create component
+    createNewComponent    ${apiUrl}    ${namespace}    {"name":"","version":"1.0"}    create new component success    200
+    log    Component version is empty create new component
+    createNewComponent    ${apiUrl}    ${namespace}    {"name":"golinkcheck","version":""}    create new component success    200
+    log    Component name and version are empty create new component
+    createNewComponent    ${apiUrl}    ${namespace}    {"name":"","version":""}    error when create pipeline:component name is exist!    400
+    log    Namespace is empty get component list
+    getComponentExceptList    ${apiUrl}    \    400    namespace can't be null
+    log    Namespace error get component list
+    getComponentExceptList    ${apiUrl}    aafds    200    list
+    log    Component Name is empty get component info
+    getComponentInfo    ${apiUrl}    ${namespace}    200    \    ${componentID}    list
+    log    Component ID is empty get component info
+    getComponentInfo    ${apiUrl}    ${namespace}    400    ${componentName}    \    error when get component info:error when get component info from db:record not found
+    log    Component Name is error get component info
+    getComponentInfo    ${apiUrl}    ${namespace}    400    aafdafdsa    ${componentID}    error when get component info:component's name is not equal to target component
+    log    Component ID is error get component info
+    getComponentInfo    ${apiUrl}    ${namespace}    400    ${componentName}    13431111111111    error when get component info:error when get component info from db:record not found
+    log    Namespace is empty get component info
+    getComponentInfo    ${apiUrl}    \    400    ${componentName}    ${componentID}    namespace can't be empty
+    log    ComponentID is not same as before componentID save component
+    saveComponent    ${apiUrl}    ${namespace}    {"id":1000000,"version":"1.0","define":{"inputJson":{"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"},"outputJson":{"status":true,"result":""},"setupData":{"action":{"type":"Kubernetes","name":"pythoncheck","timeout":"3000","ip":"","apiserver":"","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"useAdvanced":false,"datafrom":"{}"},"service":{"spec":{"type":"NodePort","ports":[{"port":8000,"targetPort":8000,"nodePort":32001}]}},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"service_advanced":{},"pod_advanced":{}},"env":[{"key":"CO_DATA","value":"{'contents':'sonar.projectKey:python-sonar-runner sonar.projectName=python-sonar-runner sonar.projectVersion=1.0 sonar.sources=src sonar.language=py sonar.sourceEncoding=UTF-8','filename':'sonar-project.properties'}"}]}}    error when get component info from db:record not found    400    ${componentName}
+    log    ComponentName is not same as before componentName save component
+    saveComponent    ${apiUrl}    ${namespace}    {"id":${componentID},"version":"1.0","define":{"inputJson":{"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"},"outputJson":{"status":true,"result":""},"setupData":{"action":{"type":"Kubernetes","name":"pythoncheck","timeout":"3000","ip":"","apiserver":"","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"useAdvanced":false,"datafrom":"{}"},"service":{"spec":{"type":"NodePort","ports":[{"port":8000,"targetPort":8000,"nodePort":32001}]}},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"service_advanced":{},"pod_advanced":{}},"env":[{"key":"CO_DATA","value":"{'contents':'sonar.projectKey:python-sonar-runner sonar.projectName=python-sonar-runner sonar.projectVersion=1.0 sonar.sources=src sonar.language=py sonar.sourceEncoding=UTF-8','filename':'sonar-project.properties'}"}]}}    success    200    a1111111
+    log    InputJson is empty save component
+    saveComponent    ${apiUrl}    ${namespace}    {"id":${componentID},"version":"1.0","define":{"inputJson":{},"outputJson":{"status":true,"result":""},"setupData":{"action":{"type":"Kubernetes","name":"pythoncheck","timeout":"3000","ip":"","apiserver":"","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"useAdvanced":false,"datafrom":"{}"},"service":{"spec":{"type":"NodePort","ports":[{"port":8000,"targetPort":8000,"nodePort":32001}]}},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"service_advanced":{},"pod_advanced":{}},"env":[{"key":"CO_DATA","value":"{'contents':'sonar.projectKey:python-sonar-runner sonar.projectName=python-sonar-runner sonar.projectVersion=1.0 sonar.sources=src sonar.language=py sonar.sourceEncoding=UTF-8','filename':'sonar-project.properties'}"}]}}    success    200    ${componentName}
+    log    OutputJson is empty save component
+    saveComponent    ${apiUrl}    ${namespace}    {"id":${componentID},"version":"1.0","define":{"inputJson":{"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"},"outputJson":{},"setupData":{"action":{"type":"Kubernetes","name":"pythoncheck","timeout":"3000","ip":"","apiserver":"","image":{"name":"xiechuan/pythoncheck","tag":"1.0"},"useAdvanced":false,"datafrom":"{}"},"service":{"spec":{"type":"NodePort","ports":[{"port":8000,"targetPort":8000,"nodePort":32001}]}},"pod":{"spec":{"containers":[{"resources":{"limits":{"cpu":"0.1","memory":"128Mi"},"requests":{"cpu":"0.1","memory":"64Mi"}}}]}},"service_advanced":{},"pod_advanced":{}},"env":[{"key":"CO_DATA","value":"{'contents':'sonar.projectKey:python-sonar-runner sonar.projectName=python-sonar-runner sonar.projectVersion=1.0 sonar.sources=src sonar.language=py sonar.sourceEncoding=UTF-8','filename':'sonar-project.properties'}"}]}}    success    200    ${componentName}
+    log    Not json string save component
+    saveComponent    ${apiUrl}    ${namespace}    baafds    error when unmarshal request body:invalid character 'b' looking for beginning of value    400    ${componentName}
+    log    Repeat workflow
+    createNewWorkflow    ${apiUrl}    ${namespace}    ${repository}    {"name":"pythoncheck","version":"1.0"}    error when create pipeline:pipelien name is exist!    400
+    log    Namespace is empty get workflow list
+    getWorkflowExceptList    ${apiUrl}    \    ${repository}    400    namespace can't be null
+    log    Repository is empty get workflow list
+    getWorkflowExceptList    ${apiUrl}    ${namespace}    \    404    404 page not found
+    log    Namespace is error get workflow list
+    getWorkflowExceptList    ${apiUrl}    asdaf    ${repository}    200    list
+    log    Repository is error get workflow list
+    getWorkflowExceptList    ${apiUrl}    ${namespace}    dagfda    200    list
+    log    COMPONENT_START
+    componentOps    ${apiUrl}    ${namespace}    ${repository}    {"RUN_ID":"38,443,210,1,355","EVENT":"COMPONENT_START","EVENTID":12551}    ok    200
     ...    ${componentName}
-    log    组件注册
-    组件注册    ${apiUrl}    ${namespace}    ${repository}    {"RUN_ID":"38,443,210,1,355","POD_NAME":"pod-38-443-210-1-355","RECEIVE_URL":"http://www"}    ok    200
+    log    COMPONENT REG
+    componentReg    ${apiUrl}    ${namespace}    ${repository}    {"RUN_ID":"38,443,210,1,355","POD_NAME":"pod-38-443-210-1-355","RECEIVE_URL":"http://www"}    ok    200
     ...    ${componentName}
-    log    任务开始
-    组件操作    ${apiUrl}    ${namespace}    ${repository}    {"RUN_ID":"38,443,210,1,355","EVENT":"TASK_START","EVENTID":1257}    ok    200
+    log    TASK_START
+    componentOps    ${apiUrl}    ${namespace}    ${repository}    {"RUN_ID":"38,443,210,1,355","EVENT":"TASK_START","EVENTID":1257}    ok    200
     ...    ${componentName}
-    log    任务状态
-    组件操作    ${apiUrl}    ${namespace}    ${repository}    {"RUN_ID":"38,443,210,1,355","EVENT":"TASK_STATUS","EVENTID":1259}    ok    200
+    log    TASK_STATUS
+    componentOps    ${apiUrl}    ${namespace}    ${repository}    {"RUN_ID":"38,443,210,1,355","EVENT":"TASK_STATUS","EVENTID":1259}    ok    200
     ...    ${componentName}
-    log    任务结果
-    组件操作    ${apiUrl}    ${namespace}    ${repository}    {"RUN_ID":"38,443,210,1,355","EVENT":"TASK_RESULT","EVENTID":1258}    ok    200
+    log    TASK_RESULT
+    componentOps    ${apiUrl}    ${namespace}    ${repository}    {"RUN_ID":"38,443,210,1,355","EVENT":"TASK_RESULT","EVENTID":1258}    ok    200
     ...    ${componentName}
-    log    停止组件
-    组件操作    ${apiUrl}    ${namespace}    ${repository}    {"RUN_ID":"38,443,210,1,355","EVENT":"COMPONENT_STOP","EVENTID":1256}    ok    200
+    log    COMPONENT_STOP
+    componentOps    ${apiUrl}    ${namespace}    ${repository}    {"RUN_ID":"38,443,210,1,355","EVENT":"COMPONENT_STOP","EVENTID":1256}    ok    200
     ...    ${componentName}
     #sleep    120
-    log    获取workflow历史列表并返回SequenceID
-    ${pipelineSequenceID}    获取workflow历史列表    ${apiUrl}    ${namespace}    ${repository}    pipelineList    200
-    log    获取workflow历史并返回actionLogID和stageLogID
-    ${actionLogID}    ${stageLogID}    获取workflow历史    ${apiUrl}    ${namespace}    ${repository}    200
-    ...    ${pipelineID}    ${pipelineName}    lineList    ${pipelineSequenceID}
+    log    Get workflow histories list and return SequenceID
+    ${pipelineSequenceID}    getWorkflowHistoryList    ${apiUrl}    ${namespace}    ${repository}    pipelineList    200
+    log    Get workflow history and return actionLogID and stageLogID
+    ${actionLogID}    ${stageLogID}    getWorkflowHistory    ${apiUrl}    ${namespace}    ${repository}    200
+    ...    ${workflowID}    ${workflowName}    lineList    ${pipelineSequenceID}
     @{eventNames}    Set Variable    Create    Delete    Deployment    DeploymentStatus    Fork
     ...    Gollum    IssueComment    Issues    Member    PageBuild    Public
     ...    PullRequestReviewComment    PullRequestReview    PullRequest    Push    Repository    Release
     ...    Status    TeamAdd    Watch
-    log    循环测试github事件
+    log    Cycle test github event
     : FOR    ${eventName}    IN    @{eventNames}
-    \    获取github事件json    ${apiUrl}    200    ${eventName}    output
-    log    正常获取工作流token和url
-    获取工作流token和url    ${apiUrl}    ${namespace}    ${repository}    token    200    ${pipelineID}
-    ...    ${pipelineName}
-    log    正常获取Action运行历史
-    获取Action运行历史    ${apiUrl}    ${namespace}    ${repository}    result    200    ${pipelineName}
+    \    getGithubEventJson    ${apiUrl}    200    ${eventName}    output
+    log    Get workflow token and url
+    getWorkflowTokenAndUrl    ${apiUrl}    ${namespace}    ${repository}    token    200    ${workflowID}
+    ...    ${workflowName}
+    log    Get action run history
+    getWorkflowActionRunHistory    ${apiUrl}    ${namespace}    ${repository}    result    200    ${workflowName}
     ...    ${stagName}    ${actionName}    ${actionLogID}
-    log    正常获取Relation信息
-    获取Relation信息    ${apiUrl}    ${namespace}    ${repository}    define    200    ${pipelineSequenceID}
-    ...    ${pipelineName}    ${stageLogID}    ${actionLogID}
+    log    get action Relation info
+    getWorkflowActionRelationInfo    ${apiUrl}    ${namespace}    ${repository}    define    200    ${pipelineSequenceID}
+    ...    ${workflowName}    ${stageLogID}    ${actionLogID}
 
-workflow GUI测试
+workflow GUI Test
     [Tags]    GUI
-    [Setup]    Run Keywords    初始化数据库环境
+    [Setup]    InitDBEnv
     ${componentName}    ${componentVersion}    ${k8s-pod-image-name}    ${k8s-pod-image-tag}    Set Variable    pythoncheck    1.0
     ...    xiechuan/pythoncheck    1.0
-    打开浏览器    ${guiUrl}    chrome    ContainerOps - DevOps Orchestration For Cloud Native
-    GUI创建组件    ${componentName}    ${componentVersion}    View
-    GUI保存组件    ${componentName}    ${k8s-pod-image-name}    ${k8s-pod-image-tag}    8000    32001    32001
+    GUI open browser    ${guiUrl}    chrome    ContainerOps - DevOps Orchestration For Cloud Native
+    GUI create component    ${componentName}    ${componentVersion}    View
+    GUI save component    ${componentName}    ${k8s-pod-image-name}    ${k8s-pod-image-tag}    8000    32001    32001
     ...    test
-    GUI新建workflow    ${componentName}    ${componentVersion}    View
-    GUI保存workflow    ${componentName}    192.168.10.131    http://192.168.10.131:8080
-    GUI设置workflow环境变量    test    123456
-    GUI检查workflow
-    GUI开关workflow
+    GUI create workflow    ${componentName}    ${componentVersion}    View
+    GUI save workflow    ${componentName}    192.168.10.131    http://192.168.10.131:8080
+    GUI set workflow env    test    123456
+    GUI check workflow
+    GUI switch workflow
     sleep    5
-    运行workflow    ${apiUrl}    ${namespace}    ${repository}    {"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"}    pipeline start ...    200
+    runWorkflow    ${apiUrl}    ${namespace}    ${repository}    {"gitUrl":"https://github.com/xiechuanj/python-sonar-runner.git"}    pipeline start ...    200
     ...    ${componentName}
     #sleep    30
-    GUI查看workflow历史
+    GUI search workflow history

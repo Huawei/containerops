@@ -1,5 +1,5 @@
 *** Keywords ***
-创建组件
+createNewComponent
     [Arguments]    ${url}    ${namespace}    ${body}    ${message}    ${statuscode}
     Create Session    session    ${url}
     ${resp}=    Post Request    session    /pipeline/v1/${namespace}/component    ${body}
@@ -13,7 +13,7 @@
     log    ${values}
     Delete All Sessions
 
-获取组件列表
+getComponentList
     [Arguments]    ${url}    ${namespace}    ${statuscode}    ${message}
     Create Session    session    ${url}
     ${resp}=    Get Request    session    /pipeline/v1/${namespace}/component
@@ -27,7 +27,7 @@
     Delete All Sessions
     [Return]    ${componentID}    ${componentName}
 
-获取组件信息
+getComponentInfo
     [Arguments]    ${url}    ${namespace}    ${statuscode}    ${componentName}    ${componentID}    ${message}
     Create Session    session    ${url}
     ${resp}=    Get Request    session    /pipeline/v1/${namespace}/component/${componentName}?id=${componentID}
@@ -39,7 +39,7 @@
     log    ${json}
     Delete All Sessions
 
-保存组件
+saveComponent
     [Arguments]    ${url}    ${namespace}    ${body}    ${message}    ${statuscode}    ${componentName}
     Create Session    session    ${url}
     ${resp}=    Put Request    session    /pipeline/v1/${namespace}/component/${componentName}    ${body}
@@ -53,7 +53,7 @@
     log    ${values}
     Delete All Sessions
 
-创建workflow
+createNewWorkflow
     [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
     Create Session    session    ${url}
     ${resp}=    Post Request    session    /pipeline/v1/${namespace}/${repository}    ${body}
@@ -67,7 +67,7 @@
     log    ${values}
     Delete All Sessions
 
-获取workflow列表
+getWorkflowList
     [Arguments]    ${url}    ${namespace}    ${repository}    ${statuscode}
     Create Session    session    ${url}
     ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}
@@ -80,7 +80,7 @@
     Delete All Sessions
     [Return]    ${json['list'][0]['id']}    ${json['list'][0]['name']}
 
-获取workflow信息
+getWorkflowInfo
     [Arguments]    ${url}    ${namespace}    ${repository}    ${statuscode}    ${pipelineID}    ${pipelineName}
     ...    ${message}
     Create Session    session    ${url}
@@ -93,7 +93,7 @@
     log    ${json}
     Delete All Sessions
 
-保存workflow
+saveWorkflow
     [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
     ...    ${pipelineName}
     Create Session    session    ${url}
@@ -108,7 +108,7 @@
     log    ${values}
     Delete All Sessions
 
-设置workflow环境变量
+setWorkflowEnv
     [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
     ...    ${pipelineName}
     Create Session    session    ${url}
@@ -123,7 +123,7 @@
     log    ${values}
     Delete All Sessions
 
-获取workflow环境变量
+getWorkflowEnv
     [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}    ${pipelineID}
     ...    ${pipelineName}
     Create Session    session    ${url}
@@ -136,7 +136,7 @@
     log    ${json}
     Delete All Sessions
 
-修改workflow状态
+modifyWorkflowStatus
     [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
     ...    ${pipelineName}
     Create Session    session    ${url}
@@ -149,7 +149,7 @@
     log    ${json}
     Delete All Sessions
 
-运行workflow
+runWorkflow
     [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
     ...    ${pipelineName}
     Create Session    session    ${url}
@@ -164,7 +164,7 @@
     log    ${values}
     Delete All Sessions
 
-获取workflow历史列表
+getWorkflowHistoryList
     [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}
     Create Session    session    ${url}
     ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}/histories
@@ -178,7 +178,7 @@
     Delete All Sessions
     [Return]    ${json['pipelineList'][0]['versionList'][0]['sequenceList'][0]['pipelineSequenceID']}
 
-获取workflow历史
+getWorkflowHistory
     [Arguments]    ${url}    ${namespace}    ${repository}    ${statuscode}    ${pipelineID}    ${pipelineName}
     ...    ${message}    ${sequenceId}
     Create Session    session    ${url}
@@ -194,7 +194,7 @@
     Delete All Sessions
     [Return]    ${json['define']['lineList'][0]['endData']['id']}    ${json['define']['stageList'][0]['id']}
 
-获取github事件json
+getGithubEventJson
     [Arguments]    ${url}    ${statuscode}    ${eventName}    ${message}
     Create Session    session    ${url}
     ${resp}=    Get Request    session    /pipeline/v1/eventJson/github/${eventName}
@@ -206,7 +206,7 @@
     log    ${json}
     Delete All Sessions
 
-获取工作流token和url
+getWorkflowTokenAndUrl
     [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}    ${pipelineID}
     ...    ${pipelineName}
     Create Session    session    ${url}
@@ -219,7 +219,7 @@
     log    ${json}
     Delete All Sessions
 
-获取Action运行历史
+getWorkflowActionRunHistory
     [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}    ${pipelineName}
     ...    ${stageName}    ${actionName}    ${actionLogID}
     Create Session    session    ${url}
@@ -232,7 +232,7 @@
     log    ${json}
     Delete All Sessions
 
-获取Relation信息
+getWorkflowActionRelationInfo
     [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}    ${pipelineSequenceID}
     ...    ${pipelineName}    ${startActionId}    ${endActionId}
     Create Session    session    ${url}
@@ -245,7 +245,7 @@
     log    ${json}
     Delete All Sessions
 
-获取workflow列表异常
+getWorkflowExceptList
     [Arguments]    ${url}    ${namespace}    ${repository}    ${statuscode}    ${message}
     Create Session    session    ${url}
     ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}
@@ -255,7 +255,7 @@
     Should Contain    ${resp.content}    ${message}
     Delete All Sessions
 
-组件操作
+componentOps
     [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
     ...    ${componentName}
     Create Session    session    ${url}
@@ -270,7 +270,7 @@
     log    ${values}
     Delete All Sessions
 
-组件注册
+componentReg
     [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
     ...    ${componentName}
     Create Session    session    ${url}
@@ -285,7 +285,7 @@
     log    ${values}
     Delete All Sessions
 
-获取组件列表异常
+getComponentExceptList
     [Arguments]    ${url}    ${namespace}    ${statuscode}    ${message}
     Create Session    session    ${url}
     ${resp}=    Get Request    session    /pipeline/v1/${namespace}/component
@@ -295,7 +295,7 @@
     Should Contain    ${resp.content}    ${message}
     Delete All Sessions
 
-运行指定版本workflow
+specifiesWorkflowRunVersion
     [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
     ...    ${pipelineName}    ${version}
     Create Session    session    ${url}

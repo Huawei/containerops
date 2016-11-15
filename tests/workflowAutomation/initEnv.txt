@@ -1,5 +1,5 @@
 *** Keywords ***
-初始化数据库环境
+InitDBEnv
     Connect To Database    pymysql    containerops    root    123456    192.168.10.131    3306
     Execute Sql String    delete from action;
     Execute Sql String    delete from action_log;
