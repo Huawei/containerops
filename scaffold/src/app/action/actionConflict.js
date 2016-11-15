@@ -14,6 +14,7 @@ limitations under the License.
 
 import * as util from '../common/util';
 import * as conflictUtil from "../relation/conflict";
+import * as config from '../common/config';
 
 import { getPathData } from "../relation/setPath";
 
@@ -55,25 +56,7 @@ function parseNodeType(id, actionId) {
 }
 
 function generateImage(type) {
-    switch (type) {
-        case "string":
-            return "../../assets/images/string.png";
-            break;
-        case "object":
-            return "../../assets/images/object.png";
-            break;
-        case "number":
-            return "../../assets/images/number.png";
-            break;
-        case "array":
-            return "../../assets/images/array.png";
-            break;
-        case "boolean":
-            return "../../assets/images/boolean.png";
-            break;
-        default:
-            return "";
-    }
+    return config.getImage(type);
 }
 
 function getDOMData(dom, conflictData) {
@@ -287,7 +270,7 @@ export function svgTree(data, actionId) {
                         if (elementType != "conflict-line") {
                             var valueType = d3DOM.attr("data-valuetype");
                             d3DOM.select("rect").attr("fill", generateColor(valueType));
-                            d3DOM.select(".conflict-image").attr("xlink:href", "../../assets/svg/conflict.svg");
+                            d3DOM.select(".conflict-image").attr("xlink:href", config.getSVG(config.SVG_CONFLICT));
                             var data = getDOMData(d3DOM, conflictData);
                             d3DOM.on("mouseover", function() {
                                     mouseoverOrClick(data, "#797979");
@@ -325,7 +308,7 @@ export function svgTree(data, actionId) {
 
         let clashImage = g.append('image')
             .attr("transform", "translate(0,0)")
-            .attr("xlink:href", "../../assets/svg/conflict.svg")
+            .attr("xlink:href", config.getSVG(config.SVG_CONFLICT))
             .attr("x", 2)
             .attr("y", 2)
             .attr("width", 20)
@@ -385,13 +368,13 @@ function mouseoverOrClick(options, color) {
                 d3DOM.select(".conflict-image").attr("xlink:href", function() {
                     if (elementType == "conflict-source") {
                         if (options.type != "object") {
-                            return "../../assets/svg/remove-conflict.svg";
+                            return config.getSVG(config.SVG_REMOVE_CONFLICT);
                         } else {
-                            return "../../assets/svg/highlight-conflict.svg";
+                            return config.getSVG(config.SVG_HIGHLIGHT_CONFLICT);
                         }
 
                     } else if (elementType == "conflict-base") {
-                        return "../../assets/svg/highlight-conflict.svg";
+                        return config.getSVG(config.SVG_HIGHLIGHT_CONFLICT);
                     }
                 });
             }
@@ -414,7 +397,7 @@ function mouseout(options) {
                 d3DOM.attr("stroke", "#e0e004")
             } else {
                 d3DOM.select(".conflict-image")
-                    .attr("xlink:href", "../../assets/svg/conflict.svg");
+                    .attr("xlink:href", config.getSVG(config.SVG_CONFLICT));
             }
         })
     }

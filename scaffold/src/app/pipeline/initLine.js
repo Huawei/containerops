@@ -13,8 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
- 
+
 import * as constant from "../common/constant";
+import * as util from "../common/util";
 import { setPath } from "../relation/setPath";
 import { mouseoverRelevantPipeline, mouseoutRelevantPipeline } from "../relation/lineHover";
 import { dragDropSetPath } from "../relation/dragDropSetPath";
@@ -75,7 +76,7 @@ export function initLine() {
                 .attr("fill", "#fff")
                 .attr("stroke", "#1F6D84")
                 .attr("stroke-width", 2)
-                .style("cursor","pointer")
+                .style("cursor", "pointer")
                 /* mouse over the circle show relevant lines of start stage */
                 .on("mouseover", function(cd, ci) {
                     mouseoverRelevantPipeline(d);
@@ -97,7 +98,7 @@ export function initLine() {
         /* draw line from action 2 stage and circle of action self to accept and emit lines  */
         if (d.type == constant.PIPELINE_STAGE && d.actions != null && d.actions.length > 0) {
 
-            var actionLineViewId = "action-line" + "-" + d.id;
+            // var actionLineViewId = "action-line" + "-" + d.id;
             var action2StageLineViewId = "action-2-stage-line" + "-" + d.id;
             var actionSelfLine = "action-self-line" + "-" + d.id
                 /* Action 2 Stage */
@@ -183,13 +184,13 @@ export function initLine() {
                 .attr("fill", "#fff")
                 .attr("stroke", "#84C1BC")
                 .attr("stroke-width", 2)
-                .style("cursor","pointer")
-        
-                .on("mouseover", function(ad, ai) {
-                    d3.select(this).attr("r",16);
+                .style("cursor", "pointer")
+
+            .on("mouseover", function(ad, ai) {
+                    d3.select(this).attr("r", 16);
                 })
-                .on("mouseout", function(ad, ai){
-                    d3.select(this).attr("r",8);
+                .on("mouseout", function(ad, ai) {
+                    d3.select(this).attr("r", 8);
                 })
 
             /* circle on the right */
@@ -212,7 +213,7 @@ export function initLine() {
                 .attr("fill", "#fff")
                 .attr("stroke", "#84C1BC")
                 .attr("stroke-width", 2)
-                .style("cursor","pointer")
+                .style("cursor", "pointer")
                 .on("mouseover", function(ad, ai) {
                     mouseoverRelevantPipeline(ad);
                 })
@@ -229,8 +230,9 @@ export function initLine() {
         }
 
     });
-
+    /* draw lines between action according to data in linePathAry */
     constant.linePathAry.forEach(function(i) {
         setPath(i);
     })
+
 }
