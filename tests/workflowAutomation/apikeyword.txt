@@ -39,21 +39,6 @@
     log    ${json}
     Delete All Sessions
 
-初始化环境
-    Connect To Database    pymysql    containerops    root    123456    192.168.10.131    3306
-    Execute Sql String    delete from action;
-    Execute Sql String    delete from component;
-    Execute Sql String    delete from environment;
-    Execute Sql String    delete from event;
-    Execute Sql String    delete from outcome;
-    Execute Sql String    delete from pipeline;
-    Execute Sql String    delete from serivce_definition;
-    Execute Sql String    delete from service;
-    Execute Sql String    delete from stage;
-    Execute Sql String    delete from pipeline_log;
-    Execute Sql String    delete from stage_log;
-    Disconnect From Database
-
 保存组件
     [Arguments]    ${url}    ${namespace}    ${body}    ${message}    ${statuscode}    ${componentName}
     Create Session    session    ${url}
@@ -308,4 +293,19 @@
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
     Should Contain    ${resp.content}    ${message}
+    Delete All Sessions
+
+运行指定版本workflow
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
+    ...    ${pipelineName}    ${version}
+    Create Session    session    ${url}
+    ${resp}=    Post Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}?version=${version}    ${body}
+    log    ${resp.status_code}
+    log    ${resp.content}
+    Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
+    ${json}=    To JSON    ${resp.content}
+    log    ${json}
+    Dictionary Should Contain Value    ${json}    ${message}
+    ${values}    Get Dictionary Values    ${json}
+    log    ${values}
     Delete All Sessions
