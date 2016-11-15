@@ -21,7 +21,6 @@ import { loading } from "../common/loading";
 
 
 export function getLineHistory(pipelineName,pipelineSequenceID,startActionId,endActionId) {
-    loading.show();
     var promise = historyDataService.getLineDataInfo(pipelineName,pipelineSequenceID,startActionId,endActionId);
     promise.done(function(data) {
         loading.hide();
@@ -31,7 +30,7 @@ export function getLineHistory(pipelineName,pipelineSequenceID,startActionId,end
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else {
+        } else if(xhr.statusText != "abort") {
             notify("Server is unreachable", "error");
         }
     });

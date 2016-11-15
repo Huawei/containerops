@@ -146,7 +146,6 @@ function initFromView(){
 }
 
 export function getOutputForEvent(selecetedEvent){
-    loading.show();
     var promise = pipelineApi.eventOutput(selecetedEvent);
     promise.done(function(data){
         loading.hide();
@@ -157,7 +156,7 @@ export function getOutputForEvent(selecetedEvent){
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg,"error");
-        }else{
+        }else if(xhr.statusText != "abort"){
             notify("Server is unreachable","error");
         }
     });
