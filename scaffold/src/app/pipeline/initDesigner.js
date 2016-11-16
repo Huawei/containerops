@@ -94,10 +94,10 @@ export function initDesigner() {
         .attr("id", "buttonView");
 
 
-    let actionLinkView = g.append("g")
-        .attr("width", constant.svgWidth)
-        .attr("height", constant.svgHeight)
-        .attr("id", "actionLinkView");
+    // let actionLinkView = g.append("g")
+    //     .attr("width", constant.svgWidth)
+    //     .attr("height", constant.svgHeight)
+    //     .attr("id", "actionLinkView");
 
     constant.setSvg(svg);
     constant.setG(g);
