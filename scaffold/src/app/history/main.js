@@ -96,7 +96,7 @@ function getHistoryList() {
                                             </div></td>`
                                     }
 
-                                    hsRow += `<td><button type="button" class="btn btn-success sequence-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:16px"></i><span style="margin-left:5px">Detail</span></button></td></tr> `
+                                    hsRow += `<td><button type="button" class="btn btn-success sequence-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:16px"></i><span style="margin-left:10px">Detail</span></button></td></tr> `
 
                                     hppItem.append(hsRow)
                                 });
