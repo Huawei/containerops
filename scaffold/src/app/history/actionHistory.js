@@ -21,7 +21,6 @@ import { loading } from "../common/loading";
 
 
 export function getActionHistory(pipelineName,stageName,actionName,actionLogID) {
-    loading.show();
     var promise = historyDataService.getActionRunHistory(pipelineName,stageName,actionName,actionLogID);
     promise.done(function(data) {
         loading.hide();
@@ -31,7 +30,7 @@ export function getActionHistory(pipelineName,stageName,actionName,actionLogID) 
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else {
+        } else if(xhr.statusText != "abort") {
             notify("Server is unreachable", "error");
         }
     });
@@ -54,22 +53,16 @@ function showActionHistoryView(history,actionname) {
             var outputStream = JSON.stringify(history.data.output,undefined,2);
             $("#action-output-stream").val(outputStream);
 
-            // _.each(history.logList,function(log,index){
-            //     var row = `<p class="history-log" data-index="`+ index +`"></p>`;
-            //     $("#logs").append(row);
-            //     $('.history-log[data-index="'+index+'"]').text(log);
-            // });
-
-            // resizeWidget();
-            
              _.each(history.logList,function(log,index){
 
                 let allLogs = log.substr(23);
                 let logJson = JSON.parse(allLogs);
+                console.log( "logJson",logJson)
                 let num = index + 1;
 
 
                 if(!logJson.data && !logJson.resp){
+                    console.log("sequenceLogDetail", logJson.INFO.output)
                     sequenceLogDetail[index] = logJson.INFO.output;
                     let logTime = log.substr(0,19);
 
@@ -133,4 +126,3 @@ function showActionHistoryView(history,actionname) {
         }
     });
 }
-

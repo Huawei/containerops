@@ -24,8 +24,6 @@ import { getLineHistory } from "./lineHistory";
 import * as sequenceUtil from "./initUtil";
 
 export function initHistoryPage() {
-
-    loading.show();
     var promise = historyDataService.sequenceList();
     promise.done(function(data) {
         loading.hide();
@@ -48,7 +46,7 @@ function getHistoryList() {
         type: "GET",
         cache: false,
         success: function(data) {
-            $("#main").html($(data));
+            $(".forHistory").html($(data));
             $("#historyPipelinelist").show("slow");
 
             $(".pipelinelist_body").empty();
@@ -98,7 +96,7 @@ function getHistoryList() {
                                             </div></td>`
                                     }
 
-                                    hsRow += `<td><button type="button" class="btn btn-success sequence-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:16px"></i><span style="margin-left:5px">Detail</span></button></td></tr> `
+                                    hsRow += `<td><button type="button" class="btn btn-success sequence-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:16px"></i><span style="margin-left:10px">Detail</span></button></td></tr> `
 
                                     hppItem.append(hsRow)
                                 });
@@ -170,16 +168,13 @@ function getHistoryList() {
 let historyAbout;
 export function getSequenceDetail(selected_history) {
     historyAbout = selected_history;
-    loading.show();
-
     var promise = historyDataService.sequenceData(selected_history.pipelineName, selected_history.pipelineVersionID, selected_history.sequenceID);
     promise.done(function(data) {
         loading.hide();
         constant.sequenceRunData = data.define.stageList;
-        constant.refreshSequenceRunData = data.define.stageList;
         constant.sequenceLinePathArray = data.define.lineList;
 
-        if (data.define.stageList.length > 0) {
+        if (constant.sequenceRunData.length > 0) {
             initSequenceView(selected_history);
         }
     });
@@ -207,7 +202,6 @@ function initSequenceView(selected_history) {
 
             $(".backtolist").on('click', function() {
                 initHistoryPage();
-                clearInterval(timer);
             });
 
             let $div = $("#div-d3-main-svg").height($("main").height() * 3 / 7);
@@ -234,8 +228,8 @@ function initSequenceView(selected_history) {
             $div.empty();
 
             let svg = d3.select("#div-d3-main-svg")
-                // .on("touchstart", nozoom)
-                // .on("touchmove", nozoom)
+                .on("touchstart", nozoom)
+                .on("touchmove", nozoom)
                 .append("svg")
                 .attr("width", constant.svgWidth)
                 .attr("height", constant.svgHeight)
@@ -286,7 +280,9 @@ function initSequenceView(selected_history) {
                 .attr("height", constant.svgHeight)
                 .attr("id", "buttonView");
 
-             sequenceUtil.initButton();
+
+            showSequenceView(constant.sequenceRunData);
+            sequenceUtil.initButton();
         }
     });
 }
@@ -390,7 +386,6 @@ function showSequenceView(pipelineSequenceData) {
         })
 
     initSequenceStageLine();
-    // initAction();
 }
 
 function initSequenceStageLine() {
@@ -850,10 +845,14 @@ function zoomed() {
         .attr("translateY", d3.event.translate[1])
         .attr("scale", d3.event.scale);
 }
-function nozoom() {
-    d3.event.preventDefault();
+function clicked(d, i) {
+    // constant.buttonView.selectAll("image").remove();
+    if (d3.event.defaultPrevented) return; // zoomed
+    d3.select(this).transition()
+        .transition()
 }
 
-function sequenceRunningData () {
-    var pipelineBox = d3.select("#div-d3-main-svg");
+
+function nozoom() {
+    d3.event.preventDefault();
 }
