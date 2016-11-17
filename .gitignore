@@ -5,11 +5,12 @@ scaffold/dist
 scaffold/dev
 scaffold/tmp
 scaffold/css/
+tenant/app/*.js
 
 # dependencies
 scaffold/node_modules
 scaffold/bower_components
- 
+tenant/node_modules 
 
 # IDEs and editors
 .idea
@@ -33,6 +34,7 @@ scaffold/libpeerconnection.log
 scaffold/npm-debug.log
 scaffold/testem.log
 scaffold//typings
+tenant/npm-debug.log
 
 # e2e
 scaffold/e2e/*.js
