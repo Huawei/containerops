@@ -21,6 +21,7 @@ import { loading } from "../common/loading";
 
 
 export function getActionHistory(pipelineName,stageName,actionName,actionLogID) {
+    loading.show();
     var promise = historyDataService.getActionRunHistory(pipelineName,stageName,actionName,actionLogID);
     promise.done(function(data) {
         loading.hide();
@@ -30,12 +31,13 @@ export function getActionHistory(pipelineName,stageName,actionName,actionLogID) 
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else if(xhr.statusText != "abort") {
+        } else {
             notify("Server is unreachable", "error");
         }
     });
 }
 
+let sequenceLogDetail = [];
 function showActionHistoryView(history,actionname) {
     $.ajax({
         url: "../../templates/history/actionHistory.html",
@@ -52,13 +54,83 @@ function showActionHistoryView(history,actionname) {
             var outputStream = JSON.stringify(history.data.output,undefined,2);
             $("#action-output-stream").val(outputStream);
 
-            _.each(history.logList,function(log,index){
-                var row = `<p class="history-log" data-index="`+ index +`"></p>`;
-                $("#logs").append(row);
-                $('.history-log[data-index="'+index+'"]').text(log);
-            });
+            // _.each(history.logList,function(log,index){
+            //     var row = `<p class="history-log" data-index="`+ index +`"></p>`;
+            //     $("#logs").append(row);
+            //     $('.history-log[data-index="'+index+'"]').text(log);
+            // });
 
-            resizeWidget();
+            // resizeWidget();
+            
+             _.each(history.logList,function(log,index){
+
+                let allLogs = log.substr(23);
+                let logJson = JSON.parse(allLogs);
+                let num = index + 1;
+
+
+                if(!logJson.data && !logJson.resp){
+                    sequenceLogDetail[index] = logJson.INFO.output;
+                    let logTime = log.substr(0,19);
+
+                    var row = `<tr class="log-item"><td>`
+                            + num +`</td><td>`
+                            + logTime +`</td><td>`
+                            + logJson.EVENT +`</td><td>`
+                            + logJson.EVENTID +`</td><td>`
+                            + logJson.RUN_ID +`</td><td>`
+                            + logJson.INFO.status +`</td><td>`
+                            + logJson.INFO.result +`</td><td></td><td></td><td><button data-logid="`
+                            + index + `" type="button" class="btn btn-success sequencelog-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:14px"></i>&nbsp;&nbsp;Detail</button></td>
+           </tr>`;
+                    $("#logs-tr").append(row);
+
+
+                } else {
+                    var row = `<tr class="log-item"><td>`
+                                    + num + `</td><td></td><td></td><td></td><td></td><td></td><td></td><td>`
+                                    + logJson.data +`</td><td>`
+                                    + logJson.resp +`</td><td></td></tr>`;
+                    $("#logs-tr").append(row);    
+                }
+
+            })
+
+
+            $(".sequencelog-detail").on("click",function(e){
+                let target = $(e.target);
+
+                _.each(sequenceLogDetail,function(d,i){
+                    if(target.data("logid") == i){
+                        let detailData = "";
+                        for( let prop in d){
+                            detailData += prop + ":" + d[prop].replace(/\n/g, "<br />");
+                            detailData += "<br />";
+                        }
+
+                        $(".dialogContant").html(detailData);
+                    }
+                })
+  
+                $(".dialogWindon").css("height","auto");
+                $("#dialog").show();
+
+                if( $(".dialogWindon").height() < $("#dialog").height() * 0.75 ){
+                    
+                    $(".dialogWindon").css("height","auto");
+
+                } else {
+                    
+                    $(".dialogWindon").css("height","80%");
+                    $(".dialogContant").css("height","100%");
+                }
+
+
+                $("#detailClose").on("click", function(){
+                   $("#dialog").hide(); 
+                })
+            })
         }
     });
 }
+
