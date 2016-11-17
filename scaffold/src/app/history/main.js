@@ -20,8 +20,8 @@ import { setPath } from "../relation/setPath";
 import { notify } from "../common/notify";
 import { getActionHistory } from "./actionHistory";
 import { getLineHistory } from "./lineHistory";
-import * as initButton from "../pipeline/initButton";
-import * as util from "../common/util";
+// import * as initButton from "../pipeline/initButton";
+import * as sequenceUtil from "./initUtil";
 
 export function initHistoryPage() {
     var promise = historyDataService.sequenceList();
@@ -74,7 +74,7 @@ function getHistoryList() {
 
                             hvRow += `<td class="pptd"><span class="glyphicon glyphicon-menu-down treeclose pp-v-controller"></span><span style="margin-left:10px">` + vd.name + `</span></td>`;
 
-                            hvRow += `<td>` + vd.info + `</td>`;
+                            hvRow += `<td class="pptd">`+ vd.info +`</td>`;
 
                             hvRow += `<td></td></tr>`;
 
@@ -206,11 +206,26 @@ function initSequenceView(selected_history) {
 
             let $div = $("#div-d3-main-svg").height($("main").height() * 3 / 7);
             // let zoom = d3.behavior.zoom().on("zoom", zoomed);
+            let drag = d3.behavior.drag()
+                .origin(function() {
+                    return { "x": 0, "y": 0 };
+                })
+                .on("dragstart", dragStart)
+                .on("drag", sequenceUtil.draged);
+
+            function dragStart() {
+                d3.event.sourceEvent.stopPropagation();
+                drag.origin(function() {
+                    return { "x": constant.sequencePipelineView.attr("translateX"), "y": constant.sequencePipelineView.attr("translateY") }
+                });
+            }    
 
             constant.setSvgWidth("100%");
             constant.setSvgHeight($div.height());
             constant.setPipelineNodeStartX(50);
             constant.setPipelineNodeStartY($div.height() * 0.2);
+
+            $div.empty();
 
             let svg = d3.select("#div-d3-main-svg")
                 // .on("touchstart", nozoom)
@@ -221,7 +236,7 @@ function initSequenceView(selected_history) {
                 .style("fill", "white");
 
             let g = svg.append("g")
-                .call(zoom);
+                .call(drag);
             // .on("dblclick.zoom", null);
 
             let svgMainRect = g.append("rect")
@@ -231,17 +246,29 @@ function initSequenceView(selected_history) {
             constant.sequenceLinesView = g.append("g")
                 .attr("width", constant.svgWidth)
                 .attr("height", constant.svgHeight)
-                .attr("id", "sequenceLinesView");
+                .attr("id", "sequenceLinesView")
+                .attr("translateX", 0)
+                .attr("translateY", 0)
+                .attr("transform", "translate(0,0) scale(1)")
+                .attr("scale", 1);
 
             constant.sequenceActionsView = g.append("g")
                 .attr("width", constant.svgWidth)
                 .attr("height", constant.svgHeight)
-                .attr("id", "sequenceActionsView");
+                .attr("id", "sequenceActionsView")
+                .attr("translateX", 0)
+                .attr("translateY", 0)
+                .attr("transform", "translate(0,0) scale(1)")
+                .attr("scale", 1);
 
             constant.sequencePipelineView = g.append("g")
                 .attr("width", constant.svgWidth)
                 .attr("height", constant.svgHeight)
-                .attr("id", "sequencePipelineView");
+                .attr("id", "sequencePipelineView")
+                .attr("translateX", 0)
+                .attr("translateY", 0)
+                .attr("transform", "translate(0,0) scale(1)")
+                .attr("scale", 1);
 
             constant.sequenceActionLinkView = g.append("g")
                 .attr("width", constant.svgWidth)
@@ -253,11 +280,14 @@ function initSequenceView(selected_history) {
                 .attr("height", constant.svgHeight)
                 .attr("id", "sequencePipelineView");
 
-            // $("#selected_pipelineHistory").text(pipelineName + " / " + pipelineVersion);
+            constant.sequenceButtonView = g.append("g")
+                .attr("width", constant.svgWidth)
+                .attr("height", constant.svgHeight)
+                .attr("id", "buttonView");
+
 
             showSequenceView(constant.sequenceRunData);
-            // showSequenceList(constant.sequenceRunData);
-            // drawPipeline();
+            sequenceUtil.initButton();
         }
     });
 }
@@ -333,72 +363,34 @@ function showSequenceView(pipelineSequenceData) {
             return i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX;
         })
         .attr("translateY", constant.pipelineNodeStartY)
-        // .attr("class", function(d, i) {
-        //     if (d.type == constant.PIPELINE_START) {
-        //         return constant.PIPELINE_START;
-        //     } else if (d.type == constant.PIPELINE_END) {
-        //         return constant.PIPELINE_END;
-        //     } else if (d.type == constant.PIPELINE_STAGE) {
-        //         return constant.PIPELINE_STAGE;
-        //     }
-        // })
         .on("click", function(d, i) {
-            // constant.pipelineView.selectAll("#pipeline-element-popup").remove();
-            // notify("click stage now");
             if (d.status == true) {
 
                 if (d.type == constant.PIPELINE_STAGE) {
-                    // clickStage(d, i);
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
-                    // initButton.updateButtonGroup("stage");
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-success.svg");
                 } else if (d.type == constant.PIPELINE_START) {
-                    // clickStart(d, i);
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
-                    // initButton.updateButtonGroup("start");
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-success.svg");
                 }
 
             } else {
 
                 if (d.type == constant.PIPELINE_STAGE) {
-                    // clickStage(d, i);
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
-                    // initButton.updateButtonGroup("stage");
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-fail.svg");
                 } else if (d.type == constant.PIPELINE_START) {
-                    // clickStart(d, i);
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
-                    // initButton.updateButtonGroup("start");
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-fail.svg");
                 }
             }
         })
-        .on("mouseout", function(d, i) {
-            // d3.event.stopPropagation();
-            // if (d.type == constant.PIPELINE_ADD_STAGE) {
-            //     d3.select(this)
-            //         .attr("xlink:href", function(d, i) {
-            //             return "../../assets/svg/add-stage-latest.svg";
-            //         })
-            // }
-            // constant.pipelineView.selectAll("#pipeline-element-popup").remove();
-        })
-        .on("mouseover", function(d, i) {
-            if (d.type == constant.PIPELINE_STAGE || d.type == constant.PIPELINE_START) {
-                // d3.select(this)
-                //     .style("cursor", "pointer");
-                // initButton.showToolTip(i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX, constant.pipelineNodeStartY + constant.svgStageHeight, "Click to Edit", "pipeline-element-popup", constant.pipelineView);
-
-            }
-        })
 
     initSequenceStageLine();
-    // initAction();
 }
 
 function initSequenceStageLine() {
@@ -473,23 +465,6 @@ function initSequenceStageLine() {
                 .attr("fill", "#fff")
                 .attr("stroke", "#1F6D84")
                 .attr("stroke-width", 2)
-                // .style("cursor","pointer")
-                /* mouse over the circle show relevant lines of start stage */
-                .on("mouseover", function(cd, ci) {
-                    // mouseoverRelevantPipeline(d);
-                })
-                /* mouse over the circle to draw line from start stage */
-                .on("mousedown", function(cd, ci) {
-                    // this.parentNode.appendChild(this);
-                    // d3.event.stopPropagation();
-                    // dragDropSetPath({
-                    //     "data": d,
-                    //     "node": i
-                    // });
-                })
-                .on("mouseout", function(cd, ci) {
-                    // mouseoutRelevantPipeline(d);
-                });
         }
 
     });
@@ -576,18 +551,13 @@ function initSequenceActionByStage() {
                 .on("click", function(ad, ai) {
                     getActionHistory(historyAbout.pipelineName, d.setupData.name, ad.setupData.name, ad.id);
                     if (ad.status == true) {
-                        // clickAction(ad, ai);
                         historyChangeCurrentElement(constant.currentSelectedItem);
                         constant.setCurrentSelectedItem({ "data": ad, "parentData": d, "type": "action", "status": ad.status });
-                        // initButton.updateButtonGroup("action");
                         d3.select("#" + ad.id).attr("href", "../../assets/svg/history-action-selected-success.svg");
                     } else {
-                        // clickAction(ad, ai);
                         historyChangeCurrentElement(constant.currentSelectedItem);
                         constant.setCurrentSelectedItem({ "data": ad, "parentData": d, "type": "action", "status": ad.status });
-                        // initButton.updateButtonGroup("action");
                         d3.select("#" + ad.id).attr("href", "../../assets/svg/history-action-selected-fail.svg");
-                        // constant.sequencePipelineView.selectAll("#pipeline-element-popup").remove();
 
                     }
                 })
@@ -611,18 +581,15 @@ function initSequenceActionByStage() {
                             "parentView": constant.sequencePipelineView,
                             "width": width
                         };
-                        util.showToolTip(options);
-                        // util.showToolTip(x, y, text, "pipeline-element-popup", constant.sequencePipelineView,width);
+                        sequenceUtil.showToolTip(options);
                     }
 
                 })
 
-            // .call(drag);
         }
 
     });
 
-    // initLine();
 }
 
 function initSequenceAction2StageLine() {
@@ -741,12 +708,6 @@ function initSequenceActionLinkBasePoint() {
                 .attr("stroke", "#84C1BC")
                 .attr("stroke-width", 2)
                 .style("cursor", "pointer")
-                .on("mouseover", function(ad, ai) {
-                    // d3.select(this).attr("r",16);
-                })
-                .on("mouseout", function(ad, ai) {
-                    // d3.select(this).attr("r",8);
-                })
 
             /* circle on the right */
             constant.sequenceLineView[actionSelfLine].selectAll(".action-self-line-output")
@@ -771,16 +732,6 @@ function initSequenceActionLinkBasePoint() {
                 .style("cursor", "pointer")
                 .on("mouseover", function(ad, ai) {
                     // mouseoverRelevantPipeline(ad);
-                })
-                .on("mousedown", function(ad, ai) {
-                    // d3.event.stopPropagation();
-                    // dragDropSetPath({
-                    //     "data": ad,
-                    //     "node": ai
-                    // });
-                })
-                .on("mouseout", function(ad, ai) {
-                    // mouseoutRelevantPipeline(ad);
                 })
         }
     });
@@ -813,10 +764,8 @@ function setSequencePath(options) {
         .attr("stroke", function(d, i) {
 
             if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "line" && constant.currentSelectedItem.data.attr("id") == options.id) {
-                // makeFrontLayer(this);
                 return "#81D9EC";
             } else {
-                // makeBackLayer(this);
                 return "#E6F3E9";
             }
         })
@@ -825,21 +774,11 @@ function setSequencePath(options) {
         .attr("id", options.id)
         .style("cursor", "pointer")
         .on("click", function(d) {
-            // this.parentNode.appendChild(this); // make this line to front layer
             getLineHistory(historyAbout.pipelineName, historyAbout.sequenceID, options.startData.id, options.endData.id);
             var self = $(this);
             historyChangeCurrentElement(constant.currentSelectedItem);
             constant.setCurrentSelectedItem({ "data": self, "type": "line" });
-            // initButton.updateButtonGroup("line");
             d3.select(this).attr("stroke", "#81D9EC");
-            // $.ajax({
-            //     url: "../../templates/relation/editLine.html",
-            //     type: "GET",
-            //     cache: false,
-            //     success: function(data) {
-            //         editLine(data, self);
-            //     }
-            // });
         });
 }
 
