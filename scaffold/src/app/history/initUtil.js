@@ -183,14 +183,14 @@ export function cleanToolTip(containerView, id) {
  let rectBackgroundY = 15;
 export function initButton() {
     let scaleObj = { "zoomScale": 1, "zoomTargetScale": 1 };
-    constant.buttonView
+    constant.sequenceButtonView
         .append("rect")
         .attr("width", constant.svgWidth)
         .attr("height", rectBackgroundY)
         .style({
             "fill": "#ffffff"
         });
-    constant.buttonView
+    constant.sequenceButtonView
         .append("rect")
         .attr("width", constant.svgWidth)
         .attr("height", 2 * constant.buttonVerticalSpace + constant.buttonHeight)
@@ -198,6 +198,6 @@ export function initButton() {
         .style({
             "fill": "#f7f7f7"
         });
-    sequenceUtil.showZoomBtn(1, "zoomin", constant.buttonView, constant.sequencePipelineView, scaleObj);
-    sequenceUtil.showZoomBtn(2, "zoomout", constant.buttonView, constant.sequencePipelineView, scaleObj);
+    sequenceUtil.showZoomBtn(1, "zoomin", constant.sequenceButtonView, constant.sequencePipelineView, scaleObj);
+    sequenceUtil.showZoomBtn(2, "zoomout", constant.sequenceButtonView, constant.sequencePipelineView, scaleObj);
 }
