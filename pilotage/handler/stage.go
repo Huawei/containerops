@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"gopkg.in/macaron.v1"
 
@@ -54,22 +53,44 @@ func DeleteStageV1Handler(ctx *macaron.Context) (int, []byte) {
 func GetStageHistoryInfoV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
-	stageLogIdStr := ctx.Query("stageLogId")
-
-	if stageLogIdStr == "" {
-		result, _ = json.Marshal(map[string]string{"errMsg": "request stage log id can't be empty"})
+	namespace := ctx.Params(":namespace")
+	if namespace == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "namespace can't be empty"})
 		return http.StatusBadRequest, result
 	}
 
-	stageLogIdStr = strings.TrimPrefix(stageLogIdStr, "s-")
-	stageLogId, err := strconv.ParseInt(stageLogIdStr, 10, 64)
+	repository := ctx.Params(":repository")
+	if repository == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "repository can't be empty"})
+		return http.StatusBadRequest, result
+	}
 
+	pipelineName := ctx.Params(":pipeline")
+	if pipelineName == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "pipeline can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	sequence := ctx.Params(":sequence")
+	sequenceInt, err := strconv.ParseInt(sequence, 10, 64)
+	if err != nil || sequenceInt == int64(0) {
+		result, _ = json.Marshal(map[string]string{"errMsg": "sequence error"})
+		return http.StatusBadRequest, result
+	}
+
+	stageName := ctx.Params(":stage")
+	if stageName == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "stage can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	stageLogInfo, err := module.GetStageLogByName(namespace, repository, pipelineName, sequenceInt, stageName)
 	if err != nil {
-		result, _ = json.Marshal(map[string]string{"errMsg": "stage log id is illegal"})
+		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
 		return http.StatusBadRequest, result
 	}
 
-	resultMap, err := module.GetStageHistoryInfo(stageLogId)
+	resultMap, err := stageLogInfo.GetStageLogDefine()
 	if err != nil {
 		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
 		return http.StatusBadRequest, result

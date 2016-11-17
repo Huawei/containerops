@@ -153,11 +153,11 @@ func SetRouters(m *macaron.Macaron) {
 						m.Group("/:sequence", func() {
 							m.Group("/stage", func() {
 								m.Group("/:stage", func() {
-									m.Get("/history", handler.GetStageHistoryInfoV1Handler)
+									m.Get("/define", handler.GetStageHistoryInfoV1Handler)
 
 									m.Group("/action", func() {
 										m.Group("/:action", func() {
-											m.Get("/", handler.GetActionHistoryInfoV1Handler)
+											m.Get("/define", handler.GetActionHistoryInfoV1Handler)
 										})
 									})
 								})
