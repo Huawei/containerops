@@ -18,6 +18,8 @@ import (
 const (
 	ActionStopReasonTimeout = "TIME_OUT"
 
+	ActionStopReasonSendDataFailed = "SendDataFailed"
+
 	ActionStopReasonRunSuccess = "RunSuccess"
 	ActionStopReasonRunFailed  = "RunFailed"
 )
@@ -822,6 +824,14 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 			log.Error("[actionLog's RecordEvent]:error when record outcome info:", recordErr.Error())
 			return recordErr
 		}
+
+		stopStatus := models.ActionLogStateRunFailed
+		stopReason := ActionStopReasonRunFailed
+		if status {
+			stopStatus = models.ActionLogStateRunSuccess
+			stopReason = ActionStopReasonRunSuccess
+		}
+		actionLog.Stop(stopReason, int64(stopStatus))
 	}
 
 	if eventKey == models.EVENT_COMPONENT_STOP {
@@ -915,6 +925,7 @@ func (actionLog *ActionLog) SendDataToAction(targetUrl string) {
 	if err != nil {
 		resultStr = err.Error()
 		status = false
+		go actionLog.Stop(ActionStopReasonSendDataFailed, models.ActionLogStateRunFailed)
 	} else {
 		respBody, _ := ioutil.ReadAll(resp.Body)
 		resultStr = string(respBody)
@@ -928,15 +939,18 @@ func (actionLog *ActionLog) SendDataToAction(targetUrl string) {
 
 	payloadInfo, err := json.Marshal(payload)
 	if err != nil {
+		go actionLog.Stop(ActionStopReasonSendDataFailed, models.ActionLogStateRunFailed)
 		log.Error("[actionLog's SendDataToAction]:error when marshal payload info:" + err.Error())
 	}
 
 	if err != nil {
+		go actionLog.Stop(ActionStopReasonSendDataFailed, models.ActionLogStateRunFailed)
 		log.Error("[actionLog's SendDataToAction]:error when send data to action:" + err.Error())
 	}
 
 	err = RecordEventInfo(models.EventDefineIDSendDataToAction, actionLog.Sequence, "", string(payloadInfo), "", "SEND_DATA", strconv.FormatInt(int64(character), 10), actionLog.Namespace, actionLog.Repository, strconv.FormatInt(actionLog.Pipeline, 10), strconv.FormatInt(actionLog.Stage, 10), strconv.FormatInt(actionLog.ID, 10))
 	if err != nil {
+		go actionLog.Stop(ActionStopReasonSendDataFailed, models.ActionLogStateRunFailed)
 		log.Error("[actionLog's SendDataToAction]:error when save send data info :" + err.Error())
 	}
 }
@@ -973,16 +987,9 @@ func (actionLog *ActionLog) merageFromActionsOutputData(relationInfo []interface
 		relationList := make([]Relation, 0)
 		if len(relationArray) > 0 {
 			for _, realationDefines := range relationArray {
-				realationDefinesList, ok := realationDefines.([]interface{})
-				if !ok || len(realationDefinesList) < 1 {
-					log.Error("[actionLog's merageFromActionsOutputData]:error to get relation Array:want an array,got:", realationDefines)
-					continue
-				}
-
-				realationDefine := realationDefines.([]interface{})[0]
-				relationByte, err := json.Marshal(realationDefine.(map[string]interface{}))
+				relationByte, err := json.Marshal(realationDefines)
 				if err != nil {
-					log.Error("[actionLog's merageFromActionsOutputData]:error went marshal relation array:", realationDefine, " ===>error is:", err.Error())
+					log.Error("[actionLog's merageFromActionsOutputData]:error went marshal relation array:", realationDefines, " ===>error is:", err.Error())
 					return nil, errors.New("error when marshal relation array:" + err.Error())
 				}
 
