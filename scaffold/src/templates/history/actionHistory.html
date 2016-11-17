@@ -67,6 +67,23 @@
                                 </div>
                             </div>
                             <div class="tab-pane" id="logs" class="tab-pane" role="tabpanel" aria-labelledby="logs-tab" aria-expanded="false">
+                                <table id="logs-table" class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Time</th>
+                                            <th>Event</th>
+                                            <th>EVENTID</th>
+                                            <th>RUN_ID</th>
+                                            <th>INFO_STATUS</th>
+                                            <th>INFO_RESULT</th>
+                                            <th> data </th>
+                                            <th> resp </th>
+                                            <th>DETAILS</th>
+                                        </tr>  
+                                    </thead>
+                                    <tbody id="logs-tr"></tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -74,4 +91,11 @@
             </div>
         </section>
     </div>
+</div>
+
+<div id="dialog" class="mcover">
+    <div class="dialogWindow">
+        <button id="detailClose" type="button" class="close" ><span class="glyphicon glyphicon-remove-circle"></span></button> 
+        <div class="dialogContant"></div>      
+    </div> 
 </div>
