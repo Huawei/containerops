@@ -220,6 +220,32 @@ func CreateNewStage(db *gorm.DB, preStageId int64, pipelineInfo *models.Pipeline
 	return stage.ID, idStr, actionIdMap, err
 }
 
+func GetStageLogByName(namespace, repository, pipelineName string, sequence int64, stageName string) (*StageLog, error) {
+	stage := new(StageLog)
+	pipelineLog := new(models.PipelineLog)
+	stageLog := new(models.StageLog)
+
+	err := pipelineLog.GetPipelineLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("pipeline = ?", pipelineName).Where("sequence = ?", sequence).First(pipelineLog).Error
+	if err != nil {
+		if err != nil {
+			log.Error("[stageLog's GetStageLogByName]:error when get pipelineLog info from db:", err.Error())
+			return nil, err
+		}
+	}
+
+	err = stageLog.GetStageLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("pipeline = ?", pipelineLog.ID).Where("sequence = ?", sequence).Where("stage = ?", stageName).First(stageLog).Error
+	if err != nil {
+		if err != nil {
+			log.Error("[stageLog's GetStageLogByName]:error when get stageLog info from db:", err.Error())
+			return nil, err
+		}
+	}
+
+	stage.StageLog = stageLog
+
+	return stage, nil
+}
+
 func (stageInfo *Stage) GenerateNewLog(db *gorm.DB, pipelineLog *models.PipelineLog, preStageLogID int64) (int64, error) {
 	actionList := make([]models.Action, 0)
 
@@ -288,9 +314,17 @@ func (stageLog *StageLog) GetStageLogDefine() (map[string]interface{}, error) {
 
 	stageInfoMap := make(map[string]interface{})
 	stageInfoMap["id"] = "s-" + strconv.FormatInt(stageLog.ID, 10)
+	stageInfoMap["name"] = stageLog.Stage
 	stageInfoMap["setupData"] = map[string]string{"name": stageLog.Stage}
 	stageInfoMap["status"] = stageLog.RunState
 	stageInfoMap["type"] = models.StageTypeForWeb[stageLog.Type]
+	stageInfoMap["runTime"] = stageLog.CreatedAt.Format("2006-01-02 15:04:05") + " - "
+
+	endTimeStr := ""
+	if stageLog.RunState == models.StageLogStateRunFailed || stageLog.RunState == models.StageLogStateRunSuccess {
+		endTimeStr = stageLog.UpdatedAt.Format("2006-01-02 15:04:05")
+	}
+	stageInfoMap["runTime"] = stageInfoMap["runTime"].(string) + endTimeStr
 
 	if len(actionList) > 0 {
 		actionListMap := make([]map[string]interface{}, 0)
