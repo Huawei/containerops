@@ -25,6 +25,7 @@ import { initAction } from "./initAction";
 import { mouseoverRelevantPipeline, mouseoutRelevantPipeline } from "../relation/lineHover";
 import { addAction } from "../action/addOrDeleteAction";
 import * as initButton from "./initButton";
+import * as config from "../common/config";
 
 export function animationForRemoveStage(itemId, itemIndex) {
     var target = "#" + itemId;
@@ -37,7 +38,6 @@ export function animationForRemoveStage(itemId, itemIndex) {
     util.transformAnimation(transformArray, "stage");
 }
 
-
 export function initPipeline() {
     constant.pipelineView.selectAll("image").remove();
     constant.pipelineView.selectAll("image")
@@ -47,20 +47,21 @@ export function initPipeline() {
         .attr("xlink:href", function(d, i) {
             if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "stage" && constant.currentSelectedItem.data.id == d.id) {
                 if (d.type == constant.PIPELINE_START) {
-                    return "../../assets/svg/start-selected-latest.svg";
+                    return config.getSVG(config.SVG_START_SELECTED);
                 } else if (d.type == constant.PIPELINE_STAGE) {
-                    return "../../assets/svg/stage-selected-latest.svg";
+                   return config.getSVG(config.SVG_STAGE_SELECTED);
                 }
 
             } else {
                 if (d.type == constant.PIPELINE_START) {
-                    return "../../assets/svg/start-latest.svg";
+
+                    return config.getSVG(config.SVG_START);
                 } else if (d.type == constant.PIPELINE_ADD_STAGE) {
-                    return "../../assets/svg/add-stage-latest.svg";
+                    return config.getSVG(config.SVG_ADD_STAGE);
                 } else if (d.type == constant.PIPELINE_END) {
-                    return "../../assets/svg/end-latest.svg";
+                    return config.getSVG(config.SVG_END);
                 } else if (d.type == constant.PIPELINE_STAGE) {
-                    return "../../assets/svg/stage-latest.svg";
+                    return config.getSVG(config.SVG_STAGE);
                 }
             }
         })
@@ -109,13 +110,13 @@ export function initPipeline() {
                 util.changeCurrentElement(constant.currentSelectedItem); /* remove previous selected item style before set current item */
                 constant.setCurrentSelectedItem({ "data": d, "type": "stage" }); /* save current item to constant.currentSelectedItem */
                 initButton.updateButtonGroup("stage"); /* update the buttons on left top according to current item */
-                d3.select("#" + d.id).attr("href", "../../assets/svg/stage-selected-latest.svg"); /* set current item to selected style */
+                d3.select("#" + d.id).attr("href", config.getSVG(config.SVG_STAGE_SELECTED)); /* set current item to selected style */
             } else if (d.type == constant.PIPELINE_START) {
                 clickStart(d, i);
                 util.changeCurrentElement(constant.currentSelectedItem);
                 constant.setCurrentSelectedItem({ "data": d, "type": "start" });
                 initButton.updateButtonGroup("start");
-                d3.select("#" + d.id).attr("href", "../../assets/svg/start-selected-latest.svg");
+                d3.select("#" + d.id).attr("href", config.getSVG(config.SVG_START_SELECTED));
             }
         })
 
@@ -126,7 +127,7 @@ export function initPipeline() {
             if (d.type == constant.PIPELINE_ADD_STAGE) {
                 d3.select(this)
                     .attr("xlink:href", function(d, i) {
-                        return "../../assets/svg/add-stage-selected-latest.svg";
+                        return config.getSVG(config.SVG_ADD_STAGE_SELECTED);
                     })
                     .style({
                         "cursor": "pointer"
@@ -138,7 +139,7 @@ export function initPipeline() {
                     "popupId": "pipeline-element-popup",
                     "parentView": constant.pipelineView
                 };
-                 util.showToolTip(options);
+                util.showToolTip(options);
 
             } else if (d.type == constant.PIPELINE_STAGE || d.type == constant.PIPELINE_START) {
                 let text = "Click to Edit";
@@ -155,9 +156,9 @@ export function initPipeline() {
                     "parentView": constant.pipelineView,
                     "width": width
                 };
-                 util.showToolTip(options);
+                util.showToolTip(options);
             }
-           
+
 
         })
         .on("mouseout", function(d, i) {
@@ -165,7 +166,7 @@ export function initPipeline() {
             if (d.type == constant.PIPELINE_ADD_STAGE) {
                 d3.select(this)
                     .attr("xlink:href", function(d, i) {
-                        return "../../assets/svg/add-stage-latest.svg";
+                        return config.getSVG(config.SVG_ADD_STAGE);
                     })
             }
             util.cleanToolTip(constant.pipelineView, "#pipeline-element-popup");

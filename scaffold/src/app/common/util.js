@@ -15,6 +15,7 @@ limitations under the License.
  */
 
 import * as constant from "./constant";
+import * as config from "./config";
 
 export function isObject(o) {
     return Object.prototype.toString.call(o) == '[object Object]';
@@ -127,13 +128,13 @@ export function changeCurrentElement(previousData) {
     if (previousData != null) {
         switch (previousData.type) {
             case "stage":
-                d3.select("#" + previousData.data.id).attr("href", "../../assets/svg/stage-latest.svg");
+                d3.select("#" + previousData.data.id).attr("href", config.getSVG(config.SVG_STAGE));
                 break;
             case "start":
-                d3.select("#" + previousData.data.id).attr("href", "../../assets/svg/start-latest.svg");
+                d3.select("#" + previousData.data.id).attr("href", config.getSVG(config.SVG_START));
                 break;
             case "action":
-                d3.select("#" + previousData.data.id).attr("href", "../../assets/svg/action-latest.svg");
+                d3.select("#" + previousData.data.id).attr("href", config.getSVG(config.SVG_ACTION));
                 break;
             case "line":
                 d3.select("#" + previousData.data.attr("id")).attr("stroke", "#E6F3E9");
@@ -221,9 +222,9 @@ export function showZoomBtn(index, type, containerView, target, scaleObj, option
         .append("image")
         .attr("xlink:href", function(ad, ai) {
             if (type == "zoomin") {
-                return "../../assets/svg/zoomin.svg";
+                return config.getSVG(config.SVG_ZOOMIN);
             } else if (type == "zoomout") {
-                return "../../assets/svg/zoomout.svg";
+                 return config.getSVG(config.SVG_ZOOMOUT);
             }
 
         })
@@ -247,10 +248,10 @@ export function showZoomBtn(index, type, containerView, target, scaleObj, option
             let href = "";
             if (type == "zoomin") {
                 content = "Zoomin";
-                href = "../../assets/svg/zoomin.svg";
+                href = config.getSVG(config.SVG_ZOOMIN);
             } else if (type == "zoomout") {
                 content = "Zoomout";
-                href = "../../assets/svg/zoomout.svg";
+                href = config.getSVG(config.SVG_ZOOMOUT);
             }
             d3.select(this).attr("href", href);
             let options = {
@@ -307,3 +308,18 @@ export function showToolTip(options) {
 export function cleanToolTip(containerView, id) {
     containerView.selectAll(id).remove();
 }
+
+/* make svg self-adaption */
+// export function autoFix() {
+//     setTimeout(function() {
+//         d3.select("#div-d3-main-svg > svg")
+//             .attr("viewBox", function() {
+//                 var width = d3.select("#div-d3-main-svg > svg")[0][0].width.animVal.value;
+//                 var height = d3.select("#div-d3-main-svg > svg")[0][0].height.animVal.value;
+//                 return "0 0 " + width + " " + height;
+//             })
+//             .attr("preserveAspectRatio", "xMinYMin meet")
+//     }, 1500)
+
+// }
+

@@ -12,7 +12,14 @@ scaffold/bower_components
  
 
 # IDEs and editors
+.idea
+pilotage/.idea
 scaffold/.idea
+.idea/*
+pilotage/.idea/*
+scaffold/.idea/*
+
+
 scaffold/.project
 scaffold/.classpath
 scaffold/*.launch

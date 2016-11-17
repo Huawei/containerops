@@ -24,8 +24,6 @@ import * as initButton from "../pipeline/initButton";
 import * as util from "../common/util";
 
 export function initHistoryPage() {
-
-    loading.show();
     var promise = historyDataService.sequenceList();
     promise.done(function(data) {
         loading.hide();
@@ -36,7 +34,7 @@ export function initHistoryPage() {
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else {
+        } else if(xhr.statusText != "abort") {
             notify("Server is unreachable", "error");
         }
     });
@@ -48,7 +46,7 @@ function getHistoryList() {
         type: "GET",
         cache: false,
         success: function(data) {
-            $("#main").html($(data));
+            $(".forHistory").html($(data));
             $("#historyPipelinelist").show("slow");
 
             $(".pipelinelist_body").empty();
@@ -98,7 +96,7 @@ function getHistoryList() {
                                             </div></td>`
                                     }
 
-                                    hsRow += `<td><button type="button" class="btn btn-success sequence-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:16px"></i><span style="margin-left:5px">Detail</span></button></td></tr> `
+                                    hsRow += `<td><button type="button" class="btn btn-success sequence-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:16px"></i><span style="margin-left:10px">Detail</span></button></td></tr> `
 
                                     hppItem.append(hsRow)
                                 });
@@ -170,7 +168,6 @@ function getHistoryList() {
 let historyAbout;
 export function getSequenceDetail(selected_history) {
     historyAbout = selected_history;
-    loading.show();
     var promise = historyDataService.sequenceData(selected_history.pipelineName, selected_history.pipelineVersionID, selected_history.sequenceID);
     promise.done(function(data) {
         loading.hide();
@@ -185,7 +182,7 @@ export function getSequenceDetail(selected_history) {
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else {
+        } else if(xhr.statusText != "abort") {
             notify("Server is unreachable", "error");
         }
     });

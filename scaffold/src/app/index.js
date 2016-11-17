@@ -25,18 +25,21 @@ $._messengerDefaults = {
 initPipelinePage();
 
 $(".menu-pipeline").on('click',function(event){
+    $("#main").removeClass("forComponent forHistory").addClass("forPipeline");
     initPipelinePage();
     $(event.currentTarget).parent().parent().children().removeClass("active");
     $(event.currentTarget).parent().addClass("active");
 })
 
 $(".menu-component").on('click',function(event){
+    $("#main").removeClass("forPipeline forHistory").addClass("forComponent");
     initComponentPage();
     $(event.currentTarget).parent().parent().children().removeClass("active");
     $(event.currentTarget).parent().addClass("active");
 })
 
 $(".menu-history").on('click',function(event){
+    $("#main").removeClass("forComponent forPipeline").addClass("forHistory");
     initHistoryPage();
     $(event.currentTarget).parent().parent().children().removeClass("active");
     $(event.currentTarget).parent().addClass("active");
@@ -61,16 +64,15 @@ $(".pipeline-close-env").on('click', function() {
     hidePipelineEnv();
 });
 
-function initActionLinkView() {
-    actionLinkView.append("rect")
-        .attr("x",10)
-        .attr("y",10)
-        .attr("rx",10)
-        .attr("ry",10)
-        .attr("width",120)
-        .attr("height",40)
-        .attr("stroke","red")
-        .attr("fill","red")
-    ;
-}
+// function initActionLinkView() {
+//     actionLinkView.append("rect")
+//         .attr("x",10)
+//         .attr("y",10)
+//         .attr("rx",10)
+//         .attr("ry",10)
+//         .attr("width",120)
+//         .attr("height",40)
+//         .attr("stroke","red")
+//         .attr("fill","red");
+// }
 
