@@ -39,7 +39,6 @@ func OpenDatabase() {
 		os.Exit(1)
 	} else {
 		db.DB()
-		db.LogMode(true)
 		db.DB().Ping()
 		db.DB().SetMaxIdleConns(10)
 		db.DB().SetMaxOpenConns(100)
