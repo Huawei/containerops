@@ -478,7 +478,7 @@ func (pipelineInfo *Pipeline) CreateNewVersion(define map[string]interface{}, ve
 
 	// get current least pipeline's version
 	leastPipeline := new(models.Pipeline)
-	err = leastPipeline.GetPipeline().Where("namespace = ? ", pipelineInfo.Namespace).Where("pipeline = ?", pipelineInfo.Pipeline).Order("-id").First(&leastPipeline).Error
+	err = leastPipeline.GetPipeline().Where("namespace = ? ", pipelineInfo.Namespace).Where("pipeline = ?", pipelineInfo.Pipeline.Pipeline).Order("-id").First(&leastPipeline).Error
 	if err != nil {
 		return errors.New("error when get least pipeline info :" + err.Error())
 	}
