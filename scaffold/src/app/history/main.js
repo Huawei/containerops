@@ -20,8 +20,8 @@ import { setPath } from "../relation/setPath";
 import { notify } from "../common/notify";
 import { getActionHistory } from "./actionHistory";
 import { getLineHistory } from "./lineHistory";
-import * as initButton from "../pipeline/initButton";
-import * as util from "../common/util";
+// import * as initButton from "../pipeline/initButton";
+import * as sequenceUtil from "./initUtil";
 
 export function initHistoryPage() {
     var promise = historyDataService.sequenceList();
@@ -253,11 +253,15 @@ function initSequenceView(selected_history) {
                 .attr("height", constant.svgHeight)
                 .attr("id", "sequencePipelineView");
 
+            constant.sequenceButtonView = g.append("g")
+                .attr("width", constant.svgWidth)
+                .attr("height", constant.svgHeight)
+                .attr("id", "buttonView");
+
             // $("#selected_pipelineHistory").text(pipelineName + " / " + pipelineVersion);
 
             showSequenceView(constant.sequenceRunData);
-            // showSequenceList(constant.sequenceRunData);
-            // drawPipeline();
+            sequenceUtil.initButton();
         }
     });
 }
@@ -611,7 +615,7 @@ function initSequenceActionByStage() {
                             "parentView": constant.sequencePipelineView,
                             "width": width
                         };
-                        util.showToolTip(options);
+                        sequenceUtil.showToolTip(options);
                         // util.showToolTip(x, y, text, "pipeline-element-popup", constant.sequencePipelineView,width);
                     }
 
