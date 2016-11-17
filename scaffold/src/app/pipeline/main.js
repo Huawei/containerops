@@ -36,7 +36,6 @@ let pipelineEnvs;
 let splitStartY;
 
 export function initPipelinePage() {
-    loading.show();
     var promise = pipelineDataService.getAllPipelines();
     promise.done(function(data) {
         loading.hide();
@@ -51,7 +50,7 @@ export function initPipelinePage() {
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else {
+        } else if(xhr.statusText != "abort") {
             notify("Server is unreachable", "error");
         }
     });
@@ -63,7 +62,7 @@ function showPipelineList() {
         type: "GET",
         cache: false,
         success: function(data) {
-            $("#main").html($(data));
+            $(".forPipeline").html($(data));
             $("#pipelinelist").show("slow");
 
             $(".newpipeline").on('click', function() {
@@ -142,7 +141,6 @@ function showPipelineList() {
 
 function getPipelineData() {
     setCurrentSelectedItem(null);
-    loading.show();
     var promise = pipelineDataService.getPipeline(pipelineName, pipelineVersionID);
     promise.done(function(data) {
         // pipelineDataOriginalCopy = _.map(data.stageList,function(item){
@@ -160,7 +158,7 @@ function getPipelineData() {
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else {
+        } else if(xhr.statusText != "abort") {
             notify("Server is unreachable", "error");
         }
     });
@@ -172,7 +170,7 @@ function showNoPipeline() {
         type: "GET",
         cache: false,
         success: function(data) {
-            $("#main").html($(data));
+            $(".forPipeline").html($(data));
             $("#nopipeline").show("slow");
             $(".newpipeline").on('click', function() {
                 showNewPipeline();
@@ -214,7 +212,6 @@ function showNewPipeline() {
             $("#newppBtn").on('click', function() {
                 var promise = pipelineDataService.addPipeline();
                 if (promise) {
-                    loading.show();
                     promise.done(function(data) {
                         loading.hide();
                         notify(data.message, "success");
@@ -224,7 +221,7 @@ function showNewPipeline() {
                         loading.hide();
                         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
                             notify(xhr.responseJSON.errMsg, "error");
-                        } else {
+                        } else if(xhr.statusText != "abort") {
                             notify("Server is unreachable", "error");
                         }
                     });
@@ -328,7 +325,6 @@ function drawPipeline() {
 }
 
 export function savePipelineData(next) {
-    loading.show();
     var promise = pipelineDataService.savePipeline(pipelineName, pipelineVersion, pipelineVersionID, pipelineData, linePathAry);
     promise.done(function(data) {
         pipelineDataOriginalCopy = _.map(pipelineData,function(item){
@@ -349,7 +345,7 @@ export function savePipelineData(next) {
         if (!next) {
             if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
                 notify(xhr.responseJSON.errMsg, "error");
-            } else {
+            } else if(xhr.statusText != "abort") {
                 notify("Server is unreachable", "error");
             }
         } else {
@@ -373,7 +369,6 @@ function showNewPipelineVersion() {
             $("#newppVersionBtn").on('click', function() {
                 var promise = pipelineDataService.addPipelineVersion(pipelineName, pipelineVersionID, pipelineData, linePathAry);
                 if (promise) {
-                    loading.show();
                     promise.done(function(data) {
                         loading.hide();
                         notify(data.message, "success");
@@ -383,7 +378,7 @@ function showNewPipelineVersion() {
                         loading.hide();
                         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
                             notify(xhr.responseJSON.errMsg, "error");
-                        } else {
+                        } else if(xhr.statusText != "abort") {
                             notify("Server is unreachable", "error");
                         }
                     });
@@ -459,7 +454,6 @@ function hidePipelineEnv() {
 }
 
 function getEnvList() {
-    loading.show();
     var promise = pipelineDataService.getEnvs(pipelineName, pipelineVersionID);
     promise.done(function(data) {
         loading.hide();
@@ -470,7 +464,7 @@ function getEnvList() {
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else {
+        } else if(xhr.statusText != "abort") {
             notify("Server is unreachable", "error");
         }
     });
@@ -531,7 +525,6 @@ function showEnvKVs() {
 function savePipelineEnvs() {
     var promise = pipelineDataService.setEnvs(pipelineName, pipelineVersionID, pipelineEnvs);
     if (promise) {
-        loading.show();
         promise.done(function(data) {
             loading.hide();
             notify(data.message, "success");
@@ -541,7 +534,7 @@ function savePipelineEnvs() {
             loading.hide();
             if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
                 notify(xhr.responseJSON.errMsg, "error");
-            } else {
+            } else if(xhr.statusText != "abort") {
                 notify("Server is unreachable", "error");
             }
             hidePipelineEnv();
@@ -572,7 +565,6 @@ function beforeRunPipeline() {
 }
 
 function runPipeline() {
-    loading.show();
     var promise = pipelineDataService.changeState(pipelineName, pipelineVersionID, 1);
     promise.done(function(data) {
         loading.hide();
@@ -583,7 +575,7 @@ function runPipeline() {
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else {
+        } else if(xhr.statusText != "abort") {
             notify("Server is unreachable", "error");
         }
     });
@@ -612,7 +604,6 @@ function beforeStopPipeline() {
 }
 
 function stopPipeline() {
-    loading.show();
     var promise = pipelineDataService.changeState(pipelineName, pipelineVersionID, 0);
     promise.done(function(data) {
         loading.hide();
@@ -623,7 +614,7 @@ function stopPipeline() {
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else {
+        } else if(xhr.statusText != "abort") {
             notify("Server is unreachable", "error");
         }
     });

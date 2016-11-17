@@ -81,7 +81,6 @@ function showActionEditor(action) {
 let allComponents;
 
 function getComponents(action) {
-    loading.show();
     var promise = getAllComponents();
     promise.done(function(data) {
         loading.hide();
@@ -95,7 +94,7 @@ function getComponents(action) {
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else {
+        } else if(xhr.statusText != "abort"){
             notify("Server is unreachable", "error");
         }
     });
@@ -170,7 +169,6 @@ function showComponentList(action) {
 }
 
 function LoadComponentToAction(componentName, componentVersionID, action) {
-    loading.show();
     var promise = getComponent(componentName, componentVersionID);
     promise.done(function(data) {
         loading.hide();
@@ -196,7 +194,7 @@ function LoadComponentToAction(componentName, componentVersionID, action) {
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else {
+        } else if(xhr.statusText != "abort") {
             notify("Server is unreachable", "error");
         }
     });

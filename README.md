@@ -2,7 +2,15 @@
 
 ## What's ContainerOps?
 
-> ContainerOps is an open source DevOps orchestration system.
+> ContainerOps is a DevOps orchestration.
+
+ContainerOps is DevOps orchestration, orchestrating the DevOps components and services. It connect all parts of DevOps flow, passing on the events between them. ContainerOps link differents softwares, services and customize DevOps tasks into one, improving DevOps efficiency and lifecycle. 
+
+> Defining the DevOps component.
+
+
+> Drawing the DevOps Workflow.
+
 > DevOps With Container, DevOps For Container!
 
 ## Certificate of Origin

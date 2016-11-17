@@ -20,7 +20,9 @@ import {getPipelineToken} from "../pipeline/main";
 import { notify } from "../common/notify";
 import { loading } from "../common/loading";
 
+let startData;
 export function initStartSetup(start){
+    startData = start;
     showPipeline_URL_Token();
 
     startSetupData.getStartSetupData(start);
@@ -32,7 +34,7 @@ export function initStartSetup(start){
 
     $("#type-select").on("change",function(){
         startSetupData.setTypeSelect();
-        selectType(startSetupData.getTypeSelect());
+        selectType(startSetupData.getTypeSelect(),true);
     });
 
     $("#type-select").select2({
@@ -46,7 +48,7 @@ export function initStartSetup(start){
     });
 }
 
-function selectType(pipelineType){
+function selectType(pipelineType,isTypeChange){
     if(pipelineType == "github" || pipelineType == "gitlab"){
         $("#event_select").show();
         $("#outputTreeViewer").show();
@@ -62,13 +64,15 @@ function selectType(pipelineType){
         $("#outputTreeViewer").hide();
         $("#outputTreeDesigner").show();
 
+        if(isTypeChange){
+            startData.outputJson = {};
+        } 
         initTreeEdit();
         initFromEdit("output");
     }
 }
 
 function showPipeline_URL_Token(){
-    loading.show();
     var promise = getPipelineToken();
     promise.done(function(data) {
         loading.hide();
@@ -79,7 +83,7 @@ function showPipeline_URL_Token(){
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else {
+        } else if(xhr.statusText != "abort") {
             notify("Server is unreachable", "error");
         }
     });
