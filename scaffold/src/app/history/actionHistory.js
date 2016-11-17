@@ -44,7 +44,6 @@ function showActionHistoryView(history,actionname) {
         cache: false,
         success: function(data) {
             $("#history-pipeline-detail").html($(data));
-
             $("#actionHistoryTitle").text("Action history -- " + actionname);
 
             var inputStream = JSON.stringify(history.data.input,undefined,2);
@@ -54,12 +53,9 @@ function showActionHistoryView(history,actionname) {
             $("#action-output-stream").val(outputStream);
 
              _.each(history.logList,function(log,index){
-
                 let allLogs = log.substr(23);
                 let logJson = JSON.parse(allLogs);
-                console.log( "logJson",logJson)
                 let num = index + 1;
-
 
                 if(!logJson.data && !logJson.resp){
                     console.log("sequenceLogDetail", logJson.INFO.output)
@@ -74,10 +70,8 @@ function showActionHistoryView(history,actionname) {
                             + logJson.RUN_ID +`</td><td>`
                             + logJson.INFO.status +`</td><td>`
                             + logJson.INFO.result +`</td><td></td><td></td><td><button data-logid="`
-                            + index + `" type="button" class="btn btn-success sequencelog-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:14px"></i>&nbsp;&nbsp;Detail</button></td>
-           </tr>`;
+                            + index + `" type="button" class="btn btn-success sequencelog-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:14px"></i>&nbsp;&nbsp;Detail</button></td></tr>`;
                     $("#logs-tr").append(row);
-
 
                 } else {
                     var row = `<tr class="log-item"><td>`
@@ -86,9 +80,9 @@ function showActionHistoryView(history,actionname) {
                                     + logJson.resp +`</td><td></td></tr>`;
                     $("#logs-tr").append(row);    
                 }
-
             })
 
+             resizeWidget()
 
             $(".sequencelog-detail").on("click",function(e){
                 let target = $(e.target);
@@ -107,7 +101,6 @@ function showActionHistoryView(history,actionname) {
   
                 $(".dialogWindon").css("height","auto");
                 $("#dialog").show();
-
                 if( $(".dialogWindon").height() < $("#dialog").height() * 0.75 ){
                     
                     $(".dialogWindon").css("height","auto");
@@ -117,7 +110,6 @@ function showActionHistoryView(history,actionname) {
                     $(".dialogWindon").css("height","80%");
                     $(".dialogContant").css("height","100%");
                 }
-
 
                 $("#detailClose").on("click", function(){
                    $("#dialog").hide(); 
