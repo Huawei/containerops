@@ -84,7 +84,6 @@ func SetRouters(m *macaron.Macaron) {
 					m.Get("/:format", handler.GetPipelineV1Handler)
 					m.Put("/", handler.PutPipelineV1Handler)
 					m.Delete("/", handler.DeletePipelineV1Handler)
-					m.Get("/historyDefine", handler.GetPipelineHistoryDefineV1Handler)
 
 					// get pipeline's token and request url
 					m.Get("/token", handler.GetPipelineTokenV1Handler)
@@ -105,15 +104,11 @@ func SetRouters(m *macaron.Macaron) {
 							m.Put("/", handler.PutStageV1Handler)
 							m.Delete("/", handler.DeleteStageV1Handler)
 
-							m.Get("/history", handler.GetStageHistoryInfoV1Handler)
-
 							m.Post("/action", handler.PostActionV1Handler)
 							m.Group("/:action", func() {
 								m.Get("/", handler.GetActionV1Handler)
 								m.Put("/", handler.PutActionV1Handler)
 								m.Delete("/", handler.DeleteActionV1Handler)
-
-								m.Get("/history", handler.GetActionHistoryInfoV1Handler)
 
 								//Binding the service supported with User/Organization
 								m.Group("/service", func() {
@@ -143,7 +138,7 @@ func SetRouters(m *macaron.Macaron) {
 					})
 
 					//Run a pipeline with sequence id
-					m.Post("/", handler.ExecutePipelineV1Handler)
+					m.Post("/exec", handler.ExecutePipelineV1Handler)
 
 					// Callback of all action
 					m.Put("/event", handler.PutActionEventV1Handler)
@@ -152,31 +147,26 @@ func SetRouters(m *macaron.Macaron) {
 					// pipeline will push data to the url which is send by action on register
 					m.Put("/register", handler.PutActionRegisterV1Handler)
 
-					m.Group("/:sequence", func() {
-						m.Get("/lineHistory", handler.GetSequenceLineHistoryV1Handler)
+					m.Group("/:version", func() {
+						m.Get("/define", handler.GetPipelineHistoryDefineV1Handler)
 
-						m.Get("/outcome/list", handler.GetOutcomeListV1Handler)
-						m.Get("/:outcome", handler.GetOutcomeV1Handler)
+						m.Group("/:sequence", func() {
+							m.Group("/stage", func() {
+								m.Group("/:stage", func() {
+									m.Get("/history", handler.GetStageHistoryInfoV1Handler)
 
-						//CRUD environment in the running pipeline.
-						m.Post("/env", handler.PostEnvironmentV1Handler)
-						m.Get("/env/list", handler.GetEnvironmentListV1Hander)
+									m.Group("/action", func() {
+										m.Group("/:action", func() {
+											m.Get("/", handler.GetActionHistoryInfoV1Handler)
+										})
+									})
+								})
+							})
 
-						m.Group("/:env", func() {
-							m.Get("/", handler.GetEnvironmentV1Handler)
-							m.Put("/", handler.PutEnvironmentV1Handler)
-							m.Delete("/", handler.DeleteEnvironmentV1Handler)
+							m.Group("/:lineId", func() {
+								m.Get("/", handler.GetSequenceLineHistoryV1Handler)
+							})
 						})
-
-						// //Callbacks of action for component.
-						// //Calllback URL initlization when the action run with sequence param.
-						// m.Group("/:stage/:action", func() {
-						// 	m.Put("/start", handler.PutStartActionV1Handler)
-						// 	m.Put("/execute", handler.PutExecuteActionV1Handler)
-						// 	m.Put("/status", handler.PutStatusActionV1Handler)
-						// 	m.Put("/result/:result", handler.PutResultActionV1Handler)
-						// 	m.Put("/delete", handler.PutDeleteActionV1Handle)
-						// })
 					})
 				})
 			})

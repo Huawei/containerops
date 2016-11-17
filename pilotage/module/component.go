@@ -20,13 +20,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Huawei/containerops/pilotage/models"
+	log "github.com/Sirupsen/logrus"
 )
 
 const (
@@ -40,89 +41,83 @@ var (
 	createComponentChan chan bool
 )
 
-type component interface {
-	// start a component
-	// id contains pipelineId stageId actionId pipelineSequence
-	Start(id string, eventList []models.EventDefinition, envMap map[string]string) error
-	Stop(string) (string, error)
-	GetIp(...interface{}) (string, error)
+type componentNew interface {
+	Start() error
+	Stop() error
+	SendData(receiveDataUri string, data []byte) (*http.Response, error)
 }
 
-func init() {
-	createComponentChan = make(chan bool, 1)
+type kubeComponentNew struct {
+	runID         string
+	apiServerUri  string
+	namespace     string
+	nodeIP        string
+	podConfig     map[string]interface{}
+	serviceConfig map[string]interface{}
+	componentInfo models.ActionLog
 }
 
-func InitComponet(actionInfo models.ActionLog, runenv, host, namespace string) (component, error) {
-	if actionInfo.Component == 0 {
-		return nil, errors.New("component's id is 0")
+// GetComponentListByNamespace is get component list by given namespace
+func GetComponentListByNamespace(namespace string) ([]map[string]interface{}, error) {
+	resultMap := make([]map[string]interface{}, 0)
+	componentList := make([]models.Component, 0)
+	componentsMap := make(map[string]interface{})
+	err := new(models.Component).GetComponent().Where("namespace = ?", namespace).Order("-id").Find(&componentList).Error
+
+	if err != nil {
+		return nil, errors.New("error when get component infos by namespace:" + namespace + ",error:" + err.Error())
 	}
 
-	if runenv == RUNENV_KUBE {
-		kubeCom := new(kubeComponent)
-
-		ComponentConfigMap := make(map[string]interface{}, 0)
-		err := json.Unmarshal([]byte(actionInfo.Kubernetes), &ComponentConfigMap)
-		if err != nil {
-			return kubeCom, errors.New("component kube config error:" + err.Error())
+	for _, componentInfo := range componentList {
+		if _, ok := componentsMap[componentInfo.Component]; !ok {
+			tempMap := make(map[string]interface{})
+			tempMap["version"] = make(map[int64]interface{})
+			componentsMap[componentInfo.Component] = tempMap
 		}
 
-		// if _, ok := ComponentConfigMap["port"]; !ok {
-		// 	return kubeCom, errors.New("component kube config error ,port is not set")
-		// }
-		// portF, ok := ComponentConfigMap["port"].(float64)
-		// if !ok {
-		// 	return kubeCom, errors.New("component kube config error ,port is not a int")
-		// }
-		// port := int64(portF)
+		componentMap := componentsMap[componentInfo.Component].(map[string]interface{})
+		versionMap := componentMap["version"].(map[int64]interface{})
 
-		if _, ok := ComponentConfigMap["reachableIPs"]; !ok {
-			return kubeCom, errors.New("component kube config error ,reachableIPs is not set")
-		}
-		reachableIPs, ok := ComponentConfigMap["reachableIPs"].([]interface{})
-		if !ok {
-			return kubeCom, errors.New("component kube config error ,reachableIPs is not a array")
-		}
-		reachableIPStrs := make([]string, 0)
-		for _, ip := range reachableIPs {
-			ipStr, ok := ip.(string)
-			if !ok {
-				return kubeCom, errors.New("reachable ip is not a string")
-			}
-
-			reachableIPStrs = append(reachableIPStrs, ipStr)
-		}
-
-		podConfig := make(map[string]interface{})
-		if _, ok := ComponentConfigMap["podConfig"]; ok {
-			podConfig, ok = ComponentConfigMap["podConfig"].(map[string]interface{})
-			if !ok {
-				return kubeCom, errors.New("component kube config error ,podConfig is not a json data")
-			}
-		}
-
-		serviceConfig := make(map[string]interface{})
-		if _, ok := ComponentConfigMap["serviceConfig"]; ok {
-			serviceConfig, ok = ComponentConfigMap["serviceConfig"].(map[string]interface{})
-			if !ok {
-				return kubeCom, errors.New("component kube config error ,serviceConfig is not a json data")
-			}
-		}
-
-		kubeCom.host = host
-		// kubeCom.port = port
-		kubeCom.namespace = namespace
-		kubeCom.reachableIPs = reachableIPStrs
-		kubeCom.podConfig = podConfig
-		kubeCom.serviceConfig = serviceConfig
-		kubeCom.componentInfo = actionInfo
-
-		return kubeCom, nil
+		versionMap[componentInfo.VersionCode] = componentInfo
+		componentMap["id"] = componentInfo.ID
+		componentMap["name"] = componentInfo.Component
+		componentMap["version"] = versionMap
 	}
 
-	return nil, errors.New("can't create a component in" + runenv)
+	for _, component := range componentList {
+		componentInfo := componentsMap[component.Component].(map[string]interface{})
+
+		if isSign, ok := componentInfo["isSign"].(bool); ok && isSign {
+			continue
+		}
+
+		componentInfo["isSign"] = true
+		componentsMap[component.Component] = componentInfo
+
+		versionList := make([]map[string]interface{}, 0)
+		for _, componentVersion := range componentList {
+			if componentVersion.Component == componentInfo["name"].(string) {
+				versionMap := make(map[string]interface{})
+				versionMap["id"] = componentVersion.ID
+				versionMap["version"] = componentVersion.Version
+				versionMap["versionCode"] = componentVersion.VersionCode
+
+				versionList = append(versionList, versionMap)
+			}
+		}
+
+		tempResult := make(map[string]interface{})
+		tempResult["id"] = componentInfo["id"]
+		tempResult["name"] = componentInfo["name"]
+		tempResult["version"] = versionList
+
+		resultMap = append(resultMap, tempResult)
+	}
+
+	return resultMap, nil
 }
 
-// GetComponentInfo is
+// GetComponentInfo is get component info by given namespace and componentname and componentId
 func GetComponentInfo(namespace, componentName string, componentId int64) (map[string]interface{}, error) {
 	resultMap := make(map[string]interface{})
 	componentInfo := new(models.Component)
@@ -153,7 +148,7 @@ func GetComponentInfo(namespace, componentName string, componentId int64) (map[s
 	return resultMap, nil
 }
 
-// CreateNewComponent is
+// CreateNewComponent is create a new component
 func CreateNewComponent(namespace, componentName, componentVersion string) (string, error) {
 	createComponentChan <- true
 	defer func() {
@@ -184,17 +179,21 @@ func CreateNewComponent(namespace, componentName, componentVersion string) (stri
 	return "create new component success", nil
 }
 
-// CreateNewComponentVersion is
+// CreateNewComponentVersion is copy current component info to a new component with diff version name
 func CreateNewComponentVersion(componentInfo models.Component, versionName string) error {
 	var count int64
-	new(models.Component).GetComponent().Where("namespace = ?", componentInfo.Namespace).Where("component = ?", componentInfo.Component).Where("version = ?", versionName).Count(&count)
+	err := new(models.Component).GetComponent().Where("namespace = ?", componentInfo.Namespace).Where("component = ?", componentInfo.Component).Where("version = ?", versionName).Count(&count).Error
+	if err != nil {
+		return errors.New("error when get component version info:" + err.Error())
+	}
+
 	if count > 0 {
-		return errors.New("version code already exist!")
+		return errors.New("version already exist!")
 	}
 
 	// get current least component's version
 	leastComponent := new(models.Component)
-	err := leastComponent.GetComponent().Where("namespace = ? ", componentInfo.Namespace).Where("component = ?", componentInfo.Component).Order("-id").First(&leastComponent).Error
+	err = leastComponent.GetComponent().Where("namespace = ? ", componentInfo.Namespace).Where("component = ?", componentInfo.Component).Order("-id").First(&leastComponent).Error
 	if err != nil {
 		return errors.New("error when get least component info :" + err.Error())
 	}
@@ -224,6 +223,7 @@ func CreateNewComponentVersion(componentInfo models.Component, versionName strin
 	return newComponentInfo.GetComponent().Save(newComponentInfo).Error
 }
 
+// UpdateComponentInfo is update a component define by give info
 func UpdateComponentInfo(componentInfo models.Component) error {
 	manifestMap := make(map[string]interface{})
 	err := json.Unmarshal([]byte(componentInfo.Manifest), &manifestMap)
@@ -236,8 +236,7 @@ func UpdateComponentInfo(componentInfo models.Component) error {
 		return errors.New("component define is not a json:" + err.Error())
 	}
 
-	inputMap, ok := defineMap["inputJson"].(map[string]interface{})
-	if ok {
+	if inputMap, ok := defineMap["inputJson"].(map[string]interface{}); ok {
 		inputDescribe, err := describeJSON(inputMap, "")
 		if err != nil {
 			return errors.New("error in component output json define:" + err.Error())
@@ -247,8 +246,7 @@ func UpdateComponentInfo(componentInfo models.Component) error {
 		componentInfo.Input = string(inputDescBytes)
 	}
 
-	outputMap, ok := defineMap["outputJson"].(map[string]interface{})
-	if ok {
+	if outputMap, ok := defineMap["outputJson"].(map[string]interface{}); ok {
 		outputDescribe, err := describeJSON(outputMap, "")
 		if err != nil {
 			return errors.New("error in component output json define:" + err.Error())
@@ -264,8 +262,7 @@ func UpdateComponentInfo(componentInfo models.Component) error {
 	}
 
 	envMap := make(map[string]interface{})
-	envDefind, ok := defineMap["env"].([]interface{})
-	if ok {
+	if envDefind, ok := defineMap["env"].([]interface{}); ok {
 		for _, env := range envDefind {
 			if tempEnvMap, ok := env.(map[string]interface{}); ok {
 				envMap[tempEnvMap["key"].(string)] = tempEnvMap["value"].(string)
@@ -276,12 +273,7 @@ func UpdateComponentInfo(componentInfo models.Component) error {
 		componentInfo.Environment = string(envByte)
 	}
 
-	componentSetupDetail, ok := setupDataMap["action"].(map[string]interface{})
-	if ok {
-		// if name, ok := componentSetupDetail["name"].(string); ok {
-		// componentInfo.Component = name
-		// }
-
+	if componentSetupDetail, ok := setupDataMap["action"].(map[string]interface{}); ok {
 		if imageInfo, ok := componentSetupDetail["image"].(map[string]interface{}); ok {
 			imageName := ""
 			if name, ok := imageInfo["name"].(string); ok {
@@ -340,120 +332,528 @@ func UpdateComponentInfo(componentInfo models.Component) error {
 	return componentInfo.GetComponent().Save(&componentInfo).Error
 }
 
-type kubeComponent struct {
-	host string
-	// port          int64
-	namespace     string
-	reachableIPs  []string
-	podConfig     map[string]interface{}
-	serviceConfig map[string]interface{}
-	componentInfo models.ActionLog
+func InitComponetNew(actionLog *ActionLog) (componentNew, error) {
+	platformSetting, err := actionLog.GetActionPlatformInfo()
+	if err != nil {
+		log.Error("[component's InitComponent]:error when get given actionLog's platformSetting:", actionLog, " ===>error is:", err.Error())
+		return nil, err
+	}
+
+	if platformSetting["platformType"] == RUNENV_KUBE {
+		kubeCom := new(kubeComponentNew)
+
+		ComponentConfigMap := make(map[string]interface{}, 0)
+		err := json.Unmarshal([]byte(actionLog.Kubernetes), &ComponentConfigMap)
+		if err != nil {
+			log.Error("[component's InitComponent]:error when get action's kubernetes setting:", actionLog, " ===>error is:", err.Error())
+			return kubeCom, errors.New("get action's kube config error:" + err.Error())
+		}
+
+		if _, ok := ComponentConfigMap["nodeIP"].(string); !ok {
+			log.Error("[component's InitComponent]:error when get component's nodeIP:", ComponentConfigMap)
+			return nil, errors.New("get action's kube config error,kube's nodeIP is not set")
+		}
+		nodeIP := ComponentConfigMap["nodeIP"].(string)
+
+		podConfig := make(map[string]interface{})
+		if _, ok := ComponentConfigMap["podConfig"]; ok {
+			podConfig, ok = ComponentConfigMap["podConfig"].(map[string]interface{})
+			if !ok {
+				log.Error("[component's InitComponent]:error when get component's podConfig:", ComponentConfigMap, " podConfig is not a json obj")
+				return kubeCom, errors.New("component kube config error ,podConfig is not a json obj")
+			}
+		}
+
+		serviceConfig := make(map[string]interface{})
+		if _, ok := ComponentConfigMap["serviceConfig"]; ok {
+			serviceConfig, ok = ComponentConfigMap["serviceConfig"].(map[string]interface{})
+			if !ok {
+				log.Error("[component's InitComponent]:error when get component's serviceConfig:", ComponentConfigMap, " serviceConfig is not a json obj")
+				return kubeCom, errors.New("component kube config error ,serviceConfig is not a json data")
+			}
+		}
+
+		kubeCom.runID = strconv.FormatInt(actionLog.Pipeline, 10) + "-" + strconv.FormatInt(actionLog.Stage, 10) + "-" + strconv.FormatInt(actionLog.ID, 10)
+		kubeCom.apiServerUri = platformSetting["platformHost"]
+		kubeCom.namespace = actionLog.Namespace
+		kubeCom.nodeIP = nodeIP
+		kubeCom.podConfig = podConfig
+		kubeCom.serviceConfig = serviceConfig
+		kubeCom.componentInfo = *actionLog.ActionLog
+
+		return kubeCom, nil
+	}
+
+	return nil, errors.New("can't create a component in" + platformSetting["platformType"])
 }
 
-// start a component in kube env
-func (kube *kubeComponent) Start(id string, eventList []models.EventDefinition, envMap map[string]string) error {
-	// get componentName for service selector
-	reqMap := kube.podConfig
-	if len(reqMap) == 0 {
-		reqMap = make(map[string]interface{})
-	}
-
-	componentName := strings.Replace(id, ",", "-", -1)
-	if len(componentName) > 250 {
-		componentName = componentName[len(componentName)-250:]
-	}
-	componentName = "pod-" + componentName
-
-	serviceAddr, err := kube.startService(id, componentName)
+func (kube *kubeComponentNew) Start() error {
+	exist, err := kube.IsNamespaceExist()
 	if err != nil {
+		log.Error("[kubeComponent's Start]:error when get namespace info:", err.Error())
 		return err
 	}
 
-	err = kube.startPod(id, serviceAddr, eventList, envMap)
+	if !exist {
+		err = kube.CreateNamespace()
+		if err != nil {
+			log.Error("[kubeComponent's Start]:error when create kube namespace:", err.Error())
+			return err
+		}
+	}
 
-	return err
-}
-
-// to start a pod, except podConfig,also need add some extra info
-// for example , env call back url or event list need to callback or current pod's run id use to id itself when make a call back
-func (kube *kubeComponent) startPod(id, serviceAddr string, eventList []models.EventDefinition, envMap map[string]string) error {
-
-	podInfoMap, err := kube.getPodInfo(id, serviceAddr, eventList, envMap)
+	serviceAddr, err := kube.StartService()
 	if err != nil {
+		log.Error("[kubeComponent's Start]:error when start service:", err.Error())
 		return err
 	}
 
-	rcName := strings.Replace(id, ",", "-", -1)
-	if len(rcName) > 250 {
-		rcName = rcName[len(rcName)-250:]
+	err = kube.StartRC(serviceAddr)
+	if err != nil {
+		log.Error("[kubeComponent's Start]:error when start RC:", err.Error())
+		return err
 	}
-	rcName = "rc-" + rcName
+
+	return nil
+}
+
+func (kube *kubeComponentNew) Stop() error {
+	client := &http.Client{}
+
+	// delete service
+	serviceName := "ser-" + kube.runID
+	if len(serviceName) > 253 {
+		serviceName = serviceName[len(serviceName)-253:]
+	}
+
+	kubeReqDeleteServiceUrl := kube.apiServerUri + "/api/v1/namespaces/" + kube.namespace + "/services/" + serviceName
+	log.Info("[kubeComponent's Stop]:send delete service req to:", kubeReqDeleteServiceUrl)
+
+	req, err := http.NewRequest("DELETE", kubeReqDeleteServiceUrl, nil)
+	if err != nil {
+		log.Error("[kubeComponent's Stop]:error when generate new req to:", kubeReqDeleteServiceUrl, " ===>error is:", err.Error())
+		return err
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Error("[kubeComponent's Stop]:error when send req to:", kubeReqDeleteServiceUrl, " ===>error is:", err.Error())
+		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		respBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Error("[kubeComponent's Stop]:error when get resp body from delete service:", err.Error(), " ===>error code:", resp.StatusCode)
+			return err
+		}
+		return errors.New("error when delete service:" + string(respBody))
+	}
+
+	// set rc's replicas = 0 then delete rc
+	podInfoMap, err := kube.GetPodDefine("")
+	if err != nil {
+		log.Error("[kubeComponent's Stop]:error when get component's pod define:", err.Error())
+		return err
+	}
+
+	rcName := "rc-" + kube.runID
+	if len(rcName) > 253 {
+		rcName = rcName[len(rcName)-253:]
+	}
 
 	rcMap := make(map[string]interface{})
-	rcMetaData := make(map[string]interface{})
 	rcSpecMap := make(map[string]interface{})
 
-	rcMetaData["name"] = rcName
-	rcMap["metadata"] = rcMetaData
+	rcMap["metadata"] = map[string]interface{}{"name": rcName}
+
+	rcSpecMap["replicas"] = 0
+	rcSpecMap["template"] = podInfoMap
+	rcMap["spec"] = rcSpecMap
+
+	kubeReqModifyRCUrl := kube.apiServerUri + "/api/v1/namespaces/" + kube.namespace + "/replicationcontrollers/" + rcName
+	reqBody, _ := json.Marshal(rcMap)
+	log.Info("[kubeComponent's Stop]:send to:", kubeReqModifyRCUrl, " reqBody is:", string(reqBody))
+
+	req, err = http.NewRequest("PUT", kubeReqModifyRCUrl, bytes.NewReader(reqBody))
+	if err != nil {
+		log.Error("[kubeComponent's Stop]:error when generate new req to:", kubeReqModifyRCUrl, " ===>error is:", err.Error())
+		return err
+	}
+
+	resp, err = client.Do(req)
+	if err != nil {
+		log.Error("[kubeComponent's Stop]:error when send req to:", kubeReqModifyRCUrl, " reqBody is:", string(reqBody), " ===>error is:", err.Error())
+		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		respBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Error("[kubeComponent's Stop]:error when get resp body from modify rc:", err.Error(), " ===>error code:", resp.StatusCode)
+			return err
+		}
+		return errors.New("error when modify rc:" + string(respBody))
+	}
+
+	// delete rc
+	kubeReqDeleteRCUrl := kube.apiServerUri + "/api/v1/namespaces/" + kube.namespace + "/replicationcontrollers/" + rcName
+
+	log.Info("[kubeComponent's Stop]:send delete rc req to:", kubeReqDeleteRCUrl)
+	req, err = http.NewRequest("DELETE", kubeReqDeleteRCUrl, nil)
+	if err != nil {
+		return err
+	}
+
+	resp, err = client.Do(req)
+	if err != nil {
+		log.Error("[kubeComponent's Stop]:error when generate new req to:", kubeReqModifyRCUrl, " ===>error is:", err.Error())
+		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		respBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Error("[kubeComponent's Stop]:error when get resp body from delete rc:", err.Error(), " ===>error code:", resp.StatusCode)
+			return err
+		}
+		return errors.New("error when delete rc:" + string(respBody))
+	}
+
+	return nil
+}
+
+func (kube *kubeComponentNew) SendData(receiveDataUri string, reqBody []byte) (resp *http.Response, err error) {
+	// serviceName := "ser-" + kube.runID
+	// if len(serviceName) > 253 {
+	// 	serviceName = serviceName[len(serviceName)-253:]
+	// }
+
+	// kubeReqUrl := kube.apiServerUri + "/api/v1/proxy/namespaces/" + kube.componentInfo.Namespace + "/services/" + serviceName + "/" + receiveDataUri
+	// log.Info("[kubeComponent's SendData]:send data:", string(reqBody), " to :", kubeReqUrl)
+	// return http.Post(kubeReqUrl, "application/json", bytes.NewReader(reqBody))
+
+	kubeReqUrl := ""
+	if strings.HasPrefix(kube.nodeIP, "http://") || strings.HasPrefix(kube.nodeIP, "https://") {
+		kubeReqUrl = kube.nodeIP + receiveDataUri
+	} else {
+		kubeReqUrl = "http://" + kube.nodeIP + receiveDataUri
+	}
+
+	log.Info("[kubeComponent's SendData]:send data:", string(reqBody), " to:", kubeReqUrl)
+
+	sendSuccess := false
+
+	for count := 0; count < 10 && !sendSuccess; count++ {
+		resp, err = http.Post(kubeReqUrl, "application/json", bytes.NewReader(reqBody))
+		if err == nil && resp != nil && resp.StatusCode == http.StatusOK {
+			sendSuccess = true
+		}
+		log.Info("[kubeComponent's SendData]:send data:", string(reqBody), " to:", kubeReqUrl, " count:", count, "\n resp:", resp, " err:", err)
+
+		time.Sleep(1 * time.Second)
+	}
+
+	return resp, err
+}
+
+func (kube *kubeComponentNew) StartService() (string, error) {
+	reqMap := kube.serviceConfig
+
+	// first set service's name
+	serviceName := "ser-" + kube.runID
+	if len(serviceName) > 253 {
+		serviceName = serviceName[len(serviceName)-253:]
+	}
+
+	if metadataMap, ok := reqMap["metadata"].(map[string]interface{}); ok {
+		metadataMap["name"] = serviceName
+	} else {
+		reqMap["metadata"] = map[string]interface{}{"name": serviceName}
+	}
+
+	// if service config has config a service ip&host ,then ,use config ,otherwise use system allocate
+	// set service spec info
+	specMap := make(map[string]interface{})
+	specInfo, ok := reqMap["spec"]
+	if ok {
+		specMap, ok = specInfo.(map[string]interface{})
+		if !ok {
+			log.Error("[kubeComponent's StartService]:error when get service's spec config: config is not a json obj:", specInfo)
+			return "", errors.New("component's kube config error, specInfo is not a json!")
+		}
+	}
+
+	// set ports info
+	ports := make([]map[string]interface{}, 0)
+	portsInfo, ok := specMap["ports"]
+	if ok {
+		tPorts, ok := portsInfo.([]interface{})
+		if !ok {
+			log.Error("[kubeComponent's StartService]:error when get kube config, container info in ports is not a array:", portsInfo)
+			return "", errors.New("component's kube config error, container info in ports is not a array")
+		}
+
+		for i, port := range tPorts {
+			tempPort, ok := port.(map[string]interface{})
+			if !ok {
+				log.Error("[kubeComponent's StartService]:error when get port info, port is not a json obj:", port)
+				return "", errors.New("component's kube config error, container info in ports is not a json")
+			}
+			if _, ok := tempPort["name"]; !ok {
+				tempPort["name"] = "port-" + kube.runID + "-" + strconv.FormatInt(int64(i), 10)
+			}
+
+			ports = append(ports, tempPort)
+		}
+	}
+
+	if len(ports) == 0 {
+		log.Error("[kubeComponent's StartService]:service config doesn't has any port:", specMap)
+		return "", errors.New("component must spec at least one port")
+	}
+
+	// set selector
+	selectorMap := make(map[string]string)
+	selectorMap["PIPELINE_DEFAULT_POD_LABLE"] = "pod-" + kube.runID
+
+	specMap["selector"] = selectorMap
+
+	// create service
+	kubeReqUrl := kube.apiServerUri + "/api/v1/namespaces/" + kube.namespace + "/services"
+	reqBody, _ := json.Marshal(reqMap)
+	log.Info("[kubeComponent's StartService]:send request to:", kubeReqUrl, " ,reqBody is:", string(reqBody))
+
+	resp, err := http.Post(kubeReqUrl, "application/json", bytes.NewReader(reqBody))
+	if err != nil {
+		log.Error("[kubeComponent's StartService]:error when send req to kube:", err.Error())
+		return "", err
+	}
+
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("[kubeComponent's StartService]:error when read resp body info:", err.Error(), " ===>error code:", resp.StatusCode)
+		return "", errors.New("error when get service err body:" + err.Error() + "==== error code is :" + strconv.FormatInt(int64(resp.StatusCode), 10))
+	}
+
+	if resp.StatusCode != 201 {
+		log.Error("[kubeComponent's StartService]:error when create service(", resp.StatusCode, "):", string(respBody))
+		return "", errors.New("error when create service: msg is :" + string(respBody))
+	}
+
+	respMap := make(map[string]interface{})
+	err = json.Unmarshal(respBody, &respMap)
+	if err != nil {
+		log.Error("[kubeComponent's StartService]:error when unmarshal resp:", string(respBody), " ===>error is:", err.Error())
+		return "", errors.New("error when unmarshal create service resp:" + err.Error())
+	}
+
+	respSpecMap := make(map[string]interface{})
+	respSpecInfo, ok := respMap["spec"]
+	if ok {
+		respSpecMap, ok = respSpecInfo.(map[string]interface{})
+		if !ok {
+			log.Error("[kubeComponent's StartService]:error when get resp's specInfo: specInfo is not a json obj:", respSpecInfo)
+			return "", errors.New("error when read create service resp:, specInfo is not a json!")
+		}
+	}
+
+	clusterIp := ""
+	cluIp, ok := respSpecMap["clusterIP"].(string)
+	if !ok {
+		log.Error("[kubeComponent's StartService]:error when get service's clusterIP from resp:", respSpecMap)
+		return "", errors.New("error when read create service resp: clusterIP is illegal!")
+	} else {
+		clusterIp = cluIp
+	}
+
+	// set ports info
+	respPorts := make([]map[string]interface{}, 0)
+	respPortsInfo, ok := respSpecMap["ports"]
+	if ok {
+		tempRespPorts, ok := respPortsInfo.([]interface{})
+		if !ok {
+			log.Error("[kubeComponent's StartService]:error when get ports info:", respPortsInfo)
+			return "", errors.New("error when read create service resp:, container info in ports is not a array")
+		}
+
+		for _, port := range tempRespPorts {
+			tempPortMap, ok := port.(map[string]interface{})
+			if !ok {
+				log.Error("[kubeComponent's StartService]:error when get port info:", port)
+				return "", errors.New("error when read create service resp:, container info in ports is not a json")
+			}
+			respPorts = append(respPorts, tempPortMap)
+		}
+	}
+
+	if len(respPorts) < 1 {
+		log.Error("[kubeComponent's StartService]:error when get resp ports,resp ports is null,resp is:", respSpecMap)
+		return "", errors.New("error when read create service resp:, service has not set a port！")
+	}
+
+	portsStr := ""
+	listenPortsStr := ""
+
+	for _, port := range respPorts {
+		portF, ok := port["nodePort"].(float64)
+		if !ok {
+			log.Error("[kubeComponent's StartService]:error when get service's nodeport is not a number:", port)
+			return "", errors.New("error when parse create service resp: nodePort is not a number!")
+		}
+		portStr := strconv.FormatFloat(portF, 'f', 0, 64)
+
+		listenPort, ok := port["targetPort"].(float64)
+		if !ok {
+			log.Error("[kubeComponent's StartService]:error when get service's target is not a number:", port)
+			return "", errors.New("error when parse create service resp: targetPort is not a number!")
+		}
+
+		listenPortStr := strconv.FormatFloat(listenPort, 'f', 0, 64)
+
+		portsStr += "," + portStr
+		listenPortsStr += "," + listenPortStr
+	}
+	portsStr = strings.TrimPrefix(portsStr, ",")
+	listenPortsStr = strings.TrimPrefix(listenPortsStr, ",")
+
+	serviceAddr := clusterIp + ":" + portsStr + ":" + listenPortsStr
+
+	return serviceAddr, nil
+}
+
+func (kube *kubeComponentNew) StartRC(serviceAddr string) error {
+	podInfoMap, err := kube.GetPodDefine(serviceAddr)
+	if err != nil {
+		return err
+	}
+
+	rcName := "rc-" + kube.runID
+	if len(rcName) > 253 {
+		rcName = rcName[len(rcName)-253:]
+	}
+
+	rcMap := make(map[string]interface{})
+	rcSpecMap := make(map[string]interface{})
+
+	rcMap["metadata"] = map[string]interface{}{"name": rcName}
 
 	rcSpecMap["replicas"] = 1
 	rcSpecMap["template"] = podInfoMap
 	rcMap["spec"] = rcSpecMap
 
+	kubeReqUrl := kube.apiServerUri + "/api/v1/namespaces/" + kube.namespace + "/replicationcontrollers"
 	reqBody, _ := json.Marshal(rcMap)
 
-	fmt.Println("=====================replicationcontrollers=============================")
-	fmt.Println(string(reqBody))
-	fmt.Println(kube.host + "/api/v1/namespaces/" + kube.namespace + "/replicationcontrollers")
-	fmt.Println("=====================replicationcontrollers=============================")
-	resp, err := http.Post(kube.host+"/api/v1/namespaces/"+kube.namespace+"/replicationcontrollers", "application/json", bytes.NewReader(reqBody))
+	log.Info("[kubeComponent's StartRC]:send req to:", kubeReqUrl, " body is:", string(reqBody))
+
+	resp, err := http.Post(kubeReqUrl, "application/json", bytes.NewReader(reqBody))
 	if err != nil {
+		log.Error("[kubeComponent's StartRC]:error when send req to:", kubeReqUrl, " body is:", string(reqBody), " ===>error is:", err.Error())
 		return err
 	}
 
 	if resp.StatusCode != 201 {
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return errors.New("error when get pod err body:" + err.Error() + "==== error code is :" + strconv.FormatInt(int64(resp.StatusCode), 10))
+			log.Error("[kubeComponent's StartRC]:error when get resp body:", err.Error(), " error code:", resp.StatusCode)
+			return errors.New("error when get create rc resp body:" + err.Error() + "==== error code is :" + strconv.FormatInt(int64(resp.StatusCode), 10))
 		} else {
-			return errors.New("error when create pod: msg is :" + string(body))
+			log.Error("[kubeComponent's StartRC]:error when create rc:", string(body), " ===>error code:", resp.StatusCode)
+			return errors.New("error when create rc(" + strconv.FormatInt(int64(resp.StatusCode), 10) + "):" + string(body))
 		}
 	}
+
 	return nil
 }
 
-func (kube *kubeComponent) getPodInfo(id, serviceAddr string, eventList []models.EventDefinition, envMap map[string]string) (map[string]interface{}, error) {
+// IsNamespaceExist is test is kubecomponent's namespace exist
+func (kube *kubeComponentNew) IsNamespaceExist() (bool, error) {
+	kubeReqUrl := kube.apiServerUri + "/api/v1/namespaces/" + kube.namespace
+	log.Info("[kubeComponent's IsNamespaceExist]:send request to ", kubeReqUrl)
+	resp, err := http.Get(kubeReqUrl)
+	if err != nil {
+		log.Error("[kubeComponent's IsNamespaceExist]:error when send request to kube:", kubeReqUrl, " ===>error is:", err.Error())
+		return false, err
+	}
+
+	if resp.StatusCode != 200 {
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Error("[kubeComponent's IsNamespaceExist]:error when get resp body:", err.Error())
+			return false, errors.New("error when get resp's err body:" + err.Error() + "==== error code is :" + strconv.FormatInt(int64(resp.StatusCode), 10))
+		} else {
+			if resp.StatusCode == 404 {
+				log.Info("[kubeComponent's IsNamespaceExist]:request namespace (", kube.namespace, ") doesn't exist")
+				return false, nil
+			}
+
+			log.Error("[kubeComponent's IsNamespaceExist]:get an unknow resp code(", resp.StatusCode, ") resp body:", string(body))
+			return false, errors.New("error when get namespace info: msg is :" + string(body))
+		}
+	}
+
+	return true, nil
+}
+
+// CreateNamespace is create kubecomponent's namespace
+func (kube *kubeComponentNew) CreateNamespace() error {
+	kubeReqUrl := kube.apiServerUri + "/api/v1/namespaces"
+	reqMap := make(map[string]interface{})
+	reqMap["metadata"] = map[string]interface{}{"name": kube.namespace}
+	reqBody, _ := json.Marshal(reqMap)
+
+	log.Info("[kubeComponent's CreateNamespace]:send request to ", kubeReqUrl, " reqBody is:", string(reqBody))
+
+	resp, err := http.Post(kubeReqUrl, "application/json", bytes.NewReader(reqBody))
+	if err != nil {
+		log.Error("[kubeComponent's CreateNamespace]:error when send req to ", kubeReqUrl, "reqBody:", string(reqBody), " ===>error is:", err.Error())
+		return errors.New("error when create kube namespace: send request failed:" + err.Error())
+	}
+
+	if resp.StatusCode != 201 {
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Error("[kubeComponent's CreateNamespace]:error when get resp body:", err.Error())
+			return errors.New("error when get resp's err body:" + err.Error() + "==== error code is :" + strconv.FormatInt(int64(resp.StatusCode), 10))
+		} else {
+			log.Error("[kubeComponent's CreateNamespace]:get an error resp code(", resp.StatusCode, ") resp body:", string(body))
+			return errors.New("error when create namespace: msg is :" + string(body))
+		}
+	}
+
+	return nil
+}
+
+func (kube *kubeComponentNew) GetPodDefine(serviceAddr string) (map[string]interface{}, error) {
 	reqMap := kube.podConfig
 	if len(reqMap) == 0 {
 		reqMap = make(map[string]interface{})
 	}
 
-	// // first set kube metadata
+	// first set kube metadata
 	metaInfoMap := make(map[string]interface{})
 	metaInfo, ok := reqMap["metadata"]
 	if ok {
 		metaInfoMap, ok = metaInfo.(map[string]interface{})
 		if !ok {
+			log.Error("[kubeComponent's GetPodDefine]:error when get component's podconfig, metadata is not a json obj:", metaInfo)
 			return nil, errors.New("component's kube config error, metadata is not a json!")
 		}
 	}
-
-	podName := strings.Replace(id, ",", "-", -1)
-	if len(podName) > 250 {
-		podName = podName[len(podName)-250:]
-	}
-	podName = "pod-" + podName
-
-	metaInfoMap["name"] = podName
 
 	labelsMap := make(map[string]interface{})
 	labelInfo, ok := metaInfoMap["labels"]
 	if ok {
 		labelsMap, ok = labelInfo.(map[string]interface{})
 		if !ok {
+			log.Error("[kubeComponent's GetPodDefine]:error when get component's labels define,define is not a json obj:", labelInfo)
 			return nil, errors.New("component's kube config error, labels is not a json!")
 		}
 	}
+
+	podName := "pod-" + kube.runID
+
 	labelsMap["PIPELINE_DEFAULT_POD_LABLE"] = podName
 	metaInfoMap["labels"] = labelsMap
 
@@ -465,6 +865,7 @@ func (kube *kubeComponent) getPodInfo(id, serviceAddr string, eventList []models
 	if ok {
 		specMap, ok = specInfo.(map[string]interface{})
 		if !ok {
+			log.Error("[kubeComponent's GetPodDefine]:error when get component's specInfo,specInfo is not a json obj:", specInfo)
 			return nil, errors.New("component's kube config error, specInfo is not a json!")
 		}
 	}
@@ -475,12 +876,14 @@ func (kube *kubeComponent) getPodInfo(id, serviceAddr string, eventList []models
 	if ok {
 		tempContainersInfo, ok := containersInfo.([]interface{})
 		if !ok {
+			log.Error("[kubeComponent's GetPodDefine]:error when get component's containers config,want an array, got:", containersInfo)
 			return nil, errors.New("component's kube config error, container info in containers is not a array")
 		}
 
 		for _, tempContainerInfo := range tempContainersInfo {
 			tempContainer, ok := tempContainerInfo.(map[string]interface{})
 			if !ok {
+				log.Error("[kubeComponent's GetPodDefine]:error when get component's container info,container info is not a json obj:", tempContainerInfo)
 				return nil, errors.New("component's kube config error, container info in containers is not a json")
 			}
 			containers = append(containers, tempContainer)
@@ -489,71 +892,88 @@ func (kube *kubeComponent) getPodInfo(id, serviceAddr string, eventList []models
 
 	if len(containers) < 1 {
 		containerInfo := make(map[string]interface{})
-		containerInfo["name"] = strings.Replace(id, ",", "-", -1) + "-pod"
+		containerInfo["name"] = kube.runID + "-pod"
 		containerInfo["image"] = kube.componentInfo.Endpoint
 
 		containers = append(containers, containerInfo)
 	}
 
 	// add event envMap
-	envList := make([]interface{}, 0)
-	for key, value := range envMap {
-		tempEnv := make(map[string]string)
-		tempEnv["name"] = key
-		tempEnv["value"] = value
-
-		envList = append(envList, tempEnv)
+	envList := make([]map[string]interface{}, 0)
+	pipelineEnvList, err := getPipelineEnvList(kube.componentInfo.Pipeline)
+	if err != nil {
+		log.Error("[kubeComponent's GetPodDefine]:error when get pipeline's env list:", err.Error())
+		return nil, err
 	}
+	envList = append(envList, pipelineEnvList...)
+
+	stageEnvList, err := getStageEnvList(kube.componentInfo.Stage)
+	if err != nil {
+		log.Error("[kubeComponent's GetPodDefine]:error when get stage's env list:", err.Error())
+		return nil, err
+	}
+	envList = append(envList, stageEnvList...)
+
+	actionEnvList, err := getActionEnvList(kube.componentInfo.ID)
+	if err != nil {
+		log.Error("[kubeComponent's GetPodDefine]:error when get action's env list:", err.Error())
+		return nil, err
+	}
+	envList = append(envList, actionEnvList...)
+
+	systemEventList, err := getSystemEventList(kube.componentInfo.ID)
+	if err != nil {
+		log.Error("[kubeComponent's GetPodDefine]:error when get system event define from db:", err.Error())
+		return nil, err
+	}
+	envList = append(envList, systemEventList...)
 
 	eventListStr := ""
-	for _, event := range eventList {
-		tempEnv := make(map[string]string)
-		tempEnv["name"] = event.Title
-		tempEnv["value"] = event.Definition
-
-		envList = append(envList, tempEnv)
-
-		eventListStr += ";" + event.Title + "," + strconv.FormatInt(event.ID, 10)
+	for _, event := range systemEventList {
+		eventListStr += ";" + event["Title"].(string) + "," + strconv.FormatInt(event["ID"].(int64), 10)
 	}
 
 	if serviceAddr != "" {
-		envList = append(envList, map[string]string{"name": "SERVICE_ADDR", "value": serviceAddr})
+		envList = append(envList, map[string]interface{}{"name": "SERVICE_ADDR", "value": serviceAddr})
 	}
 
-	envList = append(envList, map[string]string{"name": "POD_NAME", "value": podName})
-	envList = append(envList, map[string]string{"name": "RUN_ID", "value": id})
-	envList = append(envList, map[string]string{"name": "EVENT_LIST", "value": strings.TrimPrefix(eventListStr, ";")})
+	envList = append(envList, map[string]interface{}{"name": "POD_NAME", "value": podName})
+	envList = append(envList, map[string]interface{}{"name": "RUN_ID", "value": kube.runID})
+	envList = append(envList, map[string]interface{}{"name": "EVENT_LIST", "value": strings.TrimPrefix(eventListStr, ";")})
 
 	// set env to each container
 	for _, container := range containers {
 		if _, ok := container["name"]; !ok {
-			container["name"] = strings.Replace(id, ",", "-", -1) + "-pod"
+			container["name"] = kube.runID + "-pod"
 		}
 		if _, ok := container["image"]; !ok {
 			container["image"] = kube.componentInfo.Endpoint
 		}
 
-		env, ok := container["env"]
-		if !ok {
-			container["env"] = envList
-		} else {
-			cEnvMap, ok := env.([]interface{})
+		container["env"] = envList
+		if env, ok := container["env"]; ok {
+			cEnvMap, ok := env.([]map[string]interface{})
 			if !ok {
+				log.Error("[kubeComponent's GetPodDefine]:error when get container's env info,want an array,got:", env.(int64))
 				return nil, errors.New("component's kube config error, container's env is not a array")
 			}
 
-			container["env"] = append(cEnvMap, envList...)
+			for _, tempEnvMap := range cEnvMap {
+				container["env"] = append(container["env"].([]map[string]interface{}), tempEnvMap)
+			}
 		}
 
 		ports := make([]map[string]interface{}, 0)
-		for _, serviceAddrInfo := range strings.Split(serviceAddr, ",") {
-			if len(strings.Split(serviceAddrInfo, ":")) > 2 {
+		serviceAddrInfo := strings.Split(serviceAddr, ":")
+		if len(serviceAddrInfo) > 2 {
+			for _, port := range strings.Split(serviceAddrInfo[2], ",") {
 				tempPort := make(map[string]interface{})
-				protInt, err := strconv.ParseInt(strings.Split(serviceAddrInfo, ":")[2], 10, 64)
+				portInt, err := strconv.ParseInt(port, 10, 64)
 				if err != nil {
-					return nil, errors.New("error when parse ports info to number :" + err.Error())
+					log.Error("[kubeComponent's GetPodDefine]:error when get port info from serviceAddr,port is not a number:", serviceAddr)
+					return nil, errors.New("error when parse ports info to number:" + err.Error())
 				}
-				tempPort["containerPort"] = protInt
+				tempPort["containerPort"] = portInt
 				ports = append(ports, tempPort)
 			}
 		}
@@ -561,286 +981,10 @@ func (kube *kubeComponent) getPodInfo(id, serviceAddr string, eventList []models
 		if len(ports) > 0 {
 			container["ports"] = ports
 		}
-
 	}
 
 	specMap["containers"] = containers
 	reqMap["spec"] = specMap
 
 	return reqMap, nil
-}
-
-func (kube *kubeComponent) startService(id, podName string) (string, error) {
-	reqMap := kube.serviceConfig
-	if len(reqMap) == 0 {
-		// if don't have a service config ,will not start a service,start a port directly
-		return "", nil
-	}
-
-	// first set kube metadata
-	metaInfoMap := make(map[string]interface{})
-	metaInfo, ok := reqMap["metadata"]
-	if ok {
-		metaInfoMap, ok = metaInfo.(map[string]interface{})
-		if !ok {
-			return "", errors.New("component's kube config error, metadata is not a json!")
-		}
-	}
-
-	serviceName := strings.Replace(id, ",", "-", -1)
-	if len(serviceName) > 20 {
-		serviceName = serviceName[len(serviceName)-20:]
-	}
-	serviceName = "ser-" + serviceName
-	metaInfoMap["name"] = serviceName
-
-	reqMap["metadata"] = metaInfoMap
-
-	// if service config has config a service ip&host ,then ,use config ,otherwise use system allocate
-	// set service spec info
-	specMap := make(map[string]interface{})
-	specInfo, ok := reqMap["spec"]
-	if ok {
-		specMap, ok = specInfo.(map[string]interface{})
-		if !ok {
-			return "", errors.New("component's kube config error, specInfo is not a json!")
-		}
-	}
-
-	// set ports info
-	ports := make([]map[string]interface{}, 0)
-	portsInfo, ok := specMap["ports"]
-	if ok {
-		tPorts, ok := portsInfo.([]interface{})
-		if !ok {
-			return "", errors.New("component's kube config error, container info in ports is not a array")
-		}
-
-		for i, port := range tPorts {
-			tempPort, ok := port.(map[string]interface{})
-			if !ok {
-				return "", errors.New("component's kube config error, container info in ports is not a json")
-			}
-			if _, ok := tempPort["name"]; !ok {
-				tempPort["name"] = "port-" + strconv.FormatInt(int64(i), 10)
-			}
-
-			ports = append(ports, tempPort)
-		}
-	}
-
-	if len(ports) < 1 {
-		return "", errors.New("component's kube config error, service must set at least one port！")
-	}
-
-	// set selector
-	selectorMap := make(map[string]string)
-	selectorMap["PIPELINE_DEFAULT_POD_LABLE"] = podName
-
-	specMap["selector"] = selectorMap
-	specMap["type"] = "NodePort"
-
-	// if len(kube.reachableIPs) > 0 {
-	// 	specMap["externalIPs"] = kube.reachableIPs
-	// }
-
-	// create service
-	reqBody, _ := json.Marshal(reqMap)
-	fmt.Println("=====================service=============================")
-	fmt.Println(string(reqBody))
-	fmt.Println(kube.host + "/api/v1/namespaces/" + kube.namespace + "/services")
-	fmt.Println("=====================service=============================")
-	resp, err := http.Post(kube.host+"/api/v1/namespaces/"+kube.namespace+"/services", "application/json", bytes.NewReader(reqBody))
-	if err != nil {
-		return "", err
-	}
-
-	if resp.StatusCode != 201 {
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return "", errors.New("error when get service err body:" + err.Error() + "==== error code is :" + strconv.FormatInt(int64(resp.StatusCode), 10))
-		} else {
-			return "", errors.New("error when create service: msg is :" + string(body))
-		}
-	}
-
-	// get resp of create service ,to get service's ip and ports
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", errors.New("error when read create service resp:" + err.Error())
-	}
-
-	respMap := make(map[string]interface{})
-	err = json.Unmarshal(respBody, &respMap)
-	if err != nil {
-		return "", errors.New("error when unmarshal create service resp:" + err.Error())
-	}
-
-	respSpecMap := make(map[string]interface{})
-	respSpecInfo, ok := respMap["spec"]
-	if ok {
-		respSpecMap, ok = respSpecInfo.(map[string]interface{})
-		if !ok {
-			return "", errors.New("error when read create service resp:, specInfo is not a json!")
-		}
-	}
-
-	clusterIp := ""
-	cluIp, ok := respSpecMap["clusterIP"]
-	if !ok {
-		return "", errors.New("error when read create service resp: clusterIP is nil!")
-	} else {
-		cIp, ok := cluIp.(string)
-		if !ok {
-			return "", errors.New("error when read create service resp:, compoent name is not a string!")
-		} else {
-			clusterIp = cIp
-		}
-	}
-
-	// set ports info
-	respPorts := make([]map[string]interface{}, 0)
-	respPortsInfo, ok := respSpecMap["ports"]
-	if ok {
-		tempRespPorts, ok := respPortsInfo.([]interface{})
-		if !ok {
-			return "", errors.New("error when read create service resp:, container info in ports is not a array")
-		}
-
-		for _, port := range tempRespPorts {
-			tempPortMap, ok := port.(map[string]interface{})
-			if !ok {
-				return "", errors.New("error when read create service resp:, container info in ports is not a json")
-			}
-			respPorts = append(respPorts, tempPortMap)
-		}
-	}
-
-	if len(respPorts) < 1 {
-		return "", errors.New("error when read create service resp:, service has not set a port！")
-	}
-
-	portsStr := ""
-	listenPortStr := ""
-
-	for _, port := range respPorts {
-		portF, ok := port["nodePort"].(float64)
-		if !ok {
-			return "", errors.New("error when parse create service resp: nodePort is not a number!")
-		}
-		portStr := strconv.FormatFloat(portF, 'f', 0, 64)
-
-		listenPort, ok := port["targetPort"].(float64)
-		if !ok {
-			return "", errors.New("error when parse create service resp: targetPort is not a number!")
-		}
-
-		listenPortStr = strconv.FormatFloat(listenPort, 'f', 0, 64)
-
-		portsStr += "," + portStr
-	}
-	portsStr = strings.TrimPrefix(portsStr, ",")
-
-	serviceAddr := clusterIp + ":" + portsStr + ":" + listenPortStr
-
-	return strings.TrimPrefix(serviceAddr, ","), nil
-}
-
-func (kube *kubeComponent) Stop(id string) (string, error) {
-	client := &http.Client{}
-
-	// set rc's replicas = 0 then delete rc
-	podInfoMap, err := kube.getPodInfo(id, "", nil, nil)
-	if err != nil {
-		return "", err
-	}
-
-	rcName := strings.Replace(id, ",", "-", -1)
-	if len(rcName) > 250 {
-		rcName = rcName[len(rcName)-250:]
-	}
-	rcName = "rc-" + rcName
-
-	rcMap := make(map[string]interface{})
-	rcMetaData := make(map[string]interface{})
-	rcSpecMap := make(map[string]interface{})
-
-	rcMetaData["name"] = rcName
-	rcMap["metadata"] = rcMetaData
-
-	rcSpecMap["replicas"] = 0
-	rcSpecMap["template"] = podInfoMap
-	rcMap["spec"] = rcSpecMap
-
-	reqBody, _ := json.Marshal(rcMap)
-	fmt.Println("=====================replicationcontrollers=============================")
-	fmt.Println(string(reqBody))
-	fmt.Println(kube.host + "/api/v1/namespaces/" + kube.namespace + "/replicationcontrollers/" + rcName)
-	fmt.Println("=====================replicationcontrollers=============================")
-	req, err := http.NewRequest("PUT", kube.host+"/api/v1/namespaces/"+kube.namespace+"/replicationcontrollers/"+rcName, bytes.NewReader(reqBody))
-	if err != nil {
-		return "", err
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return "", errors.New(strconv.FormatInt(int64(resp.StatusCode), 10))
-	}
-
-	// delete rc
-	fmt.Println("=====================replicationcontrollers=============================")
-	fmt.Println(kube.host + "/api/v1/namespaces/" + kube.namespace + "/replicationcontrollers/" + rcName)
-	fmt.Println("=====================replicationcontrollers=============================")
-	req, err = http.NewRequest("DELETE", kube.host+"/api/v1/namespaces/"+kube.namespace+"/replicationcontrollers/"+rcName, nil)
-	if err != nil {
-		return "", err
-	}
-
-	resp, err = client.Do(req)
-	if err != nil {
-		return "", err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return "", errors.New(strconv.FormatInt(int64(resp.StatusCode), 10))
-	}
-
-	// delete service
-	serviceName := strings.Replace(id, ",", "-", -1)
-	if len(serviceName) > 20 {
-		serviceName = serviceName[len(serviceName)-20:]
-	}
-	serviceName = "ser-" + serviceName
-
-	fmt.Println("=====================service=============================")
-	fmt.Println(kube.host + "/api/v1/namespaces/" + kube.namespace + "/services/" + serviceName)
-	fmt.Println("=====================service=============================")
-	req, err = http.NewRequest("DELETE", kube.host+"/api/v1/namespaces/"+kube.namespace+"/services/"+serviceName, nil)
-	if err != nil {
-		return "", err
-	}
-
-	resp, err = client.Do(req)
-	if err != nil {
-		return "", err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return "", errors.New(strconv.FormatInt(int64(resp.StatusCode), 10))
-	}
-
-	return "success", nil
-}
-
-func (kube *kubeComponent) GetIp(args ...interface{}) (string, error) {
-	// return kube.host, nil
-	if len(kube.reachableIPs) < 0 {
-		return "", errors.New("no reachable ips for this kube cluster")
-	}
-
-	return kube.reachableIPs[0], nil
 }
