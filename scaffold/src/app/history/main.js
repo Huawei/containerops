@@ -228,8 +228,8 @@ function initSequenceView(selected_history) {
             $div.empty();
 
             let svg = d3.select("#div-d3-main-svg")
-                // .on("touchstart", nozoom)
-                // .on("touchmove", nozoom)
+                .on("touchstart", nozoom)
+                .on("touchmove", nozoom)
                 .append("svg")
                 .attr("width", constant.svgWidth)
                 .attr("height", constant.svgHeight)
@@ -274,11 +274,6 @@ function initSequenceView(selected_history) {
                 .attr("width", constant.svgWidth)
                 .attr("height", constant.svgHeight)
                 .attr("id", "sequenceActionLinkView");
-
-            constant.sequencePipelineView = g.append("g")
-                .attr("width", constant.svgWidth)
-                .attr("height", constant.svgHeight)
-                .attr("id", "sequencePipelineView");
 
             constant.sequenceButtonView = g.append("g")
                 .attr("width", constant.svgWidth)
@@ -849,4 +844,15 @@ function zoomed() {
         .attr("translateX", d3.event.translate[0])
         .attr("translateY", d3.event.translate[1])
         .attr("scale", d3.event.scale);
+}
+function clicked(d, i) {
+    // constant.buttonView.selectAll("image").remove();
+    if (d3.event.defaultPrevented) return; // zoomed
+    d3.select(this).transition()
+        .transition()
+}
+
+
+function nozoom() {
+    d3.event.preventDefault();
 }
