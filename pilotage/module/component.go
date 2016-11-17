@@ -57,6 +57,10 @@ type kubeComponentNew struct {
 	componentInfo models.ActionLog
 }
 
+func init() {
+	createComponentChan = make(chan bool, 1)
+}
+
 // GetComponentListByNamespace is get component list by given namespace
 func GetComponentListByNamespace(namespace string) ([]map[string]interface{}, error) {
 	resultMap := make([]map[string]interface{}, 0)
