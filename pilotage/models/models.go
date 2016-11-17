@@ -39,6 +39,7 @@ func OpenDatabase() {
 		os.Exit(1)
 	} else {
 		db.DB()
+		db.LogMode(true)
 		db.DB().Ping()
 		db.DB().SetMaxIdleConns(10)
 		db.DB().SetMaxOpenConns(100)
@@ -50,9 +51,19 @@ func OpenDatabase() {
 func Migrate() {
 	OpenDatabase()
 
-	db.AutoMigrate(&ServiceDefinition{}, &Service{}, &Component{}, &ComponentLog{})
-	db.AutoMigrate(&Pipeline{}, &Stage{}, &Action{}, &Outcome{}, &PipelineLog{}, &StageLog{}, &ActionLog{})
-	db.AutoMigrate(&EventDefinition{}, &Event{}, &Environment{}, &EventJson{})
+	db.AutoMigrate(&ServiceDefinition{}, &Service{}, &Component{})
+	db.AutoMigrate(&Pipeline{}, &PipelineLog{}, &Stage{}, &StageLog{}, &Action{}, &ActionLog{}, &Outcome{})
+	db.AutoMigrate(&EventDefinition{}, &Event{}, &EventJson{})
 
 	log.Info("AutMigrate database structs.")
+}
+
+// GetDB is
+func GetDB() *gorm.DB {
+	if db != nil {
+		return db
+	}
+
+	OpenDatabase()
+	return db
 }

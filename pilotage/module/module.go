@@ -16,6 +16,13 @@ limitations under the License.
 
 package module
 
+import (
+	"errors"
+	"strings"
+
+	log "github.com/Sirupsen/logrus"
+)
+
 func describeJSON(jsonObj map[string]interface{}, path string) ([]map[string]string, error) {
 	resultList := make([]map[string]string, 0)
 
@@ -50,4 +57,56 @@ func describeJSON(jsonObj map[string]interface{}, path string) ([]map[string]str
 	}
 
 	return resultList, nil
+}
+
+// getJsonDataByPath is get a value from a map by give path
+func getJsonDataByPath(path string, data map[string]interface{}) (interface{}, error) {
+	depth := len(strings.Split(path, "."))
+	if depth == 1 {
+		if info, ok := data[path]; !ok {
+			log.Error("[module's getJsonDataByPath]:error when get data from action,action's key not exist :" + path)
+			return "", nil
+		} else {
+			return info, nil
+		}
+	}
+
+	childDataInterface, ok := data[strings.Split(path, ".")[0]]
+	if !ok {
+		log.Error("error when get data from action,action's key not exist :" + path)
+		return "", nil
+	}
+	childData, ok := childDataInterface.(map[string]interface{})
+	if !ok {
+		log.Error("[module's getJsonDataByPath]:error when get data from output, want a json,got:", childDataInterface)
+		return nil, errors.New("child data is not a json!")
+	}
+
+	childPath := strings.Join(strings.Split(path, ".")[1:], ".")
+	return getJsonDataByPath(childPath, childData)
+}
+
+// setDataToMapByPath is set a data to a map by give path ,if parent path not exist,it will auto creat
+func setDataToMapByPath(data interface{}, result map[string]interface{}, path string) {
+	depth := len(strings.Split(path, "."))
+	if depth == 1 {
+		result[path] = data
+		return
+	}
+
+	currentPath := strings.Split(path, ".")[0]
+	currentMap := make(map[string]interface{})
+	if _, ok := result[currentPath]; !ok {
+		result[currentPath] = currentMap
+	}
+
+	var ok bool
+	currentMap, ok = result[currentPath].(map[string]interface{})
+	if !ok {
+		return
+	}
+
+	childPath := strings.Join(strings.Split(path, ".")[1:], ".")
+	setDataToMapByPath(data, currentMap, childPath)
+	return
 }
