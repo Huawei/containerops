@@ -26,74 +26,7 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
-// GetComponentListV1Handler is get all component list
-func GetComponentListV1Handler(ctx *macaron.Context) (int, []byte) {
-	result, _ := json.Marshal(map[string]string{"message": ""})
-
-	namespace := ctx.Params(":namespace")
-
-	if namespace == "" {
-		result, _ = json.Marshal(map[string]string{"errMsg": "namespace can't be null"})
-		return http.StatusBadRequest, result
-	}
-
-	resultMap := make([]map[string]interface{}, 0)
-	componentList := make([]models.Component, 0)
-	componentsMap := make(map[string]interface{})
-	new(models.Component).GetComponent().Where("namespace = ?", namespace).Order("-id").Find(&componentList)
-
-	for _, componentInfo := range componentList {
-		if _, ok := componentsMap[componentInfo.Component]; !ok {
-			tempMap := make(map[string]interface{})
-			tempMap["version"] = make(map[int64]interface{})
-			componentsMap[componentInfo.Component] = tempMap
-		}
-
-		componentMap := componentsMap[componentInfo.Component].(map[string]interface{})
-		versionMap := componentMap["version"].(map[int64]interface{})
-
-		versionMap[componentInfo.VersionCode] = componentInfo
-		componentMap["id"] = componentInfo.ID
-		componentMap["name"] = componentInfo.Component
-		componentMap["version"] = versionMap
-	}
-
-	for _, component := range componentList {
-		componentInfo := componentsMap[component.Component].(map[string]interface{})
-
-		if isSign, ok := componentInfo["isSign"].(bool); ok && isSign {
-			continue
-		}
-
-		componentInfo["isSign"] = true
-		componentsMap[component.Component] = componentInfo
-
-		versionList := make([]map[string]interface{}, 0)
-		for _, componentVersion := range componentList {
-			if componentVersion.Component == componentInfo["name"].(string) {
-				versionMap := make(map[string]interface{})
-				versionMap["id"] = componentVersion.ID
-				versionMap["version"] = componentVersion.Version
-				versionMap["versionCode"] = componentVersion.VersionCode
-
-				versionList = append(versionList, versionMap)
-			}
-		}
-
-		tempResult := make(map[string]interface{})
-		tempResult["id"] = componentInfo["id"]
-		tempResult["name"] = componentInfo["name"]
-		tempResult["version"] = versionList
-
-		resultMap = append(resultMap, tempResult)
-	}
-
-	result, _ = json.Marshal(map[string]interface{}{"list": resultMap})
-
-	return http.StatusOK, result
-}
-
-//PostComponentV1Handler is
+//PostComponentV1Handler is create a new component
 func PostComponentV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
@@ -126,7 +59,58 @@ func PostComponentV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-//PutComponentV1Handler is
+// GetComponentListV1Handler is get all component list
+func GetComponentListV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{"message": ""})
+
+	namespace := ctx.Params(":namespace")
+
+	if namespace == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "namespace can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	componentList, err := module.GetComponentListByNamespace(namespace)
+
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when get component list:" + err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	result, _ = json.Marshal(map[string]interface{}{"list": componentList})
+
+	return http.StatusOK, result
+}
+
+//GetComponentV1Handler is get a specified component info by component id
+func GetComponentV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{"message": ""})
+
+	namespace := ctx.Params(":namespace")
+	componentName := ctx.Params(":component")
+	id := ctx.QueryInt64("id")
+
+	if namespace == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "namespace can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	if componentName == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "component can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	resultMap, err := module.GetComponentInfo(namespace, componentName, id)
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when get component info:" + err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	result, _ = json.Marshal(resultMap)
+	return http.StatusOK, result
+}
+
+//PutComponentV1Handler is update a component info or create a new component's version
 func PutComponentV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
@@ -191,34 +175,6 @@ func PutComponentV1Handler(ctx *macaron.Context) (int, []byte) {
 
 	result, _ = json.Marshal(map[string]string{"message": "success"})
 
-	return http.StatusOK, result
-}
-
-//GetComponentV1Handler is
-func GetComponentV1Handler(ctx *macaron.Context) (int, []byte) {
-	result, _ := json.Marshal(map[string]string{"message": ""})
-
-	namespace := ctx.Params(":namespace")
-	componentName := ctx.Params(":component")
-	id := ctx.QueryInt64("id")
-
-	if namespace == "" {
-		result, _ = json.Marshal(map[string]string{"errMsg": "namespace can't be empty"})
-		return http.StatusBadRequest, result
-	}
-
-	if componentName == "" {
-		result, _ = json.Marshal(map[string]string{"errMsg": "component can't be empty"})
-		return http.StatusBadRequest, result
-	}
-
-	resultMap, err := module.GetComponentInfo(namespace, componentName, id)
-	if err != nil {
-		result, _ = json.Marshal(map[string]string{"errMsg": "error when get component info:" + err.Error()})
-		return http.StatusBadRequest, result
-	}
-
-	result, _ = json.Marshal(resultMap)
 	return http.StatusOK, result
 }
 
