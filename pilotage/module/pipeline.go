@@ -47,6 +47,8 @@ var (
 )
 
 func init() {
+	startPipelineChan = make(chan bool, 1)
+	createPipelineChan = make(chan bool, 1)
 	pipelinelogAuthChan = make(chan bool, 1)
 	pipelinelogListenChan = make(chan bool, 1)
 	pipelinelogSequenceGenerateChan = make(chan bool, 1)
@@ -429,6 +431,8 @@ func GetPipelineRunHistoryList(namespace, repository string) ([]map[string]inter
 			pipelineVersionInfoMap["id"] = pipelinelog.ID
 			pipelineVersionInfoMap["name"] = pipelinelog.Version
 			pipelineVersionInfoMap["info"] = ""
+			pipelineVersionInfoMap["total"] = int64(0)
+			pipelineVersionInfoMap["success"] = int64(0)
 			pipelineVersionInfoMap["sequenceList"] = pipelineVersionSequenceListInfoMap
 
 			pipelineInfoMap["versionList"] = append(pipelineInfoMap["versionList"].([]map[string]interface{}), pipelineVersionInfoMap)
@@ -446,6 +450,20 @@ func GetPipelineRunHistoryList(namespace, repository string) ([]map[string]inter
 
 		sequenceList = append(sequenceList, sequenceInfoMap)
 		pipelineVersionInfoMap["sequenceList"] = sequenceList
+		pipelineVersionInfoMap["total"] = pipelineVersionInfoMap["total"].(int64) + 1
+
+		if pipelinelog.RunState == models.PipelineLogStateRunSuccess {
+			pipelineVersionInfoMap["success"] = pipelineVersionInfoMap["success"].(int64) + 1
+		}
+	}
+
+	for _, pipelineInfoMap := range resultList {
+		for _, versionInfoMap := range pipelineInfoMap["versionList"].([]map[string]interface{}) {
+			success := versionInfoMap["success"].(int64)
+			total := versionInfoMap["total"].(int64)
+
+			versionInfoMap["info"] = "Success: " + strconv.FormatInt(success, 10) + " Total: " + strconv.FormatInt(total, 10)
+		}
 	}
 
 	return resultList, nil
@@ -834,7 +852,7 @@ func (pipelineInfo *Pipeline) GenerateNewLog() (*PipelineLog, error) {
 
 	latestPipelineLog := new(models.PipelineLog)
 	err = new(models.PipelineLog).GetPipelineLog().Where("from_pipeline = ?", pipelineInfo.ID).Order("-sequence").First(&latestPipelineLog).Error
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "record not found") {
 		<-pipelinelogSequenceGenerateChan
 		log.Error("[pipeline's GenerateNewLog]:error when get pipeline's latest sequence from db:", err.Error())
 		return nil, err
