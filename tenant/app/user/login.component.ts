@@ -29,6 +29,6 @@ export class LoginComponent implements OnInit {
 
 	login() {
 		console.log(this.user);
-		this.changeNav('register');
+		this.changeNav('index');
 	}
 }

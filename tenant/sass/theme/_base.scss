@@ -235,6 +235,7 @@ limitations under the License. */
       height: 28px;
       line-height: 28px;
       text-align: center;
+      padding-top:5px;
 
       @media (min-width: $screen-md-min) and (min-height: $screen-md-height), (max-width: $screen-xs-max){
         top: 8px;
