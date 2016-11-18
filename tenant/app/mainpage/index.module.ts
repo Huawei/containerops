@@ -1,26 +1,15 @@
 import { NgModule }      from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
-// import { ContentComponent }  from './content.component';
-// import { NavComponent } from './nav.component';
-// import { RepoListComponent }  from './repoList.component';
-// import { RepositoriesComponent }  from './repositories.component';
-// import { RepoCreateComponent }  from './repoCreate.component';
-// import { RepoDetailComponent } from './repoDetail.component';
-// import { OrgListComponent }      from './orgList.component';
-// import { OrgCreateComponent }      from './orgCreate.component';
-// import { OrgEditComponent }      from './orgEdit.component';
-// import { UserSettingComponent }      from './userSetting.component';
-// import { PromptComponent }  from './prompt.component';
-
-// import { PromptModule }  from './prompt.module';
-
-// import { OrgService }      from './org.service';
-// import { RepoService }      from './repo.service';
-
 import { FormsModule }   from '@angular/forms';
 import { HttpModule }    from '@angular/http';
-// import { routing } from './content.routing';
+
+import { IndexComponent }  from './index.component';
+
+import { OrgListComponent }  from '../organization/list.component';
+import { TeamListComponent } from '../team/list.component';
+import { RepoListComponent }  from '../repository/list.component';
+
+import { routing } from './index.router';
 
 
 @NgModule({
@@ -28,25 +17,18 @@ import { HttpModule }    from '@angular/http';
   	BrowserModule,
     FormsModule,
     HttpModule,
-  	// routing
+  	routing
   ],
   declarations: [ 
-  	// ContentComponent,
-   //  NavComponent,
-  	// RepoListComponent,
-   //  RepositoriesComponent, 
-  	// RepoCreateComponent,
-   //  RepoDetailComponent,
-  	// OrgListComponent,
-  	// OrgCreateComponent,
-   //  OrgEditComponent,
-   //  UserSettingComponent,
-   //  PromptComponent
+    IndexComponent,
+    OrgListComponent,
+    TeamListComponent,
+  	RepoListComponent
   ],
   providers: [
     // OrgService,
     // RepoService
   ],
-  // bootstrap: [ ContentComponent ]
+  bootstrap: [ IndexComponent ]
 })
 export class IndexModule { }
