@@ -8,7 +8,7 @@ import { RegisterComponent }  from './user/register.component';
 const appRoutes: Routes = [
   {
     path: '',
-    // pathMatch: 'full',
+    pathMatch: 'full',
     component: LoginComponent
   },
   {

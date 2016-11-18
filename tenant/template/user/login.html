@@ -1,59 +1,24 @@
-<div class="container-fluid" id="access">
-  <div class="header">
-    <img src="img/banner.jpg"/>
-    <span class="title">Sign in the container repository</span>
-  </div>
-  <div class="content">
-    <div class="login-content">
-      <div class="login">
-        <span class="tips" *ngIf="isTips">{{errorText}}</span>
-        <span class="space user">
-          <input type="text" placeholder="Username or Email" [(ngModel)]="user.username" name="username" autocomplete="off" (keyup.enter)="login()"/>
-          <i class="fa fa-user"></i>
-        </span>
-        <span class="space pwd">
-          <input type="password" placeholder="Password" [(ngModel)]="user.password" name="password" autocomplete="off" (keyup.enter)="login()"/>
-          <i class="fa fa-lock"></i>
-        </span>
-        <button class="space sign-in" (click)="login()">Sign in</button>
-        <a href="javascript:void(0)" class="forget-pwd" (click)="changeNav('forgetPassword')">Forgot your password ?</a>
-        <div class="space">
-          <span class="pull-left google">
-            Sign in with <i class="fa fa-glide-g mar-lt-five"></i>
-          </span>
-          <span class="pull-right github">
-            Sign in with <i class="fa fa-github mar-lt-five"></i>
-          </span>
+<div class="auth-block">
+  <h1>Sign in to ContainerOps</h1>
+
+  <form name="LoginForm" novalidate class="form-horizontal">
+    <div class="form-group">
+      <label for="usernameInput" class="col-sm-3 control-label">User Name</label>
+        <div class="col-sm-9">
+          <input type="text" class="form-control" name="usernameInput" placeholder="User name or Email" [(ngModel)]="user.username" autocomplete="off" (keyup.enter)="login()">
         </div>
-      </div>
     </div>
-  </div>
-  <div class="row footer">
-    <div class="row">
-      <div class="col-xs-12 col-md-10 col-md-offset-1">
-        <div class="row">
-          <p class="col-md-5 col-xs-12 intro" >
-            Lorem ipsum dolor sit amet A rerum vel est quae accusamus adipisci odio im. Ipsam.
-          </p>
-          <p class="col-md-7 col-xs-12 team">
-            <span class="space">Privacy</span>
-            <span class="space">About</span>
-            <span class="space">Teams</span>
-            <span class="space" (click)="changeNav('contact')">Contact</span>
-          </p>
+    <div class="form-group">
+      <label for="passwordInput" class="col-sm-3 control-label">Password</label>
+      <div class="col-sm-9">
+          <input type="password" class="form-control" name="passwordInput" placeholder="Password" [(ngModel)]="user.password" autocomplete="off" (keyup.enter)="login()">
         </div>
-      </div>
     </div>
-  </div>
-  <div class="navbar">
-    <div class="logo"><img src="img/opshub_03.png" /></div>
-    <div class="menu">
-      <a href="javascript:void(0)" class="space" (click)="changeNav('browse')">Browse</a>
-      <a href="javascript:void(0)" class="space tutorial">Tutorial</a>
-      <a href="javascript:void(0)" class="space docs">Docs</a>
-      <a href="javascript:void(0)" class="space active" (click)="changeNav('login')">Login</a>
-      <a href="javascript:void(0)" class="space" (click)="changeNav('register')">Sign Up</a>
-      <a href="javascript:void(0)" class="space-remain">.</a>
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+          <button class="btn btn-default btn-auth" (click)="login()">Sign in</button>
+            <a [routerLink]="['/register']" routerLinkActive="active" class="forgot-pass">New to ContainerOps? Sign up!</a>
+        </div>
     </div>
-  </div>
+  </form>
 </div>
