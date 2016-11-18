@@ -16,6 +16,7 @@ limitations under the License. */
 @import "../node_modules/font-awesome/scss/font-awesome";
 @import "../node_modules/select2/src/scss/core";
 
+@import "../node_modules/bootstrap/scss/mixins/breakpoints";
 @import "../node_modules/messenger/build/css/messenger";
 @import "../node_modules/messenger/build/css/messenger-spinner";
 @import "../node_modules/messenger/build/css/messenger-theme-future";
@@ -32,3 +33,6 @@ limitations under the License. */
 @import "./theme/parsley";
 @import "./theme/tables";
 @import "./theme/panel";
+
+@import "./ui/main";
+@import "./ui/user/login";

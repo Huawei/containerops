@@ -11,6 +11,9 @@ import { IndexComponent }  from './mainpage/index.component';
 import { LoginComponent }  from './user/login.component';
 import { RegisterComponent }  from './user/register.component';
 
+// services
+import { UserService }      from './user/user.service';
+
 import { routing } from './app.router';
 
 
@@ -19,8 +22,6 @@ import { routing } from './app.router';
   	BrowserModule,
     FormsModule,
     HttpModule,
-    // IndexModule,
-    // PromptModule,
   	routing
   ],
   declarations: [ 
@@ -28,9 +29,9 @@ import { routing } from './app.router';
     IndexComponent,
     LoginComponent,
   	RegisterComponent
-    // PromptComponent
   ],
   providers: [
+    UserService,
     Title
   ],
   bootstrap: [ AppComponent ]
