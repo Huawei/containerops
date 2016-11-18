@@ -966,6 +966,7 @@ func (pipelineLog *PipelineLog) GetDefineInfo() (map[string]interface{}, error) 
 	defineMap["pipeline"] = pipelineLog.Pipeline
 	defineMap["version"] = pipelineLog.Version
 	defineMap["sequence"] = pipelineLog.Sequence
+	defineMap["status"] = pipelineLog.RunState
 	defineMap["lineList"] = lineList
 	defineMap["stageList"] = stageListMap
 
