@@ -89,7 +89,7 @@ const (
 
 var (
 	//StageTypeForWeb is the stage type that use for web display
-	StageTypeForWeb = []string{"pipeline-start", "pipeline-stage", "pipeline-end"}
+	StageTypeForWeb = []string{"pipeline-start", "pipeline-end", "pipeline-stage"}
 )
 
 //Pipeline is DevOps workflow definition unit.
