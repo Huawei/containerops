@@ -153,7 +153,7 @@ runWorkflow
     [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
     ...    ${pipelineName}
     Create Session    session    ${url}
-    ${resp}=    Post Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}    ${body}
+    ${resp}=    Post Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/exec    ${body}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -180,9 +180,9 @@ getWorkflowHistoryList
 
 getWorkflowHistory
     [Arguments]    ${url}    ${namespace}    ${repository}    ${statuscode}    ${pipelineID}    ${pipelineName}
-    ...    ${message}    ${sequenceId}
+    ...    ${message}    ${sequenceId}    ${version}
     Create Session    session    ${url}
-    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/historyDefine?versionId=${pipelineID}&sequenceId=${sequenceId}
+    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/${version}/define
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -299,7 +299,7 @@ specifiesWorkflowRunVersion
     [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
     ...    ${pipelineName}    ${version}
     Create Session    session    ${url}
-    ${resp}=    Post Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}?version=${version}    ${body}
+    ${resp}=    Post Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/exec?version=${version}    ${body}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
