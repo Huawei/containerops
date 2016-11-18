@@ -5,7 +5,7 @@ body::before {
     height: 100%;
     top: 0;
     left: 0;
-    background: url("../../../assets/blur-bg.jpg") no-repeat center center;
+    background: url("../../../assets/images/blur-bg.jpg") no-repeat center center;
     background-size: cover;
     will-change: transform;
     z-index: -1;
@@ -209,4 +209,5 @@ a.forgot-pass {
 }
 
 .auth-block a:hover {
-      color: #1b867b; }
+      color: #1b867b; 
+}
