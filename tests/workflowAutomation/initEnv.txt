@@ -1,6 +1,7 @@
 *** Keywords ***
 InitDBEnv
-    Connect To Database    pymysql    containerops    root    123456    192.168.10.131    3306
+    [Arguments]    ${database}    ${dbuser}    ${dbpassword}    ${dbhost}    ${dbport}
+    Connect To Database    pymysql    ${database}    ${dbuser}    ${dbpassword}    ${dbhost}    ${dbport}
     Execute Sql String    delete from action;
     Execute Sql String    delete from action_log;
     Execute Sql String    delete from component;
