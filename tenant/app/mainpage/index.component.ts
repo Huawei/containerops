@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { UserService } from '../user/user.service';
 
+var _ = require("underscore");
 
 @Component({
   selector: 'app-index',
@@ -9,25 +9,19 @@ import { UserService } from '../user/user.service';
 })
 
 export class IndexComponent implements OnInit { 
-	errorMsg: string;
-	active = '';
-	// browseList = [];
-	hover = '';
+	selectedNav;
 
-	constructor(
-		private router: Router,
-	 	private userService: UserService){
+	constructor(private router: Router){
+		if(_.isUndefined(this.selectedNav)){
+			this.selectedNav = "org";
+		}
+		
+		this.router.navigate(['organizations']);
 	}
 
 	ngOnInit(): void {}
-	
-  activeHover(index){
-  	this.hover = index;
-  	console.log(index)
-  }
 
-  changeNav(val){
-		// this.active = val
-    this.router.navigate([val]);
+	selectNav(value){
+		this.selectedNav = value;
 	}
 }

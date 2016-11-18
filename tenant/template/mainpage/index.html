@@ -8,24 +8,24 @@
         
         <!-- main notification links are placed inside of .sidebar-nav -->
         <ul class="sidebar-nav">
-            <li class="active">
-                <a [routerLink]="['/organization']" routerLinkActive="active" class="menu-organization">
+            <li [ngClass]=" selectedNav=== 'org'? 'active' : '' ">
+                <a [routerLink]="['/organizations']" routerLinkActive="active" class="menu-organization" (click)="selectNav('org')">
                     <span class="icon">
                         <i class="fa fa-building-o"></i>
                     </span>
                     Organization
                 </a>
             </li>
-            <li>
-                <a [routerLink]="['/team']" routerLinkActive="active" class="menu-team">
+            <li [ngClass]=" selectedNav=== 'team'? 'active' : '' ">
+                <a [routerLink]="['/teams']" routerLinkActive="active" class="menu-team" (click)="selectNav('team')">
                     <span class="icon">
                         <i class="fa fa-users"></i>
                     </span>
                     Team
                 </a>
             </li>
-            <li>
-                <a [routerLink]="['/repository']" routerLinkActive="active" class="menu-repository">
+            <li [ngClass]=" selectedNav=== 'repo'? 'active' : '' ">
+                <a [routerLink]="['/repositories']" routerLinkActive="active" class="menu-repository" (click)="selectNav('repo')">
                     <span class="icon">
                         <i class="fa fa-database"></i>
                     </span>
@@ -36,7 +36,9 @@
     </div>
 </nav>
 <div class="content-wrap">
-    <main class="content" id="main"></main>
+    <main class="content" id="main">
+        <router-outlet></router-outlet>
+    </main>
     <div class="loading hide">
        <img src="assets/images/loading.gif" width="60" height="60">
     </div>

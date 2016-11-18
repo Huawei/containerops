@@ -3,11 +3,11 @@ import { BrowserModule, Title } from '@angular/platform-browser';
 import { FormsModule }   from '@angular/forms';
 import { HttpModule }    from '@angular/http';
 
-// import { IndexModule }  from './mainpage/index.module';
+import { IndexModule }  from './mainpage/index.module';
 
 import { AppComponent }  from './app.component';
 
-import { IndexComponent }  from './mainpage/index.component';
+// import { IndexComponent }  from './mainpage/index.component';
 import { LoginComponent }  from './user/login.component';
 import { RegisterComponent }  from './user/register.component';
 
@@ -22,11 +22,12 @@ import { routing } from './app.router';
   	BrowserModule,
     FormsModule,
     HttpModule,
+    IndexModule,
   	routing
   ],
   declarations: [ 
     AppComponent,
-    IndexComponent,
+    // IndexComponent,
     LoginComponent,
   	RegisterComponent
   ],
