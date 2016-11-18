@@ -752,11 +752,11 @@ Save workflow as the new version use same API.
 }
 ```
 
-### run pipeline
+### run workflow
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| POST  | /pipeline/v1/:namespace/:repository/:pipelineName|
+| POST  | /pipeline/v1/:namespace/:repository/:pipelineName/exec?version=:version|
 
 #### body
 ```
@@ -1035,7 +1035,7 @@ Save component as new version used the same api.
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/historyDefine?versionId=:versionId&sequenceId=:pipelineSequenceID|
+| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/:version/define?sequenceId=:pipelineSequenceID|
 
 #### response json
 
@@ -1113,7 +1113,7 @@ Save component as new version used the same api.
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/stage/:stageName/:actionName/history?actionLogId=:actionLogID|
+| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/:version/:sequence/stage/:stageName/action/:actionName/define?actionLogId=:actionLogID|
 
 #### response json
 
@@ -1143,7 +1143,7 @@ Save component as new version used the same api.
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/:pipelineSequenceID/lineHistory?startActionId=:startActionId&endActionId=:endActionId|
+| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/:version/:lineid|
 
 #### response json
 
@@ -1157,5 +1157,64 @@ Save component as new version used the same api.
       "gitUrl": "https://github.com/xiechuanj/python-sonar-runner.git"
     }
   }
+}
+```
+
+### component event
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| PUT  | /pipeline/v1/:namespace/:repository/:pipelineName/event|
+
+#### body
+
+```
+{
+  "EVENT": "TASK_RESULT",
+  "EVENTID": 5260,
+  "INFO": {
+    "output": {
+      "binaryFileUrl": "aaa",
+      "data": "task start"
+    },
+    "result": "",
+    "status": true
+  },
+  "RUN_ID": "288,1197,877,36,84"
+}
+```
+
+#### response json
+
+```
+{
+  "message": "ok"
+}
+```
+
+#### EVENT
+|COMPONENT_START |TASK_START |TASK_STATUS|TASK_RESULT|COMPONENT_STOP|
+
+### component register
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| PUT  | /pipeline/v1/:namespace/:repository/:pipelineName/register|
+
+#### body
+
+```
+{
+  "RUN_ID": "4400,12678,10113,1,137",
+  "POD_NAME": "pod-4400-12678-10113-1-137",
+  "RECEIVE_URL": "32001"
+}
+```
+
+#### response json
+
+```
+{
+  "message": "ok"
 }
 ```
