@@ -30,7 +30,8 @@
       'angular-in-memory-web-api': 'npm:angular-in-memory-web-api',
       'blueimp-md5':               'npm:blueimp-md5',
       // 'jquery':                    'npm:jquery/dist/jquery.min.js',
-      '@ng-bootstrap':             'node_modules/@ng-bootstrap'
+      '@ng-bootstrap':             'node_modules/@ng-bootstrap',
+      'underscore' :               'npm:underscore/underscore-min.js'
     },
     // packages tells the System loader how to load when no filename and/or no extension
     packages: {
