@@ -26,6 +26,29 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
+// GetComponentListV1Handler is get all component list
+func GetComponentListV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{"message": ""})
+
+	namespace := ctx.Params(":namespace")
+
+	if namespace == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "namespace can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	componentList, err := module.GetComponentListByNamespace(namespace)
+
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when get component list:" + err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	result, _ = json.Marshal(map[string]interface{}{"list": componentList})
+
+	return http.StatusOK, result
+}
+
 //PostComponentV1Handler is create a new component
 func PostComponentV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
@@ -55,29 +78,6 @@ func PostComponentV1Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	result, _ = json.Marshal(map[string]string{"message": resultStr})
-
-	return http.StatusOK, result
-}
-
-// GetComponentListV1Handler is get all component list
-func GetComponentListV1Handler(ctx *macaron.Context) (int, []byte) {
-	result, _ := json.Marshal(map[string]string{"message": ""})
-
-	namespace := ctx.Params(":namespace")
-
-	if namespace == "" {
-		result, _ = json.Marshal(map[string]string{"errMsg": "namespace can't be empty"})
-		return http.StatusBadRequest, result
-	}
-
-	componentList, err := module.GetComponentListByNamespace(namespace)
-
-	if err != nil {
-		result, _ = json.Marshal(map[string]string{"errMsg": "error when get component list:" + err.Error()})
-		return http.StatusBadRequest, result
-	}
-
-	result, _ = json.Marshal(map[string]interface{}{"list": componentList})
 
 	return http.StatusOK, result
 }
