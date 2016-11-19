@@ -19,9 +19,10 @@ import * as historyDataService from "./historyData";
 import { notify } from "../common/notify";
 import { loading } from "../common/loading";
 
-
-export function getActionHistory(pipelineName,stageName,actionName,actionLogID) {
-    var promise = historyDataService.getActionRunHistory(pipelineName,stageName,actionName,actionLogID);
+// function(pipelineName,versionName,pipelineRunSequence,stageName,actionName){
+export function getActionHistory(pipelineName,versionName,pipelineRunSequence,stageName,actionName) {
+    loading.show();
+    var promise = historyDataService.getActionRunHistory(pipelineName,versionName,pipelineRunSequence,stageName,actionName);
     promise.done(function(data) {
         loading.hide();
         showActionHistoryView(data.result,actionName);
@@ -30,7 +31,7 @@ export function getActionHistory(pipelineName,stageName,actionName,actionLogID) 
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else if(xhr.statusText != "abort") {
+        } else {
             notify("Server is unreachable", "error");
         }
     });
@@ -58,7 +59,6 @@ function showActionHistoryView(history,actionname) {
                 let num = index + 1;
 
                 if(!logJson.data && !logJson.resp){
-                    console.log("sequenceLogDetail", logJson.INFO.output)
                     sequenceLogDetail[index] = logJson.INFO.output;
                     let logTime = log.substr(0,19);
 
@@ -99,15 +99,15 @@ function showActionHistoryView(history,actionname) {
                     }
                 })
   
-                $(".dialogWindon").css("height","auto");
+                $(".dialogWindow").css("height","auto");
                 $("#dialog").show();
-                if( $(".dialogWindon").height() < $("#dialog").height() * 0.75 ){
+                if( $(".dialogWindow").height() < $("#dialog").height() * 0.75 ){
                     
-                    $(".dialogWindon").css("height","auto");
+                    $(".dialogWindow").css("height","auto");
 
                 } else {
                     
-                    $(".dialogWindon").css("height","80%");
+                    $(".dialogWindow").css("height","80%");
                     $(".dialogContant").css("height","100%");
                 }
 

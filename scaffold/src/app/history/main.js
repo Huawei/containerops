@@ -24,7 +24,9 @@ import { getLineHistory } from "./lineHistory";
 import * as sequenceUtil from "./initUtil";
 
 export function initHistoryPage() {
-    var promise = historyDataService.sequenceList();
+
+    loading.show();
+    var promise = historyDataService.getPipelineHistories();
     promise.done(function(data) {
         loading.hide();
         constant.sequenceAllList = data.pipelineList;
@@ -53,6 +55,7 @@ function getHistoryList() {
             var hppItem = $(".pipelinelist_body");
 
             if (constant.sequenceAllList.length > 0) {
+
                 _.each(constant.sequenceAllList, function(pd) {
                     var hpRow = `<tr data-id=` + pd.id + ` class="pp-row">
                                     <td class="pptd">
@@ -60,6 +63,7 @@ function getHistoryList() {
                     hppItem.append(hpRow);
 
                     _.each(pd.versionList, function(vd) {
+
                         var hvRow = `<tr data-pname=` + pd.name + ` data-version=` + vd.name + ` data-versionid=` + vd.id + ` class="ppversion-row">
                                         <td></td>`;
 
@@ -81,29 +85,42 @@ function getHistoryList() {
                             hppItem.append(hvRow);
 
                             if (vd.sequenceList.length > 0) {
-                                _.each(vd.sequenceList, function(sd) {
-                                    var hsRow = `<tr data-id=` + sd.pipelineSequenceID + ` data-pname=` + pd.name + ` data-version=` + vd.name + ` data-versionid=` + vd.id + ` class="sequence-row"><td></td><td></td>`;
+                              _.each(vd.sequenceList,function(sd){
 
-                                    if (sd.status == true) {
-                                        hsRow += `<td><div class="state-list">
-                                                <div class="state-icon-list state-success"></div>
-                                                <span class="state-label-list">` + sd.time + `</span>
-                                            </div></td>`;
-                                    } else {
-                                        hsRow += `<td><div class="state-list">
-                                                <div class="state-icon-list state-fail"></div>
-                                                <span class="state-label-list">` + sd.time + `</span>
-                                            </div></td>`
-                                    }
+                                var hsRow = `<tr data-id=` + sd.sequence + ` data-status=` + sd.status + ` data-pname=` + pd.name + ` data-version=` + vd.name + ` data-versionid=` + vd.id + ` class="sequence-row"><td></td><td></td>`;
+                                var btnMore = `<tr data-insertid=` + sd.pipelineSequenceID + ` class="btn-more"><td colspan="4" class="pptd btn-showMorm" >点击查看更多 \<\< </td></tr>`;
+                                let sdTime = sd.time;
 
-                                    hsRow += `<td><button type="button" class="btn btn-success sequence-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:16px"></i><span style="margin-left:10px">Detail</span></button></td></tr> `
+                                if (sd.status == 1 || sd.status == 0) {
 
-                                    hppItem.append(hsRow)
-                                });
-                            }
-                        }
+                                    hsRow += `<td><div class="state-list"><div class="state-icon-list state-waitStart"></div><span class="state-label-list">` + sd.time + `</span></div></td>`;
+
+                                } else if (sd.status == 2) {
+
+                                    hsRow += `<td><div class="state-list"><div class="state-icon-list state-running"></div><span class="state-label-list">` + sd.time + `</span></div></td>`;
+
+                                } else if (sd.status == 3) {
+
+                                    hsRow += `<td><div class="state-list"><div class="state-icon-list state-success"></div><span class="state-label-list">` + sd.time + `</span></div></td>`;
+
+                                } else if(sd.status == 4) {
+
+                                    hsRow += `<td><div class="state-list"><div class="state-icon-list state-fail"></div><span class="state-label-list">` + sd.time + `</span></div></td>`
+                                }
+
+                                hsRow += `<td><button type="button" class="btn btn-success sequence-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:16px"></i><span style="margin-left:5px">Detail</span></button></td></tr> `
+
+                                hppItem.append(hsRow);
+
+                              })  
+
+
+                            } 
+                        }   
                     });
+
                 });
+
 
                 $(".pp-controller").on("click", function(event) {
                     var target = $(event.currentTarget);
@@ -148,11 +165,13 @@ function getHistoryList() {
                     var vid = $(event.currentTarget).parent().parent().data("versionid");
                     var vname = $(event.currentTarget).parent().parent().data("version");
                     var sid = $(event.currentTarget).parent().parent().data("id");
+                    var sStatus = $(event.currentTarget).parent().parent().data("status");
                     var selected_history = {
                         "pipelineName": pname,
-                        "pipelineVersionID": vid,
-                        "pipelineVersion": vname,
-                        "sequenceID": sid
+                        "VersionID": vid,
+                        "versionName": vname,
+                        "sequence": sid,
+                        "sequenceStatus": sStatus
                     };
                     getSequenceDetail(selected_history);
                 });
@@ -165,19 +184,28 @@ function getHistoryList() {
     });
 }
 
+
+
 let historyAbout;
 export function getSequenceDetail(selected_history) {
     historyAbout = selected_history;
-    var promise = historyDataService.sequenceData(selected_history.pipelineName, selected_history.pipelineVersionID, selected_history.sequenceID);
+    loading.show();
+
+    constant.sequenceRunStatus = selected_history.sequenceStatus;
+
+    var promise = historyDataService.getPipelineHistory(selected_history.pipelineName, selected_history.versionName, selected_history.sequence);
     promise.done(function(data) {
         loading.hide();
         constant.sequenceRunData = data.define.stageList;
+        constant.refreshSequenceRunData = data.define.stageList;
         constant.sequenceLinePathArray = data.define.lineList;
 
-        if (constant.sequenceRunData.length > 0) {
+
+        if (data.define.stageList.length > 0) {
             initSequenceView(selected_history);
         }
     });
+
     promise.fail(function(xhr, status, error) {
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
@@ -195,13 +223,14 @@ function initSequenceView(selected_history) {
         cache: false,
         success: function(data) {
             let zoom = d3.behavior.zoom().on("zoom", zoomed);
-            $("#main").html($(data));
+            $(".forHistory").html($(data));
             $("#historyView").show("slow");
 
-            $("#selected_pipeline").text(selected_history.pipelineName + " / " + selected_history.pipelineVersion);
+            $("#selected_pipeline").text(selected_history.pipelineName + " / " + selected_history.versionName);
 
             $(".backtolist").on('click', function() {
                 initHistoryPage();
+                // clearInterval(timer);
             });
 
             let $div = $("#div-d3-main-svg").height($("main").height() * 3 / 7);
@@ -280,9 +309,17 @@ function initSequenceView(selected_history) {
                 .attr("height", constant.svgHeight)
                 .attr("id", "buttonView");
 
+                // constant.setSvg(svg);
+                // constant.setG(g);
+                // constant.setSvgMainRect(svgMainRect);
+                // constant.setLinesView(sequenceLinesView);
+                // constant.setActionsView(sequenceActionsView);
+                // constant.setPipelineView(sequencePipelineView);
+                // constant.setButtonView(buttonView);
 
-            showSequenceView(constant.sequenceRunData);
-            sequenceUtil.initButton();
+
+             showSequenceView(constant.sequenceRunData);       
+             sequenceUtil.initButton();
         }
     });
 }
@@ -294,7 +331,47 @@ function showSequenceView(pipelineSequenceData) {
         .enter()
         .append("image")
         .attr("xlink:href", function(d, i) {
-            if (d.status == true) {
+
+            if (d.status == 1 || d.status == 0 ) {
+
+                if (d.type == constant.PIPELINE_END) {
+                    return "../../assets/svg/history-end-waitStart.svg";
+                }
+                
+                if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "stage" && constant.currentSelectedItem.data.id == d.id) {
+                    if (d.type == constant.PIPELINE_START) {
+                        return "../../assets/svg/history-start-selected-waitStart.svg";
+                    } else if (d.type == constant.PIPELINE_STAGE) {
+                        return "../../assets/svg/history-stage-selected-waitStart.svg";
+                    }
+                } else {
+                    if (d.type == constant.PIPELINE_START) {
+                        return "../../assets/svg/history-start-waitStart.svg";
+                    } else if (d.type == constant.PIPELINE_STAGE) {
+                        return "../../assets/svg/history-stage-waitStart.svg";
+                    }
+                } 
+                   
+            } else if (d.status == 2 ) {
+                if (d.type == constant.PIPELINE_END) {
+                    return "../../assets/svg/history-end-waitStart.svg";
+                }
+
+                if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "stage" && constant.currentSelectedItem.data.id == d.id) {
+                    if (d.type == constant.PIPELINE_START) {
+                        return "../../assets/svg/history-start-selected-running.svg";
+                    } else if (d.type == constant.PIPELINE_STAGE) {
+                        return "../../assets/svg/history-stage-selected-running.svg";
+                    }
+                } else {
+                    if (d.type == constant.PIPELINE_START) {
+                        return "../../assets/svg/history-start-running.svg";
+                    } else if (d.type == constant.PIPELINE_STAGE) {
+                        return "../../assets/svg/history-stage-running.svg";
+                    }
+                } 
+
+            } else if (d.status == 3) {
 
                 if (d.type == constant.PIPELINE_END) {
                     return "../../assets/svg/history-end-success.svg";
@@ -314,7 +391,7 @@ function showSequenceView(pipelineSequenceData) {
                     }
                 }
 
-            } else {
+            } else if(d.status == 4) {
 
                 if (d.type == constant.PIPELINE_END) {
                     return "../../assets/svg/history-end-fail.svg";
@@ -329,11 +406,11 @@ function showSequenceView(pipelineSequenceData) {
                 } else {
                     if (d.type == constant.PIPELINE_START) {
                         return "../../assets/svg/history-start-fail.svg";
-                    } else if (d.type == constant.PIPELINE_STAGE) {
+                    } else if (d.type ==  constant.PIPELINE_STAGE) {
                         return "../../assets/svg/history-stage-fail.svg";
                     }
                 }
-            }
+            } 
         })
         .attr("id", function(d, i) {
             return d.id;
@@ -359,19 +436,42 @@ function showSequenceView(pipelineSequenceData) {
         })
         .attr("translateY", constant.pipelineNodeStartY)
         .on("click", function(d, i) {
-            if (d.status == true) {
+            if (d.status == 1 || d.status == 0) {
 
                 if (d.type == constant.PIPELINE_STAGE) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
-                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-success.svg");
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-waitStart.svg");
                 } else if (d.type == constant.PIPELINE_START) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
-                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-success.svg");
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-waitStart.svg");
                 }
 
-            } else {
+            } else if (d.status == 2) {
+
+                if (d.type == constant.PIPELINE_STAGE) {
+                    historyChangeCurrentElement(constant.currentSelectedItem);
+                    constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-running.svg");
+                } else if (d.type == constant.PIPELINE_START) {
+                    historyChangeCurrentElement(constant.currentSelectedItem);
+                    constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-running.svg");
+                }
+
+            } else if (d.status == 3) {
+
+                if (d.type == constant.PIPELINE_STAGE) {
+                    historyChangeCurrentElement(constant.currentSelectedItem);
+                    constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-fail.svg");
+                } else if (d.type == constant.PIPELINE_START) {
+                    historyChangeCurrentElement(constant.currentSelectedItem);
+                    constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-fail.svg");
+                }
+            }else if (d.status == 4) {
 
                 if (d.type == constant.PIPELINE_STAGE) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
@@ -386,6 +486,210 @@ function showSequenceView(pipelineSequenceData) {
         })
 
     initSequenceStageLine();
+    if(constant.sequenceRunStatus == 1 || constant.sequenceRunStatus == 2){
+        timerSequencePipelineData(historyAbout)
+        // showRefreshsSequenceView(constant.refreshSequenceRunData,selected_history);
+    }
+    // initAction();
+}
+
+function timerSequencePipelineData(refreshSelect_hisotry){
+    var promise = historyDataService.getPipelineHistory(refreshSelect_hisotry.pipelineName, refreshSelect_hisotry.versionName, refreshSelect_hisotry.sequence);
+    promise.done(function(data) {
+        loading.hide();
+        constant.refreshSequenceRunData = data.define.stageList;
+        constant.sequenceRunStatus = data.define.status; 
+
+        if(constant.refreshSequenceRunData.length > 0){
+            showRefreshSequenceView(constant.refreshSequenceRunData);
+        }
+
+        var timer ;
+        if(constant.sequenceRunStatus == 1 || constant.sequenceRunStatus == 2){
+            timer = setTimeout(function(){timerSequencePipelineData(refreshSelect_hisotry);},10000);
+        }else{
+            clearInterval(timer); 
+        }
+    });
+
+    promise.fail(function(xhr, status, error) {
+        loading.hide();
+        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
+            notify(xhr.responseJSON.errMsg, "error");
+        } else if(xhr.statusText != "abort") {
+            notify("Server is unreachable", "error");
+        }
+    });
+       
+}
+
+
+function showRefreshSequenceView(refreshPipelineSequenceData) {
+    constant.sequencePipelineView.selectAll("image")
+        .data(refreshPipelineSequenceData)
+        .attr("xlink:href", function(d, i) {
+
+            if (d.status == 1 || d.status == 0 ) {
+
+                if (d.type == constant.PIPELINE_END) {
+                    return "../../assets/svg/history-end-waitStart.svg";
+                }
+                
+                if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "stage" && constant.currentSelectedItem.data.id == d.id) {
+                    if (d.type == constant.PIPELINE_START) {
+                        return "../../assets/svg/history-start-selected-waitStart.svg";
+                    } else if (d.type == constant.PIPELINE_STAGE) {
+                        return "../../assets/svg/history-stage-selected-waitStart.svg";
+                    }
+                } else {
+                    if (d.type == constant.PIPELINE_START) {
+                        return "../../assets/svg/history-start-waitStart.svg";
+                    } else if (d.type == constant.PIPELINE_STAGE) {
+                        return "../../assets/svg/history-stage-waitStart.svg";
+                    }
+                } 
+                   
+            } else if (d.status == 2 ) {
+
+                if (d.type == constant.PIPELINE_END) {
+                    return "../../assets/svg/history-end-waitStart.svg";
+                }
+
+                if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "stage" && constant.currentSelectedItem.data.id == d.id) {
+                    if (d.type == constant.PIPELINE_START) {
+                        return "../../assets/svg/history-start-selected-running.svg";
+                    } else if (d.type == constant.PIPELINE_STAGE) {
+                        return "../../assets/svg/history-stage-selected-running.svg";
+                    }
+                } else {
+                    if (d.type == constant.PIPELINE_START) {
+                        return "../../assets/svg/history-start-running.svg";
+                    } else if (d.type == constant.PIPELINE_STAGE) {
+                        return "../../assets/svg/history-stage-running.svg";
+                    }
+                } 
+
+            } else if (d.status == 3) {
+
+                if (d.type == constant.PIPELINE_END) {
+                    return "../../assets/svg/history-end-success.svg";
+                }
+
+                if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "stage" && constant.currentSelectedItem.data.id == d.id) {
+                    if (d.type == constant.PIPELINE_START) {
+                        return "../../assets/svg/history-start-selected-success.svg";
+                    } else if (d.type == constant.PIPELINE_STAGE) {
+                        return "../../assets/svg/history-stage-selected-success.svg";
+                    }
+                } else {
+                    if (d.type == constant.PIPELINE_START) {
+                        return "../../assets/svg/history-start-success.svg";
+                    } else if (d.type == constant.PIPELINE_STAGE) {
+                        return "../../assets/svg/history-stage-success.svg";
+                    }
+                }
+
+            } else if(d.status == 4) {
+
+                if (d.type == constant.PIPELINE_END) {
+                    return "../../assets/svg/history-end-fail.svg";
+                }
+
+                if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "stage" && constant.currentSelectedItem.data.id == d.id) {
+                    if (d.type == constant.PIPELINE_START) {
+                        return "../../assets/svg/history-start-selected-fail.svg";
+                    } else if (d.type == constant.PIPELINE_STAGE) {
+                        return "../../assets/svg/history-stage-selected-fail.svg";
+                    }
+                } else {
+                    if (d.type == constant.PIPELINE_START) {
+                        return "../../assets/svg/history-start-fail.svg";
+                    } else if (d.type ==  constant.PIPELINE_STAGE) {
+                        return "../../assets/svg/history-stage-fail.svg";
+                    }
+                }
+            } 
+        })
+        .attr("id", function(d, i) {
+            return d.id;
+        })
+        .attr("data-index", function(d, i) {
+            return i;
+        })
+        .attr("width", function(d, i) {
+            return constant.svgStageWidth;
+        })
+        .attr("height", function(d, i) {
+            return constant.svgStageHeight;
+        })
+        .attr("transform", function(d, i) {
+            d.width = constant.svgStageWidth;
+            d.height = constant.svgStageHeight;
+            d.translateX = i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX;
+            d.translateY = constant.pipelineNodeStartY;
+            return "translate(" + d.translateX + "," + d.translateY + ")";
+        })
+        .attr("translateX", function(d, i) {
+            return i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX;
+        })
+        .attr("translateY", constant.pipelineNodeStartY)
+        .on("click", function(d, i) {
+            if (d.status == 1 || d.status == 0) {
+
+                if (d.type == constant.PIPELINE_STAGE) {
+                    historyChangeCurrentElement(constant.currentSelectedItem);
+                    constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-waitStart.svg");
+                } else if (d.type == constant.PIPELINE_START) {
+                    historyChangeCurrentElement(constant.currentSelectedItem);
+                    constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-waitStart.svg");
+                }
+
+            } else if (d.status == 2) {
+
+                if (d.type == constant.PIPELINE_STAGE) {
+                    historyChangeCurrentElement(constant.currentSelectedItem);
+                    constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-running.svg");
+                } else if (d.type == constant.PIPELINE_START) {
+                    historyChangeCurrentElement(constant.currentSelectedItem);
+                    constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-running.svg");
+                }
+
+            } else if (d.status == 3) {
+
+                if (d.type == constant.PIPELINE_STAGE) {
+                    historyChangeCurrentElement(constant.currentSelectedItem);
+                    constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-fail.svg");
+                } else if (d.type == constant.PIPELINE_START) {
+                    historyChangeCurrentElement(constant.currentSelectedItem);
+                    constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-fail.svg");
+                }
+            }else if (d.status == 4) {
+
+                if (d.type == constant.PIPELINE_STAGE) {
+                    historyChangeCurrentElement(constant.currentSelectedItem);
+                    constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-fail.svg");
+                } else if (d.type == constant.PIPELINE_START) {
+                    historyChangeCurrentElement(constant.currentSelectedItem);
+                    constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-fail.svg");
+                }
+            }
+        })
+
+    initSequenceStageLine();
+    // if(constant.sequenceRunStatus == 1 || constant.sequenceRunStatus == 2){
+    //     timerSequencePipelineData(historyAbout)
+    // }else{
+    //     //showSequenceView(constant.sequenceRunData);
+    //     // clearInterval(timer);
+    // }
 }
 
 function initSequenceStageLine() {
@@ -476,6 +780,7 @@ function initSequenceActionByStage() {
     /* draw actions in actionView , data source is stage.actions */
     constant.sequencePipelineView.selectAll("image").each(function(d, i) {
         if (d.type == constant.PIPELINE_STAGE && d.actions != null && d.actions.length > 0) {
+
             var actionViewId = "action" + "-" + d.id;
             constant.sequenceActionView[actionViewId] = constant.sequenceActionsView.append("g")
                 .attr("width", constant.svgWidth)
@@ -490,14 +795,32 @@ function initSequenceActionByStage() {
                 .append("image")
                 .attr("xlink:href", function(ad, ai) {
 
-                    if (ad.status == true) {
+                    if (ad.status == 1 || ad.status == 0) {
+
+                        if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "action" && constant.currentSelectedItem.data.id == ad.id) {
+                            return "../../assets/svg/history-action-selected-waitStart.svg";
+                        } else {
+                            return "../../assets/svg/history-action-waitStart.svg";
+                        }
+
+                    } else if (ad.status == 2) {
+
+                        if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "action" && constant.currentSelectedItem.data.id == ad.id) {
+                            return "../../assets/svg/history-action-selected-running.svg";
+                        } else {
+                            return "../../assets/svg/history-action-running.svg";
+                        }
+
+                    } else if (ad.status == 3) {
+
                         if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "action" && constant.currentSelectedItem.data.id == ad.id) {
                             return "../../assets/svg/history-action-selected-success.svg";
                         } else {
                             return "../../assets/svg/history-action-success.svg";
                         }
 
-                    } else {
+                    }else if (ad.status == 4) {
+
                         if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "action" && constant.currentSelectedItem.data.id == ad.id) {
                             return "../../assets/svg/history-action-selected-fail.svg";
                         } else {
@@ -544,12 +867,22 @@ function initSequenceActionByStage() {
                 })
                 .style("cursor", "pointer")
                 .on("click", function(ad, ai) {
-                    getActionHistory(historyAbout.pipelineName, d.setupData.name, ad.setupData.name, ad.id);
-                    if (ad.status == true) {
+                    // pipelineName,versionName,pipelineRunSequence,stageName,actionName
+                    getActionHistory(historyAbout.pipelineName,historyAbout.versionName,historyAbout.sequence, d.setupData.name, ad.setupData.name);
+                    if (ad.status == 1 || ad.status == 0) {
+                        historyChangeCurrentElement(constant.currentSelectedItem);
+                        constant.setCurrentSelectedItem({ "data": ad, "parentData": d, "type": "action", "status": ad.status });
+                        d3.select("#" + ad.id).attr("href", "../../assets/svg/history-action-selected-waitStart.svg");
+                    } else if (ad.status == 2) {
+                        historyChangeCurrentElement(constant.currentSelectedItem);
+                        constant.setCurrentSelectedItem({ "data": ad, "parentData": d, "type": "action", "status": ad.status });
+                        d3.select("#" + ad.id).attr("href", "../../assets/svg/history-action-selected-running.svg");
+                    } else if (ad.status == 3) {
                         historyChangeCurrentElement(constant.currentSelectedItem);
                         constant.setCurrentSelectedItem({ "data": ad, "parentData": d, "type": "action", "status": ad.status });
                         d3.select("#" + ad.id).attr("href", "../../assets/svg/history-action-selected-success.svg");
-                    } else {
+
+                    }else if (ad.status == 4) {
                         historyChangeCurrentElement(constant.currentSelectedItem);
                         constant.setCurrentSelectedItem({ "data": ad, "parentData": d, "type": "action", "status": ad.status });
                         d3.select("#" + ad.id).attr("href", "../../assets/svg/history-action-selected-fail.svg");
@@ -584,7 +917,6 @@ function initSequenceActionByStage() {
         }
 
     });
-
 }
 
 function initSequenceAction2StageLine() {
@@ -725,9 +1057,6 @@ function initSequenceActionLinkBasePoint() {
                 .attr("stroke", "#84C1BC")
                 .attr("stroke-width", 2)
                 .style("cursor", "pointer")
-                .on("mouseover", function(ad, ai) {
-                    // mouseoverRelevantPipeline(ad);
-                })
         }
     });
 }
@@ -741,7 +1070,9 @@ function initSequencePath() {
 function setSequencePath(options) {
     var fromDom = $("#" + options.startData.id)[0].__data__;
     var toDom = $("#" + options.endData.id)[0].__data__;
+    var lineId = options.id;
     /* line start point(x,y) is the circle(x,y) */
+
     var startPoint = {},
         endPoint = {};
     if (fromDom.type == constant.PIPELINE_START) {
@@ -750,7 +1081,6 @@ function setSequencePath(options) {
         startPoint = { x: fromDom.translateX + 19, y: fromDom.translateY + 4 };
     }
     endPoint = { x: toDom.translateX - 12, y: toDom.translateY + 4 };
-
     constant.sequenceLineView[options.pipelineLineViewId]
         .append("path")
         .attr("d", getPathData(startPoint, endPoint))
@@ -769,7 +1099,8 @@ function setSequencePath(options) {
         .attr("id", options.id)
         .style("cursor", "pointer")
         .on("click", function(d) {
-            getLineHistory(historyAbout.pipelineName, historyAbout.sequenceID, options.startData.id, options.endData.id);
+            getLineHistory(historyAbout.pipelineName,historyAbout.versionName,historyAbout.sequence,lineId );
+            // getLineHistory(historyAbout.pipelineName, historyAbout.sequenceID, options.startData.id, options.endData.id);
             var self = $(this);
             historyChangeCurrentElement(constant.currentSelectedItem);
             constant.setCurrentSelectedItem({ "data": self, "type": "line" });
