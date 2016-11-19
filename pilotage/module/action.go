@@ -741,13 +741,16 @@ func (actionLog *ActionLog) Start() {
 		err = c.Start()
 		if err != nil {
 			log.Error("[actionLog's Start]:error when start component:", err.Error())
+			RecordOutcom(actionLog.Pipeline, actionLog.FromPipeline, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, 0, false, "start action error", err.Error())
 			actionLog.Stop(ActionStopReasonRunFailed, models.ActionLogStateRunFailed)
 		}
 	} else if actionLog.Service != 0 {
 		log.Info("[actionLog's Start]:start an action that use service:", actionLog)
+		RecordOutcom(actionLog.Pipeline, actionLog.FromPipeline, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, 0, false, "start action error", "use service but not support")
 		actionLog.Stop(ActionStopReasonRunSuccess, models.ActionLogStateRunSuccess)
 	} else {
 		log.Error("[actionLog's Start]:error when start action,action doesn't spec a type", actionLog)
+		RecordOutcom(actionLog.Pipeline, actionLog.FromPipeline, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, 0, false, "start action error", "action doesn't spec a component or a service")
 		actionLog.Stop(ActionStopReasonRunFailed, models.ActionLogStateRunFailed)
 	}
 }

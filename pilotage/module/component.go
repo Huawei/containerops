@@ -41,13 +41,13 @@ var (
 	createComponentChan chan bool
 )
 
-type componentNew interface {
+type component interface {
 	Start() error
 	Stop() error
 	SendData(receiveDataUri string, data []byte) (*http.Response, error)
 }
 
-type kubeComponentNew struct {
+type kubeComponent struct {
 	runID         string
 	apiServerUri  string
 	namespace     string
@@ -66,8 +66,8 @@ func GetComponentListByNamespace(namespace string) ([]map[string]interface{}, er
 	resultMap := make([]map[string]interface{}, 0)
 	componentList := make([]models.Component, 0)
 	componentsMap := make(map[string]interface{})
-	err := new(models.Component).GetComponent().Where("namespace = ?", namespace).Order("-id").Find(&componentList).Error
 
+	err := new(models.Component).GetComponent().Where("namespace = ?", namespace).Order("-id").Find(&componentList).Error
 	if err != nil {
 		return nil, errors.New("error when get component infos by namespace:" + namespace + ",error:" + err.Error())
 	}
@@ -121,37 +121,6 @@ func GetComponentListByNamespace(namespace string) ([]map[string]interface{}, er
 	return resultMap, nil
 }
 
-// GetComponentInfo is get component info by given namespace and componentname and componentId
-func GetComponentInfo(namespace, componentName string, componentId int64) (map[string]interface{}, error) {
-	resultMap := make(map[string]interface{})
-	componentInfo := new(models.Component)
-	err := componentInfo.GetComponent().Where("id = ?", componentId).First(&componentInfo).Error
-	if err != nil {
-		return nil, errors.New("error when get component info from db:" + err.Error())
-	}
-
-	if componentInfo.Component != componentName {
-		return nil, errors.New("component's name is not equal to target component")
-	}
-
-	// get component define json first, if has a define json,return it
-	if componentInfo.Manifest != "" {
-		defineMap := make(map[string]interface{})
-		json.Unmarshal([]byte(componentInfo.Manifest), &defineMap)
-		if defineInfo, ok := defineMap["define"]; ok {
-			if defineInfoMap, ok := defineInfo.(map[string]interface{}); ok {
-				return defineInfoMap, nil
-			}
-		}
-	}
-
-	resultMap["setupData"] = make(map[string]interface{})
-	resultMap["inputJson"] = make(map[string]interface{})
-	resultMap["outputJson"] = make(map[string]interface{})
-
-	return resultMap, nil
-}
-
 // CreateNewComponent is create a new component
 func CreateNewComponent(namespace, componentName, componentVersion string) (string, error) {
 	createComponentChan <- true
@@ -183,48 +152,36 @@ func CreateNewComponent(namespace, componentName, componentVersion string) (stri
 	return "create new component success", nil
 }
 
-// CreateNewComponentVersion is copy current component info to a new component with diff version name
-func CreateNewComponentVersion(componentInfo models.Component, versionName string) error {
-	var count int64
-	err := new(models.Component).GetComponent().Where("namespace = ?", componentInfo.Namespace).Where("component = ?", componentInfo.Component).Where("version = ?", versionName).Count(&count).Error
+// GetComponentInfo is get component info by given namespace and componentname and componentId
+func GetComponentInfo(namespace, componentName string, componentId int64) (map[string]interface{}, error) {
+	resultMap := make(map[string]interface{})
+	componentInfo := new(models.Component)
+
+	err := componentInfo.GetComponent().Where("id = ?", componentId).First(&componentInfo).Error
 	if err != nil {
-		return errors.New("error when get component version info:" + err.Error())
+		return nil, errors.New("error when get component info from db:" + err.Error())
 	}
 
-	if count > 0 {
-		return errors.New("version already exist!")
+	if componentInfo.Component != componentName {
+		return nil, errors.New("component's name is not equal to target component")
 	}
 
-	// get current least component's version
-	leastComponent := new(models.Component)
-	err = leastComponent.GetComponent().Where("namespace = ? ", componentInfo.Namespace).Where("component = ?", componentInfo.Component).Order("-id").First(&leastComponent).Error
-	if err != nil {
-		return errors.New("error when get least component info :" + err.Error())
+	// get component define json first, if has a define json,return it
+	if componentInfo.Manifest != "" {
+		defineMap := make(map[string]interface{})
+		json.Unmarshal([]byte(componentInfo.Manifest), &defineMap)
+		if defineInfo, ok := defineMap["define"]; ok {
+			if defineInfoMap, ok := defineInfo.(map[string]interface{}); ok {
+				return defineInfoMap, nil
+			}
+		}
 	}
 
-	newComponentInfo := new(models.Component)
-	newComponentInfo.Namespace = componentInfo.Namespace
-	newComponentInfo.Version = versionName
-	newComponentInfo.VersionCode = leastComponent.VersionCode + 1
-	newComponentInfo.Component = componentInfo.Component
-	newComponentInfo.Type = componentInfo.Type
-	newComponentInfo.Title = componentInfo.Title
-	newComponentInfo.Gravatar = componentInfo.Gravatar
-	newComponentInfo.Description = componentInfo.Description
-	newComponentInfo.Endpoint = componentInfo.Endpoint
-	newComponentInfo.Source = componentInfo.Source
-	newComponentInfo.Environment = componentInfo.Environment
-	newComponentInfo.Tag = componentInfo.Tag
-	newComponentInfo.VolumeLocation = componentInfo.VolumeLocation
-	newComponentInfo.VolumeData = componentInfo.VolumeData
-	newComponentInfo.Makefile = componentInfo.Makefile
-	newComponentInfo.Kubernetes = componentInfo.Kubernetes
-	newComponentInfo.Swarm = componentInfo.Swarm
-	newComponentInfo.Input = componentInfo.Input
-	newComponentInfo.Output = componentInfo.Output
-	newComponentInfo.Manifest = componentInfo.Manifest
+	resultMap["setupData"] = make(map[string]interface{})
+	resultMap["inputJson"] = make(map[string]interface{})
+	resultMap["outputJson"] = make(map[string]interface{})
 
-	return newComponentInfo.GetComponent().Save(newComponentInfo).Error
+	return resultMap, nil
 }
 
 // UpdateComponentInfo is update a component define by give info
@@ -336,7 +293,51 @@ func UpdateComponentInfo(componentInfo models.Component) error {
 	return componentInfo.GetComponent().Save(&componentInfo).Error
 }
 
-func InitComponetNew(actionLog *ActionLog) (componentNew, error) {
+// CreateNewComponentVersion is copy current component info to a new component with diff version name
+func CreateNewComponentVersion(componentInfo models.Component, versionName string) error {
+	var count int64
+	err := new(models.Component).GetComponent().Where("namespace = ?", componentInfo.Namespace).Where("component = ?", componentInfo.Component).Where("version = ?", versionName).Count(&count).Error
+	if err != nil {
+		return errors.New("error when get component version info:" + err.Error())
+	}
+
+	if count > 0 {
+		return errors.New("version already exist!")
+	}
+
+	// get current least component's version
+	leastComponent := new(models.Component)
+	err = leastComponent.GetComponent().Where("namespace = ? ", componentInfo.Namespace).Where("component = ?", componentInfo.Component).Order("-id").First(&leastComponent).Error
+	if err != nil {
+		return errors.New("error when get least component info :" + err.Error())
+	}
+
+	newComponentInfo := new(models.Component)
+	newComponentInfo.Namespace = componentInfo.Namespace
+	newComponentInfo.Version = versionName
+	newComponentInfo.VersionCode = leastComponent.VersionCode + 1
+	newComponentInfo.Component = componentInfo.Component
+	newComponentInfo.Type = componentInfo.Type
+	newComponentInfo.Title = componentInfo.Title
+	newComponentInfo.Gravatar = componentInfo.Gravatar
+	newComponentInfo.Description = componentInfo.Description
+	newComponentInfo.Endpoint = componentInfo.Endpoint
+	newComponentInfo.Source = componentInfo.Source
+	newComponentInfo.Environment = componentInfo.Environment
+	newComponentInfo.Tag = componentInfo.Tag
+	newComponentInfo.VolumeLocation = componentInfo.VolumeLocation
+	newComponentInfo.VolumeData = componentInfo.VolumeData
+	newComponentInfo.Makefile = componentInfo.Makefile
+	newComponentInfo.Kubernetes = componentInfo.Kubernetes
+	newComponentInfo.Swarm = componentInfo.Swarm
+	newComponentInfo.Input = componentInfo.Input
+	newComponentInfo.Output = componentInfo.Output
+	newComponentInfo.Manifest = componentInfo.Manifest
+
+	return newComponentInfo.GetComponent().Save(newComponentInfo).Error
+}
+
+func InitComponetNew(actionLog *ActionLog) (component, error) {
 	platformSetting, err := actionLog.GetActionPlatformInfo()
 	if err != nil {
 		log.Error("[component's InitComponent]:error when get given actionLog's platformSetting:", actionLog, " ===>error is:", err.Error())
@@ -344,7 +345,7 @@ func InitComponetNew(actionLog *ActionLog) (componentNew, error) {
 	}
 
 	if platformSetting["platformType"] == RUNENV_KUBE {
-		kubeCom := new(kubeComponentNew)
+		kubeCom := new(kubeComponent)
 
 		ComponentConfigMap := make(map[string]interface{}, 0)
 		err := json.Unmarshal([]byte(actionLog.Kubernetes), &ComponentConfigMap)
@@ -391,7 +392,7 @@ func InitComponetNew(actionLog *ActionLog) (componentNew, error) {
 	return nil, errors.New("can't create a component in" + platformSetting["platformType"])
 }
 
-func (kube *kubeComponentNew) Start() error {
+func (kube *kubeComponent) Start() error {
 	exist, err := kube.IsNamespaceExist()
 	if err != nil {
 		log.Error("[kubeComponent's Start]:error when get namespace info:", err.Error())
@@ -421,7 +422,7 @@ func (kube *kubeComponentNew) Start() error {
 	return nil
 }
 
-func (kube *kubeComponentNew) Stop() error {
+func (kube *kubeComponent) Stop() error {
 	client := &http.Client{}
 
 	// delete service
@@ -527,7 +528,7 @@ func (kube *kubeComponentNew) Stop() error {
 	return nil
 }
 
-func (kube *kubeComponentNew) SendData(receiveDataUri string, reqBody []byte) (resp *http.Response, err error) {
+func (kube *kubeComponent) SendData(receiveDataUri string, reqBody []byte) (resp *http.Response, err error) {
 	// serviceName := "ser-" + kube.runID
 	// if len(serviceName) > 253 {
 	// 	serviceName = serviceName[len(serviceName)-253:]
@@ -561,7 +562,7 @@ func (kube *kubeComponentNew) SendData(receiveDataUri string, reqBody []byte) (r
 	return resp, err
 }
 
-func (kube *kubeComponentNew) StartService() (string, error) {
+func (kube *kubeComponent) StartService() (string, error) {
 	reqMap := kube.serviceConfig
 
 	// first set service's name
@@ -726,7 +727,7 @@ func (kube *kubeComponentNew) StartService() (string, error) {
 	return serviceAddr, nil
 }
 
-func (kube *kubeComponentNew) StartRC(serviceAddr string) error {
+func (kube *kubeComponent) StartRC(serviceAddr string) error {
 	podInfoMap, err := kube.GetPodDefine(serviceAddr)
 	if err != nil {
 		return err
@@ -772,7 +773,7 @@ func (kube *kubeComponentNew) StartRC(serviceAddr string) error {
 }
 
 // IsNamespaceExist is test is kubecomponent's namespace exist
-func (kube *kubeComponentNew) IsNamespaceExist() (bool, error) {
+func (kube *kubeComponent) IsNamespaceExist() (bool, error) {
 	kubeReqUrl := kube.apiServerUri + "/api/v1/namespaces/" + kube.namespace
 	log.Info("[kubeComponent's IsNamespaceExist]:send request to ", kubeReqUrl)
 	resp, err := http.Get(kubeReqUrl)
@@ -801,7 +802,7 @@ func (kube *kubeComponentNew) IsNamespaceExist() (bool, error) {
 }
 
 // CreateNamespace is create kubecomponent's namespace
-func (kube *kubeComponentNew) CreateNamespace() error {
+func (kube *kubeComponent) CreateNamespace() error {
 	kubeReqUrl := kube.apiServerUri + "/api/v1/namespaces"
 	reqMap := make(map[string]interface{})
 	reqMap["metadata"] = map[string]interface{}{"name": kube.namespace}
@@ -829,7 +830,7 @@ func (kube *kubeComponentNew) CreateNamespace() error {
 	return nil
 }
 
-func (kube *kubeComponentNew) GetPodDefine(serviceAddr string) (map[string]interface{}, error) {
+func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interface{}, error) {
 	reqMap := kube.podConfig
 	if len(reqMap) == 0 {
 		reqMap = make(map[string]interface{})
@@ -903,34 +904,47 @@ func (kube *kubeComponentNew) GetPodDefine(serviceAddr string) (map[string]inter
 	}
 
 	// add event envMap
+	allEventMap := make(map[string]interface{})
 	envList := make([]map[string]interface{}, 0)
 	pipelineEnvList, err := getPipelineEnvList(kube.componentInfo.Pipeline)
 	if err != nil {
 		log.Error("[kubeComponent's GetPodDefine]:error when get pipeline's env list:", err.Error())
 		return nil, err
 	}
-	envList = append(envList, pipelineEnvList...)
+
+	for _, env := range pipelineEnvList {
+		allEventMap[env["name"].(string)] = env["value"]
+	}
 
 	stageEnvList, err := getStageEnvList(kube.componentInfo.Stage)
 	if err != nil {
 		log.Error("[kubeComponent's GetPodDefine]:error when get stage's env list:", err.Error())
 		return nil, err
 	}
-	envList = append(envList, stageEnvList...)
+
+	for _, env := range stageEnvList {
+		allEventMap[env["name"].(string)] = env["value"]
+	}
 
 	actionEnvList, err := getActionEnvList(kube.componentInfo.ID)
 	if err != nil {
 		log.Error("[kubeComponent's GetPodDefine]:error when get action's env list:", err.Error())
 		return nil, err
 	}
-	envList = append(envList, actionEnvList...)
+
+	for _, env := range actionEnvList {
+		allEventMap[env["name"].(string)] = env["value"]
+	}
 
 	systemEventList, err := getSystemEventList(kube.componentInfo.ID)
 	if err != nil {
 		log.Error("[kubeComponent's GetPodDefine]:error when get system event define from db:", err.Error())
 		return nil, err
 	}
-	envList = append(envList, systemEventList...)
+
+	for _, env := range systemEventList {
+		allEventMap[env["name"].(string)] = env["value"]
+	}
 
 	eventListStr := ""
 	for _, event := range systemEventList {
@@ -941,9 +955,18 @@ func (kube *kubeComponentNew) GetPodDefine(serviceAddr string) (map[string]inter
 		envList = append(envList, map[string]interface{}{"name": "SERVICE_ADDR", "value": serviceAddr})
 	}
 
-	envList = append(envList, map[string]interface{}{"name": "POD_NAME", "value": podName})
-	envList = append(envList, map[string]interface{}{"name": "RUN_ID", "value": kube.runID})
-	envList = append(envList, map[string]interface{}{"name": "EVENT_LIST", "value": strings.TrimPrefix(eventListStr, ";")})
+	allEventMap["SERVICE_ADDR"] = serviceAddr
+	allEventMap["POD_NAME"] = podName
+	allEventMap["RUN_ID"] = kube.runID
+	allEventMap["EVENT_LIST"] = strings.TrimPrefix(eventListStr, ";")
+
+	for key, value := range allEventMap {
+		tempEnv := make(map[string]interface{})
+		tempEnv["name"] = key
+		tempEnv["value"] = value
+
+		envList = append(envList, tempEnv)
+	}
 
 	// set env to each container
 	for _, container := range containers {

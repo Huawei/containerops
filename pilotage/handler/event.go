@@ -49,21 +49,31 @@ func DeleteEventV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-// GetEventJsonGithubV1Handler is
-func GetEventJsonGithubV1Handler(ctx *macaron.Context) (int, []byte) {
+// GetEventDefineJsonV1Handler is
+func GetEventDefineJsonV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
-	eventName := ctx.Params(":event")
 
+	siteName := ctx.Params(":site")
+	if siteName == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "site name can't be empty!"})
+		return http.StatusBadRequest, result
+	}
+
+	eventName := ctx.Params(":event")
 	if eventName == "" {
 		result, _ = json.Marshal(map[string]string{"errMsg": "event name can't be empty!"})
 		return http.StatusBadRequest, result
 	}
 
 	eventDefine := new(models.EventJson)
-	eventDefine.GetEventJson().Where("site = ?", "github.com").Where("type = ?", eventName).Find(&eventDefine)
+	err := eventDefine.GetEventJson().Where("site = ?", siteName).Where("type = ?", eventName).Find(&eventDefine).Error
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when get eventDefine from db: " + err.Error()})
+		return http.StatusBadRequest, result
+	}
 
 	if eventDefine.ID == 0 {
-		result, _ = json.Marshal(map[string]string{"errMsg": "can't get github.com : " + eventName + " define json"})
+		result, _ = json.Marshal(map[string]string{"errMsg": "can't get " + siteName + "'s : " + eventName + " define json"})
 		return http.StatusBadRequest, result
 	}
 
