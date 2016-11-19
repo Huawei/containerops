@@ -229,6 +229,12 @@ func GetPipelineHistoryDefineV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
+	workflow := ctx.Params(":workflow")
+	if workflow == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "workflow can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
 	version := ctx.Params(":version")
 	if version == "" {
 		result, _ = json.Marshal(map[string]string{"errMsg": "request pipeline's version id can't be zero"})
@@ -236,7 +242,7 @@ func GetPipelineHistoryDefineV1Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	// resultMap, err := module.GetPipelineDefineByRunSequence(versionId, sequenceId)
-	pipelineLog, err := module.GetPipelineLog(namespace, repository, version, sequence)
+	pipelineLog, err := module.GetPipelineLog(namespace, repository, workflow, version, sequence)
 	resultMap, err := pipelineLog.GetDefineInfo()
 	if err != nil {
 		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
@@ -262,6 +268,12 @@ func GetSequenceLineHistoryV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
+	workflow := ctx.Params(":workflow")
+	if workflow == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "workflow can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
 	version := ctx.Params(":version")
 	if version == "" {
 		result, _ = json.Marshal(map[string]string{"errMsg": "request pipeline's version id can't be zero"})
@@ -275,15 +287,15 @@ func GetSequenceLineHistoryV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	lineId := ctx.Params(":lineId")
+	lineId := ctx.Params(":relation")
 	if lineId == "" || len(strings.Split(lineId, "-")) != 4 {
-		result, _ = json.Marshal(map[string]string{"errMsg": "request pipeline's lineId is illegal:" + lineId})
+		result, _ = json.Marshal(map[string]string{"errMsg": "request pipeline's relation is illegal:" + lineId})
 		return http.StatusBadRequest, result
 	}
 
 	lineInputData := make(map[string]interface{})
 	if strings.Split(lineId, "-")[0] == "s" {
-		pipelineLog, err := module.GetPipelineLog(namespace, repository, version, sequenceInt)
+		pipelineLog, err := module.GetPipelineLog(namespace, repository, workflow, version, sequenceInt)
 		if err != nil {
 			result, _ = json.Marshal(map[string]string{"errMsg": "error when get request pipeline info:" + err.Error()})
 			return http.StatusBadRequest, result
