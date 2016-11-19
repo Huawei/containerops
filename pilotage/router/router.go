@@ -23,149 +23,74 @@ import (
 	"github.com/Huawei/containerops/pilotage/handler"
 )
 
+// /v1
+// /v2
+// 	/root,config,system,admin,adminstration,guest,org,orgni..,devops,containerops,clond,cloneNatinve,nativeCloud
+
 //SetRouters is pilotage router's definition fucntion.
 func SetRouters(m *macaron.Macaron) {
-	// Web API
-	m.Get("/", handler.IndexV1Handler)
+	m.Group("/v2", func() {
+		m.Get("/", handler.IndexV1Handler)
 
-	m.Group("/pipeline", func() {
-		m.Group("/v1", func() {
-			m.Group("/eventJson", func() {
-				m.Group("/github", func() {
-					m.Get("/:event", handler.GetEventJsonGithubV1Handler)
-				})
-			})
+		m.Group("/:namespace", func() {
 
-			//Definie the supported service.
-			m.Group("/service", func() {
-				m.Post("/", binding.Bind(handler.PostServiceDefinitionForm{}), handler.PostServiceDefinitionV1Handler)
-				m.Get("/list", handler.GetServiceDefinitionListV1Handler)
-
-				m.Group("/:service", func() {
-					m.Put("/", handler.PutServiceDefinitionV1Handler)
-					m.Get("/", handler.GetServiceDefinitionV1Handler)
-					m.Delete("/", handler.DeleteServiceDefinitionV1Handler)
-				})
-			})
-
-			//Registry the component in the system.
-			m.Group("/:namespace/component", func() {
-				m.Get("/", handler.GetComponentListV1Handler)
+			m.Group("/component", func() {
+				m.Get("/list", handler.GetComponentListV1Handler)
 				m.Post("/", handler.PostComponentV1Handler)
 
-				m.Group("/:component", func() {
-					m.Put("/", handler.PutComponentV1Handler)
-					m.Get("/", handler.GetComponentV1Handler)
-					m.Delete("/", handler.DeleteComponentv1Handler)
+				m.Get("/:component", handler.GetComponentV1Handler)
+				m.Put("/:component", handler.PutComponentV1Handler)
+				m.Delete("/:component", handler.DeleteComponentv1Handler)
 
-					//Define the events of component
-					m.Group("/event", func() {
-						m.Post("/", handler.PostEventV1Handler)
-
-						m.Group("/:evnet", func() {
-							m.Get("/", handler.GetEventV1Handler)
-							m.Put("/", handler.PutEventV1Handler)
-							m.Delete("/", handler.DeleteEventV1Handler)
-						})
-					})
-				})
+				m.Post("/:component/event", handler.PostEventV1Handler)
+				m.Get("/:component/event/:event", handler.GetEventV1Handler)
+				m.Put("/:component/event/:event", handler.PutEventV1Handler)
+				m.Delete("/:component/event/:event", handler.DeleteEventV1Handler)
 			})
 
-			//CRUD of pipeline.
-			m.Group("/:namespace/:repository", func() {
-				//Define pipeline
-				m.Get("/", handler.GetPipelineListV1Handler)
-				m.Post("/", handler.PostPipelineV1Handler)
-				m.Post("/json", handler.PostPipelineJSONV1Handler)
-				m.Get("/histories", handler.GetPipelineHistoriesV1Handler)
+			m.Group("/service", func() {
+				m.Get("/list", handler.GetServiceDefinitionListV1Handler)
+				m.Post("/", binding.Bind(handler.PostServiceDefinitionForm{}), handler.PostServiceDefinitionV1Handler)
 
-				m.Group("/:pipeline", func() {
-					//Get/Put/Delete Pipeline
-					m.Get("/:format", handler.GetPipelineV1Handler)
-					m.Put("/", handler.PutPipelineV1Handler)
-					m.Delete("/", handler.DeletePipelineV1Handler)
+				m.Get("/:service", handler.GetServiceDefinitionV1Handler)
+				m.Put("/:service", handler.PutServiceDefinitionV1Handler)
+				m.Delete("/:service", handler.DeleteServiceDefinitionV1Handler)
+			})
 
-					// get pipeline's token and request url
-					m.Get("/token", handler.GetPipelineTokenV1Handler)
+			m.Group("/:repository", func() {
+				m.Group("/workflow", func() {
+					m.Group("/v1", func() {
 
-					// set a pipeline's env
-					m.Put("/env", handler.PutPipelineEnvV1Handler)
-					m.Get("/env", handler.GetPipelineEnvV1Handler)
+						m.Group("/define", func() {
+							m.Get("/list", handler.GetPipelineListV1Handler)
+							m.Post("/", handler.PostPipelineV1Handler)
 
-					// enable or disable a pipeline
-					m.Put("/state", handler.PutPipelineStateV1Handler)
+							m.Get("/event/:site/:event", handler.GetEventDefineJsonV1Handler)
 
-					//Definie the stage
-					m.Group("/stage", func() {
-						m.Post("/", handler.PostStageV1Handler)
+							m.Get("/:workflow", handler.GetPipelineV1Handler)
+							m.Put("/:workflow", handler.PutPipelineV1Handler)
+							m.Delete("/:workflow", handler.DeletePipelineV1Handler)
 
-						m.Group("/:stage", func() {
-							m.Get("/", handler.GetStageV1Handler)
-							m.Put("/", handler.PutStageV1Handler)
-							m.Delete("/", handler.DeleteStageV1Handler)
+							m.Get("/:workflow/token", handler.GetPipelineTokenV1Handler)
 
-							m.Post("/action", handler.PostActionV1Handler)
-							m.Group("/:action", func() {
-								m.Get("/", handler.GetActionV1Handler)
-								m.Put("/", handler.PutActionV1Handler)
-								m.Delete("/", handler.DeleteActionV1Handler)
+							m.Get("/:workflow/env", handler.GetPipelineEnvV1Handler)
+							m.Put("/:workflow/env", handler.PutPipelineEnvV1Handler)
 
-								//Binding the service supported with User/Organization
-								m.Group("/service", func() {
-									m.Post("/", handler.PostServiceV1Handler)
-
-									//When call service with ?sequence=xxx param
-									m.Group("/:service", func() {
-										m.Put("/", handler.PutServiceV1Handler)
-										m.Get("/", handler.GetServiceV1Handler)
-										m.Delete("/", handler.DeleteServiceV1Handler)
-										m.Any("/callback", handler.AnyServiceCallbackV1Handler) //The callback must have ?sequence=xxx
-
-										//Define the events of service
-										m.Group("/event", func() {
-											m.Post("/", handler.PostEventV1Handler)
-
-											m.Group("/:evnet", func() {
-												m.Get("/", handler.GetEventV1Handler)
-												m.Put("/", handler.PutEventV1Handler)
-												m.Delete("/", handler.DeleteEventV1Handler)
-											})
-										})
-									})
-								})
-							})
+							m.Put("/:workflow/state", handler.PutPipelineStateV1Handler)
 						})
-					})
 
-					//Run a pipeline with sequence id
-					m.Post("/exec", handler.ExecutePipelineV1Handler)
+						m.Put("/exec/:workflow", handler.ExecutePipelineV1Handler)
 
-					// Callback of all action
-					m.Put("/event", handler.PutActionEventV1Handler)
+						m.Put("/event/:workflow/register", handler.PutActionRegisterV1Handler)
+						m.Put("/event/:workflow/:event", handler.PutActionEventV1Handler)
 
-					// all action register here
-					// pipeline will push data to the url which is send by action on register
-					m.Put("/register", handler.PutActionRegisterV1Handler)
+						m.Group("/log", func() {
+							m.Get("/list", handler.GetPipelineHistoriesV1Handler)
 
-					m.Group("/:version", func() {
-						m.Get("/define", handler.GetPipelineHistoryDefineV1Handler)
-
-						m.Group("/:sequence", func() {
-							m.Group("/stage", func() {
-								m.Group("/:stage", func() {
-									m.Get("/define", handler.GetStageHistoryInfoV1Handler)
-
-									m.Group("/action", func() {
-										m.Group("/:action", func() {
-											m.Get("/define", handler.GetActionHistoryInfoV1Handler)
-										})
-									})
-								})
-							})
-
-							m.Group("/:lineId", func() {
-								m.Get("/", handler.GetSequenceLineHistoryV1Handler)
-							})
+							m.Get("/:workflow/:version", handler.GetPipelineHistoryDefineV1Handler)
+							m.Get("/:workflow/:version/:sequence/stage/:stage", handler.GetStageHistoryInfoV1Handler)
+							m.Get("/:workflow/:version/:sequence/stage/:stage/action/:action", handler.GetActionHistoryInfoV1Handler)
+							m.Get("/:workflow/:version/:sequence/:relation", handler.GetSequenceLineHistoryV1Handler)
 						})
 					})
 				})

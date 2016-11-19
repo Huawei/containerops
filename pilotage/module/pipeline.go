@@ -24,7 +24,6 @@ import (
 	"time"
 
 	"github.com/Huawei/containerops/pilotage/models"
-	"github.com/Huawei/containerops/pilotage/utils"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/containerops/configure"
@@ -138,28 +137,22 @@ func GetPipelineListByNamespaceAndRepository(namespace, repository string) ([]ma
 				versionMap["version"] = pipelineVersion.Version
 				versionMap["versionCode"] = pipelineVersion.VersionCode
 
-				// get current version latest run result
-				outcome := new(models.Outcome)
-				err := outcome.GetOutcome().Where("real_pipeline = ?", pipelineVersion.ID).Where("real_action = ?", 0).Order("-id").First(outcome).Error
-				if err != nil && strings.Contains(err.Error(), "record not found") {
-					log.Info("can't get pipeline(" + pipelineVersion.Pipeline + "} version(" + pipelineVersion.Version + ")'s input info:" + err.Error())
+				latestPipelineLog := new(models.PipelineLog)
+				err := latestPipelineLog.GetPipelineLog().Where("from_pipeline = ?", pipelineVersion.ID).Order("-id").First(latestPipelineLog).Error
+				if err != nil {
+					log.Error("[pipeline's GetPipelineListByNamespaceAndRepository]:error when get pipeline's latest run info:", err.Error())
 				}
 
-				if outcome.ID != 0 {
+				if latestPipelineLog.ID != 0 {
 					statusMap := make(map[string]interface{})
 
-					statusMap["status"] = false
-					statusMap["time"] = outcome.CreatedAt.Format("2006-01-02 15:04:05")
-
-					finalResult := new(models.Outcome)
-					err := finalResult.GetOutcome().Where("pipeline = ?", outcome.Pipeline).Where("sequence = ?", outcome.Sequence).Where("action = ?", -1).First(finalResult).Error
-					if err != nil && strings.Contains(err.Error(), "record not found") {
-						log.Info("can't get pipeline(" + pipelineVersion.Pipeline + "} version(" + pipelineVersion.Version + ")'s output info:" + err.Error())
+					status := false
+					if latestPipelineLog.RunState != models.PipelineLogStateRunFailed {
+						status = true
 					}
 
-					if finalResult.ID != 0 && finalResult.Status {
-						statusMap["status"] = finalResult.Status
-					}
+					statusMap["time"] = latestPipelineLog.CreatedAt.Format("2006-01-02 15:04:05")
+					statusMap["status"] = status
 
 					versionMap["status"] = statusMap
 				}
@@ -446,7 +439,7 @@ func GetPipelineRunHistoryList(namespace, repository string) ([]map[string]inter
 		sequenceInfoMap["pipelineSequenceID"] = pipelinelog.ID
 		sequenceInfoMap["sequence"] = pipelinelog.Sequence
 		sequenceInfoMap["status"] = pipelinelog.RunState
-		sequenceInfoMap["time"] = pipelinelog.CreatedAt
+		sequenceInfoMap["time"] = pipelinelog.CreatedAt.Format("2006-01-02 15:04:05")
 
 		sequenceList = append(sequenceList, sequenceInfoMap)
 		pipelineVersionInfoMap["sequenceList"] = sequenceList
@@ -517,12 +510,12 @@ func (pipelineInfo *Pipeline) GetPipelineToken() (map[string]interface{}, error)
 	tokenMap := make(map[string]interface{})
 	if pipelineInfo.SourceInfo == "" {
 		// if sourceInfo is empty generate a token
-		token = utils.MD5(pipelineInfo.Namespace + "/" + pipelineInfo.Repository + "/" + pipelineInfo.Pipeline.Pipeline)
+		token = pipelineInfo.Pipeline.Pipeline
 	} else {
 		json.Unmarshal([]byte(pipelineInfo.SourceInfo), &tokenMap)
 
 		if _, ok := tokenMap["token"].(string); !ok {
-			token = utils.MD5(pipelineInfo.Namespace + "/" + pipelineInfo.Repository + "/" + pipelineInfo.Pipeline.Pipeline)
+			token = pipelineInfo.Pipeline.Pipeline
 		} else {
 			token = tokenMap["token"].(string)
 		}
@@ -551,7 +544,7 @@ func (pipelineInfo *Pipeline) GetPipelineToken() (map[string]interface{}, error)
 
 	url += projectAddr
 	url = strings.TrimSuffix(url, "/")
-	url += "/pipeline/v1" + "/" + pipelineInfo.Namespace + "/" + pipelineInfo.Repository + "/" + pipelineInfo.Pipeline.Pipeline
+	url += "/v2" + "/" + pipelineInfo.Namespace + "/" + pipelineInfo.Repository + "/workflow/v1/exec/" + pipelineInfo.Pipeline.Pipeline
 
 	result["url"] = url
 
