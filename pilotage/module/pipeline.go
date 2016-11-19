@@ -338,11 +338,11 @@ func GetPipeline(pipelineId int64) (*Pipeline, error) {
 	return pipeline, nil
 }
 
-func GetPipelineLog(namespace, repository, versionName string, sequence int64) (*PipelineLog, error) {
+func GetPipelineLog(namespace, repository, workflowName, versionName string, sequence int64) (*PipelineLog, error) {
 	var err error
 	pipelineLogInfo := new(models.PipelineLog)
 
-	query := pipelineLogInfo.GetPipelineLog().Where("namespace =? ", namespace).Where("repository = ?", repository).Where("version = ?", versionName)
+	query := pipelineLogInfo.GetPipelineLog().Where("namespace =? ", namespace).Where("repository = ?", repository).Where("pipeline = ?", workflowName).Where("version = ?", versionName)
 	if sequence == int64(0) {
 		query = query.Order("-id")
 	} else {
