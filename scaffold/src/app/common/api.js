@@ -18,21 +18,21 @@ limitations under the License.
 let apiUrlConf = {
 	"host" : "https://test-1.containerops.sh",
 	"pipeline" : {
-		"list" : "/pipeline/v1/demo/demo",
-		"data" : "/pipeline/v1/demo/demo/{pipelineName}/json?id={pipelineID}",
-		"add" : "/pipeline/v1/demo/demo",
-		"save" : "/pipeline/v1/demo/demo/{pipelineName}",
-		"eventOutput" : "/pipeline/v1/eventJson/github/{eventName}",
-		"getEnv" : "/pipeline/v1/demo/demo/{pipelineName}/env?id={pipelineID}",
-		"setEnv" : "/pipeline/v1/demo/demo/{pipelineName}/env",
-		"changeState" : "/pipeline/v1/demo/demo/{pipelineName}/state",
-		"getToken" : "/pipeline/v1/demo/demo/{pipelineName}/token?id={pipelineID}"
+		"list" : "/v2/{namespace}/{repository}/workflow/v1/define/list",
+		"data" : "/v2/{namespace}/{repository}/workflow/v1/define/{pipelineName}?id={pipelineID}",
+		"add" : "/v2/{namespace}/{repository}/workflow/v1/define",
+		"save" : "/v2/{namespace}/{repository}/workflow/v1/define/{pipelineName}",
+		"eventOutput" : "/v2/{namespace}/{repository}/workflow/v1/define/event/{site}/{eventName}",
+		"getEnv" : "/v2/{namespace}/{repository}/workflow/v1/define/{pipelineName}/env?id={pipelineID}",
+		"setEnv" : "/v2/{namespace}/{repository}/workflow/v1/define/{pipelineName}/env",
+		"changeState" : "/v2/{namespace}/{repository}/workflow/v1/define/{pipelineName}/state",
+		"getToken" : "/v2/{namespace}/{repository}/workflow/v1/define/{pipelineName}/token?id={pipelineID}"
 	},
 	"component" : {
-		"list" : "/pipeline/v1/demo/component",
-		"data" : "/pipeline/v1/demo/component/{componentName}?id={componentID}",
-		"add" : "/pipeline/v1/demo/component",
-		"save" : "/pipeline/v1/demo/component/{componentName}"
+		"list" : "/v2/{namespace}/component/list",
+		"data" : "/v2/{namespace}/component/{componentName}?id={componentID}",
+		"add" : "/v2/{namespace}/component",
+		"save" : "/v2/{namespace}/component/{componentName}"
 	},
 	"history" : {
 		"sequenceList" : "/pipeline/v1/demo/demo/histories",
@@ -57,7 +57,7 @@ export let pipelineApi = {
 	"list" : function(){
 		abortPendingPromise();
 		pendingPromise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.pipeline.list,
+	        "url": apiUrlConf.host + apiUrlConf.pipeline.list.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo"),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
@@ -67,7 +67,7 @@ export let pipelineApi = {
 	"data" : function(name,id){
 		abortPendingPromise();
 		pendingPromise= $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.pipeline.data.replace(/{pipelineName}/g, name).replace(/{pipelineID}/g, id),
+	        "url": apiUrlConf.host + apiUrlConf.pipeline.data.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{pipelineName}/g, name).replace(/{pipelineID}/g, id),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
@@ -81,7 +81,7 @@ export let pipelineApi = {
 				"version":version
 			});
 		pendingPromise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.pipeline.add,
+	        "url": apiUrlConf.host + apiUrlConf.pipeline.add.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo"),
 	        "type": "POST",
 	        "dataType": "json",
 	        "data": data
@@ -92,7 +92,7 @@ export let pipelineApi = {
 		abortPendingPromise();
 		var data = JSON.stringify(reqbody);
 		pendingPromise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.pipeline.save.replace(/{pipelineName}/g, name),
+	        "url": apiUrlConf.host + apiUrlConf.pipeline.save.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{pipelineName}/g, name),
 	        "type": "PUT",
 	        "dataType": "json",
 	        "data": data
@@ -102,7 +102,7 @@ export let pipelineApi = {
 	"eventOutput" : function(name){
 		abortPendingPromise();
 		pendingPromise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.pipeline.eventOutput.replace(/{eventName}/g, name),
+	        "url": apiUrlConf.host + apiUrlConf.pipeline.eventOutput.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{site}/g, "github").replace(/{eventName}/g, name),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
@@ -112,7 +112,7 @@ export let pipelineApi = {
 	"getEnv" : function(name,id){
 		abortPendingPromise();
 		pendingPromise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.pipeline.getEnv.replace(/{pipelineName}/g, name).replace(/{pipelineID}/g, id),
+	        "url": apiUrlConf.host + apiUrlConf.pipeline.getEnv.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{pipelineName}/g, name).replace(/{pipelineID}/g, id),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
@@ -123,7 +123,7 @@ export let pipelineApi = {
 		abortPendingPromise();
 		var data = JSON.stringify(reqbody);
 		pendingPromise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.pipeline.setEnv.replace(/{pipelineName}/g, name),
+	        "url": apiUrlConf.host + apiUrlConf.pipeline.setEnv.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{pipelineName}/g, name),
 	        "type": "PUT",
 	        "dataType": "json",
 	        "data": data
@@ -134,7 +134,7 @@ export let pipelineApi = {
 		abortPendingPromise();
 		var data = JSON.stringify(reqbody);
 		pendingPromise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.pipeline.changeState.replace(/{pipelineName}/g, name),
+	        "url": apiUrlConf.host + apiUrlConf.pipeline.changeState.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{pipelineName}/g, name),
 	        "type": "PUT",
 	        "dataType": "json",
 	        "data": data
@@ -144,7 +144,7 @@ export let pipelineApi = {
 	"getToken" : function(name,id){
 		abortPendingPromise();
 		pendingPromise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.pipeline.getToken.replace(/{pipelineName}/g, name).replace(/{pipelineID}/g, id),
+	        "url": apiUrlConf.host + apiUrlConf.pipeline.getToken.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{pipelineName}/g, name).replace(/{pipelineID}/g, id),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
@@ -158,7 +158,7 @@ export let componentApi = {
 	"list" : function(){
 		abortPendingPromise();
 		pendingPromise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.component.list,
+	        "url": apiUrlConf.host + apiUrlConf.component.list.replace(/{namespace}/g, "demo"),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
@@ -168,7 +168,7 @@ export let componentApi = {
 	"data" : function(name,id){
 		abortPendingPromise();
 		pendingPromise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.component.data.replace(/{componentName}/g, name).replace(/{componentID}/g, id),
+	        "url": apiUrlConf.host + apiUrlConf.component.data.replace(/{namespace}/g, "demo").replace(/{componentName}/g, name).replace(/{componentID}/g, id),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
@@ -182,7 +182,7 @@ export let componentApi = {
 				"version":version
 			});
 		pendingPromise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.component.add,
+	        "url": apiUrlConf.host + apiUrlConf.component.add.replace(/{namespace}/g, "demo"),
 	        "type": "POST",
 	        "dataType": "json",
 	        "data": data
@@ -193,7 +193,7 @@ export let componentApi = {
 		abortPendingPromise();
 		var data = JSON.stringify(reqbody);
 		pendingPromise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.component.save.replace(/{componentName}/g, name),
+	        "url": apiUrlConf.host + apiUrlConf.component.save.replace(/{namespace}/g, "demo").replace(/{componentName}/g, name),
 	        "type": "PUT",
 	        "dataType": "json",
 	        "data": data

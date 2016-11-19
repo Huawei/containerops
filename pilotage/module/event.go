@@ -28,7 +28,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-var eventList = map[string]string{"COMPONENT_START": "event", "COMPONENT_STOP": "event", "TASK_START": "event", "TASK_RESULT": "event", "TASK_STATUS": "event", "REGISTER_URL": "register"}
+var eventList = map[string]string{"COMPONENT_START": "COMPONENT_START", "COMPONENT_STOP": "COMPONENT_STOP", "TASK_START": "TASK_START", "TASK_RESULT": "TASK_RESULT", "TASK_STATUS": "TASK_STATUS", "REGISTER_URL": "register"}
 var projectAddr = ""
 
 func init() {
@@ -74,7 +74,7 @@ func setSystemEvent(db *gorm.DB, actionLog *models.ActionLog) error {
 		tempEvent.Character = models.CharacterComponentEvent
 		tempEvent.Type = models.TypeSystemEvent
 		tempEvent.Source = models.SourceInnerEvent
-		tempEvent.Definition = projectAddr + "/pipeline/v1/" + actionLog.Namespace + "/" + actionLog.Repository + "/" + pipelineLog.Pipeline + "/" + value
+		tempEvent.Definition = projectAddr + "/v2/" + actionLog.Namespace + "/" + actionLog.Repository + "/workflow/v1/event/" + pipelineLog.Pipeline + "/" + value
 
 		err := db.Save(tempEvent).Error
 		if err != nil {
