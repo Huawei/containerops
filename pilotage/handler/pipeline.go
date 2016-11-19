@@ -121,9 +121,9 @@ func GetPipelineV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	pipelineName := ctx.Params(":pipeline")
+	pipelineName := ctx.Params(":workflow")
 	if pipelineName == "" {
-		result, _ = json.Marshal(map[string]string{"errMsg": "pipeline can't be empty"})
+		result, _ = json.Marshal(map[string]string{"errMsg": "workflow can't be empty"})
 		return http.StatusBadRequest, result
 	}
 
@@ -150,7 +150,7 @@ func GetPipelineTokenV1Handler(ctx *macaron.Context) (int, []byte) {
 
 	namespace := ctx.Params(":namespace")
 	repository := ctx.Params(":repository")
-	pipelineName := ctx.Params(":pipeline")
+	pipelineName := ctx.Params(":workflow")
 	id := ctx.QueryInt64("id")
 
 	if namespace == "" {
@@ -370,8 +370,8 @@ func PutPipelineV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	if pipelineInfo.Namespace != ctx.Params(":namespace") || pipelineInfo.Repository != ctx.Params(":repository") || pipelineInfo.Pipeline.Pipeline != ctx.Params(":pipeline") {
-		result, _ = json.Marshal(map[string]string{"errMsg": "request pipeline is not equal given id"})
+	if pipelineInfo.Namespace != ctx.Params(":namespace") || pipelineInfo.Repository != ctx.Params(":repository") || pipelineInfo.Pipeline.Pipeline != ctx.Params(":workflow") {
+		result, _ = json.Marshal(map[string]string{"errMsg": "request pipeline is not equal to the given one"})
 		return http.StatusBadRequest, result
 	}
 
@@ -490,7 +490,7 @@ func ExecutePipelineV1Handler(ctx *macaron.Context) (int, []byte) {
 	pipelineInfo := new(models.Pipeline)
 	version := ctx.Query("version")
 	namespace := ctx.Params(":namespace")
-	pipelineName := ctx.Params(":pipeline")
+	pipelineName := ctx.Params(":workflow")
 	//TODO: is version,namespace,pipeline illegal,if not ,return error
 
 	// if version is nil, select a least and not disabled version
@@ -511,7 +511,7 @@ func ExecutePipelineV1Handler(ctx *macaron.Context) (int, []byte) {
 		result, _ = json.Marshal(map[string]string{"result": "error when get pipeline info:" + err.Error()})
 		return http.StatusBadRequest, result
 	} else if pipelineInfo.ID == 0 || pipelineInfo.Version == "" {
-		result, _ = json.Marshal(map[string]string{"result": "error when get pipeline info from namespace(" + ctx.Params(":namespace") + ") and pipeline(" + ctx.Params(":pipeline") + ")"})
+		result, _ = json.Marshal(map[string]string{"result": "error when get pipeline info from namespace(" + namespace + ") and pipeline(" + pipelineName + ")"})
 		return http.StatusBadRequest, result
 		// } else if pipelineInfo.SourceInfo == "" {
 		// result, _ = json.Marshal(map[string]string{"result": "pipeline does not config source info"})
