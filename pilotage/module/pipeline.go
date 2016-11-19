@@ -446,7 +446,7 @@ func GetPipelineRunHistoryList(namespace, repository string) ([]map[string]inter
 		sequenceInfoMap["pipelineSequenceID"] = pipelinelog.ID
 		sequenceInfoMap["sequence"] = pipelinelog.Sequence
 		sequenceInfoMap["status"] = pipelinelog.RunState
-		sequenceInfoMap["time"] = pipelinelog.CreatedAt
+		sequenceInfoMap["time"] = pipelinelog.CreatedAt.Format("2006-01-02 15:04:05")
 
 		sequenceList = append(sequenceList, sequenceInfoMap)
 		pipelineVersionInfoMap["sequenceList"] = sequenceList
