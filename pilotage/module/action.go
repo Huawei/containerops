@@ -426,8 +426,16 @@ func (actionLog *ActionLog) GetActionLineInfo() ([]map[string]interface{}, error
 		fromRealActionID := int64(fromRealActionIDF)
 		fromActionInfoMap := make(map[string]string)
 		if fromRealActionID == int64(0) {
-			fromActionInfoMap["id"] = "s-" + strconv.FormatInt(actionLog.Stage, 10)
-			fromActionInfoMap["type"] = models.StageTypeForWeb[0]
+			// if action's id == 0 ,this is a realtion from pipeline's start stage
+			startStage := new(models.StageLog)
+			err := startStage.GetStageLog().Where("namespace = ?", actionLog.Namespace).Where("repository = ?", actionLog.Repository).Where("pipeline = ?", actionLog.Pipeline).Where("type = ?", models.StageTypeStart).First(startStage).Error
+			if err != nil {
+				log.Error("[actionLog's GetActionLineInfo]:error when get pipline's start stage from db:", err.Error())
+				continue
+			}
+
+			fromActionInfoMap["id"] = "s-" + strconv.FormatInt(startStage.ID, 10)
+			fromActionInfoMap["type"] = models.StageTypeForWeb[startStage.Type]
 		} else {
 			fromActionInfo := new(models.ActionLog)
 			err = fromActionInfo.GetActionLog().Where("namespace = ?", actionLog.Namespace).Where("repository = ?", actionLog.Repository).Where("pipeline = ?", actionLog.Pipeline).Where("sequence = ?", actionLog.Sequence).Where("from_action = ?", fromRealActionID).First(fromActionInfo).Error
