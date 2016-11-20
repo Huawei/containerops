@@ -21,7 +21,7 @@ import { loading } from "../common/loading";
 
 
 export function getLineHistory(pipelineName,versionName,pipelineRunSequence,sequenceLineId) {
-    loading.show();
+    // loading.show();
     var promise = historyDataService.getLineDataInfo(pipelineName,versionName,pipelineRunSequence,sequenceLineId);
     promise.done(function(data) {
         loading.hide();

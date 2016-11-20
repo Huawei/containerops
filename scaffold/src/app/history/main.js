@@ -21,6 +21,7 @@ import { notify } from "../common/notify";
 import { getActionHistory } from "./actionHistory";
 import { getLineHistory } from "./lineHistory";
 // import * as initButton from "../pipeline/initButton";
+import {changeCurrentElement} from "../common/util";
 import * as sequenceUtil from "./initUtil";
 
 export function initHistoryPage() {
@@ -85,35 +86,23 @@ function getHistoryList() {
                             hppItem.append(hvRow);
 
                             if (vd.sequenceList.length > 0) {
-                              _.each(vd.sequenceList,function(sd){
+                              
+                              if(vd.sequenceList.length > 5){
+                                 var sdRowArray = forVdSequenceList(vd.sequenceList,0,5,pd.id,pd.name,vd.id,vd.name);
+                                 console.log(sdRowArray);
+                                 _.each(sdRowArray,function(row){
+                                    hppItem.append(row);
+                                 });
+                              } else{
+                                var sdRowArray = forVdSequenceList(vd.sequenceList,0,0,pd.id,pd.name,vd.id,vd.name);
+                                 _.each(sdRowArray,function(row){
+                                    hppItem.append(row);
+                                 });
+                              }
 
-                                var hsRow = `<tr data-id=` + sd.sequence + ` data-status=` + sd.status + ` data-pname=` + pd.name + ` data-version=` + vd.name + ` data-versionid=` + vd.id + ` class="sequence-row"><td></td><td></td>`;
-                                var btnMore = `<tr data-insertid=` + sd.pipelineSequenceID + ` class="btn-more"><td colspan="4" class="pptd btn-showMorm" >点击查看更多 \<\< </td></tr>`;
-                                let sdTime = sd.time;
-
-                                if (sd.status == 1 || sd.status == 0) {
-
-                                    hsRow += `<td><div class="state-list"><div class="state-icon-list state-waitStart"></div><span class="state-label-list">` + sd.time + `</span></div></td>`;
-
-                                } else if (sd.status == 2) {
-
-                                    hsRow += `<td><div class="state-list"><div class="state-icon-list state-running"></div><span class="state-label-list">` + sd.time + `</span></div></td>`;
-
-                                } else if (sd.status == 3) {
-
-                                    hsRow += `<td><div class="state-list"><div class="state-icon-list state-success"></div><span class="state-label-list">` + sd.time + `</span></div></td>`;
-
-                                } else if(sd.status == 4) {
-
-                                    hsRow += `<td><div class="state-list"><div class="state-icon-list state-fail"></div><span class="state-label-list">` + sd.time + `</span></div></td>`
-                                }
-
-                                hsRow += `<td><button type="button" class="btn btn-success sequence-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:16px"></i><span style="margin-left:5px">Detail</span></button></td></tr> `
-
-                                hppItem.append(hsRow);
-
-                              })  
-
+                              $("#btn_"+pd.name+"_"+pd.id).on("click",function(){
+                                    addMore(vd.sequenceList,5,pd.id,pd.name,vd.id,vd.name);
+                              });
 
                             } 
                         }   
@@ -184,6 +173,91 @@ function getHistoryList() {
     });
 }
 
+function forVdSequenceList(vd,index,length,pdId,pdName,vdId,vdName){
+
+    var hsRowArray = [];
+
+    var tempLength = (length > 0) ? length : vd.lengt;
+
+
+    for(var i = index ; i < tempLength ; i++){
+        var sd = vd[i] ;
+        var hsRow = `<tr data-id=` + sd.sequence + ` data-status=` + sd.status + ` data-pname=` + pdName + ` data-version=` + vdName + ` data-versionid=` + vdId + ` class="sequence-row"><td></td><td></td>`;
+        // var hsRow = `<tr data-id=` + sd.sequence + ` data-status=` + sd.status + ` data-pname=` + pd.name + ` data-version=` + vd.name + ` data-versionid=` + vd.id + ` class="sequence-row"><td></td><td></td>`;
+        let sdTime = sd.time;
+
+        if (sd.status == 1 || sd.status == 0) {
+
+            hsRow += `<td><div class="state-list"><div class="state-icon-list state-waitStart"></div><span class="state-label-list">` + sd.time + `</span></div></td>`;
+
+        } else if (sd.status == 2) {
+
+            hsRow += `<td><div class="state-list"><div class="state-icon-list state-running"></div><span class="state-label-list">` + sd.time + `</span></div></td>`;
+
+        } else if (sd.status == 3) {
+
+            hsRow += `<td><div class="state-list"><div class="state-icon-list state-success"></div><span class="state-label-list">` + sd.time + `</span></div></td>`;
+
+        } else if(sd.status == 4) {
+
+            hsRow += `<td><div class="state-list"><div class="state-icon-list state-fail"></div><span class="state-label-list">` + sd.time + `</span></div></td>`
+        }
+
+        hsRow += `<td><button type="button" class="btn btn-success sequence-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:16px"></i><span style="margin-left:5px">Detail</span></button></td></tr> `
+
+         if(i >= index){
+            hsRowArray[i]=hsRow ;
+        }
+
+        if(length > 0 ){
+            if(hsRowArray.length == tempLength){
+                var btnMore = `<tr data-insertid=` + sd.pipelineSequenceID + ` class="btn-more"><td colspan="4" id="btn_`+pdName+`_`+pdId+`" class="pptd btn-showMorm"  >点击查看更多 \<\< </td></tr>`;
+                hsRowArray[i+1] = btnMore ;
+                break ;
+            }
+        }
+                // $(".btn-more").css({"font-size":"12px","color":"#7C7C7C","text-align":"center"});
+    }
+    return hsRowArray ;
+}
+
+function addMore(vd,index,pdId,pdName,vdId,vdName){
+
+    var tempLength = vd.length;
+
+
+    for(var i = index ; i < tempLength ; i++){
+        var sd = vd[i] ;
+        var hsRow = `<tr data-id=` + sd.sequence + ` data-status=` + sd.status + ` data-pname=` + pdName + ` data-version=` + vdName + ` data-versionid=` + vdId + ` class="sequence-row"><td></td><td></td>`;
+        // var hsRow = `<tr data-id=` + sd.sequence + ` data-status=` + sd.status + ` data-pname=` + pd.name + ` data-version=` + vd.name + ` data-versionid=` + vd.id + ` class="sequence-row"><td></td><td></td>`;
+        let sdTime = sd.time;
+
+        if (sd.status == 1 || sd.status == 0) {
+
+            hsRow += `<td><div class="state-list"><div class="state-icon-list state-waitStart"></div><span class="state-label-list">` + sd.time + `</span></div></td>`;
+
+        } else if (sd.status == 2) {
+
+            hsRow += `<td><div class="state-list"><div class="state-icon-list state-running"></div><span class="state-label-list">` + sd.time + `</span></div></td>`;
+
+        } else if (sd.status == 3) {
+
+            hsRow += `<td><div class="state-list"><div class="state-icon-list state-success"></div><span class="state-label-list">` + sd.time + `</span></div></td>`;
+
+        } else if(sd.status == 4) {
+
+            hsRow += `<td><div class="state-list"><div class="state-icon-list state-fail"></div><span class="state-label-list">` + sd.time + `</span></div></td>`
+        }
+
+        hsRow += `<td><button type="button" class="btn btn-success sequence-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:16px"></i><span style="margin-left:5px">Detail</span></button></td></tr> `
+
+         if(i >= index){
+            $("#btn_"+pdName+"_"+pdId).parent().before(hsRow);
+        }
+        $("#btn_"+pdName+"_"+pdId).parent().hide();
+    }
+
+}
 
 
 let historyAbout;
@@ -1121,10 +1195,32 @@ function getPathData(startPoint, endPoint) {
     return "M" + x0 + "," + y0 + "C" + x2 + "," + y0 + " " + x3 + "," + y1 + " " + x1 + "," + y1;
 }
 
+
+function zoomed() {
+    constant.sequencePipelineView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+    constant.sequenceActionsView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+    // buttonView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+    constant.sequenceLinesView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")")
+        .attr("translateX", d3.event.translate[0])
+        .attr("translateY", d3.event.translate[1])
+        .attr("scale", d3.event.scale);
+}
+function clicked(d, i) {
+    // constant.buttonView.selectAll("image").remove();
+    if (d3.event.defaultPrevented) return; // zoomed
+    d3.select(this).transition()
+        .transition()
+}
+
+
+function nozoom() {
+    d3.event.preventDefault();
+}
+
 function historyChangeCurrentElement(previousData) {
     if (previousData != null) {
 
-        if (previousData.status == true || previousData.type == "line") {
+        if (previousData.status == 3 || previousData.type == "line") {
 
             switch (previousData.type) {
                 case "stage":
@@ -1147,7 +1243,7 @@ function historyChangeCurrentElement(previousData) {
 
     if (previousData != null) {
 
-        if (previousData.status == false || previousData.type == "line") {
+        if (previousData.status == 4 || previousData.type == "line") {
 
             switch (previousData.type) {
                 case "stage":
@@ -1165,25 +1261,4 @@ function historyChangeCurrentElement(previousData) {
             }
         }
     }
-}
-
-function zoomed() {
-    constant.sequencePipelineView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
-    constant.sequenceActionsView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
-    // buttonView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
-    constant.sequenceLinesView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")")
-        .attr("translateX", d3.event.translate[0])
-        .attr("translateY", d3.event.translate[1])
-        .attr("scale", d3.event.scale);
-}
-function clicked(d, i) {
-    // constant.buttonView.selectAll("image").remove();
-    if (d3.event.defaultPrevented) return; // zoomed
-    d3.select(this).transition()
-        .transition()
-}
-
-
-function nozoom() {
-    d3.event.preventDefault();
 }

@@ -21,7 +21,7 @@ import { loading } from "../common/loading";
 
 // function(pipelineName,versionName,pipelineRunSequence,stageName,actionName){
 export function getActionHistory(pipelineName,versionName,pipelineRunSequence,stageName,actionName) {
-    loading.show();
+    // loading.show();
     var promise = historyDataService.getActionRunHistory(pipelineName,versionName,pipelineRunSequence,stageName,actionName);
     promise.done(function(data) {
         loading.hide();
@@ -58,8 +58,14 @@ function showActionHistoryView(history,actionname) {
                 let logJson = JSON.parse(allLogs);
                 let num = index + 1;
 
-                if(!logJson.data && !logJson.resp){
-                    sequenceLogDetail[index] = logJson.INFO.output;
+                // if(!logJson.data && !logJson.resp){
+                    // console.log("=========starta=========");
+                    console.log("log=====",log);
+                    // console.log("allLogs=====",allLogs);
+                    console.log("logJson=====",logJson);
+                    // console.log("num=====",num);
+                    // console.log("log=========end=========");
+                    sequenceLogDetail[index] = logJson.INFO;
                     let logTime = log.substr(0,19);
 
                     var row = `<tr class="log-item"><td>`
@@ -69,35 +75,45 @@ function showActionHistoryView(history,actionname) {
                             + logJson.EVENTID +`</td><td>`
                             + logJson.RUN_ID +`</td><td>`
                             + logJson.INFO.status +`</td><td>`
-                            + logJson.INFO.result +`</td><td></td><td></td><td><button data-logid="`
-                            + index + `" type="button" class="btn btn-success sequencelog-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:14px"></i>&nbsp;&nbsp;Detail</button></td></tr>`;
+                            + logJson.INFO.result +`</td><td><button data-logid="`
+                            + "info_" + index + `" type="button" class="btn btn-success sequencelog-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:14px"></i>&nbsp;&nbsp;Detail</button></td></tr>`;
                     $("#logs-tr").append(row);
+                    var c =$(".sequencelog-detail").attr("data-logid");
+                    console.log("c",c);
 
-                } else {
-                    var row = `<tr class="log-item"><td>`
-                                    + num + `</td><td></td><td></td><td></td><td></td><td></td><td></td><td>`
-                                    + logJson.data +`</td><td>`
-                                    + logJson.resp +`</td><td></td></tr>`;
-                    $("#logs-tr").append(row);    
-                }
+
+                // } else {
+                //     var row = `<tr class="log-item"><td>`
+                //                     + num + `</td><td></td><td></td><td></td><td></td><td></td><td></td><td>`
+                //                     + logJson.data +`</td><td>`
+                //                     + logJson.resp +`</td><td></td></tr>`;
+                //     $("#logs-tr").append(row);    
+                // }
+
             })
 
              resizeWidget()
 
             $(".sequencelog-detail").on("click",function(e){
+
                 let target = $(e.target);
+                var tempLogIdArray = (target.attr("data-logid")).split("_");
 
-                _.each(sequenceLogDetail,function(d,i){
-                    if(target.data("logid") == i){
-                        let detailData = "";
-                        for( let prop in d){
-                            detailData += prop + ":" + d[prop].replace(/\n/g, "<br />");
-                            detailData += "<br />";
-                        }
+                if(null != tempLogIdArray && tempLogIdArray.length > 1){
 
-                        $(".dialogContant").html(detailData);
+                    var logjsoin =  sequenceLogDetail[tempLogIdArray[1]];
+                    let detailData = "";
+
+                    for( let prop in logjsoin){
+                        console.log(logjsoin[prop])
+                        // detailData += prop + ":" + logjsoin[prop].replace(/\\n/g,"<br/>");
+                        detailData += prop + ":" + logjsoin[prop];
+                        detailData += "<br /><br />";
                     }
-                })
+                    $(".dialogContant").html(detailData);   
+                    
+                }
+
   
                 $(".dialogWindow").css("height","auto");
                 $("#dialog").show();
