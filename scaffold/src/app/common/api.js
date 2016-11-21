@@ -16,7 +16,8 @@ limitations under the License.
  import {loading} from "./loading";
 
 let apiUrlConf = {
-	"host" : "https://test-1.containerops.sh",
+	// "host" : "https://test-1.containerops.sh",
+	"host" : "http://test-2.containerops.sh:3306",
 	"pipeline" : {
 		"list" : "/v2/{namespace}/{repository}/workflow/v1/define/list",
 		"data" : "/v2/{namespace}/{repository}/workflow/v1/define/{pipelineName}?id={pipelineID}",
@@ -28,20 +29,21 @@ let apiUrlConf = {
 		"changeState" : "/v2/{namespace}/{repository}/workflow/v1/define/{pipelineName}/state",
 		"getToken" : "/v2/{namespace}/{repository}/workflow/v1/define/{pipelineName}/token?id={pipelineID}"
 	},
+
 	"component" : {
 		"list" : "/v2/{namespace}/component/list",
 		"data" : "/v2/{namespace}/component/{componentName}?id={componentID}",
 		"add" : "/v2/{namespace}/component",
 		"save" : "/v2/{namespace}/component/{componentName}"
 	},
+
 	"history" : {
-		"sequenceList" : "/pipeline/v1/demo/demo/histories",
-		"sequenceData" : "/pipeline/v1/demo/demo/{pipelineName}/historyDefine?versionId={versionID}&sequenceId={pipelineSequenceID}",
-		"action" : "/pipeline/v1/demo/demo/{pipelineName}/stage/{stageName}/{actionName}/history?actionLogId={actionLogID}",
-		"relation" : "/pipeline/v1/demo/demo/{pipelineName}/{pipelineSequenceID}/lineHistory?startActionId={startActionId}&endActionId={endActionId}"
+		"pipelineHistories" : "/v2/{namespace}/{repository}/workflow/v1/log/list",
+		"pipelineHistory" : "/v2/{namespace}/{repository}/workflow/v1/log/{pipelineName}/{version}?sequence={sequence}",
+		"action" : "/v2/{namespace}/{repository}/workflow/v1/log/{pipelineName}/{version}/{sequence}/stage/{stageName}/action/{actionName}",
+		"relation" : "/v2/{namespace}/{repository}/workflow/v1/log/{pipelineName}/{version}/{sequence}/{lineId}"
 	}
 }
-
 let pendingPromise;
 
 // abort
@@ -204,40 +206,40 @@ export let componentApi = {
 
 // history
 export let historyApi = {
-	"sequenceData" : function(pipelineName,versionID,pipelineRunSequenceID){
+	"pipelineHistories" : function () {
 		abortPendingPromise();
 		pendingPromise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.history.sequenceData.replace(/{pipelineName}/g, pipelineName).replace(/{versionID}/g, versionID).replace(/{pipelineSequenceID}/g, pipelineRunSequenceID),
-	        "type": "GET",
-	        "dataType": "json",
-	        "cache": false
-	    });
-	    return pendingPromise;
-	},
-	"sequenceList" : function () {
-		abortPendingPromise();
-		pendingPromise = $.ajax({
-			"url" : apiUrlConf.host + apiUrlConf.history.sequenceList,
+			"url" : apiUrlConf.host + apiUrlConf.history.pipelineHistories.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo"),
 			"type" : "GET",
 			"dataType" : "json",
 			"cache": false
 		});
 		return pendingPromise;
 	},
-	"action" : function(pipelineName,stageName,actionName,actionLogID){
+	"pipelineHistory" : function(pipelineName,versionName,pipelineRunSequence){
 		abortPendingPromise();
 		pendingPromise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.history.action.replace(/{pipelineName}/g, pipelineName).replace(/{stageName}/g, stageName).replace(/{actionName}/g, actionName).replace(/{actionLogID}/g, actionLogID),
+	        "url": apiUrlConf.host + apiUrlConf.history.pipelineHistory.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{pipelineName}/g, pipelineName).replace(/{version}/g, versionName).replace(/{sequence}/g, pipelineRunSequence),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
 	    });
 	    return pendingPromise;
 	},
-	"relation" : function(pipelineName,pipelineSequenceID,startActionId,endActionId){
+	"action" : function(pipelineName,versionName,pipelineRunSequence,stageName,actionName){
 		abortPendingPromise();
 		pendingPromise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.history.relation.replace(/{pipelineName}/g, pipelineName).replace(/{pipelineSequenceID}/g, pipelineSequenceID).replace(/{startActionId}/g, startActionId).replace(/{endActionId}/g, endActionId),
+	        "url": apiUrlConf.host + apiUrlConf.history.action.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{pipelineName}/g, pipelineName).replace(/{version}/g, versionName).replace(/{sequence}/g, pipelineRunSequence).replace(/{stageName}/g, stageName).replace(/{actionName}/g, actionName),
+	        "type": "GET",
+	        "dataType": "json",
+	        "cache": false
+	    });
+	    return pendingPromise;
+	},
+	"relation" : function(pipelineName,versionName,pipelineRunSequence,sequenceLineId){
+		abortPendingPromise();
+		pendingPromise = $.ajax({
+	        "url": apiUrlConf.host + apiUrlConf.history.relation.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{pipelineName}/g, pipelineName).replace(/{version}/g, versionName).replace(/{sequence}/g, pipelineRunSequence).replace(/{lineId}/g, sequenceLineId),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false

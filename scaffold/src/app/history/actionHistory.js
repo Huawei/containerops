@@ -19,9 +19,10 @@ import * as historyDataService from "./historyData";
 import { notify } from "../common/notify";
 import { loading } from "../common/loading";
 
-
-export function getActionHistory(pipelineName,stageName,actionName,actionLogID) {
-    var promise = historyDataService.getActionRunHistory(pipelineName,stageName,actionName,actionLogID);
+// function(pipelineName,versionName,pipelineRunSequence,stageName,actionName){
+export function getActionHistory(pipelineName,versionName,pipelineRunSequence,stageName,actionName) {
+    // loading.show();
+    var promise = historyDataService.getActionRunHistory(pipelineName,versionName,pipelineRunSequence,stageName,actionName);
     promise.done(function(data) {
         loading.hide();
         showActionHistoryView(data.result,actionName);
@@ -30,7 +31,7 @@ export function getActionHistory(pipelineName,stageName,actionName,actionLogID) 
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else if(xhr.statusText != "abort") {
+        } else {
             notify("Server is unreachable", "error");
         }
     });
@@ -54,60 +55,54 @@ function showActionHistoryView(history,actionname) {
 
              _.each(history.logList,function(log,index){
                 let allLogs = log.substr(23);
+                allLogs = allLogStr.replace(/\\n/g , "\\u003cbr /u003e")
                 let logJson = JSON.parse(allLogs);
                 let num = index + 1;
+                sequenceLogDetail[index] = logJson.INFO;
+                let logTime = log.substr(0,19);
 
-                if(!logJson.data && !logJson.resp){
-                    console.log("sequenceLogDetail", logJson.INFO.output)
-                    sequenceLogDetail[index] = logJson.INFO.output;
-                    let logTime = log.substr(0,19);
-
-                    var row = `<tr class="log-item"><td>`
-                            + num +`</td><td>`
-                            + logTime +`</td><td>`
-                            + logJson.EVENT +`</td><td>`
-                            + logJson.EVENTID +`</td><td>`
-                            + logJson.RUN_ID +`</td><td>`
-                            + logJson.INFO.status +`</td><td>`
-                            + logJson.INFO.result +`</td><td></td><td></td><td><button data-logid="`
-                            + index + `" type="button" class="btn btn-success sequencelog-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:14px"></i>&nbsp;&nbsp;Detail</button></td></tr>`;
-                    $("#logs-tr").append(row);
-
-                } else {
-                    var row = `<tr class="log-item"><td>`
-                                    + num + `</td><td></td><td></td><td></td><td></td><td></td><td></td><td>`
-                                    + logJson.data +`</td><td>`
-                                    + logJson.resp +`</td><td></td></tr>`;
-                    $("#logs-tr").append(row);    
-                }
+                var row = `<tr class="log-item"><td>`
+                        + num +`</td><td>`
+                        + logTime +`</td><td>`
+                        + logJson.EVENT +`</td><td>`
+                        + logJson.EVENTID +`</td><td>`
+                        + logJson.RUN_ID +`</td><td>`
+                        + logJson.INFO.status +`</td><td>`
+                        + logJson.INFO.result +`</td><td><button data-logid="`
+                        + "info_" + index + `" type="button" class="btn btn-success sequencelog-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:14px"></i>&nbsp;&nbsp;Detail</button></td></tr>`;
+                $("#logs-tr").append(row);
             })
 
              resizeWidget()
 
             $(".sequencelog-detail").on("click",function(e){
                 let target = $(e.target);
-
-                _.each(sequenceLogDetail,function(d,i){
-                    if(target.data("logid") == i){
-                        let detailData = "";
-                        for( let prop in d){
-                            detailData += prop + ":" + d[prop].replace(/\n/g, "<br />");
-                            detailData += "<br />";
+                var tempLogIdArray = (target.attr("data-logid")).split("_");
+                if(null != tempLogIdArray && tempLogIdArray.length > 1){
+                    var logjsoin =  sequenceLogDetail[tempLogIdArray[1]];
+                    let detailData = "";
+                    for( let prop in logjsoin){
+                        var showLogJson = logjsion[prop];
+                        if( typeOf(showLogJson) == "object"){
+                            for( let subProp in showLogJson){
+                                let showStr =showLogJson[subProp].replace(/\\n/g,"<br/>");
+                                detailData += subProp + ":" + showStr;
+                                datailData += "<br />"
+                            }
+                        }else {
+                            detailData += prop + ":" + showLogJson;
+                            detailData += "<br /><br />";
                         }
-
-                        $(".dialogContant").html(detailData);
                     }
-                })
-  
-                $(".dialogWindon").css("height","auto");
-                $("#dialog").show();
-                if( $(".dialogWindon").height() < $("#dialog").height() * 0.75 ){
-                    
-                    $(".dialogWindon").css("height","auto");
+                    $(".dialogContant").html(detailData);   
+                }
 
+                $(".dialogWindow").css("height","auto");
+                $("#dialog").show();
+                if( $(".dialogWindow").height() < $("#dialog").height() * 0.75 ){
+                    $(".dialogWindow").css("height","auto");
                 } else {
-                    
-                    $(".dialogWindon").css("height","80%");
+                    $(".dialogWindow").css("height","80%");
                     $(".dialogContant").css("height","100%");
                 }
 

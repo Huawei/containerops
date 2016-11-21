@@ -49,6 +49,8 @@ export let PIPELINE_START = "pipeline-start",
     sequenceLineView = [],
     sequenceLinePathArray = [],
     sequenceRunData = [],
+    sequenceRunStatus = null,
+    refreshSequenceRunData = [],
 
     PipelineNodeSpaceSize = 200,
     ActionNodeSpaceSize = 75,
