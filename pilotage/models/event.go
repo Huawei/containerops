@@ -82,7 +82,7 @@ type Event struct {
 	Definition    int64      `json:"definition" sql:"not null;default:0"`     //EventDefinition's ID.
 	Title         string     `json:"title" sql:"not null;type:varchar(255)"`  //Event Title
 	Header        string     `json:"header" sql:"not null;type:text"`         //HTTP HEADER Information.
-	Payload       string     `json:"payload" sql:"not null;type:text"`        //Event details.
+	Payload       string     `json:"payload" sql:"not null;type:longtext"`    //Event details.
 	Authorization string     `json:"authorization" sql:"null;type:text"`      //Authorization like as Basic Authorization or Bearer Token.
 	Type          int64      `json:"type" sql:"not null;default:0"`           //TypeSystemEvent or TypeUserEvent.
 	Source        int64      `json:"source" sql:"not null;default:0"`         //SourceInnerEvent or SourceOutsideEvent.
