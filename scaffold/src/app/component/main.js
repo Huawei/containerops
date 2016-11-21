@@ -54,7 +54,7 @@ function showComponentList(){
         type: "GET",
         cache: false,
         success: function (data) {
-            $(".forComponent").html($(data));    
+            $("#main").html($(data));    
             $("#componentlist").show("slow");
 
             $(".newcomponent").on('click',function(){
@@ -140,7 +140,7 @@ function showNoComponent(){
         type: "GET",
         cache: false,
         success: function (data) {
-            $(".forComponent").html($(data));    
+            $("#main").html($(data));    
             $("#nocomponent").show("slow");
             $(".newcomponent").on('click',function(){
                 showNewComponent();
