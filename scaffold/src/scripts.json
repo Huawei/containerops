@@ -19,7 +19,8 @@
       "node_modules/jsoneditor/dist/jsoneditor.min.js",
       "node_modules/underscore/underscore-min.js",
       "node_modules/select2/dist/js/select2.min.js",
-      "node_modules/js-yaml/dist/js-yaml.min.js"
+      "node_modules/js-yaml/dist/js-yaml.min.js",
+      "node_modules/clipboard/dist/clipboard.min.js"
     ]
 
 }
