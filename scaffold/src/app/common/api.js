@@ -43,12 +43,6 @@ let apiUrlConf = {
 		"action" : "/v2/{namespace}/{repository}/workflow/v1/log/{pipelineName}/{version}/{sequence}/stage/{stageName}/action/{actionName}",
 		"relation" : "/v2/{namespace}/{repository}/workflow/v1/log/{pipelineName}/{version}/{sequence}/{lineId}"
 	}
-	// "history" : {
-	// 	"pipelineHistories" : "/pipeline/v1/demo/demo/histories",
-	// 	"pipelineHistory" : "/pipeline/v1/demo/demo/{pipelineName}/{version}/define?sequence={sequence}",
-	// 	"action" : "/pipeline/v1/demo/demo/{pipelineName}/{version}/{sequence}/stage/{stageName}/action/{actionName}/define",
-	// 	"relation" : "/pipeline /v1/demo/demo/{pipelineName}/{version}/{sequence}/{lineId}"
-	// }
 }
 let pendingPromise;
 

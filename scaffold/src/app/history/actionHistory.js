@@ -55,74 +55,53 @@ function showActionHistoryView(history,actionname) {
 
              _.each(history.logList,function(log,index){
                 let allLogs = log.substr(23);
+                allLogs = allLogStr.replace(/\\n/g , "\\u003cbr /u003e")
                 let logJson = JSON.parse(allLogs);
                 let num = index + 1;
+                sequenceLogDetail[index] = logJson.INFO;
+                let logTime = log.substr(0,19);
 
-                // if(!logJson.data && !logJson.resp){
-                    // console.log("=========starta=========");
-                    console.log("log=====",log);
-                    // console.log("allLogs=====",allLogs);
-                    console.log("logJson=====",logJson);
-                    // console.log("num=====",num);
-                    // console.log("log=========end=========");
-                    sequenceLogDetail[index] = logJson.INFO;
-                    let logTime = log.substr(0,19);
-
-                    var row = `<tr class="log-item"><td>`
-                            + num +`</td><td>`
-                            + logTime +`</td><td>`
-                            + logJson.EVENT +`</td><td>`
-                            + logJson.EVENTID +`</td><td>`
-                            + logJson.RUN_ID +`</td><td>`
-                            + logJson.INFO.status +`</td><td>`
-                            + logJson.INFO.result +`</td><td><button data-logid="`
-                            + "info_" + index + `" type="button" class="btn btn-success sequencelog-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:14px"></i>&nbsp;&nbsp;Detail</button></td></tr>`;
-                    $("#logs-tr").append(row);
-                    var c =$(".sequencelog-detail").attr("data-logid");
-                    console.log("c",c);
-
-
-                // } else {
-                //     var row = `<tr class="log-item"><td>`
-                //                     + num + `</td><td></td><td></td><td></td><td></td><td></td><td></td><td>`
-                //                     + logJson.data +`</td><td>`
-                //                     + logJson.resp +`</td><td></td></tr>`;
-                //     $("#logs-tr").append(row);    
-                // }
-
+                var row = `<tr class="log-item"><td>`
+                        + num +`</td><td>`
+                        + logTime +`</td><td>`
+                        + logJson.EVENT +`</td><td>`
+                        + logJson.EVENTID +`</td><td>`
+                        + logJson.RUN_ID +`</td><td>`
+                        + logJson.INFO.status +`</td><td>`
+                        + logJson.INFO.result +`</td><td><button data-logid="`
+                        + "info_" + index + `" type="button" class="btn btn-success sequencelog-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:14px"></i>&nbsp;&nbsp;Detail</button></td></tr>`;
+                $("#logs-tr").append(row);
             })
 
              resizeWidget()
 
             $(".sequencelog-detail").on("click",function(e){
-
                 let target = $(e.target);
                 var tempLogIdArray = (target.attr("data-logid")).split("_");
-
                 if(null != tempLogIdArray && tempLogIdArray.length > 1){
-
                     var logjsoin =  sequenceLogDetail[tempLogIdArray[1]];
                     let detailData = "";
-
                     for( let prop in logjsoin){
-                        console.log(logjsoin[prop])
-                        // detailData += prop + ":" + logjsoin[prop].replace(/\\n/g,"<br/>");
-                        detailData += prop + ":" + logjsoin[prop];
-                        detailData += "<br /><br />";
+                        var showLogJson = logjsion[prop];
+                        if( typeOf(showLogJson) == "object"){
+                            for( let subProp in showLogJson){
+                                let showStr =showLogJson[subProp].replace(/\\n/g,"<br/>");
+                                detailData += subProp + ":" + showStr;
+                                datailData += "<br />"
+                            }
+                        }else {
+                            detailData += prop + ":" + showLogJson;
+                            detailData += "<br /><br />";
+                        }
                     }
                     $(".dialogContant").html(detailData);   
-                    
                 }
 
-  
                 $(".dialogWindow").css("height","auto");
                 $("#dialog").show();
                 if( $(".dialogWindow").height() < $("#dialog").height() * 0.75 ){
-                    
                     $(".dialogWindow").css("height","auto");
-
                 } else {
-                    
                     $(".dialogWindow").css("height","80%");
                     $(".dialogContant").css("height","100%");
                 }

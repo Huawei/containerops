@@ -58,56 +58,48 @@ function getHistoryList() {
             if (constant.sequenceAllList.length > 0) {
 
                 _.each(constant.sequenceAllList, function(pd) {
-                    var hpRow = `<tr data-id=` + pd.id + ` class="pp-row">
-                                    <td class="pptd">
-                                        <span class="glyphicon glyphicon-menu-down treeclose pp-controller" data-name=` + pd.name + `></span><span style="margin-left:10px">` + pd.name + `</span></td><td></td><td></td><td></td></tr>`;
+                    var hpRow = `<tr data-id=` 
+                        + pd.id + ` class="pp-row"><td class="pptd"><span class="glyphicon glyphicon-menu-down treeclose pp-controller" data-name=`
+                        + pd.name + `></span><span style="margin-left:10px">`
+                        + pd.name + `</span></td><td></td><td></td><td></td></tr>`;
                     hppItem.append(hpRow);
 
                     _.each(pd.versionList, function(vd) {
-
-                        var hvRow = `<tr data-pname=` + pd.name + ` data-version=` + vd.name + ` data-versionid=` + vd.id + ` class="ppversion-row">
-                                        <td></td>`;
+                        var hvRow = `<tr data-pname=` 
+                            + pd.name + ` data-version=` 
+                            + vd.name + ` data-versionid=` 
+                            + vd.id + ` class="ppversion-row"><td></td>`;
 
                         if (_.isUndefined(vd.status) && vd.sequenceList.length == 0) {
-
-                            hvRow += `<td class="pptd">` + vd.name + `</td>
-                                        <td><div class="state-list"><div class="state-icon-list state-norun"></div></div></td><td></td>`;
-
+                            hvRow += `<td class="pptd">` 
+                                    + vd.name + `</td><td><div class="state-list"><div class="state-icon-list state-norun"></div></div></td><td></td>`;
                             hppItem.append(hvRow);
-
-                        } else {
-
+                        }else {
                             hvRow += `<td class="pptd"><span class="glyphicon glyphicon-menu-down treeclose pp-v-controller"></span><span style="margin-left:10px">` + vd.name + `</span></td>`;
-
                             hvRow += `<td class="pptd">`+ vd.info +`</td>`;
-
                             hvRow += `<td></td></tr>`;
-
                             hppItem.append(hvRow);
 
                             if (vd.sequenceList.length > 0) {
                               
-                              if(vd.sequenceList.length > 5){
-                                 var sdRowArray = forVdSequenceList(vd.sequenceList,0,5,pd.id,pd.name,vd.id,vd.name);
-                                 console.log(sdRowArray);
-                                 _.each(sdRowArray,function(row){
-                                    hppItem.append(row);
-                                 });
-                              } else{
+                                if(vd.sequenceList.length > 5){
+                                    var sdRowArray = forVdSequenceList(vd.sequenceList,0,5,pd.id,pd.name,vd.id,vd.name);
+                                    _.each(sdRowArray,function(row){
+                                       hppItem.append(row);
+                                    });
+                                } else{
                                 var sdRowArray = forVdSequenceList(vd.sequenceList,0,0,pd.id,pd.name,vd.id,vd.name);
                                  _.each(sdRowArray,function(row){
                                     hppItem.append(row);
                                  });
-                              }
-
-                              $("#btn_"+pd.name+"_"+pd.id).on("click",function(){
+                                }
+                                
+                                $("#btn_"+pd.name+"_"+pd.id).on("click",function(){
                                     addMore(vd.sequenceList,5,pd.id,pd.name,vd.id,vd.name);
-                              });
-
+                                });
                             } 
                         }   
                     });
-
                 });
 
 
@@ -125,7 +117,6 @@ function getHistoryList() {
 
                         var name = target.data("name");
                         $('tr[data-pname="' + name + '"]').show();
-
                         if ($('tr[data-pname="' + name + '"]').find(".pp-v-controller").hasClass("treeopen")) {
                             $('tr[data-pname="' + name + '"]').find(".pp-v-controller").trigger("click");
                         }
@@ -176,7 +167,7 @@ function getHistoryList() {
 function forVdSequenceList(vd,index,length,pdId,pdName,vdId,vdName){
 
     var hsRowArray = [];
-
+console.log("vd",vd)
     var tempLength = (length > 0) ? length : vd.lengt;
 
 
@@ -213,10 +204,10 @@ function forVdSequenceList(vd,index,length,pdId,pdName,vdId,vdName){
             if(hsRowArray.length == tempLength){
                 var btnMore = `<tr data-insertid=` + sd.pipelineSequenceID + ` class="btn-more"><td colspan="4" id="btn_`+pdName+`_`+pdId+`" class="pptd btn-showMorm"  >点击查看更多 \<\< </td></tr>`;
                 hsRowArray[i+1] = btnMore ;
+                // $(".btn-more").css({"font-size":"12px","color":"#7C7C7C","text-align":"center"});
                 break ;
             }
         }
-                // $(".btn-more").css({"font-size":"12px","color":"#7C7C7C","text-align":"center"});
     }
     return hsRowArray ;
 }
@@ -383,15 +374,6 @@ function initSequenceView(selected_history) {
                 .attr("height", constant.svgHeight)
                 .attr("id", "buttonView");
 
-                // constant.setSvg(svg);
-                // constant.setG(g);
-                // constant.setSvgMainRect(svgMainRect);
-                // constant.setLinesView(sequenceLinesView);
-                // constant.setActionsView(sequenceActionsView);
-                // constant.setPipelineView(sequencePipelineView);
-                // constant.setButtonView(buttonView);
-
-
              showSequenceView(constant.sequenceRunData);       
              sequenceUtil.initButton();
         }
@@ -539,11 +521,11 @@ function showSequenceView(pipelineSequenceData) {
                 if (d.type == constant.PIPELINE_STAGE) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
-                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-fail.svg");
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-success.svg");
                 } else if (d.type == constant.PIPELINE_START) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
-                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-fail.svg");
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-success.svg");
                 }
             }else if (d.status == 4) {
 
@@ -737,11 +719,11 @@ function showRefreshSequenceView(refreshPipelineSequenceData) {
                 if (d.type == constant.PIPELINE_STAGE) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
-                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-fail.svg");
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-success.svg");
                 } else if (d.type == constant.PIPELINE_START) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
-                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-fail.svg");
+                    d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-success.svg");
                 }
             }else if (d.status == 4) {
 
@@ -783,7 +765,19 @@ function initSequenceStageLine() {
 
         /* draw the main line of pipeline */
         if (i != 0) {
-            if (d.status == true) {
+            if (d.status == 0 || d.status == 1 || d.status ==2) {
+                constant.sequenceLineView[sequencePipelineLineViewId]
+                    .append("path")
+                    .attr("d", function() {
+                        return diagonal({
+                            source: { x: d.translateX - constant.PipelineNodeSpaceSize, y: constant.pipelineNodeStartY + constant.svgStageHeight / 2 },
+                            target: { x: d.translateX + 2, y: constant.pipelineNodeStartY + constant.svgStageHeight / 2 }
+                        });
+                    })
+                    .attr("fill", "none")
+                    .attr("stroke", "#54711e")
+                    .attr("stroke-width", 2);
+            } else if (d.status == 3) {
                 constant.sequenceLineView[sequencePipelineLineViewId]
                     .append("path")
                     .attr("d", function() {
@@ -795,7 +789,7 @@ function initSequenceStageLine() {
                     .attr("fill", "none")
                     .attr("stroke", "#00733B")
                     .attr("stroke-width", 2);
-            } else {
+            } else if(d.status == 4) {
                 constant.sequenceLineView[sequencePipelineLineViewId]
                     .append("path")
                     .attr("d", function() {
@@ -1233,7 +1227,7 @@ function historyChangeCurrentElement(previousData) {
                     d3.select("#" + previousData.data.id).attr("href", "../../assets/svg/history-action-success.svg");
                     break;
                 case "line":
-                    d3.select("#" + previousData.data.attr("id")).attr("stroke", "#E6F3E9");
+                    d3.select("#" + previousData.data.attr("id")).attr("stroke", "#00733B");
                     break;
 
 
