@@ -283,7 +283,7 @@ function initSequenceView(selected_history) {
         cache: false,
         success: function(data) {
             let zoom = d3.behavior.zoom().on("zoom", zoomed);
-            $(".forHistory").html($(data));
+            $("#main").html($(data));
             $("#historyView").show("slow");
 
             $("#selected_pipeline").text(selected_history.pipelineName + " / " + selected_history.versionName);
