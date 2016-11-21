@@ -55,7 +55,7 @@ function showActionHistoryView(history,actionname) {
 
              _.each(history.logList,function(log,index){
                 let allLogs = log.substr(23);
-                allLogs = allLogStr.replace(/\\n/g , "\\u003cbr /\\u003e")
+                allLogs = allLogs.replace(/\\n/g , "\\u003cbr /\\u003e")
                 let logJson = JSON.parse(allLogs);
                 let num = index + 1;
                 sequenceLogDetail[index] = logJson.INFO;
@@ -82,16 +82,16 @@ function showActionHistoryView(history,actionname) {
                     var logjsoin =  sequenceLogDetail[tempLogIdArray[1]];
                     let detailData = "";
                     for( let prop in logjsoin){
-                        var showLogJson = logjsion[prop];
-                        if( typeOf(showLogJson) == "object"){
+                        var showLogJson = logjsoin[prop];
+                        if( typeof(showLogJson) == "object"){
                             for( let subProp in showLogJson){
                                 let showStr =showLogJson[subProp].replace(/\\n/g,"<br/>");
                                 detailData += subProp + ":" + showStr;
-                                datailData += "<br />"
+                                detailData += "<br />"
                             }
                         }else {
                             detailData += prop + ":" + showLogJson;
-                            detailData += "<br /><br />";
+                            detailData += "<br />";
                         }
                     }
                     $(".dialogContant").html(detailData);   
