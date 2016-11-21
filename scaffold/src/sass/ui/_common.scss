@@ -376,3 +376,9 @@ button.close {
   text-align: center;
   color: #7d7d7d
 }
+
+// copy icon
+#copyUrl, #copyToken{
+  margin-top:10px;
+  cursor: pointer;
+}
