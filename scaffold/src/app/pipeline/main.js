@@ -62,7 +62,7 @@ function showPipelineList() {
         type: "GET",
         cache: false,
         success: function(data) {
-            $(".forPipeline").html($(data));
+            $("#main").html($(data));
             $("#pipelinelist").show("slow");
 
             $(".newpipeline").on('click', function() {
@@ -170,7 +170,7 @@ function showNoPipeline() {
         type: "GET",
         cache: false,
         success: function(data) {
-            $(".forPipeline").html($(data));
+            $("#main").html($(data));
             $("#nopipeline").show("slow");
             $(".newpipeline").on('click', function() {
                 showNewPipeline();
