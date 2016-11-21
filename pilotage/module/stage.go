@@ -558,6 +558,7 @@ func (stageLog *StageLog) Start() {
 	go func() {
 		canStart := <-nextStageCanStartChan
 		if canStart {
+			stageLog.Stop(StageStopScopeRecyclable, StageStopReasonRunSuccess, models.StageLogStateRunSuccess)
 			nextStageLogInfo := new(models.StageLog)
 			err := nextStageLogInfo.GetStageLog().Where("pipeline = ?", stageLog.Pipeline).Where("pre_stage = ?", stageLog.ID).First(nextStageLogInfo).Error
 			if err != nil {
@@ -673,7 +674,7 @@ func (stageLog *StageLog) Stop(scope, reason string, runState int64) {
 
 func (stageLog *StageLog) WaitAllActionDone(nextStageCanStartChan chan bool) {
 	actionLogList := make([]models.ActionLog, 0)
-	err := new(models.ActionLog).GetActionLog().Where("pipeline = ?", stageLog.Pipeline).Where("stage = ?", stageLog.ID).Find(&actionLogList).Error
+	err := new(models.ActionLog).GetActionLog().Where("pipeline = ?", stageLog.Pipeline).Where("sequence = ?", stageLog.Sequence).Where("stage = ?", stageLog.ID).Find(&actionLogList).Error
 	if err != nil {
 		log.Error("[stageLog's WaitAllActionDone]:error when get action list from db:", err.Error())
 		stageLog.Stop(StageStopScopeAll, StageStopReasonRunFailed, models.StageLogStateRunFailed)
