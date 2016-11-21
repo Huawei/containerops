@@ -20,8 +20,9 @@ import { notify } from "../common/notify";
 import { loading } from "../common/loading";
 
 
-export function getLineHistory(pipelineName,pipelineSequenceID,startActionId,endActionId) {
-    var promise = historyDataService.getLineDataInfo(pipelineName,pipelineSequenceID,startActionId,endActionId);
+export function getLineHistory(pipelineName,versionName,pipelineRunSequence,sequenceLineId) {
+    // loading.show();
+    var promise = historyDataService.getLineDataInfo(pipelineName,versionName,pipelineRunSequence,sequenceLineId);
     promise.done(function(data) {
         loading.hide();
         showLineHistoryView(data.define);
