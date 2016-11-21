@@ -24,15 +24,17 @@
                         <div class="row col-md-12">
                             <div class="row col-md-6">
                                 <label class="col-md-4 control-label" for="pp-url">Pipeline URL</label>
-                                <div class="col-md-8">
-                                    <input id="pp-url"  class="form-control" disabled>
+                                <div class="col-md-7">
+                                    <input id="pp-url"  class="form-control" readonly>
                                 </div>
+                                <i class="fa fa-copy" id="copyUrl" title="copy url" data-clipboard-action="copy" data-clipboard-target="#pp-url"></i>
                             </div>
                             <div class="row col-md-6">
                                 <label class="col-md-4 control-label" for="pp-token">Pipeline Token</label>
-                                <div class="col-md-8">
-                                    <input id="pp-token" class="form-control" disabled>
+                                <div class="col-md-7">
+                                    <input id="pp-token" class="form-control" readonly>
                                 </div>
+                                <i class="fa fa-copy" id="copyToken" title="copy token" data-clipboard-action="copy" data-clipboard-target="#pp-token"></i>
                             </div>
                         </div>
                         <div class="row col-md-12" style="margin-top:30px">

@@ -77,6 +77,15 @@ gulp.task('dev:fonts', function() {
         .on('error', gutil.log);
 })
 
+/**
+ *  This will copy host json to dev dist folder
+ */
+gulp.task('dev:json', function() {
+    return gulp.src('src/host.json')
+        // .pipe(uglify())
+        .pipe(gulp.dest('dev/src'))
+        .on('error', gutil.log);
+})
 
 /**
  *  This will browserify scripts
@@ -165,9 +174,9 @@ gulp.task('dev:copy', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-replace',
 
 gulp.task('dev', ['dev:clean'], () => {
     if (args.dist) {
-        gulp.start('dev:html', 'dev:images', 'dev:fonts', 'dev:css-replace', 'dev:script-replace', 'dev:copy');
+        gulp.start('dev:html', 'dev:images', 'dev:fonts','dev:json', 'dev:css-replace', 'dev:script-replace', 'dev:copy');
     } else {
-        gulp.start('dev:html', 'dev:images', 'dev:fonts', 'dev:watch', 'dev:css-replace', 'dev:script-replace', 'dev:browser-sync');
+        gulp.start('dev:html', 'dev:images', 'dev:fonts','dev:json', 'dev:watch', 'dev:css-replace', 'dev:script-replace', 'dev:browser-sync');
     }
 
 });

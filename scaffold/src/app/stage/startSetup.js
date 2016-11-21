@@ -23,7 +23,25 @@ import { loading } from "../common/loading";
 let startData;
 export function initStartSetup(start){
     startData = start;
+
+    // url and token
     showPipeline_URL_Token();
+    var urlcopy = new Clipboard('#copyUrl');
+    var tokencopy = new Clipboard('#copyToken');
+    urlcopy.on('success', function(e) {
+        notify("Url copied.","info");
+        e.clearSelection();
+    });
+    urlcopy.on('error', function(e) {
+        notify("Copy url failed.","info");
+    });
+    tokencopy.on('success', function(e) {
+        notify("Token copied.","info");
+        e.clearSelection();
+    });
+    tokencopy.on('error', function(e) {
+        notify("Copy token failed.","info");
+    });
 
     startSetupData.getStartSetupData(start);
     initStartIO(start);
@@ -75,7 +93,7 @@ function selectType(pipelineType,isTypeChange){
 function showPipeline_URL_Token(){
     var promise = getPipelineToken();
     promise.done(function(data) {
-        loading.hide();
+        // loading.hide();
         $("#pp-url").val(data.url);
         $("#pp-token").val(data.token);
     });
