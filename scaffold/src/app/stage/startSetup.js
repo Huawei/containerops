@@ -93,7 +93,7 @@ function selectType(pipelineType,isTypeChange){
 function showPipeline_URL_Token(){
     var promise = getPipelineToken();
     promise.done(function(data) {
-        // loading.hide();
+        loading.hide();
         $("#pp-url").val(data.url);
         $("#pp-token").val(data.token);
     });
