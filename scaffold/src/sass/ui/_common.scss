@@ -193,7 +193,7 @@ limitations under the License. */
   background-color:#696969;
 }
 
-.new-kv , .rm-kv, .close-env, .c-new-kv, .c-rm-kv{
+.new-kv, .rm-kv, .close-env, .c-new-kv, .c-rm-kv{
    cursor: pointer;
    // margin-top:10px
 }
@@ -240,6 +240,18 @@ legend{
 
 .state-success{
   background-image: url(/assets/images/state-success.jpg);
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.state-running{
+  background-image: url(/assets/images/state-running.jpg);
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.state-waitStart{
+  background-image: url(/assets/images/state-waitStart.jpg);
   background-repeat: no-repeat;
   background-size: contain;
 }
