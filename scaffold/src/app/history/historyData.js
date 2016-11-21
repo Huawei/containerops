@@ -16,24 +16,29 @@ limitations under the License.
 
 import {historyApi} from "../common/api";
 
-// export function sequenceData(pipelineRunSequenceID){
-//     return historyApi.sequenceData(pipelineRunSequenceID);
+
+export function getPipelineHistories( ){
+    return historyApi.pipelineHistories( );
+}
+
+export function getPipelineHistory(pipelineName,versionName,pipelineRunSequence){
+    return historyApi.pipelineHistory(pipelineName,versionName,pipelineRunSequence);
+}
+
+export function getActionRunHistory(pipelineName,versionName,pipelineRunSequence,stageName,actionName){
+    return historyApi.action(pipelineName,versionName,pipelineRunSequence,stageName,actionName);
+}
+
+export function getLineDataInfo(pipelineName,versionName,pipelineRunSequence,sequenceLineId){
+    return historyApi.relation(pipelineName,versionName,pipelineRunSequence,sequenceLineId);
+}
+
+
+
+// export function sequenceData(pipelineName,versionID,pipelineRunSequenceID){
+//     return historyApi.sequenceData(pipelineName,versionID,pipelineRunSequenceID);
 // }
 
-
-export function sequenceData(pipelineName,versionID,pipelineRunSequenceID){
-    return historyApi.sequenceData(pipelineName,versionID,pipelineRunSequenceID);
-}
-
-export function sequenceList( ){
-    return historyApi.sequenceList( );
-}
-
-export function getActionRunHistory(pipelineName,stageName,actionName,actionLogID){
-    return historyApi.action(pipelineName,stageName,actionName,actionLogID);
-}
-
-export function getLineDataInfo(pipelineName,pipelineSequenceID,startActionId,endActionId){
-    return historyApi.relation(pipelineName,pipelineSequenceID,startActionId,endActionId);
-}
-
+// export function sequenceList( ){
+//     return historyApi.sequenceList( );
+//}
