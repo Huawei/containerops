@@ -1,17 +1,17 @@
 'use strict';
 
 
-let gulp = require('gulp');
-let babel = require('gulp-babel');
-let del = require('del');
-let uglify = require('gulp-uglify');
+var gulp = require('gulp');
+var babel = require('gulp-babel');
+var del = require('del');
+var uglify = require('gulp-uglify');
 // const rename = require('gulp-rename');
-let concat = require('gulp-concat');
-let browserify = require('browserify');
-let source = require('vinyl-source-stream');
-let sass = require('gulp-sass');
-let imagemin = require('gulp-imagemin');
-let gutil = require('gulp-util');
+var concat = require('gulp-concat');
+var browserify = require('browserify');
+var source = require('vinyl-source-stream');
+var sass = require('gulp-sass');
+var imagemin = require('gulp-imagemin');
+var gutil = require('gulp-util');
 var replace = require('gulp-replace');
 var browserSync = require('browser-sync').create();
 var minimist = require('minimist');
@@ -90,7 +90,7 @@ gulp.task('dev:json', function() {
 /**
  *  This will browserify scripts
  */
-gulp.task("dev:browserify", ['dev:babel'], () => {
+gulp.task("dev:browserify", ['dev:babel'], function() {
     var b = browserify({
         entries: ["dev/src/app/index.js", "dev/src/app/theme/settings.js", "dev/src/app/theme/app.js"]
     });
@@ -143,7 +143,7 @@ gulp.task('dev:reload-html', ['dev:css-replace', 'dev:script-replace'], function
 /**
  *  This will watch files changing and do recompiling
  */
-gulp.task("dev:watch", () => {
+gulp.task("dev:watch", function() {
     gulp.watch("./src/**/*.{scss,css}", ['dev:styles']);
     gulp.watch(["src/{app,vendor}/**/*.js", "src/scripts.json"], ['dev:reload-js']);
     gulp.watch("src/**/*.html", ['dev:reload-html']);
@@ -155,7 +155,7 @@ gulp.task("dev:watch", () => {
 /**
  *  This will start a server with browser-sync plugin
  */
-gulp.task('dev:browser-sync', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-replace', 'dev:script-replace'], () => {
+gulp.task('dev:browser-sync', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-replace', 'dev:script-replace'], function() {
     browserSync.init({
         server: {
             baseDir: "dev/src"
@@ -164,7 +164,7 @@ gulp.task('dev:browser-sync', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-r
     })
 });
 
-gulp.task('dev:copy', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-replace', 'dev:script-replace'], () => {
+gulp.task('dev:copy', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-replace', 'dev:script-replace'], function() {
     if (args.dist) {
         return gulp.src('dev/**')
             .pipe(gulp.dest(args._[0]))
@@ -172,7 +172,7 @@ gulp.task('dev:copy', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-replace',
     }
 });
 
-gulp.task('dev', ['dev:clean'], () => {
+gulp.task('dev', ['dev:clean'], function() {
     if (args.dist) {
         gulp.start('dev:html', 'dev:images', 'dev:fonts','dev:json', 'dev:css-replace', 'dev:script-replace', 'dev:copy');
     } else {
