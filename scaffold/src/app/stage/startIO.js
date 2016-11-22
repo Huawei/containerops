@@ -18,47 +18,201 @@ import {jsonEditor} from "../../vendor/jquery.jsoneditor";
 import {notify} from "../common/notify";
 import {pipelineApi} from "../common/api";
 import {loading} from "../common/loading";
+import * as startIOData from "./startIOData";
 
 var treeEdit_OutputContainer;
 var fromEdit_OutputCodeContainer,fromEdit_OutputTreeContainer;
 var fromEdit_OutputViewContainer;
 var fromEdit_CodeEditor,fromEdit_TreeEditor;
 
-let startIOData;
 export function initStartIO(start){
-    startIOData = start;
+    startIOData.getStartIOData(start);
+    startIOData.setSelectedTab(0);
+    showOutputTabs();
 
-    if(startIOData.outputJson == undefined){
-        startIOData.outputJson = {};
+    $(".newStartOutput").on('click',function(){
+        startIOData.addOutput();  
+        startIOData.setSelectedTab(startIOData.data.length-1);
+        showOutputTabs();
+    });
+}
+
+function showOutputTabs(){
+    $("#startOutputTabs").empty();
+    $("#startOutputTabsContent").empty();
+
+    _.each(startIOData.data,function(output,index){
+        var tabitem = `<li class="nav-item start-output-tab" data-index="`+ index +`">
+                            <a class="nav-link" href="#output-` + index + `" data-toggle="tab">Output ` 
+                            + (index+1) + `</a></li>`;
+        $("#startOutputTabs").append(tabitem);
+
+        var tabcontentitem = `<div class="tab-pane" id="output-`+ index +`">
+                                <div class="output-type-event-div" data-index="`+ index +`">
+                                    <div class="row col-md-6">
+                                        <label class="col-md-4 control-label">Select Type</label>
+                                        <div class="col-md-8">
+                                            <select class="output-type-select" style="width:100%">
+                                                <option value="github">Github</option>
+                                                <option value="customize">Customize</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row col-md-6 event-select-div">
+                                        <label class="col-md-4 control-label">Event</label>
+                                        <div class="col-md-8">
+                                            <select class="output-event-select" style="width:100%">
+                                                <option value="Create">Create</option>
+                                                <option value="Delete">Delete</option>
+                                                <option value="Deployment">Deployment</option>
+                                                <option value="DeploymentStatus">Deployment Status</option>
+                                                <option value="Fork">Fork</option>
+                                                <option value="Gollum">Gollum</option>
+                                                <option value="IssueComment">Issue Comment</option>
+                                                <option value="Issues">Issues</option>
+                                                <option value="Member">Member</option>
+                                                <option value="PageBuild">Page Build</option>
+                                                <option value="Public">Public</option>
+                                                <option value="PullRequestReviewComment">Pull Request Review Comment</option>
+                                                <option value="PullRequestReview">Pull Request Review</option>
+                                                <option value="PullRequest">Pull Request</option>
+                                                <option value="Push">Push</option>
+                                                <option value="Repository">Repository</option>
+                                                <option value="Release">Release</option>
+                                                <option value="Status">Status</option>
+                                                <option value="TeamAdd">Team Add</option>
+                                                <option value="Watch">Watch</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row col-md-12 output-json-div" data-index="`+ index +`">
+                                    <div class="startOutputTreeViewer"></div>
+                                    <div class="startOutputTreeDesigner">
+                                        <div class="row">
+                                            <div class="col-md-6 import-div">
+                                                <div class="panel">
+                                                    <div class="panel-heading clearfix">
+                                                        <i class="glyphicon glyphicon-cloud-download outputicon"></i>
+                                                        <span class="panel-title">Output Tree Edit</span>
+                                                    </div>
+                                                    <div class="panel-body">
+                                                        <div class="outputTreeStart tree-add-button">
+                                                            <div class="outputStartBtn btn-div">
+                                                                <span class="glyphicon glyphicon-plus nohover"></span>
+                                                                <div class="desc">
+                                                                    <label class="desc-label">Add New Value</label>
+                                                                    <div class="desc-btn">
+                                                                        <span class="glyphicon glyphicon-plus"></span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="outputTreeDiv json-editor"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 import-div">
+                                                <div class="panel">
+                                                    <div class="panel-heading clearfix">
+                                                        <i class="glyphicon glyphicon-cloud-download outputicon"></i>
+                                                        <span class="panel-title">Output From Edit</span>
+                                                    </div>
+                                                    <div class="panel-body">
+                                                        <div class="outputCodeEditor codeEditor"></div>
+                                                        <div class="col-md-4 col-md-offset-4 row editor-transfer">
+                                                            <span class="outputFromJson col-md-4 code-to-tree"></span>
+                                                            <span class="outputToJson col-md-4 tree-to-code"></span>
+                                                        </div>
+                                                        <div class="outputTreeEditor treeEditor"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+        $("#startOutputTabsContent").append(tabcontentitem);
+    });
+
+    // event binding
+    $(".start-output-tab").on('click',function(event){
+        var index = $(event.currentTarget).data("index");
+        startIOData.setSelectedTab(index);
+        initOutputDiv();
+    });
+
+    $(".output-type-select").on("change",function(){
+        startIOData.setTypeSelect();
+        selectType(startIOData.getTypeSelect(),true);
+    });
+
+    $(".output-event-select").on("change",function(){
+        startIOData.setEventSelect();
+        getOutputForEvent(startIOData.getEventSelect());
+    });
+
+    $(".outputStartBtn").on('click',function(){
+            startIOData.setJson({
+                "newKey" : null
+            });
+            initTreeEdit();
+            initFromEdit("output");
+    });
+
+    $(".outputFromJson").on('click',function(){
+        fromCodeToTree("output");
+    });
+
+    $(".outputToJson").on('click',function(){
+        fromTreeToCode("output");
+    });
+
+    // init trigger
+    startIOData.findSelectedStartOutputTabDom().find("a").addClass("active");
+    startIOData.findSelectedStartOutputTabContentDom().addClass("active");
+    initOutputDiv();
+}
+
+function initOutputDiv(){
+    startIOData.setTypeSelectDom();
+    selectType(startIOData.getTypeSelect());
+}
+
+function selectType(pipelineType,isTypeChange){
+    if(pipelineType == "github" || pipelineType == "gitlab"){
+        startIOData.findEventSelectDivDom().show();
+        startIOData.findOutputTreeViewerDom().show();
+        startIOData.findOutputTreeDesignerDom().hide();
+        
+        startIOData.setEventSelectDom();
+        getOutputForEvent(startIOData.getEventSelect()); 
+    }else{
+        startIOData.findEventSelectDivDom().hide();
+        startIOData.findOutputTreeViewerDom().hide();
+        startIOData.findOutputTreeDesignerDom().show();
+
+        if(isTypeChange){
+            startIOData.setJson({});
+        } 
+        initTreeEdit();
+        initFromEdit("output");
     }
-
-    treeEdit_OutputContainer = $('#outputTreeDiv');
-    fromEdit_OutputCodeContainer = $("#outputCodeEditor")[0];
-    fromEdit_OutputTreeContainer = $("#outputTreeEditor")[0];
-    fromEdit_OutputViewContainer = $("#outputTreeViewer")[0];
-
-    initTreeEdit();
-    initFromEdit("output");
 }
 
 export function initTreeEdit(){
-    if(_.isUndefined(startIOData.outputJson) || _.isEmpty(startIOData.outputJson)){
-        $("#outputTreeStart").show();
-        $("#outputTreeDiv").hide();
-        $("#outputStartBtn").on('click',function(){
-            startIOData.outputJson = {
-                "newKey" : null
-            }
-            initTreeEdit();
-            initFromEdit("output");
-        })
+    if(_.isUndefined(startIOData.getJson()) || _.isEmpty(startIOData.getJson())){
+        startIOData.findOutputTreeStartDom().show();
+        startIOData.findOutputTreeDivDom().hide();
     }else{
         try{
-            $("#outputTreeStart").hide();
-            $("#outputTreeDiv").show();
-            jsonEditor(treeEdit_OutputContainer,startIOData.outputJson, {
+            startIOData.findOutputTreeStartDom().hide();
+            startIOData.findOutputTreeDivDom().show();
+
+            treeEdit_OutputContainer = startIOData.findOutputTreeDivDom();
+            jsonEditor(treeEdit_OutputContainer,startIOData.getJson(), {
                 change:function(data){
-                    startIOData.outputJson = data;
+                    startIOData.setJson(data);
                     initFromEdit("output");
                 }
             },"start");
@@ -88,16 +242,14 @@ export function initFromEdit(type){
     };
 
     if(type == "output"){
+        fromEdit_OutputCodeContainer = startIOData.findOutputCodeEditorDom()[0];
         fromEdit_CodeEditor = new JSONEditor(fromEdit_OutputCodeContainer, codeOptions);
+
+        fromEdit_OutputTreeContainer = startIOData.findOutputTreeEditorDom()[0];
         fromEdit_TreeEditor = new JSONEditor(fromEdit_OutputTreeContainer, treeOptions);
-        fromEdit_CodeEditor.set(startIOData.outputJson);
-        fromEdit_TreeEditor.set(startIOData.outputJson);
-        $("#outputFromJson").on('click',function(){
-            fromCodeToTree("output");
-        })
-        $("#outputToJson").on('click',function(){
-            fromTreeToCode("output");
-        })
+
+        fromEdit_CodeEditor.set(startIOData.getJson());
+        fromEdit_TreeEditor.set(startIOData.getJson());
     }
     
     fromEdit_TreeEditor.expandAll();
@@ -106,8 +258,8 @@ export function initFromEdit(type){
 function fromCodeToTree(type){
     if(type == "output"){
         try{
-            startIOData.outputJson = fromEdit_CodeEditor.get();
-            fromEdit_TreeEditor.set(startIOData.outputJson);
+            startIOData.setJson(fromEdit_CodeEditor.get());
+            fromEdit_TreeEditor.set(startIOData.getJson());
             initTreeEdit();
         }catch(e){
             notify("Output Code Changes Error in parsing json.","error");
@@ -120,8 +272,8 @@ function fromCodeToTree(type){
 function fromTreeToCode(type){
     if(type == "output"){
         try{
-            startIOData.outputJson = fromEdit_TreeEditor.get();
-            fromEdit_CodeEditor.set(startIOData.outputJson);
+            startIOData.setJson(fromEdit_TreeEditor.get());
+            fromEdit_CodeEditor.set(startIOData.getJson());
             initTreeEdit();
         }catch(e){
             notify("Output Tree Changes Error in parsing json.","error");
@@ -139,8 +291,9 @@ function initFromView(){
         "search": true
     };
 
+    fromEdit_OutputViewContainer = startIOData.findOutputTreeViewerDom()[0];
     fromEdit_TreeEditor = new JSONEditor(fromEdit_OutputViewContainer, treeOptions);
-    fromEdit_TreeEditor.set(startIOData.outputJson);
+    fromEdit_TreeEditor.set(startIOData.getJson());
     
     fromEdit_TreeEditor.expandAll();
 }
@@ -149,7 +302,7 @@ export function getOutputForEvent(selecetedEvent){
     var promise = pipelineApi.eventOutput(selecetedEvent);
     promise.done(function(data){
         loading.hide();
-        startIOData.outputJson = data.output;
+        startIOData.setJson(data.output);
         initFromView();
     });
     promise.fail(function(xhr,status,error){
