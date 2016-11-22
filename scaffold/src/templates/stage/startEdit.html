@@ -37,128 +37,25 @@
                                 <i class="fa fa-copy" id="copyToken" title="copy token" data-clipboard-action="copy" data-clipboard-target="#pp-token"></i>
                             </div>
                         </div>
-                        <div class="row col-md-12" style="margin-top:30px">
-                            <div class="row col-md-6">
-                                <label class="col-md-4 control-label" for="type-select">Select Type</label>
-                                <div class="col-md-8">
-                                    <select id="type-select" style="width:100%">
-                                        <option value="github">Github</option>
-                                        <!-- <option value="gitlab">Gitlab</option> -->
-                                        <option value="customize">Customize</option>
-                                    </select>
+                        <div class="col-md-12 import-div" style="margin-top:20px">
+                            <div class="panel">
+                                <div class="panel-heading clearfix">
+                                    <i class="glyphicon glyphicon-cloud-download outputicon"></i>
+                                    <span class="panel-title">Outputs</span>
+                                    <button type="button" class="btn btn-success newStartOutput">
+                                        <i class="glyphicon glyphicon-plus" style="font-size:16px"></i>
+                                        <span style="margin-left:5px">New Output</span>
+                                    </button>
+                                    <span class="panel-subtitle">All outputs of start stage</span>
                                 </div>
-                            </div>
-                            <div class="row col-md-6" id="event_select">
-                                <label class="col-md-4 control-label" for="event-select">Event</label>
-                                <div class="col-md-8">
-                                    <select id="event-select" style="width:100%">
-                                        <!-- <option value="commit_comment">Commit Comment</option> -->
-                                        <option value="Create">Create</option>
-                                        <option value="Delete">Delete</option>
-                                        <option value="Deployment">Deployment</option>
-                                        <option value="DeploymentStatus">Deployment Status</option>
-                                        <option value="Fork">Fork</option>
-                                        <option value="Gollum">Gollum</option>
-                                        <option value="IssueComment">Issue Comment</option>
-                                        <option value="Issues">Issues</option>
-                                        <option value="Member">Member</option>
-                                        <option value="PageBuild">Page Build</option>
-                                        <option value="Public">Public</option>
-                                        <option value="PullRequestReviewComment">Pull Request Review Comment</option>
-                                        <option value="PullRequestReview">Pull Request Review</option>
-                                        <option value="PullRequest">Pull Request</option>
-                                        <option value="Push">Push</option>
-                                        <option value="Repository">Repository</option>
-                                        <option value="Release">Release</option>
-                                        <option value="Status">Status</option>
-                                        <option value="TeamAdd">Team Add</option>
-                                        <option value="Watch">Watch</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row col-md-11" style="margin-top:30px;margin-left:4.16667%">
-                            <div id="outputTreeViewer" class="col-md-12" style="height:400px"></div>
-                            <div id="outputTreeDesigner">
-                                <div class="row">
-                                    <div class="col-md-6 import-div">
-                                        <div class="panel">
-                                            <div class="panel-heading clearfix">
-                                                <i class="glyphicon glyphicon-cloud-download outputicon"></i>
-                                                <span class="panel-title">Output Tree Edit</span>
-                                                <span class="panel-subtitle">The start stage default output json data</span>
-                                            </div>
-                                            <div class="panel-body">
-                                                <div id="outputTreeStart" class="tree-add-button">
-                                                    <div id="outputStartBtn" class="btn-div">
-                                                        <span class="glyphicon glyphicon-plus nohover"></span>
-                                                        <div class="desc">
-                                                            <label class="desc-label">Add New Value</label>
-                                                            <div class="desc-btn">
-                                                                <span class="glyphicon glyphicon-plus"></span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div id="outputTreeDiv" class="json-editor"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 import-div">
-                                        <div class="panel">
-                                            <div class="panel-heading clearfix">
-                                                <i class="glyphicon glyphicon-cloud-download outputicon"></i>
-                                                <span class="panel-title">Output From Edit</span>
-                                                <span class="panel-subtitle">The start stage default output json data</span>
-                                            </div>
-                                            <div class="panel-body">
-                                                <div id="outputCodeEditor" class="codeEditor"></div>
-                                                <div class="col-md-4 col-md-offset-4 row editor-transfer">
-                                                    <span id="outputFromJson" class="col-md-4 code-to-tree"></span>
-                                                    <span id="outputToJson" class="col-md-4 tree-to-code"></span>
-                                                </div>
-                                                <div id="outputTreeEditor" class="treeEditor"></div>
-                                            </div>
+                                <div class="panel-body input-panel-body">
+                                    <div class="tabbable tabs-left mb-lg">
+                                        <ul id="startOutputTabs" class="nav nav-tabs">
+                                        </ul>
+                                        <div id="startOutputTabsContent" class="tab-content">
                                         </div>
                                     </div>
                                 </div>
-                               <!-- <div class="clearfix">
-                                    <ul class="nav nav-tabs pull-xs-left" id="actionTabs" role="tablist">
-                                        <li class="nav-item">
-                                            <a class="nav-link active" id="tree-edit-tab" data-toggle="tab" href="#tree_edit" role="tab" aria-controls="tree_edit" aria-expanded="false">Tree Edit</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" id="output-from-edit-tab" data-toggle="tab" href="#output_from_edit" role="tab" aria-controls="output_from_edit" aria-expanded="true">From Edit</a>
-                                        </li> 
-                                    </ul>
-                                </div>
-                                <div class="tab-content">
-                                   <div class="row tab-pane active" id="tree_edit" class="tab-pane" role="tabpanel" aria-labelledby="tree-edit-tab" aria-expanded="true">
-                                        <div class="col-md-12 import-div">
-                                            <h4 class="pr">Output Tree</h4>
-
-                                            <div id="outputTreeDiv" class="json-editor"></div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row tab-pane" id="output_from_edit" class="tab-pane" role="tabpanel" aria-labelledby="output-from-edit-tab" aria-expanded="false">
-                                        <div class="col-md-5">
-                                            <div id="outputCodeEditor" style="width: 100%;height:300px"></div>
-                                        </div>
-                                        <div class="col-md-1">
-                                            <button id="outputFromJson" type="button" class="btn btn-warning col-md-12">
-                                                <i class="glyphicon glyphicon-triangle-right"></i>
-                                            </button>
-                                            <br/>
-                                            <button id="outputToJson" type="button" class="btn btn-warning col-md-12" style="margin-top:10px">
-                                                <i class="glyphicon glyphicon-triangle-left"></i>
-                                            </button>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div id="outputTreeEditor" style="width: 100%;height:300px"></div>
-                                        </div>
-                                    </div>
-                                </div> -->
                             </div>
                         </div>
                     </fieldset>

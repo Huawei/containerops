@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-import * as startSetupData from "./startSetupData";
 import {initStartIO,initTreeEdit,initFromEdit,initFromView,getOutputForEvent} from "./startIO";
 import {getPipelineToken} from "../pipeline/main";
 import { notify } from "../common/notify";
@@ -43,51 +42,7 @@ export function initStartSetup(start){
         notify("Copy token failed.","info");
     });
 
-    startSetupData.getStartSetupData(start);
     initStartIO(start);
-
-    // type select
-    $("#type-select").val(startSetupData.getTypeSelect());
-    selectType(startSetupData.getTypeSelect());
-
-    $("#type-select").on("change",function(){
-        startSetupData.setTypeSelect();
-        selectType(startSetupData.getTypeSelect(),true);
-    });
-
-    $("#type-select").select2({
-        minimumResultsForSearch: Infinity
-    });
-
-    // event select
-    $("#event-select").on("change",function(){
-        startSetupData.setEventSelect();
-        getOutputForEvent(startSetupData.getEventSelect());
-    });
-}
-
-function selectType(pipelineType,isTypeChange){
-    if(pipelineType == "github" || pipelineType == "gitlab"){
-        $("#event_select").show();
-        $("#outputTreeViewer").show();
-        $("#outputTreeDesigner").hide();
-        
-        $("#event-select").val(startSetupData.getEventSelect());
-        $("#event-select").select2({
-            minimumResultsForSearch: Infinity
-        });
-        getOutputForEvent(startSetupData.getEventSelect()); 
-    }else{
-        $("#event_select").hide();
-        $("#outputTreeViewer").hide();
-        $("#outputTreeDesigner").show();
-
-        if(isTypeChange){
-            startData.outputJson = {};
-        } 
-        initTreeEdit();
-        initFromEdit("output");
-    }
 }
 
 function showPipeline_URL_Token(){
