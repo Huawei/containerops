@@ -1,0 +1,45 @@
+<nav id="sidebar" class="sidebar" role="navigation">
+    <!-- need this .js class to initiate slimscroll -->
+    <div class="js-sidebar-content">
+        <i class="nav-control sidebar-close fa fa-chevron-circle-left"></i>
+        <header class="logo hidden-sm-down">
+            <!-- <a href="index.html">Scaffold</a> -->
+        </header>
+        
+        <!-- main notification links are placed inside of .sidebar-nav -->
+        <ul class="sidebar-nav">
+            <li [ngClass]=" selectedNav=== 'org'? 'active' : '' ">
+                <a [routerLink]="['/organizations']" routerLinkActive="active" class="menu-organization" (click)="selectNav('org')">
+                    <span class="icon">
+                        <i class="fa fa-building-o"></i>
+                    </span>
+                    Organization
+                </a>
+            </li>
+            <li [ngClass]=" selectedNav=== 'team'? 'active' : '' ">
+                <a [routerLink]="['/teams']" routerLinkActive="active" class="menu-team" (click)="selectNav('team')">
+                    <span class="icon">
+                        <i class="fa fa-users"></i>
+                    </span>
+                    Team
+                </a>
+            </li>
+            <li [ngClass]=" selectedNav=== 'repo'? 'active' : '' ">
+                <a [routerLink]="['/repositories']" routerLinkActive="active" class="menu-repository" (click)="selectNav('repo')">
+                    <span class="icon">
+                        <i class="fa fa-database"></i>
+                    </span>
+                    Repository
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="content-wrap">
+    <main class="content" id="main">
+        <router-outlet></router-outlet>
+    </main>
+    <div class="loading hide">
+       <img src="assets/images/loading.gif" width="60" height="60">
+    </div>
+</div>
