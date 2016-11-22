@@ -79,7 +79,7 @@ func SetRouters(m *macaron.Macaron) {
 							m.Put("/:workflow/state", handler.PutPipelineStateV1Handler)
 						})
 
-						m.Put("/exec/:workflow", handler.ExecutePipelineV1Handler)
+						m.Post("/exec/:workflow", handler.ExecutePipelineV1Handler)
 
 						m.Put("/event/:workflow/register", handler.PutActionRegisterV1Handler)
 						m.Put("/event/:workflow/:event", handler.PutActionEventV1Handler)
