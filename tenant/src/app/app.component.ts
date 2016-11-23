@@ -7,7 +7,7 @@ import { Component, ViewEncapsulation } from '@angular/core';
   selector: 'body',
   template: `<router-outlet></router-outlet>`,
   // template: require('./app.html'),
-  styles: [require('../sass/application.scss')],
+  styles: [String(require('../sass/application.scss'))],
   encapsulation: ViewEncapsulation.None
 })
 export class AppComponent { 
