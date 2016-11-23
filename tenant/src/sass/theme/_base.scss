@@ -1228,6 +1228,7 @@ div.jsoneditor-contextmenu ul li button.jsoneditor-expand {
     border-left: 1px solid #e5e5e5
 }
 
+/*
 div.jsoneditor-contextmenu div.jsoneditor-icon {
     float: left;
     width: 24px;
@@ -1248,7 +1249,7 @@ div.jsoneditor-contextmenu ul li button div.jsoneditor-expand {
     background: url(../svg/jsoneditor-icons.svg) 0 -72px;
     opacity: .4
 }
-
+*/
 div.jsoneditor-contextmenu ul li button.jsoneditor-expand:focus div.jsoneditor-expand,div.jsoneditor-contextmenu ul li button.jsoneditor-expand:hover div.jsoneditor-expand,div.jsoneditor-contextmenu ul li button:focus div.jsoneditor-expand,div.jsoneditor-contextmenu ul li button:hover div.jsoneditor-expand,div.jsoneditor-contextmenu ul li.jsoneditor-selected div.jsoneditor-expand {
     opacity: 1
 }
