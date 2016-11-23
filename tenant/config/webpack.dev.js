@@ -75,7 +75,7 @@ module.exports = {
             { test: /\.html$/, loader: 'raw-loader', exclude: [root('src/index.html')] },
 
 
-            { test: /\.scss$/, loaders: ['raw-loader', 'sass-loader'] },
+            // { test: /\.scss$/, loaders: ['raw-loader', 'sass-loader'] },
             // {
             //     test: /\.scss$/,
             //     loader: ExtractTextPlugin.extract({
@@ -90,10 +90,10 @@ module.exports = {
             },
             // Optionally extract less files
             // or any other compile-to-css language
-            // {
-            //     test: /\.scss$/,
-            //     loader: ExtractTextPlugin.extract("style-loader", "css-loader!sass-loader")
-            // },
+            {
+                test: /\.scss$/,
+                loader: ExtractTextPlugin.extract("style-loader","css-loader!sass-loader")
+            },
             {
                 test: /\.woff(2)?(\?v=.+)?$/,
                 loader: 'url-loader?limit=10000&mimetype=application/font-woff'
