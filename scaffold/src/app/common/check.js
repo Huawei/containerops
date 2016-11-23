@@ -40,12 +40,19 @@ export function pipelineCheck(data){
 function checkPipelineStart(data){
     var completeness = true;
     if(_.isUndefined(data.outputJson) || _.isEmpty(data.outputJson)){
-        notify("Output json missed ---- < Start stage >","info");
+        notify("No any outputs found ---- < Start stage >","info");
         completeness = false;
-    }else if(_.isUndefined(data.setupData) || _.isEmpty(data.setupData)){
-        notify("Base config missed ---- < Start stage >","info");
-        completeness = false;
+    }else{
+        for(var i=0;i<data.outputJson.length;i++){
+            var item = data.outputJson[i];
+            completeness = !_.isEmpty(item.json);
+            if(!completeness){
+                notify("Output json missed ---- < Start stage / Output " + (i+1)+" >","info");
+                break;
+            }
+        }
     }
+
     return completeness;
 }
 

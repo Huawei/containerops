@@ -25,8 +25,9 @@ export function resizeWidget(){
             'margin': 0,
             'z-index': 2
         });
-        $(".treeview").css("max-height",window.screen.height * 2 / 3);
-        $(".treeview").css("overflow","auto");
+        // $(".treeview").css("max-height",window.screen.height * 2 / 3);
+        // $(".treeview").css("overflow","auto");
+        $(".widget").css("overflow","auto");
     }).on("restore.widgster closed.widgster", function(){
         $('.content-wrap').css({
         	'-webkit-transform': '',
@@ -35,8 +36,9 @@ export function resizeWidget(){
             'margin': '',
             'z-index': ''
         });
-        $(".treeview").css("max-height","");
-        $(".treeview").css("overflow","");
+        // $(".treeview").css("max-height","");
+        // $(".treeview").css("overflow","");
+        // $(".widget").css("overflow","hidden");
     });
 
     $widgets.widgster();
