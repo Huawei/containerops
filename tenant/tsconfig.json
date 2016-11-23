@@ -12,7 +12,8 @@
     "typeRoots": [
       "./node_modules/@types/"
     ],
-    "outDir": "dist"
+    "baseUrl":"./src"
+    // "outDir": "./src/dist"
   },
   "compileOnSave": true,
   "exclude": [
