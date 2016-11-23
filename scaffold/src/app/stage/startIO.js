@@ -186,7 +186,12 @@ function selectType(pipelineType,isTypeChange){
         startIOData.findOutputTreeDesignerDom().hide();
         
         startIOData.setEventSelectDom();
-        getOutputForEvent(startIOData.getEventSelect()); 
+
+        if(_.isEmpty(startIOData.getJson()) || isTypeChange){
+            getOutputForEvent(startIOData.getEventSelect()); 
+        }else{
+            initFromView();
+        }
     }else{
         startIOData.findEventSelectDivDom().hide();
         startIOData.findOutputTreeViewerDom().hide();
