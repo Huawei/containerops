@@ -9,7 +9,7 @@
     "lite": "lite-server",
     "tsc": "tsc",
     "tsc:w": "tsc -w",
-    "webpack:server": "webpack-dev-server --config config/webpack.dev.js --progress --profile --watch --content-base src/"
+    "webpack:server": "webpack-dev-server --config config/webpack.dev.js --progress --hot --watch --content-base src/"
   },
   "keywords": [],
   "author": "",
@@ -65,12 +65,14 @@
     "sass-loader": "^4.0.2",
     "source-map-loader": "^0.1.5",
     "style-loader": "^0.13.1",
+    "to-string-loader": "^1.1.5",
     "ts-loader": "^1.2.2",
     "tslint": "^3.15.1",
     "typescript": "^2.0.3",
     "url-loader": "^0.5.7",
     "webpack": "^1.13.3",
-    "webpack-dev-server": "^1.16.2"
+    "webpack-dev-server": "^1.16.2",
+    "webpack-validator": "^2.2.9"
   },
   "repository": {}
 }
