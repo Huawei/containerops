@@ -19,7 +19,7 @@ import '@angular/router';
 import 'rxjs';
 
 // Web dependencies
-import 'jquery';
+import 'jquery/dist/jquery.min.js';
 import 'tether';
 import 'widgster';
 import 'bootstrap';
@@ -28,8 +28,4 @@ import 'underscore/underscore-min.js';
 import 'angular-in-memory-web-api';
 import 'blueimp-md5'
 
-// if ('production' === ENV) {
-//   // Production
-// } else {
-//   // Development
-// }
+
