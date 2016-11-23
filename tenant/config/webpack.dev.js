@@ -11,6 +11,7 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 // const autoprefixer = require('autoprefixer');
 var ProvidePlugin = require('webpack/lib/ProvidePlugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
+const validate = require('webpack-validator');
 var metadata = {
     title: 'Tenant',
     baseUrl: '/',
@@ -21,11 +22,12 @@ var metadata = {
 /*
  * Config
  */
-module.exports = {
+
+module.exports = validate({
     // static data for index.html
     metadata: metadata,
     // for faster builds use 'eval'
-    devtool: 'source-map',
+    devtool: 'cheap-module-eval-source-map',
     debug: true,
     // cache: false,
 
@@ -41,7 +43,7 @@ module.exports = {
 
     // Config for our build files
     output: {
-        path: root('dist'),
+        path: root('../src/build'),
         filename: '[name].bundle.js',
         sourceMapFilename: '[name].map',
         chunkFilename: '[id].chunk.js'
@@ -92,9 +94,8 @@ module.exports = {
             // or any other compile-to-css language
             {
                 test: /\.scss$/,
-                loader: ExtractTextPlugin.extract("style-loader","css-loader!sass-loader")
-            },
-            {
+                loader: ExtractTextPlugin.extract("to-string-loader!css-loader!sass-loader")
+            }, {
                 test: /\.woff(2)?(\?v=.+)?$/,
                 loader: 'url-loader?limit=10000&mimetype=application/font-woff'
             },
@@ -127,6 +128,12 @@ module.exports = {
         // new webpack.optimize.CommonsChunkPlugin({ name: 'polyfills', filename: 'polyfills.bundle.js', minChunks: Infinity }),
         // static assets
         // new CopyWebpackPlugin([ { from: 'src/assets', to: 'assets' } ]),
+        // new webpack.SourceMapDevToolPlugin({
+        //     filename: '[file].map',
+        //     include: ['./src/**/*.ts'],
+        //     exclude: ['./src/vendor.ts', './src/polyfills.ts'],
+        //     columns: false
+        // }),
         // generating html
         new HtmlWebpackPlugin({ template: 'src/index.html' }),
         // replace
@@ -176,16 +183,18 @@ module.exports = {
         host: metadata.host,
         // contentBase: 'src/',
         historyApiFallback: true,
-        watchOptions: { aggregateTimeout: 300, poll: 1000 }
-    },
+        watchOptions: { aggregateTimeout: 300, poll: 1000 },
+        outputPath: '/dist/'
+    }
     // we need this due to problems with es6-shim
     // node: {global: 'window', progress: false, crypto: 'empty', module: false, clearImmediate: false, setImmediate: false}
-};
+});
 
 // Helper functions
 
 function root(args) {
     args = Array.prototype.slice.call(arguments, 0);
+    console.log(path.join.apply(path, [__dirname].concat(args)))
     return path.join.apply(path, [__dirname].concat(args));
 }
 
