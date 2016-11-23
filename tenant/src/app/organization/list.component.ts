@@ -12,6 +12,10 @@ export class OrgListComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
+		this.getOrgs();
+	}
+
+	getOrgs(): void {
 		
 	}
 }

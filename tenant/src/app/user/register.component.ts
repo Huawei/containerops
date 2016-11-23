@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { UserService } from './user.service';
 
-var md5 = require("blueimp-md5/js/md5")
+var md5 = require("blueimp-md5/js/md5");
+var _ = require("underscore");
 
 @Component({
   selector: 'register',
@@ -28,7 +29,23 @@ export class RegisterComponent implements OnInit {
 	}
 
 	signUp() {
-		console.log(this.user);
-		this.changeNav('login');
+		try{
+			//fake, to be deleted
+			var users = localStorage.users;
+			if(_.isUndefined(users)){
+				users = [];
+				users.push(this.user);
+				localStorage.users = JSON.stringify(users);
+			}else{
+				users = JSON.parse(users);
+				users.push(this.user);
+				localStorage.users = JSON.stringify(users);
+			}
+			alert("sign up done.")
+			//fake end
+			this.changeNav('login');
+		}catch(e){
+			alert("failed to sign up.")
+		}
 	}
 }
