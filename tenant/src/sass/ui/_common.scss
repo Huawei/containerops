@@ -9,6 +9,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. */
 
+// btn
+.btn{
+  font-size:16px;
+}
+
+.btn > span{
+  margin-left:5px;
+}
+
+.td-viewer{
+  background-color:#d9f7e8;
+  color:#A1D2BA;
+  border:none;
+}
+
 // nav sidebar control
 .nav-control{
   color:#777;

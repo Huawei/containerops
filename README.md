@@ -4,12 +4,24 @@
 
 > ContainerOps is a DevOps orchestration.
 
-ContainerOps is DevOps orchestration, orchestrating the DevOps components and services. It connect all parts of DevOps flow, passing on the events between them. ContainerOps link differents softwares, services and customize DevOps tasks into one, improving DevOps efficiency and lifecycle. 
+There is a lot of projects, plugins and services implemeted build, test and deployment in the DevOps workflow. But no one cover all tasks, we could only choose different projects and services together assembling into DevOps workflow. How to determine the order of tools and pass the data between them?  
+
+ContainerOps is DevOps orchestration. It build a DevOps workflow orchestrating tools or services, and passing the trigger data or customize data from the workflow start trigger to the every stage. So don’t need abandon the original DevOps solution, just add ContainerOps as the top orchestration, scheduling the existing build system, continuous integration system or continuous deployment system, adding any features used and reused container DevOps component.
+.
+
+![Workflow Running](docs/images/workflow-running.gif)
 
 > Defining the DevOps component.
 
+ContainerOps provide a specification about how encapsulate the DevOps task into a container. A DevOps task developed in any programming language like Bash, Golang, Python or C++ can be encapsulated as a containerized DevOps component. This guarantee that the DevOps task will always run the same, regardless of its environment.
 
 > Drawing the DevOps Workflow.
+
+The ContainerOps has a DevOps workflow WYSIWYG editor in the browser. The user could defining the DevOps workflow by drag or drop the line, or defining the data flow from workflow trigger to the end by the same way.
+
+![Event Linking](docs/images/event-link.jpg)
+
+![Event Conflict](docs/images/event-conflict.jpg)
 
 > DevOps With Container, DevOps For Container!
 

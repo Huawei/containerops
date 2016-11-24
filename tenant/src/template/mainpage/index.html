@@ -1,7 +1,7 @@
 <nav id="sidebar" class="sidebar" role="navigation">
     <!-- need this .js class to initiate slimscroll -->
     <div class="js-sidebar-content">
-        <i class="nav-control sidebar-close fa fa-chevron-circle-left"></i>
+        <i class="nav-control sidebar-close fa fa-chevron-circle-left" (click)="toggleSideBar($event)"></i>
         <header class="logo hidden-sm-down">
             <!-- <a href="index.html">Scaffold</a> -->
         </header>
@@ -9,7 +9,7 @@
         <!-- main notification links are placed inside of .sidebar-nav -->
         <ul class="sidebar-nav">
             <li [ngClass]=" selectedNav=== 'org'? 'active' : '' ">
-                <a [routerLink]="['/organizations']" routerLinkActive="active" class="menu-organization" (click)="selectNav('org')">
+                <a [routerLink]="['/organization']" routerLinkActive="active" class="menu-organization" (click)="selectNav('org')">
                     <span class="icon">
                         <i class="fa fa-building-o"></i>
                     </span>
@@ -17,7 +17,7 @@
                 </a>
             </li>
             <li [ngClass]=" selectedNav=== 'team'? 'active' : '' ">
-                <a [routerLink]="['/teams']" routerLinkActive="active" class="menu-team" (click)="selectNav('team')">
+                <a [routerLink]="['/team']" routerLinkActive="active" class="menu-team" (click)="selectNav('team')">
                     <span class="icon">
                         <i class="fa fa-users"></i>
                     </span>
@@ -25,7 +25,7 @@
                 </a>
             </li>
             <li [ngClass]=" selectedNav=== 'repo'? 'active' : '' ">
-                <a [routerLink]="['/repositories']" routerLinkActive="active" class="menu-repository" (click)="selectNav('repo')">
+                <a [routerLink]="['/repository']" routerLinkActive="active" class="menu-repository" (click)="selectNav('repo')">
                     <span class="icon">
                         <i class="fa fa-database"></i>
                     </span>
