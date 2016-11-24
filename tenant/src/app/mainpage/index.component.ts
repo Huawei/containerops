@@ -16,7 +16,7 @@ export class IndexComponent implements OnInit {
 			this.selectedNav = "org";
 		}
 		
-		this.router.navigate(['organizations']);
+		this.router.navigate(['organization']);
 	}
 
 	ngOnInit(): void {}
