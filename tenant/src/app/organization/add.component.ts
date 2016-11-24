@@ -42,7 +42,7 @@ export class OrgAddComponent implements OnInit {
 		}
 	}
 
-	cancalAdd(): void{
+	cancelAdd(): void{
 		this.router.navigate(["organization"]);
 	}	
 }
