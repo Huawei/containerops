@@ -247,7 +247,7 @@ export let historyApi = {
 			"dataType" : "json",
 			"cache": false
 		});
-		pendingPromise.push(promise);.replace(/{repository}/g, "demo")
+		pendingPromise.push(promise);
 		return promise;
 	},
 	"pipelineHistory" : function(pipelineName,versionName,pipelineRunSequence){
