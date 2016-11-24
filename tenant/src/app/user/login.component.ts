@@ -32,10 +32,10 @@ export class LoginComponent implements OnInit {
 		try{
 			//fake, to be deleted
 			var self = this;
-			if(_.isUndefined(localStorage.users)){
+			if(_.isUndefined(localStorage["users"])){
 				alert("no such user, please sign up first.")
 			}else{
-				var users = JSON.parse(localStorage.users);
+				var users = JSON.parse(localStorage["users"]);
 				var targetuser = _.find(users,function(item){
 					return item.username == self.user.username && item.password == self.user.password;
 				});

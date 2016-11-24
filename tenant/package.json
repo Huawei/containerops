@@ -2,7 +2,7 @@
   "name": "tenant",
   "version": "0.0.1",
   "scripts": {
-    "start": "tsc && concurrently \"tsc -w\" \"gulp\" \"lite-server\" ",
+    "start": "npm run webpack:server",
     "docker-build": "docker build -t tenant .",
     "docker": "npm run docker-build && docker run -it --rm -p 3000:3000 -p 3001:3001 tenant",
     "lint": "tslint ./app/**/*.ts -t verbose",
