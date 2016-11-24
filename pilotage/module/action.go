@@ -921,13 +921,13 @@ func (actionLog *ActionLog) SendDataToAction(targetUrl string) {
 
 	character := int(0)
 	// send data to component or service
-	var resp *http.Response
+	resps := make([]*http.Response, 0)
 	if actionLog.Component != 0 {
 		character = models.CharacterComponentEvent
-		resp, err = actionLog.sendDataToComponent(targetUrl, dataByte)
+		resps, err = actionLog.sendDataToComponent(targetUrl, dataByte)
 	} else {
 		character = models.CharacterServiceEvent
-		resp, err = actionLog.sendDataToService(dataByte)
+		resps, err = actionLog.sendDataToService(dataByte)
 	}
 
 	resultStr := ""
@@ -938,8 +938,18 @@ func (actionLog *ActionLog) SendDataToAction(targetUrl string) {
 		status = false
 		go actionLog.Stop(ActionStopReasonSendDataFailed, models.ActionLogStateRunFailed)
 	} else {
-		respBody, _ := ioutil.ReadAll(resp.Body)
-		resultStr = string(respBody)
+		respMap := make(map[int64]string, len(resps))
+		for count, resp := range resps {
+			if resp != nil {
+				respBody, _ := ioutil.ReadAll(resp.Body)
+				respStr := string(respBody)
+
+				respMap[int64(count)] = respStr
+			}
+		}
+
+		result, _ := json.Marshal(respMap)
+		resultStr = string(result)
 		status = true
 	}
 
@@ -948,10 +958,10 @@ func (actionLog *ActionLog) SendDataToAction(targetUrl string) {
 	payload["INFO"] = map[string]interface{}{"output": string(dataByte), "result": resultStr, "status": status}
 	payload["RUN_ID"] = strconv.FormatInt(actionLog.Pipeline, 10) + "-" + strconv.FormatInt(actionLog.Stage, 10) + "-" + strconv.FormatInt(actionLog.ID, 10)
 
-	payloadInfo, err := json.Marshal(payload)
-	if err != nil {
+	payloadInfo, marshalErr := json.Marshal(payload)
+	if marshalErr != nil {
 		go actionLog.Stop(ActionStopReasonSendDataFailed, models.ActionLogStateRunFailed)
-		log.Error("[actionLog's SendDataToAction]:error when marshal payload info:" + err.Error())
+		log.Error("[actionLog's SendDataToAction]:error when marshal payload info:" + marshalErr.Error())
 	}
 
 	if err != nil {
@@ -1030,7 +1040,7 @@ func (actionLog *ActionLog) merageFromActionsOutputData(relationInfo []interface
 	return result, nil
 }
 
-func (actionLog *ActionLog) sendDataToComponent(targetUrl string, data []byte) (*http.Response, error) {
+func (actionLog *ActionLog) sendDataToComponent(targetUrl string, data []byte) ([]*http.Response, error) {
 	c, err := InitComponetNew(actionLog)
 	if err != nil {
 		log.Error("[actionLog's sendDataToComponent]:error when init component info:", err.Error())
@@ -1041,7 +1051,7 @@ func (actionLog *ActionLog) sendDataToComponent(targetUrl string, data []byte) (
 	return c.SendData(targetUrl, data)
 }
 
-func (actionLog *ActionLog) sendDataToService(data []byte) (*http.Response, error) {
+func (actionLog *ActionLog) sendDataToService(data []byte) ([]*http.Response, error) {
 	return nil, nil
 }
 

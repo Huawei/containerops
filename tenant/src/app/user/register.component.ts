@@ -31,15 +31,15 @@ export class RegisterComponent implements OnInit {
 	signUp() {
 		try{
 			//fake, to be deleted
-			var users = localStorage.users;
+			var users = localStorage["users"];
 			if(_.isUndefined(users)){
 				users = [];
 				users.push(this.user);
-				localStorage.users = JSON.stringify(users);
+				localStorage["users"] = JSON.stringify(users);
 			}else{
 				users = JSON.parse(users);
 				users.push(this.user);
-				localStorage.users = JSON.stringify(users);
+				localStorage["users"] = JSON.stringify(users);
 			}
 			alert("sign up done.")
 			//fake end

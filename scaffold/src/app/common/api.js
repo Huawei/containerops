@@ -242,7 +242,7 @@ export let historyApi = {
 	"pipelineHistories" : function () {
 		initApiInvocation();
 		var promise = $.ajax({
-			"url" : apiUrlConf.host + apiUrlConf.history.pipelineHistories,
+			"url" : apiUrlConf.host + apiUrlConf.history.pipelineHistories.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo"),
 			"type" : "GET",
 			"dataType" : "json",
 			"cache": false
