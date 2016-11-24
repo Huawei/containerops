@@ -175,13 +175,17 @@ func PutActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
 func PutActionRegisterV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": "ok"})
 
-	log.Info("------------------------------------------------------------------------------------------------------")
-	log.Info("jinlaile ...")
-	log.Info("------------------------------------------------------------------------------------------------------")
-
 	bodyByte, err := ctx.Req.Body().Bytes()
 	if err != nil {
 		log.Error("[action's PutActionRegisterV1Handler]:error when get request body:", err.Error())
+		result, _ := json.Marshal(map[string]string{"message": "error when getrequest body:" + err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	if string(bodyByte) == "" {
+		log.Error("[action's PutActionRegisterV1Handler]:got an empty reqBody")
+		result, _ := json.Marshal(map[string]string{"message": "illegal request body: empty body"})
+		return http.StatusBadRequest, result
 	}
 
 	reqBody := make(map[string]interface{})
