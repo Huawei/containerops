@@ -19,43 +19,87 @@ import {isObject,isArray,isBoolean,isNumber,isString} from "../common/util";
 import {addRelation,delRelation,initPipeline} from "./relation";
 import { notify } from "../common/notify";
 
-var importTreeJson,outputTreeJson,fromParentDom,toParentDom;
+var fromParentDom,toParentDom,startKey;
 
 export function bipatiteView(importJson,outputJson,linePathData){
-	
-	
+	$("#inputH4").find("select").remove();
+	var importTree;
+	var outputTree;
+	if(isArray(importJson)){
+		var select = $('<select></select>');
+		startKey = importJson[0].event+'_'+importJson[0].type
 
-    var importTree = importTreeJson = jsonTransformation(importJson);
-    var outputTree = outputTreeJson = jsonTransformation(outputJson);
-    initView(importTree,outputTree,linePathData);
-     
+		importTree = jsonTransformation(importJson[0].json);
+		outputTree = jsonTransformation(outputJson);
+		
+		if(linePathData.relation == undefined){
+			linePathData.relation = {};
+			for(var i=0;i<importJson.length;i++){
+				var nodeTree = jsonTransformation(importJson[i].json);
+				var key = importJson[i].event+'_'+importJson[i].type;
+				select.append('<option>'+key +'</option>');
+				linePathData.relation[key] = getRelationArray(nodeTree,outputTree);
+			}
+		}else{
+			for(var i=0;i<importJson.length;i++){
+				select.append('<option>'+importJson[i].event+'_'+importJson[i].type +'</option>');
+			}
+		}
+		$("#inputH4").append(select);
+
+		
+	    
+
+	    initView(importTree,outputTree,linePathData);
+
+
+	    select.change(function(){
+	    	startKey = $(this).val();
+	    	var selectIndex = ($(this).get(0).selectedIndex);
+	    	importTree = jsonTransformation(importJson[selectIndex].json);
+	    	initView(importTree,outputTree,linePathData);
+	    })
+
+	}else{
+		importTree = jsonTransformation(importJson);
+	    outputTree = jsonTransformation(outputJson);
+
+	    if(linePathData.relation == undefined){
+			linePathData.relation = getRelationArray(importTree,outputTree);
+		}
+	}
+
+	initView(importTree,outputTree,linePathData);
 }
 
-function getRelationArray(){
 
-	var visibleInputStr = getVisibleInputStr();
-	var visibleOutputStr = getVisibleOutputStr();
-	var visibleInput = visibleInputStr.split(";");
-    var visibleOutput = visibleOutputStr.split(";");
 
-	return initPipeline(importTreeJson,outputTreeJson);
+
+function getRelationArray(importTree,outputTree){
+
+	// var visibleInputStr = getVisibleInputStr();
+	// var visibleOutputStr = getVisibleOutputStr();
+	// var visibleInput = visibleInputStr.split(";");
+ //    var visibleOutput = visibleOutputStr.split(";");
+	return initPipeline(importTree,outputTree);
 }
 
 
 function initView(importTree,outputTree,linePathData){
 	
-
 	
-	if(linePathData.relation == undefined){
-		linePathData.relation = getRelationArray();
-	}
 
 	$("#importDiv").html("");
 	$("#outputDiv").html("");
 	construct($("#importDiv"),importTree,linePathData.relation);
 	construct($("#outputDiv"),outputTree,linePathData.relation);
 
-	relationLineInit(linePathData.relation);
+	if(isArray(linePathData.relation)){
+		relationLineInit(linePathData.relation);
+	}else{
+		relationLineInit(linePathData.relation[startKey]);
+	}
+	
 	
 	
 	$("span.property").mousedown(function(event){
@@ -99,9 +143,16 @@ function initView(importTree,outputTree,linePathData){
 
 	    		toPath = toPath.replace(/\-/g,'.').substring(5);
 
-	    		linePathData.relation = addRelation(linePathData.relation,true,fromPath,toPath,getVisibleInputStr(),getVisibleOutputStr());
-	    	
-	    		relationLineInit(linePathData.relation);
+	    		if(isArray(linePathData.relation)){
+					linePathData.relation = addRelation(linePathData.relation,true,fromPath,toPath,getVisibleInputStr(),getVisibleOutputStr());
+	    			relationLineInit(linePathData.relation);
+				}else{
+					linePathData.relation = addRelation(linePathData.relation[startKey],true,fromPath,toPath,getVisibleInputStr(),getVisibleOutputStr());
+	    			relationLineInit(linePathData.relation[startKey]);
+				}
+
+
+	    		
 	    	}
 	    }
 	})
@@ -111,8 +162,14 @@ function initView(importTree,outputTree,linePathData){
 	$("#removeLine").click(function(){
 		var path = $("#bipatiteLineSvg path.active");
 		var index = path.attr("data-index"); 
-		linePathData.relation.splice(index,1);
-		relationLineInit(linePathData.relation);
+		if(isArray(linePathData.relation)){
+			linePathData.relation.splice(index,1);
+			relationLineInit(linePathData.relation);
+		}else{
+			linePathData.relation[startKey].splice(index,1);
+			relationLineInit(linePathData.relation[startKey]);
+		}
+		
 		$(this).addClass("hide");
 	});
 
@@ -145,7 +202,12 @@ function initView(importTree,outputTree,linePathData){
 	        expander.bind('click', function() {
 	            var item = $(this).parent();
 	            item.toggleClass('expanded');
-	            relationLineInit(linePathData.relation);
+	            if(isArray(linePathData.relation)){
+	            	relationLineInit(linePathData.relation);
+	            }else{
+	            	relationLineInit(linePathData.relation[startKey]); 
+	            }
+	            
 	        });
 	        item.prepend(expander);
 	    }
