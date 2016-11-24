@@ -606,7 +606,7 @@ func (kube *kubeComponent) StartService() (string, error) {
 				return "", errors.New("component's kube config error, container info in ports is not a json")
 			}
 			if _, ok := tempPort["name"]; !ok {
-				tempPort["name"] = "port-" + kube.runID + "-" + strconv.FormatInt(int64(i), 10)
+				tempPort["name"] = "port-" + strconv.FormatInt(kube.componentInfo.ID, 10) + "-" + strconv.FormatInt(int64(i), 10)
 			}
 
 			ports = append(ports, tempPort)
@@ -1000,6 +1000,7 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 					log.Error("[kubeComponent's GetPodDefine]:error when get port info from serviceAddr,port is not a number:", serviceAddr)
 					return nil, errors.New("error when parse ports info to number:" + err.Error())
 				}
+				// tempPort["name"] = "port" + "-" + strconv.FormatInt(kube.componentInfo.ID, 10) + "-" + strconv.FormatInt(int64(i), 10)
 				tempPort["containerPort"] = portInt
 				ports = append(ports, tempPort)
 			}

@@ -498,47 +498,27 @@ func DeletePipelineV1Handler(ctx *macaron.Context) (int, []byte) {
 func ExecutePipelineV1Handler(ctx *macaron.Context) (int, []byte) {
 	result := []byte("")
 
-	// get pipeline info
-	pipelineInfo := new(models.Pipeline)
 	version := ctx.Query("version")
 	namespace := ctx.Params(":namespace")
+	repository := ctx.Params(":repository")
 	pipelineName := ctx.Params(":workflow")
-	//TODO: is version,namespace,pipeline illegal,if not ,return error
 
-	// if version is nil, select a least and not disabled version
-	if version == "" {
-		tempPipelineInfo := new(models.Pipeline)
-		err := tempPipelineInfo.GetPipeline().Where("namespace = ?", namespace).Where("pipeline = ?", pipelineName).Where("state = ?", models.PipelineStateAble).Order("-version_code").First(&tempPipelineInfo).Error
-		if err != nil || tempPipelineInfo.ID == 0 {
-			result, _ := json.Marshal(map[string]string{"result": "error when get least useable pipeline version:" + err.Error()})
-			return http.StatusOK, result
-		}
-
-		version = tempPipelineInfo.Version
+	reqHeader := ctx.Req.Request.Header
+	reqBody, err := ctx.Req.Body().Bytes()
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when get request body:" + err.Error()})
+		return http.StatusBadRequest, result
 	}
 
-	var reqBody []byte
-	err := pipelineInfo.GetPipeline().Where("namespace = ?", namespace).Where("pipeline = ?", pipelineName).Where("version = ?", version).First(&pipelineInfo).Error
+	pipelineInfo, err := module.GetLatestRunablePipeline(namespace, repository, pipelineName, version)
 	if err != nil {
-		result, _ = json.Marshal(map[string]string{"result": "error when get pipeline info:" + err.Error()})
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when get pipeline info:" + err.Error()})
 		return http.StatusBadRequest, result
-	} else if pipelineInfo.ID == 0 || pipelineInfo.Version == "" {
-		result, _ = json.Marshal(map[string]string{"result": "error when get pipeline info from namespace(" + namespace + ") and pipeline(" + pipelineName + ")"})
+	}
+
+	if ok, err := pipelineInfo.BeforeExecCheck(reqHeader, reqBody); !ok {
+		result, _ = json.Marshal(map[string]string{"errMsg": "failed on before exec check" + err.Error()})
 		return http.StatusBadRequest, result
-		// } else if pipelineInfo.SourceInfo == "" {
-		// result, _ = json.Marshal(map[string]string{"result": "pipeline does not config source info"})
-	} else if pipelineInfo.State == models.PipelineStateDisable {
-		result, _ = json.Marshal(map[string]string{"result": "pipeline is disabled!"})
-		return http.StatusBadRequest, result
-	} else if reqBody, err = ctx.Req.Body().Bytes(); err != nil {
-		result, _ = json.Marshal(map[string]string{"result": "error when get request body:" + err.Error()})
-		return http.StatusBadRequest, result
-		// } else if !module.PipeExecRequestLegal(ctx.Req.Request.Header, reqBody, *pipelineInfo) {
-		// result, _ = json.Marshal(map[string]string{"result": "request token is illegal!"})
-		// } else if pipelineLog, err := module.DoPipelineLog(*pipelineInfo); err != nil {
-		// 	// pipeline is ready , copy current pipelin info and all remain action will use the copy data
-		// 	result, _ = json.Marshal(map[string]string{"result": "error when do pipeline log:" + err.Error()})
-		// 	return http.StatusBadRequest, result
 	} else {
 		authMap := make(map[string]interface{})
 		authMap["type"] = module.AuthTypePipelineDefault
