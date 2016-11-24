@@ -1,0 +1,48 @@
+<div class="row content">
+    <div class="col-lg-12">
+        <section class="widget">
+            <div class="widget-body">
+                <form id="neworg-form" class="form-horizontal" data-parsley-priority-enabled="false"
+                      novalidate="novalidate">
+                    <fieldset>
+                        <legend><strong>New</strong> Organization</legend>
+                        <div class="row" style="height:80px;padding:40px 0">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="normal-field" class="col-sm-3 control-label">Name</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" name="orgName" placeholder="Organization name" [(ngModel)]="org.name" autocomplete="off" (keyup.enter)="addOrg()" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="height:80px;padding:40px 0">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="hint-field" class="col-sm-3 control-label">Description</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control" name="orgDesc" placeholder="Organization Description" [(ngModel)]="org.desc" autocomplete="off" (keyup.enter)="addOrg()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div >
+                        <div class="row" style="height:80px;padding:30px 0">
+                            <div class="col-md-offset-5 col-md-7">
+                                <button type="button" class="btn btn-primary" (click)="addOrg()">
+                                    <i class="glyphicon glyphicon-floppy-disk" style="font-size:16px"></i>
+                                    <span style="margin:0 5px">Save</span>
+                                </button>
+                                <button type="button" class="btn btn-inverse" (click)="cancelAdd()">
+                                    <i class="fa fa-reply" style="font-size:16px"></i>
+                                    <span style="margin:0 5px">Cancel</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+</div>
