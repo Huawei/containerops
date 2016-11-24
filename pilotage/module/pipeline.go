@@ -975,18 +975,35 @@ func (pipelineInfo *Pipeline) GenerateNewLog() (*PipelineLog, error) {
 	result := new(PipelineLog)
 	stageList := make([]models.Stage, 0)
 
-	err := new(models.Stage).GetStage().Where("pipeline = ?", pipelineInfo.ID).Find(&stageList).Error
+	pipelineSequence := new(models.PipelineSequence)
+	pipelineSequence.Pipeline = pipelineInfo.ID
+	err := pipelineSequence.GetPipelineSequence().Save(pipelineSequence).Error
 	if err != nil {
 		<-pipelinelogSequenceGenerateChan
-		log.Error("[pipeline's GenerateNewLog]:error when get stage list by pipeline info", pipelineInfo, "===>error is :", err.Error())
+		log.Error("[pipeline's GenerateNewLog]:error when save pipeline sequence info to db", pipelineSequence, "===>error is :", err.Error())
 		return nil, err
 	}
 
-	latestPipelineLog := new(models.PipelineLog)
-	err = new(models.PipelineLog).GetPipelineLog().Where("from_pipeline = ?", pipelineInfo.ID).Order("-sequence").First(&latestPipelineLog).Error
+	var count int64
+	err = pipelineSequence.GetPipelineSequence().Where("id < ?", pipelineSequence.ID).Where("pipeline = ?", pipelineInfo.ID).Count(&count).Error
 	if err != nil && !strings.Contains(err.Error(), "record not found") {
 		<-pipelinelogSequenceGenerateChan
-		log.Error("[pipeline's GenerateNewLog]:error when get pipeline's latest sequence from db:", err.Error())
+		log.Error("[pipeline's GenerateNewLog]:error when get pipeline sequence info to db:", err.Error())
+		return nil, err
+	}
+
+	pipelineSequence.Sequence = count + 1
+	err = pipelineSequence.GetPipelineSequence().Save(pipelineSequence).Error
+	if err != nil {
+		<-pipelinelogSequenceGenerateChan
+		log.Error("[pipeline's GenerateNewLog]:error when save pipeline sequence info to db", pipelineSequence, "===>error is :", err.Error())
+		return nil, err
+	}
+
+	err = new(models.Stage).GetStage().Where("pipeline = ?", pipelineInfo.ID).Find(&stageList).Error
+	if err != nil {
+		<-pipelinelogSequenceGenerateChan
+		log.Error("[pipeline's GenerateNewLog]:error when get stage list by pipeline info", pipelineInfo, "===>error is :", err.Error())
 		return nil, err
 	}
 
@@ -1001,7 +1018,7 @@ func (pipelineInfo *Pipeline) GenerateNewLog() (*PipelineLog, error) {
 	pipelineLog.FromPipeline = pipelineInfo.ID
 	pipelineLog.Version = pipelineInfo.Version
 	pipelineLog.VersionCode = pipelineInfo.VersionCode
-	pipelineLog.Sequence = latestPipelineLog.Sequence + 1
+	pipelineLog.Sequence = pipelineSequence.Sequence
 	pipelineLog.RunState = models.PipelineLogStateCanListen
 	pipelineLog.Event = pipelineInfo.Event
 	pipelineLog.Manifest = pipelineInfo.Manifest
