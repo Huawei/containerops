@@ -24,4 +24,17 @@ export class IndexComponent implements OnInit {
 	selectNav(value){
 		this.selectedNav = value;
 	}
+
+	toggleSideBar(event): void{
+		var target = $(event.currentTarget);
+	    if(target.hasClass("sidebar-close")){
+	        target.removeClass("sidebar-close").addClass("sidebar-open");
+	        target.removeClass("fa-chevron-circle-left").addClass("fa-chevron-circle-right");
+	        $("body").removeClass("nav-static").addClass("nav-collapsed");
+	    }else if(target.hasClass("sidebar-open")){
+	        target.removeClass("sidebar-open").addClass("sidebar-close");
+	        target.removeClass("fa-chevron-circle-right").addClass("fa-chevron-circle-left");
+	        $("body").removeClass("nav-collapsed").addClass("nav-static");
+	    }
+	}
 }
