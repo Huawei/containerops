@@ -325,3 +325,22 @@ func (o *Outcome) TableName() string {
 func (o *Outcome) GetOutcome() *gorm.DB {
 	return db.Model(&Outcome{})
 }
+
+// pipelineSequence is a table describe pipeline's run sequence
+type PipelineSequence struct {
+	ID        int64      `json:"id" gorm:"primary_key"`             //
+	Pipeline  int64      `json:"pipeline" sql:"not null;default:0"` // pipeline name
+	Sequence  int64      `json:"sequence" sql:"not null;default:0"` //pipeline run sequence
+	CreatedAt time.Time  `json:"created" sql:""`                    //
+	UpdatedAt time.Time  `json:"updated" sql:""`                    //
+	DeletedAt *time.Time `json:"deleted" sql:"index"`               //
+}
+
+//TableName is return the table name of Pipeline in MySQL database.
+func (p *PipelineSequence) TableName() string {
+	return "pipeline_sequence"
+}
+
+func (p *PipelineSequence) GetPipelineSequence() *gorm.DB {
+	return db.Model(&PipelineSequence{})
+}
