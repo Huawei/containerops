@@ -125,6 +125,19 @@ export function findSelectedStartOutputTabContentDom(){
     return $(".output-type-event-div[data-index="+ selectedTab +"]").parent();
 }
 
+// check event options
+export function isEventOptionAvailable(){
+    var numbers = _.filter(data,function(item){
+        return item.type == data[selectedTab].type && item.event == data[selectedTab].event;
+    }).length;
+
+    if(numbers == 1){
+        return true;
+    }
+
+    return false;
+}
+
 var metadata = {
   "type" : "github",
   "event" : "PullRequest",

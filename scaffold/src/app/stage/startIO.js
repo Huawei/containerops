@@ -304,18 +304,26 @@ function initFromView(){
 }
 
 export function getOutputForEvent(selecetedEvent){
-    var promise = pipelineApi.eventOutput(selecetedEvent);
-    promise.done(function(data){
-        loading.hide();
-        startIOData.setJson(data.output);
-        initFromView();
-    });
-    promise.fail(function(xhr,status,error){
-        loading.hide();
-        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
-            notify(xhr.responseJSON.errMsg,"error");
-        }else if(xhr.statusText != "abort"){
-            notify("Server is unreachable","error");
+    if(startIOData.isEventOptionAvailable()){
+        var promise = pipelineApi.eventOutput(selecetedEvent);
+        promise.done(function(data){
+            loading.hide();
+            startIOData.setJson(data.output);
+            initFromView();
+        });
+        promise.fail(function(xhr,status,error){
+            loading.hide();
+            if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
+                notify(xhr.responseJSON.errMsg,"error");
+            }else if(xhr.statusText != "abort"){
+                notify("Server is unreachable","error");
+            }
+        });
+    }else{
+        if(fromEdit_TreeEditor){
+            fromEdit_TreeEditor.destroy();
         }
-    });
+        startIOData.setJson({});
+        notify("There's an output for event '" + selecetedEvent + "', please select another one.","info");
+    }  
 }
