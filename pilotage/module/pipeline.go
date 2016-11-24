@@ -19,11 +19,13 @@ package module
 import (
 	"encoding/json"
 	"errors"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/Huawei/containerops/pilotage/models"
+	"github.com/Huawei/containerops/pilotage/module/checker"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/containerops/configure"
@@ -330,6 +332,35 @@ func GetPipeline(pipelineId int64) (*Pipeline, error) {
 	if err != nil {
 		log.Error("[pipeline's GetPipeline]:error when get pipeline info from db:", err.Error())
 		return nil, err
+	}
+
+	pipeline := new(Pipeline)
+	pipeline.Pipeline = pipelineInfo
+
+	return pipeline, nil
+}
+
+func GetLatestRunablePipeline(namespace, repository, pipelineName, version string) (*Pipeline, error) {
+	if namespace == "" || repository == "" {
+		log.Error("[pipeline's GetLatestRunablePipeline]:given empty parms:namespace: ===>", namespace, "<===  repository:===>", repository, "<===")
+		return nil, errors.New("parms is empty")
+	}
+
+	pipelineInfo := new(models.Pipeline)
+	query := pipelineInfo.GetPipeline().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("pipeline = ?", pipelineName)
+
+	if version != "" {
+		query = query.Where("version = ?", version)
+	}
+
+	err := query.Where("state = ?", models.PipelineStateAble).Order("-id").First(&pipelineInfo).Error
+	if err != nil {
+		log.Error("[pipeline's GetLatestRunablePipeline]:error when get pipeline info from db:", err.Error())
+		return nil, err
+	}
+
+	if pipelineInfo.ID == 0 {
+		return nil, errors.New("no runable workflow")
 	}
 
 	pipeline := new(Pipeline)
@@ -829,6 +860,114 @@ func (pipeline *Pipeline) getPipelineDefineInfo(pipelineInfo *models.Pipeline) (
 	}
 
 	return realtionMap, stageList, nil
+}
+
+func (pipelineInfo *Pipeline) BeforeExecCheck(reqHeader http.Header, reqBody []byte) (bool, error) {
+	if pipelineInfo.SourceInfo == "" {
+		return false, errors.New("pipeline's source info is empty")
+	}
+
+	sourceMap := make(map[string]interface{})
+	sourceList := make([]interface{}, 0)
+	err := json.Unmarshal([]byte(pipelineInfo.SourceInfo), &sourceMap)
+	if err != nil {
+		log.Error("[pipeline's BeforeExecCheck]:error when unmarshal pipeline source info, want json obj, got:", pipelineInfo.SourceInfo)
+		return false, errors.New("pipeline's source define error")
+	}
+
+	expectedToken, ok := sourceMap["token"].(string)
+	if !ok {
+		log.Error("[pipeline's BeforeExecCheck]:error when get source's expected token,want a string, got:", sourceMap["token"])
+		return false, errors.New("get token error")
+	}
+
+	sourceList, ok = sourceMap["sourceList"].([]interface{})
+	if !ok {
+		log.Error("[pipeline's BeforeExecCheck]:error when get sourceList:want json array, got:", sourceMap["sourceList"])
+		return false, errors.New("pipeline's sourceList define error")
+	}
+
+	eventInfoMap, err := getExecReqEventInfo(sourceList, reqHeader)
+	if err != nil {
+		log.Error("[pipeline's BeforeExecCheck]:error when get exec request's event type and event info:", err.Error())
+		return false, errors.New("get req's event info failed:" + err.Error())
+	}
+
+	passCheck := true
+
+	checkerList, err := checker.GetWorkflowExecCheckerList()
+	if err != nil {
+		log.Error("[pipeline's BeforeExecCheck]:error when get checkerList:", err.Error())
+		return false, err
+	}
+
+	for _, checker := range checkerList {
+		passCheck, err = checker.Check(eventInfoMap, expectedToken, reqHeader, reqBody)
+		if !passCheck {
+			log.Error("[pipeline's BeforeExecCheck]:check failed:", checker, "===>", err.Error(), "\neventInfoMap:", eventInfoMap, "\nreqHeader:", reqHeader, "\nreqBody:", reqBody)
+			return passCheck, err
+		}
+	}
+
+	return passCheck, nil
+}
+
+func getExecReqEventInfo(sourceList []interface{}, reqHeader http.Header) (map[string]string, error) {
+	result := make(map[string]string)
+	for _, sourceConfigInfo := range sourceList {
+		sourceConfig, ok := sourceConfigInfo.(map[string]interface{})
+		if !ok {
+			log.Error("[pipeline's getExecReqEventInfo]:error when parse sourceConfig,want a json obj, got :", sourceConfigInfo)
+			return nil, errors.New("source config is not a json obj")
+		}
+
+		tokenKey, ok := sourceConfig["headerKey"].(string)
+		if !ok {
+			log.Error("[pipeline's getExecReqEventInfo]:error when get source's token key,want a string, got:", sourceConfig["headerKey"])
+			return nil, errors.New("source's token key is not a string")
+		}
+
+		token := reqHeader.Get(tokenKey)
+		if token != "" {
+			supportEventList, ok := sourceConfig["eventList"].(string)
+			if !ok {
+				log.Error("[pipeline's getExecReqEventInfo]:error when get source's support event list,want a string, got:", sourceConfig["eventList"])
+				continue
+			}
+
+			sourceType, ok := sourceConfig["sourceType"].(string)
+			if !ok {
+				log.Error("[pipeline's getExecReqEventInfo]:error when get source's sourceType,want a string, got:", sourceConfig["sourceType"])
+				continue
+			}
+
+			eventName := getEventName(sourceType, reqHeader)
+			if !strings.Contains(supportEventList, ","+eventName+",") {
+				continue
+			}
+
+			result["sourceType"] = sourceType
+			result["eventName"] = eventName
+			result["token"] = token
+
+			return result, nil
+		}
+	}
+	return nil, errors.New("can't get event info from request header")
+}
+
+func getEventName(sourceType string, reqHeader http.Header) string {
+	eventName := ""
+	switch sourceType {
+	case "github":
+		eventName = reqHeader.Get("X-Github-Event")
+	case "gitlab":
+		eventName = reqHeader.Get("X-Gitlab-Event")
+	case "customize":
+		eventName = reqHeader.Get("X-Workflow-Event")
+	}
+
+	return eventName
 }
 
 func (pipelineInfo *Pipeline) GenerateNewLog() (*PipelineLog, error) {

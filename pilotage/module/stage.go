@@ -127,10 +127,79 @@ func CreateNewStage(db *gorm.DB, preStageId int64, pipelineInfo *models.Pipeline
 		stageName = pipelineInfo.Pipeline + "-start-stage"
 		timeout = 0
 
-		// TODO:
-		// if stageSetupDataMap, ok := defineMap["setupData"].(map[string]interface{}); ok {
-		// 	updatePipelineSourceInfo(stageSetupDataMap, pipelineInfo)
-		// }
+		if sourceMapList, ok := defineMap["outputJson"].([]interface{}); ok {
+			sourceMap := make(map[string]interface{}, 0)
+			json.Unmarshal([]byte(pipelineInfo.SourceInfo), &sourceMap)
+
+			sourceList := make([]map[string]interface{}, 0)
+			allSourceMap := make(map[string]interface{})
+			for _, sourceInfo := range sourceMapList {
+				sourceInfoMap, ok := sourceInfo.(map[string]interface{})
+				if !ok {
+					continue
+				}
+
+				sourceType, ok := sourceInfoMap["type"].(string)
+				if !ok {
+					continue
+				}
+				eventType, ok := sourceInfoMap["event"].(string)
+				if !ok {
+					continue
+				}
+
+				if _, ok := allSourceMap[sourceType].(map[string]bool); !ok {
+					sourceEventMap := make(map[string]bool)
+					allSourceMap[sourceType] = sourceEventMap
+				}
+
+				sourceEventMap := allSourceMap[sourceType].(map[string]bool)
+
+				if exist, ok := sourceEventMap[eventType]; !ok || !exist {
+					sourceEventMap[eventType] = true
+				}
+			}
+
+			for sourceType, sourceEventMap := range allSourceMap {
+				sourceEventMapList := sourceEventMap.(map[string]bool)
+				sourceTypeKey := ""
+				switch sourceType {
+				case "github":
+					sourceTypeKey = "X-Hub-Signature"
+				case "customize":
+					sourceTypeKey = "X-Workflow-Signature"
+				case "gitlab":
+					sourceTypeKey = "X-Gitlab-Token"
+				}
+
+				eventListStr := ","
+				for eventName, _ := range sourceEventMapList {
+					eventListStr += eventName + ","
+				}
+
+				tempSourceMap := make(map[string]interface{})
+				tempSourceMap["sourceType"] = sourceType
+				tempSourceMap["headerKey"] = sourceTypeKey
+				tempSourceMap["eventList"] = eventListStr
+
+				sourceList = append(sourceList, tempSourceMap)
+			}
+
+			sourceMap["sourceList"] = sourceList
+			sourceMapBytes, _ := json.Marshal(sourceMap)
+			pipelineInfo.SourceInfo = string(sourceMapBytes)
+			err := db.Model(&models.Pipeline{}).Save(pipelineInfo).Error
+			if err != nil {
+				log.Error("[stage's CreateNewStage]:error when update pipeline's source info to db:", err.Error())
+				rollbackErr := db.Rollback().Error
+				if rollbackErr != nil {
+					log.Error("[stage's CreateNewStage]:when rollback in update pipeline's source info:", rollbackErr.Error())
+					return 0, "", nil, errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
+				}
+				return 0, "", nil, err
+			}
+
+		}
 	} else if stageDefineType == PipelineStageTypeEnd {
 		stageType = models.StageTypeEnd
 		stageName = pipelineInfo.Pipeline + "-end-stage"
