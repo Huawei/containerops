@@ -50,6 +50,7 @@
   },
   "devDependencies": {
     "@types/core-js": "^0.9.34",
+    "@types/jquery": "^2.0.34",
     "@types/node": "^6.0.46",
     "blueimp-md5": "^2.4.0",
     "concurrently": "^3.1.0",
