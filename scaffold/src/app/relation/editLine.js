@@ -64,6 +64,7 @@ export function editLine(editPage, currentLine) {
         lineInputJSON = currentLineData.startData.outputJson;
         lineOutputJSON = currentLineData.endData.inputJson; 
         currentLineData.relation = undefined;
+        
         bipatiteView(lineInputJSON, lineOutputJSON, currentLineData);
     })
 
