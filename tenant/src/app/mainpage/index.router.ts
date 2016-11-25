@@ -5,6 +5,7 @@ import { IndexComponent }  from './index.component';
 
 import { OrgListComponent }  from '../organization/list.component';
 import { OrgAddComponent }  from '../organization/add.component';
+import { OrgDetailComponent }  from '../organization/detail.component';
 import { TeamListComponent } from '../team/list.component';
 import { RepoListComponent }  from '../repository/list.component';
 
@@ -20,6 +21,10 @@ const indexRouting: Routes = [
       { 
       	path: 'organization/add', 
       	component: OrgAddComponent 
+      },
+      { 
+        path: 'organization/:id', 
+        component: OrgDetailComponent 
       },
       { 
       	path: 'team', 

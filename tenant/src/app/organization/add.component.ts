@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-
-var _ = require("underscore");
+import {OrgDataService} from './data.service';
 
 @Component({
   selector: 'add-org',
@@ -14,7 +13,7 @@ export class OrgAddComponent implements OnInit {
 		"desc" : ""
 	};
 
-	constructor(private router: Router){
+	constructor(private router: Router, private orgDataService: OrgDataService){
 
 	}
 
@@ -25,14 +24,7 @@ export class OrgAddComponent implements OnInit {
 	addOrg(): void {
 		try{
 			//fake, to be deleted
-			var orgs;
-			if(_.isUndefined(localStorage["orgs"])){
-				orgs = [];
-			}else{
-				orgs = JSON.parse(localStorage["orgs"])
-			}
-			orgs.push(this.org);
-			localStorage["orgs"] = JSON.stringify(orgs);
+			this.orgDataService.addOrg(this.org);
 			alert("org "+ this.org.name + " added.");
 
 			this.router.navigate(["organization"]);
