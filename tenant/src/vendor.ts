@@ -22,7 +22,7 @@ import 'rxjs';
 import 'jquery/dist/jquery.min.js';
 import 'tether';
 import 'widgster';
-import 'bootstrap';
+// import 'bootstrap';
 import 'bootstrap-sass';
 import 'underscore/underscore-min.js';
 import 'angular-in-memory-web-api';
