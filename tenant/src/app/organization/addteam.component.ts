@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import {OrgDataService} from './data.service';
 import {TeamDataService} from '../team/data.service';
+import { NotifyService } from '../common/notify.service';
 
 @Component({
   selector: 'org-add-team',
@@ -18,7 +19,8 @@ export class OrgAddTeamComponent implements OnInit {
 	constructor(private router: Router,
 				private route: ActivatedRoute,
 				private orgDataService: OrgDataService,
-				private teamDataService: TeamDataService){
+				private teamDataService: TeamDataService,
+				private notifyService: NotifyService){
 
 	}
 
@@ -38,12 +40,12 @@ export class OrgAddTeamComponent implements OnInit {
 			//fake, to be deleted
 			this.team["orgid"] = this.org.id;
 			this.teamDataService.addTeam(this.team);
-			alert("team "+ this.team.name + " added.");
+			this.notifyService.notify("Add team '" + this.team.name + "' successfully.","success");
 
 			this.router.navigate(['/organization', this.org.id]);
 			//fake end
 		}catch(e){
-			alert("failed to add team.")
+			this.notifyService.notify("Fail to add team.","error");
 		}
 	}
 
