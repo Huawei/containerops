@@ -13,6 +13,7 @@ import { RegisterComponent }  from './user/register.component';
 
 // services
 import { UserService }      from './user/user.service';
+import { NotifyService }      from './common/notify.service';
 
 import { routing } from './app.router';
 
@@ -33,6 +34,7 @@ import { routing } from './app.router';
   ],
   providers: [
     UserService,
+    NotifyService,
     Title
   ],
   bootstrap: [ AppComponent ]

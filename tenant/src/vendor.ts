@@ -26,6 +26,8 @@ import 'widgster';
 import 'bootstrap-sass';
 import 'underscore/underscore-min.js';
 import 'angular-in-memory-web-api';
-import 'blueimp-md5'
+import 'blueimp-md5';
+import 'messenger/build/js/messenger.min.js';
+import 'messenger/build/js/messenger-theme-future';
 
 

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import {OrgDataService} from './data.service';
+import { NotifyService } from '../common/notify.service';
 
 @Component({
   selector: 'add-org',
@@ -13,7 +14,9 @@ export class OrgAddComponent implements OnInit {
 		"desc" : ""
 	};
 
-	constructor(private router: Router, private orgDataService: OrgDataService){
+	constructor(private router: Router, 
+				private orgDataService: OrgDataService,
+				private notifyService: NotifyService){
 
 	}
 
@@ -25,12 +28,12 @@ export class OrgAddComponent implements OnInit {
 		try{
 			//fake, to be deleted
 			this.orgDataService.addOrg(this.org);
-			alert("org "+ this.org.name + " added.");
+			this.notifyService.notify("Add organization '" + this.org.name + "' successfully.","success");
 
 			this.router.navigate(["organization"]);
 			//fake end
 		}catch(e){
-			alert("failed to add org.")
+			this.notifyService.notify("Fail to add organization.","error");
 		}
 	}
 
