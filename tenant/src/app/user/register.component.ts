@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { UserService } from './user.service';
+import { NotifyService } from '../common/notify.service';
 
 var md5 = require("blueimp-md5/js/md5");
 var _ = require("underscore");
@@ -16,7 +17,9 @@ export class RegisterComponent implements OnInit {
 		password: ''
 	}
 
-	constructor(private router: Router,private userService: UserService){
+	constructor(private router: Router,
+				private userService: UserService,
+				private notifyService: NotifyService){
 
 	}
 
@@ -41,11 +44,11 @@ export class RegisterComponent implements OnInit {
 				users.push(this.user);
 				localStorage["users"] = JSON.stringify(users);
 			}
-			alert("sign up done.")
+			this.notifyService.notify("Sign up successfully. please login with your username.","success");
 			//fake end
 			this.changeNav('login');
 		}catch(e){
-			alert("failed to sign up.")
+			this.notifyService.notify("Fail to sign up.","error");
 		}
 	}
 }
