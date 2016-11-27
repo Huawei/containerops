@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { UserService } from './user.service';
+import { NotifyService } from '../common/notify.service';
 
 var md5 = require("blueimp-md5/js/md5");
 var _ = require("underscore");
@@ -16,7 +17,9 @@ export class LoginComponent implements OnInit {
 		password: ''
 	}
 
-	constructor(private router: Router,private userService: UserService){
+	constructor(private router: Router,
+				private userService: UserService,
+				private notifyService: NotifyService){
 
 	}
 
@@ -33,22 +36,22 @@ export class LoginComponent implements OnInit {
 			//fake, to be deleted
 			var self = this;
 			if(_.isUndefined(localStorage["users"])){
-				alert("no such user, please sign up first.")
+				this.notifyService.notify("No such user, please sign up first.","info");
 			}else{
 				var users = JSON.parse(localStorage["users"]);
 				var targetuser = _.find(users,function(item){
 					return item.username == self.user.username && item.password == self.user.password;
 				});
 				if(_.isUndefined(targetuser)){
-					alert("no such user, please sign up first.")
+					this.notifyService.notify("No such user or password is incorrect.","info");
 				}else{
-					alert("sign in done.")
+					this.notifyService.notify("Welcome. " + self.user.username , "success");
 					this.changeNav('index');
 				}
 			}
 			//fake end
 		}catch(e){
-			alert("failed to sign in.")
+			this.notifyService.notify("Failed to Sign in.", "error");
 		}
 	}
 }
