@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
+import { TeamDataService } from './data.service';
 
 @Component({
   selector: 'list-team',
@@ -7,11 +8,27 @@ import { Router, RouterModule } from '@angular/router';
 })
 
 export class TeamListComponent implements OnInit { 
-	constructor(private router: Router){
+	teams = [];
+	constructor(private router: Router, private teamDataService: TeamDataService){
 
 	}
 
 	ngOnInit(): void {
-		
+		this.getTeams();
+	}
+	getTeams(): void {
+		this.teams = this.teamDataService.getTeams();
+	}
+
+	showNewTeam(): void{
+		this.router.navigate(["team/add"]);
+	}	
+
+	showTeamDetail(id): void{
+		this.router.navigate(['/team', id]);
+	}
+
+	addMember(id): void{
+		this.router.navigate(['/team', id, "addMember"]);
 	}
 }
