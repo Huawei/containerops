@@ -824,16 +824,34 @@ func (pipeline *Pipeline) getPipelineDefineInfo(pipelineInfo *models.Pipeline) (
 				return nil, nil, errors.New("pipeline's line define is illegal,startPoint id is not a string")
 			}
 
-			if _, ok := endPointMap[startDataId]; !ok {
-				endPointMap[startDataId] = make([]interface{}, 0)
-			}
+			if startDataId == "start-stage" {
+				if _, ok := endPointMap[startDataId]; !ok {
+					endPointMap[startDataId] = make(map[string]interface{}, 0)
+				}
 
-			lineList, ok := lineInfo["relation"].([]interface{})
-			if !ok {
-				continue
-			}
+				lineMap, ok := lineInfo["relation"].(map[string]interface{})
+				if !ok {
+					continue
+				}
 
-			endPointMap[startDataId] = append(endPointMap[startDataId].([]interface{}), lineList...)
+				lineOriginMap, ok := endPointMap[startDataId].(map[string]interface{})
+				for key, value := range lineMap {
+					lineOriginMap[key] = value
+				}
+
+				endPointMap[startDataId] = lineOriginMap
+			} else {
+				if _, ok := endPointMap[startDataId]; !ok {
+					endPointMap[startDataId] = make([]interface{}, 0)
+				}
+
+				lineList, ok := lineInfo["relation"].([]interface{})
+				if !ok {
+					continue
+				}
+
+				endPointMap[startDataId] = append(endPointMap[startDataId].([]interface{}), lineList...)
+			}
 		}
 	}
 
