@@ -50,6 +50,12 @@ function checkPipelineStart(data){
                 notify("Output json missed ---- < Start stage / Output " + (i+1)+" >","info");
                 break;
             }
+
+            completeness = !_.isEmpty(item.event);
+            if(!completeness){
+                notify("Output event missed ---- < Start stage / Output " + (i+1)+" >","info");
+                break;
+            }
         }
     }
 
