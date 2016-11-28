@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-
 var _ = require("underscore");
+// declare var _: any;
 
 @Component({
   selector: 'app-index',

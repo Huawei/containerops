@@ -34,4 +34,9 @@ export class TeamDataService {
 		teams.push(team);
 	  	localStorage["teams"] = JSON.stringify(teams);
 	}
+
+	// addMember(id: number){
+		
+	// }
+
 }
