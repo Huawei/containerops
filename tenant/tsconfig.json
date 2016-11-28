@@ -10,10 +10,9 @@
     "noImplicitAny": false,
     "suppressImplicitAnyIndexErrors": true,
     "typeRoots": [
-      "./node_modules/@types/"
-    ],
-    "baseUrl":"./src"
-    // "outDir": "./src/dist"
+      "./node_modules/@types"
+    ]
+
   },
   "compileOnSave": true,
   "exclude": [

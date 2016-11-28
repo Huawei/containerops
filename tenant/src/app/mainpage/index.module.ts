@@ -13,6 +13,9 @@ import { OrgAddTeamComponent }  from '../organization/addteam.component';
 
 // team
 import { TeamListComponent } from '../team/list.component';
+import { TeamAddComponent }  from '../team/add.component';
+import { TeamDetailComponent }  from '../team/detail.component';
+import { TeamAddMemberComponent } from '../team/addmember.component';
 
 // repo
 import { RepoListComponent }  from '../repository/list.component';
@@ -38,6 +41,9 @@ import { routing } from './index.router';
     OrgDetailComponent,
     OrgAddTeamComponent,
     TeamListComponent,
+    TeamAddComponent,
+    TeamDetailComponent,
+    TeamAddMemberComponent,
   	RepoListComponent
   ],
   providers: [

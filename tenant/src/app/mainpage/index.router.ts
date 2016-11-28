@@ -11,7 +11,9 @@ import { OrgAddTeamComponent }  from '../organization/addteam.component';
 
 // team
 import { TeamListComponent } from '../team/list.component';
-
+import { TeamAddComponent } from '../team/add.component';
+import { TeamDetailComponent } from '../team/detail.component';
+import { TeamAddMemberComponent } from '../team/addmember.component';
 // repo
 import { RepoListComponent }  from '../repository/list.component';
 
@@ -39,6 +41,18 @@ const indexRouting: Routes = [
       { 
       	path: 'team', 
       	component: TeamListComponent 
+      },
+      { 
+        path: 'team/add', 
+        component: TeamAddComponent 
+      },
+      { 
+        path: 'team/:id', 
+        component: TeamDetailComponent
+      },
+      { 
+        path: 'team/:id/addMember', 
+        component: TeamAddMemberComponent 
       },
       { 
       	path: 'repository', 

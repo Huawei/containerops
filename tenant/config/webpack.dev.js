@@ -43,7 +43,7 @@ module.exports = validate({
 
     // Config for our build files
     output: {
-        path: root('../src/build'),
+        // path: __dirname,
         filename: '[name].bundle.js',
         sourceMapFilename: '[name].map',
         chunkFilename: '[id].chunk.js'
@@ -58,7 +58,9 @@ module.exports = validate({
         preLoaders: [
             // { test: /\.ts$/, loader: 'tslint-loader', exclude: [ root('node_modules') ] },
             // TODO(gdi2290): `exclude: [ root('node_modules/rxjs') ]` fixed with rxjs 5 beta.2 release
-            { test: /\.js$/, loader: "source-map-loader", exclude: [root('node_modules/rxjs')] }
+            // { test: /\.js$/, loader: "source-map-loader", exclude: [root('node_modules/rxjs')] }
+            { test: /\.ts$/, loader: "source-map-loader", exclude: [root('node_modules')] }
+           
         ],
         loaders: [
             // Support Angular 2 async routes via .async.ts
@@ -86,15 +88,15 @@ module.exports = validate({
             //     })
             // },
             // { test: /\.(woff2?|ttf|eot|svg)$/, loader: 'url?limit=10000&name=[name].[ext]' },
-            {
-                test: /\.css$/,
-                loader: ExtractTextPlugin.extract("style-loader", "css-loader")
-            },
+            // {
+            //     test: /\.css$/,
+            //     loader: ExtractTextPlugin.extract("style-loader", "css-loader")
+            // },
             // Optionally extract less files
             // or any other compile-to-css language
             {
                 test: /\.scss$/,
-                loader: ExtractTextPlugin.extract("to-string-loader!css-loader!sass-loader")
+                loader: ExtractTextPlugin.extract("style-loader","css-loader!sass-loader?sourceMap")
             }, {
                 test: /\.woff(2)?(\?v=.+)?$/,
                 loader: 'url-loader?limit=10000&mimetype=application/font-woff'
@@ -151,7 +153,7 @@ module.exports = validate({
             'window.$': 'jquery',
             'window.Tether': 'tether',
             Tether: 'tether',
-            Util: 'bootstrap/dist/js/umd/util.js',
+            Util: 'bootstrap/dist/js/umd/util.js'
             // Raphael: 'webpack-raphael',
             // 'window.Raphael': 'webpack-raphael',
             // Rickshaw: 'rickshaw',
@@ -164,7 +166,7 @@ module.exports = validate({
             // Backbone: 'backbone',
             // PageableCollection: 'backbone.paginator/lib/backbone.paginator.js',
             // Backgrid: 'backgrid/lib/backgrid.js',
-            '_': "underscore"
+            // '_': "underscore"
                 // Holder: 'jasny-bootstrap/docs/assets/js/vendor/holder.js',
                 // markdown: 'markdown/lib/markdown.js',
                 // Shuffle: 'shufflejs/dist/shuffle.js'
