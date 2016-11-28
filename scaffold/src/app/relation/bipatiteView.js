@@ -147,7 +147,7 @@ function initView(importTree,outputTree,linePathData){
 					linePathData.relation = addRelation(linePathData.relation,true,fromPath,toPath,getVisibleInputStr(),getVisibleOutputStr());
 	    			relationLineInit(linePathData.relation);
 				}else{
-					linePathData.relation = addRelation(linePathData.relation[startKey],true,fromPath,toPath,getVisibleInputStr(),getVisibleOutputStr());
+					linePathData.relation[startKey] = addRelation(linePathData.relation[startKey],true,fromPath,toPath,getVisibleInputStr(),getVisibleOutputStr());
 	    			relationLineInit(linePathData.relation[startKey]);
 				}
 
