@@ -9,7 +9,7 @@
     "lite": "lite-server",
     "tsc": "tsc",
     "tsc:w": "tsc -w",
-    "webpack:server": "webpack-dev-server --config config/webpack.dev.js --progress --hot --watch --content-base src/"
+    "webpack:server": "webpack-dev-server --config config/webpack.dev.js --progress --watch --inline --hot --content-base src/"
   },
   "keywords": [],
   "author": "",
