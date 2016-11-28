@@ -35,6 +35,12 @@ export function initStartIO(start){
         startIOData.setSelectedTab(startIOData.data.length-1);
         showOutputTabs();
     });
+
+    $(".deleteStartOutput").on('click',function(){
+        startIOData.deleteOutput();  
+        startIOData.setSelectedTab(0);
+        showOutputTabs();
+    });
 }
 
 function showOutputTabs(){
@@ -83,6 +89,12 @@ function showOutputTabs(){
                                                 <option value="TeamAdd">Team Add</option>
                                                 <option value="Watch">Watch</option>
                                             </select>
+                                        </div>
+                                    </div>
+                                    <div class="row col-md-6 event-input-div">
+                                        <label class="col-md-4 control-label">Event</label>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control output-event-input" required>
                                         </div>
                                     </div>
                                 </div>
@@ -152,6 +164,15 @@ function showOutputTabs(){
         getOutputForEvent(startIOData.getEventSelect());
     });
 
+    $(".output-event-input").on("blur",function(){
+        startIOData.setEventInput();
+        if(!startIOData.isEventOptionAvailable()){
+            notify("There's a customize output for event '" + startIOData.getEventSelect() + "', please input another one.","info");
+            startIOData.setEvent("");
+            startIOData.setEventInputDom();
+        }
+    });
+
     $(".outputStartBtn").on('click',function(){
             startIOData.setJson({
                 "newKey" : null
@@ -182,24 +203,34 @@ function initOutputDiv(){
 function selectType(pipelineType,isTypeChange){
     if(pipelineType == "github" || pipelineType == "gitlab"){
         startIOData.findEventSelectDivDom().show();
+        startIOData.findEventInputDivDom().hide();
         startIOData.findOutputTreeViewerDom().show();
         startIOData.findOutputTreeDesignerDom().hide();
         
         startIOData.setEventSelectDom();
 
         if(_.isEmpty(startIOData.getJson()) || isTypeChange){
+            if(_.isEmpty(startIOData.getEventSelect())){
+                startIOData.setEvent("PullRequest");
+                startIOData.setEventSelectDom();
+            }
             getOutputForEvent(startIOData.getEventSelect()); 
         }else{
             initFromView();
         }
     }else{
         startIOData.findEventSelectDivDom().hide();
+        startIOData.findEventInputDivDom().show();
         startIOData.findOutputTreeViewerDom().hide();
         startIOData.findOutputTreeDesignerDom().show();
 
         if(isTypeChange){
             startIOData.setJson({});
+            startIOData.setEvent("");
         } 
+
+        startIOData.setEventInputDom();
+
         initTreeEdit();
         initFromEdit("output");
     }
@@ -324,6 +355,6 @@ export function getOutputForEvent(selecetedEvent){
             fromEdit_TreeEditor.destroy();
         }
         startIOData.setJson({});
-        notify("There's an output for event '" + selecetedEvent + "', please select another one.","info");
+        notify("There's a " + startIOData.getTypeSelect() + " output for event '" + selecetedEvent + "', please select another one.","info");
     }  
 }
