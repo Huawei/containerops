@@ -53,12 +53,24 @@ export function getTypeSelect(){
 }
 
 // event select
+export function setEvent(e){
+    data[selectedTab].event = e;
+}
+
 export function findEventSelectDom(){
     return $(".output-type-event-div[data-index="+ selectedTab +"]").find(".output-event-select");
 }
 
+export function findEventInputDom(){
+    return $(".output-type-event-div[data-index="+ selectedTab +"]").find(".output-event-input");
+}
+
 export function setEventSelect(){
     data[selectedTab].event = findEventSelectDom().val();
+}
+
+export function setEventInput(){
+    data[selectedTab].event = findEventInputDom().val();
 }
 
 export function setEventSelectDom(){
@@ -68,12 +80,20 @@ export function setEventSelectDom(){
     });
 }
 
+export function setEventInputDom(){
+    findEventInputDom().val(data[selectedTab].event);
+}
+
 export function getEventSelect(){
     return data[selectedTab].event;
 }
 
 export function findEventSelectDivDom(){
     return $(".output-type-event-div[data-index="+ selectedTab +"]").find(".event-select-div");
+}
+
+export function findEventInputDivDom(){
+    return $(".output-type-event-div[data-index="+ selectedTab +"]").find(".event-input-div");
 }
 
 // viewer
@@ -136,6 +156,10 @@ export function isEventOptionAvailable(){
     }
 
     return false;
+}
+
+export function deleteOutput(){
+    data.splice(selectedTab,1);
 }
 
 var metadata = {
