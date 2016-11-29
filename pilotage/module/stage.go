@@ -606,9 +606,11 @@ func (stageLog *StageLog) Start() {
 			return
 		}
 
+		stageLog.Stop(StageStopScopeAll, StageStopReasonRunSuccess, models.StageLogStateRunSuccess)
 		pipelineLog := new(PipelineLog)
 		pipelineLog.PipelineLog = pipelineLogInfo
 		pipelineLog.Stop(PipelineStopReasonRunSuccess, models.PipelineLogStateRunSuccess)
+		return
 	}
 
 	if stageLog.Type == models.StageTypeStart {
