@@ -24,24 +24,51 @@ export  function hasConflict(startActionID,endActionID) {
     for(let i = 0; i < linePathAry.length; i ++) {
         let lineInfo = linePathAry[i];
         if (lineInfo.endData.id == endActionID && lineInfo.startData.id == startActionID && lineInfo.relation) {
-            for (let j = 0; j < lineInfo.relation.length; j ++) {
-                let currentRelation = lineInfo.relation[j];
+            if (startActionID == "start-stage") {
+                for (let event in lineInfo.relation) {
+                    let relations = lineInfo.relation[event];
 
-                receiveData[currentRelation.to] = true;
+                    for (let j = 0; j < relations.length; j ++) {
+                        let currentRelation = relations[j];
+
+                        receiveData[currentRelation.to] = true;
+                    }
+                }
+            } else {
+                for (let j = 0; j < lineInfo.relation.length; j ++) {
+                    let currentRelation = lineInfo.relation[j];
+
+                    receiveData[currentRelation.to] = true;
+                }
+                break;
             }
-            break;
         }
     }
 
     for (let i =0; i < linePathAry.length; i ++) {
         let lineInfo = linePathAry[i];
         if (lineInfo.endData.id == endActionID && lineInfo.startData.id != startActionID && lineInfo.relation) {
-            for (let j = 0; j < lineInfo.relation.length; j ++) {
-                let currentRelation = lineInfo.relation[j];
+            if (lineInfo.startData.id == "start-stage") {
+                for (let event in lineInfo.relation) {
+                    let relations = lineInfo.relation[event];
 
-                if (receiveData[currentRelation.to]) {
-                    result = true;
-                    break;
+                    for (let j = 0; j < relations.length; j ++) {
+                        let currentRelation = relations[j];
+
+                        if (receiveData[currentRelation.to]) {
+                            result = true;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                for (let j = 0; j < lineInfo.relation.length; j ++) {
+                    let currentRelation = lineInfo.relation[j];
+
+                    if (receiveData[currentRelation.to]) {
+                        result = true;
+                        break;
+                    }
                 }
             }
         }
