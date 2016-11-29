@@ -122,3 +122,183 @@ limitations under the License. */
     }
   }
 }
+
+//
+// Navbars
+// --------------------------------------------------
+
+.navbar {
+  border: none;
+  font-size: $navbar-font-size;
+  font-weight: 500;
+  min-height: 50px;
+  margin-bottom: 0;
+  padding: 0;
+
+  h5{
+    font-size: $navbar-font-size;
+  }
+
+  .deemphasize{
+    font-size: $font-size-sm;
+  }
+}
+
+.navbar-form{
+  .form-control{
+    font-size: $navbar-font-size;
+    padding: 0.6rem 0.85rem;
+
+  }
+
+  .input-group{
+    width: 245px;
+  }
+
+  .input-group-addon{
+    color: $navbar-dashboard-link-color;
+  }
+}
+
+
+
+.container,
+.container-fluid {
+  > .navbar-header,
+  > .navbar-collapse {
+    @media (min-width: map_get($grid-breakpoints, md)) {
+      margin-right: -$navbar-padding-horizontal;
+      margin-left:  -$navbar-padding-horizontal;
+    }
+  }
+}
+
+.navbar-header > .navbar-nav{
+  float: left;
+
+  &.navbar-right{
+    float: right;
+
+    @include media-breakpoint-down(sm) {
+
+      > li > a {
+        padding-right: 0;
+      }
+    }
+  }
+
+  margin-left: calc(#{$navbar-padding-horizontal} + 10px);
+  margin-right: $navbar-padding-horizontal;
+
+  @include media-breakpoint-down(sm) {
+    margin-left: $navbar-padding-vertical;
+
+    + .navbar-brand{
+      height: 60px;
+      line-height: 30px;
+    }
+  }
+
+  > li {
+    float: left;
+    > a {
+      padding: 17px $navbar-padding-vertical $navbar-padding-horizontal $navbar-padding-vertical;
+
+
+    }
+  }
+
+  li:nth-child(3){
+    margin-left: 0;
+  }
+}
+
+@media (min-width: map_get($grid-breakpoints, md)) {
+  .navbar-nav.navbar-right:last-child {
+    margin-right: 0;
+  }
+}
+
+.navbar-collapse {
+  overflow-x: visible;
+  padding-right: $navbar-padding-horizontal;
+  padding-left:  $navbar-padding-horizontal;
+  border-top: 1px solid transparent;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1);
+  @include clearfix;
+
+  &.in {
+    overflow-y: auto;
+  }
+
+  @media (min-width: map_get($grid-breakpoints, md)) {
+    width: auto;
+    border-top: 0;
+    box-shadow: none;
+
+    &.collapse {
+      display: block !important;
+      height: auto !important;
+      padding-bottom: 0; // Override default setting
+      overflow: visible !important;
+    }
+
+    &.in {
+      overflow-y: visible;
+    }
+
+    // Undo the collapse side padding for navbars with containers to ensure
+    // alignment of right-aligned contents.
+    .navbar-fixed-top &,
+    .navbar-static-top &,
+    .navbar-fixed-bottom & {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
+  .nav.navbar-nav > li {
+    margin-left: 0;
+  }
+
+ /* .nav.navbar-nav > li > a {
+    padding: 17px 14px 14px 14px;
+  }*/
+
+  .nav.navbar-nav > li:first-child .dropdown-toggle {
+
+    .circle {
+      color: $gray;
+    }
+  }
+
+  .nav.navbar-nav .nav-item {
+    li:first-child .dropdown-item {
+      padding-top: 10px;
+    }
+
+    li:last-child .dropdown-item {
+      padding-bottom: 10px;
+    }
+  }
+
+  .nav.navbar-nav li:nth-child(2) > a:after {
+    content: none;
+  }
+
+  .nav.navbar-nav a[data-toggle="chat-sidebar"] {
+    position: relative;
+  }
+
+  .navbar-nav {
+
+    .dropdown-menu {
+      margin-top: 0px;
+      padding: 0;
+    }
+  }
+}
+
+.navbar-nav .nav-item .nav-link {
+    margin-left: 0;
+}

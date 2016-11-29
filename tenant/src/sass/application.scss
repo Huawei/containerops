@@ -9,6 +9,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. */
 
+@import "./ui/normalize";
 @import "./theme/variables";
 @import "./theme/mixins";
 
@@ -23,6 +24,7 @@ limitations under the License. */
 
 @import "./theme/bootstrap-override";
 
+@import "./theme/font";
 @import "./theme/general";
 @import "./theme/global-transitions";
 @import "./theme/base";

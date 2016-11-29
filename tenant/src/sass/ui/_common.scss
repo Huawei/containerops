@@ -10,9 +10,6 @@ See the License for the specific language governing permissions and
 limitations under the License. */
 
 // btn
-.btn{
-  font-size:16px;
-}
 
 .btn > span{
   margin-left:5px;
@@ -51,9 +48,9 @@ limitations under the License. */
 }
 
 // override content
-.content{
+/*.content{
   padding: 30px 40px 40px !important;
-}
+}*/
 
 // loading
 .loading{
@@ -214,8 +211,10 @@ limitations under the License. */
 }
 
 legend{
-  height: 46px;
+  height: 35px;
   border-bottom: 1px solid #787878;
+  font-size: 15px;
+  border-bottom: 1px solid #e5e5e5;
 }
 
 // list

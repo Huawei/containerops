@@ -25,10 +25,10 @@ export class TeamListComponent implements OnInit {
 	}	
 
 	showTeamDetail(id): void{
-		this.router.navigate(['/team', id]);
+		this.router.navigate(['team', id]);
 	}
 
 	addMember(id): void{
-		this.router.navigate(['/team', id, "addMember"]);
+		this.router.navigate(['team', id, 'member','add']);
 	}
 }
