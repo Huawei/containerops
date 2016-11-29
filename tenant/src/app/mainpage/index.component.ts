@@ -5,7 +5,8 @@ var _ = require("underscore");
 
 @Component({
   selector: 'app-index',
-  templateUrl: '../../template/mainpage/index.html'
+  template: require('../../template/mainpage/index.html')
+
 })
 
 export class IndexComponent implements OnInit { 

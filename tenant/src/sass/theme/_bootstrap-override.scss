@@ -302,3 +302,17 @@ limitations under the License. */
 .navbar-nav .nav-item .nav-link {
     margin-left: 0;
 }
+
+//
+// Checkboxes and radios
+// --------------------------------------------------
+
+.radio,
+.checkbox {
+  padding-left: 20px;
+
+  label {
+    margin-bottom: 5px;
+    min-height: 0;
+  }
+}

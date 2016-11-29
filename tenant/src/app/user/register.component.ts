@@ -8,7 +8,7 @@ var _ = require("underscore");
 
 @Component({
   selector: 'register',
-  templateUrl: '../../template/user/register.html'
+  template: require('../../template/user/register.html')
 })
 
 export class RegisterComponent implements OnInit { 
