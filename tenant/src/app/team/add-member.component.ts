@@ -6,7 +6,7 @@ import { NotifyService } from '../common/notify.service';
 
 @Component({
   selector: 'team-add-member',
-  templateUrl: '../../template/team/addMember.html'
+  templateUrl: '../../template/team/add-member.html'
 })
 
 export class TeamAddMemberComponent implements OnInit { 
@@ -52,6 +52,6 @@ export class TeamAddMemberComponent implements OnInit {
 	}
 
 	cancelAdd(): void{
-		this.router.navigate(['/team', this.team.id]);
+		this.router.navigate(['/team']);
 	}	
 }

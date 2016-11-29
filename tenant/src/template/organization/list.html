@@ -1,3 +1,6 @@
+<h3 class="page-title">
+    <strong>Organization </strong> - List
+</h3>
 <div class="row content no-org-div" *ngIf="orgs.length == 0">
     <div class="row col-md-12">
         <div class="col-md-6 col-md-offset-3" style="text-align:center">
@@ -17,10 +20,9 @@
         <section class="widget">
             <div class="widget-body">
                 <legend>
-                    <strong>Organization</strong> List
-                    <button type="button" class="btn btn-success" style="float:right" (click)="showNewOrg()">
-                        <i class="glyphicon glyphicon-plus"></i>
-                        <span>New</span>
+                    <button type="button" class="btn btn-success btn-sm" style="float:right" (click)="showNewOrg()">
+                        <i class="fa fa-plus"></i>
+                        New
                     </button>
                 </legend>
                 <div>
@@ -37,7 +39,7 @@
                                 <td>{{org.name}}</td>
                                 <td>{{org.desc}}</td>
                                 <td>
-                                	<button type="button" class="btn btn-success td-viewer" (click)="showOrgDetail(org.id)">
+                                	<button type="button" class="btn btn-success btn-sm td-viewer" (click)="showOrgDetail(org.id)">
 	                                    <i class="glyphicon glyphicon-eye-open"></i>
 	                                    <span>View</span>
 	                                </button>
