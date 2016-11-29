@@ -8,7 +8,7 @@ var _ = require("underscore");
 
 @Component({
   selector: 'login',
-  templateUrl: '../../template/user/login.html'
+  template: require('../../template/user/login.html')
 })
 
 export class LoginComponent implements OnInit { 

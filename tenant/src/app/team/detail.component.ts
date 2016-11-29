@@ -4,7 +4,7 @@ import {TeamDataService} from './data.service';
 
 @Component({
   selector: 'team-detail',
-  templateUrl: '../../template/team/detail.html'
+  template: require('../../template/team/detail.html')
 })
 
 export class TeamDetailComponent implements OnInit { 

@@ -126,6 +126,7 @@ $headings-font-weight: 300 !default;
 
 //== Forms
 //
+$input-border-color:             #ccc !default;
 $input-border-radius:            2px;
 $input-border-focus:             #4D90FE !default; //webkit focus color
 $legend-color:                   lighten($text-color, 15%) !default;
