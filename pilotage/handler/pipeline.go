@@ -516,13 +516,15 @@ func ExecutePipelineV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	if ok, err := pipelineInfo.BeforeExecCheck(reqHeader, reqBody); !ok {
+	if ok, eventMap, err := pipelineInfo.BeforeExecCheck(reqHeader, reqBody); !ok {
 		result, _ = json.Marshal(map[string]string{"errMsg": "failed on before exec check" + err.Error()})
 		return http.StatusBadRequest, result
 	} else {
 		authMap := make(map[string]interface{})
 		authMap["type"] = module.AuthTypePipelineDefault
 		authMap["token"] = module.AuthTokenDefault
+		authMap["eventName"] = eventMap["eventName"]
+		authMap["eventType"] = eventMap["sourceType"]
 		authMap["time"] = time.Now().Format("2006-01-02 15:04:05")
 
 		err := module.Run(pipelineInfo.ID, authMap, string(reqBody))
