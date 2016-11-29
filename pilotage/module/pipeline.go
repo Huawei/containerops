@@ -301,8 +301,24 @@ func Run(pipelineId int64, authMap map[string]interface{}, startData string) err
 	pipeline := new(Pipeline)
 	pipeline.Pipeline = pipelineInfo
 
+	eventName, ok := authMap["eventName"].(string)
+	if !ok {
+		log.Error("[pipeline's Run]:error when parse eventName,want a string, got:", authMap["eventName"])
+		return errors.New("error when get eventName")
+	}
+
+	eventType, ok := authMap["eventType"].(string)
+	if !ok {
+		log.Error("[pipeline's Run]:error when parse eventName,want a string, got:", authMap["eventType"])
+		return errors.New("error when get eventType")
+	}
+
+	eventMap := make(map[string]string)
+	eventMap["eventName"] = eventName
+	eventMap["eventType"] = eventType
+
 	// first generate a pipeline log to record all current pipeline's info which will be used in feature
-	pipelineLog, err := pipeline.GenerateNewLog()
+	pipelineLog, err := pipeline.GenerateNewLog(eventMap)
 	if err != nil {
 		return err
 	}
@@ -880,9 +896,9 @@ func (pipeline *Pipeline) getPipelineDefineInfo(pipelineInfo *models.Pipeline) (
 	return realtionMap, stageList, nil
 }
 
-func (pipelineInfo *Pipeline) BeforeExecCheck(reqHeader http.Header, reqBody []byte) (bool, error) {
+func (pipelineInfo *Pipeline) BeforeExecCheck(reqHeader http.Header, reqBody []byte) (bool, map[string]string, error) {
 	if pipelineInfo.SourceInfo == "" {
-		return false, errors.New("pipeline's source info is empty")
+		return false, nil, errors.New("pipeline's source info is empty")
 	}
 
 	sourceMap := make(map[string]interface{})
@@ -890,25 +906,25 @@ func (pipelineInfo *Pipeline) BeforeExecCheck(reqHeader http.Header, reqBody []b
 	err := json.Unmarshal([]byte(pipelineInfo.SourceInfo), &sourceMap)
 	if err != nil {
 		log.Error("[pipeline's BeforeExecCheck]:error when unmarshal pipeline source info, want json obj, got:", pipelineInfo.SourceInfo)
-		return false, errors.New("pipeline's source define error")
+		return false, nil, errors.New("pipeline's source define error")
 	}
 
 	expectedToken, ok := sourceMap["token"].(string)
 	if !ok {
 		log.Error("[pipeline's BeforeExecCheck]:error when get source's expected token,want a string, got:", sourceMap["token"])
-		return false, errors.New("get token error")
+		return false, nil, errors.New("get token error")
 	}
 
 	sourceList, ok = sourceMap["sourceList"].([]interface{})
 	if !ok {
 		log.Error("[pipeline's BeforeExecCheck]:error when get sourceList:want json array, got:", sourceMap["sourceList"])
-		return false, errors.New("pipeline's sourceList define error")
+		return false, nil, errors.New("pipeline's sourceList define error")
 	}
 
 	eventInfoMap, err := getExecReqEventInfo(sourceList, reqHeader)
 	if err != nil {
 		log.Error("[pipeline's BeforeExecCheck]:error when get exec request's event type and event info:", err.Error())
-		return false, errors.New("get req's event info failed:" + err.Error())
+		return false, nil, errors.New("get req's event info failed:" + err.Error())
 	}
 
 	passCheck := true
@@ -916,18 +932,18 @@ func (pipelineInfo *Pipeline) BeforeExecCheck(reqHeader http.Header, reqBody []b
 	checkerList, err := checker.GetWorkflowExecCheckerList()
 	if err != nil {
 		log.Error("[pipeline's BeforeExecCheck]:error when get checkerList:", err.Error())
-		return false, err
+		return false, nil, err
 	}
 
 	for _, checker := range checkerList {
 		passCheck, err = checker.Check(eventInfoMap, expectedToken, reqHeader, reqBody)
 		if !passCheck {
 			log.Error("[pipeline's BeforeExecCheck]:check failed:", checker, "===>", err.Error(), "\neventInfoMap:", eventInfoMap, "\nreqHeader:", reqHeader, "\nreqBody:", reqBody)
-			return passCheck, err
+			return false, nil, err
 		}
 	}
 
-	return passCheck, nil
+	return true, eventInfoMap, nil
 }
 
 func getExecReqEventInfo(sourceList []interface{}, reqHeader http.Header) (map[string]string, error) {
@@ -988,7 +1004,7 @@ func getEventName(sourceType string, reqHeader http.Header) string {
 	return eventName
 }
 
-func (pipelineInfo *Pipeline) GenerateNewLog() (*PipelineLog, error) {
+func (pipelineInfo *Pipeline) GenerateNewLog(eventMap map[string]string) (*PipelineLog, error) {
 	pipelinelogSequenceGenerateChan <- true
 	result := new(PipelineLog)
 	stageList := make([]models.Stage, 0)
@@ -1028,6 +1044,8 @@ func (pipelineInfo *Pipeline) GenerateNewLog() (*PipelineLog, error) {
 	db := models.GetDB()
 	db = db.Begin()
 
+	eventInfoBytes, _ := json.Marshal(eventMap)
+
 	// record pipeline's info
 	pipelineLog := new(models.PipelineLog)
 	pipelineLog.Namespace = pipelineInfo.Namespace
@@ -1041,7 +1059,7 @@ func (pipelineInfo *Pipeline) GenerateNewLog() (*PipelineLog, error) {
 	pipelineLog.Event = pipelineInfo.Event
 	pipelineLog.Manifest = pipelineInfo.Manifest
 	pipelineLog.Description = pipelineInfo.Description
-	pipelineLog.SourceInfo = pipelineInfo.SourceInfo
+	pipelineLog.SourceInfo = string(eventInfoBytes)
 	pipelineLog.Env = pipelineInfo.Env
 	pipelineLog.Requires = pipelineInfo.Requires
 	pipelineLog.AuthList = ""

@@ -999,10 +999,49 @@ func (actionLog *ActionLog) merageFromActionsOutputData(relationInfo []interface
 			return nil, errors.New("error when parse from action data1:" + err.Error() + "\n" + fromOutcome.Output)
 		}
 
-		relationArray, ok := relationMap["relation"].([]interface{})
+		relationArray := make([]interface{}, 0)
+
+		fromRealActionIDF, ok := relationMap["fromAction"].(float64)
 		if !ok {
-			log.Error("[actionLog's merageFromActionsOutputData]:error when get relation from relationMap:", relationMap)
-			return nil, errors.New("relation doesn't have a relation info")
+			log.Error("[actionLog's merageFromActionsOutputData]:error when get fromRealActionID from action's relation,want a number,got:", relationMap["fromAction"])
+			return nil, errors.New("error when parse from action id:relation's fromAction's id is not a number")
+		}
+
+		fromRealActionID := int64(fromRealActionIDF)
+
+		if fromRealActionID == 0 {
+			// get pipeline source info, then get relation array by eventType and eventName
+			pipelineLog := new(models.PipelineLog)
+			err := pipelineLog.GetPipelineLog().Where("id = ?", actionLog.Pipeline).First(pipelineLog).Error
+			if err != nil {
+				log.Error("[actionLog's merageFromActionsOutputData]:error when get pipeline log info from db:", err.Error())
+				return nil, err
+			}
+			sourceInfo := pipelineLog.SourceInfo
+			sourceMap := make(map[string]string)
+			err = json.Unmarshal([]byte(sourceInfo), &sourceMap)
+			if err != nil {
+				log.Error("[actionLog's merageFromActionsOutputData]:error when unmarshal pipelineLog's sourceInfo:", err.Error())
+				return nil, err
+			}
+
+			realRelation, ok := relationMap["relation"].(map[string]interface{})
+			if !ok {
+				log.Error("[actionLog's merageFromActionsOutputData]:error in pipelineLog's relation define,want a obj,got: ", relationMap["relation"])
+				return nil, errors.New("error in pipeline's relation define")
+			}
+
+			relationArray, ok = realRelation[sourceMap["eventName"]+"_"+sourceMap["eventType"]].([]interface{})
+			if !ok {
+				log.Error("[actionLog's merageFromActionsOutputData]:error when get real relation from relationMap:", relationMap)
+				return nil, errors.New("relation doesn't have a relation info")
+			}
+		} else {
+			relationArray, ok = relationMap["relation"].([]interface{})
+			if !ok {
+				log.Error("[actionLog's merageFromActionsOutputData]:error when get relation from relationMap:", relationMap)
+				return nil, errors.New("relation doesn't have a relation info")
+			}
 		}
 
 		relationList := make([]Relation, 0)
