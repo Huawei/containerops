@@ -1385,13 +1385,15 @@ func (pipelineLog *PipelineLog) Stop(reason string, runState int64) {
 		return
 	}
 
-	notEndStageLogList := make([]models.StageLog, 0)
-	new(models.StageLog).GetStageLog().Where("pipeline = ?", pipelineLog.ID).Where("run_state != ?", models.StageLogStateRunSuccess).Where("run_state != ?", models.StageLogStateRunFailed).Find(&notEndStageLogList)
+	if runState != models.PipelineLogStateRunSuccess {
+		notEndStageLogList := make([]models.StageLog, 0)
+		new(models.StageLog).GetStageLog().Where("pipeline = ?", pipelineLog.ID).Where("run_state != ?", models.StageLogStateRunSuccess).Where("run_state != ?", models.StageLogStateRunFailed).Find(&notEndStageLogList)
 
-	for _, stageLogInfo := range notEndStageLogList {
-		stage := new(StageLog)
-		stage.StageLog = &stageLogInfo
-		stage.Stop(StageStopScopeAll, StageStopReasonRunFailed, models.StageLogStateRunFailed)
+		for _, stageLogInfo := range notEndStageLogList {
+			stage := new(StageLog)
+			stage.StageLog = &stageLogInfo
+			stage.Stop(StageStopScopeAll, StageStopReasonRunFailed, models.StageLogStateRunFailed)
+		}
 	}
 
 	pipelineLog.RunState = runState
