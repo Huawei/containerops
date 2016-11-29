@@ -78,7 +78,6 @@ limitations under the License. */
 .page-controls{
   position: absolute;
   z-index: 1;
-
   @media (max-width: $screen-xs-max) {
     font-size: 16px;
 
@@ -233,9 +232,8 @@ limitations under the License. */
       left: $sidebar-padding-horizontal;
       width: 28px;
       height: 28px;
-      line-height: 28px;
+      line-height: 29px;
       text-align: center;
-      padding-top:5px;
 
       @media (min-width: $screen-md-min) and (min-height: $screen-md-height), (max-width: $screen-xs-max){
         top: 8px;

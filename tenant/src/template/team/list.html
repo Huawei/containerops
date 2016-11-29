@@ -1,3 +1,6 @@
+<h3 class="page-title">
+    <strong>Team </strong> - List
+</h3>
 <div class="row content no-team-div" *ngIf="teams.length == 0">
     <div class="row col-md-12">
         <div class="col-md-6 col-md-offset-3" style="text-align:center">
@@ -17,10 +20,10 @@
         <section class="widget">
             <div class="widget-body">
                 <legend>
-                    <strong>Team</strong> List
-                    <button type="button" class="btn btn-success" style="float:right" (click)="showNewTeam()">
-                        <i class="glyphicon glyphicon-plus"></i>
-                        <span>New</span>
+                    <!-- <strong>Team</strong> List -->
+                    <button type="button" class="btn btn-success btn-sm" style="float:right" (click)="showNewTeam()">
+                        <i class="fa fa-plus"></i>
+                        New
                     </button>
                 </legend>
                 <div>
@@ -45,9 +48,10 @@
 	                                </button>
                                 </td> -->
                                  <td>
-                                	<button type="button" class="btn btn-success" (click)="addMember(team.id)">
-	                                    <i class="glyphicon glyphicon-plus"></i>
-	                                    <span>Add Member</span>
+                                	<button type="button" class="btn btn-primary btn-sm mb-xs" (click)="addMember(team.id)">
+	                                    <!-- <i class="glyphicon glyphicon-plus"></i> -->
+                                        <i class="fa fa-plus"></i>
+	                                    Add Member
 	                                </button>
                                 </td>
 
