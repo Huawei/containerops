@@ -529,82 +529,107 @@ func (kube *kubeComponent) Stop() error {
 }
 
 func (kube *kubeComponent) SendData(receiveDataUri string, reqBody []byte) (respList []*http.Response, err error) {
-	serviceName := "ser-" + kube.runID
-	if len(serviceName) > 253 {
-		serviceName = serviceName[len(serviceName)-253:]
-	}
+	// serviceName := "ser-" + kube.runID
+	// if len(serviceName) > 253 {
+	// 	serviceName = serviceName[len(serviceName)-253:]
+	// }
 
-	serviceInfoMap, err := kube.GetServiceInfo()
-	if err != nil {
-		log.Error("[kubeComponent's SendData]:error when get service's info:", err.Error())
-		return nil, err
-	}
+	// serviceInfoMap, err := kube.GetServiceInfo()
+	// if err != nil {
+	// 	log.Error("[kubeComponent's SendData]:error when get service's info:", err.Error())
+	// 	return nil, err
+	// }
 
-	specMap, ok := serviceInfoMap["spec"].(map[string]interface{})
-	if !ok {
-		log.Error("[kubeComponent's SendData]:error when get service's spec info,want a json obj, got :", serviceInfoMap["spec"])
-		return nil, errors.New("got service info error")
-	}
+	// specMap, ok := serviceInfoMap["spec"].(map[string]interface{})
+	// if !ok {
+	// 	log.Error("[kubeComponent's SendData]:error when get service's spec info,want a json obj, got :", serviceInfoMap["spec"])
+	// 	return nil, errors.New("got service info error")
+	// }
 
-	ports, ok := specMap["ports"].([]interface{})
-	if !ok {
-		log.Error("[kubeComponent's SendData]:error when get service's port info,want an array,got:", specMap["ports"])
-	}
+	// ports, ok := specMap["ports"].([]interface{})
+	// if !ok {
+	// 	log.Error("[kubeComponent's SendData]:error when get service's port info,want an array,got:", specMap["ports"])
+	// }
 
-	kubeReqUrlList := make([]string, 0)
+	// kubeReqUrlList := make([]string, 0)
 
-	for _, portInfo := range ports {
-		portInfoMap, ok := portInfo.(map[string]interface{})
-		if !ok {
-			log.Error("[kubeComponent's SendData]:service's port define error,want a json obj,got:", portInfo)
-			return nil, errors.New("service's port define error")
-		}
+	// for _, portInfo := range ports {
+	// 	portInfoMap, ok := portInfo.(map[string]interface{})
+	// 	if !ok {
+	// 		log.Error("[kubeComponent's SendData]:service's port define error,want a json obj,got:", portInfo)
+	// 		return nil, errors.New("service's port define error")
+	// 	}
 
-		protStr := ""
+	// 	protStr := ""
 
-		if protName, ok := portInfoMap["name"].(string); ok {
-			protStr = protName
-		} else {
-			protF, ok := portInfoMap["name"].(float64)
-			if !ok {
-				log.Error("[kubeComponent's SendData]:service's port define error,want a json obj,got:", portInfo)
-				return nil, errors.New("service's port define error")
-			}
+	// 	if protName, ok := portInfoMap["name"].(string); ok {
+	// 		protStr = protName
+	// 	} else {
+	// 		protF, ok := portInfoMap["name"].(float64)
+	// 		if !ok {
+	// 			log.Error("[kubeComponent's SendData]:service's port define error,want a json obj,got:", portInfo)
+	// 			return nil, errors.New("service's port define error")
+	// 		}
 
-			protStr = strconv.FormatFloat(protF, 'f', 0, 64)
-		}
+	// 		protStr = strconv.FormatFloat(protF, 'f', 0, 64)
+	// 	}
 
-		receiveDataUri = strings.Join(strings.Split(receiveDataUri, "/")[1:], "/")
+	// 	receiveDataUri = strings.Join(strings.Split(receiveDataUri, "/")[1:], "/")
 
-		kubeReqUrl := kube.apiServerUri + "/api/v1/proxy/namespaces/" + kube.componentInfo.Namespace + "/services/" + serviceName + ":" + protStr + "/" + receiveDataUri
-		kubeReqUrlList = append(kubeReqUrlList, kubeReqUrl)
-	}
+	// 	kubeReqUrl := kube.apiServerUri + "/api/v1/proxy/namespaces/" + kube.componentInfo.Namespace + "/services/" + serviceName + ":" + protStr + "/" + receiveDataUri
+	// 	kubeReqUrlList = append(kubeReqUrlList, kubeReqUrl)
+	// }
 
-	sendSuccessOnce := false
+	// sendSuccessOnce := false
+	// var resp *http.Response
+	// for _, kubeReqUrl := range kubeReqUrlList {
+	// 	sendSuccess := false
+	// 	for count := 0; count < 10 && !sendSuccess; count++ {
+	// 		resp, err := http.Post(kubeReqUrl, "application/json", bytes.NewReader(reqBody))
+	// 		if err == nil && resp != nil && resp.StatusCode == http.StatusOK {
+	// 			respList = append(respList, resp)
+	// 			sendSuccessOnce = true
+	// 			sendSuccess = true
+	// 		}
+	// 		log.Info("[kubeComponent's SendData]:send data:", string(reqBody), " to:", kubeReqUrl, " count:", count, "\n resp:", resp, " err:", err)
+
+	// 		time.Sleep(1 * time.Second)
+	// 	}
+	// 	if !sendSuccess {
+	// 		respList = append(respList, resp)
+	// 	}
+	// }
+
+	// if sendSuccessOnce {
+	// 	return respList, err
+	// }
+	// return nil, errors.New("error when send all request to component")
+
 	var resp *http.Response
-	for _, kubeReqUrl := range kubeReqUrlList {
-		sendSuccess := false
-		for count := 0; count < 10 && !sendSuccess; count++ {
-			resp, err := http.Post(kubeReqUrl, "application/json", bytes.NewReader(reqBody))
-			if err == nil && resp != nil && resp.StatusCode == http.StatusOK {
-				respList = append(respList, resp)
-				sendSuccessOnce = true
-				sendSuccess = true
-			}
-			log.Info("[kubeComponent's SendData]:send data:", string(reqBody), " to:", kubeReqUrl, " count:", count, "\n resp:", resp, " err:", err)
+	kubeReqUrl := ""
 
-			time.Sleep(1 * time.Second)
-		}
-		if !sendSuccess {
-			respList = append(respList, resp)
-		}
+	if strings.HasPrefix(kube.nodeIP, "http://") || strings.HasPrefix(kube.nodeIP, "https://") {
+		kubeReqUrl = kube.nodeIP + receiveDataUri
+	} else {
+		kubeReqUrl = "http://" + kube.nodeIP + receiveDataUri
 	}
 
-	if sendSuccessOnce {
-		return respList, err
+	log.Info("[kubeComponent's SendData]:send data:", string(reqBody), " to:", kubeReqUrl)
+
+	sendSuccess := false
+
+	for count := 0; count < 10 && !sendSuccess; count++ {
+		resp, err = http.Post(kubeReqUrl, "application/json", bytes.NewReader(reqBody))
+		if err == nil && resp != nil && resp.StatusCode == http.StatusOK {
+			sendSuccess = true
+		}
+		log.Info("[kubeComponent's SendData]:send data:", string(reqBody), " to:", kubeReqUrl, " count:", count, "\n resp:", resp, " err:", err)
+
+		time.Sleep(1 * time.Second)
 	}
 
-	return nil, errors.New("error when send all request to component")
+	respList = append(respList, resp)
+	return respList, err
 }
 
 func (kube *kubeComponent) StartService() (string, error) {
