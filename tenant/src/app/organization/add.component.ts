@@ -5,7 +5,7 @@ import { NotifyService } from '../common/notify.service';
 
 @Component({
   selector: 'add-org',
-  templateUrl: '../../template/organization/add.html'
+  template: require('../../template/organization/add.html')
 })
 
 export class OrgAddComponent implements OnInit { 

@@ -5,7 +5,7 @@ import {TeamDataService} from '../team/data.service';
 
 @Component({
   selector: 'org-detail',
-  templateUrl: '../../template/organization/detail.html'
+  template: require('../../template/organization/detail.html')
 })
 
 export class OrgDetailComponent implements OnInit { 

@@ -24,10 +24,10 @@ export class UserService {
      })
      return user;
   }
-  updateUser(id:number, team:any) : void{
-     var user = this.getUser(id);
-     user.team = team.id;
-  }
+  // updateUser(users:Array, team:any) : void{
+  //    var user = this.getUser(id);
+  //    user.team = team.id;
+  // }
   // getBrowseList(): Promise<any> {
   //   return this.http.get('json/browseList.json')
   //              .toPromise()
