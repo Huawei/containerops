@@ -6,13 +6,13 @@ import { NotifyService } from '../common/notify.service';
 
 @Component({
   selector: 'team-add-member',
-  templateUrl: '../../template/team/add-member.html'
+  template: require('../../template/team/add-member.html')
 })
 
 export class TeamAddMemberComponent implements OnInit { 
     team;
 	users;
-    selectedUserId;
+    selectedUsers = [];
 	constructor(private router: Router,
 				private route: ActivatedRoute,
 				private teamDataService: TeamDataService,
@@ -35,16 +35,23 @@ export class TeamAddMemberComponent implements OnInit {
 	}
 	getUsers(): void {
 		this.users = this.userService.getUsers();
-		this.selectedUserId = this.users[0].username;
 	}
-
+    toggleMember(event, id){
+        let checked = event.currentTarget.checked;
+        if(checked){
+        	this.selectedUsers.push(id);
+        }else {
+            this.teamDataService.removeItem(this.selectedUsers, id);
+        }
+    }
 	addMember(): void {
 		try{
 			//fake, to be deleted
-			this.userService.updateUser(this.selectedUserId, this.team);
+			// this.userService.updateUser(this.selectedUsers, this.team);
+			this.teamDataService.updateTeam(this.selectedUsers, this.team);
 			this.notifyService.notify("Add member to '" + this.team.name + "' successfully.","success");
 
-			this.router.navigate(['/team', this.team.id]);
+			this.router.navigate(['team']);
 			//fake end
 		}catch(e){
 			this.notifyService.notify("Fail to add member.","error");
@@ -52,6 +59,6 @@ export class TeamAddMemberComponent implements OnInit {
 	}
 
 	cancelAdd(): void{
-		this.router.navigate(['/team']);
+		this.router.navigate(['team']);
 	}	
 }

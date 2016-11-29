@@ -30,6 +30,7 @@
     "@angular/router": "~3.0.1",
     "@angular/upgrade": "~2.0.1",
     "angular-in-memory-web-api": "~0.1.15",
+    "awesome-bootstrap-checkbox": "^1.0.0-alpha.4",
     "bootstrap": "4.0.0-alpha.2",
     "bootstrap-sass": "^3.3.7",
     "core-js": "^2.4.1",

@@ -21,7 +21,7 @@
             <div class="widget-body">
                 <legend>
                     <!-- <strong>Team</strong> List -->
-                    <button type="button" class="btn btn-success btn-sm" style="float:right" (click)="showNewTeam()">
+                    <button type="button" class="btn btn-success btn-sm pull-right" (click)="showNewTeam()">
                         <i class="fa fa-plus"></i>
                         New
                     </button>
@@ -41,12 +41,6 @@
                                 <td>{{team.name}}</td>
                                 <td>{{team.desc}}</td>
                                 <td>{{team.org}}</td>
-                                <!-- <td>
-                                	<button type="button" class="btn btn-success td-viewer" (click)="showTeamDetail(team.id)">
-	                                    <i class="glyphicon glyphicon-eye-open"></i>
-	                                    <span>View</span>
-	                                </button>
-                                </td> -->
                                  <td>
                                 	<button type="button" class="btn btn-primary btn-sm mb-xs" (click)="addMember(team.id)">
 	                                    <!-- <i class="glyphicon glyphicon-plus"></i> -->

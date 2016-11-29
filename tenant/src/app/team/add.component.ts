@@ -6,8 +6,9 @@ import { NotifyService } from '../common/notify.service';
 
 @Component({
   selector: 'add-team',
-  templateUrl: '../../template/team/add.html'
+  template: require('../../template/team/add.html')
 })
+
 
 export class TeamAddComponent implements OnInit { 
 	team = {

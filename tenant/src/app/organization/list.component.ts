@@ -4,7 +4,7 @@ import {OrgDataService} from './data.service';
 
 @Component({
   selector: 'list-org',
-  templateUrl: '../../template/organization/list.html'
+  template: require('../../template/organization/list.html')
 })
 
 export class OrgListComponent implements OnInit { 
