@@ -166,8 +166,8 @@ function getHistoryList() {
 function forVdSequenceList(vd,index,length,pdId,pdName,vdId,vdName){
 
     var hsRowArray = [];
-console.log("vd",vd)
-    var tempLength = (length > 0) ? length : vd.lengt;
+// console.log("vd",vd)
+    var tempLength = (length > 0) ? length : vd.length;
 
 
     for(var i = index ; i < tempLength ; i++){
