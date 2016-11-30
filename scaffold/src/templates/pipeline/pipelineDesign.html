@@ -12,12 +12,12 @@
 -->
 <div id="pipelinedesign" class="hidden-div">
     <div class="h5 row" id="designerMenubar">
-        <div class="col-md-4">
-            <span class="col-md-2 btn backtolist" title="back to list"></span>
-            <div id="selected_pipeline" style="font-size:1.2em;margin-top:0.6em;" class="col-md-6"></div>
+        <div style="float:left;">
+            <span class="btn backtolist" title="back to list" style="float:left;"></span>
+            <div id="selected_pipeline" class="selected-pipeline-text"></div>
             <span class="pipeline-state"></span>
         </div> 
-        <div class="col-md-8" style="margin-top:-0.6em">
+        <div style="margin-top:-0.6em;float:right;">
             <div style="float:right" class="btn-toolbar">
                 <button type="button" class="btn btn-info checkpipeline">
                     <i class="glyphicon glyphicon-check" style="font-size:16px"></i>
@@ -37,7 +37,7 @@
                 </div>
                 <button type="button" class="btn btn-inverse loghistory">
                     <i class="fa fa-history" style="font-size:16px"></i>
-                    <span style="margin-left:5px">Log History</span>
+                    <span style="margin-left:5px">History</span>
                 </button>
                 <button type="button" class="btn btn-success newpipelineindesigner">
                     <i class="glyphicon glyphicon-plus" style="font-size:16px"></i>
@@ -46,6 +46,10 @@
                 <button type="button" class="btn btn-warning envsetting">
                     <i class="glyphicon glyphicon-cog" style="font-size:16px"></i>
                     <span style="margin-left:5px">Env Setting</span>
+                </button>
+                <button type="button" class="btn btn-danger varsetting">
+                    <i class="glyphicon glyphicon-cog" style="font-size:16px"></i>
+                    <span style="margin-left:5px">Global Var</span>
                 </button>
             </div>
         </div>         
