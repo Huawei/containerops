@@ -79,7 +79,7 @@
                                                         Action Name
                                                     </label>
                                                     <div class="col-sm-7">
-                                                        <input type="text" id="action-name" name="action-name" class="form-control" required>
+                                                        <input type="text" id="action-name" name="action-name" class="form-control allowFromVar" required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -88,9 +88,9 @@
                                                     <label for="hint-field" class="col-sm-4 control-label">
                                                         Action Timeout
                                                     </label>
-                                                    <div class="col-sm-7">
-                                                        <label class="unit">(S)</label>
-                                                        <input type="number" id="action-timeout" name="action-timeout" class="form-control" required>
+                                                    <div class="col-sm-7 input-group">
+                                                        <input type="text" id="action-timeout" name="action-timeout" class="form-control allowFromVar" required>
+                                                        <span class="input-group-addon">(S)</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -102,7 +102,7 @@
                                                         End Point
                                                     </label>
                                                     <div class="col-sm-7">
-                                                        <input type="text" id="k8s-pod-image-name" name="k8s-pod-image-name" class="form-control" required>
+                                                        <input type="text" id="k8s-pod-image-name" name="k8s-pod-image-name" class="form-control allowFromVar" required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -112,7 +112,7 @@
                                                         Image Tag
                                                     </label>
                                                     <div class="col-sm-7">
-                                                        <input type="text" id="k8s-pod-image-tag" name="k8s-pod-image-tag" class="form-control" required>
+                                                        <input type="text" id="k8s-pod-image-tag" name="k8s-pod-image-tag" class="form-control allowFromVar" required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -124,7 +124,7 @@
                                                         Data From
                                                     </label>
                                                     <div class="col-sm-7">
-                                                        <input type="text" id="action-data-from" name="action-data-from" class="form-control" required>
+                                                        <input type="text" id="action-data-from" name="action-data-from" class="form-control allowFromVar" required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -134,7 +134,7 @@
                                                         Kubernetes IP
                                                     </label>
                                                     <div class="col-sm-7">
-                                                        <input type="text" id="k8s-ip" name="k8s-ip" class="form-control" required pattern="/((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d))))/">
+                                                        <input type="text" id="k8s-ip" name="k8s-ip" class="form-control allowFromVar" required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -146,7 +146,7 @@
                                                         Kubernetes API Service
                                                     </label>
                                                     <div class="col-sm-7">
-                                                        <input type="text" id="k8s-api-server" name="k8s-api-server" class="form-control" required>
+                                                        <input type="text" id="k8s-api-server" name="k8s-api-server" class="form-control allowFromVar" required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -173,7 +173,7 @@
                                                                 CPU Limits
                                                             </label>
                                                             <div class="col-sm-7">
-                                                                <input type="number" id="k8s-cpu-limits" name="k8s-cpu-limits" class="form-control" required>
+                                                                <input type="text" id="k8s-cpu-limits" name="k8s-cpu-limits" class="form-control allowFromVar" required>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -183,7 +183,7 @@
                                                                 CPU Requests
                                                             </label>
                                                             <div class="col-sm-7">
-                                                                <input type="number" id="k8s-cpu-requests" name="k8s-cpu-requests" class="form-control" required>
+                                                                <input type="text" id="k8s-cpu-requests" name="k8s-cpu-requests" class="form-control allowFromVar" required>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -194,9 +194,9 @@
                                                             <label for="normal-field" class="col-sm-4 control-label">
                                                                 Memory Limits
                                                             </label>
-                                                            <div class="col-sm-7">
-                                                                 <label class="unit">(Mi)</label>
-                                                                <input type="number" step="0.01" id="k8s-memory-limits" name="k8s-memory-limits" class="form-control" required>
+                                                            <div class="col-sm-7 input-group">
+                                                                <input type="text" step="0.01" id="k8s-memory-limits" name="k8s-memory-limits" class="form-control allowFromVar" required>
+                                                                <span class="input-group-addon">(Mi)</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -205,9 +205,9 @@
                                                             <label for="normal-field" class="col-sm-4 control-label">
                                                                 Memory Requests
                                                             </label>
-                                                            <div class="col-sm-7">
-                                                                <label class="unit">(Mi)</label>
-                                                                <input type="number" step="0.01" id="k8s-memory-requests" name="k8s-memory-requests" class="form-control" required>
+                                                            <div class="col-sm-7 input-group">
+                                                                <input type="text" step="0.01" id="k8s-memory-requests" name="k8s-memory-requests" class="form-control allowFromVar" required>
+                                                                <span class="input-group-addon">(Mi)</span>
                                                             </div>
                                                         </div>
                                                     </div>

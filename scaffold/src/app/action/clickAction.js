@@ -28,6 +28,7 @@ import { showNewComponent } from "../component/main";
 import { notify } from "../common/notify";
 import { loading } from "../common/loading";
 import { getConflict, svgTree } from "./actionConflict";
+import {pipelineVars} from "../pipeline/pipelineVar";
 
 export function clickAction(sd, si) {
     if (sd.component) {
@@ -70,9 +71,15 @@ function showActionEditor(action) {
             $("#action-component-select").select2({
                 minimumResultsForSearch: Infinity
             });
-            // $("#k8s-service-protocol").select2({
-            //     minimumResultsForSearch: Infinity
-            // });  
+            
+            // use global vars
+            var globalvars = _.keys(pipelineVars);
+            $(".allowFromVar").autocomplete({
+                source:[globalvars],
+                limit: 100,
+                visibleLimit: 5
+            }); 
+
             resizeWidget();
         }
     });

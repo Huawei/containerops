@@ -78,125 +78,6 @@ limitations under the License. */
   background-image:url(/assets/svg/back-hover.svg);
 }
 
-/* env setting */
-.env-setting-closed{
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    right: -700px;
-    width: 600px;
-    background-color: #232323;
-    -webkit-transition: right 0.3s ease-in-out;
-    -o-transition: right 0.3s ease-in-out;
-    transition: right 0.3s ease-in-out;
-    z-index: 1000;
-    padding:20px 20px;
-    color:#a1a1a1;
-}
-
-.env-setting-opened{
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    right: 0px;
-    width: 600px;
-    background-color: #232323;
-    -webkit-transition: right 0.3s ease-in-out;
-    -o-transition: right 0.3s ease-in-out;
-    transition: right 0.3s ease-in-out;
-    z-index: 1000;
-    padding:20px 20px;
-    color:#a1a1a1;
-    overflow: auto;
-}
-
-.pipeline-open-env{
-    position: fixed;
-    top: 0;
-    right: -100px;
-    background-color: #232323;
-    color:#a1a1a1;
-    z-index: 1000;
-    -webkit-border-top-left-radius: 5px;
-    -moz-border-top-left-radius: 5px;
-    border-top-left-radius: 5px;
-    -webkit-border-bottom-left-radius: 5px;
-    -moz-border-bottom-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    padding:10px;
-    font-size: 24px;
-    -webkit-transition: right 0.3s ease-in-out;
-    -o-transition: right 0.3s ease-in-out;
-    transition: right 0.3s ease-in-out;
-}
-
-.pipeline-close-env{
-    position: fixed;
-    top: 0;
-    right: 600px;
-    background-color: #232323;
-    color:#a1a1a1;
-    z-index: 1000;
-    -webkit-border-top-left-radius: 5px;
-    -moz-border-top-left-radius: 5px;
-    border-top-left-radius: 5px;
-    -webkit-border-bottom-left-radius: 5px;
-    -moz-border-bottom-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    padding:10px;
-    font-size: 24px;
-    -webkit-transition: right 0.3s ease-in-out;
-    -o-transition: right 0.3s ease-in-out;
-    transition: right 0.3s ease-in-out;
-    cursor: pointer;
-}
-
-.env-row{
-  background-color:#313131;
-  width:98%;
-  height: 50px;
-  margin:30px 1%;
-}
-
-.env-key-div{
-  width:45%;
-  float:left;
-  padding:8px;
-}
-
-.env-value-div{
-  width:45%;
-  float:left;
-  margin-left:10px;
-  padding:8px;
-}
-
-.pp-env-input{
-  background-color:#a2a2a2;
-  color:#000;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-}
-
-.env-remove-div{
-  width:50px;
-  height: 50px;
-  float: right;
-  background-color:#424242;
-  padding:16px;
-  cursor:pointer;
-  font-size: 18px;
-}
-
-.env-remove-div:hover{
-  background-color:#696969;
-}
-
-.new-kv, .rm-kv, .close-env, .c-new-kv, .c-rm-kv{
-   cursor: pointer;
-   // margin-top:10px
-}
 
 legend{
   height: 46px;
@@ -295,40 +176,6 @@ legend{
   margin:7px 20px;
 }
 
-// pipeline run and stop
-.pipeline-on{
-  background-image:url(/assets/images/pipeline-on.png);
-  background-repeat:no-repeat;
-  background-size:contain;
-  width: 65px;
-  height: 26px;
-  display: inline-block;
-  float:left;
-  margin:6px 20px;
-  cursor: pointer;
-}
-
-.pipeline-off{
-  background-image:url(/assets/images/pipeline-off.png);
-  background-repeat:no-repeat;
-  background-size:contain;
-  width: 65px;
-  height: 26px;
-  display: inline-block;
-  float:left;
-  margin:6px 20px;
-  cursor: pointer;
-}
-
-.pipeline-on:hover{
-  opacity: 0.5;
-}
-
-.pipeline-off:hover{
-  opacity: 0.5;
-}
-
-
 // history log textarea 
 .history-log{
   white-space:nowrap; 
@@ -380,17 +227,7 @@ button.close {
   }
 }
 
-// designer split
-.designer-split{
-  cursor:row-resize;
-  width:100%;
-  background-color:#ccc;
-  text-align: center;
-  color: #7d7d7d
-}
-
-// copy icon
-#copyUrl, #copyToken{
-  margin-top:10px;
-  cursor: pointer;
+.input-group{
+   padding-left:15px !important;
+   padding-right:15px !important;
 }

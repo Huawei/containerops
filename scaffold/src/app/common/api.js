@@ -26,6 +26,8 @@ let apiUrlConf = {
 		"eventOutput" : "/v2/{namespace}/{repository}/workflow/v1/define/event/{site}/{eventName}",
 		"getEnv" : "/v2/{namespace}/{repository}/workflow/v1/define/{pipelineName}/env?id={pipelineID}",
 		"setEnv" : "/v2/{namespace}/{repository}/workflow/v1/define/{pipelineName}/env",
+		"getVar" : "/v2/{namespace}/{repository}/workflow/v1/define/{pipelineName}/var?id={pipelineID}",
+		"setVar" : "/v2/{namespace}/{repository}/workflow/v1/define/{pipelineName}/var",
 		"changeState" : "/v2/{namespace}/{repository}/workflow/v1/define/{pipelineName}/state",
 		"getToken" : "/v2/{namespace}/{repository}/workflow/v1/define/{pipelineName}/token?id={pipelineID}"
 	},
@@ -151,6 +153,29 @@ export let pipelineApi = {
 		var data = JSON.stringify(reqbody);
 		var promise = $.ajax({
 	        "url": apiUrlConf.host + apiUrlConf.pipeline.setEnv.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{pipelineName}/g, name),
+	        "type": "PUT",
+	        "dataType": "json",
+	        "data": data
+	    });
+	    pendingPromise.push(promise);
+	    return promise;
+	},
+	"getVar" : function(name,id){
+		initApiInvocation();
+		var promise = $.ajax({
+	        "url": apiUrlConf.host + apiUrlConf.pipeline.getVar.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{pipelineName}/g, name).replace(/{pipelineID}/g, id),
+	        "type": "GET",
+	        "dataType": "json",
+	        "cache": false
+	    });
+	    pendingPromise.push(promise);
+	    return promise;
+	},
+	"setVar" : function(name,reqbody){
+		initApiInvocation();
+		var data = JSON.stringify(reqbody);
+		var promise = $.ajax({
+	        "url": apiUrlConf.host + apiUrlConf.pipeline.setVar.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{pipelineName}/g, name),
 	        "type": "PUT",
 	        "dataType": "json",
 	        "data": data
