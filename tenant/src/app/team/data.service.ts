@@ -37,15 +37,34 @@ export class TeamDataService {
 		teams.push(team);
 	  	localStorage["teams"] = JSON.stringify(teams);
 	}
-	updateTeam(users:Array<any>, team:any){
+	updateTeam(users:Array<any>, team:any, type:string){
 		let teams = JSON.parse(localStorage["teams"]);
 	    let selected = _.find(teams, function(item){
 	    	return item.id == team.id;
 	    })
-	    selected.users = users;
+	    selected.users = selected.users || [];
+	    if(type == "add"){
+	    	selected.users = selected.users.concat(users);
+	    }else{
+	    	selected.users = _.difference(selected.users,users);
+	    }
+	    
 	    localStorage["teams"] = JSON.stringify(teams);
 	}
+    getMembers(team:any) : Array<any> {
+        let currentTeam  = this.getTeam(team.id);
+        return currentTeam.users;
+    }
+    getOthers(all:Array<any>, contained: Array<any>): Array<any> {
+        var others:Array<any> = [];
+        _.each(all, function(item){
+        	if(!_.contains(contained,item.username)){
+              others.push(item); 
+        	}
+        })
+       var others_1:Array<string> = _.map(others, function(item){return item.username;});
+       return others_1;
 
-
+    }
 
 }
