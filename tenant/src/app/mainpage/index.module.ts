@@ -5,6 +5,9 @@ import { HttpModule }    from '@angular/http';
 
 import { IndexComponent }  from './index.component';
 
+// Directive
+import { CheckAllDirective } from '../common/check-all.directive';
+
 // org
 import { OrgListComponent }  from '../organization/list.component';
 import { OrgAddComponent }  from '../organization/add.component';
@@ -15,7 +18,7 @@ import { OrgAddTeamComponent }  from '../organization/addteam.component';
 import { TeamListComponent } from '../team/list.component';
 import { TeamAddComponent }  from '../team/add.component';
 import { TeamDetailComponent }  from '../team/detail.component';
-import { TeamAddMemberComponent } from '../team/add-member.component';
+import { TeamManageMemberComponent } from '../team/manage-member.component';
 
 // repo
 import { RepoListComponent }  from '../repository/list.component';
@@ -36,6 +39,7 @@ import { routing } from './index.router';
   ],
   declarations: [ 
     IndexComponent,
+    CheckAllDirective,
     OrgListComponent,
     OrgAddComponent,
     OrgDetailComponent,
@@ -43,7 +47,7 @@ import { routing } from './index.router';
     TeamListComponent,
     TeamAddComponent,
     TeamDetailComponent,
-    TeamAddMemberComponent,
+    TeamManageMemberComponent,
   	RepoListComponent
   ],
   providers: [
