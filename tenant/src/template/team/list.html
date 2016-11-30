@@ -27,7 +27,7 @@
                     </button>
                 </legend>
                 <div>
-                    <table class="table">
+                    <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -42,10 +42,10 @@
                                 <td>{{team.desc}}</td>
                                 <td>{{team.org}}</td>
                                  <td>
-                                	<button type="button" class="btn btn-primary btn-sm mb-xs" (click)="addMember(team.id)">
+                                	<button type="button" class="btn btn-primary btn-sm" (click)="manageMembers(team.id)">
 	                                    <!-- <i class="glyphicon glyphicon-plus"></i> -->
-                                        <i class="fa fa-plus"></i>
-	                                    Add Member
+                                        <i class="fa fa-users"></i>
+	                                    Manage Members
 	                                </button>
                                 </td>
 
