@@ -71,6 +71,19 @@ export function setEnvs(name,versionid,envs){
     return pipelineApi.setEnv(name,reqbody);
 }
 
+export function getVars(name,versionid){
+    return pipelineApi.getVar(name,versionid);
+}
+
+export function setVars(name,versionid,vars){
+    var reqbody = {
+        "id" : versionid,
+        "var" : _.object(vars)
+    }
+
+    return pipelineApi.setVar(name,reqbody);
+}
+
 export function changeState(name,versionid,state){
     var reqbody = {
         "id" : versionid,

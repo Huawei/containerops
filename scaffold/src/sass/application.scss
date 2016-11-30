@@ -15,6 +15,7 @@ limitations under the License. */
 @import "../../node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
 @import "../../node_modules/font-awesome/scss/font-awesome";
 @import "../../node_modules/select2/src/scss/core";
+@import "../../node_modules/jquery-autocomplete/jquery.autocomplete";
 
 @import "../../bower_components/bootstrap/scss/mixins/breakpoints";
 @import "../../bower_components/messenger/build/css/messenger";
@@ -39,4 +40,5 @@ limitations under the License. */
 @import "./ui/component/treeedit";
 @import "./ui/component/eventedit";
 @import "./ui/pipeline/startstage";
+@import "./ui/pipeline/designer";
 @import "./ui/common";

@@ -24,6 +24,8 @@ import { setLinePathAry, linePathAry, setCurrentSelectedItem } from "../common/c
 import { pipelineCheck } from "../common/check";
 import { initButton } from "./initButton";
 import {getSequenceDetail} from "../history/main";
+import {initPipelineEnv,showPipelineEnv} from "./pipelineEnv";
+import {initPipelineVar,showPipelineVar} from "./pipelineVar";
 
 
 export let allPipelines;
@@ -31,7 +33,7 @@ export let allPipelines;
 export let pipelineData;
 let pipelineDataOriginalCopy,linePathAryOriginalCopy;
 let pipelineName, pipelineVersion, pipelineVersionID,pipelineHasHistory;
-let pipelineEnvs;
+let pipelineEnvs,pipelineVars;
 
 let splitStartY;
 
@@ -244,6 +246,7 @@ function showPipelineDesigner(state) {
             $("#pipelinedesign").show("slow");
 
             $("#selected_pipeline").text(pipelineName + " / " + pipelineVersion);
+            $("#selected_pipeline").prop("title",pipelineName + " / " + pipelineVersion);
 
             if(state){
                 $(".pipeline-state").addClass("pipeline-on");
@@ -253,6 +256,9 @@ function showPipelineDesigner(state) {
 
             initDesigner();
             drawPipeline();
+
+            initPipelineEnv(pipelineName,pipelineVersionID);
+            initPipelineVar(pipelineName,pipelineVersionID);
 
             $(".backtolist").on('click', function() {
                 beforeBackToList();
@@ -296,6 +302,10 @@ function showPipelineDesigner(state) {
 
             $(".envsetting").on("click", function(event) {
                 showPipelineEnv();
+            });
+
+            $(".varsetting").on("click", function(event) {
+                showPipelineVar();
             });
 
             $(".designer-split").on("dragstart",function(event){
@@ -404,142 +414,6 @@ function cancelNewPPPage() {
 function cancelNewPPVersionPage() {
     $("#newpipelineversion").remove();
     $("#main").children().show("slow");
-}
-
-
-function showPipelineEnv() {
-    if ($("#env-setting").hasClass("env-setting-closed")) {
-        $("#env-setting").removeClass("env-setting-closed");
-        $("#env-setting").addClass("env-setting-opened");
-        $("#close_pp_env").removeClass("pipeline-open-env");
-        $("#close_pp_env").addClass("pipeline-close-env");
-
-        $.ajax({
-            url: "../../templates/pipeline/envSetting.html",
-            type: "GET",
-            cache: false,
-            success: function(data) {
-                $("#env-setting").html($(data));
-
-                $(".add-env").on('click', function() {
-                    pipelineEnvs.push(["", ""]);
-                    showEnvKVs();
-                });
-
-                $(".pipeline-close-env").on('click', function() {
-                    hidePipelineEnv();
-                });
-
-                $(".save-env").on('click', function() {
-                    savePipelineEnvs();
-                });
-
-                getEnvList();
-            }
-        });
-
-    } else {
-        $("#env-setting").removeClass("env-setting-opened");
-        $("#env-setting").addClass("env-setting-closed");
-        $("#close_pp_env").removeClass("pipeline-close-env");
-        $("#close_pp_env").addClass("pipeline-open-env");
-    }
-}
-
-function hidePipelineEnv() {
-    $("#env-setting").removeClass("env-setting-opened");
-    $("#env-setting").addClass("env-setting-closed");
-    $("#close_pp_env").removeClass("pipeline-close-env");
-    $("#close_pp_env").addClass("pipeline-open-env");
-}
-
-function getEnvList() {
-    var promise = pipelineDataService.getEnvs(pipelineName, pipelineVersionID);
-    promise.done(function(data) {
-        loading.hide();
-        pipelineEnvs = _.pairs(data.env);
-        showEnvKVs();
-    });
-    promise.fail(function(xhr, status, error) {
-        loading.hide();
-        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
-            notify(xhr.responseJSON.errMsg, "error");
-        } else if(xhr.statusText != "abort") {
-            notify("Server is unreachable", "error");
-        }
-    });
-}
-
-function showEnvKVs() {
-    $("#envs").empty();
-    _.each(pipelineEnvs,function(item,index){
-         var row = '<div class="env-row"><div class="env-key-div">'
-                        +'<div>'
-                            +'<label for="normal-field" class="col-sm-3 control-label" style="margin-top:5px">'
-                                +'KEY'
-                            +'</label>'
-                            +'<div class="col-sm-9" data-index="' + index + '">'
-                                +'<input type="text" value="' + item[0] + '" class="form-control pp-env-input pp-env-key" required>'
-                            +'</div>'
-                        +'</div>'
-                    +'</div>'
-                    +'<div class="env-value-div" style="margin-left:0">'
-                        +'<div>'
-                            +'<label for="normal-field" class="col-sm-3 control-label" style="margin-top:5px">'
-                                +'VALUE'
-                            +'</label>'
-                            +'<div class="col-sm-9" data-index="' + index + '">' 
-                                +'<input type="text" class="form-control pp-env-input pp-env-value" required>'
-                            +'</div>'
-                        +'</div>'
-                    +'</div>'
-                    +'<div class="env-remove-div pp-rm-kv" data-index="' + index + '">'
-                        +'<span class="glyphicon glyphicon-remove"></span>'
-                    +'</div></div>';
-        $("#envs").append(row);
-        $("#envs").find("div[data-index="+index+"]").find(".pp-env-value").val(item[1]);
-    });
-
-    $(".pp-env-key").on('input',function(event){
-        var key = $(event.currentTarget).val();
-        $(event.currentTarget).val(key.toUpperCase());
-    });
-
-    $(".pp-env-key").on('blur',function(event){
-        var index = $(event.currentTarget).parent().data("index");
-        pipelineEnvs[index][0] = $(event.currentTarget).val();
-    });
-
-    $(".pp-env-value").on('blur',function(event){
-        var index = $(event.currentTarget).parent().data("index");
-        pipelineEnvs[index][1] = $(event.currentTarget).val();
-    });
-
-    $(".pp-rm-kv").on('click',function(event){
-        var index = $(event.currentTarget).data("index");
-        pipelineEnvs.splice(index, 1);
-        showEnvKVs();
-    }); 
-}
-
-function savePipelineEnvs() {
-    var promise = pipelineDataService.setEnvs(pipelineName, pipelineVersionID, pipelineEnvs);
-    if (promise) {
-        promise.done(function(data) {
-            loading.hide();
-            notify(data.message, "success");
-            hidePipelineEnv();
-        });
-        promise.fail(function(xhr, status, error) {
-            loading.hide();
-            if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
-                notify(xhr.responseJSON.errMsg, "error");
-            } else if(xhr.statusText != "abort") {
-                notify("Server is unreachable", "error");
-            }
-            hidePipelineEnv();
-        });
-    }
 }
 
 // run pipeline
