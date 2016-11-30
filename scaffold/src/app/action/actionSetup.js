@@ -160,7 +160,7 @@ function showPorts(){
                         Port
                     </label>
                     <div class="col-sm-7" data-index="` + index + `">
-                        <input type="number" name="k8s-service-port" value="` + item.port + `" class="form-control" required min="0" max="65535">
+                        <input type="text" name="k8s-service-port" value="` + item.port + `" class="form-control allowFromVar" required>
                     </div>
                 </div>
                 </div>`;
@@ -175,7 +175,7 @@ function showPorts(){
                         Target Port
                     </label>
                     <div class="col-sm-7" data-index="` + index + `">
-                        <input type="number" name="k8s-service-target-port" value="` + item.targetPort + `" class="form-control" required min="0" max="65535">
+                        <input type="text" name="k8s-service-target-port" value="` + item.targetPort + `" class="form-control allowFromVar" required>
                     </div>
                 </div>
                 </div>`;
@@ -187,7 +187,7 @@ function showPorts(){
                                     Node Port
                                 </label>
                                 <div class="col-sm-7" data-index="` + index + `">
-                                    <input type="number" name="k8s-service-node-port" value="` + item.nodePort + `" class="form-control" required min="0" max="65535">
+                                    <input type="text" name="k8s-service-node-port" value="` + item.nodePort + `" class="form-control allowFromVar" required>
                                 </div>
                             </div>
                         </div>`;
