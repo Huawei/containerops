@@ -139,9 +139,9 @@ func CreateNewComponent(namespace, componentName, componentVersion string) (stri
 	}
 
 	componentInfo := new(models.Component)
-	componentInfo.Namespace = namespace
-	componentInfo.Component = componentName
-	componentInfo.Version = componentVersion
+	componentInfo.Namespace = strings.TrimSpace(namespace)
+	componentInfo.Component = strings.TrimSpace(componentName)
+	componentInfo.Version = strings.TrimSpace(componentVersion)
 	componentInfo.VersionCode = 1
 
 	err = componentInfo.GetComponent().Save(componentInfo).Error
@@ -314,7 +314,7 @@ func CreateNewComponentVersion(componentInfo models.Component, versionName strin
 
 	newComponentInfo := new(models.Component)
 	newComponentInfo.Namespace = componentInfo.Namespace
-	newComponentInfo.Version = versionName
+	newComponentInfo.Version = strings.TrimSpace(versionName)
 	newComponentInfo.VersionCode = leastComponent.VersionCode + 1
 	newComponentInfo.Component = componentInfo.Component
 	newComponentInfo.Type = componentInfo.Type
