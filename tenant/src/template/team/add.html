@@ -8,15 +8,19 @@
                 <form id="newteam-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
                     <fieldset>
                         <legend>Create Team Form</legend>
-                        <div class="row" style="height:80px;padding:40px 0">
-                            <label class="col-sm-3 control-label">Select Organization</label>
-                            <div class="col-sm-6">
-                                <select class="select2 form-control" [(ngModel)]="team.org" name="teamOrg">
-                                    <option value="{{org.id}}" *ngFor="let org of orgs">{{ org.name }}</option>
-                                </select>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Select Organization</label>
+                                    <div class="col-sm-6">
+                                        <select class="select2 form-control" [(ngModel)]="team.org.id" name="teamOrg">
+                                            <option value="{{org.id}}" *ngFor="let org of orgs">{{ org.name }}</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="row" style="height:80px;padding:40px 0">
+                        <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="normal-field" class="col-sm-3 control-label">Name</label>
@@ -26,7 +30,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row" style="height:80px;padding:40px 0">
+                        <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="hint-field" class="col-sm-3 control-label">Description</label>
@@ -36,17 +40,39 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="hint-field" class="col-sm-3 control-label">Authority</label>
+                                    <div class="col-sm-6">
+                                        <div class="checkbox abc-checkbox abc-checkbox-primary checkbox-inline" style="margin-right:15px;">
+                                            <input id="auth-read" class="styled" type="checkbox" [(ngModel)]="auth.read" [ngModelOptions]="{standalone: true}">
+                                            <label for="auth-read">Read
+                                            </label>
+                                        </div>
+                                        <div class="checkbox abc-checkbox abc-checkbox-primary checkbox-inline" style="margin-right:15px;">
+                                            <input id="auth-write" class="styled" type="checkbox" [(ngModel)]="auth.write" [ngModelOptions]="{standalone: true}">
+                                            <label for="auth-write">Write
+                                            </label>
+                                        </div>
+                                        <div class="checkbox abc-checkbox abc-checkbox-primary checkbox-inline">
+                                            <input id="auth-admin" class="styled" type="checkbox" [(ngModel)]="auth.admin" [ngModelOptions]="{standalone: true}">
+                                            <label for="auth-admin">Admin
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </fieldset>
                     <div>
-                        <div class="row" style="height:80px;padding:30px 0">
+                        <div class="row">
                             <div class="col-md-offset-5 col-md-7">
                                 <button type="button" class="btn btn-primary btn-sm" (click)="addTeam()">
-                                    <i class="fa fa-save" ></i>
-                                    Save
+                                    <i class="fa fa-save"></i> Save
                                 </button>
                                 <button type="button" class="btn btn-inverse btn-sm" (click)="cancelAdd()">
-                                    <i class="fa fa-reply"></i>
-                                    Cancel
+                                    <i class="fa fa-reply"></i> Cancel
                                 </button>
                             </div>
                         </div>

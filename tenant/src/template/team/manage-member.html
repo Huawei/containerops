@@ -1,10 +1,12 @@
 <h3 class="page-title">
     <a [routerLink]="['/team']"><strong>Team</strong></a>
     <span>{{" - Manage Members"}}</span>   
-    <span><strong>{{" / " + team.name}}</strong></span>   
+    <span><strong>{{" / " + team.name}}</strong></span> 
+    &nbsp;&nbsp;
+    <a [routerLink]="['/team']"><i class="fa fa-reply-all" title="back"></i></a>
 </h3>
 <div class="row">
-    <div class="col-lg-12">
+    <div class="col-lg-6">
         <section class="widget">
             <div class="widget-body">
                 <legend>
@@ -19,16 +21,17 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th width="80px">
+                            <th width="50px">
                                 <div class="checkbox abc-checkbox abc-checkbox-primary">
                                     <input id="check-all-remove" class="styled" type="checkbox" (click)="toggleMember($event,'remove')" check-all>
                                     <label for="check-all-remove">
                                     </label>
                                 </div>
                             </th>
-                            <th width="20%">#</th>
-                            <th width="30%">User Name</th>
-                            <th>Authority</th>
+                            <th width="10%">#</th>
+                            <th width="20%">User Name</th>
+                            <!-- <th>Authority</th> -->
+                            <th>Info</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -44,16 +47,17 @@
                             <td>{{ (i+1) }}</td>
                             <td>{{ member }}</td>
                             <td>
-                                <span class="label label-info">Read</span> 
-                                <span class="label label-info">Write</span>
+                               <!--  <span class="label label-info">Read</span> 
+                                <span class="label label-info">Write</span> -->
+                                <span class="label label-info">Online</span>
                             </td>
                             <td>
                                 <button type="button" class="btn btn-danger btn-sm" (click)="clickToOperate(member,'remove')">
                                     <i class="fa fa-external-link"></i> Remove
                                 </button>
-                                <button type="button" class="btn btn-primary btn-sm" (click)="editAuthority(team.id, member)">
+                             <!--    <button type="button" class="btn btn-primary btn-sm" (click)="editAuthority(team.id, member)">
                                     <i class="fa fa-pencil"></i> Manage Authority
-                                </button>
+                                </button> -->
                             </td>
                         </tr>
                     </tbody>
@@ -61,9 +65,9 @@
             </div>
         </section>
     </div>
-</div>
-<div class="row">
-    <div class="col-lg-12">
+<!-- </div> -->
+<!-- <div class="row"> -->
+    <div class="col-lg-6">
         <section class="widget">
             <div class="widget-body">
                 <legend>
@@ -78,15 +82,15 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th width="80px">
+                            <th width="50px">
                                 <div class="checkbox abc-checkbox abc-checkbox-primary">
                                     <input id="check-all" class="styled" type="checkbox" (click)="toggleMember($event,'add')" check-all>
                                     <label for="check-all">
                                     </label>
                                 </div>
                             </th>
-                            <th width="20%">#</th>
-                            <th width="30%">User Name</th>
+                            <th width="10%">#</th>
+                            <th width="20%">User Name</th>
                             <th>Info</th>
                             <th>Action</th>
                         </tr>
@@ -102,7 +106,7 @@
                             </td>
                             <td>{{ (i+1) }}</td>
                             <td>{{ other }}</td>
-                            <td><span class="label label-danger">Online</span></td>
+                            <td><span class="label label-info">Online</span></td>
                             <td>
                                 <button type="button" class="btn btn-success btn-sm" (click)="clickToOperate(other,'add')">
                                     <i class="fa fa-plus"></i> Add
