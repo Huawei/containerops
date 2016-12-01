@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export function initPipeline(fromNodes,toNodes) {
+export function initWorkflow(fromNodes,toNodes) {
         var result = [];
         
         // visibleFromNode.sort().reverse();
@@ -23,7 +23,7 @@ export function initPipeline(fromNodes,toNodes) {
         for (var i = 0; i < fromNodes.length; i ++){
             var tempFromNode = [];
 
-            var tempResult = getPipelineMap(fromNodes[i],toNodes);
+            var tempResult = getWorkflowMap(fromNodes[i],toNodes);
             var relation = tempResult.resultMap
             var isAllEqual = tempResult. isAllEqual
             if (relation) {
@@ -44,7 +44,7 @@ export function addRelation(relation,needDel,fromPath,toPath,visibleFromNode,vis
     }
 
 
-    relation = relation.concat(calcPipelineInfo(fromPath,toPath));
+    relation = relation.concat(calcWorkflowInfo(fromPath,toPath));
 
 
     var _fromChildNode = [],
@@ -71,7 +71,7 @@ export function addRelation(relation,needDel,fromPath,toPath,visibleFromNode,vis
             
             if(_fromChildNode[i].replace(fromPath,"") == _toChildNode[j].replace(toPath,"")){
 
-               relation = relation.concat(calcPipelineInfo(_fromChildNode[i],_toChildNode[j]));
+               relation = relation.concat(calcWorkflowInfo(_fromChildNode[i],_toChildNode[j]));
             }
         }
 
@@ -97,20 +97,20 @@ export function delRelation(relation,fromPath) {
 
 
 
-function calcPipelineInfo(fromPath,toPath) {
-    var pipelineInfo = {};
+function calcWorkflowInfo(fromPath,toPath) {
+    var workflowInfo = {};
     // for (var i = 0; i < visibleToNode.length; i ++ ) {
         
     //     var regx = new RegExp('^' + visibleToNode[i]);
     //     var rs = regx.exec(toPath);
     //     if (rs) {
-            pipelineInfo['to'] = toPath;
-    //         pipelineInfo['toShow'] = visibleToNode[i];
+            workflowInfo['to'] = toPath;
+    //         workflowInfo['toShow'] = visibleToNode[i];
 
     //         if (toPath== visibleToNode[i]) {
-    //             pipelineInfo["isToEqual"] = true;
+    //             workflowInfo["isToEqual"] = true;
     //         }else {
-    //             pipelineInfo["isToEqual"] = false;
+    //             workflowInfo["isToEqual"] = false;
     //         }
     //         break;
     //     }
@@ -120,22 +120,22 @@ function calcPipelineInfo(fromPath,toPath) {
     //     var regx = new RegExp('^' + visibleFromNode[i]);
     //     var rs = regx.exec(fromPath);
     //     if (rs) {
-            pipelineInfo['from'] = fromPath;
-    //         pipelineInfo['fromShow'] = visibleFromNode[i];
+            workflowInfo['from'] = fromPath;
+    //         workflowInfo['fromShow'] = visibleFromNode[i];
     //         if (fromPath == visibleFromNode[i]) {
-    //             pipelineInfo["isFromEqual"] = true;
+    //             workflowInfo["isFromEqual"] = true;
     //         }else {
-    //             pipelineInfo["isFromEqual"] = false;
+    //             workflowInfo["isFromEqual"] = false;
     //         }
     //         break;
     //     }
     // }
 
-    return pipelineInfo;
+    return workflowInfo;
 }
 
 
-function getPipelineMap(fromNode,toNodes) {
+function getWorkflowMap(fromNode,toNodes) {
     var resultMap = [];
     var isAllEqual = true;
 
@@ -147,7 +147,7 @@ function getPipelineMap(fromNode,toNodes) {
                 var isChildAllEqual = true;
 
                 for (var j = 0; j < fromNode.childNode.length; j ++) {
-                    var result = getPipelineMap(fromNode.childNode[j],toNodes[i].childNode);
+                    var result = getWorkflowMap(fromNode.childNode[j],toNodes[i].childNode);
                     var childResult=result.resultMap;
                     var isChildEqual = result.isAllEqual;
                     if (childResult) {
@@ -161,13 +161,13 @@ function getPipelineMap(fromNode,toNodes) {
                 }
 
                 if (isChildAllEqual) {
-                    var pipelineInfo = calcPipelineInfo(fromNode.path,toNodes[i].path);
-                    resultMap = resultMap.concat(pipelineInfo);
+                    var workflowInfo = calcWorkflowInfo(fromNode.path,toNodes[i].path);
+                    resultMap = resultMap.concat(workflowInfo);
                 }
 
             } else {
-                var pipelineInfo = calcPipelineInfo(fromNode.path,toNodes[i].path);
-                resultMap = resultMap.concat(pipelineInfo);
+                var workflowInfo = calcWorkflowInfo(fromNode.path,toNodes[i].path);
+                resultMap = resultMap.concat(workflowInfo);
                 break;
             }
         } else {
@@ -207,7 +207,7 @@ function childNodeRelation(fromPath,toPath,visibleFromNode,visibleToNode){
     for(var i =0;i<_fromChildNode.length;i++){
         for(var j =0;j<_toChildNode.length;j++){
             if(_fromChildNode[i] == _toChildNode[j]){
-               _relation = _relation.concat(calcPipelineInfo(_fromChildNode[i],_toChildNode[j]));
+               _relation = _relation.concat(calcWorkflowInfo(_fromChildNode[i],_toChildNode[j]));
             }
         }
 

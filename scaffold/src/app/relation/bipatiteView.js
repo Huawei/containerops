@@ -16,7 +16,7 @@ limitations under the License.
 
 import {getPathData} from "./setPath";
 import {isObject,isArray,isBoolean,isNumber,isString} from "../common/util";
-import {addRelation,delRelation,initPipeline} from "./relation";
+import {addRelation,delRelation,initWorkflow} from "./relation";
 import { notify } from "../common/notify";
 
 var fromParentDom,toParentDom,startKey;
@@ -81,7 +81,7 @@ function getRelationArray(importTree,outputTree){
 	// var visibleOutputStr = getVisibleOutputStr();
 	// var visibleInput = visibleInputStr.split(";");
  //    var visibleOutput = visibleOutputStr.split(";");
-	return initPipeline(importTree,outputTree);
+	return initWorkflow(importTree,outputTree);
 }
 
 

@@ -15,9 +15,9 @@ limitations under the License.
  */
 
 import * as constant from "../common/constant";
-import { initPipeline } from "../pipeline/initPipeline";
-import { initAction } from "../pipeline/initAction";
-import { pipelineData } from "../pipeline/main";
+import { initWorkflow } from "../workflow/initWorkflow";
+import { initAction } from "../workflow/initAction";
+import { workflowData } from "../workflow/main";
 import { resizeWidget } from "../theme/widget";
 import { initStageSetup } from "./stageSetup";
 
@@ -28,7 +28,7 @@ export function clickStage(sd, si) {
         type: "GET",
         cache: false,
         success: function(data) {
-            $("#pipeline-info-edit").html($(data));
+            $("#workflow-info-edit").html($(data));
 
             initStageSetup(sd);
 

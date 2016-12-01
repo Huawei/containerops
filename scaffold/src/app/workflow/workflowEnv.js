@@ -14,43 +14,43 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-import * as pipelineDataService from "./pipelineData";
+import * as workflowDataService from "./workflowData";
 import { notify, confirm } from "../common/notify";
 import { loading } from "../common/loading";
 
-let pipelineName, pipelineVersionID;
-let pipelineEnvs;
+let workflowName, workflowVersionID;
+let workflowEnvs;
 
-export function initPipelineEnv(name,versionid){
-    pipelineName = name;
-    pipelineVersionID = versionid;
+export function initWorkflowEnv(name,versionid){
+    workflowName = name;
+    workflowVersionID = versionid;
 }
 
-export function showPipelineEnv() {
+export function showWorkflowEnv() {
     if ($("#env-setting").hasClass("env-setting-closed")) {
         $("#env-setting").removeClass("env-setting-closed");
         $("#env-setting").addClass("env-setting-opened");
-        $("#close_pp_env").removeClass("pipeline-open-env");
-        $("#close_pp_env").addClass("pipeline-close-env");
+        $("#close_pp_env").removeClass("workflow-open-env");
+        $("#close_pp_env").addClass("workflow-close-env");
 
         $.ajax({
-            url: "../../templates/pipeline/envSetting.html",
+            url: "../../templates/workflow/envSetting.html",
             type: "GET",
             cache: false,
             success: function(data) {
                 $("#env-setting").html($(data));
 
                 $(".add-env").on('click', function() {
-                    pipelineEnvs.push(["", ""]);
+                    workflowEnvs.push(["", ""]);
                     showEnvKVs();
                 });
 
-                $(".pipeline-close-env").on('click', function() {
-                    hidePipelineEnv();
+                $(".workflow-close-env").on('click', function() {
+                    hideWorkflowEnv();
                 });
 
                 $(".save-env").on('click', function() {
-                    savePipelineEnvs();
+                    saveWorkflowEnvs();
                 });
 
                 getEnvList();
@@ -58,22 +58,22 @@ export function showPipelineEnv() {
         });
 
     } else {
-        hidePipelineEnv();
+        hideWorkflowEnv();
     }
 }
 
-export function hidePipelineEnv() {
+export function hideWorkflowEnv() {
     $("#env-setting").removeClass("env-setting-opened");
     $("#env-setting").addClass("env-setting-closed");
-    $("#close_pp_env").removeClass("pipeline-close-env");
-    $("#close_pp_env").addClass("pipeline-open-env");
+    $("#close_pp_env").removeClass("workflow-close-env");
+    $("#close_pp_env").addClass("workflow-open-env");
 }
 
 function getEnvList() {
-    var promise = pipelineDataService.getEnvs(pipelineName, pipelineVersionID);
+    var promise = workflowDataService.getEnvs(workflowName, workflowVersionID);
     promise.done(function(data) {
         loading.hide();
-        pipelineEnvs = _.pairs(data.env);
+        workflowEnvs = _.pairs(data.env);
         showEnvKVs();
     });
     promise.fail(function(xhr, status, error) {
@@ -88,7 +88,7 @@ function getEnvList() {
 
 function showEnvKVs() {
     $("#envs").empty();
-    _.each(pipelineEnvs,function(item,index){
+    _.each(workflowEnvs,function(item,index){
          var row = '<div class="env-row"><div class="env-key-div">'
                         +'<div>'
                             +'<label for="normal-field" class="col-sm-3 control-label" style="margin-top:5px">'
@@ -123,28 +123,28 @@ function showEnvKVs() {
 
     $(".pp-env-key").on('blur',function(event){
         var index = $(event.currentTarget).parent().data("index");
-        pipelineEnvs[index][0] = $(event.currentTarget).val();
+        workflowEnvs[index][0] = $(event.currentTarget).val();
     });
 
     $(".pp-env-value").on('blur',function(event){
         var index = $(event.currentTarget).parent().data("index");
-        pipelineEnvs[index][1] = $(event.currentTarget).val();
+        workflowEnvs[index][1] = $(event.currentTarget).val();
     });
 
     $(".pp-rm-kv").on('click',function(event){
         var index = $(event.currentTarget).data("index");
-        pipelineEnvs.splice(index, 1);
+        workflowEnvs.splice(index, 1);
         showEnvKVs();
     }); 
 }
 
-function savePipelineEnvs() {
-    var promise = pipelineDataService.setEnvs(pipelineName, pipelineVersionID, pipelineEnvs);
+function saveWorkflowEnvs() {
+    var promise = workflowDataService.setEnvs(workflowName, workflowVersionID, workflowEnvs);
     if (promise) {
         promise.done(function(data) {
             loading.hide();
             notify(data.message, "success");
-            hidePipelineEnv();
+            hideWorkflowEnv();
         });
         promise.fail(function(xhr, status, error) {
             loading.hide();
@@ -153,7 +153,7 @@ function savePipelineEnvs() {
             } else if(xhr.statusText != "abort") {
                 notify("Server is unreachable", "error");
             }
-            hidePipelineEnv();
+            hideWorkflowEnv();
         });
     }
 }

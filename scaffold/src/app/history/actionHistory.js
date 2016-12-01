@@ -19,10 +19,10 @@ import * as historyDataService from "./historyData";
 import { notify } from "../common/notify";
 import { loading } from "../common/loading";
 
-// function(pipelineName,versionName,pipelineRunSequence,stageName,actionName){
-export function getActionHistory(pipelineName,versionName,pipelineRunSequence,stageName,actionName) {
+// function(workflowName,versionName,workflowRunSequence,stageName,actionName){
+export function getActionHistory(workflowName,versionName,workflowRunSequence,stageName,actionName) {
     // loading.show();
-    var promise = historyDataService.getActionRunHistory(pipelineName,versionName,pipelineRunSequence,stageName,actionName);
+    var promise = historyDataService.getActionRunHistory(workflowName,versionName,workflowRunSequence,stageName,actionName);
     promise.done(function(data) {
         loading.hide();
         showActionHistoryView(data.result,actionName);
@@ -44,7 +44,7 @@ function showActionHistoryView(history,actionname) {
         type: "GET",
         cache: false,
         success: function(data) {
-            $("#history-pipeline-detail").html($(data));
+            $("#history-workflow-detail").html($(data));
             $("#actionHistoryTitle").text("Action history -- " + actionname);
 
             var inputStream = JSON.stringify(history.data.input,undefined,2);

@@ -20,17 +20,17 @@ import { setPath } from "../relation/setPath";
 import { notify } from "../common/notify";
 import { getActionHistory } from "./actionHistory";
 import { getLineHistory } from "./lineHistory";
-// import * as initButton from "../pipeline/initButton";
+// import * as initButton from "../workflow/initButton";
 import {changeCurrentElement} from "../common/util";
 import * as sequenceUtil from "./initUtil";
 
 export function initHistoryPage() {
 
     loading.show();
-    var promise = historyDataService.getPipelineHistories();
+    var promise = historyDataService.getWorkflowHistories();
     promise.done(function(data) {
         loading.hide();
-        constant.sequenceAllList = data.pipelineList;
+        constant.sequenceAllList = data.workflowList;
         getHistoryList();
     });
     promise.fail(function(xhr, status, error) {
@@ -50,10 +50,10 @@ function getHistoryList() {
         cache: false,
         success: function(data) {
             $("#main").html($(data));
-            $("#historyPipelinelist").show("slow");
+            $("#historyWorkflowlist").show("slow");
 
-            $(".pipelinelist_body").empty();
-            var hppItem = $(".pipelinelist_body");
+            $(".workflowlist_body").empty();
+            var hppItem = $(".workflowlist_body");
 
             if (constant.sequenceAllList.length > 0) {
 
@@ -146,7 +146,7 @@ function getHistoryList() {
                     var sid = $(event.currentTarget).parent().parent().data("id");
                     var sStatus = $(event.currentTarget).parent().parent().data("status");
                     var selected_history = {
-                        "pipelineName": pname,
+                        "workflowName": pname,
                         "VersionID": vid,
                         "versionName": vname,
                         "sequence": sid,
@@ -201,7 +201,7 @@ function forVdSequenceList(vd,index,length,pdId,pdName,vdId,vdName){
 
         if(length > 0 ){
             if(hsRowArray.length == tempLength){
-                var btnMore = `<tr data-insertid=` + sd.pipelineSequenceID + ` class="btn-more"><td colspan="4" id="btn_`+pdName+`_`+pdId+`" class="pptd btn-showMorm"  >点击查看更多 \<\< </td></tr>`;
+                var btnMore = `<tr data-insertid=` + sd.workflowSequenceID + ` class="btn-more"><td colspan="4" id="btn_`+pdName+`_`+pdId+`" class="pptd btn-showMorm"  >点击查看更多 \<\< </td></tr>`;
                 hsRowArray[i+1] = btnMore ;
                 // $(".btn-more").css({"font-size":"12px","color":"#7C7C7C","text-align":"center"});
                 break ;
@@ -255,7 +255,7 @@ export function getSequenceDetail(selected_history) {
     historyAbout = selected_history;
     loading.show();
     constant.sequenceRunStatus = selected_history.sequenceStatus;
-    var promise = historyDataService.getPipelineHistory(selected_history.pipelineName, selected_history.versionName, selected_history.sequence);
+    var promise = historyDataService.getWorkflowHistory(selected_history.workflowName, selected_history.versionName, selected_history.sequence);
     promise.done(function(data) {
         loading.hide();
         constant.sequenceRunData = data.define.stageList;
@@ -286,7 +286,7 @@ function initSequenceView(selected_history) {
             $("#main").html($(data));
             $("#historyView").show("slow");
 
-            $("#selected_pipeline").text(selected_history.pipelineName + " / " + selected_history.versionName);
+            $("#selected_workflow").text(selected_history.workflowName + " / " + selected_history.versionName);
 
             $(".backtolist").on('click', function() {
                 initHistoryPage();
@@ -304,14 +304,14 @@ function initSequenceView(selected_history) {
             function dragStart() {
                 d3.event.sourceEvent.stopPropagation();
                 drag.origin(function() {
-                    return { "x": constant.sequencePipelineView.attr("translateX"), "y": constant.sequencePipelineView.attr("translateY") }
+                    return { "x": constant.sequenceWorkflowView.attr("translateX"), "y": constant.sequenceWorkflowView.attr("translateY") }
                 });
             }    
 
             constant.setSvgWidth("100%");
             constant.setSvgHeight($div.height());
-            constant.setPipelineNodeStartX(50);
-            constant.setPipelineNodeStartY($div.height() * 0.2);
+            constant.setWorkflowNodeStartX(50);
+            constant.setWorkflowNodeStartY($div.height() * 0.2);
 
             $div.empty();
 
@@ -349,10 +349,10 @@ function initSequenceView(selected_history) {
                 .attr("transform", "translate(0,0) scale(1)")
                 .attr("scale", 1);
 
-            constant.sequencePipelineView = g.append("g")
+            constant.sequenceWorkflowView = g.append("g")
                 .attr("width", constant.svgWidth)
                 .attr("height", constant.svgHeight)
-                .attr("id", "sequencePipelineView")
+                .attr("id", "sequenceWorkflowView")
                 .attr("translateX", 0)
                 .attr("translateY", 0)
                 .attr("transform", "translate(0,0) scale(1)")
@@ -374,89 +374,89 @@ function initSequenceView(selected_history) {
     });
 }
 
-function showSequenceView(pipelineSequenceData) {
-    constant.sequencePipelineView.selectAll("image").remove();
-    constant.sequencePipelineView.selectAll("image")
-        .data(pipelineSequenceData)
+function showSequenceView(workflowSequenceData) {
+    constant.sequenceWorkflowView.selectAll("image").remove();
+    constant.sequenceWorkflowView.selectAll("image")
+        .data(workflowSequenceData)
         .enter()
         .append("image")
         .attr("xlink:href", function(d, i) {
 
             if (d.status == 1 || d.status == 0 ) {
 
-                if (d.type == constant.PIPELINE_END) {
+                if (d.type == constant.WORKFLOW_END) {
                     return "../../assets/svg/history-end-waitStart.svg";
                 }
                 
                 if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "stage" && constant.currentSelectedItem.data.id == d.id) {
-                    if (d.type == constant.PIPELINE_START) {
+                    if (d.type == constant.WORKFLOW_START) {
                         return "../../assets/svg/history-start-selected-waitStart.svg";
-                    } else if (d.type == constant.PIPELINE_STAGE) {
+                    } else if (d.type == constant.WORKFLOW_STAGE) {
                         return "../../assets/svg/history-stage-selected-waitStart.svg";
                     }
                 } else {
-                    if (d.type == constant.PIPELINE_START) {
+                    if (d.type == constant.WORKFLOW_START) {
                         return "../../assets/svg/history-start-waitStart.svg";
-                    } else if (d.type == constant.PIPELINE_STAGE) {
+                    } else if (d.type == constant.WORKFLOW_STAGE) {
                         return "../../assets/svg/history-stage-waitStart.svg";
                     }
                 } 
                    
             } else if (d.status == 2 ) {
-                if (d.type == constant.PIPELINE_END) {
+                if (d.type == constant.WORKFLOW_END) {
                     return "../../assets/svg/history-end-waitStart.svg";
                 }
 
                 if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "stage" && constant.currentSelectedItem.data.id == d.id) {
-                    if (d.type == constant.PIPELINE_START) {
+                    if (d.type == constant.WORKFLOW_START) {
                         return "../../assets/svg/history-start-selected-running.svg";
-                    } else if (d.type == constant.PIPELINE_STAGE) {
+                    } else if (d.type == constant.WORKFLOW_STAGE) {
                         return "../../assets/svg/history-stage-selected-running.svg";
                     }
                 } else {
-                    if (d.type == constant.PIPELINE_START) {
+                    if (d.type == constant.WORKFLOW_START) {
                         return "../../assets/svg/history-start-running.svg";
-                    } else if (d.type == constant.PIPELINE_STAGE) {
+                    } else if (d.type == constant.WORKFLOW_STAGE) {
                         return "../../assets/svg/history-stage-running.svg";
                     }
                 } 
 
             } else if (d.status == 3) {
 
-                if (d.type == constant.PIPELINE_END) {
+                if (d.type == constant.WORKFLOW_END) {
                     return "../../assets/svg/history-end-success.svg";
                 }
 
                 if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "stage" && constant.currentSelectedItem.data.id == d.id) {
-                    if (d.type == constant.PIPELINE_START) {
+                    if (d.type == constant.WORKFLOW_START) {
                         return "../../assets/svg/history-start-selected-success.svg";
-                    } else if (d.type == constant.PIPELINE_STAGE) {
+                    } else if (d.type == constant.WORKFLOW_STAGE) {
                         return "../../assets/svg/history-stage-selected-success.svg";
                     }
                 } else {
-                    if (d.type == constant.PIPELINE_START) {
+                    if (d.type == constant.WORKFLOW_START) {
                         return "../../assets/svg/history-start-success.svg";
-                    } else if (d.type == constant.PIPELINE_STAGE) {
+                    } else if (d.type == constant.WORKFLOW_STAGE) {
                         return "../../assets/svg/history-stage-success.svg";
                     }
                 }
 
             } else if(d.status == 4) {
 
-                if (d.type == constant.PIPELINE_END) {
+                if (d.type == constant.WORKFLOW_END) {
                     return "../../assets/svg/history-end-fail.svg";
                 }
 
                 if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "stage" && constant.currentSelectedItem.data.id == d.id) {
-                    if (d.type == constant.PIPELINE_START) {
+                    if (d.type == constant.WORKFLOW_START) {
                         return "../../assets/svg/history-start-selected-fail.svg";
-                    } else if (d.type == constant.PIPELINE_STAGE) {
+                    } else if (d.type == constant.WORKFLOW_STAGE) {
                         return "../../assets/svg/history-stage-selected-fail.svg";
                     }
                 } else {
-                    if (d.type == constant.PIPELINE_START) {
+                    if (d.type == constant.WORKFLOW_START) {
                         return "../../assets/svg/history-start-fail.svg";
-                    } else if (d.type ==  constant.PIPELINE_STAGE) {
+                    } else if (d.type ==  constant.WORKFLOW_STAGE) {
                         return "../../assets/svg/history-stage-fail.svg";
                     }
                 }
@@ -477,22 +477,22 @@ function showSequenceView(pipelineSequenceData) {
         .attr("transform", function(d, i) {
             d.width = constant.svgStageWidth;
             d.height = constant.svgStageHeight;
-            d.translateX = i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX;
-            d.translateY = constant.pipelineNodeStartY;
+            d.translateX = i * constant.WorkflowNodeSpaceSize + constant.workflowNodeStartX;
+            d.translateY = constant.workflowNodeStartY;
             return "translate(" + d.translateX + "," + d.translateY + ")";
         })
         .attr("translateX", function(d, i) {
-            return i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX;
+            return i * constant.WorkflowNodeSpaceSize + constant.workflowNodeStartX;
         })
-        .attr("translateY", constant.pipelineNodeStartY)
+        .attr("translateY", constant.workflowNodeStartY)
         .on("click", function(d, i) {
             if (d.status == 1 || d.status == 0) {
 
-                if (d.type == constant.PIPELINE_STAGE) {
+                if (d.type == constant.WORKFLOW_STAGE) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-waitStart.svg");
-                } else if (d.type == constant.PIPELINE_START) {
+                } else if (d.type == constant.WORKFLOW_START) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-waitStart.svg");
@@ -500,11 +500,11 @@ function showSequenceView(pipelineSequenceData) {
 
             } else if (d.status == 2) {
 
-                if (d.type == constant.PIPELINE_STAGE) {
+                if (d.type == constant.WORKFLOW_STAGE) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-running.svg");
-                } else if (d.type == constant.PIPELINE_START) {
+                } else if (d.type == constant.WORKFLOW_START) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-running.svg");
@@ -512,22 +512,22 @@ function showSequenceView(pipelineSequenceData) {
 
             } else if (d.status == 3) {
 
-                if (d.type == constant.PIPELINE_STAGE) {
+                if (d.type == constant.WORKFLOW_STAGE) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-success.svg");
-                } else if (d.type == constant.PIPELINE_START) {
+                } else if (d.type == constant.WORKFLOW_START) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-success.svg");
                 }
             }else if (d.status == 4) {
 
-                if (d.type == constant.PIPELINE_STAGE) {
+                if (d.type == constant.WORKFLOW_STAGE) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-fail.svg");
-                } else if (d.type == constant.PIPELINE_START) {
+                } else if (d.type == constant.WORKFLOW_START) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-fail.svg");
@@ -537,14 +537,14 @@ function showSequenceView(pipelineSequenceData) {
 
     initSequenceStageLine();
     if(constant.sequenceRunStatus == 1 || constant.sequenceRunStatus == 2){
-        timerSequencePipelineData(historyAbout)
+        timerSequenceWorkflowData(historyAbout)
         // showRefreshsSequenceView(constant.refreshSequenceRunData,selected_history);
     }
     // initAction();
 }
 
-function timerSequencePipelineData(refreshSelect_hisotry){
-    var promise = historyDataService.getPipelineHistory(refreshSelect_hisotry.pipelineName, refreshSelect_hisotry.versionName, refreshSelect_hisotry.sequence);
+function timerSequenceWorkflowData(refreshSelect_hisotry){
+    var promise = historyDataService.getWorkflowHistory(refreshSelect_hisotry.workflowName, refreshSelect_hisotry.versionName, refreshSelect_hisotry.sequence);
     promise.done(function(data) {
         loading.hide();
         constant.refreshSequenceRunData = data.define.stageList;
@@ -556,7 +556,7 @@ function timerSequencePipelineData(refreshSelect_hisotry){
 
         var timer ;
         if(constant.sequenceRunStatus == 1 || constant.sequenceRunStatus == 2){
-            timer = setTimeout(function(){timerSequencePipelineData(refreshSelect_hisotry);},10000);
+            timer = setTimeout(function(){timerSequenceWorkflowData(refreshSelect_hisotry);},10000);
         }else{
             clearInterval(timer); 
         }
@@ -574,87 +574,87 @@ function timerSequencePipelineData(refreshSelect_hisotry){
 }
 
 
-function showRefreshSequenceView(refreshPipelineSequenceData) {
-    constant.sequencePipelineView.selectAll("image")
-        .data(refreshPipelineSequenceData)
+function showRefreshSequenceView(refreshWorkflowSequenceData) {
+    constant.sequenceWorkflowView.selectAll("image")
+        .data(refreshWorkflowSequenceData)
         .attr("xlink:href", function(d, i) {
 
             if (d.status == 1 || d.status == 0 ) {
 
-                if (d.type == constant.PIPELINE_END) {
+                if (d.type == constant.WORKFLOW_END) {
                     return "../../assets/svg/history-end-waitStart.svg";
                 }
                 
                 if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "stage" && constant.currentSelectedItem.data.id == d.id) {
-                    if (d.type == constant.PIPELINE_START) {
+                    if (d.type == constant.WORKFLOW_START) {
                         return "../../assets/svg/history-start-selected-waitStart.svg";
-                    } else if (d.type == constant.PIPELINE_STAGE) {
+                    } else if (d.type == constant.WORKFLOW_STAGE) {
                         return "../../assets/svg/history-stage-selected-waitStart.svg";
                     }
                 } else {
-                    if (d.type == constant.PIPELINE_START) {
+                    if (d.type == constant.WORKFLOW_START) {
                         return "../../assets/svg/history-start-waitStart.svg";
-                    } else if (d.type == constant.PIPELINE_STAGE) {
+                    } else if (d.type == constant.WORKFLOW_STAGE) {
                         return "../../assets/svg/history-stage-waitStart.svg";
                     }
                 } 
                    
             } else if (d.status == 2 ) {
 
-                if (d.type == constant.PIPELINE_END) {
+                if (d.type == constant.WORKFLOW_END) {
                     return "../../assets/svg/history-end-waitStart.svg";
                 }
 
                 if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "stage" && constant.currentSelectedItem.data.id == d.id) {
-                    if (d.type == constant.PIPELINE_START) {
+                    if (d.type == constant.WORKFLOW_START) {
                         return "../../assets/svg/history-start-selected-running.svg";
-                    } else if (d.type == constant.PIPELINE_STAGE) {
+                    } else if (d.type == constant.WORKFLOW_STAGE) {
                         return "../../assets/svg/history-stage-selected-running.svg";
                     }
                 } else {
-                    if (d.type == constant.PIPELINE_START) {
+                    if (d.type == constant.WORKFLOW_START) {
                         return "../../assets/svg/history-start-running.svg";
-                    } else if (d.type == constant.PIPELINE_STAGE) {
+                    } else if (d.type == constant.WORKFLOW_STAGE) {
                         return "../../assets/svg/history-stage-running.svg";
                     }
                 } 
 
             } else if (d.status == 3) {
 
-                if (d.type == constant.PIPELINE_END) {
+                if (d.type == constant.WORKFLOW_END) {
                     return "../../assets/svg/history-end-success.svg";
                 }
 
                 if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "stage" && constant.currentSelectedItem.data.id == d.id) {
-                    if (d.type == constant.PIPELINE_START) {
+                    if (d.type == constant.WORKFLOW_START) {
                         return "../../assets/svg/history-start-selected-success.svg";
-                    } else if (d.type == constant.PIPELINE_STAGE) {
+                    } else if (d.type == constant.WORKFLOW_STAGE) {
                         return "../../assets/svg/history-stage-selected-success.svg";
                     }
                 } else {
-                    if (d.type == constant.PIPELINE_START) {
+                    if (d.type == constant.WORKFLOW_START) {
                         return "../../assets/svg/history-start-success.svg";
-                    } else if (d.type == constant.PIPELINE_STAGE) {
+                    } else if (d.type == constant.WORKFLOW_STAGE) {
                         return "../../assets/svg/history-stage-success.svg";
                     }
                 }
 
             } else if(d.status == 4) {
 
-                if (d.type == constant.PIPELINE_END) {
+                if (d.type == constant.WORKFLOW_END) {
                     return "../../assets/svg/history-end-fail.svg";
                 }
 
                 if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "stage" && constant.currentSelectedItem.data.id == d.id) {
-                    if (d.type == constant.PIPELINE_START) {
+                    if (d.type == constant.WORKFLOW_START) {
                         return "../../assets/svg/history-start-selected-fail.svg";
-                    } else if (d.type == constant.PIPELINE_STAGE) {
+                    } else if (d.type == constant.WORKFLOW_STAGE) {
                         return "../../assets/svg/history-stage-selected-fail.svg";
                     }
                 } else {
-                    if (d.type == constant.PIPELINE_START) {
+                    if (d.type == constant.WORKFLOW_START) {
                         return "../../assets/svg/history-start-fail.svg";
-                    } else if (d.type ==  constant.PIPELINE_STAGE) {
+                    } else if (d.type ==  constant.WORKFLOW_STAGE) {
                         return "../../assets/svg/history-stage-fail.svg";
                     }
                 }
@@ -675,22 +675,22 @@ function showRefreshSequenceView(refreshPipelineSequenceData) {
         .attr("transform", function(d, i) {
             d.width = constant.svgStageWidth;
             d.height = constant.svgStageHeight;
-            d.translateX = i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX;
-            d.translateY = constant.pipelineNodeStartY;
+            d.translateX = i * constant.WorkflowNodeSpaceSize + constant.workflowNodeStartX;
+            d.translateY = constant.workflowNodeStartY;
             return "translate(" + d.translateX + "," + d.translateY + ")";
         })
         .attr("translateX", function(d, i) {
-            return i * constant.PipelineNodeSpaceSize + constant.pipelineNodeStartX;
+            return i * constant.WorkflowNodeSpaceSize + constant.workflowNodeStartX;
         })
-        .attr("translateY", constant.pipelineNodeStartY)
+        .attr("translateY", constant.workflowNodeStartY)
         .on("click", function(d, i) {
             if (d.status == 1 || d.status == 0) {
 
-                if (d.type == constant.PIPELINE_STAGE) {
+                if (d.type == constant.WORKFLOW_STAGE) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-waitStart.svg");
-                } else if (d.type == constant.PIPELINE_START) {
+                } else if (d.type == constant.WORKFLOW_START) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-waitStart.svg");
@@ -698,11 +698,11 @@ function showRefreshSequenceView(refreshPipelineSequenceData) {
 
             } else if (d.status == 2) {
 
-                if (d.type == constant.PIPELINE_STAGE) {
+                if (d.type == constant.WORKFLOW_STAGE) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-running.svg");
-                } else if (d.type == constant.PIPELINE_START) {
+                } else if (d.type == constant.WORKFLOW_START) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-running.svg");
@@ -710,22 +710,22 @@ function showRefreshSequenceView(refreshPipelineSequenceData) {
 
             } else if (d.status == 3) {
 
-                if (d.type == constant.PIPELINE_STAGE) {
+                if (d.type == constant.WORKFLOW_STAGE) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-success.svg");
-                } else if (d.type == constant.PIPELINE_START) {
+                } else if (d.type == constant.WORKFLOW_START) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-success.svg");
                 }
             }else if (d.status == 4) {
 
-                if (d.type == constant.PIPELINE_STAGE) {
+                if (d.type == constant.WORKFLOW_STAGE) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "stage", "status": d.status });
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-stage-selected-fail.svg");
-                } else if (d.type == constant.PIPELINE_START) {
+                } else if (d.type == constant.WORKFLOW_START) {
                     historyChangeCurrentElement(constant.currentSelectedItem);
                     constant.setCurrentSelectedItem({ "data": d, "type": "start", "status": d.status });
                     d3.select("#" + d.id).attr("href", "../../assets/svg/history-start-selected-fail.svg");
@@ -743,48 +743,48 @@ function initSequenceStageLine() {
 
     var diagonal = d3.svg.diagonal();
 
-    var sequencePipelineLineViewId = "pipeline-line-view";
+    var sequenceWorkflowLineViewId = "workflow-line-view";
 
-    constant.sequenceLineView[sequencePipelineLineViewId] = constant.sequenceLinesView.append("g")
+    constant.sequenceLineView[sequenceWorkflowLineViewId] = constant.sequenceLinesView.append("g")
         .attr("width", constant.svgWidth)
         .attr("height", constant.svgHeight)
-        .attr("id", sequencePipelineLineViewId);
+        .attr("id", sequenceWorkflowLineViewId);
 
-    constant.sequencePipelineView.selectAll("image").each(function(d, i) {
+    constant.sequenceWorkflowView.selectAll("image").each(function(d, i) {
 
-        /* draw the main line of pipeline */
+        /* draw the main line of workflow */
         if (i != 0) {
             if (d.status == 0 || d.status == 1 || d.status ==2) {
-                constant.sequenceLineView[sequencePipelineLineViewId]
+                constant.sequenceLineView[sequenceWorkflowLineViewId]
                     .append("path")
                     .attr("d", function() {
                         return diagonal({
-                            source: { x: d.translateX - constant.PipelineNodeSpaceSize, y: constant.pipelineNodeStartY + constant.svgStageHeight / 2 },
-                            target: { x: d.translateX + 2, y: constant.pipelineNodeStartY + constant.svgStageHeight / 2 }
+                            source: { x: d.translateX - constant.WorkflowNodeSpaceSize, y: constant.workflowNodeStartY + constant.svgStageHeight / 2 },
+                            target: { x: d.translateX + 2, y: constant.workflowNodeStartY + constant.svgStageHeight / 2 }
                         });
                     })
                     .attr("fill", "none")
                     .attr("stroke", "#54711e")
                     .attr("stroke-width", 2);
             } else if (d.status == 3) {
-                constant.sequenceLineView[sequencePipelineLineViewId]
+                constant.sequenceLineView[sequenceWorkflowLineViewId]
                     .append("path")
                     .attr("d", function() {
                         return diagonal({
-                            source: { x: d.translateX - constant.PipelineNodeSpaceSize, y: constant.pipelineNodeStartY + constant.svgStageHeight / 2 },
-                            target: { x: d.translateX + 2, y: constant.pipelineNodeStartY + constant.svgStageHeight / 2 }
+                            source: { x: d.translateX - constant.WorkflowNodeSpaceSize, y: constant.workflowNodeStartY + constant.svgStageHeight / 2 },
+                            target: { x: d.translateX + 2, y: constant.workflowNodeStartY + constant.svgStageHeight / 2 }
                         });
                     })
                     .attr("fill", "none")
                     .attr("stroke", "#00733B")
                     .attr("stroke-width", 2);
             } else if(d.status == 4) {
-                constant.sequenceLineView[sequencePipelineLineViewId]
+                constant.sequenceLineView[sequenceWorkflowLineViewId]
                     .append("path")
                     .attr("d", function() {
                         return diagonal({
-                            source: { x: d.translateX - constant.PipelineNodeSpaceSize, y: constant.pipelineNodeStartY + constant.svgStageHeight / 2 },
-                            target: { x: d.translateX + 2, y: constant.pipelineNodeStartY + constant.svgStageHeight / 2 }
+                            source: { x: d.translateX - constant.WorkflowNodeSpaceSize, y: constant.workflowNodeStartY + constant.svgStageHeight / 2 },
+                            target: { x: d.translateX + 2, y: constant.workflowNodeStartY + constant.svgStageHeight / 2 }
                         });
                     })
                     .attr("fill", "none")
@@ -793,27 +793,27 @@ function initSequenceStageLine() {
             }
         }
 
-        if (d.type == constant.PIPELINE_START) {
-            /* draw the vertical line and circle for start node  in lineView -> pipeline-line-view */
-            constant.sequenceLineView[sequencePipelineLineViewId]
+        if (d.type == constant.WORKFLOW_START) {
+            /* draw the vertical line and circle for start node  in lineView -> workflow-line-view */
+            constant.sequenceLineView[sequenceWorkflowLineViewId]
                 .append("path")
                 .attr("d", function() {
                     return diagonal({
-                        source: { x: d.translateX + constant.svgStageWidth / 2, y: constant.pipelineNodeStartY + constant.svgStageHeight / 2 },
-                        target: { x: d.translateX + constant.svgStageWidth / 2, y: constant.pipelineNodeStartY + constant.svgStageHeight + 10 }
+                        source: { x: d.translateX + constant.svgStageWidth / 2, y: constant.workflowNodeStartY + constant.svgStageHeight / 2 },
+                        target: { x: d.translateX + constant.svgStageWidth / 2, y: constant.workflowNodeStartY + constant.svgStageHeight + 10 }
                     })
                 })
                 .attr("fill", "none")
                 .attr("stroke", "#1F6D84")
                 .attr("stroke-width", 1);
 
-            constant.sequenceLineView[sequencePipelineLineViewId]
+            constant.sequenceLineView[sequenceWorkflowLineViewId]
                 .append("circle")
                 .attr("cx", function(cd, ci) {
                     return d.translateX + constant.svgStageWidth / 2;
                 })
                 .attr("cy", function(cd, ci) {
-                    return constant.pipelineNodeStartY + constant.svgStageHeight + 19;
+                    return constant.workflowNodeStartY + constant.svgStageHeight + 19;
                 })
                 .attr("r", function(cd, ci) {
                     return 8;
@@ -835,8 +835,8 @@ function initSequenceStageLine() {
 function initSequenceActionByStage() {
     constant.sequenceActionsView.selectAll("g").remove();
     /* draw actions in actionView , data source is stage.actions */
-    constant.sequencePipelineView.selectAll("image").each(function(d, i) {
-        if (d.type == constant.PIPELINE_STAGE && d.actions != null && d.actions.length > 0) {
+    constant.sequenceWorkflowView.selectAll("image").each(function(d, i) {
+        if (d.type == constant.WORKFLOW_STAGE && d.actions != null && d.actions.length > 0) {
 
             var actionViewId = "action" + "-" + d.id;
             constant.sequenceActionView[actionViewId] = constant.sequenceActionsView.append("g")
@@ -924,8 +924,8 @@ function initSequenceActionByStage() {
                 })
                 .style("cursor", "pointer")
                 .on("click", function(ad, ai) {
-                    // pipelineName,versionName,pipelineRunSequence,stageName,actionName
-                    getActionHistory(historyAbout.pipelineName,historyAbout.versionName,historyAbout.sequence, d.setupData.name, ad.setupData.name);
+                    // workflowName,versionName,workflowRunSequence,stageName,actionName
+                    getActionHistory(historyAbout.workflowName,historyAbout.versionName,historyAbout.sequence, d.setupData.name, ad.setupData.name);
                     if (ad.status == 1 || ad.status == 0) {
                         historyChangeCurrentElement(constant.currentSelectedItem);
                         constant.setCurrentSelectedItem({ "data": ad, "parentData": d, "type": "action", "status": ad.status });
@@ -947,7 +947,7 @@ function initSequenceActionByStage() {
                     }
                 })
                 .on("mouseout", function(ad, ai) {
-                    constant.sequencePipelineView.selectAll("#pipeline-element-popup").remove();
+                    constant.sequenceWorkflowView.selectAll("#workflow-element-popup").remove();
                 })
                 .on("mouseover", function(ad, ai) {
                     var x = ad.translateX;
@@ -962,8 +962,8 @@ function initSequenceActionByStage() {
                             "x": x,
                             "y": y,
                             "text": text,
-                            "popupId": "pipeline-element-popup",
-                            "parentView": constant.sequencePipelineView,
+                            "popupId": "workflow-element-popup",
+                            "parentView": constant.sequenceWorkflowView,
                             "width": width
                         };
                         sequenceUtil.showToolTip(options);
@@ -979,9 +979,9 @@ function initSequenceActionByStage() {
 function initSequenceAction2StageLine() {
     var diagonal = d3.svg.diagonal();
 
-    constant.sequencePipelineView.selectAll("image").each(function(d, i) {
+    constant.sequenceWorkflowView.selectAll("image").each(function(d, i) {
         /* draw line from action 2 stage and circle of action self to accept and emit lines  */
-        if (d.type == constant.PIPELINE_STAGE && d.actions != null && d.actions.length > 0) {
+        if (d.type == constant.WORKFLOW_STAGE && d.actions != null && d.actions.length > 0) {
 
             var actionLineViewId = "action-line" + "-" + d.id;
             var action2StageLineViewId = "action-2-stage-line" + "-" + d.id;
@@ -1033,8 +1033,8 @@ function initSequenceAction2StageLine() {
 function initSequenceActionLinkBase() {
     var diagonal = d3.svg.diagonal();
 
-    constant.sequencePipelineView.selectAll("image").each(function(d, i) {
-        if (d.type == constant.PIPELINE_STAGE && d.actions != null && d.actions.length > 0) {
+    constant.sequenceWorkflowView.selectAll("image").each(function(d, i) {
+        if (d.type == constant.WORKFLOW_STAGE && d.actions != null && d.actions.length > 0) {
 
             var actionSelfLine = "action-self-line" + "-" + d.id
 
@@ -1066,8 +1066,8 @@ function initSequenceActionLinkBase() {
 function initSequenceActionLinkBasePoint() {
     var diagonal = d3.svg.diagonal();
 
-    constant.sequencePipelineView.selectAll("image").each(function(d, i) {
-        if (d.type == constant.PIPELINE_STAGE && d.actions != null && d.actions.length > 0) {
+    constant.sequenceWorkflowView.selectAll("image").each(function(d, i) {
+        if (d.type == constant.WORKFLOW_STAGE && d.actions != null && d.actions.length > 0) {
 
             var actionSelfLine = "action-self-line" + "-" + d.id
 
@@ -1132,13 +1132,13 @@ function setSequencePath(options) {
 
     var startPoint = {},
         endPoint = {};
-    if (fromDom.type == constant.PIPELINE_START) {
+    if (fromDom.type == constant.WORKFLOW_START) {
         startPoint = { x: fromDom.translateX + 1, y: fromDom.translateY + 57 };
-    } else if (fromDom.type == constant.PIPELINE_ACTION) {
+    } else if (fromDom.type == constant.WORKFLOW_ACTION) {
         startPoint = { x: fromDom.translateX + 19, y: fromDom.translateY + 4 };
     }
     endPoint = { x: toDom.translateX - 12, y: toDom.translateY + 4 };
-    constant.sequenceLineView[options.pipelineLineViewId]
+    constant.sequenceLineView[options.workflowLineViewId]
         .append("path")
         .attr("d", getPathData(startPoint, endPoint))
         .attr("fill", "none")
@@ -1156,8 +1156,8 @@ function setSequencePath(options) {
         .attr("id", options.id)
         .style("cursor", "pointer")
         .on("click", function(d) {
-            getLineHistory(historyAbout.pipelineName,historyAbout.versionName,historyAbout.sequence,lineId );
-            // getLineHistory(historyAbout.pipelineName, historyAbout.sequenceID, options.startData.id, options.endData.id);
+            getLineHistory(historyAbout.workflowName,historyAbout.versionName,historyAbout.sequence,lineId );
+            // getLineHistory(historyAbout.workflowName, historyAbout.sequenceID, options.startData.id, options.endData.id);
             var self = $(this);
             historyChangeCurrentElement(constant.currentSelectedItem);
             constant.setCurrentSelectedItem({ "data": self, "type": "line" });
@@ -1179,7 +1179,7 @@ function getPathData(startPoint, endPoint) {
 }
 
 function zoomed() {
-    constant.sequencePipelineView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+    constant.sequenceWorkflowView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
     constant.sequenceActionsView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
     // buttonView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
     constant.sequenceLinesView.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")")
