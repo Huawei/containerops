@@ -30,7 +30,10 @@ export function initStageSetup(stage){
         stageSetupData.setStageTimeout();
     });
 
-    var globalvars = _.keys(workflowVars);
+    // use global vars
+    var globalvars = _.map(workflowVars,function(item){
+        return "@"+item[0]+"@";
+    });
     $(".allowFromVar").autocomplete({
         source:[globalvars],
         limit: 100,
