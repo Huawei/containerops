@@ -33,7 +33,6 @@ export let allWorkflows;
 export let workflowData;
 let workflowDataOriginalCopy,linePathAryOriginalCopy;
 let workflowName, workflowVersion, workflowVersionID,workflowHasHistory;
-let workflowEnvs,workflowVars;
 
 let splitStartY;
 

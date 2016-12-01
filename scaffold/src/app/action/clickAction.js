@@ -73,7 +73,9 @@ function showActionEditor(action) {
             });
             
             // use global vars
-            var globalvars = _.keys(workflowVars);
+            var globalvars = _.map(workflowVars,function(item){
+                                return "@"+item[0]+"@";
+                            });
             $(".allowFromVar").autocomplete({
                 source:[globalvars],
                 limit: 100,
