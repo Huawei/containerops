@@ -62,32 +62,35 @@ func SetRouters(m *macaron.Macaron) {
 					m.Group("/v1", func() {
 
 						m.Group("/define", func() {
-							m.Get("/list", handler.GetPipelineListV1Handler)
-							m.Post("/", handler.PostPipelineV1Handler)
+							m.Get("/list", handler.GetWorkflowListV1Handler)
+							m.Post("/", handler.PostWorkflowV1Handler)
 
 							m.Get("/event/:site/:event", handler.GetEventDefineJsonV1Handler)
 
-							m.Get("/:workflow", handler.GetPipelineV1Handler)
-							m.Put("/:workflow", handler.PutPipelineV1Handler)
-							m.Delete("/:workflow", handler.DeletePipelineV1Handler)
+							m.Get("/:workflow", handler.GetWorkflowV1Handler)
+							m.Put("/:workflow", handler.PutWorkflowV1Handler)
+							m.Delete("/:workflow", handler.DeleteWorkflowV1Handler)
 
-							m.Get("/:workflow/token", handler.GetPipelineTokenV1Handler)
+							m.Get("/:workflow/token", handler.GetWorkflowTokenV1Handler)
 
-							m.Get("/:workflow/env", handler.GetPipelineEnvV1Handler)
-							m.Put("/:workflow/env", handler.PutPipelineEnvV1Handler)
+							m.Get("/:workflow/env", handler.GetWorkflowEnvV1Handler)
+							m.Put("/:workflow/env", handler.PutWorkflowEnvV1Handler)
 
-							m.Put("/:workflow/state", handler.PutPipelineStateV1Handler)
+							m.Get("/:workflow/var", handler.GetWorkflowVarV1Handler)
+							m.Put("/:workflow/var", handler.PutWorkflowVarV1Handler)
+
+							m.Put("/:workflow/state", handler.PutWorkflowStateV1Handler)
 						})
 
-						m.Post("/exec/:workflow", handler.ExecutePipelineV1Handler)
+						m.Post("/exec/:workflow", handler.ExecuteWorkflowV1Handler)
 
 						m.Put("/event/:workflow/register", handler.PutActionRegisterV1Handler)
 						m.Put("/event/:workflow/:event", handler.PutActionEventV1Handler)
 
 						m.Group("/log", func() {
-							m.Get("/list", handler.GetPipelineHistoriesV1Handler)
+							m.Get("/list", handler.GetWorkflowHistoriesV1Handler)
 
-							m.Get("/:workflow/:version", handler.GetPipelineHistoryDefineV1Handler)
+							m.Get("/:workflow/:version", handler.GetWorkflowHistoryDefineV1Handler)
 							m.Get("/:workflow/:version/:sequence/stage/:stage", handler.GetStageHistoryInfoV1Handler)
 							m.Get("/:workflow/:version/:sequence/stage/:stage/action/:action", handler.GetActionHistoryInfoV1Handler)
 							m.Get("/:workflow/:version/:sequence/:relation", handler.GetSequenceLineHistoryV1Handler)

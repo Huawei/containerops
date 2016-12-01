@@ -1,5 +1,5 @@
 id: 10086 # id must be alpha-numeric. 
-name: pilotage # name must be at least one lowercase, alpha-numeric characters, optionally separated by periods, dashes or underscores. More strictly, it must match the regular expression [a-z0-9]+(?:[._-][a-z0-9]+)*. The total length of a pipeline name including slashes, must be less the 256 characters. 
+name: pilotage # name must be at least one lowercase, alpha-numeric characters, optionally separated by periods, dashes or underscores. More strictly, it must match the regular expression [a-z0-9]+(?:[._-][a-z0-9]+)*. The total length of a workflow name including slashes, must be less the 256 characters. 
 description: > 
   Pilotage is a DevOps workflow engine with customizable DevOps component repository base container, and it's core project of ContainerOps.
   This file defines DevOps workflow, include all events, components, services and how to trigger & run.
@@ -200,7 +200,7 @@ movements:
         slack.com
       keyworkds: >
         communication, slack             
-pipeline:
+workflow:
   - before:
   - stages:
       - stage:

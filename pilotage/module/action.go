@@ -76,7 +76,7 @@ func getActionEnvList(actionLogId int64) ([]map[string]interface{}, error) {
 	return resultList, nil
 }
 
-func CreateNewActions(db *gorm.DB, pipelineInfo *models.Pipeline, stageInfo *models.Stage, defineList []map[string]interface{}) (map[string]int64, error) {
+func CreateNewActions(db *gorm.DB, workflowInfo *models.Workflow, stageInfo *models.Stage, defineList []map[string]interface{}) (map[string]int64, error) {
 	if db == nil {
 		db = models.GetDB()
 		db = db.Begin()
@@ -257,9 +257,9 @@ func CreateNewActions(db *gorm.DB, pipelineInfo *models.Pipeline, stageInfo *mod
 		requestInfos, _ := json.Marshal(requestMapList)
 
 		action := new(models.Action)
-		action.Namespace = pipelineInfo.Namespace
-		action.Repository = pipelineInfo.Repository
-		action.Pipeline = stageInfo.Pipeline
+		action.Namespace = workflowInfo.Namespace
+		action.Repository = workflowInfo.Repository
+		action.Workflow = stageInfo.Workflow
 		action.Stage = stageInfo.ID
 		action.Component = componentId
 		action.Service = serviceId
@@ -304,21 +304,21 @@ func GetActionLog(actionLogId int64) (*ActionLog, error) {
 	return action, nil
 }
 
-func GetActionLogByName(namespace, repository, pipelineName string, sequence int64, stageName, actionName string) (*ActionLog, error) {
+func GetActionLogByName(namespace, repository, workflowName string, sequence int64, stageName, actionName string) (*ActionLog, error) {
 	action := new(ActionLog)
-	pipelineLog := new(models.PipelineLog)
+	workflowLog := new(models.WorkflowLog)
 	stageLog := new(models.StageLog)
 	actionLog := new(models.ActionLog)
 
-	err := pipelineLog.GetPipelineLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("pipeline = ?", pipelineName).Where("sequence = ?", sequence).First(pipelineLog).Error
+	err := workflowLog.GetWorkflowLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("workflow = ?", workflowName).Where("sequence = ?", sequence).First(workflowLog).Error
 	if err != nil {
 		if err != nil {
-			log.Error("[actionLog's GetActionLog]:error when get pipelineLog info from db:", err.Error())
+			log.Error("[actionLog's GetActionLog]:error when get workflowLog info from db:", err.Error())
 			return nil, err
 		}
 	}
 
-	err = stageLog.GetStageLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("pipeline = ?", pipelineLog.ID).Where("sequence = ?", sequence).Where("stage = ?", stageName).First(stageLog).Error
+	err = stageLog.GetStageLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("workflow = ?", workflowLog.ID).Where("sequence = ?", sequence).Where("stage = ?", stageName).First(stageLog).Error
 	if err != nil {
 		if err != nil {
 			log.Error("[actionLog's GetActionLog]:error when get stageLog info from db:", err.Error())
@@ -326,7 +326,7 @@ func GetActionLogByName(namespace, repository, pipelineName string, sequence int
 		}
 	}
 
-	err = actionLog.GetActionLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("pipeline = ?", pipelineLog.ID).Where("sequence = ?", sequence).Where("stage = ?", stageLog.ID).Where("action = ?", actionName).First(actionLog).Error
+	err = actionLog.GetActionLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("workflow = ?", workflowLog.ID).Where("sequence = ?", sequence).Where("stage = ?", stageLog.ID).Where("action = ?", actionName).First(actionLog).Error
 	if err != nil {
 		log.Error("[actionLog's GetActionLog]:error when get action log info from db:", err.Error())
 		return nil, err
@@ -336,7 +336,7 @@ func GetActionLogByName(namespace, repository, pipelineName string, sequence int
 	return action, nil
 }
 
-func (actionInfo *Action) GenerateNewLog(db *gorm.DB, pipelineLog *models.PipelineLog, stageLog *models.StageLog) error {
+func (actionInfo *Action) GenerateNewLog(db *gorm.DB, workflowLog *models.WorkflowLog, stageLog *models.StageLog) error {
 	if db == nil {
 		db = models.GetDB()
 		err := db.Begin().Error
@@ -350,9 +350,9 @@ func (actionInfo *Action) GenerateNewLog(db *gorm.DB, pipelineLog *models.Pipeli
 	actionLog := new(models.ActionLog)
 	actionLog.Namespace = actionInfo.Namespace
 	actionLog.Repository = actionInfo.Repository
-	actionLog.Pipeline = pipelineLog.ID
-	actionLog.FromPipeline = pipelineLog.FromPipeline
-	actionLog.Sequence = pipelineLog.Sequence
+	actionLog.Workflow = workflowLog.ID
+	actionLog.FromWorkflow = workflowLog.FromWorkflow
+	actionLog.Sequence = workflowLog.Sequence
 	actionLog.Stage = stageLog.ID
 	actionLog.FromStage = stageLog.FromStage
 	actionLog.FromAction = actionInfo.ID
@@ -426,9 +426,9 @@ func (actionLog *ActionLog) GetActionLineInfo() ([]map[string]interface{}, error
 		fromRealActionID := int64(fromRealActionIDF)
 		fromActionInfoMap := make(map[string]string)
 		if fromRealActionID == int64(0) {
-			// if action's id == 0 ,this is a realtion from pipeline's start stage
+			// if action's id == 0 ,this is a realtion from workflow's start stage
 			startStage := new(models.StageLog)
-			err := startStage.GetStageLog().Where("namespace = ?", actionLog.Namespace).Where("repository = ?", actionLog.Repository).Where("pipeline = ?", actionLog.Pipeline).Where("type = ?", models.StageTypeStart).First(startStage).Error
+			err := startStage.GetStageLog().Where("namespace = ?", actionLog.Namespace).Where("repository = ?", actionLog.Repository).Where("workflow = ?", actionLog.Workflow).Where("type = ?", models.StageTypeStart).First(startStage).Error
 			if err != nil {
 				log.Error("[actionLog's GetActionLineInfo]:error when get pipline's start stage from db:", err.Error())
 				continue
@@ -438,24 +438,24 @@ func (actionLog *ActionLog) GetActionLineInfo() ([]map[string]interface{}, error
 			fromActionInfoMap["type"] = models.StageTypeForWeb[startStage.Type]
 		} else {
 			fromActionInfo := new(models.ActionLog)
-			err = fromActionInfo.GetActionLog().Where("namespace = ?", actionLog.Namespace).Where("repository = ?", actionLog.Repository).Where("pipeline = ?", actionLog.Pipeline).Where("sequence = ?", actionLog.Sequence).Where("from_action = ?", fromRealActionID).First(fromActionInfo).Error
+			err = fromActionInfo.GetActionLog().Where("namespace = ?", actionLog.Namespace).Where("repository = ?", actionLog.Repository).Where("workflow = ?", actionLog.Workflow).Where("sequence = ?", actionLog.Sequence).Where("from_action = ?", fromRealActionID).First(fromActionInfo).Error
 			if err != nil {
 				log.Error("[actionLog's GetActionLineInfo]:error when get preActionlog info from db:", err.Error())
 				continue
 			}
 
 			fromActionInfoMap["id"] = "a-" + strconv.FormatInt(fromActionInfo.ID, 10)
-			fromActionInfoMap["type"] = "pipeline-action"
+			fromActionInfoMap["type"] = "workflow-action"
 		}
 
 		toActionInfoMap := make(map[string]string)
 		toActionInfoMap["id"] = "a-" + strconv.FormatInt(actionLog.ID, 10)
-		toActionInfoMap["type"] = "pipeline-action"
+		toActionInfoMap["type"] = "workflow-action"
 		toActionInfoMap["name"] = actionLog.Action
 
 		lineMap := make(map[string]interface{})
 		lineMap["id"] = fromActionInfoMap["id"] + "-" + toActionInfoMap["id"]
-		lineMap["pipelineLineViewId"] = "pipeline-line-view"
+		lineMap["workflowLineViewId"] = "workflow-line-view"
 
 		lineMap["startData"] = map[string]string{
 			"id":   fromActionInfoMap["id"],
@@ -497,7 +497,7 @@ func (actionLog *ActionLog) GetActionHistoryInfo() (map[string]interface{}, erro
 	dataMap["output"] = outputMap
 
 	logList := make([]models.Event, 0)
-	err = new(models.Event).GetEvent().Where("namespace = ?", actionLog.Namespace).Where("repository = ?", actionLog.Repository).Where("pipeline = ?", actionLog.Pipeline).Where("stage = ?", actionLog.Stage).Where("action = ?", actionLog.ID).Order("id").Find(&logList).Error
+	err = new(models.Event).GetEvent().Where("namespace = ?", actionLog.Namespace).Where("repository = ?", actionLog.Repository).Where("workflow = ?", actionLog.Workflow).Where("stage = ?", actionLog.Stage).Where("action = ?", actionLog.ID).Order("id").Find(&logList).Error
 	if err != nil && !strings.Contains(err.Error(), "record not found") {
 		log.Error("[actionLog's GetActionHistoryInfo]:error when get actionlog's log from db:", err.Error())
 		return nil, err
@@ -519,7 +519,7 @@ func (actionLog *ActionLog) GetInputData() (map[string]interface{}, error) {
 	inputMap := make(map[string]interface{})
 
 	inputInfo := new(models.Event)
-	err := inputInfo.GetEvent().Where("namespace = ?", actionLog.Namespace).Where("repository = ?", actionLog.Repository).Where("pipeline = ?", actionLog.Pipeline).Where("sequence = ?", actionLog.Sequence).Where("action = ?", actionLog.ID).Where("title = ?", "SEND_DATA").First(inputInfo).Error
+	err := inputInfo.GetEvent().Where("namespace = ?", actionLog.Namespace).Where("repository = ?", actionLog.Repository).Where("workflow = ?", actionLog.Workflow).Where("sequence = ?", actionLog.Sequence).Where("action = ?", actionLog.ID).Where("title = ?", "SEND_DATA").First(inputInfo).Error
 	if err != nil && !strings.Contains(err.Error(), "record not found") {
 		log.Error("[actionLog's GetInputData]:error when get actionlog's input info from db:", err.Error())
 		return nil, err
@@ -549,7 +549,7 @@ func (actionLog *ActionLog) GetOutputData() (map[string]interface{}, error) {
 	outputMap := make(map[string]interface{})
 
 	outputInfo := new(models.Outcome)
-	err := outputInfo.GetOutcome().Where("pipeline = ?", actionLog.Pipeline).Where("sequence = ?", actionLog.Sequence).Where("stage = ?", actionLog.Stage).Where("action = ?", actionLog.ID).First(outputInfo).Error
+	err := outputInfo.GetOutcome().Where("workflow = ?", actionLog.Workflow).Where("sequence = ?", actionLog.Sequence).Where("stage = ?", actionLog.Stage).Where("action = ?", actionLog.ID).First(outputInfo).Error
 	if err != nil && !strings.Contains(err.Error(), "record not found") {
 		log.Error("[actionLog's GetOutputData]:error when get actionlog's output info from db:", err.Error())
 		return nil, err
@@ -741,16 +741,16 @@ func (actionLog *ActionLog) Start() {
 		err = c.Start()
 		if err != nil {
 			log.Error("[actionLog's Start]:error when start component:", err.Error())
-			RecordOutcom(actionLog.Pipeline, actionLog.FromPipeline, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, 0, false, "start action error", err.Error())
+			RecordOutcom(actionLog.Workflow, actionLog.FromWorkflow, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, 0, false, "start action error", err.Error())
 			actionLog.Stop(ActionStopReasonRunFailed, models.ActionLogStateRunFailed)
 		}
 	} else if actionLog.Service != 0 {
 		log.Info("[actionLog's Start]:start an action that use service:", actionLog)
-		RecordOutcom(actionLog.Pipeline, actionLog.FromPipeline, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, 0, false, "start action error", "use service but not support")
+		RecordOutcom(actionLog.Workflow, actionLog.FromWorkflow, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, 0, false, "start action error", "use service but not support")
 		actionLog.Stop(ActionStopReasonRunSuccess, models.ActionLogStateRunSuccess)
 	} else {
 		log.Error("[actionLog's Start]:error when start action,action doesn't spec a type", actionLog)
-		RecordOutcom(actionLog.Pipeline, actionLog.FromPipeline, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, 0, false, "start action error", "action doesn't spec a component or a service")
+		RecordOutcom(actionLog.Workflow, actionLog.FromWorkflow, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, 0, false, "start action error", "action doesn't spec a component or a service")
 		actionLog.Stop(ActionStopReasonRunFailed, models.ActionLogStateRunFailed)
 	}
 }
@@ -794,7 +794,7 @@ func (actionLog *ActionLog) Stop(reason string, runState int64) {
 func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody map[string]interface{}, headerInfo http.Header) error {
 	c, err := InitComponetNew(actionLog)
 	if err != nil {
-		recordErr := RecordOutcom(actionLog.Pipeline, actionLog.FromPipeline, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, eventId, false, "component init error:"+err.Error(), "")
+		recordErr := RecordOutcom(actionLog.Workflow, actionLog.FromWorkflow, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, eventId, false, "component init error:"+err.Error(), "")
 		if recordErr != nil {
 			log.Error("[actionLog's RecordEvent]:error when record outcome info:", recordErr.Error())
 			return recordErr
@@ -830,7 +830,7 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 			outputStr = string(outputBytes)
 		}
 
-		recordErr := RecordOutcom(actionLog.Pipeline, actionLog.FromPipeline, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, eventId, status, result, outputStr)
+		recordErr := RecordOutcom(actionLog.Workflow, actionLog.FromWorkflow, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, eventId, status, result, outputStr)
 		if recordErr != nil {
 			log.Error("[actionLog's RecordEvent]:error when record outcome info:", recordErr.Error())
 			return recordErr
@@ -956,7 +956,7 @@ func (actionLog *ActionLog) SendDataToAction(targetUrl string) {
 	payload["EVENT"] = "SEND_DATA"
 	payload["EVENTID"] = "SEND_DATA"
 	payload["INFO"] = map[string]interface{}{"output": string(dataByte), "result": resultStr, "status": status}
-	payload["RUN_ID"] = strconv.FormatInt(actionLog.Pipeline, 10) + "-" + strconv.FormatInt(actionLog.Stage, 10) + "-" + strconv.FormatInt(actionLog.ID, 10)
+	payload["RUN_ID"] = strconv.FormatInt(actionLog.Workflow, 10) + "-" + strconv.FormatInt(actionLog.Stage, 10) + "-" + strconv.FormatInt(actionLog.ID, 10)
 
 	payloadInfo, marshalErr := json.Marshal(payload)
 	if marshalErr != nil {
@@ -969,7 +969,7 @@ func (actionLog *ActionLog) SendDataToAction(targetUrl string) {
 		log.Error("[actionLog's SendDataToAction]:error when send data to action:" + err.Error())
 	}
 
-	err = RecordEventInfo(models.EventDefineIDSendDataToAction, actionLog.Sequence, "", string(payloadInfo), "", "SEND_DATA", strconv.FormatInt(int64(character), 10), actionLog.Namespace, actionLog.Repository, strconv.FormatInt(actionLog.Pipeline, 10), strconv.FormatInt(actionLog.Stage, 10), strconv.FormatInt(actionLog.ID, 10))
+	err = RecordEventInfo(models.EventDefineIDSendDataToAction, actionLog.Sequence, "", string(payloadInfo), "", "SEND_DATA", strconv.FormatInt(int64(character), 10), actionLog.Namespace, actionLog.Repository, strconv.FormatInt(actionLog.Workflow, 10), strconv.FormatInt(actionLog.Stage, 10), strconv.FormatInt(actionLog.ID, 10))
 	if err != nil {
 		go actionLog.Stop(ActionStopReasonSendDataFailed, models.ActionLogStateRunFailed)
 		log.Error("[actionLog's SendDataToAction]:error when save send data info :" + err.Error())
@@ -986,7 +986,7 @@ func (actionLog *ActionLog) merageFromActionsOutputData(relationInfo []interface
 		}
 
 		fromOutcome := new(models.Outcome)
-		err := fromOutcome.GetOutcome().Where("real_pipeline = ?", actionLog.FromPipeline).Where("pipeline = ? ", actionLog.Pipeline).Where("real_action = ?", relationMap["fromAction"]).First(&fromOutcome).Order("-id").Error
+		err := fromOutcome.GetOutcome().Where("real_workflow = ?", actionLog.FromWorkflow).Where("workflow = ? ", actionLog.Workflow).Where("real_action = ?", relationMap["fromAction"]).First(&fromOutcome).Order("-id").Error
 		if err != nil {
 			log.Error("[actionLog's merageFromActionsOutputData]:error when get request action's output from db:want get action(", actionLog.ID, ")'s output, ===>error is:", err.Error())
 			return nil, errors.New("error when get from outcome, error:" + err.Error())
@@ -1010,25 +1010,25 @@ func (actionLog *ActionLog) merageFromActionsOutputData(relationInfo []interface
 		fromRealActionID := int64(fromRealActionIDF)
 
 		if fromRealActionID == 0 {
-			// get pipeline source info, then get relation array by eventType and eventName
-			pipelineLog := new(models.PipelineLog)
-			err := pipelineLog.GetPipelineLog().Where("id = ?", actionLog.Pipeline).First(pipelineLog).Error
+			// get workflow source info, then get relation array by eventType and eventName
+			workflowLog := new(models.WorkflowLog)
+			err := workflowLog.GetWorkflowLog().Where("id = ?", actionLog.Workflow).First(workflowLog).Error
 			if err != nil {
-				log.Error("[actionLog's merageFromActionsOutputData]:error when get pipeline log info from db:", err.Error())
+				log.Error("[actionLog's merageFromActionsOutputData]:error when get workflow log info from db:", err.Error())
 				return nil, err
 			}
-			sourceInfo := pipelineLog.SourceInfo
+			sourceInfo := workflowLog.SourceInfo
 			sourceMap := make(map[string]string)
 			err = json.Unmarshal([]byte(sourceInfo), &sourceMap)
 			if err != nil {
-				log.Error("[actionLog's merageFromActionsOutputData]:error when unmarshal pipelineLog's sourceInfo:", err.Error())
+				log.Error("[actionLog's merageFromActionsOutputData]:error when unmarshal workflowLog's sourceInfo:", err.Error())
 				return nil, err
 			}
 
 			realRelation, ok := relationMap["relation"].(map[string]interface{})
 			if !ok {
-				log.Error("[actionLog's merageFromActionsOutputData]:error in pipelineLog's relation define,want a obj,got: ", relationMap["relation"])
-				return nil, errors.New("error in pipeline's relation define")
+				log.Error("[actionLog's merageFromActionsOutputData]:error in workflowLog's relation define,want a obj,got: ", relationMap["relation"])
+				return nil, errors.New("error in workflow's relation define")
 			}
 
 			relationArray, ok = realRelation[sourceMap["eventName"]+"_"+sourceMap["eventType"]].([]interface{})

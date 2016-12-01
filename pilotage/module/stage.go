@@ -37,10 +37,10 @@ const (
 	StageStopScopeAll        = "all"
 	StageStopScopeRecyclable = "recyclable"
 
-	PipelineStageTypeStart = "pipeline-start"
-	PipelineStageTypeRun   = "pipeline-stage"
-	PipelineStageTypeAdd   = "pipeline-add-stage"
-	PipelineStageTypeEnd   = "pipeline-end"
+	WorkflowStageTypeStart = "workflow-start"
+	WorkflowStageTypeRun   = "workflow-stage"
+	WorkflowStageTypeAdd   = "workflow-add-stage"
+	WorkflowStageTypeEnd   = "workflow-end"
 )
 
 var (
@@ -90,7 +90,7 @@ func getStageEnvList(stageLogId int64) ([]map[string]interface{}, error) {
 	return resultList, nil
 }
 
-func CreateNewStage(db *gorm.DB, preStageId int64, pipelineInfo *models.Pipeline, defineMap, relationMap map[string]interface{}) (int64, string, map[string]int64, error) {
+func CreateNewStage(db *gorm.DB, preStageId int64, workflowInfo *models.Workflow, defineMap, relationMap map[string]interface{}) (int64, string, map[string]int64, error) {
 	if db == nil {
 		db = models.GetDB()
 		err := db.Begin().Error
@@ -119,17 +119,17 @@ func CreateNewStage(db *gorm.DB, preStageId int64, pipelineInfo *models.Pipeline
 		return 0, "", nil, errors.New("stage type define is not a string")
 	}
 
-	if stageDefineType == PipelineStageTypeAdd {
+	if stageDefineType == WorkflowStageTypeAdd {
 		return 0, "", nil, nil
-	} else if stageDefineType == PipelineStageTypeStart {
-		authType = AuthTypePipelineStartDone
+	} else if stageDefineType == WorkflowStageTypeStart {
+		authType = AuthTypeWorkflowStartDone
 		stageType = models.StageTypeStart
-		stageName = pipelineInfo.Pipeline + "-start-stage"
+		stageName = workflowInfo.Workflow + "-start-stage"
 		timeout = 0
 
 		if sourceMapList, ok := defineMap["outputJson"].([]interface{}); ok {
 			sourceMap := make(map[string]interface{}, 0)
-			json.Unmarshal([]byte(pipelineInfo.SourceInfo), &sourceMap)
+			json.Unmarshal([]byte(workflowInfo.SourceInfo), &sourceMap)
 
 			sourceList := make([]map[string]interface{}, 0)
 			allSourceMap := make(map[string]interface{})
@@ -187,24 +187,24 @@ func CreateNewStage(db *gorm.DB, preStageId int64, pipelineInfo *models.Pipeline
 
 			sourceMap["sourceList"] = sourceList
 			sourceMapBytes, _ := json.Marshal(sourceMap)
-			pipelineInfo.SourceInfo = string(sourceMapBytes)
-			err := db.Model(&models.Pipeline{}).Save(pipelineInfo).Error
+			workflowInfo.SourceInfo = string(sourceMapBytes)
+			err := db.Model(&models.Workflow{}).Save(workflowInfo).Error
 			if err != nil {
-				log.Error("[stage's CreateNewStage]:error when update pipeline's source info to db:", err.Error())
+				log.Error("[stage's CreateNewStage]:error when update workflow's source info to db:", err.Error())
 				rollbackErr := db.Rollback().Error
 				if rollbackErr != nil {
-					log.Error("[stage's CreateNewStage]:when rollback in update pipeline's source info:", rollbackErr.Error())
+					log.Error("[stage's CreateNewStage]:when rollback in update workflow's source info:", rollbackErr.Error())
 					return 0, "", nil, errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
 				}
 				return 0, "", nil, err
 			}
 
 		}
-	} else if stageDefineType == PipelineStageTypeEnd {
+	} else if stageDefineType == WorkflowStageTypeEnd {
 		stageType = models.StageTypeEnd
-		stageName = pipelineInfo.Pipeline + "-end-stage"
+		stageName = workflowInfo.Workflow + "-end-stage"
 		timeout = 0
-	} else if stageDefineType == PipelineStageTypeRun {
+	} else if stageDefineType == WorkflowStageTypeRun {
 		if setupDataMap, ok := defineMap["setupData"].(map[string]interface{}); ok {
 			if defineName, ok := setupDataMap["name"]; ok {
 				defineNameStr, ok := defineName.(string)
@@ -241,9 +241,9 @@ func CreateNewStage(db *gorm.DB, preStageId int64, pipelineInfo *models.Pipeline
 	requestInfos, _ := json.Marshal(requestMapList)
 
 	stage := new(models.Stage)
-	stage.Namespace = pipelineInfo.Namespace
-	stage.Repository = pipelineInfo.Repository
-	stage.Pipeline = pipelineInfo.ID
+	stage.Namespace = workflowInfo.Namespace
+	stage.Repository = workflowInfo.Repository
+	stage.Workflow = workflowInfo.ID
 	stage.Type = int64(stageType)
 	stage.PreStage = preStageId
 	stage.Stage = stageName
@@ -263,7 +263,7 @@ func CreateNewStage(db *gorm.DB, preStageId int64, pipelineInfo *models.Pipeline
 		return 0, "", nil, err
 	}
 
-	if stageDefineType == PipelineStageTypeStart {
+	if stageDefineType == WorkflowStageTypeStart {
 		actionIdMap[idStr] = 0
 	}
 
@@ -294,7 +294,7 @@ func CreateNewStage(db *gorm.DB, preStageId int64, pipelineInfo *models.Pipeline
 			actionDefineList = append(actionDefineList, actionDefineMap)
 		}
 
-		actionIdMap, err = CreateNewActions(db, pipelineInfo, stage, actionDefineList)
+		actionIdMap, err = CreateNewActions(db, workflowInfo, stage, actionDefineList)
 		// actionIdMap, err = createActionByDefine(actionDefineList, stage.ID)
 		if err != nil {
 			log.Error("[stage's CreateNewStage]:error when create actions by defineList:", actionDefineList, " ===>error is:", err.Error())
@@ -305,20 +305,20 @@ func CreateNewStage(db *gorm.DB, preStageId int64, pipelineInfo *models.Pipeline
 	return stage.ID, idStr, actionIdMap, err
 }
 
-func GetStageLogByName(namespace, repository, pipelineName string, sequence int64, stageName string) (*StageLog, error) {
+func GetStageLogByName(namespace, repository, workflowName string, sequence int64, stageName string) (*StageLog, error) {
 	stage := new(StageLog)
-	pipelineLog := new(models.PipelineLog)
+	workflowLog := new(models.WorkflowLog)
 	stageLog := new(models.StageLog)
 
-	err := pipelineLog.GetPipelineLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("pipeline = ?", pipelineName).Where("sequence = ?", sequence).First(pipelineLog).Error
+	err := workflowLog.GetWorkflowLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("workflow = ?", workflowName).Where("sequence = ?", sequence).First(workflowLog).Error
 	if err != nil {
 		if err != nil {
-			log.Error("[stageLog's GetStageLogByName]:error when get pipelineLog info from db:", err.Error())
+			log.Error("[stageLog's GetStageLogByName]:error when get workflowLog info from db:", err.Error())
 			return nil, err
 		}
 	}
 
-	err = stageLog.GetStageLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("pipeline = ?", pipelineLog.ID).Where("sequence = ?", sequence).Where("stage = ?", stageName).First(stageLog).Error
+	err = stageLog.GetStageLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("workflow = ?", workflowLog.ID).Where("sequence = ?", sequence).Where("stage = ?", stageName).First(stageLog).Error
 	if err != nil {
 		if err != nil {
 			log.Error("[stageLog's GetStageLogByName]:error when get stageLog info from db:", err.Error())
@@ -331,10 +331,10 @@ func GetStageLogByName(namespace, repository, pipelineName string, sequence int6
 	return stage, nil
 }
 
-func (stageInfo *Stage) GenerateNewLog(db *gorm.DB, pipelineLog *models.PipelineLog, preStageLogID int64) (int64, error) {
+func (stageInfo *Stage) GenerateNewLog(db *gorm.DB, workflowLog *models.WorkflowLog, preStageLogID int64) (int64, error) {
 	actionList := make([]models.Action, 0)
 
-	err := new(models.Action).GetAction().Where("pipeline = ?", pipelineLog.FromPipeline).Where("stage = ?", stageInfo.ID).Find(&actionList).Error
+	err := new(models.Action).GetAction().Where("workflow = ?", workflowLog.FromWorkflow).Where("stage = ?", stageInfo.ID).Find(&actionList).Error
 	if err != nil {
 		log.Error("[Stage's GenerateNewLog]:when get action list by stage info", stageInfo, "===>error is :", err.Error())
 		return 0, err
@@ -349,9 +349,9 @@ func (stageInfo *Stage) GenerateNewLog(db *gorm.DB, pipelineLog *models.Pipeline
 	stageLog := new(models.StageLog)
 	stageLog.Namespace = stageInfo.Namespace
 	stageLog.Repository = stageInfo.Repository
-	stageLog.Pipeline = pipelineLog.ID
-	stageLog.FromPipeline = pipelineLog.FromPipeline
-	stageLog.Sequence = pipelineLog.Sequence
+	stageLog.Workflow = workflowLog.ID
+	stageLog.FromWorkflow = workflowLog.FromWorkflow
+	stageLog.Sequence = workflowLog.Sequence
 	stageLog.FromStage = stageInfo.ID
 	stageLog.Type = stageInfo.Type
 	stageLog.PreStage = preStageLogID
@@ -380,7 +380,7 @@ func (stageInfo *Stage) GenerateNewLog(db *gorm.DB, pipelineLog *models.Pipeline
 	for _, actionInfo := range actionList {
 		action := new(Action)
 		action.Action = &actionInfo
-		err = action.GenerateNewLog(db, pipelineLog, stageLog)
+		err = action.GenerateNewLog(db, workflowLog, stageLog)
 		if err != nil {
 			log.Error("[stage's GenerateNewLog]:when generate action log:", err.Error())
 			return 0, err
@@ -394,7 +394,7 @@ func (stageLog *StageLog) GetStageLogDefine() (map[string]interface{}, error) {
 	actionList := make([]models.ActionLog, 0)
 	err := new(models.ActionLog).GetActionLog().Where("stage = ?", stageLog.ID).Find(&actionList).Error
 	if err != nil {
-		log.Error("[StageLog's GetStageLogDefineListByPipelineLogID]:error when get action list from db:", err.Error())
+		log.Error("[StageLog's GetStageLogDefineListByWorkflowLogID]:error when get action list from db:", err.Error())
 	}
 
 	stageInfoMap := make(map[string]interface{})
@@ -418,7 +418,7 @@ func (stageLog *StageLog) GetStageLogDefine() (map[string]interface{}, error) {
 			tempActionInfoMap["id"] = "a-" + strconv.FormatInt(actionInfo.ID, 10)
 			tempActionInfoMap["setupData"] = map[string]string{"name": actionInfo.Action}
 			tempActionInfoMap["status"] = actionInfo.RunState
-			tempActionInfoMap["type"] = "pipeline-action"
+			tempActionInfoMap["type"] = "workflow-action"
 
 			actionListMap = append(actionListMap, tempActionInfoMap)
 		}
@@ -597,29 +597,29 @@ func (stageLog *StageLog) Start() {
 	go stageLog.WaitAllActionDone(nextStageCanStartChan)
 
 	if stageLog.Type == models.StageTypeEnd {
-		log.Info("[stageLog's Start]:start end stage,all stage run success,so pipeline is success")
-		pipelineLogInfo := new(models.PipelineLog)
-		err := pipelineLogInfo.GetPipelineLog().Where("id = ?", stageLog.Pipeline).First(pipelineLogInfo).Error
+		log.Info("[stageLog's Start]:start end stage,all stage run success,so workflow is success")
+		workflowLogInfo := new(models.WorkflowLog)
+		err := workflowLogInfo.GetWorkflowLog().Where("id = ?", stageLog.Workflow).First(workflowLogInfo).Error
 		if err != nil {
-			log.Error("[stageLog's Start]:error when get pipelinelog's info from db:", err.Error())
+			log.Error("[stageLog's Start]:error when get workflowlog's info from db:", err.Error())
 			stageLog.Stop(StageStopScopeAll, StageStopReasonRunFailed, models.StageLogStateRunFailed)
 			return
 		}
 
 		stageLog.Stop(StageStopScopeAll, StageStopReasonRunSuccess, models.StageLogStateRunSuccess)
-		pipelineLog := new(PipelineLog)
-		pipelineLog.PipelineLog = pipelineLogInfo
-		pipelineLog.Stop(PipelineStopReasonRunSuccess, models.PipelineLogStateRunSuccess)
+		workflowLog := new(WorkflowLog)
+		workflowLog.WorkflowLog = workflowLogInfo
+		workflowLog.Stop(WorkflowStopReasonRunSuccess, models.WorkflowLogStateRunSuccess)
 		return
 	}
 
 	if stageLog.Type == models.StageTypeStart {
-		log.Info("[stageLog's Start]:start pipeline's start stage ...")
+		log.Info("[stageLog's Start]:start workflow's start stage ...")
 		nextStageCanStartChan <- true
 	}
 
 	actionLogList := make([]models.ActionLog, 0)
-	err := new(models.ActionLog).GetActionLog().Where("pipeline = ?", stageLog.Pipeline).Where("stage = ?", stageLog.ID).Find(&actionLogList).Error
+	err := new(models.ActionLog).GetActionLog().Where("workflow = ?", stageLog.Workflow).Where("stage = ?", stageLog.ID).Find(&actionLogList).Error
 	if err != nil {
 		log.Error("[stageLog's Start]:error when get actionLog list fron db:", err.Error())
 		stageLog.Stop(StageStopScopeAll, StageStopReasonRunFailed, models.StageLogStateRunFailed)
@@ -631,7 +631,7 @@ func (stageLog *StageLog) Start() {
 		if canStart {
 			stageLog.Stop(StageStopScopeRecyclable, StageStopReasonRunSuccess, models.StageLogStateRunSuccess)
 			nextStageLogInfo := new(models.StageLog)
-			err := nextStageLogInfo.GetStageLog().Where("pipeline = ?", stageLog.Pipeline).Where("pre_stage = ?", stageLog.ID).First(nextStageLogInfo).Error
+			err := nextStageLogInfo.GetStageLog().Where("workflow = ?", stageLog.Workflow).Where("pre_stage = ?", stageLog.ID).First(nextStageLogInfo).Error
 			if err != nil {
 				log.Error("[stageLog's Start]:error when get next stageLog info from db:", err.Error())
 				stageLog.Stop(StageStopScopeAll, StageStopReasonRunFailed, models.StageLogStateRunFailed)
@@ -652,7 +652,7 @@ func (stageLog *StageLog) Start() {
 			authMap["type"] = AuthTypePreStageDone
 			authMap["token"] = AuthTokenDefault
 			authMap["authorizer"] = "system - " + stageLog.Namespace + " - " + stageLog.Repository + " - " +
-				strconv.FormatInt(stageLog.Pipeline, 10) + "(" + strconv.FormatInt(stageLog.FromPipeline, 10) + ") - " +
+				strconv.FormatInt(stageLog.Workflow, 10) + "(" + strconv.FormatInt(stageLog.FromWorkflow, 10) + ") - " +
 				strconv.FormatInt(stageLog.ID, 10) + "(" + strconv.FormatInt(stageLog.FromStage, 10) + ")"
 			authMap["time"] = time.Now().Format("2006-01-02 15:04:05")
 
@@ -680,7 +680,7 @@ func (stageLog *StageLog) Start() {
 		authMap["type"] = AuthTyptStageStartDone
 		authMap["token"] = AuthTokenDefault
 		authMap["authorizer"] = "system - " + stageLog.Namespace + " - " + stageLog.Repository + " - " +
-			strconv.FormatInt(stageLog.Pipeline, 10) + "(" + strconv.FormatInt(stageLog.FromPipeline, 10) + ") - " +
+			strconv.FormatInt(stageLog.Workflow, 10) + "(" + strconv.FormatInt(stageLog.FromWorkflow, 10) + ") - " +
 			strconv.FormatInt(stageLog.ID, 10) + "(" + strconv.FormatInt(stageLog.FromStage, 10) + ")"
 		authMap["time"] = time.Now().Format("2006-01-02 15:04:05")
 
@@ -696,13 +696,13 @@ func (stageLog *StageLog) Start() {
 func (stageLog *StageLog) Stop(scope, reason string, runState int64) {
 	err := stageLog.GetStageLog().Where("id = ?", stageLog.ID).First(stageLog).Error
 	if err != nil {
-		log.Error("[stageLog's Stop]:error when get pipelinelog info from db:", err.Error())
+		log.Error("[stageLog's Stop]:error when get workflowlog info from db:", err.Error())
 		return
 	}
 
 	actionLogList := make([]models.ActionLog, 0)
 	needStopActionList := make([]models.ActionLog, 0)
-	err = new(models.ActionLog).GetActionLog().Where("pipeline = ?", stageLog.Pipeline).Where("stage = ?", stageLog.ID).Find(&actionLogList).Error
+	err = new(models.ActionLog).GetActionLog().Where("workflow = ?", stageLog.Workflow).Where("stage = ?", stageLog.ID).Find(&actionLogList).Error
 	if err != nil {
 		log.Error("[stageLog's Stop]:error when get actionlog's list from db:", err.Error())
 		return
@@ -729,23 +729,23 @@ func (stageLog *StageLog) Stop(scope, reason string, runState int64) {
 	}
 
 	if reason == StageStopReasonRunFailed || reason == StageStopReasonTimeout {
-		pipelineLogInfo := new(models.PipelineLog)
-		err = pipelineLogInfo.GetPipelineLog().Where("id = ?", stageLog.Pipeline).First(pipelineLogInfo).Error
+		workflowLogInfo := new(models.WorkflowLog)
+		err = workflowLogInfo.GetWorkflowLog().Where("id = ?", stageLog.Workflow).First(workflowLogInfo).Error
 		if err != nil {
-			log.Error("[stageLog's Stop]:error when get pipelineLog ingo from db:", err.Error())
+			log.Error("[stageLog's Stop]:error when get workflowLog ingo from db:", err.Error())
 			return
 		}
 
-		pipeline := new(PipelineLog)
-		pipeline.PipelineLog = pipelineLogInfo
+		workflow := new(WorkflowLog)
+		workflow.WorkflowLog = workflowLogInfo
 
-		pipeline.Stop(reason, runState)
+		workflow.Stop(reason, runState)
 	}
 }
 
 func (stageLog *StageLog) WaitAllActionDone(nextStageCanStartChan chan bool) {
 	actionLogList := make([]models.ActionLog, 0)
-	err := new(models.ActionLog).GetActionLog().Where("pipeline = ?", stageLog.Pipeline).Where("sequence = ?", stageLog.Sequence).Where("stage = ?", stageLog.ID).Find(&actionLogList).Error
+	err := new(models.ActionLog).GetActionLog().Where("workflow = ?", stageLog.Workflow).Where("sequence = ?", stageLog.Sequence).Where("stage = ?", stageLog.ID).Find(&actionLogList).Error
 	if err != nil {
 		log.Error("[stageLog's WaitAllActionDone]:error when get action list from db:", err.Error())
 		stageLog.Stop(StageStopScopeAll, StageStopReasonRunFailed, models.StageLogStateRunFailed)
