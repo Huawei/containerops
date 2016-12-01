@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-export let PIPELINE_START = "pipeline-start",
-    PIPELINE_END = "pipeline-end",
-    PIPELINE_ADD_STAGE = "pipeline-add-stage",
-    PIPELINE_ADD_ACTION = "pipeline-add-action",
-    PIPELINE_STAGE = "pipeline-stage",
-    PIPELINE_ACTION = "pipeline-action",
+export let WORKFLOW_START = "workflow-start",
+    WORKFLOW_END = "workflow-end",
+    WORKFLOW_ADD_STAGE = "workflow-add-stage",
+    WORKFLOW_ADD_ACTION = "workflow-add-action",
+    WORKFLOW_STAGE = "workflow-stage",
+    WORKFLOW_ACTION = "workflow-action",
 
 
     svgStageWidth = 45,
@@ -31,7 +31,7 @@ export let PIPELINE_START = "pipeline-start",
     svgButtonHeight = 30,
 
 
-    pipelineView = null,
+    workflowView = null,
     actionsView = null,
     actionView = [],
     buttonView = null,
@@ -40,7 +40,7 @@ export let PIPELINE_START = "pipeline-start",
     clickNodeData = {},
     linePathAry = [],
 
-    sequencePipelineView = null,
+    sequenceWorkflowView = null,
     sequenceActionsView = null,
     sequenceActionLinkView = null,
     sequenceActionView = [],
@@ -52,11 +52,11 @@ export let PIPELINE_START = "pipeline-start",
     sequenceRunStatus = null,
     refreshSequenceRunData = [],
 
-    PipelineNodeSpaceSize = 200,
+    WorkflowNodeSpaceSize = 200,
     ActionNodeSpaceSize = 75,
 
-    pipelineNodeStartX = 0,
-    pipelineNodeStartY = 0,
+    workflowNodeStartX = 0,
+    workflowNodeStartY = 0,
 
     svgWidth = 0,
     svgHeight = 0,
@@ -81,8 +81,8 @@ export let PIPELINE_START = "pipeline-start",
     rectBackgroundY = 15;
 
 
-export function setPipelineView(v) {
-    pipelineView = v;
+export function setWorkflowView(v) {
+    workflowView = v;
 }
 
 export function setActionsView(v) {
@@ -114,8 +114,8 @@ export function setLinePathAry(v) {
 }
 
 
-export function setPipelineNodeSpaceSize(v) {
-    PipelineNodeSpaceSize = v;
+export function setWorkflowNodeSpaceSize(v) {
+    WorkflowNodeSpaceSize = v;
 }
 
 export function setActionNodeSpaceSize(v) {
@@ -123,12 +123,12 @@ export function setActionNodeSpaceSize(v) {
 }
 
 
-export function setPipelineNodeStartX(v) {
-    pipelineNodeStartX = v;
+export function setWorkflowNodeStartX(v) {
+    workflowNodeStartX = v;
 }
 
-export function setPipelineNodeStartY(v) {
-    pipelineNodeStartY = v;
+export function setWorkflowNodeStartY(v) {
+    workflowNodeStartY = v;
 }
 
 

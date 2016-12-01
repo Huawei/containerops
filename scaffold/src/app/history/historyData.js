@@ -17,26 +17,26 @@ limitations under the License.
 import {historyApi} from "../common/api";
 
 
-export function getPipelineHistories( ){
-    return historyApi.pipelineHistories( );
+export function getWorkflowHistories( ){
+    return historyApi.workflowHistories( );
 }
 
-export function getPipelineHistory(pipelineName,versionName,pipelineRunSequence){
-    return historyApi.pipelineHistory(pipelineName,versionName,pipelineRunSequence);
+export function getWorkflowHistory(workflowName,versionName,workflowRunSequence){
+    return historyApi.workflowHistory(workflowName,versionName,workflowRunSequence);
 }
 
-export function getActionRunHistory(pipelineName,versionName,pipelineRunSequence,stageName,actionName){
-    return historyApi.action(pipelineName,versionName,pipelineRunSequence,stageName,actionName);
+export function getActionRunHistory(workflowName,versionName,workflowRunSequence,stageName,actionName){
+    return historyApi.action(workflowName,versionName,workflowRunSequence,stageName,actionName);
 }
 
-export function getLineDataInfo(pipelineName,versionName,pipelineRunSequence,sequenceLineId){
-    return historyApi.relation(pipelineName,versionName,pipelineRunSequence,sequenceLineId);
+export function getLineDataInfo(workflowName,versionName,workflowRunSequence,sequenceLineId){
+    return historyApi.relation(workflowName,versionName,workflowRunSequence,sequenceLineId);
 }
 
 
 
-// export function sequenceData(pipelineName,versionID,pipelineRunSequenceID){
-//     return historyApi.sequenceData(pipelineName,versionID,pipelineRunSequenceID);
+// export function sequenceData(workflowName,versionID,workflowRunSequenceID){
+//     return historyApi.sequenceData(workflowName,versionID,workflowRunSequenceID);
 // }
 
 // export function sequenceList( ){

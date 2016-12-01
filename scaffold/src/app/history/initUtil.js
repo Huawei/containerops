@@ -26,9 +26,9 @@ export function draged(d) {
             .attr("transform", "translate(" + d3.event.x + "," + d3.event.y + ") scale(" + scale + ")");
 
     } else {
-        var scale = Number(constant.sequencePipelineView.attr("scale"));
+        var scale = Number(constant.sequenceWorkflowView.attr("scale"));
         var translate = "translate(" + (d3.event.x) + "," + (d3.event.y) + ") scale(" + scale + ")";
-        var targetCollection = [constant.sequencePipelineView, constant.sequenceActionsView, constant.sequenceLinesView];
+        var targetCollection = [constant.sequenceWorkflowView, constant.sequenceActionsView, constant.sequenceLinesView];
         _.each(targetCollection, function(target) {
             target
                 .attr("translateX", d3.event.x)
@@ -51,7 +51,7 @@ function redraw(d) {
             .attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
             .attr("scale", d3.event.scale)
     } else {
-        var targetCollection = [constant.sequencePipelineView, constant.sequenceActionsView, constant.sequenceLinesView];
+        var targetCollection = [constant.sequenceWorkflowView, constant.sequenceActionsView, constant.sequenceLinesView];
         _.each(targetCollection, function(target) {
             target
                 .attr("translateX", d3.event.translate[0])
@@ -66,7 +66,7 @@ export function zoomed(type, target, scaleObj) {
     var currentTranslateX = Number(target.attr("translateX"));
     var currentTranslateY = Number(target.attr("translateY"));
     var currentTranslate = [currentTranslateX, currentTranslateY];
-    // zoom.scale(scale).translate(currentTranslate).event(constant.pipelineView);
+    // zoom.scale(scale).translate(currentTranslate).event(constant.workflowView);
     d3.transition().duration(constant.zoomDuration).tween("zoom", function() {
         if (type == "zoomin") {
             scaleObj.zoomTargetScale = (scaleObj.zoomScale + constant.zoomFactor) <= constant.zoomMaximum ? (scaleObj.zoomScale + constant.zoomFactor) : constant.zoomMaximum;
@@ -198,6 +198,6 @@ export function initButton() {
         .style({
             "fill": "#f7f7f7"
         });
-    sequenceUtil.showZoomBtn(1, "zoomin", constant.sequenceButtonView, constant.sequencePipelineView, scaleObj);
-    sequenceUtil.showZoomBtn(2, "zoomout", constant.sequenceButtonView, constant.sequencePipelineView, scaleObj);
+    sequenceUtil.showZoomBtn(1, "zoomin", constant.sequenceButtonView, constant.sequenceWorkflowView, scaleObj);
+    sequenceUtil.showZoomBtn(2, "zoomout", constant.sequenceButtonView, constant.sequenceWorkflowView, scaleObj);
 }

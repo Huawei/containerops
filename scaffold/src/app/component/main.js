@@ -149,7 +149,7 @@ function showNoComponent(){
     });
 }
 
-export function showNewComponent(fromPipeline){
+export function showNewComponent(fromWorkflow){
     $.ajax({
         url: "../../templates/component/newComponent.html",
         type: "GET",
@@ -177,9 +177,9 @@ export function showNewComponent(fromPipeline){
                 }
             })
             $("#cancelNewComponentBtn").on('click',function(){
-                if(fromPipeline){
+                if(fromWorkflow){
                     $(".menu-component").parent().removeClass("active");
-                    $(".menu-pipeline").parent().addClass("active");
+                    $(".menu-workflow").parent().addClass("active");
                 }
                 cancelNewComponentPage();
             })
@@ -371,18 +371,18 @@ function beforeShowNewComponent(){
     }
 }
 
-// $("#pipeline-select").on('change',function(){
+// $("#workflow-select").on('change',function(){
 //     showVersionList();
 // })
 // $("#version-select").on('change',function(){
-//     showPipeline();
+//     showWorkflow();
 // })
 
-// function showPipelineList(){
-//     $("#pipeline-select").empty();
-//     d3.select("#pipeline-select")
+// function showWorkflowList(){
+//     $("#workflow-select").empty();
+//     d3.select("#workflow-select")
 //         .selectAll("option")
-//         .data(allPipelines)
+//         .data(allWorkflows)
 //         .enter()
 //         .append("option")
 //         .attr("value",function(d,i){
@@ -391,16 +391,16 @@ function beforeShowNewComponent(){
 //         .text(function(d,i){
 //             return d.name;
 //         }); 
-//      $("#pipeline-select").select2({
+//      $("#workflow-select").select2({
 //        minimumResultsForSearch: Infinity
 //      });   
 //     showVersionList();
 // }
 
 // function showVersionList(){
-//     var pipeline = $("#pipeline-select").val();
-//     var versions = _.find(allPipelines,function(item){
-//         return item.name == pipeline;
+//     var workflow = $("#workflow-select").val();
+//     var versions = _.find(allWorkflows,function(item){
+//         return item.name == workflow;
 //     }).versions;
 
 //     $("#version-select").empty();
@@ -421,5 +421,5 @@ function beforeShowNewComponent(){
     
 //     versions_shown = versions;
 
-//     showPipeline(); 
+//     showWorkflow(); 
 // }

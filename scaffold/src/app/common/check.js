@@ -18,26 +18,26 @@ import {notify} from "../common/notify";
 import * as constant from "../common/constant";
 
 // validate
-export function pipelineCheck(data){
+export function workflowCheck(data){
     var completeness = true;
     for(var index=0;index<data.length;index++){
         var item = data[index];
-        if(item.type == constant.PIPELINE_START){
-           completeness = checkPipelineStart(item);
-        }else if(item.type == constant.PIPELINE_STAGE){
-           completeness = checkPipelineStage(item,index);
+        if(item.type == constant.WORKFLOW_START){
+           completeness = checkWorkflowStart(item);
+        }else if(item.type == constant.WORKFLOW_STAGE){
+           completeness = checkWorkflowStage(item,index);
         }
         if(!completeness){
             break;
         }
     }
     if(completeness){
-        notify("Pipeline is available.","success");
+        notify("Workflow is available.","success");
     }
     return completeness;
 }
 
-function checkPipelineStart(data){
+function checkWorkflowStart(data){
     var completeness = true;
     if(_.isUndefined(data.outputJson) || _.isEmpty(data.outputJson)){
         notify("No any outputs found ---- < Start stage >","info");
@@ -62,7 +62,7 @@ function checkPipelineStart(data){
     return completeness;
 }
 
-function checkPipelineStage(data,index){
+function checkWorkflowStage(data,index){
     var completeness = true;
     if(_.isUndefined(data.setupData) || _.isEmpty(data.setupData)){
         notify("Base config missed ---- < Stage No. " + index+" >","info");
@@ -81,7 +81,7 @@ function checkPipelineStage(data,index){
     
     for(var i=0;i<data.actions.length;i++){
         var item = data.actions[i];
-        completeness = checkPipelineAction(item,index,i);
+        completeness = checkWorkflowAction(item,index,i);
         if(!completeness){
             break;
         }
@@ -90,7 +90,7 @@ function checkPipelineStage(data,index){
     return completeness;
 }
 
-function checkPipelineAction(data,stageindex,actionindex){
+function checkWorkflowAction(data,stageindex,actionindex){
     var completeness = true;
     if(_.isUndefined(data.outputJson) || _.isEmpty(data.outputJson)){
         notify("Output json missed ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");

@@ -10,16 +10,16 @@
     See the License for the specific language governing permissions and
     limitations under the License. 
 -->
-<div id="pipelinedesign" class="hidden-div">
+<div id="workflowdesign" class="hidden-div">
     <div class="h5 row" id="designerMenubar">
         <div style="float:left;">
             <span class="btn backtolist" title="back to list" style="float:left;"></span>
-            <div id="selected_pipeline" class="selected-pipeline-text"></div>
-            <span class="pipeline-state"></span>
+            <div id="selected_workflow" class="selected-workflow-text"></div>
+            <span class="workflow-state"></span>
         </div> 
         <div style="margin-top:-0.6em;float:right;">
             <div style="float:right" class="btn-toolbar">
-                <button type="button" class="btn btn-info checkpipeline">
+                <button type="button" class="btn btn-info checkworkflow">
                     <i class="glyphicon glyphicon-check" style="font-size:16px"></i>
                     <span style="margin-left:5px">Check</span>
                 </button>
@@ -30,18 +30,18 @@
                         <i class="fa fa-caret-down"></i>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item savepipeline">Save</a></li>
+                        <li><a class="dropdown-item saveworkflow">Save</a></li>
                         <li class="dropdown-divider"></li>
-                        <li><a class="dropdown-item newpipelineversion">Save As New Version</a></li>
+                        <li><a class="dropdown-item newworkflowversion">Save As New Version</a></li>
                     </ul>
                 </div>
                 <button type="button" class="btn btn-inverse loghistory">
                     <i class="fa fa-history" style="font-size:16px"></i>
                     <span style="margin-left:5px">History</span>
                 </button>
-                <button type="button" class="btn btn-success newpipelineindesigner">
+                <button type="button" class="btn btn-success newworkflowindesigner">
                     <i class="glyphicon glyphicon-plus" style="font-size:16px"></i>
-                    <span style="margin-left:5px">New PipeLine</span>
+                    <span style="margin-left:5px">New WorkFlow</span>
                 </button>
                 <button type="button" class="btn btn-warning envsetting">
                     <i class="glyphicon glyphicon-cog" style="font-size:16px"></i>
@@ -65,7 +65,7 @@
                         <span class="glyphicon glyphicon-option-horizontal designer-split" draggable="true"></span>
                     </h5>
                 </header>
-                <div class="widget-body" id="pipeline-info-edit">
+                <div class="widget-body" id="workflow-info-edit">
                 </div>    
             </section>
         </div>

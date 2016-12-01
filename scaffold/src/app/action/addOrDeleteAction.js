@@ -15,23 +15,23 @@ limitations under the License.
  */
 
 import * as constant from "../common/constant";
-import { pipelineData } from "../pipeline/main";
+import { workflowData } from "../workflow/main";
 import * as util from "../common/util";
 
 export function addAction(actions) {
     actions.splice(
         actions.length,
         0, {
-            id: constant.PIPELINE_ACTION + "-" + uuid.v1(),
-            type: constant.PIPELINE_ACTION,
+            id: constant.WORKFLOW_ACTION + "-" + uuid.v1(),
+            type: constant.WORKFLOW_ACTION,
             setupData: {}
         });
 
 }
 
 export function deleteAction(data, index) {
-    _.each(pipelineData, function(stage){
-        if(stage.type == constant.PIPELINE_STAGE && stage.actions && stage.actions.length > 0){
+    _.each(workflowData, function(stage){
+        if(stage.type == constant.WORKFLOW_STAGE && stage.actions && stage.actions.length > 0){
             _.each(stage.actions, function(action){
                 if(action.id == data.id){
                     stage.actions = _.without(stage.actions, action);
