@@ -50,13 +50,13 @@ func setSystemEvent(db *gorm.DB, actionLog *models.ActionLog) error {
 		}
 	}
 
-	pipelineLog := new(models.PipelineLog)
-	err := db.Model(&models.PipelineLog{}).Where("id = ?", actionLog.Pipeline).First(pipelineLog).Error
+	workflowLog := new(models.WorkflowLog)
+	err := db.Model(&models.WorkflowLog{}).Where("id = ?", actionLog.Workflow).First(workflowLog).Error
 	if err != nil {
-		log.Error("[setSystemEvent]:error when get pipelinelog info from db:", err.Error())
+		log.Error("[setSystemEvent]:error when get workflowlog info from db:", err.Error())
 		rollbackErr := db.Rollback().Error
 		if rollbackErr != nil {
-			log.Error("[setSystemEvent]:when rollback in get pipelinelog's info:", rollbackErr.Error())
+			log.Error("[setSystemEvent]:when rollback in get workflowlog's info:", rollbackErr.Error())
 			return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
 		}
 		return err
@@ -68,20 +68,20 @@ func setSystemEvent(db *gorm.DB, actionLog *models.ActionLog) error {
 		tempEvent.Title = key
 		tempEvent.Namespace = actionLog.Namespace
 		tempEvent.Repository = actionLog.Repository
-		tempEvent.Pipeline = actionLog.Pipeline
+		tempEvent.Workflow = actionLog.Workflow
 		tempEvent.Stage = actionLog.Stage
 		tempEvent.Action = actionLog.ID
 		tempEvent.Character = models.CharacterComponentEvent
 		tempEvent.Type = models.TypeSystemEvent
 		tempEvent.Source = models.SourceInnerEvent
-		tempEvent.Definition = projectAddr + "/v2/" + actionLog.Namespace + "/" + actionLog.Repository + "/workflow/v1/event/" + pipelineLog.Pipeline + "/" + value
+		tempEvent.Definition = projectAddr + "/v2/" + actionLog.Namespace + "/" + actionLog.Repository + "/workflow/v1/event/" + workflowLog.Workflow + "/" + value
 
 		err := db.Save(tempEvent).Error
 		if err != nil {
 			log.Error("[setSystemEvent]:error when save event definition to db:", err.Error())
 			rollbackErr := db.Rollback().Error
 			if rollbackErr != nil {
-				log.Error("[setSystemEvent]:when rollback in get pipelinelog's info:", rollbackErr.Error())
+				log.Error("[setSystemEvent]:when rollback in get workflowlog's info:", rollbackErr.Error())
 				return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
 			}
 			return err
@@ -141,7 +141,7 @@ func RecordEventInfo(eventDefineId, sequence int64, headerInfo, payload, authInf
 
 		if len(eventDefineInfo) > 4 {
 			pipelinInt, _ := strconv.ParseInt(eventDefineInfo[4], 10, 64)
-			eventDefine.Pipeline = pipelinInt
+			eventDefine.Workflow = pipelinInt
 		}
 
 		if len(eventDefineInfo) > 5 {
@@ -172,7 +172,7 @@ func RecordEventInfo(eventDefineId, sequence int64, headerInfo, payload, authInf
 	event.Character = eventDefine.Character
 	event.Namespace = eventDefine.Namespace
 	event.Repository = eventDefine.Repository
-	event.Pipeline = eventDefine.Pipeline
+	event.Workflow = eventDefine.Workflow
 	event.Stage = eventDefine.Stage
 	event.Action = eventDefine.Action
 	event.Sequence = sequence
@@ -184,4 +184,67 @@ func RecordEventInfo(eventDefineId, sequence int64, headerInfo, payload, authInf
 	}
 
 	return nil
+}
+
+func SetWorkflowVarInfo(id int64, varMap map[string]interface{}) error {
+	db := models.GetDB()
+	err := db.Begin().Error
+	if err != nil {
+		log.Error("[workflowVar's SetWorkflowVarInfo]:when db.Begin():", err.Error())
+		return errors.New("error when db.Begin")
+	}
+
+	for key, defaultValue := range varMap {
+		varSet := new(models.WorkflowVar)
+		err := db.Model(varSet).Where("workflow = ?", id).Where("key = ?", key).First(varSet).Error
+		if err != nil && err.Error() != "record not found" {
+			log.Error("[workflowVar's SetWorkflowVarInfo]:when query var info from db:", err.Error())
+			rollbackErr := db.Rollback().Error
+			if rollbackErr != nil {
+				log.Error("[workflowVar's SetWorkflowVarInfo]:when rollback in get var info got err:", rollbackErr.Error())
+				return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
+			}
+			return errors.New("error when get var info from db:" + err.Error())
+		}
+
+		defaultValueStr, ok := defaultValue.(string)
+		if !ok {
+			log.Error("[workflowVar's SetWorkflowVarInfo]:error when pase default value, want a string,got:", defaultValue)
+			return errors.New("var's vaule is not string")
+		}
+
+		varSet.Workflow = id
+		varSet.Key = key
+		varSet.Default = defaultValueStr
+
+		err = varSet.GetWorkflowVar().Save(varSet).Error
+		if err != nil {
+			log.Error("[workflowVar's SetWorkflowVarInfo]:when save var info from db:", err.Error())
+			rollbackErr := db.Rollback().Error
+			if rollbackErr != nil {
+				log.Error("[workflowVar's SetWorkflowVarInfo]:when rollback in save var info got err:", rollbackErr.Error())
+				return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
+			}
+			return errors.New("error when save var info")
+		}
+	}
+
+	return nil
+}
+
+func GetWorkflowVarInfo(id int64) (map[string]string, error) {
+	resultMap := make(map[string]string)
+	varList := make([]models.WorkflowVar, 0)
+
+	err := new(models.WorkflowVar).GetWorkflowVar().Where("workflow = ?", id).Find(&varList).Error
+	if err != nil {
+		log.Error("[workflowVar's GetWorkflowVarInfo]:error when get var list from db:", err.Error())
+		return nil, errors.New("error when get var info from db")
+	}
+
+	for _, varInfo := range varList {
+		resultMap[varInfo.Key] = varInfo.Default
+	}
+
+	return resultMap, nil
 }

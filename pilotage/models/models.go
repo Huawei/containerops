@@ -51,7 +51,7 @@ func Migrate() {
 	OpenDatabase()
 
 	db.AutoMigrate(&ServiceDefinition{}, &Service{}, &Component{})
-	db.AutoMigrate(&Pipeline{}, &PipelineLog{}, &PipelineSequence{}, &Stage{}, &StageLog{}, &Action{}, &ActionLog{}, &Outcome{})
+	db.AutoMigrate(&Workflow{}, &WorkflowLog{}, &WorkflowSequence{}, &WorkflowVar{}, &RuntimeWorkflowVar{}, &Stage{}, &StageLog{}, &Action{}, &ActionLog{}, &Outcome{})
 	db.AutoMigrate(&EventDefinition{}, &Event{}, &EventJson{})
 
 	log.Info("AutMigrate database structs.")

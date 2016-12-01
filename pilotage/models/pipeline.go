@@ -23,57 +23,57 @@ import (
 )
 
 const (
-	// PipelineStateDisable is the state that pipeline is disabled ,can't start
-	PipelineStateDisable = iota
-	// PipelineStateAble is the state that pipeline can start
-	PipelineStateAble
+	// WorkflowStateDisable is the state that workflow is disabled ,can't start
+	WorkflowStateDisable = iota
+	// WorkflowStateAble is the state that workflow can start
+	WorkflowStateAble
 )
 
 const (
-	// PipelineLogStateCanListen is the state that current pipelineLog can be listen (one pipelinelog only can listen one time)
-	PipelineLogStateCanListen = iota
-	// PipelineLogStateWaitToStart is the state that pipeline is wait to start(may because lack some condition to start)
-	PipelineLogStateWaitToStart
-	// PipelineLogStateDoing is the state that pipeline is working
-	PipelineLogStateDoing
-	// PipelineLogStateRunSuccess is the state that at this time, pipeline run result is success
-	PipelineLogStateRunSuccess
-	// PipelineLogStateRunFailed is the state that at this time, pipeline run result is failed
-	PipelineLogStateRunFailed
+	// WorkflowLogStateCanListen is the state that current workflowLog can be listen (one workflowlog only can listen one time)
+	WorkflowLogStateCanListen = iota
+	// WorkflowLogStateWaitToStart is the state that workflow is wait to start(may because lack some condition to start)
+	WorkflowLogStateWaitToStart
+	// WorkflowLogStateDoing is the state that workflow is working
+	WorkflowLogStateDoing
+	// WorkflowLogStateRunSuccess is the state that at this time, workflow run result is success
+	WorkflowLogStateRunSuccess
+	// WorkflowLogStateRunFailed is the state that at this time, workflow run result is failed
+	WorkflowLogStateRunFailed
 )
 
 const (
-	//StageTypeStart is the Stage type being the start the pipeline.
+	//StageTypeStart is the Stage type being the start the workflow.
 	StageTypeStart = iota
-	//StageTypeEnd is the Stage type being the end of the pipeline.
+	//StageTypeEnd is the Stage type being the end of the workflow.
 	StageTypeEnd
-	//StageTypeRun is the Stage type being the running stage of pipeline.
+	//StageTypeRun is the Stage type being the running stage of workflow.
 	StageTypeRun
 )
 
 const (
 	// StageLogStateCanListen is the state that current stageLog can be listen (one Stagelog only can listen one time)
 	StageLogStateCanListen = iota
-	// StageLogStateWaitToStart is the state that pipeline is wait to start(may because lack some condition to start)
+	// StageLogStateWaitToStart is the state that workflow is wait to start(may because lack some condition to start)
 	StageLogStateWaitToStart
-	// StageLogStateDoing is the state that pipeline is working
+	// StageLogStateDoing is the state that workflow is working
 	StageLogStateDoing
-	// StageLogStateRunSuccess is the state that at this time, pipeline run result is success
+	// StageLogStateRunSuccess is the state that at this time, workflow run result is success
 	StageLogStateRunSuccess
-	// StageLogStateRunFailed is the state that at this time, pipeline run result is failed
+	// StageLogStateRunFailed is the state that at this time, workflow run result is failed
 	StageLogStateRunFailed
 )
 
 const (
 	// ActionLogStateCanListen is the state that current actionLog can be listen (one Actionlog only can listen one time)
 	ActionLogStateCanListen = iota
-	// ActionLogStateWaitToStart is the state that pipeline is wait to start(may because lack some condition to start)
+	// ActionLogStateWaitToStart is the state that workflow is wait to start(may because lack some condition to start)
 	ActionLogStateWaitToStart
-	// ActionLogStateDoing is the state that pipeline is working
+	// ActionLogStateDoing is the state that workflow is working
 	ActionLogStateDoing
-	// ActionLogStateRunSuccess is the state that at this time, pipeline run result is success
+	// ActionLogStateRunSuccess is the state that at this time, workflow run result is success
 	ActionLogStateRunSuccess
-	// ActionLogStateRunFailed is the state that at this time, pipeline run result is failed
+	// ActionLogStateRunFailed is the state that at this time, workflow run result is failed
 	ActionLogStateRunFailed
 )
 
@@ -89,76 +89,76 @@ const (
 
 var (
 	//StageTypeForWeb is the stage type that use for web display
-	StageTypeForWeb = []string{"pipeline-start", "pipeline-end", "pipeline-stage"}
+	StageTypeForWeb = []string{"workflow-start", "workflow-end", "workflow-stage"}
 )
 
-//Pipeline is DevOps workflow definition unit.
-type Pipeline struct {
+//Workflow is DevOps workflow definition unit.
+type Workflow struct {
 	ID          int64      `json:"id" gorm:"primary_key"`                       //
 	Namespace   string     `json:"namespace" sql:"not null;type:varchar(255)"`  //Username or organization
 	Repository  string     `json:"repository" sql:"not null;type:varchar(255)"` //
-	Pipeline    string     `json:"pipeline" sql:"not null;type:varchar(255)"`   //pipeline name
+	Workflow    string     `json:"workflow" sql:"not null;type:varchar(255)"`   //workflow name
 	Event       int64      `json:"event" sql:"null;default:0"`                  //
-	Version     string     `json:"version" sql:"null;type:varchar(255)"`        //User define Pipeline version
-	VersionCode int64      `json:"versionCode" sql:"null;type:varchar(255)"`    //System define Pipeline version,unique,for query
-	State       int64      `json:"state" sql:"null;type:bigint"`                //pipeline state
+	Version     string     `json:"version" sql:"null;type:varchar(255)"`        //User define Workflow version
+	VersionCode int64      `json:"versionCode" sql:"null;type:varchar(255)"`    //System define Workflow version,unique,for query
+	State       int64      `json:"state" sql:"null;type:bigint"`                //workflow state
 	Manifest    string     `json:"manifest" sql:"null;type:longtext"`           //
 	Description string     `json:"description" sql:"null;type:text"`            //
 	SourceInfo  string     `json:"source"`                                      // define of source like : {"token":"","sourceList":[{"sourceType":"Github","headerKey":"X-Hub-Signature","eventList":",pull request,"]}
-	Env         string     `json:"env" sql:"null;type:longtext"`                // env that all action in this pipeline will get
-	Requires    string     `json:"requires" sql:"type:longtext"`                // pipeline run requires auth
+	Env         string     `json:"env" sql:"null;type:longtext"`                // env that all action in this workflow will get
+	Requires    string     `json:"requires" sql:"type:longtext"`                // workflow run requires auth
 	CreatedAt   time.Time  `json:"created" sql:""`                              //
 	UpdatedAt   time.Time  `json:"updated" sql:""`                              //
 	DeletedAt   *time.Time `json:"deleted" sql:"index"`                         //
 }
 
-//TableName is return the table name of Pipeline in MySQL database.
-func (p *Pipeline) TableName() string {
-	return "pipeline"
+//TableName is return the table name of Workflow in MySQL database.
+func (p *Workflow) TableName() string {
+	return "workflow"
 }
 
-func (p *Pipeline) GetPipeline() *gorm.DB {
-	return db.Model(&Pipeline{})
+func (p *Workflow) GetWorkflow() *gorm.DB {
+	return db.Model(&Workflow{})
 }
 
-//PipelineLog is pipeline run history log.
-type PipelineLog struct {
+//WorkflowLog is workflow run history log.
+type WorkflowLog struct {
 	ID           int64      `json:"id" gorm:"primary_key"`                       //
 	Namespace    string     `json:"namespace" sql:"not null;type:varchar(255)"`  //Username or organization
 	Repository   string     `json:"repository" sql:"not null;type:varchar(255)"` //
-	Pipeline     string     `json:"pipeline" sql:"not null;type:varchar(255)"`   //pipeline name
-	FromPipeline int64      `json:"fromPipeline" sql:"not null;default:0"`       //
-	Version      string     `json:"version" sql:"null;type:varchar(255)"`        //User define Pipeline version
-	VersionCode  int64      `json:"versionCode" sql:"null;type:varchar(255)"`    //System define Pipeline version,unique,for query
-	Sequence     int64      `json:"sequence" sql:"not null;default:0"`           //pipeline run sequence
-	RunState     int64      `json:"runState" sql:"null;type:bigint"`             //pipeline run state
+	Workflow     string     `json:"workflow" sql:"not null;type:varchar(255)"`   //workflow name
+	FromWorkflow int64      `json:"fromWorkflow" sql:"not null;default:0"`       //
+	Version      string     `json:"version" sql:"null;type:varchar(255)"`        //User define Workflow version
+	VersionCode  int64      `json:"versionCode" sql:"null;type:varchar(255)"`    //System define Workflow version,unique,for query
+	Sequence     int64      `json:"sequence" sql:"not null;default:0"`           //workflow run sequence
+	RunState     int64      `json:"runState" sql:"null;type:bigint"`             //workflow run state
 	Event        int64      `json:"event" sql:"null;default:0"`                  //
 	Manifest     string     `json:"manifest"sql:"null;type:longtext"`            //
 	Description  string     `json:"description" sql:"null;type:text"`            //
 	SourceInfo   string     `json:"source"`                                      // define of source like : [{"sourceType":"Github","headerKey":"X-Hub-Signature","eventList":",pull request,","secretKey":"asdfFDSA!@d12"}]
-	Env          string     `json:"env" sql:"null;type:longtext"`                // env that all action in this pipeline will get
-	Requires     string     `json:"requires" sql:"type:longtext"`                // pipeline run requires auth
+	Env          string     `json:"env" sql:"null;type:longtext"`                // env that all action in this workflow will get
+	Requires     string     `json:"requires" sql:"type:longtext"`                // workflow run requires auth
 	AuthList     string     `json:"authList" sql:"type:longtext"`                //
 	CreatedAt    time.Time  `json:"created" sql:""`                              //
 	UpdatedAt    time.Time  `json:"updated" sql:""`                              //
 	DeletedAt    *time.Time `json:"deleted" sql:"index"`                         //
 }
 
-//TableName is return the table name of Pipeline in MySQL database.
-func (p *PipelineLog) TableName() string {
-	return "pipeline_log"
+//TableName is return the table name of Workflow in MySQL database.
+func (p *WorkflowLog) TableName() string {
+	return "workflow_log"
 }
 
-func (p *PipelineLog) GetPipelineLog() *gorm.DB {
-	return db.Model(&PipelineLog{})
+func (p *WorkflowLog) GetWorkflowLog() *gorm.DB {
+	return db.Model(&WorkflowLog{})
 }
 
-//Stage is Pipeline unit.
+//Stage is Workflow unit.
 type Stage struct {
 	ID          int64      `json:"id" gorm:"primary_key"`                       //
 	Namespace   string     `json:"namespace" sql:"not null;type:varchar(255)"`  //Username or organization
 	Repository  string     `json:"repository" sql:"not null;type:varchar(255)"` //
-	Pipeline    int64      `json:"pipeline" sql:"not null;default:0"`           //Pipeline's ID.
+	Workflow    int64      `json:"workflow" sql:"not null;default:0"`           //Workflow's ID.
 	Type        int64      `json:"type" sql:"not null;default:0"`               //StageTypeStart, StageTypeEnd or StageTypeRun
 	PreStage    int64      `json:"preStage" sql:"not null;default:0"`           //Pre stage ID ,first stage is -1
 	Stage       string     `json:"stage" sql:"not null;type:varchar(255)"`      //Stage name for query.
@@ -168,7 +168,7 @@ type Stage struct {
 	Manifest    string     `json:"manifest" sql:"null;type:longtext"`           //
 	Env         string     `json:"env" sql:"null;type:longtext"`                //
 	Timeout     int64      `json:"timeout"`                                     //
-	Requires    string     `json:"requires" sql:"type:longtext"`                // pipeline run requires auth
+	Requires    string     `json:"requires" sql:"type:longtext"`                // workflow run requires auth
 	CreatedAt   time.Time  `json:"created" sql:""`                              //
 	UpdatedAt   time.Time  `json:"updated" sql:""`                              //
 	DeletedAt   *time.Time `json:"deleted" sql:"index"`                         //
@@ -188,9 +188,9 @@ type StageLog struct {
 	ID           int64      `json:"id" gorm:"primary_key"`                       //
 	Namespace    string     `json:"namespace" sql:"not null;type:varchar(255)"`  //Username or organization
 	Repository   string     `json:"repository" sql:"not null;type:varchar(255)"` //
-	Pipeline     int64      `json:"pipeline" sql:"not null;default:0"`           //PipelineLog's ID.
-	FromPipeline int64      `json:"fromPipeline" sql:"not null;default:0"`       //pipeline's ID.
-	Sequence     int64      `json:"sequence" sql:"not null;default:0"`           //pipeline run sequence
+	Workflow     int64      `json:"workflow" sql:"not null;default:0"`           //WorkflowLog's ID.
+	FromWorkflow int64      `json:"fromWorkflow" sql:"not null;default:0"`       //workflow's ID.
+	Sequence     int64      `json:"sequence" sql:"not null;default:0"`           //workflow run sequence
 	FromStage    int64      `json:"fromStage" sql:"not null;default:0"`          //
 	Type         int64      `json:"type" sql:"not null;default:0"`               //StageTypeStart, StageTypeEnd or StageTypeRun
 	PreStage     int64      `json:"preStage" sql:"not null;default:0"`           //Pre stage ID ,first stage is -1
@@ -202,7 +202,7 @@ type StageLog struct {
 	Manifest     string     `json:"manifest" sql:"null;type:longtext"`           //
 	Env          string     `json:"env" sql:"null;type:longtext"`                //
 	Timeout      int64      `json:"timeout"`                                     //
-	Requires     string     `json:"requires" sql:"type:longtext"`                // pipeline run requires auth
+	Requires     string     `json:"requires" sql:"type:longtext"`                // workflow run requires auth
 	AuthList     string     `json:"authList" sql:"type:longtext"`                //
 	CreatedAt    time.Time  `json:"created" sql:""`                              //
 	UpdatedAt    time.Time  `json:"updated" sql:""`                              //
@@ -223,7 +223,7 @@ type Action struct {
 	ID          int64      `json:"id" gorm:"primary_key"`                       //
 	Namespace   string     `json:"namespace" sql:"not null;type:varchar(255)"`  //Username or organization
 	Repository  string     `json:"repository" sql:"not null;type:varchar(255)"` //
-	Pipeline    int64      `json:"pipeline" sql:"not null;default:0"`           //PipelineLog's ID.
+	Workflow    int64      `json:"workflow" sql:"not null;default:0"`           //WorkflowLog's ID.
 	Stage       int64      `json:"stage" sql:"not null;default:0"`              //
 	Component   int64      `json:"component" sql:"not null;default:0"`          //
 	Service     int64      `json:"service" sql:"not null;default:0"`            //
@@ -239,7 +239,7 @@ type Action struct {
 	Output      string     `json:"input" sql:"null;type:text"`                  //
 	Endpoint    string     `json:"endpoint"`                                    //
 	Timeout     int64      `json:"timeout"`                                     //
-	Requires    string     `json:"requires" sql:"type:longtext"`                // pipeline run requires auth
+	Requires    string     `json:"requires" sql:"type:longtext"`                // workflow run requires auth
 	CreatedAt   time.Time  `json:"created" sql:""`                              //
 	UpdatedAt   time.Time  `json:"updated" sql:""`                              //
 	DeletedAt   *time.Time `json:"deleted" sql:"index"`                         //
@@ -259,9 +259,9 @@ type ActionLog struct {
 	ID           int64      `json:"id" gorm:"primary_key"`                       //
 	Namespace    string     `json:"namespace" sql:"not null;type:varchar(255)"`  //Username or organization
 	Repository   string     `json:"repository" sql:"not null;type:varchar(255)"` //
-	Pipeline     int64      `json:"pipeline" sql:"not null;default:0"`           //PipelineLog's ID.
-	FromPipeline int64      `json:"fromPipeline" sql:"not null;default:0"`       //
-	Sequence     int64      `json:"sequence" sql:"not null;default:0"`           //pipeline run sequence
+	Workflow     int64      `json:"workflow" sql:"not null;default:0"`           //WorkflowLog's ID.
+	FromWorkflow int64      `json:"fromWorkflow" sql:"not null;default:0"`       //
+	Sequence     int64      `json:"sequence" sql:"not null;default:0"`           //workflow run sequence
 	Stage        int64      `json:"stage" sql:"not null;default:0"`              //
 	FromStage    int64      `json:"fromStage" sql:"not null;default:0"`          //
 	FromAction   int64      `json:"fromAction" sql:"not null;default:0"`         //
@@ -280,7 +280,7 @@ type ActionLog struct {
 	Output       string     `json:"input" sql:"null;type:text"`                  //
 	Endpoint     string     `json:"endpoint"`                                    //
 	Timeout      int64      `json:"timeout"`                                     //
-	Requires     string     `json:"requires" sql:"type:longtext"`                // pipeline run requires auth
+	Requires     string     `json:"requires" sql:"type:longtext"`                // workflow run requires auth
 	AuthList     string     `json:"authList" sql:"type:longtext"`                //
 	CreatedAt    time.Time  `json:"created" sql:""`                              //
 	UpdatedAt    time.Time  `json:"updated" sql:""`                              //
@@ -301,14 +301,14 @@ func (a *ActionLog) GetActionLog() *gorm.DB {
 //When StageID point to the StageTypeEnd , the Action ID is -1.
 type Outcome struct {
 	ID           int64      `json:"id" gorm:"primary_key"`                 //
-	Pipeline     int64      `json:"pipeline" sql:"not null;default:0"`     //PipelineLog id
-	RealPipeline int64      `json:"realPipeline" sql:"not null;default:0"` //Pipeline id
+	Workflow     int64      `json:"workflow" sql:"not null;default:0"`     //WorkflowLog id
+	RealWorkflow int64      `json:"realWorkflow" sql:"not null;default:0"` //Workflow id
 	Stage        int64      `json:"stage" sql:"not null;default:0"`        //stageLog id
 	RealStage    int64      `json:"realStage" sql:"not null;default:0"`    //stage id
 	Action       int64      `json:"action" sql:"not null;default:0"`       //actionLog id
 	RealAction   int64      `json:"realAction" sql:"not null;default:0"`   //
 	Event        int64      `json:"event" sql:"null;default:0"`            //event id
-	Sequence     int64      `json:"sequence" sql:"not null;default:0"`     //pipeline run sequence
+	Sequence     int64      `json:"sequence" sql:"not null;default:0"`     //workflow run sequence
 	Status       bool       `json:"status" sql:"null;varchar(255)"`        //
 	Result       string     `json:"result" sql:"null;type:longtext"`       //
 	Output       string     `json:"output" sql:"null;type:longtext"`       //
@@ -326,21 +326,21 @@ func (o *Outcome) GetOutcome() *gorm.DB {
 	return db.Model(&Outcome{})
 }
 
-// pipelineSequence is a table describe pipeline's run sequence
-type PipelineSequence struct {
+// workflowSequence is a table describe workflow's run sequence
+type WorkflowSequence struct {
 	ID        int64      `json:"id" gorm:"primary_key"`             //
-	Pipeline  int64      `json:"pipeline" sql:"not null;default:0"` // pipeline name
-	Sequence  int64      `json:"sequence" sql:"not null;default:0"` //pipeline run sequence
+	Workflow  int64      `json:"workflow" sql:"not null;default:0"` // workflow name
+	Sequence  int64      `json:"sequence" sql:"not null;default:0"` //workflow run sequence
 	CreatedAt time.Time  `json:"created" sql:""`                    //
 	UpdatedAt time.Time  `json:"updated" sql:""`                    //
 	DeletedAt *time.Time `json:"deleted" sql:"index"`               //
 }
 
-//TableName is return the table name of Pipeline in MySQL database.
-func (p *PipelineSequence) TableName() string {
-	return "pipeline_sequence"
+//TableName is return the table name of Workflow in MySQL database.
+func (p *WorkflowSequence) TableName() string {
+	return "workflow_sequence"
 }
 
-func (p *PipelineSequence) GetPipelineSequence() *gorm.DB {
-	return db.Model(&PipelineSequence{})
+func (p *WorkflowSequence) GetWorkflowSequence() *gorm.DB {
+	return db.Model(&WorkflowSequence{})
 }

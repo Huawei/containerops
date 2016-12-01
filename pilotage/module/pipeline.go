@@ -32,128 +32,128 @@ import (
 )
 
 const (
-	PipelineStopReasonTimeout = "TIME_OUT"
+	WorkflowStopReasonTimeout = "TIME_OUT"
 
-	PipelineStopReasonRunSuccess = "RunSuccess"
-	PipelineStopReasonRunFailed  = "RunFailed"
+	WorkflowStopReasonRunSuccess = "RunSuccess"
+	WorkflowStopReasonRunFailed  = "RunFailed"
 )
 
 var (
-	startPipelineChan  chan bool
-	createPipelineChan chan bool
+	startWorkflowChan  chan bool
+	createWorkflowChan chan bool
 
-	pipelinelogAuthChan             chan bool
-	pipelinelogListenChan           chan bool
-	pipelinelogSequenceGenerateChan chan bool
+	workflowlogAuthChan             chan bool
+	workflowlogListenChan           chan bool
+	workflowlogSequenceGenerateChan chan bool
 )
 
 func init() {
-	startPipelineChan = make(chan bool, 1)
-	createPipelineChan = make(chan bool, 1)
-	pipelinelogAuthChan = make(chan bool, 1)
-	pipelinelogListenChan = make(chan bool, 1)
-	pipelinelogSequenceGenerateChan = make(chan bool, 1)
+	startWorkflowChan = make(chan bool, 1)
+	createWorkflowChan = make(chan bool, 1)
+	workflowlogAuthChan = make(chan bool, 1)
+	workflowlogListenChan = make(chan bool, 1)
+	workflowlogSequenceGenerateChan = make(chan bool, 1)
 }
 
-type Pipeline struct {
-	*models.Pipeline
+type Workflow struct {
+	*models.Workflow
 }
 
-type PipelineLog struct {
-	*models.PipelineLog
+type WorkflowLog struct {
+	*models.WorkflowLog
 }
 
-// CreateNewPipeline is create a new pipeline with given data
-func CreateNewPipeline(namespace, repository, pipelineName, pipelineVersion string) (string, error) {
-	createPipelineChan <- true
+// CreateNewWorkflow is create a new workflow with given data
+func CreateNewWorkflow(namespace, repository, workflowName, workflowVersion string) (string, error) {
+	createWorkflowChan <- true
 	defer func() {
-		<-createPipelineChan
+		<-createWorkflowChan
 	}()
 
 	var count int64
-	err := new(models.Pipeline).GetPipeline().Where("namespace = ?", namespace).Where("pipeline = ?", pipelineName).Order("-id").Count(&count).Error
+	err := new(models.Workflow).GetWorkflow().Where("namespace = ?", namespace).Where("workflow = ?", workflowName).Order("-id").Count(&count).Error
 	if err != nil {
-		return "", errors.New("error when query pipeline data in database:" + err.Error())
+		return "", errors.New("error when query workflow data in database:" + err.Error())
 	}
 
 	if count > 0 {
 		return "", errors.New("pipelien name is exist!")
 	}
 
-	pipelineInfo := new(models.Pipeline)
-	pipelineInfo.Namespace = strings.TrimSpace(namespace)
-	pipelineInfo.Repository = strings.TrimSpace(repository)
-	pipelineInfo.Pipeline = strings.TrimSpace(pipelineName)
-	pipelineInfo.Version = strings.TrimSpace(pipelineVersion)
-	pipelineInfo.VersionCode = 1
+	workflowInfo := new(models.Workflow)
+	workflowInfo.Namespace = strings.TrimSpace(namespace)
+	workflowInfo.Repository = strings.TrimSpace(repository)
+	workflowInfo.Workflow = strings.TrimSpace(workflowName)
+	workflowInfo.Version = strings.TrimSpace(workflowVersion)
+	workflowInfo.VersionCode = 1
 
-	err = pipelineInfo.GetPipeline().Save(pipelineInfo).Error
+	err = workflowInfo.GetWorkflow().Save(workflowInfo).Error
 	if err != nil {
-		return "", errors.New("error when save pipeline info:" + err.Error())
+		return "", errors.New("error when save workflow info:" + err.Error())
 	}
 
-	return "create new pipeline success", nil
+	return "create new workflow success", nil
 }
 
-func GetPipelineListByNamespaceAndRepository(namespace, repository string) ([]map[string]interface{}, error) {
+func GetWorkflowListByNamespaceAndRepository(namespace, repository string) ([]map[string]interface{}, error) {
 	resultMap := make([]map[string]interface{}, 0)
-	pipelineList := make([]models.Pipeline, 0)
-	pipelinesMap := make(map[string]interface{}, 0)
-	err := new(models.Pipeline).GetPipeline().Where("namespace = ?", namespace).Where("repository = ?", repository).Order("-updated_at").Find(&pipelineList).Error
+	workflowList := make([]models.Workflow, 0)
+	workflowsMap := make(map[string]interface{}, 0)
+	err := new(models.Workflow).GetWorkflow().Where("namespace = ?", namespace).Where("repository = ?", repository).Order("-updated_at").Find(&workflowList).Error
 	if err != nil && !strings.Contains(err.Error(), "record not found") {
-		log.Error("[pipeline's GetPipelineListByNamespaceAndRepository]error when get pipeline list from db:" + err.Error())
-		return nil, errors.New("error when get pipeline list by namespace and repository from db:" + err.Error())
+		log.Error("[workflow's GetWorkflowListByNamespaceAndRepository]error when get workflow list from db:" + err.Error())
+		return nil, errors.New("error when get workflow list by namespace and repository from db:" + err.Error())
 	}
 
-	for _, pipelineInfo := range pipelineList {
-		if _, ok := pipelinesMap[pipelineInfo.Pipeline]; !ok {
+	for _, workflowInfo := range workflowList {
+		if _, ok := workflowsMap[workflowInfo.Workflow]; !ok {
 			tempMap := make(map[string]interface{})
 			tempMap["version"] = make(map[int64]interface{})
-			pipelinesMap[pipelineInfo.Pipeline] = tempMap
+			workflowsMap[workflowInfo.Workflow] = tempMap
 		}
 
-		pipelineMap := pipelinesMap[pipelineInfo.Pipeline].(map[string]interface{})
-		versionMap := pipelineMap["version"].(map[int64]interface{})
+		workflowMap := workflowsMap[workflowInfo.Workflow].(map[string]interface{})
+		versionMap := workflowMap["version"].(map[int64]interface{})
 
-		versionMap[pipelineInfo.VersionCode] = pipelineInfo
-		pipelineMap["id"] = pipelineInfo.ID
-		pipelineMap["name"] = pipelineInfo.Pipeline
-		pipelineMap["version"] = versionMap
+		versionMap[workflowInfo.VersionCode] = workflowInfo
+		workflowMap["id"] = workflowInfo.ID
+		workflowMap["name"] = workflowInfo.Workflow
+		workflowMap["version"] = versionMap
 	}
 
-	for _, pipeline := range pipelineList {
+	for _, workflow := range workflowList {
 
-		pipelineInfo := pipelinesMap[pipeline.Pipeline].(map[string]interface{})
-		if isSign, ok := pipelineInfo["isSign"].(bool); ok && isSign {
+		workflowInfo := workflowsMap[workflow.Workflow].(map[string]interface{})
+		if isSign, ok := workflowInfo["isSign"].(bool); ok && isSign {
 			continue
 		}
 
-		pipelineInfo["isSign"] = true
-		pipelinesMap[pipeline.Pipeline] = pipelineInfo
+		workflowInfo["isSign"] = true
+		workflowsMap[workflow.Workflow] = workflowInfo
 
 		versionList := make([]map[string]interface{}, 0)
-		for _, pipelineVersion := range pipelineList {
-			if pipelineVersion.Pipeline == pipelineInfo["name"].(string) {
+		for _, workflowVersion := range workflowList {
+			if workflowVersion.Workflow == workflowInfo["name"].(string) {
 				versionMap := make(map[string]interface{})
-				versionMap["id"] = pipelineVersion.ID
-				versionMap["version"] = pipelineVersion.Version
-				versionMap["versionCode"] = pipelineVersion.VersionCode
+				versionMap["id"] = workflowVersion.ID
+				versionMap["version"] = workflowVersion.Version
+				versionMap["versionCode"] = workflowVersion.VersionCode
 
-				latestPipelineLog := new(models.PipelineLog)
-				err := latestPipelineLog.GetPipelineLog().Where("from_pipeline = ?", pipelineVersion.ID).Order("-id").First(latestPipelineLog).Error
+				latestWorkflowLog := new(models.WorkflowLog)
+				err := latestWorkflowLog.GetWorkflowLog().Where("from_workflow = ?", workflowVersion.ID).Order("-id").First(latestWorkflowLog).Error
 				if err != nil {
-					log.Error("[pipeline's GetPipelineListByNamespaceAndRepository]:error when get pipeline's latest run info:", err.Error())
+					log.Error("[workflow's GetWorkflowListByNamespaceAndRepository]:error when get workflow's latest run info:", err.Error())
 				}
 
-				if latestPipelineLog.ID != 0 {
+				if latestWorkflowLog.ID != 0 {
 					statusMap := make(map[string]interface{})
 
 					status := false
-					if latestPipelineLog.RunState != models.PipelineLogStateRunFailed {
+					if latestWorkflowLog.RunState != models.WorkflowLogStateRunFailed {
 						status = true
 					}
 
-					statusMap["time"] = latestPipelineLog.CreatedAt.Format("2006-01-02 15:04:05")
+					statusMap["time"] = latestWorkflowLog.CreatedAt.Format("2006-01-02 15:04:05")
 					statusMap["status"] = status
 
 					versionMap["status"] = statusMap
@@ -164,8 +164,8 @@ func GetPipelineListByNamespaceAndRepository(namespace, repository string) ([]ma
 		}
 
 		tempResult := make(map[string]interface{})
-		tempResult["id"] = pipelineInfo["id"]
-		tempResult["name"] = pipelineInfo["name"]
+		tempResult["id"] = workflowInfo["id"]
+		tempResult["name"] = workflowInfo["name"]
 		tempResult["version"] = versionList
 
 		resultMap = append(resultMap, tempResult)
@@ -174,35 +174,35 @@ func GetPipelineListByNamespaceAndRepository(namespace, repository string) ([]ma
 	return resultMap, nil
 }
 
-func GetPipelineInfo(namespace, repository, pipelineName string, pipelineId int64) (map[string]interface{}, error) {
+func GetWorkflowInfo(namespace, repository, workflowName string, workflowId int64) (map[string]interface{}, error) {
 	resultMap := make(map[string]interface{})
-	pipelineInfo := new(models.Pipeline)
-	err := pipelineInfo.GetPipeline().Where("id = ?", pipelineId).First(&pipelineInfo).Error
+	workflowInfo := new(models.Workflow)
+	err := workflowInfo.GetWorkflow().Where("id = ?", workflowId).First(&workflowInfo).Error
 	if err != nil {
-		return nil, errors.New("error when get pipeline info from db:" + err.Error())
+		return nil, errors.New("error when get workflow info from db:" + err.Error())
 	}
 
-	if pipelineInfo.Namespace != namespace || pipelineInfo.Repository != repository || pipelineInfo.Pipeline != pipelineName {
-		return nil, errors.New("pipeline is not equal to target pipeline")
+	if workflowInfo.Namespace != namespace || workflowInfo.Repository != repository || workflowInfo.Workflow != workflowName {
+		return nil, errors.New("workflow is not equal to target workflow")
 	}
 
-	// get pipeline define json first, if has a define json,return it
-	if pipelineInfo.Manifest != "" {
+	// get workflow define json first, if has a define json,return it
+	if workflowInfo.Manifest != "" {
 		defineMap := make(map[string]interface{})
-		json.Unmarshal([]byte(pipelineInfo.Manifest), &defineMap)
+		json.Unmarshal([]byte(workflowInfo.Manifest), &defineMap)
 
 		if defineInfo, ok := defineMap["define"]; ok {
 			if defineInfoMap, ok := defineInfo.(map[string]interface{}); ok {
-				defineInfoMap["status"] = pipelineInfo.State == models.PipelineStateAble
+				defineInfoMap["status"] = workflowInfo.State == models.WorkflowStateAble
 				return defineInfoMap, nil
 			}
 		}
 	}
 
-	// get all stage info of current pipeline
-	// if a pipeline done have a define of itself
-	// then the pipeline is a new pipeline ,so only get it's stage list is ok
-	stageList, err := getDefaultStageListByPipeline(*pipelineInfo)
+	// get all stage info of current workflow
+	// if a workflow done have a define of itself
+	// then the workflow is a new workflow ,so only get it's stage list is ok
+	stageList, err := getDefaultStageListByWorkflow(*workflowInfo)
 	if err != nil {
 		return nil, err
 	}
@@ -216,23 +216,23 @@ func GetPipelineInfo(namespace, repository, pipelineName string, pipelineId int6
 	return resultMap, nil
 }
 
-func getDefaultStageListByPipeline(pipelineInfo models.Pipeline) ([]map[string]interface{}, error) {
+func getDefaultStageListByWorkflow(workflowInfo models.Workflow) ([]map[string]interface{}, error) {
 	stageListMap := make([]map[string]interface{}, 0)
 
 	startStage := make(map[string]interface{})
 	startStage["id"] = "start-stage"
-	startStage["type"] = "pipeline-start"
+	startStage["type"] = "workflow-start"
 	startStage["setupData"] = make(map[string]interface{})
 	stageListMap = append(stageListMap, startStage)
 
 	addStage := make(map[string]interface{})
 	addStage["id"] = "add-stage"
-	addStage["type"] = "pipeline-add-stage"
+	addStage["type"] = "workflow-add-stage"
 	stageListMap = append(stageListMap, addStage)
 
 	endStage := make(map[string]interface{})
 	endStage["id"] = "end-stage"
-	endStage["type"] = "pipeline-end"
+	endStage["type"] = "workflow-end"
 	endStage["setupData"] = make(map[string]interface{})
 	stageListMap = append(stageListMap, endStage)
 
@@ -291,25 +291,25 @@ func GetStageHistoryInfo(stageLogId int64) (map[string]interface{}, error) {
 	return result, nil
 }
 
-func Run(pipelineId int64, authMap map[string]interface{}, startData string) error {
-	pipelineInfo := new(models.Pipeline)
-	err := pipelineInfo.GetPipeline().Where("id = ?", pipelineId).First(pipelineInfo).Error
+func Run(workflowId int64, authMap map[string]interface{}, startData string) error {
+	workflowInfo := new(models.Workflow)
+	err := workflowInfo.GetWorkflow().Where("id = ?", workflowId).First(workflowInfo).Error
 	if err != nil {
-		log.Error("[pipeline's Run]:error when get pipeline's info from db:", err.Error())
-		return errors.New("error when get target pipeline info:" + err.Error())
+		log.Error("[workflow's Run]:error when get workflow's info from db:", err.Error())
+		return errors.New("error when get target workflow info:" + err.Error())
 	}
-	pipeline := new(Pipeline)
-	pipeline.Pipeline = pipelineInfo
+	workflow := new(Workflow)
+	workflow.Workflow = workflowInfo
 
 	eventName, ok := authMap["eventName"].(string)
 	if !ok {
-		log.Error("[pipeline's Run]:error when parse eventName,want a string, got:", authMap["eventName"])
+		log.Error("[workflow's Run]:error when parse eventName,want a string, got:", authMap["eventName"])
 		return errors.New("error when get eventName")
 	}
 
 	eventType, ok := authMap["eventType"].(string)
 	if !ok {
-		log.Error("[pipeline's Run]:error when parse eventName,want a string, got:", authMap["eventType"])
+		log.Error("[workflow's Run]:error when parse eventName,want a string, got:", authMap["eventType"])
 		return errors.New("error when get eventType")
 	}
 
@@ -317,20 +317,20 @@ func Run(pipelineId int64, authMap map[string]interface{}, startData string) err
 	eventMap["eventName"] = eventName
 	eventMap["eventType"] = eventType
 
-	// first generate a pipeline log to record all current pipeline's info which will be used in feature
-	pipelineLog, err := pipeline.GenerateNewLog(eventMap)
+	// first generate a workflow log to record all current workflow's info which will be used in feature
+	workflowLog, err := workflow.GenerateNewLog(eventMap)
 	if err != nil {
 		return err
 	}
 
-	// let pipeline log listen all auth, if all auth is ok, start run this pipeline log
-	err = pipelineLog.Listen(startData)
+	// let workflow log listen all auth, if all auth is ok, start run this workflow log
+	err = workflowLog.Listen(startData)
 	if err != nil {
 		return err
 	}
 
-	// auth this pipeline log by given auth info
-	err = pipelineLog.Auth(authMap)
+	// auth this workflow log by given auth info
+	err = workflowLog.Auth(authMap)
 	if err != nil {
 		return err
 	}
@@ -338,91 +338,91 @@ func Run(pipelineId int64, authMap map[string]interface{}, startData string) err
 	return nil
 }
 
-func GetPipeline(pipelineId int64) (*Pipeline, error) {
-	if pipelineId == int64(0) {
-		return nil, errors.New("pipeline's id is empty")
+func GetWorkflow(workflowId int64) (*Workflow, error) {
+	if workflowId == int64(0) {
+		return nil, errors.New("workflow's id is empty")
 	}
 
-	pipelineInfo := new(models.Pipeline)
-	err := pipelineInfo.GetPipeline().Where("id = ?", pipelineId).First(pipelineInfo).Error
+	workflowInfo := new(models.Workflow)
+	err := workflowInfo.GetWorkflow().Where("id = ?", workflowId).First(workflowInfo).Error
 	if err != nil {
-		log.Error("[pipeline's GetPipeline]:error when get pipeline info from db:", err.Error())
+		log.Error("[workflow's GetWorkflow]:error when get workflow info from db:", err.Error())
 		return nil, err
 	}
 
-	pipeline := new(Pipeline)
-	pipeline.Pipeline = pipelineInfo
+	workflow := new(Workflow)
+	workflow.Workflow = workflowInfo
 
-	return pipeline, nil
+	return workflow, nil
 }
 
-func GetLatestRunablePipeline(namespace, repository, pipelineName, version string) (*Pipeline, error) {
+func GetLatestRunableWorkflow(namespace, repository, workflowName, version string) (*Workflow, error) {
 	if namespace == "" || repository == "" {
-		log.Error("[pipeline's GetLatestRunablePipeline]:given empty parms:namespace: ===>", namespace, "<===  repository:===>", repository, "<===")
+		log.Error("[workflow's GetLatestRunableWorkflow]:given empty parms:namespace: ===>", namespace, "<===  repository:===>", repository, "<===")
 		return nil, errors.New("parms is empty")
 	}
 
-	pipelineInfo := new(models.Pipeline)
-	query := pipelineInfo.GetPipeline().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("pipeline = ?", pipelineName)
+	workflowInfo := new(models.Workflow)
+	query := workflowInfo.GetWorkflow().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("workflow = ?", workflowName)
 
 	if version != "" {
 		query = query.Where("version = ?", version)
 	}
 
-	err := query.Where("state = ?", models.PipelineStateAble).Order("-id").First(&pipelineInfo).Error
+	err := query.Where("state = ?", models.WorkflowStateAble).Order("-id").First(&workflowInfo).Error
 	if err != nil {
-		log.Error("[pipeline's GetLatestRunablePipeline]:error when get pipeline info from db:", err.Error())
+		log.Error("[workflow's GetLatestRunableWorkflow]:error when get workflow info from db:", err.Error())
 		return nil, err
 	}
 
-	if pipelineInfo.ID == 0 {
+	if workflowInfo.ID == 0 {
 		return nil, errors.New("no runable workflow")
 	}
 
-	pipeline := new(Pipeline)
-	pipeline.Pipeline = pipelineInfo
+	workflow := new(Workflow)
+	workflow.Workflow = workflowInfo
 
-	return pipeline, nil
+	return workflow, nil
 }
 
-func GetPipelineLog(namespace, repository, workflowName, versionName string, sequence int64) (*PipelineLog, error) {
+func GetWorkflowLog(namespace, repository, workflowName, versionName string, sequence int64) (*WorkflowLog, error) {
 	var err error
-	pipelineLogInfo := new(models.PipelineLog)
+	workflowLogInfo := new(models.WorkflowLog)
 
-	query := pipelineLogInfo.GetPipelineLog().Where("namespace =? ", namespace).Where("repository = ?", repository).Where("pipeline = ?", workflowName).Where("version = ?", versionName)
+	query := workflowLogInfo.GetWorkflowLog().Where("namespace =? ", namespace).Where("repository = ?", repository).Where("workflow = ?", workflowName).Where("version = ?", versionName)
 	if sequence == int64(0) {
 		query = query.Order("-id")
 	} else {
 		query = query.Where("sequence = ?", sequence)
 	}
 
-	err = query.First(pipelineLogInfo).Error
+	err = query.First(workflowLogInfo).Error
 	if err != nil {
-		log.Error("[pipelineLog's GetPipelineLog]:error when get pipelineLog(version=", versionName, ", sequence=", sequence, ") info from db:", err.Error())
+		log.Error("[workflowLog's GetWorkflowLog]:error when get workflowLog(version=", versionName, ", sequence=", sequence, ") info from db:", err.Error())
 		return nil, err
 	}
 
-	pipelineLog := new(PipelineLog)
-	pipelineLog.PipelineLog = pipelineLogInfo
+	workflowLog := new(WorkflowLog)
+	workflowLog.WorkflowLog = workflowLogInfo
 
-	return pipelineLog, nil
+	return workflowLog, nil
 }
 
-func getPipelineEnvList(pipelineLogId int64) ([]map[string]interface{}, error) {
+func getWorkflowEnvList(workflowLogId int64) ([]map[string]interface{}, error) {
 	resultList := make([]map[string]interface{}, 0)
-	pipelineLog := new(models.PipelineLog)
-	err := pipelineLog.GetPipelineLog().Where("id = ?", pipelineLogId).First(pipelineLog).Error
+	workflowLog := new(models.WorkflowLog)
+	err := workflowLog.GetWorkflowLog().Where("id = ?", workflowLogId).First(workflowLog).Error
 	if err != nil {
-		log.Error("[pipelineLog's getPipelineEnvList]:error when get pipelinelog info from db:", err.Error())
-		return nil, errors.New("error when get pipeline info from db:" + err.Error())
+		log.Error("[workflowLog's getWorkflowEnvList]:error when get workflowlog info from db:", err.Error())
+		return nil, errors.New("error when get workflow info from db:" + err.Error())
 	}
 
 	envMap := make(map[string]string)
-	if pipelineLog.Env != "" {
-		err = json.Unmarshal([]byte(pipelineLog.Env), &envMap)
+	if workflowLog.Env != "" {
+		err = json.Unmarshal([]byte(workflowLog.Env), &envMap)
 		if err != nil {
-			log.Error("[pipelineLog's getPipelineEnvList]:error when unmarshal pipeline's env setting:", pipelineLog.Env, " ===>error is:", err.Error())
-			return nil, errors.New("error when unmarshal pipeline env info" + err.Error())
+			log.Error("[workflowLog's getWorkflowEnvList]:error when unmarshal workflow's env setting:", workflowLog.Env, " ===>error is:", err.Error())
+			return nil, errors.New("error when unmarshal workflow env info" + err.Error())
 		}
 	}
 
@@ -437,68 +437,68 @@ func getPipelineEnvList(pipelineLogId int64) ([]map[string]interface{}, error) {
 	return resultList, nil
 }
 
-func GetPipelineRunHistoryList(namespace, repository string) ([]map[string]interface{}, error) {
+func GetWorkflowRunHistoryList(namespace, repository string) ([]map[string]interface{}, error) {
 	resultList := make([]map[string]interface{}, 0)
-	pipelineLogIndexMap := make(map[string]int)
-	pipelineLogVersionIndexMap := make(map[string]interface{})
-	pipelineLogList := make([]models.PipelineLog, 0)
+	workflowLogIndexMap := make(map[string]int)
+	workflowLogVersionIndexMap := make(map[string]interface{})
+	workflowLogList := make([]models.WorkflowLog, 0)
 
-	err := new(models.PipelineLog).GetPipelineLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Order("-id").Find(&pipelineLogList).Error
+	err := new(models.WorkflowLog).GetWorkflowLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Order("-id").Find(&workflowLogList).Error
 	if err != nil && !strings.Contains(err.Error(), "record not found") {
-		log.Error("[pipeline's GetPipelineRunHistoryList]:error when get pipelineLog list from db:", err.Error())
+		log.Error("[workflow's GetWorkflowRunHistoryList]:error when get workflowLog list from db:", err.Error())
 		return nil, err
 	}
 
-	for _, pipelinelog := range pipelineLogList {
-		if _, ok := pipelineLogIndexMap[pipelinelog.Pipeline]; !ok {
-			pipelineInfoMap := make(map[string]interface{})
-			pipelineVersionListInfoMap := make([]map[string]interface{}, 0)
-			pipelineInfoMap["id"] = pipelinelog.FromPipeline
-			pipelineInfoMap["name"] = pipelinelog.Pipeline
-			pipelineInfoMap["versionList"] = pipelineVersionListInfoMap
+	for _, workflowlog := range workflowLogList {
+		if _, ok := workflowLogIndexMap[workflowlog.Workflow]; !ok {
+			workflowInfoMap := make(map[string]interface{})
+			workflowVersionListInfoMap := make([]map[string]interface{}, 0)
+			workflowInfoMap["id"] = workflowlog.FromWorkflow
+			workflowInfoMap["name"] = workflowlog.Workflow
+			workflowInfoMap["versionList"] = workflowVersionListInfoMap
 
-			resultList = append(resultList, pipelineInfoMap)
-			pipelineLogIndexMap[pipelinelog.Pipeline] = len(resultList) - 1
+			resultList = append(resultList, workflowInfoMap)
+			workflowLogIndexMap[workflowlog.Workflow] = len(resultList) - 1
 
 			versionIndexMap := make(map[string]int64)
-			pipelineLogVersionIndexMap[pipelinelog.Pipeline] = versionIndexMap
+			workflowLogVersionIndexMap[workflowlog.Workflow] = versionIndexMap
 		}
 
-		pipelineInfoMap := resultList[pipelineLogIndexMap[pipelinelog.Pipeline]]
-		if _, ok := pipelineLogVersionIndexMap[pipelinelog.Pipeline].(map[string]int64)[pipelinelog.Version]; !ok {
-			pipelineVersionInfoMap := make(map[string]interface{})
-			pipelineVersionSequenceListInfoMap := make([]map[string]interface{}, 0)
-			pipelineVersionInfoMap["id"] = pipelinelog.ID
-			pipelineVersionInfoMap["name"] = pipelinelog.Version
-			pipelineVersionInfoMap["info"] = ""
-			pipelineVersionInfoMap["total"] = int64(0)
-			pipelineVersionInfoMap["success"] = int64(0)
-			pipelineVersionInfoMap["sequenceList"] = pipelineVersionSequenceListInfoMap
+		workflowInfoMap := resultList[workflowLogIndexMap[workflowlog.Workflow]]
+		if _, ok := workflowLogVersionIndexMap[workflowlog.Workflow].(map[string]int64)[workflowlog.Version]; !ok {
+			workflowVersionInfoMap := make(map[string]interface{})
+			workflowVersionSequenceListInfoMap := make([]map[string]interface{}, 0)
+			workflowVersionInfoMap["id"] = workflowlog.ID
+			workflowVersionInfoMap["name"] = workflowlog.Version
+			workflowVersionInfoMap["info"] = ""
+			workflowVersionInfoMap["total"] = int64(0)
+			workflowVersionInfoMap["success"] = int64(0)
+			workflowVersionInfoMap["sequenceList"] = workflowVersionSequenceListInfoMap
 
-			pipelineInfoMap["versionList"] = append(pipelineInfoMap["versionList"].([]map[string]interface{}), pipelineVersionInfoMap)
-			pipelineLogVersionIndexMap[pipelinelog.Pipeline].(map[string]int64)[pipelinelog.Version] = int64(len(pipelineInfoMap["versionList"].([]map[string]interface{})) - 1)
+			workflowInfoMap["versionList"] = append(workflowInfoMap["versionList"].([]map[string]interface{}), workflowVersionInfoMap)
+			workflowLogVersionIndexMap[workflowlog.Workflow].(map[string]int64)[workflowlog.Version] = int64(len(workflowInfoMap["versionList"].([]map[string]interface{})) - 1)
 		}
 
-		pipelineVersionInfoMap := pipelineInfoMap["versionList"].([]map[string]interface{})[pipelineLogVersionIndexMap[pipelinelog.Pipeline].(map[string](int64))[pipelinelog.Version]]
-		sequenceList := pipelineVersionInfoMap["sequenceList"].([]map[string]interface{})
+		workflowVersionInfoMap := workflowInfoMap["versionList"].([]map[string]interface{})[workflowLogVersionIndexMap[workflowlog.Workflow].(map[string](int64))[workflowlog.Version]]
+		sequenceList := workflowVersionInfoMap["sequenceList"].([]map[string]interface{})
 
 		sequenceInfoMap := make(map[string]interface{})
-		sequenceInfoMap["pipelineSequenceID"] = pipelinelog.ID
-		sequenceInfoMap["sequence"] = pipelinelog.Sequence
-		sequenceInfoMap["status"] = pipelinelog.RunState
-		sequenceInfoMap["time"] = pipelinelog.CreatedAt.Format("2006-01-02 15:04:05")
+		sequenceInfoMap["workflowSequenceID"] = workflowlog.ID
+		sequenceInfoMap["sequence"] = workflowlog.Sequence
+		sequenceInfoMap["status"] = workflowlog.RunState
+		sequenceInfoMap["time"] = workflowlog.CreatedAt.Format("2006-01-02 15:04:05")
 
 		sequenceList = append(sequenceList, sequenceInfoMap)
-		pipelineVersionInfoMap["sequenceList"] = sequenceList
-		pipelineVersionInfoMap["total"] = pipelineVersionInfoMap["total"].(int64) + 1
+		workflowVersionInfoMap["sequenceList"] = sequenceList
+		workflowVersionInfoMap["total"] = workflowVersionInfoMap["total"].(int64) + 1
 
-		if pipelinelog.RunState == models.PipelineLogStateRunSuccess {
-			pipelineVersionInfoMap["success"] = pipelineVersionInfoMap["success"].(int64) + 1
+		if workflowlog.RunState == models.WorkflowLogStateRunSuccess {
+			workflowVersionInfoMap["success"] = workflowVersionInfoMap["success"].(int64) + 1
 		}
 	}
 
-	for _, pipelineInfoMap := range resultList {
-		for _, versionInfoMap := range pipelineInfoMap["versionList"].([]map[string]interface{}) {
+	for _, workflowInfoMap := range resultList {
+		for _, versionInfoMap := range workflowInfoMap["versionList"].([]map[string]interface{}) {
 			success := versionInfoMap["success"].(int64)
 			total := versionInfoMap["total"].(int64)
 
@@ -509,60 +509,60 @@ func GetPipelineRunHistoryList(namespace, repository string) ([]map[string]inter
 	return resultList, nil
 }
 
-func (pipelineInfo *Pipeline) CreateNewVersion(define map[string]interface{}, versionName string) error {
+func (workflowInfo *Workflow) CreateNewVersion(define map[string]interface{}, versionName string) error {
 	var count int64
-	err := new(models.Pipeline).GetPipeline().Where("namespace = ?", pipelineInfo.Namespace).Where("repository = ?", pipelineInfo.Repository).Where("pipeline = ?", pipelineInfo.Pipeline.Pipeline).Where("version = ?", versionName).Count(&count).Error
+	err := new(models.Workflow).GetWorkflow().Where("namespace = ?", workflowInfo.Namespace).Where("repository = ?", workflowInfo.Repository).Where("workflow = ?", workflowInfo.Workflow.Workflow).Where("version = ?", versionName).Count(&count).Error
 	if count > 0 {
 		return errors.New("version code already exist!")
 	}
 
-	// get current least pipeline's version
-	leastPipeline := new(models.Pipeline)
-	err = leastPipeline.GetPipeline().Where("namespace = ? ", pipelineInfo.Namespace).Where("pipeline = ?", pipelineInfo.Pipeline.Pipeline).Order("-id").First(&leastPipeline).Error
+	// get current least workflow's version
+	leastWorkflow := new(models.Workflow)
+	err = leastWorkflow.GetWorkflow().Where("namespace = ? ", workflowInfo.Namespace).Where("workflow = ?", workflowInfo.Workflow.Workflow).Order("-id").First(&leastWorkflow).Error
 	if err != nil {
-		return errors.New("error when get least pipeline info :" + err.Error())
+		return errors.New("error when get least workflow info :" + err.Error())
 	}
 
-	newPipelineInfo := new(models.Pipeline)
-	newPipelineInfo.Namespace = pipelineInfo.Namespace
-	newPipelineInfo.Repository = pipelineInfo.Repository
-	newPipelineInfo.Pipeline = pipelineInfo.Pipeline.Pipeline
-	newPipelineInfo.Event = pipelineInfo.Event
-	newPipelineInfo.Version = strings.TrimSpace(versionName)
-	newPipelineInfo.VersionCode = leastPipeline.VersionCode + 1
-	newPipelineInfo.State = models.PipelineStateDisable
-	newPipelineInfo.Manifest = pipelineInfo.Manifest
-	newPipelineInfo.Description = pipelineInfo.Description
-	newPipelineInfo.SourceInfo = pipelineInfo.SourceInfo
-	newPipelineInfo.Env = pipelineInfo.Env
-	newPipelineInfo.Requires = pipelineInfo.Requires
+	newWorkflowInfo := new(models.Workflow)
+	newWorkflowInfo.Namespace = workflowInfo.Namespace
+	newWorkflowInfo.Repository = workflowInfo.Repository
+	newWorkflowInfo.Workflow = workflowInfo.Workflow.Workflow
+	newWorkflowInfo.Event = workflowInfo.Event
+	newWorkflowInfo.Version = strings.TrimSpace(versionName)
+	newWorkflowInfo.VersionCode = leastWorkflow.VersionCode + 1
+	newWorkflowInfo.State = models.WorkflowStateDisable
+	newWorkflowInfo.Manifest = workflowInfo.Manifest
+	newWorkflowInfo.Description = workflowInfo.Description
+	newWorkflowInfo.SourceInfo = workflowInfo.SourceInfo
+	newWorkflowInfo.Env = workflowInfo.Env
+	newWorkflowInfo.Requires = workflowInfo.Requires
 
-	err = newPipelineInfo.GetPipeline().Save(newPipelineInfo).Error
+	err = newWorkflowInfo.GetWorkflow().Save(newWorkflowInfo).Error
 	if err != nil {
 		return err
 	}
 
-	return pipelineInfo.UpdatePipelineInfo(define)
+	return workflowInfo.UpdateWorkflowInfo(define)
 }
 
-func (pipelineInfo *Pipeline) GetPipelineToken() (map[string]interface{}, error) {
+func (workflowInfo *Workflow) GetWorkflowToken() (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 
-	if pipelineInfo.ID == 0 {
-		log.Error("[pipeline's GetPipelineToken]:got an empty pipelin:", pipelineInfo)
-		return nil, errors.New("pipeline's info is empty")
+	if workflowInfo.ID == 0 {
+		log.Error("[workflow's GetWorkflowToken]:got an empty pipelin:", workflowInfo)
+		return nil, errors.New("workflow's info is empty")
 	}
 
 	token := ""
 	tokenMap := make(map[string]interface{})
-	if pipelineInfo.SourceInfo == "" {
+	if workflowInfo.SourceInfo == "" {
 		// if sourceInfo is empty generate a token
-		token = pipelineInfo.Pipeline.Pipeline
+		token = workflowInfo.Workflow.Workflow
 	} else {
-		json.Unmarshal([]byte(pipelineInfo.SourceInfo), &tokenMap)
+		json.Unmarshal([]byte(workflowInfo.SourceInfo), &tokenMap)
 
 		if _, ok := tokenMap["token"].(string); !ok {
-			token = pipelineInfo.Pipeline.Pipeline
+			token = workflowInfo.Workflow.Workflow
 		} else {
 			token = tokenMap["token"].(string)
 		}
@@ -570,12 +570,12 @@ func (pipelineInfo *Pipeline) GetPipelineToken() (map[string]interface{}, error)
 
 	tokenMap["token"] = token
 	sourceInfo, _ := json.Marshal(tokenMap)
-	pipelineInfo.SourceInfo = string(sourceInfo)
-	err := pipelineInfo.GetPipeline().Save(pipelineInfo).Error
+	workflowInfo.SourceInfo = string(sourceInfo)
+	err := workflowInfo.GetWorkflow().Save(workflowInfo).Error
 
 	if err != nil {
-		log.Error("[pipeline's GetPipelineToken]:error when save pipeline's info to db:", err.Error())
-		return nil, errors.New("error when get pipeline info from db:" + err.Error())
+		log.Error("[workflow's GetWorkflowToken]:error when save workflow's info to db:", err.Error())
+		return nil, errors.New("error when get workflow info from db:" + err.Error())
 	}
 
 	result["token"] = token
@@ -584,58 +584,58 @@ func (pipelineInfo *Pipeline) GetPipelineToken() (map[string]interface{}, error)
 
 	projectAddr := ""
 	if configure.GetString("projectaddr") == "" {
-		projectAddr = "current-pipeline's-ip:port"
+		projectAddr = "current-workflow's-ip:port"
 	} else {
 		projectAddr = configure.GetString("projectaddr")
 	}
 
 	url += projectAddr
 	url = strings.TrimSuffix(url, "/")
-	url += "/v2" + "/" + pipelineInfo.Namespace + "/" + pipelineInfo.Repository + "/workflow/v1/exec/" + pipelineInfo.Pipeline.Pipeline
+	url += "/v2" + "/" + workflowInfo.Namespace + "/" + workflowInfo.Repository + "/workflow/v1/exec/" + workflowInfo.Workflow.Workflow
 
 	result["url"] = url
 
 	return result, nil
 }
 
-func (pipelineInfo *Pipeline) UpdatePipelineInfo(define map[string]interface{}) error {
+func (workflowInfo *Workflow) UpdateWorkflowInfo(define map[string]interface{}) error {
 	db := models.GetDB()
 	err := db.Begin().Error
 	if err != nil {
-		log.Error("[pipeline's UpdatePipelineInfo]:when db.Begin():", err.Error())
+		log.Error("[workflow's UpdateWorkflowInfo]:when db.Begin():", err.Error())
 		return err
 	}
 
-	pipelineOriginalManifestMap := make(map[string]interface{})
-	if pipelineInfo.Manifest != "" {
-		err := json.Unmarshal([]byte(pipelineInfo.Manifest), pipelineOriginalManifestMap)
+	workflowOriginalManifestMap := make(map[string]interface{})
+	if workflowInfo.Manifest != "" {
+		err := json.Unmarshal([]byte(workflowInfo.Manifest), workflowOriginalManifestMap)
 		if err != nil {
-			log.Error("[pipeline's UpdatePipelineInfo]:error unmarshal pipeline's manifest info:", err.Error(), " set it to empty")
-			pipelineInfo.Manifest = ""
+			log.Error("[workflow's UpdateWorkflowInfo]:error unmarshal workflow's manifest info:", err.Error(), " set it to empty")
+			workflowInfo.Manifest = ""
 		}
 	}
 
-	pipelineOriginalManifestMap["define"] = define
-	pipelineNewManifestBytes, err := json.Marshal(pipelineOriginalManifestMap)
+	workflowOriginalManifestMap["define"] = define
+	workflowNewManifestBytes, err := json.Marshal(workflowOriginalManifestMap)
 	if err != nil {
-		log.Error("[pipeline's UpdatePipelineInfo]:error when marshal pipeline's manifest info:", err.Error())
+		log.Error("[workflow's UpdateWorkflowInfo]:error when marshal workflow's manifest info:", err.Error())
 		rollbackErr := db.Rollback().Error
 		if rollbackErr != nil {
-			log.Error("[pipeline's UpdatePipelineInfo]:when rollback in save pipeline's info:", rollbackErr.Error())
+			log.Error("[workflow's UpdateWorkflowInfo]:when rollback in save workflow's info:", rollbackErr.Error())
 			return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
 		}
-		return errors.New("error when save pipeline's define info:" + err.Error())
+		return errors.New("error when save workflow's define info:" + err.Error())
 	}
 
 	requestMap := make([]interface{}, 0)
 	if request, ok := define["request"]; ok {
 		if requestMap, ok = request.([]interface{}); !ok {
-			log.Error("[pipeline's UpdatePipelineInfo]:error when get pipeline's request info:want a json array,got:", request)
-			return errors.New("error when get pipeline's request info,want a json array")
+			log.Error("[workflow's UpdateWorkflowInfo]:error when get workflow's request info:want a json array,got:", request)
+			return errors.New("error when get workflow's request info,want a json array")
 		}
 	} else {
 		defaultRequestMap := make(map[string]interface{})
-		defaultRequestMap["type"] = AuthTypePipelineDefault
+		defaultRequestMap["type"] = AuthTypeWorkflowDefault
 		defaultRequestMap["token"] = AuthTokenDefault
 
 		requestMap = append(requestMap, defaultRequestMap)
@@ -643,66 +643,66 @@ func (pipelineInfo *Pipeline) UpdatePipelineInfo(define map[string]interface{}) 
 
 	requestInfo, err := json.Marshal(requestMap)
 	if err != nil {
-		log.Error("[pipeline's UpdatePipelineInfo]:error when marshal pipeline's request info:", requestMap, " ===>error is:", err.Error())
-		return errors.New("error when save pipeline's request info")
+		log.Error("[workflow's UpdateWorkflowInfo]:error when marshal workflow's request info:", requestMap, " ===>error is:", err.Error())
+		return errors.New("error when save workflow's request info")
 	}
 
-	pipelineInfo.State = models.PipelineStateDisable
-	pipelineInfo.Manifest = string(pipelineNewManifestBytes)
-	pipelineInfo.Requires = string(requestInfo)
-	err = db.Save(pipelineInfo).Error
+	workflowInfo.State = models.WorkflowStateDisable
+	workflowInfo.Manifest = string(workflowNewManifestBytes)
+	workflowInfo.Requires = string(requestInfo)
+	err = db.Save(workflowInfo).Error
 	if err != nil {
-		log.Error("[pipeline's UpdatePipelineInfo]:when save pipeline's info:", pipelineInfo, " ===>error is:", err.Error())
+		log.Error("[workflow's UpdateWorkflowInfo]:when save workflow's info:", workflowInfo, " ===>error is:", err.Error())
 		rollbackErr := db.Rollback().Error
 		if rollbackErr != nil {
-			log.Error("[pipeline's UpdatePipelineInfo]:when rollback in save pipeline's info:", rollbackErr.Error())
+			log.Error("[workflow's UpdateWorkflowInfo]:when rollback in save workflow's info:", rollbackErr.Error())
 			return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
 		}
 		return err
 	}
 
-	relationMap, stageDefineList, err := pipelineInfo.getPipelineDefineInfo(pipelineInfo.Pipeline)
+	relationMap, stageDefineList, err := workflowInfo.getWorkflowDefineInfo(workflowInfo.Workflow)
 	if err != nil {
-		log.Error("[pipeline's UpdatePipelineInfo]:when get pipeline's define info:", err.Error())
+		log.Error("[workflow's UpdateWorkflowInfo]:when get workflow's define info:", err.Error())
 		rollbackErr := db.Rollback().Error
 		if rollbackErr != nil {
-			log.Error("[pipeline's UpdatePipelineInfo]:when rollback after get pipeline define info:", rollbackErr.Error())
+			log.Error("[workflow's UpdateWorkflowInfo]:when rollback after get workflow define info:", rollbackErr.Error())
 			return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
 		}
 		return err
 	}
 
-	// first delete old pipeline define
-	err = db.Model(&models.Action{}).Where("pipeline = ?", pipelineInfo.ID).Delete(&models.Action{}).Error
+	// first delete old workflow define
+	err = db.Model(&models.Action{}).Where("workflow = ?", workflowInfo.ID).Delete(&models.Action{}).Error
 	if err != nil {
-		log.Error("[pipeline's UpdatePipelineInfo]:when delete action's that belong pipeline:", pipelineInfo, " ===>error is:", err.Error())
+		log.Error("[workflow's UpdateWorkflowInfo]:when delete action's that belong workflow:", workflowInfo, " ===>error is:", err.Error())
 		rollbackErr := db.Rollback().Error
 		if rollbackErr != nil {
-			log.Error("[pipeline's UpdatePipelineInfo]:when rollback in delete action info:", rollbackErr.Error())
+			log.Error("[workflow's UpdateWorkflowInfo]:when rollback in delete action info:", rollbackErr.Error())
 			return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
 		}
 		return errors.New("error when remove old action info:" + err.Error())
 	}
 
-	err = db.Model(&models.Stage{}).Where("pipeline = ?", pipelineInfo.ID).Delete(&models.Stage{}).Error
+	err = db.Model(&models.Stage{}).Where("workflow = ?", workflowInfo.ID).Delete(&models.Stage{}).Error
 	if err != nil {
-		log.Error("[pipeline's UpdatePipelineInfo]:when delete stage's that belong pipeline:", pipelineInfo, " ===>error is:", err.Error())
+		log.Error("[workflow's UpdateWorkflowInfo]:when delete stage's that belong workflow:", workflowInfo, " ===>error is:", err.Error())
 		rollbackErr := db.Rollback().Error
 		if rollbackErr != nil {
-			log.Error("[pipeline's UpdatePipelineInfo]:when rollback in delete stage info:", rollbackErr.Error())
+			log.Error("[workflow's UpdateWorkflowInfo]:when rollback in delete stage info:", rollbackErr.Error())
 			return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
 		}
 		return errors.New("error when update stage info:" + err.Error())
 	}
 
-	// then create new pipeline by define
+	// then create new workflow by define
 	stageInfoMap := make(map[string]map[string]interface{})
 	preStageId := int64(-1)
 	allActionIdMap := make(map[string]int64)
 	for _, stageDefine := range stageDefineList {
-		stageId, stageTagId, actionMap, err := CreateNewStage(db, preStageId, pipelineInfo.Pipeline, stageDefine, relationMap)
+		stageId, stageTagId, actionMap, err := CreateNewStage(db, preStageId, workflowInfo.Workflow, stageDefine, relationMap)
 		if err != nil {
-			log.Error("[pipeline's UpdatePipelineInfo]:error when create new stage that pipeline define:", stageDefine, " preStage is :", preStageId, " pipeline is:", pipelineInfo, " relation is:", relationMap)
+			log.Error("[workflow's UpdateWorkflowInfo]:error when create new stage that workflow define:", stageDefine, " preStage is :", preStageId, " workflow is:", workflowInfo, " relation is:", relationMap)
 			return err
 		}
 
@@ -723,10 +723,10 @@ func (pipelineInfo *Pipeline) UpdatePipelineInfo(define map[string]interface{}) 
 			for fromActionOriginId, realRelations := range relations {
 				fromActionId, ok := allActionIdMap[fromActionOriginId]
 				if !ok {
-					log.Error("[pipeline's UpdatePipelineInfo]:error when get action's relation info in map:", allActionIdMap, " want :", fromActionOriginId)
+					log.Error("[workflow's UpdateWorkflowInfo]:error when get action's relation info in map:", allActionIdMap, " want :", fromActionOriginId)
 					rollbackErr := db.Rollback().Error
 					if rollbackErr != nil {
-						log.Error("[pipeline's UpdatePipelineInfo]:when rollback in get action relation info:", rollbackErr.Error())
+						log.Error("[workflow's UpdateWorkflowInfo]:when rollback in get action relation info:", rollbackErr.Error())
 						return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
 					}
 					return errors.New("action's relation is illegal")
@@ -743,10 +743,10 @@ func (pipelineInfo *Pipeline) UpdatePipelineInfo(define map[string]interface{}) 
 			actionInfo := new(models.Action)
 			err = db.Model(&models.Action{}).Where("id = ?", actionID).First(&actionInfo).Error
 			if err != nil {
-				log.Error("[pipeline's UpdatePipelineInfo]:error when get action info from db:", actionID, " ===>error is:", err.Error())
+				log.Error("[workflow's UpdateWorkflowInfo]:error when get action info from db:", actionID, " ===>error is:", err.Error())
 				rollbackErr := db.Rollback().Error
 				if rollbackErr != nil {
-					log.Error("[pipeline's UpdatePipelineInfo]:when rollback in get action info from db:", rollbackErr.Error())
+					log.Error("[workflow's UpdateWorkflowInfo]:when rollback in get action info from db:", rollbackErr.Error())
 					return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
 				}
 				return err
@@ -762,10 +762,10 @@ func (pipelineInfo *Pipeline) UpdatePipelineInfo(define map[string]interface{}) 
 
 			err = actionInfo.GetAction().Where("id = ?", actionID).UpdateColumn("manifest", actionInfo.Manifest).Error
 			if err != nil {
-				log.Error("[pipeline's UpdatePipelineInfo]:error when update action's column manifest:", actionInfo, " ===>error is:", err.Error())
+				log.Error("[workflow's UpdateWorkflowInfo]:error when update action's column manifest:", actionInfo, " ===>error is:", err.Error())
 				rollbackErr := db.Rollback().Error
 				if rollbackErr != nil {
-					log.Error("[pipeline's UpdatePipelineInfo]:when rollback in update action's column info from db:", rollbackErr.Error())
+					log.Error("[workflow's UpdateWorkflowInfo]:when rollback in update action's column info from db:", rollbackErr.Error())
 					return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
 				}
 				return err
@@ -776,35 +776,35 @@ func (pipelineInfo *Pipeline) UpdatePipelineInfo(define map[string]interface{}) 
 	return nil
 }
 
-func (pipeline *Pipeline) getPipelineDefineInfo(pipelineInfo *models.Pipeline) (map[string]interface{}, []map[string]interface{}, error) {
+func (workflow *Workflow) getWorkflowDefineInfo(workflowInfo *models.Workflow) (map[string]interface{}, []map[string]interface{}, error) {
 	lineList := make([]map[string]interface{}, 0)
 	stageList := make([]map[string]interface{}, 0)
 
 	manifestMap := make(map[string]interface{})
-	err := json.Unmarshal([]byte(pipelineInfo.Manifest), &manifestMap)
+	err := json.Unmarshal([]byte(workflowInfo.Manifest), &manifestMap)
 	if err != nil {
-		log.Error("[pipeline's getPipelineDefineInfo]:error when unmarshal pipeline's manifes info:", pipeline.Manifest, " ===>error is:", err.Error())
-		return nil, nil, errors.New("error when unmarshal pipeline manifes info:" + err.Error())
+		log.Error("[workflow's getWorkflowDefineInfo]:error when unmarshal workflow's manifes info:", workflow.Manifest, " ===>error is:", err.Error())
+		return nil, nil, errors.New("error when unmarshal workflow manifes info:" + err.Error())
 	}
 
 	defineMap, ok := manifestMap["define"].(map[string]interface{})
 	if !ok {
-		log.Error("[pipeline's getPipelineDefineInfo]:pipeline's define is not a json obj:", manifestMap["define"])
-		return nil, nil, errors.New("pipeline's define is not a json:" + err.Error())
+		log.Error("[workflow's getWorkflowDefineInfo]:workflow's define is not a json obj:", manifestMap["define"])
+		return nil, nil, errors.New("workflow's define is not a json:" + err.Error())
 	}
 
 	realtionMap := make(map[string]interface{})
 	if linesList, ok := defineMap["lineList"].([]interface{}); ok {
 		if !ok {
-			log.Error("[pipeline's getPipelineDefineInfo]:error in pipeline's lineList define,want a array,got:", defineMap["lineList"])
-			return nil, nil, errors.New("pipeline's lineList define is not an array")
+			log.Error("[workflow's getWorkflowDefineInfo]:error in workflow's lineList define,want a array,got:", defineMap["lineList"])
+			return nil, nil, errors.New("workflow's lineList define is not an array")
 		}
 
 		for _, lineInfo := range linesList {
 			lineInfoMap, ok := lineInfo.(map[string]interface{})
 			if !ok {
-				log.Error("[pipeline's getPipelineDefineInfo]:error in pipeline's line define: want a json obj,got:", lineInfo)
-				return nil, nil, errors.New("pipeline's line info is not a json")
+				log.Error("[workflow's getWorkflowDefineInfo]:error in workflow's line define: want a json obj,got:", lineInfo)
+				return nil, nil, errors.New("workflow's line info is not a json")
 			}
 
 			lineList = append(lineList, lineInfoMap)
@@ -813,14 +813,14 @@ func (pipeline *Pipeline) getPipelineDefineInfo(pipelineInfo *models.Pipeline) (
 		for _, lineInfo := range lineList {
 			endData, ok := lineInfo["endData"].(map[string]interface{})
 			if !ok {
-				log.Error("[pipeline's getPipelineDefineInfo]:error in pipeline's line define:line doesn't define any end point info:", lineInfo)
-				return nil, nil, errors.New("pipeline's line define is illegal,don't have a end point info")
+				log.Error("[workflow's getWorkflowDefineInfo]:error in workflow's line define:line doesn't define any end point info:", lineInfo)
+				return nil, nil, errors.New("workflow's line define is illegal,don't have a end point info")
 			}
 
 			endPointId, ok := endData["id"].(string)
 			if !ok {
-				log.Error("[pipeline's getPipelineDefineInfo]:error in pipeline's line define:end point's id is not a string:", endData)
-				return nil, nil, errors.New("pipeline's line define is illegal,endPoint id is not a string")
+				log.Error("[workflow's getWorkflowDefineInfo]:error in workflow's line define:end point's id is not a string:", endData)
+				return nil, nil, errors.New("workflow's line define is illegal,endPoint id is not a string")
 			}
 
 			if _, ok := realtionMap[endPointId]; !ok {
@@ -830,14 +830,14 @@ func (pipeline *Pipeline) getPipelineDefineInfo(pipelineInfo *models.Pipeline) (
 			endPointMap := realtionMap[endPointId].(map[string]interface{})
 			startData, ok := lineInfo["startData"].(map[string]interface{})
 			if !ok {
-				log.Error("[pipeline's getPipelineDefineInfo]:error in pipeline's line define:line doesn't define any start point info:", lineInfo)
-				return nil, nil, errors.New("pipeline's line define is illegal,don;t have a start point info")
+				log.Error("[workflow's getWorkflowDefineInfo]:error in workflow's line define:line doesn't define any start point info:", lineInfo)
+				return nil, nil, errors.New("workflow's line define is illegal,don;t have a start point info")
 			}
 
 			startDataId, ok := startData["id"].(string)
 			if !ok {
-				log.Error("[pipeline's getPipelineDefineInfo]:error in pipeline's line define:start point's id is not a string:", endData)
-				return nil, nil, errors.New("pipeline's line define is illegal,startPoint id is not a string")
+				log.Error("[workflow's getWorkflowDefineInfo]:error in workflow's line define:start point's id is not a string:", endData)
+				return nil, nil, errors.New("workflow's line define is illegal,startPoint id is not a string")
 			}
 
 			if startDataId == "start-stage" {
@@ -873,21 +873,21 @@ func (pipeline *Pipeline) getPipelineDefineInfo(pipelineInfo *models.Pipeline) (
 
 	stageListInfo, ok := defineMap["stageList"]
 	if !ok {
-		log.Error("[pipeline's getPipelineDefineInfo]:error in pipeline's define:pipeline doesn't define any stage info", defineMap)
-		return nil, nil, errors.New("pipeline don't have a stage define")
+		log.Error("[workflow's getWorkflowDefineInfo]:error in workflow's define:workflow doesn't define any stage info", defineMap)
+		return nil, nil, errors.New("workflow don't have a stage define")
 	}
 
 	stagesList, ok := stageListInfo.([]interface{})
 	if !ok {
-		log.Error("[pipeline's getPipelineDefineInfo]:error in stageList's define:want array,got:", stageListInfo)
-		return nil, nil, errors.New("pipeline's stageList define is not an array")
+		log.Error("[workflow's getWorkflowDefineInfo]:error in stageList's define:want array,got:", stageListInfo)
+		return nil, nil, errors.New("workflow's stageList define is not an array")
 	}
 
 	for _, stageInfo := range stagesList {
 		stageInfoMap, ok := stageInfo.(map[string]interface{})
 		if !ok {
-			log.Error("[pipeline's getPipelineDefineInfo]:error in stage's define,want a json obj,got:", stageInfo)
-			return nil, nil, errors.New("pipeline's stage info is not a json")
+			log.Error("[workflow's getWorkflowDefineInfo]:error in stage's define,want a json obj,got:", stageInfo)
+			return nil, nil, errors.New("workflow's stage info is not a json")
 		}
 
 		stageList = append(stageList, stageInfoMap)
@@ -896,34 +896,34 @@ func (pipeline *Pipeline) getPipelineDefineInfo(pipelineInfo *models.Pipeline) (
 	return realtionMap, stageList, nil
 }
 
-func (pipelineInfo *Pipeline) BeforeExecCheck(reqHeader http.Header, reqBody []byte) (bool, map[string]string, error) {
-	if pipelineInfo.SourceInfo == "" {
-		return false, nil, errors.New("pipeline's source info is empty")
+func (workflowInfo *Workflow) BeforeExecCheck(reqHeader http.Header, reqBody []byte) (bool, map[string]string, error) {
+	if workflowInfo.SourceInfo == "" {
+		return false, nil, errors.New("workflow's source info is empty")
 	}
 
 	sourceMap := make(map[string]interface{})
 	sourceList := make([]interface{}, 0)
-	err := json.Unmarshal([]byte(pipelineInfo.SourceInfo), &sourceMap)
+	err := json.Unmarshal([]byte(workflowInfo.SourceInfo), &sourceMap)
 	if err != nil {
-		log.Error("[pipeline's BeforeExecCheck]:error when unmarshal pipeline source info, want json obj, got:", pipelineInfo.SourceInfo)
-		return false, nil, errors.New("pipeline's source define error")
+		log.Error("[workflow's BeforeExecCheck]:error when unmarshal workflow source info, want json obj, got:", workflowInfo.SourceInfo)
+		return false, nil, errors.New("workflow's source define error")
 	}
 
 	expectedToken, ok := sourceMap["token"].(string)
 	if !ok {
-		log.Error("[pipeline's BeforeExecCheck]:error when get source's expected token,want a string, got:", sourceMap["token"])
+		log.Error("[workflow's BeforeExecCheck]:error when get source's expected token,want a string, got:", sourceMap["token"])
 		return false, nil, errors.New("get token error")
 	}
 
 	sourceList, ok = sourceMap["sourceList"].([]interface{})
 	if !ok {
-		log.Error("[pipeline's BeforeExecCheck]:error when get sourceList:want json array, got:", sourceMap["sourceList"])
-		return false, nil, errors.New("pipeline's sourceList define error")
+		log.Error("[workflow's BeforeExecCheck]:error when get sourceList:want json array, got:", sourceMap["sourceList"])
+		return false, nil, errors.New("workflow's sourceList define error")
 	}
 
 	eventInfoMap, err := getExecReqEventInfo(sourceList, reqHeader)
 	if err != nil {
-		log.Error("[pipeline's BeforeExecCheck]:error when get exec request's event type and event info:", err.Error())
+		log.Error("[workflow's BeforeExecCheck]:error when get exec request's event type and event info:", err.Error())
 		return false, nil, errors.New("get req's event info failed:" + err.Error())
 	}
 
@@ -931,14 +931,14 @@ func (pipelineInfo *Pipeline) BeforeExecCheck(reqHeader http.Header, reqBody []b
 
 	checkerList, err := checker.GetWorkflowExecCheckerList()
 	if err != nil {
-		log.Error("[pipeline's BeforeExecCheck]:error when get checkerList:", err.Error())
+		log.Error("[workflow's BeforeExecCheck]:error when get checkerList:", err.Error())
 		return false, nil, err
 	}
 
 	for _, checker := range checkerList {
 		passCheck, err = checker.Check(eventInfoMap, expectedToken, reqHeader, reqBody)
 		if !passCheck {
-			log.Error("[pipeline's BeforeExecCheck]:check failed:", checker, "===>", err.Error(), "\neventInfoMap:", eventInfoMap, "\nreqHeader:", reqHeader, "\nreqBody:", reqBody)
+			log.Error("[workflow's BeforeExecCheck]:check failed:", checker, "===>", err.Error(), "\neventInfoMap:", eventInfoMap, "\nreqHeader:", reqHeader, "\nreqBody:", reqBody)
 			return false, nil, err
 		}
 	}
@@ -951,13 +951,13 @@ func getExecReqEventInfo(sourceList []interface{}, reqHeader http.Header) (map[s
 	for _, sourceConfigInfo := range sourceList {
 		sourceConfig, ok := sourceConfigInfo.(map[string]interface{})
 		if !ok {
-			log.Error("[pipeline's getExecReqEventInfo]:error when parse sourceConfig,want a json obj, got :", sourceConfigInfo)
+			log.Error("[workflow's getExecReqEventInfo]:error when parse sourceConfig,want a json obj, got :", sourceConfigInfo)
 			return nil, errors.New("source config is not a json obj")
 		}
 
 		tokenKey, ok := sourceConfig["headerKey"].(string)
 		if !ok {
-			log.Error("[pipeline's getExecReqEventInfo]:error when get source's token key,want a string, got:", sourceConfig["headerKey"])
+			log.Error("[workflow's getExecReqEventInfo]:error when get source's token key,want a string, got:", sourceConfig["headerKey"])
 			return nil, errors.New("source's token key is not a string")
 		}
 
@@ -965,13 +965,13 @@ func getExecReqEventInfo(sourceList []interface{}, reqHeader http.Header) (map[s
 		if token != "" {
 			supportEventList, ok := sourceConfig["eventList"].(string)
 			if !ok {
-				log.Error("[pipeline's getExecReqEventInfo]:error when get source's support event list,want a string, got:", sourceConfig["eventList"])
+				log.Error("[workflow's getExecReqEventInfo]:error when get source's support event list,want a string, got:", sourceConfig["eventList"])
 				continue
 			}
 
 			sourceType, ok := sourceConfig["sourceType"].(string)
 			if !ok {
-				log.Error("[pipeline's getExecReqEventInfo]:error when get source's sourceType,want a string, got:", sourceConfig["sourceType"])
+				log.Error("[workflow's getExecReqEventInfo]:error when get source's sourceType,want a string, got:", sourceConfig["sourceType"])
 				continue
 			}
 
@@ -1004,40 +1004,40 @@ func getEventName(sourceType string, reqHeader http.Header) string {
 	return eventName
 }
 
-func (pipelineInfo *Pipeline) GenerateNewLog(eventMap map[string]string) (*PipelineLog, error) {
-	pipelinelogSequenceGenerateChan <- true
-	result := new(PipelineLog)
+func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*WorkflowLog, error) {
+	workflowlogSequenceGenerateChan <- true
+	result := new(WorkflowLog)
 	stageList := make([]models.Stage, 0)
 
-	pipelineSequence := new(models.PipelineSequence)
-	pipelineSequence.Pipeline = pipelineInfo.ID
-	err := pipelineSequence.GetPipelineSequence().Save(pipelineSequence).Error
+	workflowSequence := new(models.WorkflowSequence)
+	workflowSequence.Workflow = workflowInfo.ID
+	err := workflowSequence.GetWorkflowSequence().Save(workflowSequence).Error
 	if err != nil {
-		<-pipelinelogSequenceGenerateChan
-		log.Error("[pipeline's GenerateNewLog]:error when save pipeline sequence info to db", pipelineSequence, "===>error is :", err.Error())
+		<-workflowlogSequenceGenerateChan
+		log.Error("[workflow's GenerateNewLog]:error when save workflow sequence info to db", workflowSequence, "===>error is :", err.Error())
 		return nil, err
 	}
 
 	var count int64
-	err = pipelineSequence.GetPipelineSequence().Where("id < ?", pipelineSequence.ID).Where("pipeline = ?", pipelineInfo.ID).Count(&count).Error
+	err = workflowSequence.GetWorkflowSequence().Where("id < ?", workflowSequence.ID).Where("workflow = ?", workflowInfo.ID).Count(&count).Error
 	if err != nil && !strings.Contains(err.Error(), "record not found") {
-		<-pipelinelogSequenceGenerateChan
-		log.Error("[pipeline's GenerateNewLog]:error when get pipeline sequence info to db:", err.Error())
+		<-workflowlogSequenceGenerateChan
+		log.Error("[workflow's GenerateNewLog]:error when get workflow sequence info to db:", err.Error())
 		return nil, err
 	}
 
-	pipelineSequence.Sequence = count + 1
-	err = pipelineSequence.GetPipelineSequence().Save(pipelineSequence).Error
+	workflowSequence.Sequence = count + 1
+	err = workflowSequence.GetWorkflowSequence().Save(workflowSequence).Error
 	if err != nil {
-		<-pipelinelogSequenceGenerateChan
-		log.Error("[pipeline's GenerateNewLog]:error when save pipeline sequence info to db", pipelineSequence, "===>error is :", err.Error())
+		<-workflowlogSequenceGenerateChan
+		log.Error("[workflow's GenerateNewLog]:error when save workflow sequence info to db", workflowSequence, "===>error is :", err.Error())
 		return nil, err
 	}
 
-	err = new(models.Stage).GetStage().Where("pipeline = ?", pipelineInfo.ID).Find(&stageList).Error
+	err = new(models.Stage).GetStage().Where("workflow = ?", workflowInfo.ID).Find(&stageList).Error
 	if err != nil {
-		<-pipelinelogSequenceGenerateChan
-		log.Error("[pipeline's GenerateNewLog]:error when get stage list by pipeline info", pipelineInfo, "===>error is :", err.Error())
+		<-workflowlogSequenceGenerateChan
+		log.Error("[workflow's GenerateNewLog]:error when get stage list by workflow info", workflowInfo, "===>error is :", err.Error())
 		return nil, err
 	}
 
@@ -1046,31 +1046,31 @@ func (pipelineInfo *Pipeline) GenerateNewLog(eventMap map[string]string) (*Pipel
 
 	eventInfoBytes, _ := json.Marshal(eventMap)
 
-	// record pipeline's info
-	pipelineLog := new(models.PipelineLog)
-	pipelineLog.Namespace = pipelineInfo.Namespace
-	pipelineLog.Repository = pipelineInfo.Repository
-	pipelineLog.Pipeline = pipelineInfo.Pipeline.Pipeline
-	pipelineLog.FromPipeline = pipelineInfo.ID
-	pipelineLog.Version = pipelineInfo.Version
-	pipelineLog.VersionCode = pipelineInfo.VersionCode
-	pipelineLog.Sequence = pipelineSequence.Sequence
-	pipelineLog.RunState = models.PipelineLogStateCanListen
-	pipelineLog.Event = pipelineInfo.Event
-	pipelineLog.Manifest = pipelineInfo.Manifest
-	pipelineLog.Description = pipelineInfo.Description
-	pipelineLog.SourceInfo = string(eventInfoBytes)
-	pipelineLog.Env = pipelineInfo.Env
-	pipelineLog.Requires = pipelineInfo.Requires
-	pipelineLog.AuthList = ""
+	// record workflow's info
+	workflowLog := new(models.WorkflowLog)
+	workflowLog.Namespace = workflowInfo.Namespace
+	workflowLog.Repository = workflowInfo.Repository
+	workflowLog.Workflow = workflowInfo.Workflow.Workflow
+	workflowLog.FromWorkflow = workflowInfo.ID
+	workflowLog.Version = workflowInfo.Version
+	workflowLog.VersionCode = workflowInfo.VersionCode
+	workflowLog.Sequence = workflowSequence.Sequence
+	workflowLog.RunState = models.WorkflowLogStateCanListen
+	workflowLog.Event = workflowInfo.Event
+	workflowLog.Manifest = workflowInfo.Manifest
+	workflowLog.Description = workflowInfo.Description
+	workflowLog.SourceInfo = string(eventInfoBytes)
+	workflowLog.Env = workflowInfo.Env
+	workflowLog.Requires = workflowInfo.Requires
+	workflowLog.AuthList = ""
 
-	err = db.Save(pipelineLog).Error
+	err = db.Save(workflowLog).Error
 	if err != nil {
-		<-pipelinelogSequenceGenerateChan
-		log.Error("[pipeline's GenerateNewLog]:when save pipeline log to db:", pipelineLog, "===>error is :", err.Error())
+		<-workflowlogSequenceGenerateChan
+		log.Error("[workflow's GenerateNewLog]:when save workflow log to db:", workflowLog, "===>error is :", err.Error())
 		rollbackErr := db.Rollback().Error
 		if rollbackErr != nil {
-			log.Error("[pipeline's GenerateNewLog]:when rollback in save pipeline log:", rollbackErr.Error())
+			log.Error("[workflow's GenerateNewLog]:when rollback in save workflow log:", rollbackErr.Error())
 			return nil, errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
 		}
 		return nil, err
@@ -1080,34 +1080,34 @@ func (pipelineInfo *Pipeline) GenerateNewLog(eventMap map[string]string) (*Pipel
 	for _, stageInfo := range stageList {
 		stage := new(Stage)
 		stage.Stage = &stageInfo
-		preStageLogId, err = stage.GenerateNewLog(db, pipelineLog, preStageLogId)
+		preStageLogId, err = stage.GenerateNewLog(db, workflowLog, preStageLogId)
 		if err != nil {
-			<-pipelinelogSequenceGenerateChan
-			log.Error("[pipeline's GenerateNewLog]:when generate stage log:", err.Error())
+			<-workflowlogSequenceGenerateChan
+			log.Error("[workflow's GenerateNewLog]:when generate stage log:", err.Error())
 			return nil, err
 		}
 	}
 
 	err = db.Commit().Error
 	if err != nil {
-		<-pipelinelogSequenceGenerateChan
-		log.Error("[pipeline's GenerateNewLog]:when commit to db:", err.Error())
-		return nil, errors.New("error when save pipeline info to db:" + err.Error())
+		<-workflowlogSequenceGenerateChan
+		log.Error("[workflow's GenerateNewLog]:when commit to db:", err.Error())
+		return nil, errors.New("error when save workflow info to db:" + err.Error())
 	}
-	result.PipelineLog = pipelineLog
-	<-pipelinelogSequenceGenerateChan
+	result.WorkflowLog = workflowLog
+	<-workflowlogSequenceGenerateChan
 	return result, nil
 }
 
-func (pipelineLog *PipelineLog) GetDefineInfo() (map[string]interface{}, error) {
+func (workflowLog *WorkflowLog) GetDefineInfo() (map[string]interface{}, error) {
 	defineMap := make(map[string]interface{})
 	stageListMap := make([]map[string]interface{}, 0)
 	lineList := make([]map[string]interface{}, 0)
 
 	stageList := make([]*models.StageLog, 0)
-	err := new(models.StageLog).GetStageLog().Where("pipeline = ?", pipelineLog.ID).Find(&stageList).Error
+	err := new(models.StageLog).GetStageLog().Where("workflow = ?", workflowLog.ID).Find(&stageList).Error
 	if err != nil {
-		log.Error("[StageLog's GetStageLogDefineListByPipelineLogID]:error when get stage list from db:", err.Error())
+		log.Error("[StageLog's GetStageLogDefineListByWorkflowLogID]:error when get stage list from db:", err.Error())
 		return nil, err
 	}
 
@@ -1116,7 +1116,7 @@ func (pipelineLog *PipelineLog) GetDefineInfo() (map[string]interface{}, error) 
 		stage.StageLog = stageInfo
 		stageDefineMap, err := stage.GetStageLogDefine()
 		if err != nil {
-			log.Error("[pipelineLog's GetDefineInfo]:error when get stagelog define:", stage, " ===>error is:", err.Error())
+			log.Error("[workflowLog's GetDefineInfo]:error when get stagelog define:", stage, " ===>error is:", err.Error())
 			return nil, err
 		}
 
@@ -1131,7 +1131,7 @@ func (pipelineLog *PipelineLog) GetDefineInfo() (map[string]interface{}, error) 
 		actionList := make([]*models.ActionLog, 0)
 		err = new(models.ActionLog).GetActionLog().Where("stage = ?", stageInfo.ID).Find(&actionList).Error
 		if err != nil {
-			log.Error("[pipelineLog's GetDefineInfo]:error when get actionlog list from db:", err.Error())
+			log.Error("[workflowLog's GetDefineInfo]:error when get actionlog list from db:", err.Error())
 			continue
 		}
 
@@ -1140,7 +1140,7 @@ func (pipelineLog *PipelineLog) GetDefineInfo() (map[string]interface{}, error) 
 			action.ActionLog = actionInfo
 			actionLineInfo, err := action.GetActionLineInfo()
 			if err != nil {
-				log.Error("[pipelineLog's GetDefineInfo]:error when get actionlog line info:", err.Error())
+				log.Error("[workflowLog's GetDefineInfo]:error when get actionlog line info:", err.Error())
 				continue
 			}
 
@@ -1148,53 +1148,53 @@ func (pipelineLog *PipelineLog) GetDefineInfo() (map[string]interface{}, error) 
 		}
 	}
 
-	defineMap["pipeline"] = pipelineLog.Pipeline
-	defineMap["version"] = pipelineLog.Version
-	defineMap["sequence"] = pipelineLog.Sequence
-	defineMap["status"] = pipelineLog.RunState
+	defineMap["workflow"] = workflowLog.Workflow
+	defineMap["version"] = workflowLog.Version
+	defineMap["sequence"] = workflowLog.Sequence
+	defineMap["status"] = workflowLog.RunState
 	defineMap["lineList"] = lineList
 	defineMap["stageList"] = stageListMap
 
 	return defineMap, nil
 }
 
-func (pipelineLog *PipelineLog) GetStartStageData() (map[string]interface{}, error) {
+func (workflowLog *WorkflowLog) GetStartStageData() (map[string]interface{}, error) {
 	dataMap := make(map[string]interface{})
 	outCome := new(models.Outcome)
-	err := outCome.GetOutcome().Where("pipeline = ?", pipelineLog.ID).Where("sequence = ?", pipelineLog.Sequence).Where("action = ?", models.OutcomeTypeStageStartActionID).First(outCome).Error
+	err := outCome.GetOutcome().Where("workflow = ?", workflowLog.ID).Where("sequence = ?", workflowLog.Sequence).Where("action = ?", models.OutcomeTypeStageStartActionID).First(outCome).Error
 	if err != nil && !strings.Contains(err.Error(), "record not found") {
-		log.Error("[pipelineLog's GetStartStageData]:error when get start stage data from db:", err.Error())
+		log.Error("[workflowLog's GetStartStageData]:error when get start stage data from db:", err.Error())
 		return nil, err
 	}
 
 	err = json.Unmarshal([]byte(outCome.Output), &dataMap)
 	if err != nil {
-		log.Error("[pipelineLog's GetStartStageData]:error when unmarshal start stage's data:", outCome.Output, " ===>error is:", err.Error())
+		log.Error("[workflowLog's GetStartStageData]:error when unmarshal start stage's data:", outCome.Output, " ===>error is:", err.Error())
 	}
 
 	return dataMap, nil
 }
 
-func (pipelineLog *PipelineLog) Listen(startData string) error {
-	pipelinelogListenChan <- true
-	defer func() { <-pipelinelogListenChan }()
+func (workflowLog *WorkflowLog) Listen(startData string) error {
+	workflowlogListenChan <- true
+	defer func() { <-workflowlogListenChan }()
 
-	err := pipelineLog.GetPipelineLog().Where("id = ?", pipelineLog.ID).First(pipelineLog).Error
+	err := workflowLog.GetWorkflowLog().Where("id = ?", workflowLog.ID).First(workflowLog).Error
 	if err != nil {
-		log.Error("[pipelineLog's Listen]:error when get pipelineLog info from db:", pipelineLog, " ===>error is:", err.Error())
-		return errors.New("error when get pipelinelog's info from db:" + err.Error())
+		log.Error("[workflowLog's Listen]:error when get workflowLog info from db:", workflowLog, " ===>error is:", err.Error())
+		return errors.New("error when get workflowlog's info from db:" + err.Error())
 	}
 
-	if pipelineLog.RunState != models.PipelineLogStateCanListen {
-		log.Error("[pipelineLog's Listen]:error pipelinelog state:", pipelineLog)
-		return errors.New("can't listen curren pipelinelog,current state is:" + strconv.FormatInt(pipelineLog.RunState, 10))
+	if workflowLog.RunState != models.WorkflowLogStateCanListen {
+		log.Error("[workflowLog's Listen]:error workflowlog state:", workflowLog)
+		return errors.New("can't listen curren workflowlog,current state is:" + strconv.FormatInt(workflowLog.RunState, 10))
 	}
 
-	pipelineLog.RunState = models.PipelineLogStateWaitToStart
-	err = pipelineLog.GetPipelineLog().Save(pipelineLog).Error
+	workflowLog.RunState = models.WorkflowLogStateWaitToStart
+	err = workflowLog.GetWorkflowLog().Save(workflowLog).Error
 	if err != nil {
-		log.Error("[pipelineLog's Listen]:error when change pipelinelog's run state to wait to start:", pipelineLog, " ===>error is:", err.Error())
-		return errors.New("can't listen target pipeline,change pipeline's state failed")
+		log.Error("[workflowLog's Listen]:error when change workflowlog's run state to wait to start:", workflowLog, " ===>error is:", err.Error())
+		return errors.New("can't listen target workflow,change workflow's state failed")
 	}
 
 	canStartChan := make(chan bool, 1)
@@ -1202,14 +1202,14 @@ func (pipelineLog *PipelineLog) Listen(startData string) error {
 		for true {
 			time.Sleep(1 * time.Second)
 
-			err := pipelineLog.GetPipelineLog().Where("id = ?", pipelineLog.ID).First(pipelineLog).Error
+			err := workflowLog.GetWorkflowLog().Where("id = ?", workflowLog.ID).First(workflowLog).Error
 			if err != nil {
-				log.Error("[pipelineLog's Listen]:error when get pipelineLog's info:", pipelineLog, " ===>error is:", err.Error())
+				log.Error("[workflowLog's Listen]:error when get workflowLog's info:", workflowLog, " ===>error is:", err.Error())
 				canStartChan <- false
 				break
 			}
-			if pipelineLog.Requires == "" || pipelineLog.Requires == "[]" {
-				log.Info("[pipelineLog's Listen]:pipelineLog", pipelineLog, "is ready and will start")
+			if workflowLog.Requires == "" || workflowLog.Requires == "[]" {
+				log.Info("[workflowLog's Listen]:workflowLog", workflowLog, "is ready and will start")
 				canStartChan <- true
 				break
 			}
@@ -1219,10 +1219,10 @@ func (pipelineLog *PipelineLog) Listen(startData string) error {
 	go func() {
 		canStart := <-canStartChan
 		if !canStart {
-			log.Error("[pipelineLog's Listen]:pipelineLog can't start", pipelineLog)
-			pipelineLog.Stop(PipelineStopReasonRunFailed, models.PipelineLogStateRunFailed)
+			log.Error("[workflowLog's Listen]:workflowLog can't start", workflowLog)
+			workflowLog.Stop(WorkflowStopReasonRunFailed, models.WorkflowLogStateRunFailed)
 		} else {
-			go pipelineLog.Start(startData)
+			go workflowLog.Start(startData)
 		}
 
 	}()
@@ -1230,86 +1230,86 @@ func (pipelineLog *PipelineLog) Listen(startData string) error {
 	return nil
 }
 
-func (pipelineLog *PipelineLog) Auth(authMap map[string]interface{}) error {
-	pipelinelogAuthChan <- true
-	defer func() { <-pipelinelogAuthChan }()
+func (workflowLog *WorkflowLog) Auth(authMap map[string]interface{}) error {
+	workflowlogAuthChan <- true
+	defer func() { <-workflowlogAuthChan }()
 
 	authType, ok := authMap["type"].(string)
 	if !ok {
-		log.Error("[pipelineLog's Auth]:error when get authType from given authMap:", authMap, " ===>to pipelinelog:", pipelineLog)
+		log.Error("[workflowLog's Auth]:error when get authType from given authMap:", authMap, " ===>to workflowlog:", workflowLog)
 		return errors.New("authType is illegal")
 	}
 
 	token, ok := authMap["token"].(string)
 	if !ok {
-		log.Error("[pipelineLog's Auth]:error when get token from given authMap:", authMap, " ===>to pipelinelog:", pipelineLog)
+		log.Error("[workflowLog's Auth]:error when get token from given authMap:", authMap, " ===>to workflowlog:", workflowLog)
 		return errors.New("token is illegal")
 	}
 
-	err := pipelineLog.GetPipelineLog().Where("id = ?", pipelineLog.ID).First(pipelineLog).Error
+	err := workflowLog.GetWorkflowLog().Where("id = ?", workflowLog.ID).First(workflowLog).Error
 	if err != nil {
-		log.Error("[pipelineLog's Auth]:error when get pipelineLog info from db:", pipelineLog, " ===>error is:", err.Error())
-		return errors.New("error when get pipelinelog's info from db:" + err.Error())
+		log.Error("[workflowLog's Auth]:error when get workflowLog info from db:", workflowLog, " ===>error is:", err.Error())
+		return errors.New("error when get workflowlog's info from db:" + err.Error())
 	}
 
-	if pipelineLog.Requires == "" || pipelineLog.Requires == "[]" {
-		log.Error("[pipelineLog's Auth]:error when set auth info,pipelinelog's requires is empty", authMap, " ===>to pipelinelog:", pipelineLog)
-		return errors.New("pipeline don't need any more auth")
+	if workflowLog.Requires == "" || workflowLog.Requires == "[]" {
+		log.Error("[workflowLog's Auth]:error when set auth info,workflowlog's requires is empty", authMap, " ===>to workflowlog:", workflowLog)
+		return errors.New("workflow don't need any more auth")
 	}
 
 	requireList := make([]interface{}, 0)
 	remainRequireList := make([]interface{}, 0)
-	err = json.Unmarshal([]byte(pipelineLog.Requires), &requireList)
+	err = json.Unmarshal([]byte(workflowLog.Requires), &requireList)
 	if err != nil {
-		log.Error("[pipelineLog's Auth]:error when unmarshal pipelinelog's require list:", pipelineLog, " ===>error is:", err.Error())
-		return errors.New("error when get pipeline require auth info:" + err.Error())
+		log.Error("[workflowLog's Auth]:error when unmarshal workflowlog's require list:", workflowLog, " ===>error is:", err.Error())
+		return errors.New("error when get workflow require auth info:" + err.Error())
 	}
 
 	hasAuthed := false
 	for _, require := range requireList {
 		requireMap, ok := require.(map[string]interface{})
 		if !ok {
-			log.Error("[pipelineLog's Auth]:error when get pipelinelog's require info:", pipelineLog, " ===> require is:", require)
-			return errors.New("error when get pipeline require auth info,require is not a json object")
+			log.Error("[workflowLog's Auth]:error when get workflowlog's require info:", workflowLog, " ===> require is:", require)
+			return errors.New("error when get workflow require auth info,require is not a json object")
 		}
 
 		requireType, ok := requireMap["type"].(string)
 		if !ok {
-			log.Error("[pipelineLog's Auth]:error when get pipelinelog's require type:", pipelineLog, " ===> require map is:", requireMap)
-			return errors.New("error when get pipeline require auth info,require don't have a type")
+			log.Error("[workflowLog's Auth]:error when get workflowlog's require type:", workflowLog, " ===> require map is:", requireMap)
+			return errors.New("error when get workflow require auth info,require don't have a type")
 		}
 
 		requireToken, ok := requireMap["token"].(string)
 		if !ok {
-			log.Error("[pipelineLog's Auth]:error when get pipelinelog's require token:", pipelineLog, " ===> require map is:", requireMap)
-			return errors.New("error when get pipeline require auth info,require don't have a token")
+			log.Error("[workflowLog's Auth]:error when get workflowlog's require token:", workflowLog, " ===> require map is:", requireMap)
+			return errors.New("error when get workflow require auth info,require don't have a token")
 		}
 
 		if requireType == authType && requireToken == token {
 			hasAuthed = true
-			// record auth info to pipelinelog's auth info list
-			pipelineLogAuthList := make([]interface{}, 0)
-			if pipelineLog.AuthList != "" {
-				err = json.Unmarshal([]byte(pipelineLog.AuthList), &pipelineLogAuthList)
+			// record auth info to workflowlog's auth info list
+			workflowLogAuthList := make([]interface{}, 0)
+			if workflowLog.AuthList != "" {
+				err = json.Unmarshal([]byte(workflowLog.AuthList), &workflowLogAuthList)
 				if err != nil {
-					log.Error("[pipelineLog's Auth]:error when unmarshal pipelinelog's auth list:", pipelineLog, " ===>error is:", err.Error())
-					return errors.New("error when set auth info to pipeline")
+					log.Error("[workflowLog's Auth]:error when unmarshal workflowlog's auth list:", workflowLog, " ===>error is:", err.Error())
+					return errors.New("error when set auth info to workflow")
 				}
 			}
 
-			pipelineLogAuthList = append(pipelineLogAuthList, authMap)
+			workflowLogAuthList = append(workflowLogAuthList, authMap)
 
-			authListInfo, err := json.Marshal(pipelineLogAuthList)
+			authListInfo, err := json.Marshal(workflowLogAuthList)
 			if err != nil {
-				log.Error("[pipelineLog's Auth]:error when marshal pipelinelog's auth list:", pipelineLogAuthList, " ===>error is:", err.Error())
-				return errors.New("error when save pipeline auth info")
+				log.Error("[workflowLog's Auth]:error when marshal workflowlog's auth list:", workflowLogAuthList, " ===>error is:", err.Error())
+				return errors.New("error when save workflow auth info")
 			}
 
-			pipelineLog.AuthList = string(authListInfo)
-			err = pipelineLog.GetPipelineLog().Save(pipelineLog).Error
+			workflowLog.AuthList = string(authListInfo)
+			err = workflowLog.GetWorkflowLog().Save(workflowLog).Error
 			if err != nil {
-				log.Error("[pipelineLog's Auth]:error when save pipelinelog's info to db:", pipelineLog, " ===>error is:", err.Error())
-				return errors.New("error when save pipeline auth info")
+				log.Error("[workflowLog's Auth]:error when save workflowlog's info to db:", workflowLog, " ===>error is:", err.Error())
+				return errors.New("error when save workflow auth info")
 			}
 		} else {
 			remainRequireList = append(remainRequireList, requireMap)
@@ -1317,33 +1317,33 @@ func (pipelineLog *PipelineLog) Auth(authMap map[string]interface{}) error {
 	}
 
 	if !hasAuthed {
-		log.Error("[pipelineLog's Auth]:error when auth a pipelinelog to start, given auth:", authMap, " is not equal to any request one:", pipelineLog.Requires)
+		log.Error("[workflowLog's Auth]:error when auth a workflowlog to start, given auth:", authMap, " is not equal to any request one:", workflowLog.Requires)
 		return errors.New("illegal auth info, auth failed")
 	}
 
 	remainRequireAuthInfo, err := json.Marshal(remainRequireList)
 	if err != nil {
-		log.Error("[pipelineLog's Auth]:error when marshal pipelinelog's remainRequireAuth list:", remainRequireList, " ===>error is:", err.Error())
+		log.Error("[workflowLog's Auth]:error when marshal workflowlog's remainRequireAuth list:", remainRequireList, " ===>error is:", err.Error())
 		return errors.New("error when sync remain require auth info")
 	}
 
-	pipelineLog.Requires = string(remainRequireAuthInfo)
-	err = pipelineLog.GetPipelineLog().Save(pipelineLog).Error
+	workflowLog.Requires = string(remainRequireAuthInfo)
+	err = workflowLog.GetWorkflowLog().Save(workflowLog).Error
 	if err != nil {
-		log.Error("[pipelineLog's Auth]:error when save pipelinelog's remain require auth info:", pipelineLog, " ===>error is:", err.Error())
+		log.Error("[workflowLog's Auth]:error when save workflowlog's remain require auth info:", workflowLog, " ===>error is:", err.Error())
 		return errors.New("error when sync remain require auth info")
 	}
 
 	return nil
 }
 
-func (pipelineLog *PipelineLog) Start(startData string) {
-	// get current pipelinelog's start stage
+func (workflowLog *WorkflowLog) Start(startData string) {
+	// get current workflowlog's start stage
 	startStageLog := new(models.StageLog)
-	err := startStageLog.GetStageLog().Where("pipeline = ?", pipelineLog.ID).Where("pre_stage = ?", -1).Where("type = ?", models.StageTypeStart).First(startStageLog).Error
+	err := startStageLog.GetStageLog().Where("workflow = ?", workflowLog.ID).Where("pre_stage = ?", -1).Where("type = ?", models.StageTypeStart).First(startStageLog).Error
 	if err != nil {
-		log.Error("[pipelineLog's Start]:error when get pipelinelog's start stage info from db:", err.Error())
-		pipelineLog.Stop(PipelineStopReasonRunFailed, models.PipelineLogStateRunFailed)
+		log.Error("[workflowLog's Start]:error when get workflowlog's start stage info from db:", err.Error())
+		workflowLog.Stop(WorkflowStopReasonRunFailed, models.WorkflowLogStateRunFailed)
 		return
 	}
 
@@ -1351,43 +1351,43 @@ func (pipelineLog *PipelineLog) Start(startData string) {
 	stage.StageLog = startStageLog
 	err = stage.Listen()
 	if err != nil {
-		log.Error("[pipelineLog's Start]:error when set pipeline", pipelineLog, " start stage:", startStageLog, "to listen:", err.Error())
-		pipelineLog.Stop(PipelineStopReasonRunFailed, models.PipelineLogStateRunFailed)
+		log.Error("[workflowLog's Start]:error when set workflow", workflowLog, " start stage:", startStageLog, "to listen:", err.Error())
+		workflowLog.Stop(WorkflowStopReasonRunFailed, models.WorkflowLogStateRunFailed)
 		return
 	}
 
 	authMap := make(map[string]interface{})
-	authMap["type"] = AuthTypePipelineStartDone
+	authMap["type"] = AuthTypeWorkflowStartDone
 	authMap["token"] = AuthTokenDefault
-	authMap["authorizer"] = "system - " + pipelineLog.Namespace + " - " + pipelineLog.Repository + " - " +
-		pipelineLog.Pipeline + "(" + strconv.FormatInt(pipelineLog.FromPipeline, 10) + ")"
+	authMap["authorizer"] = "system - " + workflowLog.Namespace + " - " + workflowLog.Repository + " - " +
+		workflowLog.Workflow + "(" + strconv.FormatInt(workflowLog.FromWorkflow, 10) + ")"
 	authMap["time"] = time.Now().Format("2006-01-02 15:04:05")
 
 	err = stage.Auth(authMap)
 	if err != nil {
-		log.Error("[pipelineLog's Start]:error when auth to start stage:", pipelineLog, " start stage is ", startStageLog, " ===>error is:", err.Error())
-		pipelineLog.Stop(PipelineStopReasonRunFailed, models.PipelineLogStateRunFailed)
+		log.Error("[workflowLog's Start]:error when auth to start stage:", workflowLog, " start stage is ", startStageLog, " ===>error is:", err.Error())
+		workflowLog.Stop(WorkflowStopReasonRunFailed, models.WorkflowLogStateRunFailed)
 		return
 	}
 
-	err = pipelineLog.recordPipelineStartData(startData)
+	err = workflowLog.recordWorkflowStartData(startData)
 	if err != nil {
-		log.Error("[pipelineLog's Start]:error when record pipeline's start data:", startData, " ===>error is:", err.Error())
-		pipelineLog.Stop(PipelineStopReasonRunFailed, models.PipelineLogStateRunFailed)
+		log.Error("[workflowLog's Start]:error when record workflow's start data:", startData, " ===>error is:", err.Error())
+		workflowLog.Stop(WorkflowStopReasonRunFailed, models.WorkflowLogStateRunFailed)
 		return
 	}
 }
 
-func (pipelineLog *PipelineLog) Stop(reason string, runState int64) {
-	err := pipelineLog.GetPipelineLog().Where("id = ?", pipelineLog.ID).First(pipelineLog).Error
+func (workflowLog *WorkflowLog) Stop(reason string, runState int64) {
+	err := workflowLog.GetWorkflowLog().Where("id = ?", workflowLog.ID).First(workflowLog).Error
 	if err != nil {
-		log.Error("[pipelineLog's Stop]:error when get pipelinelog info from db:", err.Error())
+		log.Error("[workflowLog's Stop]:error when get workflowlog info from db:", err.Error())
 		return
 	}
 
-	if runState != models.PipelineLogStateRunSuccess {
+	if runState != models.WorkflowLogStateRunSuccess {
 		notEndStageLogList := make([]models.StageLog, 0)
-		new(models.StageLog).GetStageLog().Where("pipeline = ?", pipelineLog.ID).Where("run_state != ?", models.StageLogStateRunSuccess).Where("run_state != ?", models.StageLogStateRunFailed).Find(&notEndStageLogList)
+		new(models.StageLog).GetStageLog().Where("workflow = ?", workflowLog.ID).Where("run_state != ?", models.StageLogStateRunSuccess).Where("run_state != ?", models.StageLogStateRunFailed).Find(&notEndStageLogList)
 
 		for _, stageLogInfo := range notEndStageLogList {
 			stage := new(StageLog)
@@ -1396,24 +1396,24 @@ func (pipelineLog *PipelineLog) Stop(reason string, runState int64) {
 		}
 	}
 
-	pipelineLog.RunState = runState
-	err = pipelineLog.GetPipelineLog().Save(pipelineLog).Error
+	workflowLog.RunState = runState
+	err = workflowLog.GetWorkflowLog().Save(workflowLog).Error
 	if err != nil {
-		log.Error("[pipelineLog's Stop]:error when change pipelinelog's run state:", pipelineLog, " ===>error is:", err.Error())
+		log.Error("[workflowLog's Stop]:error when change workflowlog's run state:", workflowLog, " ===>error is:", err.Error())
 	}
 }
 
-func (pipelineLog *PipelineLog) recordPipelineStartData(startData string) error {
+func (workflowLog *WorkflowLog) recordWorkflowStartData(startData string) error {
 	startStage := new(models.StageLog)
-	err := startStage.GetStageLog().Where("pipeline = ?", pipelineLog.ID).Where("type = ?", models.StageTypeStart).First(startStage).Error
+	err := startStage.GetStageLog().Where("workflow = ?", workflowLog.ID).Where("type = ?", models.StageTypeStart).First(startStage).Error
 	if err != nil {
-		log.Error("[pipelineLog's recordPipelineStartData]:error when get pipeline startStage info:", startData, " ===>error is:", err.Error())
+		log.Error("[workflowLog's recordWorkflowStartData]:error when get workflow startStage info:", startData, " ===>error is:", err.Error())
 		return err
 	}
 
-	err = RecordOutcom(pipelineLog.ID, pipelineLog.FromPipeline, startStage.ID, startStage.FromStage, models.OutcomeTypeStageStartActionID, models.OutcomeTypeStageStartActionID, pipelineLog.Sequence, models.OutcomeTypeStageStartEventID, true, startData, startData)
+	err = RecordOutcom(workflowLog.ID, workflowLog.FromWorkflow, startStage.ID, startStage.FromStage, models.OutcomeTypeStageStartActionID, models.OutcomeTypeStageStartActionID, workflowLog.Sequence, models.OutcomeTypeStageStartEventID, true, startData, startData)
 	if err != nil {
-		log.Error("[pipelineLog's recordPipelineStartData]:error when record pipeline startData info:", " ===>error is:", err.Error())
+		log.Error("[workflowLog's recordWorkflowStartData]:error when record workflow startData info:", " ===>error is:", err.Error())
 		return err
 	}
 
