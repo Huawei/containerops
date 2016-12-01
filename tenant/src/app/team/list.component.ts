@@ -31,4 +31,7 @@ export class TeamListComponent implements OnInit {
 	manageMembers(id): void{
 		this.router.navigate(['team', id, 'member','manage']);
 	}
+	manageAuth(id) : void{
+		this.router.navigate(['team', id, 'auth', 'manage']);
+	}
 }
