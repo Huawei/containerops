@@ -7,7 +7,6 @@
 There is a lot of projects, plugins and services implemeted build, test and deployment in the DevOps workflow. But no one cover all tasks, we could only choose different projects and services together assembling into DevOps workflow. How to determine the order of tools and pass the data between them?  
 
 ContainerOps is DevOps orchestration. It build a DevOps workflow orchestrating tools or services, and passing the trigger data or customize data from the workflow start trigger to the every stage. So don’t need abandon the original DevOps solution, just add ContainerOps as the top orchestration, scheduling the existing build system, continuous integration system or continuous deployment system, adding any features used and reused container DevOps component.
-.
 
 ![Workflow Running](docs/images/workflow-running.gif)
 
