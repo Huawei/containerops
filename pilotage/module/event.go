@@ -42,8 +42,8 @@ func init() {
 
 func setSystemEvent(db *gorm.DB, actionLog *models.ActionLog) error {
 	if db == nil {
-		db = models.GetDB()
-		err := db.Begin().Error
+		db = models.GetDB().Begin()
+		err := db.Error
 		if err != nil {
 			log.Error("[setSystemEvent]:when db.Begin():", err.Error())
 			return err
@@ -187,8 +187,8 @@ func RecordEventInfo(eventDefineId, sequence int64, headerInfo, payload, authInf
 }
 
 func SetWorkflowVarInfo(id int64, varMap map[string]interface{}) error {
-	db := models.GetDB()
-	err := db.Begin().Error
+	db := models.GetDB().Begin()
+	err := db.Error
 	if err != nil {
 		log.Error("[workflowVar's SetWorkflowVarInfo]:when db.Begin():", err.Error())
 		return errors.New("error when db.Begin")
@@ -196,7 +196,7 @@ func SetWorkflowVarInfo(id int64, varMap map[string]interface{}) error {
 
 	for key, defaultValue := range varMap {
 		varSet := new(models.WorkflowVar)
-		err := db.Model(varSet).Where("workflow = ?", id).Where("key = ?", key).First(varSet).Error
+		err := db.Model(&models.WorkflowVar{}).Where("workflow = ?", id).Where("`key` = ?", key).First(varSet).Error
 		if err != nil && err.Error() != "record not found" {
 			log.Error("[workflowVar's SetWorkflowVarInfo]:when query var info from db:", err.Error())
 			rollbackErr := db.Rollback().Error
@@ -229,6 +229,7 @@ func SetWorkflowVarInfo(id int64, varMap map[string]interface{}) error {
 		}
 	}
 
+	db.Commit()
 	return nil
 }
 
