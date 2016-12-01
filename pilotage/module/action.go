@@ -338,8 +338,8 @@ func GetActionLogByName(namespace, repository, workflowName string, sequence int
 
 func (actionInfo *Action) GenerateNewLog(db *gorm.DB, workflowLog *models.WorkflowLog, stageLog *models.StageLog) error {
 	if db == nil {
-		db = models.GetDB()
-		err := db.Begin().Error
+		db = models.GetDB().Begin()
+		err := db.Error
 		if err != nil {
 			log.Error("[action's GenerateNewLog]:when db.Begin():", err.Error())
 			return err
