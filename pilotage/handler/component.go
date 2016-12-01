@@ -73,7 +73,7 @@ func PostComponentV1Handler(ctx *macaron.Context) (int, []byte) {
 
 	resultStr, err := module.CreateNewComponent(namespace, body.Name, body.Version)
 	if err != nil {
-		result, _ = json.Marshal(map[string]string{"errMsg": "error when create pipeline:" + err.Error()})
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when create workflow:" + err.Error()})
 		return http.StatusBadRequest, result
 	}
 
