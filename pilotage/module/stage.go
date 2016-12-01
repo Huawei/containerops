@@ -92,8 +92,8 @@ func getStageEnvList(stageLogId int64) ([]map[string]interface{}, error) {
 
 func CreateNewStage(db *gorm.DB, preStageId int64, workflowInfo *models.Workflow, defineMap, relationMap map[string]interface{}) (int64, string, map[string]int64, error) {
 	if db == nil {
-		db = models.GetDB()
-		err := db.Begin().Error
+		db = models.GetDB().Begin()
+		err := db.Error
 		if err != nil {
 			log.Error("[stage's CreateNewStage]:when db.Begin():", err.Error())
 			return 0, "", nil, err
