@@ -19,6 +19,7 @@ import {notify} from "../common/notify";
 import {workflowApi} from "../common/api";
 import {loading} from "../common/loading";
 import * as startIOData from "./startIOData";
+import {workflowVars} from "../workflow/workflowVar";
 
 var treeEdit_OutputContainer;
 var fromEdit_OutputCodeContainer,fromEdit_OutputTreeContainer;
@@ -94,7 +95,7 @@ function showOutputTabs(){
                                     <div class="row col-md-6 event-input-div">
                                         <label class="col-md-4 control-label">Event</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control output-event-input" required>
+                                            <input type="text" class="form-control output-event-input allowFromVar" required>
                                         </div>
                                     </div>
                                 </div>
@@ -188,6 +189,16 @@ function showOutputTabs(){
     $(".outputToJson").on('click',function(){
         fromTreeToCode("output");
     });
+
+    // use global vars
+    var globalvars = _.map(workflowVars,function(item){
+        return "@"+item[0]+"@";
+    });
+    $(".allowFromVar").autocomplete({
+        source:[globalvars],
+        limit: 100,
+        visibleLimit: 5
+    }); 
 
     // init trigger
     startIOData.findSelectedStartOutputTabDom().find("a").addClass("active");
