@@ -7,11 +7,11 @@ import { NotifyService } from '../common/notify.service';
 var _ = require("underscore");
 // declare _ 
 @Component({
-  selector: 'team-manage-members',
-  template: require('../../template/team/manage-member.html')
+  selector: 'team-manage-auth',
+  template: require('../../template/team/manage-auth.html')
 })
 
-export class TeamManageMemberComponent implements OnInit { 
+export class TeamManageAuthComponent implements OnInit { 
     team;
 	users;
 	members;

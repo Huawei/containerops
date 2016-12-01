@@ -24,6 +24,7 @@ import 'tether';
 import 'widgster';
 // import 'bootstrap';
 import 'bootstrap-sass';
+import 'select2/dist/js/select2.min.js';
 import 'underscore/underscore-min.js';
 import 'angular-in-memory-web-api';
 import 'blueimp-md5';

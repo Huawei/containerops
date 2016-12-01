@@ -16,13 +16,16 @@ limitations under the License. */
 /*@import "../../node_modules/bootstrap/scss/bootstrap";*/
 @import "../../node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
 @import "../../node_modules/font-awesome/scss/font-awesome";
-@import "../../node_modules/select2/src/scss/core";
+
 
 @import "../../node_modules/bootstrap/scss/mixins/breakpoints";
 @import "../../node_modules/messenger/build/css/messenger";
 @import "../../node_modules/messenger/build/css/messenger-spinner";
 @import "../../node_modules/messenger/build/css/messenger-theme-future";
 @import "../../node_modules/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox";
+@import "../../node_modules/select2/dist/css/select2";
+@import "../../node_modules/select2-bootstrap-css/select2-bootstrap";
+
 
 @import "./theme/bootstrap-override";
 
