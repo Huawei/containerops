@@ -24,10 +24,10 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func RecordOutcom(pipelineId, fromPiipelineId, stageId, fromStageId, actionId, fromActionId, sequence, evnetId int64, status bool, result, output string) error {
+func RecordOutcom(workflowId, fromPiipelineId, stageId, fromStageId, actionId, fromActionId, sequence, evnetId int64, status bool, result, output string) error {
 	outcome := new(models.Outcome)
-	outcome.Pipeline = pipelineId
-	outcome.RealPipeline = fromPiipelineId
+	outcome.Workflow = workflowId
+	outcome.RealWorkflow = fromPiipelineId
 	outcome.Stage = stageId
 	outcome.RealStage = fromStageId
 	outcome.Action = actionId

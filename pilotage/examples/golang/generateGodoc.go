@@ -35,10 +35,10 @@ func init() {
 func main() {
 	initEvent()
 
-	// when start a component ,send a COMPONENT_START notify and register self in pipeline
+	// when start a component ,send a COMPONENT_START notify and register self in workflow
 	notifyEvent("COMPONENT_START", "application/json", strings.NewReader("component start..."))
 
-	// on this func ,you can wait pipeline send the data you will use
+	// on this func ,you can wait workflow send the data you will use
 	for _, serviceInfo := range strings.Split(SERVICE_ADDR, ",") {
 		if len(strings.Split(serviceInfo, ":")) >= 3 {
 			go waitForData(strings.Split(serviceInfo, ":"))
@@ -48,7 +48,7 @@ func main() {
 	notifyEvent("TASK_STATE", "application/json", strings.NewReader("waitting data..."))
 	codePath := <-dataChan
 
-	// after get all data you need, send a TASH_START notify to pipeline and start do what you need
+	// after get all data you need, send a TASH_START notify to workflow and start do what you need
 	notifyEvent("TASK_START", "application/json", strings.NewReader("task start..."))
 
 	result := generateGodoc(codePath)
@@ -58,13 +58,13 @@ func main() {
 	resultMap["status"] = true
 	resultMap["result"] = map[string]interface{}{"status": resultMap["status"], "status": "success", "output": resultMap["output"]}
 	resultByte, _ := json.Marshal(resultMap)
-	// after task done send a TASK_RESULT notify to pipeline
+	// after task done send a TASK_RESULT notify to workflow
 	notifyEvent("TASK_RESULT", "application/json", bytes.NewReader(resultByte))
 
 	// on this func, you can do some after-task job,like recycle some resource
 	// recycleResource()
 
-	// after after-task job done, send a COMPONENT_STOP notify to pipeline ,so that pipeline will stop it as soon as possible
+	// after after-task job done, send a COMPONENT_STOP notify to workflow ,so that workflow will stop it as soon as possible
 	// if you don't send a COMPONENT_STOP notify,pipelin will auto stop it after some time(default:60s)
 	notifyEvent("COMPONENT_STOP", "application/json", strings.NewReader("component stoping..."))
 }

@@ -378,7 +378,7 @@ func InitComponetNew(actionLog *ActionLog) (component, error) {
 			}
 		}
 
-		kubeCom.runID = strconv.FormatInt(actionLog.Pipeline, 10) + "-" + strconv.FormatInt(actionLog.Stage, 10) + "-" + strconv.FormatInt(actionLog.ID, 10)
+		kubeCom.runID = strconv.FormatInt(actionLog.Workflow, 10) + "-" + strconv.FormatInt(actionLog.Stage, 10) + "-" + strconv.FormatInt(actionLog.ID, 10)
 		kubeCom.apiServerUri = platformSetting["platformHost"]
 		kubeCom.namespace = actionLog.Namespace
 		kubeCom.nodeIP = nodeIP
@@ -976,13 +976,13 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 	// add event envMap
 	allEventMap := make(map[string]interface{})
 	envList := make([]map[string]interface{}, 0)
-	pipelineEnvList, err := getPipelineEnvList(kube.componentInfo.Pipeline)
+	workflowEnvList, err := getWorkflowEnvList(kube.componentInfo.Workflow)
 	if err != nil {
-		log.Error("[kubeComponent's GetPodDefine]:error when get pipeline's env list:", err.Error())
+		log.Error("[kubeComponent's GetPodDefine]:error when get workflow's env list:", err.Error())
 		return nil, err
 	}
 
-	for _, env := range pipelineEnvList {
+	for _, env := range workflowEnvList {
 		allEventMap[env["name"].(string)] = env["value"]
 	}
 
