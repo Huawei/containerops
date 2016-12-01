@@ -973,6 +973,32 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 		containers = append(containers, containerInfo)
 	}
 
+	// get action's data
+	actionLog := new(ActionLog)
+	actionLog.ActionLog = &kube.componentInfo
+	manifestMap := make(map[string]interface{})
+	err := json.Unmarshal([]byte(actionLog.Manifest), &manifestMap)
+	if err != nil {
+		log.Error("[kubeComponent's GetPodDefine]:error when get action manifest info:" + err.Error())
+		return nil, errors.New("error when unmarshal action's manifestMap")
+	}
+
+	dataMap := make(map[string]interface{})
+	relations, ok := manifestMap["relation"]
+	if ok {
+		relationInfo, ok := relations.([]interface{})
+		if !ok {
+			log.Error("[kubeComponent's GetPodDefine]:error when parse relations,want an array,got:", relations)
+			return nil, errors.New("error when parse relations")
+		}
+
+		dataMap, err = actionLog.merageFromActionsOutputData(relationInfo)
+		if err != nil {
+			log.Error("[kubeComponent's GetPodDefine]:error when get data map from action: " + err.Error())
+		}
+	}
+	dataMapBytes, _ := json.Marshal(dataMap)
+
 	// add event envMap
 	allEventMap := make(map[string]interface{})
 	envList := make([]map[string]interface{}, 0)
@@ -1022,12 +1048,13 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 	}
 
 	if serviceAddr != "" {
-		allEventMap["SERVICE_ADDR"] = serviceAddr
+		allEventMap["CO_SERVICE_ADDR"] = serviceAddr
 	}
 
-	allEventMap["POD_NAME"] = podName
-	allEventMap["RUN_ID"] = kube.runID
-	allEventMap["EVENT_LIST"] = strings.TrimPrefix(eventListStr, ";")
+	allEventMap["CO_POD_NAME"] = podName
+	allEventMap["CO_RUN_ID"] = kube.runID
+	allEventMap["CO_EVENT_LIST"] = strings.TrimPrefix(eventListStr, ";")
+	allEventMap["CO_DATA"] = string(dataMapBytes)
 
 	for key, value := range allEventMap {
 		tempEnv := make(map[string]interface{})
