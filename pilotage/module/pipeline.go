@@ -599,8 +599,8 @@ func (workflowInfo *Workflow) GetWorkflowToken() (map[string]interface{}, error)
 }
 
 func (workflowInfo *Workflow) UpdateWorkflowInfo(define map[string]interface{}) error {
-	db := models.GetDB()
-	err := db.Begin().Error
+	db := models.GetDB().Begin()
+	err := db.Error
 	if err != nil {
 		log.Error("[workflow's UpdateWorkflowInfo]:when db.Begin():", err.Error())
 		return err
@@ -773,6 +773,7 @@ func (workflowInfo *Workflow) UpdateWorkflowInfo(define map[string]interface{}) 
 		}
 	}
 
+	db.Commit()
 	return nil
 }
 
