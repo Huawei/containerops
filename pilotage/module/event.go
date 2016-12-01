@@ -200,18 +200,19 @@ func SetWorkflowVarInfo(id int64, varMap map[string]interface{}) error {
 		return errors.New("error when db.Begin")
 	}
 
+	err = db.Model(&models.WorkflowVar{}).Where("workflow = ?", id).Unscoped().Delete(&models.WorkflowVar{}).Error
+	if err != nil {
+		log.Error("[workflowVar's SetWorkflowVarInfo]:when delet var info from db:", err.Error())
+		rollbackErr := db.Rollback().Error
+		if rollbackErr != nil {
+			log.Error("[workflowVar's SetWorkflowVarInfo]:when rollback in delet var info got err:", rollbackErr.Error())
+			return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
+		}
+		return errors.New("error when delete var info from db:" + err.Error())
+	}
+
 	for key, defaultValue := range varMap {
 		varSet := new(models.WorkflowVar)
-		err := db.Model(&models.WorkflowVar{}).Where("workflow = ?", id).Where("`key` = ?", key).First(varSet).Error
-		if err != nil && err.Error() != "record not found" {
-			log.Error("[workflowVar's SetWorkflowVarInfo]:when query var info from db:", err.Error())
-			rollbackErr := db.Rollback().Error
-			if rollbackErr != nil {
-				log.Error("[workflowVar's SetWorkflowVarInfo]:when rollback in get var info got err:", rollbackErr.Error())
-				return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
-			}
-			return errors.New("error when get var info from db:" + err.Error())
-		}
 
 		defaultValueStr, ok := defaultValue.(string)
 		if !ok {
@@ -223,7 +224,7 @@ func SetWorkflowVarInfo(id int64, varMap map[string]interface{}) error {
 		varSet.Key = key
 		varSet.Default = defaultValueStr
 
-		err = varSet.GetWorkflowVar().Save(varSet).Error
+		err = db.Model(&models.WorkflowVar{}).Save(varSet).Error
 		if err != nil {
 			log.Error("[workflowVar's SetWorkflowVarInfo]:when save var info from db:", err.Error())
 			rollbackErr := db.Rollback().Error
