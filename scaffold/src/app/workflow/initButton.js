@@ -20,8 +20,8 @@ import * as config from "../common/config";
 
 import { initAction } from "./initAction";
 import { addAction, deleteAction } from "../action/addOrDeleteAction";
-import { pipelineData } from "./main";
-import { animationForRemoveStage, initPipeline } from "./initPipeline";
+import { workflowData } from "./main";
+import { animationForRemoveStage, initWorkflow } from "./initWorkflow";
 import { addStage, deleteStage } from "../stage/addOrDeleteStage";
 import { animationForRemoveAction } from "./initAction";
 import { setPath } from "../relation/setPath";
@@ -46,8 +46,8 @@ export function initButton() {
         .style({
             "fill": "#f7f7f7"
         });
-    util.showZoomBtn(1, "zoomin", constant.buttonView, constant.pipelineView, scaleObj);
-    util.showZoomBtn(2, "zoomout", constant.buttonView, constant.pipelineView, scaleObj);
+    util.showZoomBtn(1, "zoomin", constant.buttonView, constant.workflowView, scaleObj);
+    util.showZoomBtn(2, "zoomout", constant.buttonView, constant.workflowView, scaleObj);
 }
 export function updateButtonGroup(currentItemType) {
     cleanOptBtn();
@@ -148,22 +148,22 @@ function showOptBtn(index, type) {
                 addAction(constant.currentSelectedItem.data.actions);
                 initAction();
             } else if (type == "delete") {
-                $("#pipeline-info-edit").html("");
+                $("#workflow-info-edit").html("");
                 var timeout = 0;
                 var index = d3.select("#" + constant.currentSelectedItem.data.id).attr("data-index");
                 /* if remove the node is not the last one, add animation to action */
                 if (constant.currentSelectedItem.type == "stage") {
-                    if (i < pipelineData.length - 1) {
+                    if (i < workflowData.length - 1) {
                         timeout = 400;
                         animationForRemoveStage(constant.currentSelectedItem.data.id, index);
                     }
                     setTimeout(function() {
                         deleteStage(constant.currentSelectedItem.data, index);
                         constant.setCurrentSelectedItem(null);
-                        initPipeline();
+                        initWorkflow();
                     }, timeout)
                 } else if (constant.currentSelectedItem.type == "action") {
-                    $("#pipeline-info-edit").html("");
+                    $("#workflow-info-edit").html("");
                     var timeout = 0;
                     // TODO
                     var index = d3.select("#" + constant.currentSelectedItem.data.id).attr("data-index");
@@ -175,18 +175,18 @@ function showOptBtn(index, type) {
                         animationForRemoveAction(stageData.id, actionData.id, index);
                     }
 
-                    /* reload pipeline after the animation */
+                    /* reload workflow after the animation */
                     setTimeout(function() {
                         deleteAction(actionData, index);
                         constant.setCurrentSelectedItem(null);
-                        initPipeline();
+                        initWorkflow();
                     }, timeout)
                 }
                 cleanOptBtn();
 
 
             } else if (type == "removeLink") {
-                $("#pipeline-info-edit").html("");
+                $("#workflow-info-edit").html("");
                 var id = constant.currentSelectedItem.data.attr("id");
                 constant.currentSelectedItem.data.remove();
                 var lineData = _.find(constant.linePathAry, function(item) {

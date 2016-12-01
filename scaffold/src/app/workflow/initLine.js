@@ -17,7 +17,7 @@ limitations under the License.
 import * as constant from "../common/constant";
 import * as util from "../common/util";
 import { setPath } from "../relation/setPath";
-import { mouseoverRelevantPipeline, mouseoutRelevantPipeline } from "../relation/lineHover";
+import { mouseoverRelevantWorkflow, mouseoutRelevantWorkflow } from "../relation/lineHover";
 import { dragDropSetPath } from "../relation/dragDropSetPath";
 
 export function initLine() {
@@ -26,49 +26,49 @@ export function initLine() {
 
     var diagonal = d3.svg.diagonal();
 
-    var pipelineLineViewId = "pipeline-line-view";
+    var workflowLineViewId = "workflow-line-view";
 
-    constant.lineView[pipelineLineViewId] = constant.linesView.append("g")
+    constant.lineView[workflowLineViewId] = constant.linesView.append("g")
         .attr("width", constant.svgWidth)
         .attr("height", constant.svgHeight)
-        .attr("id", pipelineLineViewId);
+        .attr("id", workflowLineViewId);
 
-    constant.pipelineView.selectAll("image").each(function(d, i) {
+    constant.workflowView.selectAll("image").each(function(d, i) {
 
-        /* draw the main line of pipeline */
+        /* draw the main line of workflow */
         if (i != 0) {
-            constant.lineView[pipelineLineViewId]
+            constant.lineView[workflowLineViewId]
                 .append("path")
                 .attr("d", function() {
                     return diagonal({
-                        source: { x: d.translateX - constant.PipelineNodeSpaceSize, y: constant.pipelineNodeStartY + constant.svgStageHeight / 2 },
-                        target: { x: d.translateX + 2, y: constant.pipelineNodeStartY + constant.svgStageHeight / 2 }
+                        source: { x: d.translateX - constant.WorkflowNodeSpaceSize, y: constant.workflowNodeStartY + constant.svgStageHeight / 2 },
+                        target: { x: d.translateX + 2, y: constant.workflowNodeStartY + constant.svgStageHeight / 2 }
                     });
                 })
                 .attr("fill", "none")
                 .attr("stroke", "#1F6D84")
                 .attr("stroke-width", 2);
         }
-        if (d.type == constant.PIPELINE_START) {
-            /* draw the vertical line and circle for start node  in lineView -> pipeline-line-view */
-            constant.lineView[pipelineLineViewId]
+        if (d.type == constant.WORKFLOW_START) {
+            /* draw the vertical line and circle for start node  in lineView -> workflow-line-view */
+            constant.lineView[workflowLineViewId]
                 .append("path")
                 .attr("d", function() {
                     return diagonal({
-                        source: { x: d.translateX + constant.svgStageWidth / 2, y: constant.pipelineNodeStartY + constant.svgStageHeight / 2 },
-                        target: { x: d.translateX + constant.svgStageWidth / 2, y: constant.pipelineNodeStartY + constant.svgStageHeight + 10 }
+                        source: { x: d.translateX + constant.svgStageWidth / 2, y: constant.workflowNodeStartY + constant.svgStageHeight / 2 },
+                        target: { x: d.translateX + constant.svgStageWidth / 2, y: constant.workflowNodeStartY + constant.svgStageHeight + 10 }
                     })
                 })
                 .attr("fill", "none")
                 .attr("stroke", "#1F6D84")
                 .attr("stroke-width", 1);
-            constant.lineView[pipelineLineViewId]
+            constant.lineView[workflowLineViewId]
                 .append("circle")
                 .attr("cx", function(cd, ci) {
                     return d.translateX + constant.svgStageWidth / 2;
                 })
                 .attr("cy", function(cd, ci) {
-                    return constant.pipelineNodeStartY + constant.svgStageHeight + 19;
+                    return constant.workflowNodeStartY + constant.svgStageHeight + 19;
                 })
                 .attr("r", function(cd, ci) {
                     return 8;
@@ -79,7 +79,7 @@ export function initLine() {
                 .style("cursor", "pointer")
                 /* mouse over the circle show relevant lines of start stage */
                 .on("mouseover", function(cd, ci) {
-                    mouseoverRelevantPipeline(d);
+                    mouseoverRelevantWorkflow(d);
                 })
                 /* mouse over the circle to draw line from start stage */
                 .on("mousedown", function(cd, ci) {
@@ -91,12 +91,12 @@ export function initLine() {
                     });
                 })
                 .on("mouseout", function(cd, ci) {
-                    mouseoutRelevantPipeline(d);
+                    mouseoutRelevantWorkflow(d);
                 })
 
         }
         /* draw line from action 2 stage and circle of action self to accept and emit lines  */
-        if (d.type == constant.PIPELINE_STAGE && d.actions != null && d.actions.length > 0) {
+        if (d.type == constant.WORKFLOW_STAGE && d.actions != null && d.actions.length > 0) {
 
             // var actionLineViewId = "action-line" + "-" + d.id;
             var action2StageLineViewId = "action-2-stage-line" + "-" + d.id;
@@ -215,7 +215,7 @@ export function initLine() {
                 .attr("stroke-width", 2)
                 .style("cursor", "pointer")
                 .on("mouseover", function(ad, ai) {
-                    mouseoverRelevantPipeline(ad);
+                    mouseoverRelevantWorkflow(ad);
                 })
                 .on("mousedown", function(ad, ai) {
                     d3.event.stopPropagation();
@@ -225,7 +225,7 @@ export function initLine() {
                     });
                 })
                 .on("mouseout", function(ad, ai) {
-                    mouseoutRelevantPipeline(ad);
+                    mouseoutRelevantWorkflow(ad);
                 })
         }
 

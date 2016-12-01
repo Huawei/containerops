@@ -20,9 +20,9 @@ import { notify } from "../common/notify";
 import { loading } from "../common/loading";
 
 
-export function getLineHistory(pipelineName,versionName,pipelineRunSequence,sequenceLineId) {
+export function getLineHistory(workflowName,versionName,workflowRunSequence,sequenceLineId) {
     // loading.show();
-    var promise = historyDataService.getLineDataInfo(pipelineName,versionName,pipelineRunSequence,sequenceLineId);
+    var promise = historyDataService.getLineDataInfo(workflowName,versionName,workflowRunSequence,sequenceLineId);
     promise.done(function(data) {
         loading.hide();
         showLineHistoryView(data.define);
@@ -43,7 +43,7 @@ function showLineHistoryView(history) {
         type: "GET",
         cache: false,
         success: function(data) {
-            $("#history-pipeline-detail").html($(data));
+            $("#history-workflow-detail").html($(data));
 
             var inputStream = JSON.stringify(history.input,undefined,2);
             $("#action-input-stream").val(inputStream);

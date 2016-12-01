@@ -12,7 +12,7 @@ limitations under the License.
 */
 
 import { linePathAry } from "../common/constant";
-import { pipelineData } from "../pipeline/main";
+import { workflowData } from "../workflow/main";
 import { judgeType } from "../common/util"
 
 let linePathArray;
@@ -253,8 +253,8 @@ function delRelation(relation,fromAction,fromPath) {
 }
 
 function getAction(actionId) {
-    for (let i = 0; i < pipelineData.length; i ++) {
-        let stage = pipelineData[i];
+    for (let i = 0; i < workflowData.length; i ++) {
+        let stage = workflowData[i];
         if (stage.actions) {
             for (let j = 0; j < stage.actions.length; j ++ ) {
                 let action = stage.actions[j];
@@ -264,7 +264,7 @@ function getAction(actionId) {
             }
         }
 
-        if (stage.type == "pipeline-start" && actionId == stage.id) {
+        if (stage.type == "workflow-start" && actionId == stage.id) {
             let action = {};
             action.setupData = {};
             action.setupData.action = {};

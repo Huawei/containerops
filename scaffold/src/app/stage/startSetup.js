@@ -15,7 +15,7 @@ limitations under the License.
  */
 
 import {initStartIO,initTreeEdit,initFromEdit,initFromView,getOutputForEvent} from "./startIO";
-import {getPipelineToken} from "../pipeline/main";
+import {getWorkflowToken} from "../workflow/main";
 import { notify } from "../common/notify";
 import { loading } from "../common/loading";
 
@@ -24,7 +24,7 @@ export function initStartSetup(start){
     startData = start;
 
     // url and token
-    showPipeline_URL_Token();
+    showWorkflow_URL_Token();
     var urlcopy = new Clipboard('#copyUrl');
     var tokencopy = new Clipboard('#copyToken');
     urlcopy.on('success', function(e) {
@@ -45,8 +45,8 @@ export function initStartSetup(start){
     initStartIO(start);
 }
 
-function showPipeline_URL_Token(){
-    var promise = getPipelineToken();
+function showWorkflow_URL_Token(){
+    var promise = getWorkflowToken();
     promise.done(function(data) {
         loading.hide();
         $("#pp-url").val(data.url);
