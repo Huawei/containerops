@@ -28,7 +28,13 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-var eventList = map[string]string{"COMPONENT_START": "COMPONENT_START", "COMPONENT_STOP": "COMPONENT_STOP", "TASK_START": "TASK_START", "TASK_RESULT": "TASK_RESULT", "TASK_STATUS": "TASK_STATUS", "REGISTER_URL": "register"}
+var eventList = map[string]string{
+	"CO_COMPONENT_START": "CO_COMPONENT_START",
+	"CO_COMPONENT_STOP":  "CO_COMPONENT_STOP",
+	"CO_TASK_START":      "CO_TASK_START",
+	"CO_TASK_RESULT":     "CO_TASK_RESULT",
+	"CO_TASK_STATUS":     "CO_TASK_STATUS",
+	"CO_REGISTER_URL":    "CO_register"}
 var projectAddr = ""
 
 func init() {
