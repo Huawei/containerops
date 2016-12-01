@@ -121,7 +121,7 @@ summary: Getting Start With ContainerOps
 
 
 
-- __Add Action____
+- __Add Action__
 
 ![image](../../images/workflowaddaction.png)
 
