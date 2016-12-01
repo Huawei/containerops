@@ -13,4 +13,8 @@ There is a lot of projects, plugins and services implemeted build, test and depl
 
 ContainerOps is DevOps orchestration. It build a DevOps workflow orchestrating tools or services, and passing the trigger data or customize data from the workflow start trigger to the every stage. So don’t need abandon the original DevOps solution, just add ContainerOps as the top orchestration, scheduling the existing build system, continuous integration system or continuous deployment system, adding any features used and reused container DevOps component.
 
-![Workflow Running](docs/images/workflow-running.gif)
+```liquid
+{% raw %}
+{% include image.html file="docs/images/workflow-running.gif" url="https://containerops.sh" alt="ContainerOps" caption="" %"}
+{% endraw %}
+```
