@@ -18,8 +18,9 @@ import * as workflowDataService from "./workflowData";
 import { notify, confirm } from "../common/notify";
 import { loading } from "../common/loading";
 import {hideWorkflowEnv} from "./workflowEnv";
+import {workflowData} from "./main";
 
-let workflowName, workflowVersionID;
+let workflowName, workflowVersionID,tempWorkflowVars;
 export let workflowVars;
 
 export function initWorkflowVar(name,versionid){
@@ -44,7 +45,7 @@ export function showWorkflowVar() {
                 $("#env-setting").html($(data));
 
                 $(".add-var").on('click', function() {
-                    workflowVars.push(["", ""]);
+                    tempWorkflowVars.push(["", ""]);
                     showVarKVs();
                 });
 
@@ -56,7 +57,7 @@ export function showWorkflowVar() {
                     saveWorkflowVars();
                 });
 
-                showVarKVs();
+                getVarList(true);
             }
         });
 
@@ -65,11 +66,15 @@ export function showWorkflowVar() {
     }
 }
 
-function getVarList() {
+function getVarList(isshow) {
     var promise = workflowDataService.getVars(workflowName, workflowVersionID);
     promise.done(function(data) {
         loading.hide();
-        workflowVars = _.pairs(data.var);
+        tempWorkflowVars = _.pairs(data.var);
+        workflowVars = _.pairs($.extend(true,{},data.var));
+        if(isshow){
+            showVarKVs();
+        }   
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
@@ -83,7 +88,7 @@ function getVarList() {
 
 function showVarKVs() {
     $("#vars").empty();
-    _.each(workflowVars,function(item,index){
+    _.each(tempWorkflowVars,function(item,index){
          var row = '<div class="env-row"><div class="env-key-div">'
                         +'<div>'
                             +'<label for="normal-field" class="col-sm-3 control-label" style="margin-top:5px">'
@@ -107,8 +112,8 @@ function showVarKVs() {
                     +'<div class="env-remove-div pp-rm-vkv" data-index="' + index + '">'
                         +'<span class="glyphicon glyphicon-remove"></span>'
                     +'</div></div>';
-        $("#envs").append(row);
-        $("#envs").find("div[data-index="+index+"]").find(".pp-var-value").val(item[1]);
+        $("#vars").append(row);
+        $("#vars").find("div[data-index="+index+"]").find(".pp-var-value").val(item[1]);
     });
 
     $(".pp-var-key").on('input',function(event){
@@ -118,28 +123,30 @@ function showVarKVs() {
 
     $(".pp-var-key").on('blur',function(event){
         var index = $(event.currentTarget).parent().data("index");
-        workflowVars[index][0] = $(event.currentTarget).val();
+        tempWorkflowVars[index][0] = $(event.currentTarget).val();
     });
 
     $(".pp-var-value").on('blur',function(event){
         var index = $(event.currentTarget).parent().data("index");
-        workflowVars[index][1] = $(event.currentTarget).val();
+        tempWorkflowVars[index][1] = $(event.currentTarget).val();
     });
 
     $(".pp-rm-vkv").on('click',function(event){
         var index = $(event.currentTarget).data("index");
-        workflowVars.splice(index, 1);
+        tempWorkflowVars.splice(index, 1);
         showVarKVs();
     }); 
 }
 
 function saveWorkflowVars() {
-    var promise = workflowDataService.setVars(workflowName, workflowVersionID, workflowVars);
+    var promise = workflowDataService.setVars(workflowName, workflowVersionID, tempWorkflowVars);
     if (promise) {
         promise.done(function(data) {
             loading.hide();
             notify(data.message, "success");
             hideWorkflowEnv();
+            getVarList();
+            $("#workflow-info-edit").html("");
         });
         promise.fail(function(xhr, status, error) {
             loading.hide();
@@ -151,4 +158,10 @@ function saveWorkflowVars() {
             hideWorkflowEnv();
         });
     }
+}
+
+export function isAvailableVar(target){
+    var varKeys = _.unzip(workflowVars)[0];
+    var targetKey = target.substring(1,target.length-1);
+    return _.indexOf(varKeys,targetKey) >= 0 ? true : false;
 }
