@@ -125,11 +125,14 @@ func (e *EventJson) GetEventJson() *gorm.DB {
 }
 
 type WorkflowVar struct {
-	ID       int64  `json:"id" gorm:"primary_key"`        //
-	Workflow int64  `json:"workflow"`                     //
-	Key      string `json:"key" gorm:"type:varchar(255)"` //
-	Default  string `json:"default" gorm:"type:longtext"` //
-	Vaule    string `json:"value" gorm:"type:longtext"`   //
+	ID        int64      `json:"id" gorm:"primary_key"`        //
+	Workflow  int64      `json:"workflow"`                     //
+	Key       string     `json:"key" gorm:"type:varchar(255)"` //
+	Default   string     `json:"default" gorm:"type:longtext"` //
+	Vaule     string     `json:"value" gorm:"type:longtext"`   //
+	CreatedAt time.Time  `json:"created" sql:""`               //
+	UpdatedAt time.Time  `json:"updated" sql:""`               //
+	DeletedAt *time.Time `json:"deleted" sql:"index"`          //
 }
 
 func (r *WorkflowVar) TableName() string {
