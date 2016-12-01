@@ -17,11 +17,11 @@ limitations under the License.
 import * as constant from "../common/constant";
 import * as util from "../common/util";
 
-import { mouseoverRelevantPipeline, mouseoutRelevantPipeline } from "../relation/lineHover";
+import { mouseoverRelevantWorkflow, mouseoutRelevantWorkflow } from "../relation/lineHover";
 import { clickAction } from "../action/clickAction";
-import { pipelineData } from "./main";
+import { workflowData } from "./main";
 import { initLine } from "./initLine";
-import { initPipeline } from "./initPipeline";
+import { initWorkflow } from "./initWorkflow";
 import { deleteAction } from "../action/addOrDeleteAction";
 import * as initButton from "./initButton";
 import * as config from "../common/config";
@@ -56,8 +56,8 @@ export function initAction() {
     constant.actionsView.selectAll("g").remove();
 
     /* draw actions in actionView , data source is stage.actions */
-    constant.pipelineView.selectAll("image").each(function(d, i) {
-        if (d.type == constant.PIPELINE_STAGE && d.actions != null && d.actions.length > 0) {
+    constant.workflowView.selectAll("image").each(function(d, i) {
+        if (d.type == constant.WORKFLOW_STAGE && d.actions != null && d.actions.length > 0) {
             var actionViewId = "action" + "-" + d.id;
             
             constant.actionView[actionViewId] = constant.actionsView.append("g")
@@ -121,10 +121,10 @@ export function initAction() {
                     constant.setCurrentSelectedItem({ "data": ad, "parentData": d, "type": "action" });
                     initButton.updateButtonGroup("action");
                     d3.select("#" + ad.id).attr("href", config.getSVG(config.SVG_ACTION_SELECTED));
-                    util.cleanToolTip(constant.pipelineView, "#pipeline-element-popup");
+                    util.cleanToolTip(constant.workflowView, "#workflow-element-popup");
                 })
                 .on("mouseout", function(ad, ai) {
-                    util.cleanToolTip(constant.pipelineView, "#pipeline-element-popup");
+                    util.cleanToolTip(constant.workflowView, "#workflow-element-popup");
                 })
                 .on("mouseover", function(ad, ai) {
                     var x = ad.translateX;
@@ -139,8 +139,8 @@ export function initAction() {
                         "x": x,
                         "y": y,
                         "text": text,
-                        "popupId": "pipeline-element-popup",
-                        "parentView": constant.pipelineView,
+                        "popupId": "workflow-element-popup",
+                        "parentView": constant.workflowView,
                         "width": width
                     };
                     util.showToolTip(options);

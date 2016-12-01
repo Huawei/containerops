@@ -41,7 +41,7 @@ limitations under the License. */
     overflow: auto;
 }
 
-.pipeline-open-env{
+.workflow-open-env{
     position: fixed;
     top: 0;
     right: -100px;
@@ -61,7 +61,7 @@ limitations under the License. */
     transition: right 0.3s ease-in-out;
 }
 
-.pipeline-close-env{
+.workflow-close-env{
     position: fixed;
     top: 0;
     right: 600px;
@@ -129,9 +129,9 @@ limitations under the License. */
    // margin-top:10px
 }
 
-// pipeline run and stop
-.pipeline-on{
-  background-image:url(/assets/images/pipeline-on.png);
+// workflow run and stop
+.workflow-on{
+  background-image:url(/assets/images/workflow-on.png);
   background-repeat:no-repeat;
   background-size:contain;
   width: 65px;
@@ -142,8 +142,8 @@ limitations under the License. */
   cursor: pointer;
 }
 
-.pipeline-off{
-  background-image:url(/assets/images/pipeline-off.png);
+.workflow-off{
+  background-image:url(/assets/images/workflow-off.png);
   background-repeat:no-repeat;
   background-size:contain;
   width: 65px;
@@ -154,11 +154,11 @@ limitations under the License. */
   cursor: pointer;
 }
 
-.pipeline-on:hover{
+.workflow-on:hover{
   opacity: 0.5;
 }
 
-.pipeline-off:hover{
+.workflow-off:hover{
   opacity: 0.5;
 }
 
@@ -172,7 +172,7 @@ limitations under the License. */
 }
 
 // header buttons
-.selected-pipeline-text{
+.selected-workflow-text{
 	font-size:1.2em;
 	margin-top:0.6em;
 	float:left;
@@ -182,11 +182,11 @@ limitations under the License. */
     overflow: hidden;
 
     @media (max-width: 1400px){
-     	width: 180px;
+     	width: 160px;
   	}
 }
 
-.pipeline-state{
+.workflow-state{
   float:left;
   margin-left:8px;
 }

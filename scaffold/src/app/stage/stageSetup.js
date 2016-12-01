@@ -15,7 +15,7 @@ limitations under the License.
  */
 
 import * as stageSetupData from "./stageSetupData";
-import {pipelineVars} from "../pipeline/pipelineVar";
+import {workflowVars} from "../workflow/workflowVar";
 
 export function initStageSetup(stage){
     stageSetupData.getStageSetupData(stage);
@@ -30,7 +30,7 @@ export function initStageSetup(stage){
         stageSetupData.setStageTimeout();
     });
 
-    var globalvars = _.keys(pipelineVars);
+    var globalvars = _.keys(workflowVars);
     $(".allowFromVar").autocomplete({
         source:[globalvars],
         limit: 100,

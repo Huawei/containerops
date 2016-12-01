@@ -97,7 +97,7 @@ export function transformAnimation(args, type) {
                     translateY = item.type == "siblings" ? (d.translateY - constant.ActionNodeSpaceSize) : (0 - constant.ActionNodeSpaceSize);
 
                 } else if (type == "stage") {
-                    translateX = item.type == "siblings" ? (d.translateX - constant.PipelineNodeSpaceSize) : (0 - constant.PipelineNodeSpaceSize);
+                    translateX = item.type == "siblings" ? (d.translateX - constant.WorkflowNodeSpaceSize) : (0 - constant.WorkflowNodeSpaceSize);
                     translateY = item.type == "siblings" ? d.translateY : 0;
 
                 }
@@ -155,9 +155,9 @@ export function draged(d) {
             .attr("transform", "translate(" + d3.event.x + "," + d3.event.y + ") scale(" + scale + ")");
 
     } else {
-        var scale = Number(constant.pipelineView.attr("scale"));
+        var scale = Number(constant.workflowView.attr("scale"));
         var translate = "translate(" + (d3.event.x) + "," + (d3.event.y) + ") scale(" + scale + ")";
-        var targetCollection = [constant.pipelineView, constant.actionsView, constant.linesView];
+        var targetCollection = [constant.workflowView, constant.actionsView, constant.linesView];
         _.each(targetCollection, function(target) {
             target
                 .attr("translateX", d3.event.x)
@@ -180,7 +180,7 @@ function redraw(d) {
             .attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
             .attr("scale", d3.event.scale)
     } else {
-        var targetCollection = [constant.pipelineView, constant.actionsView, constant.linesView];
+        var targetCollection = [constant.workflowView, constant.actionsView, constant.linesView];
         _.each(targetCollection, function(target) {
             target
                 .attr("translateX", d3.event.translate[0])
@@ -195,7 +195,7 @@ export function zoomed(type, target, scaleObj) {
     var currentTranslateX = Number(target.attr("translateX"));
     var currentTranslateY = Number(target.attr("translateY"));
     var currentTranslate = [currentTranslateX, currentTranslateY];
-    // zoom.scale(scale).translate(currentTranslate).event(constant.pipelineView);
+    // zoom.scale(scale).translate(currentTranslate).event(constant.workflowView);
     d3.transition().duration(constant.zoomDuration).tween("zoom", function() {
         if (type == "zoomin") {
             scaleObj.zoomTargetScale = (scaleObj.zoomScale + constant.zoomFactor) <= constant.zoomMaximum ? (scaleObj.zoomScale + constant.zoomFactor) : constant.zoomMaximum;

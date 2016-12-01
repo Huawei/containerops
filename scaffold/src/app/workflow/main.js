@@ -15,37 +15,37 @@ limitations under the License.
  */
 
 import { initDesigner } from "./initDesigner";
-import { initPipeline } from "./initPipeline";
+import { initWorkflow } from "./initWorkflow";
 import { initAction } from "./initAction";
-import * as pipelineDataService from "./pipelineData";
+import * as workflowDataService from "./workflowData";
 import { notify, confirm } from "../common/notify";
 import { loading } from "../common/loading";
 import { setLinePathAry, linePathAry, setCurrentSelectedItem } from "../common/constant";
-import { pipelineCheck } from "../common/check";
+import { workflowCheck } from "../common/check";
 import { initButton } from "./initButton";
 import {getSequenceDetail} from "../history/main";
-import {initPipelineEnv,showPipelineEnv} from "./pipelineEnv";
-import {initPipelineVar,showPipelineVar} from "./pipelineVar";
+import {initWorkflowEnv,showWorkflowEnv} from "./workflowEnv";
+import {initWorkflowVar,showWorkflowVar} from "./workflowVar";
 
 
-export let allPipelines;
+export let allWorkflows;
 
-export let pipelineData;
-let pipelineDataOriginalCopy,linePathAryOriginalCopy;
-let pipelineName, pipelineVersion, pipelineVersionID,pipelineHasHistory;
-let pipelineEnvs,pipelineVars;
+export let workflowData;
+let workflowDataOriginalCopy,linePathAryOriginalCopy;
+let workflowName, workflowVersion, workflowVersionID,workflowHasHistory;
+let workflowEnvs,workflowVars;
 
 let splitStartY;
 
-export function initPipelinePage() {
-    var promise = pipelineDataService.getAllPipelines();
+export function initWorkflowPage() {
+    var promise = workflowDataService.getAllWorkflows();
     promise.done(function(data) {
         loading.hide();
-        allPipelines = data.list;
-        if (allPipelines.length > 0) {
-            showPipelineList();
+        allWorkflows = data.list;
+        if (allWorkflows.length > 0) {
+            showWorkflowList();
         } else {
-            showNoPipeline();
+            showNoWorkflow();
         }
     });
     promise.fail(function(xhr, status, error) {
@@ -58,27 +58,27 @@ export function initPipelinePage() {
     });
 }
 
-function showPipelineList() {
+function showWorkflowList() {
     $.ajax({
-        url: "../../templates/pipeline/pipelineList.html",
+        url: "../../templates/workflow/workflowList.html",
         type: "GET",
         cache: false,
         success: function(data) {
             $("#main").html($(data));
-            $("#pipelinelist").show("slow");
+            $("#workflowlist").show("slow");
 
-            $(".newpipeline").on('click', function() {
-                showNewPipeline();
+            $(".newworkflow").on('click', function() {
+                showNewWorkflow();
             })
 
-            $(".pipelinelist_body").empty();
-            _.each(allPipelines, function(item) {
+            $(".workflowlist_body").empty();
+            _.each(allWorkflows, function(item) {
                 var pprow = `<tr class="pp-row">
                                 <td class="pptd">
                                     <span class="glyphicon glyphicon-menu-down treeclose treecontroller" data-name=` 
                                     + item.name + `></span><span style="margin-left:10px">` 
                                     + item.name + `</span></td><td></td><td></td><td></td></tr>`;
-                $(".pipelinelist_body").append(pprow);
+                $(".workflowlist_body").append(pprow);
 
                 _.each(item.version, function(version) {
                     var vrow = `<tr data-pname=` + item.name + ` data-version=` + version.version + ` data-versionid=`
@@ -108,7 +108,7 @@ function showPipelineList() {
                                 </button>
                             </td></tr>`;
 
-                    $(".pipelinelist_body").append(vrow);
+                    $(".workflowlist_body").append(vrow);
                 })
             });
             
@@ -131,30 +131,30 @@ function showPipelineList() {
 
             $(".ppview").on("click", function(event) {
                 var target = $(event.currentTarget);
-                pipelineName = target.parent().parent().data("pname");
-                pipelineVersion = target.parent().parent().data("version");
-                pipelineVersionID = target.parent().parent().data("versionid");
-                pipelineHasHistory = target.parent().data("hashistory");
-                getPipelineData();
+                workflowName = target.parent().parent().data("pname");
+                workflowVersion = target.parent().parent().data("version");
+                workflowVersionID = target.parent().parent().data("versionid");
+                workflowHasHistory = target.parent().data("hashistory");
+                getWorkflowData();
             });
         }
     });
 }
 
-function getPipelineData() {
+function getWorkflowData() {
     setCurrentSelectedItem(null);
-    var promise = pipelineDataService.getPipeline(pipelineName, pipelineVersionID);
+    var promise = workflowDataService.getWorkflow(workflowName, workflowVersionID);
     promise.done(function(data) {
-        // pipelineDataOriginalCopy = _.map(data.stageList,function(item){
+        // workflowDataOriginalCopy = _.map(data.stageList,function(item){
         //     return $.extend(true,{},item);
         // });
         // linePathAryOriginalCopy = _.map(data.lineList,function(item){
         //     return $.extend(true,{},item);
         // });
         loading.hide();
-        pipelineData = data.stageList;
+        workflowData = data.stageList;
         setLinePathAry(data.lineList); 
-        showPipelineDesigner(data.status);
+        showWorkflowDesigner(data.status);
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
@@ -166,58 +166,58 @@ function getPipelineData() {
     });
 }
 
-function showNoPipeline() {
+function showNoWorkflow() {
     $.ajax({
-        url: "../../templates/pipeline/noPipeline.html",
+        url: "../../templates/workflow/noWorkflow.html",
         type: "GET",
         cache: false,
         success: function(data) {
             $("#main").html($(data));
-            $("#nopipeline").show("slow");
-            $(".newpipeline").on('click', function() {
-                showNewPipeline();
+            $("#noworkflow").show("slow");
+            $(".newworkflow").on('click', function() {
+                showNewWorkflow();
             })
         }
     });
 }
 
-function beforeShowNewPipeline() {
-    if(_.isEqual(pipelineDataOriginalCopy,pipelineData) && _.isEqual(linePathAryOriginalCopy,linePathAry)){
-        showNewPipeline();
+function beforeShowNewWorkflow() {
+    if(_.isEqual(workflowDataOriginalCopy,workflowData) && _.isEqual(linePathAryOriginalCopy,linePathAry)){
+        showNewWorkflow();
     }else{
         var actions = [{
             "name": "save",
             "label": "Yes",
             "action": function() {
-                savePipelineData(showNewPipeline);
+                saveWorkflowData(showNewWorkflow);
             }
         }, {
             "name": "show",
             "label": "No",
             "action": function() {
-                showNewPipeline();
+                showNewWorkflow();
             }
         }]
-        confirm("The pipeline design has been modified, would you like to save the changes at first.", "info", actions);
+        confirm("The workflow design has been modified, would you like to save the changes at first.", "info", actions);
     }
 }
 
-function showNewPipeline() {
+function showNewWorkflow() {
     $.ajax({
-        url: "../../templates/pipeline/newPipeline.html",
+        url: "../../templates/workflow/newWorkflow.html",
         type: "GET",
         cache: false,
         success: function(data) {
             $("#main").children().hide();
             $("#main").append($(data));
-            $("#newpipeline").show("slow");
+            $("#newworkflow").show("slow");
             $("#newppBtn").on('click', function() {
-                var promise = pipelineDataService.addPipeline();
+                var promise = workflowDataService.addWorkflow();
                 if (promise) {
                     promise.done(function(data) {
                         loading.hide();
                         notify(data.message, "success");
-                        initPipelinePage();
+                        initWorkflowPage();
                     });
                     promise.fail(function(xhr, status, error) {
                         loading.hide();
@@ -236,76 +236,76 @@ function showNewPipeline() {
     });
 }
 
-function showPipelineDesigner(state) {
+function showWorkflowDesigner(state) {
     $.ajax({
-        url: "../../templates/pipeline/pipelineDesign.html",
+        url: "../../templates/workflow/workflowDesign.html",
         type: "GET",
         cache: false,
         success: function(data) {
             $("#main").html($(data));
-            $("#pipelinedesign").show("slow");
+            $("#workflowdesign").show("slow");
 
-            $("#selected_pipeline").text(pipelineName + " / " + pipelineVersion);
-            $("#selected_pipeline").prop("title",pipelineName + " / " + pipelineVersion);
+            $("#selected_workflow").text(workflowName + " / " + workflowVersion);
+            $("#selected_workflow").prop("title",workflowName + " / " + workflowVersion);
 
             if(state){
-                $(".pipeline-state").addClass("pipeline-on");
+                $(".workflow-state").addClass("workflow-on");
             }else{
-                $(".pipeline-state").addClass("pipeline-off");
+                $(".workflow-state").addClass("workflow-off");
             }
 
             initDesigner();
-            drawPipeline();
+            drawWorkflow();
 
-            initPipelineEnv(pipelineName,pipelineVersionID);
-            initPipelineVar(pipelineName,pipelineVersionID);
+            initWorkflowEnv(workflowName,workflowVersionID);
+            initWorkflowVar(workflowName,workflowVersionID);
 
             $(".backtolist").on('click', function() {
                 beforeBackToList();
             });
 
-            $(".pipeline-state").on('click',function(event){
-                if($(event.currentTarget).hasClass("pipeline-off")){
-                    if(!pipelineCheck(pipelineData)){
-                        notify("This pipeline does not pass the availability check, please make it available before ", "error");
+            $(".workflow-state").on('click',function(event){
+                if($(event.currentTarget).hasClass("workflow-off")){
+                    if(!workflowCheck(workflowData)){
+                        notify("This workflow does not pass the availability check, please make it available before ", "error");
                     }else{
-                        beforeRunPipeline();
+                        beforeRunWorkflow();
                     }
-                }else if($(event.currentTarget).hasClass("pipeline-on")){
-                    beforeStopPipeline();
+                }else if($(event.currentTarget).hasClass("workflow-on")){
+                    beforeStopWorkflow();
                 }
             });
 
-            $(".checkpipeline").on('click', function() {
-                pipelineCheck(pipelineData);
+            $(".checkworkflow").on('click', function() {
+                workflowCheck(workflowData);
             });
 
-            $(".savepipeline").on('click', function() {
-                savePipelineData();
+            $(".saveworkflow").on('click', function() {
+                saveWorkflowData();
             });
 
-            $(".newpipelineversion").on('click', function() {
-                showNewPipelineVersion();
+            $(".newworkflowversion").on('click', function() {
+                showNewWorkflowVersion();
             });
 
             $(".loghistory").on('click',function(){
-                if(pipelineHasHistory == "no"){
-                    notify("The pipeline has never been run, there's no logs.", "info");
-                }else if(pipelineHasHistory == "yes"){
+                if(workflowHasHistory == "no"){
+                    notify("The workflow has never been run, there's no logs.", "info");
+                }else if(workflowHasHistory == "yes"){
                     beforeShowLog();
                 }
             });
 
-            $(".newpipelineindesigner").on('click', function() {
-                beforeShowNewPipeline();
+            $(".newworkflowindesigner").on('click', function() {
+                beforeShowNewWorkflow();
             });
 
             $(".envsetting").on("click", function(event) {
-                showPipelineEnv();
+                showWorkflowEnv();
             });
 
             $(".varsetting").on("click", function(event) {
-                showPipelineVar();
+                showWorkflowVar();
             });
 
             $(".designer-split").on("dragstart",function(event){
@@ -317,7 +317,7 @@ function showPipelineDesigner(state) {
                 svgDiv.height(svgDiv.height() + event.originalEvent.y - splitStartY);
             })
 
-            pipelineDataOriginalCopy = _.map(pipelineData,function(item){
+            workflowDataOriginalCopy = _.map(workflowData,function(item){
                 return $.extend(true,{},item);
             });
             linePathAryOriginalCopy = _.map(linePathAry,function(item){
@@ -328,16 +328,16 @@ function showPipelineDesigner(state) {
     });
 }
 
-function drawPipeline() {
-    $("#pipeline-info-edit").empty();
-    initPipeline();
+function drawWorkflow() {
+    $("#workflow-info-edit").empty();
+    initWorkflow();
     initButton();
 }
 
-export function savePipelineData(next) {
-    var promise = pipelineDataService.savePipeline(pipelineName, pipelineVersion, pipelineVersionID, pipelineData, linePathAry);
+export function saveWorkflowData(next) {
+    var promise = workflowDataService.saveWorkflow(workflowName, workflowVersion, workflowVersionID, workflowData, linePathAry);
     promise.done(function(data) {
-        pipelineDataOriginalCopy = _.map(pipelineData,function(item){
+        workflowDataOriginalCopy = _.map(workflowData,function(item){
             return $.extend(true,{},item);
         });
         linePathAryOriginalCopy = _.map(linePathAry,function(item){
@@ -364,25 +364,25 @@ export function savePipelineData(next) {
     });
 }
 
-function showNewPipelineVersion() {
+function showNewWorkflowVersion() {
     $.ajax({
-        url: "../../templates/pipeline/newPipelineVersion.html",
+        url: "../../templates/workflow/newWorkflowVersion.html",
         type: "GET",
         cache: false,
         success: function(data) {
             $("#main").children().hide();
             $("#main").append($(data));
-            $("#newpipelineversion").show("slow");
+            $("#newworkflowversion").show("slow");
 
-            $("#pp-name-newversion").val(pipelineName);
+            $("#pp-name-newversion").val(workflowName);
 
             $("#newppVersionBtn").on('click', function() {
-                var promise = pipelineDataService.addPipelineVersion(pipelineName, pipelineVersionID, pipelineData, linePathAry);
+                var promise = workflowDataService.addWorkflowVersion(workflowName, workflowVersionID, workflowData, linePathAry);
                 if (promise) {
                     promise.done(function(data) {
                         loading.hide();
                         notify(data.message, "success");
-                        initPipelinePage();
+                        initWorkflowPage();
                     });
                     promise.fail(function(xhr, status, error) {
                         loading.hide();
@@ -401,49 +401,49 @@ function showNewPipelineVersion() {
     });
 
     $("#content").hide();
-    $("#nopipeline").hide();
-    $("#newpipeline").hide();
-    $("#newpipelineversion").show("slow");
+    $("#noworkflow").hide();
+    $("#newworkflow").hide();
+    $("#newworkflowversion").show("slow");
 }
 
 function cancelNewPPPage() {
-    $("#newpipeline").remove();
+    $("#newworkflow").remove();
     $("#main").children().show("slow");
 }
 
 function cancelNewPPVersionPage() {
-    $("#newpipelineversion").remove();
+    $("#newworkflowversion").remove();
     $("#main").children().show("slow");
 }
 
-// run pipeline
-function beforeRunPipeline() {
-    if(_.isEqual(pipelineDataOriginalCopy,pipelineData) && _.isEqual(linePathAryOriginalCopy,linePathAry)){
-        runPipeline();
+// run workflow
+function beforeRunWorkflow() {
+    if(_.isEqual(workflowDataOriginalCopy,workflowData) && _.isEqual(linePathAryOriginalCopy,linePathAry)){
+        runWorkflow();
     }else{
         var actions = [{
             "name": "saveAndRun",
             "label": "Yes, save it first.",
             "action": function() {
-                savePipelineData(runPipeline);
+                saveWorkflowData(runWorkflow);
             }
         }, {
             "name": "run",
             "label": "No, just run it.",
             "action": function() {
-                runPipeline();
+                runWorkflow();
             }
         }]
-        confirm("The pipeline design has been modified, would you like to save the changes before run it.", "info", actions);
+        confirm("The workflow design has been modified, would you like to save the changes before run it.", "info", actions);
     }
 }
 
-function runPipeline() {
-    var promise = pipelineDataService.changeState(pipelineName, pipelineVersionID, 1);
+function runWorkflow() {
+    var promise = workflowDataService.changeState(workflowName, workflowVersionID, 1);
     promise.done(function(data) {
         loading.hide();
         notify(data.message, "success");
-        $(".pipeline-state").removeClass("pipeline-off").addClass("pipeline-on");
+        $(".workflow-state").removeClass("workflow-off").addClass("workflow-on");
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
@@ -455,34 +455,34 @@ function runPipeline() {
     });
 }
 
-//stop pipeline
-function beforeStopPipeline() {
-    if(_.isEqual(pipelineDataOriginalCopy,pipelineData) && _.isEqual(linePathAryOriginalCopy,linePathAry)){
-        stopPipeline();
+//stop workflow
+function beforeStopWorkflow() {
+    if(_.isEqual(workflowDataOriginalCopy,workflowData) && _.isEqual(linePathAryOriginalCopy,linePathAry)){
+        stopWorkflow();
     }else{
         var actions = [{
             "name": "saveAndStop",
             "label": "Yes, save it first.",
             "action": function() {
-                savePipelineData(stopPipeline);
+                saveWorkflowData(stopWorkflow);
             }
         }, {
             "name": "stop",
             "label": "No, just stop it.",
             "action": function() {
-                stopPipeline();
+                stopWorkflow();
             }
         }]
-        confirm("The pipeline design has been modified, would you like to save the changes before stop it.", "info", actions);
+        confirm("The workflow design has been modified, would you like to save the changes before stop it.", "info", actions);
     }
 }
 
-function stopPipeline() {
-    var promise = pipelineDataService.changeState(pipelineName, pipelineVersionID, 0);
+function stopWorkflow() {
+    var promise = workflowDataService.changeState(workflowName, workflowVersionID, 0);
     promise.done(function(data) {
         loading.hide();
         notify(data.message, "success");
-        $(".pipeline-state").removeClass("pipeline-on").addClass("pipeline-off");
+        $(".workflow-state").removeClass("workflow-on").addClass("workflow-off");
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
@@ -495,39 +495,39 @@ function stopPipeline() {
 }
 
 function beforeBackToList() {
-    if(_.isEqual(pipelineDataOriginalCopy,pipelineData) && _.isEqual(linePathAryOriginalCopy,linePathAry)){
-        initPipelinePage();
+    if(_.isEqual(workflowDataOriginalCopy,workflowData) && _.isEqual(linePathAryOriginalCopy,linePathAry)){
+        initWorkflowPage();
     }else{
         var actions = [{
             "name": "save",
             "label": "Yes",
             "action": function() {
-                savePipelineData(initPipelinePage);
+                saveWorkflowData(initWorkflowPage);
             }
         }, {
             "name": "back",
             "label": "No",
             "action": function() {
-                initPipelinePage();
+                initWorkflowPage();
             }
         }]
-        confirm("The pipeline design has been modified, would you like to save the changes before go back to list.", "info", actions);
+        confirm("The workflow design has been modified, would you like to save the changes before go back to list.", "info", actions);
     }
 }
 
-export function getPipelineToken(){
-    return pipelineDataService.getToken(pipelineName,pipelineVersionID);
+export function getWorkflowToken(){
+    return workflowDataService.getToken(workflowName,workflowVersionID);
 }
 
 function beforeShowLog() {
-    if(_.isEqual(pipelineDataOriginalCopy,pipelineData) && _.isEqual(linePathAryOriginalCopy,linePathAry)){
+    if(_.isEqual(workflowDataOriginalCopy,workflowData) && _.isEqual(linePathAryOriginalCopy,linePathAry)){
         showLogHistory();
     }else{
         var actions = [{
             "name": "saveAndLog",
             "label": "Yes",
             "action": function() {
-                savePipelineData(showLogHistory);
+                saveWorkflowData(showLogHistory);
             }
         }, {
             "name": "log",
@@ -536,34 +536,34 @@ function beforeShowLog() {
                 showLogHistory();
             }
         }]
-        confirm("The pipeline design has been modified, would you like to save the changes before show the log history.", "info", actions);
+        confirm("The workflow design has been modified, would you like to save the changes before show the log history.", "info", actions);
     }
 }
 
 function showLogHistory(){
     $(".menu-history").parent().addClass("active");
-    $(".menu-pipeline").parent().removeClass("active");
+    $(".menu-workflow").parent().removeClass("active");
                     
-    var pipelineInfo = {
-        "pipelineName" : pipelineName,
-        "pipelineVersionID" : pipelineVersionID,
-        "pipelineVersion" : pipelineVersion,
+    var workflowInfo = {
+        "workflowName" : workflowName,
+        "workflowVersionID" : workflowVersionID,
+        "workflowVersion" : workflowVersion,
         "sequenceID" : ""
     };
-    getSequenceDetail(pipelineInfo);
+    getSequenceDetail(workflowInfo);
 }
-// $("#pipeline-select").on('change',function(){
+// $("#workflow-select").on('change',function(){
 //     showVersionList();
 // })
 // $("#version-select").on('change',function(){
-//     showPipeline();
+//     showWorkflow();
 // })
 
-// function showPipelineList(){
-//     $("#pipeline-select").empty();
-//     d3.select("#pipeline-select")
+// function showWorkflowList(){
+//     $("#workflow-select").empty();
+//     d3.select("#workflow-select")
 //         .selectAll("option")
-//         .data(allPipelines)
+//         .data(allWorkflows)
 //         .enter()
 //         .append("option")
 //         .attr("value",function(d,i){
@@ -572,16 +572,16 @@ function showLogHistory(){
 //         .text(function(d,i){
 //             return d.name;
 //         }); 
-//      $("#pipeline-select").select2({
+//      $("#workflow-select").select2({
 //        minimumResultsForSearch: Infinity
 //      });   
 //     showVersionList();
 // }
 
 // function showVersionList(){
-//     var pipeline = $("#pipeline-select").val();
-//     var versions = _.find(allPipelines,function(item){
-//         return item.name == pipeline;
+//     var workflow = $("#workflow-select").val();
+//     var versions = _.find(allWorkflows,function(item){
+//         return item.name == workflow;
 //     }).versions;
 
 //     $("#version-select").empty();
@@ -602,5 +602,5 @@ function showLogHistory(){
 
 //     versions_shown = versions;
 
-//     showPipeline(); 
+//     showWorkflow(); 
 // }

@@ -15,10 +15,10 @@ limitations under the License.
  */
 
 import * as constant from "../common/constant";
-import { initPipeline } from "../pipeline/initPipeline";
-import { initAction } from "../pipeline/initAction";
-import { initLine } from "../pipeline/initLine";
-import { pipelineData, savePipelineData } from "../pipeline/main";
+import { initWorkflow } from "../workflow/initWorkflow";
+import { initAction } from "../workflow/initAction";
+import { initLine } from "../workflow/initLine";
+import { workflowData, saveWorkflowData } from "../workflow/main";
 import { resizeWidget } from "../theme/widget";
 import { initActionIO } from "./actionIO";
 import { initActionSetup } from "./actionSetup";
@@ -28,7 +28,7 @@ import { showNewComponent } from "../component/main";
 import { notify } from "../common/notify";
 import { loading } from "../common/loading";
 import { getConflict, svgTree } from "./actionConflict";
-import {pipelineVars} from "../pipeline/pipelineVar";
+import {workflowVars} from "../workflow/workflowVar";
 
 export function clickAction(sd, si) {
     if (sd.component) {
@@ -39,7 +39,7 @@ export function clickAction(sd, si) {
             type: "GET",
             cache: false,
             success: function(data) {
-                $("#pipeline-info-edit").html($(data));
+                $("#workflow-info-edit").html($(data));
                 $(".usecomponent").on('click', function() {
                     getComponents(sd);
                 });
@@ -55,7 +55,7 @@ function showActionEditor(action) {
         type: "GET",
         cache: false,
         success: function(data) {
-            $("#pipeline-info-edit").html($(data));
+            $("#workflow-info-edit").html($(data));
 
             initActionSetup(action);
 
@@ -73,7 +73,7 @@ function showActionEditor(action) {
             });
             
             // use global vars
-            var globalvars = _.keys(pipelineVars);
+            var globalvars = _.keys(workflowVars);
             $(".allowFromVar").autocomplete({
                 source:[globalvars],
                 limit: 100,
@@ -117,9 +117,9 @@ function showComponentList(action) {
 
             $(".newcomponent").on('click', function() {
                 $(".menu-component").parent().addClass("active");
-                $(".menu-pipeline").parent().removeClass("active");
-                notify("Saving current pipeline automatically.", "info");
-                savePipelineData();
+                $(".menu-workflow").parent().removeClass("active");
+                notify("Saving current workflow automatically.", "info");
+                saveWorkflowData();
                 showNewComponent(true);
             })
 

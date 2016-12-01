@@ -17,7 +17,7 @@ limitations under the License.
 import * as constant from "../common/constant";
 import * as util from "../common/util";
 
-let linesView, actionsView, pipelineView, buttonView;
+let linesView, actionsView, workflowView, buttonView;
 
 export function initDesigner() {
     let $div = $("#div-d3-main-svg").height($("main").height() * 2 / 3);
@@ -32,13 +32,13 @@ export function initDesigner() {
     function dragStart() {
         d3.event.sourceEvent.stopPropagation();
         drag.origin(function() {
-            return { "x": constant.pipelineView.attr("translateX"), "y": constant.pipelineView.attr("translateY") }
+            return { "x": constant.workflowView.attr("translateX"), "y": constant.workflowView.attr("translateY") }
         });
     }
     constant.setSvgWidth("100%");
     constant.setSvgHeight("100%");
-    constant.setPipelineNodeStartX(50);
-    constant.setPipelineNodeStartY(($div.height() + 2 * constant.buttonVerticalSpace + constant.buttonHeight) * 0.2);
+    constant.setWorkflowNodeStartX(50);
+    constant.setWorkflowNodeStartY(($div.height() + 2 * constant.buttonVerticalSpace + constant.buttonHeight) * 0.2);
 
     $div.empty();
 
@@ -79,10 +79,10 @@ export function initDesigner() {
         .attr("transform", "translate(0,0) scale(1)")
         .attr("scale", 1);
 
-    pipelineView = g.append("g")
+    workflowView = g.append("g")
         .attr("width", constant.svgWidth)
         .attr("height", constant.svgHeight)
-        .attr("id", "pipelineView")
+        .attr("id", "workflowView")
         .attr("translateX", 0)
         .attr("translateY", 0)
         .attr("transform", "translate(0,0) scale(1)")
@@ -104,7 +104,7 @@ export function initDesigner() {
     constant.setSvgMainRect(svgMainRect);
     constant.setLinesView(linesView);
     constant.setActionsView(actionsView);
-    constant.setPipelineView(pipelineView);
+    constant.setWorkflowView(workflowView);
     constant.setButtonView(buttonView);
 }
 
