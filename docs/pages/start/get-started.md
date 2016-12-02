@@ -119,9 +119,11 @@ summary: Getting Start With ContainerOps
 | Stage Name | Stage Name |
 | Stage timeout  | Stage timeout |
 
-- __Add  Action__
 
-![image](../../images/workflowaddaction.PNG)
+
+- __Add Action__
+
+![image](../../images/workflowaddaction.png)
 
 
 - __Add Component to Action__
@@ -153,7 +155,7 @@ summary: Getting Start With ContainerOps
 
 - __Set Action relation__
 
-![image](../../images/workflowaddrelation.PNG)
+![image](../../images/workflowaddrelation.png)
 
 - __Set start stage__
 
@@ -172,7 +174,7 @@ summary: Getting Start With ContainerOps
 
 - __Set save workflow relation__
 
-![image](../../images/workflowsave.PNG)
+![image](../../images/workflowsave.png)
 
 - __Open switch workflow__
 
@@ -191,9 +193,9 @@ summary: Getting Start With ContainerOps
 
 - __Workflow Action history__
 
-![image](../../images/HistoryAction.PNG)
+![image](../../images/HistoryAction.png)
 
 
 - __Workflow Action history__
 
-![image](../../images/HistoryAction.PNG)
+![image](../../images/HistoryAction.png)
