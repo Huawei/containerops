@@ -44,7 +44,9 @@ let apiUrlConf = {
 		"workflowHistory" : "/v2/{namespace}/{repository}/workflow/v1/log/{workflowName}/{version}?sequence={sequence}",
 		"action" : "/v2/{namespace}/{repository}/workflow/v1/log/{workflowName}/{version}/{sequence}/stage/{stageName}/action/{actionName}",
 		"relation" : "/v2/{namespace}/{repository}/workflow/v1/log/{workflowName}/{version}/{sequence}/{lineId}"
-	}
+	},
+
+	"setting" : "/v2/{namespace}/{repository}/system/v1/setting"
 }
 let pendingPromise;
 
@@ -304,6 +306,32 @@ export let historyApi = {
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false
+	    });
+	    pendingPromise.push(promise);
+	    return promise;
+	}
+}
+
+export let settingApi = {
+	"list" : function(){
+		initApiInvocation();
+		var promise = $.ajax({
+	        "url": apiUrlConf.host + apiUrlConf.setting.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo"),
+	        "type": "GET",
+	        "dataType": "json",
+	        "cache": false
+	    });
+	    pendingPromise.push(promise);
+	    return promise;
+	},
+	"save" : function(reqbody){
+		initApiInvocation();
+		var data = JSON.stringify(reqbody);
+		var promise = $.ajax({
+	        "url": apiUrlConf.host + apiUrlConf.setting.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo"),
+	        "type": "PUT",
+	        "dataType": "json",
+	        "data": data
 	    });
 	    pendingPromise.push(promise);
 	    return promise;
