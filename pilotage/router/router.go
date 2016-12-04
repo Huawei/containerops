@@ -58,6 +58,10 @@ func SetRouters(m *macaron.Macaron) {
 			})
 
 			m.Group("/:repository", func() {
+
+				m.Get("/system/v1/setting", handler.GetSettingV1Handler)
+				m.Put("/system/v1/setting", handler.PutSettingV1Handler)
+
 				m.Group("/workflow", func() {
 					m.Group("/v1", func() {
 

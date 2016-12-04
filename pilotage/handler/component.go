@@ -54,8 +54,8 @@ func PostComponentV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
 	body := new(struct {
-		Name    string `json:"name`
-		Version string `json:"version`
+		Name    string `json:"name"`
+		Version string `json:"version"`
 	})
 
 	namespace := ctx.Params(":namespace")
