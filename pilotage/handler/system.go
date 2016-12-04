@@ -48,6 +48,9 @@ func GetSettingV1Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	settingMap := make(map[string]interface{})
+	settingMap["KUBE_APISERVER_IP"] = ""
+	settingMap["KUBE_NODE_IP"] = ""
+
 	if setting.Setting != "" {
 		err = json.Unmarshal([]byte(setting.Setting), &settingMap)
 		if err != nil {
