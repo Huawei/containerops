@@ -173,7 +173,7 @@ func CreateNewStage(db *gorm.DB, preStageId int64, workflowInfo *models.Workflow
 				}
 
 				eventListStr := ","
-				for eventName, _ := range sourceEventMapList {
+				for eventName := range sourceEventMapList {
 					eventListStr += eventName + ","
 				}
 
