@@ -66,16 +66,6 @@
                                                     <div class="col-md-6">
                                                         <div class="form-group">
                                                             <label for="hint-field" class="col-sm-4 control-label">
-                                                                Component Name
-                                                            </label>
-                                                            <div class="col-sm-7">
-                                                                <input type="text" id="action-name" name="action-name" class="form-control" required>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label for="hint-field" class="col-sm-4 control-label">
                                                                 Component Timeout
                                                             </label>
                                                             <div class="col-sm-7 input-group">
@@ -84,12 +74,22 @@
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="normal-field" class="col-sm-4 control-label">
+                                                                External Data URI
+                                                            </label>
+                                                            <div class="col-sm-7">
+                                                                <input type="text" id="action-data-from" name="action-data-from" class="form-control" required>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-md-6">
                                                         <div class="form-group">
                                                             <label for="normal-field" class="col-sm-4 control-label">
-                                                                End Point
+                                                                Repository Name
                                                             </label>
                                                             <div class="col-sm-7">
                                                                 <input type="text" id="k8s-pod-image-name" name="k8s-pod-image-name" class="form-control" required>
@@ -103,18 +103,6 @@
                                                             </label>
                                                             <div class="col-sm-7">
                                                                 <input type="text" id="k8s-pod-image-tag" name="k8s-pod-image-tag" class="form-control" required>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label for="normal-field" class="col-sm-4 control-label">
-                                                                Data From
-                                                            </label>
-                                                            <div class="col-sm-7">
-                                                                <input type="text" id="action-data-from" name="action-data-from" class="form-control" required>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -183,10 +171,15 @@
                                                         <div class="row"> 
                                                             <div class="col-md-6">
                                                                 <div class="form-group">
-                                                                    <label class="col-sm-4 control-label">
-                                                                       <input type="checkbox" id="use-node-port" name="use-node-port">
-                                                                       <span style="margin-left:5px">Node Port</span>
+                                                                    <label for="normal-field" class="col-sm-4 control-label">
+                                                                        Service Type
                                                                     </label>
+                                                                    <div class="col-sm-7 input-group">
+                                                                        <select id="service-type-select" style="width:100%">
+                                                                            <option value="ClusterIP">Cluster IP</option>
+                                                                            <option value="NodePort">Node Port</option>
+                                                                        </select>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
