@@ -760,7 +760,7 @@ func (workflowInfo *Workflow) UpdateWorkflowInfo(define map[string]interface{}) 
 			relationBytes, _ := json.Marshal(manifestMap)
 			actionInfo.Manifest = string(relationBytes)
 
-			err = actionInfo.GetAction().Where("id = ?", actionID).UpdateColumn("manifest", actionInfo.Manifest).Error
+			err = db.Model(&models.Action{}).Where("id = ?", actionID).UpdateColumn("manifest", actionInfo.Manifest).Error
 			if err != nil {
 				log.Error("[workflow's UpdateWorkflowInfo]:error when update action's column manifest:", actionInfo, " ===>error is:", err.Error())
 				rollbackErr := db.Rollback().Error
