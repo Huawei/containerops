@@ -690,7 +690,7 @@ func (kube *kubeComponent) StartService() (string, error) {
 
 	// set selector
 	selectorMap := make(map[string]string)
-	selectorMap["PIPELINE_DEFAULT_POD_LABLE"] = "pod-" + kube.runID
+	selectorMap["WORKFLOW_DEFAULT_POD_LABLE"] = "pod-" + kube.runID
 
 	specMap["selector"] = selectorMap
 
@@ -929,7 +929,7 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 
 	podName := "pod-" + kube.runID
 
-	labelsMap["PIPELINE_DEFAULT_POD_LABLE"] = podName
+	labelsMap["WORKFLOW_DEFAULT_POD_LABLE"] = podName
 	metaInfoMap["labels"] = labelsMap
 
 	reqMap["metadata"] = metaInfoMap
