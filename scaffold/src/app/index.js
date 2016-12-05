@@ -20,7 +20,7 @@ import {initHistoryPage} from "./history/main";
 import {initSystemSettings,initSystemSettingPage} from "./setting/main";
 
 $._messengerDefaults = {
-    extraClasses: 'messenger-fixed messenger-theme-future messenger-on-top'
+    extraClasses: 'messenger-fixed messenger-theme-future messenger-on-bottom messenger-on-right'
 }
 
 initSystemSettings(initWorkflowPage);
