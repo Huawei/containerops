@@ -17,13 +17,13 @@ limitations under the License.
 import {initWorkflowPage,hideWorkflowEnv} from "./workflow/main";
 import {initComponentPage} from "./component/main";
 import {initHistoryPage} from "./history/main";
-import {initSystemSettingPage} from "./setting/main";
+import {initSystemSettings,initSystemSettingPage} from "./setting/main";
 
 $._messengerDefaults = {
     extraClasses: 'messenger-fixed messenger-theme-future messenger-on-top'
 }
 
-initWorkflowPage();
+initSystemSettings(initWorkflowPage);
 
 $(".menu-workflow").on('click',function(event){
     initWorkflowPage();

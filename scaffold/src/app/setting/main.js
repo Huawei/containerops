@@ -19,13 +19,17 @@ import { notify, confirm } from "../common/notify";
 import { loading } from "../common/loading";
 
 export let systemSettings;
+let settings,tempSettings;
 
-export function initSystemSettingPage() {
+export function initSystemSettings(next){
     var promise = systemSettingDataService.getAllSystemSettings();
     promise.done(function(data) {
         loading.hide();
-        systemSettings = _.pairs(data.setting);
-        showSystemSettings();
+        settings = data.setting;
+        systemSettings = _.pairs(settings);       
+        if(next){
+            next();
+        }  
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
@@ -37,7 +41,8 @@ export function initSystemSettingPage() {
     });
 }
 
-function showSystemSettings(){
+export function initSystemSettingPage(){
+    tempSettings = _.pairs($.extend(true,{},settings));
     $.ajax({
         url: "../../templates/setting/settingList.html",
         type: "GET",
@@ -47,10 +52,11 @@ function showSystemSettings(){
             $("#settinglist").show("slow");
 
             $(".savesystemsetting").on('click', function() {
-                var promise = systemSettingDataService.saveSystemSettings(_.object(systemSettings));
+                var promise = systemSettingDataService.saveSystemSettings(_.object(tempSettings));
                 promise.done(function(data) {
                     loading.hide();
                     notify(data.message, "success");
+                    initSystemSettings(initSystemSettingPage);
                 });
                 promise.fail(function(xhr, status, error) {
                     loading.hide();
@@ -63,7 +69,7 @@ function showSystemSettings(){
             })
 
             $(".settinglist_body").empty();
-            _.each(systemSettings,function(item,index){
+            _.each(tempSettings,function(item,index){
                  var row = `<tr data-index="`+ index +`">
                                 <td style="width:50%">`+ item[0] +`</td>
                                 <td style="width:50%"><input type="text" value="` + item[1] + `" class="form-control system-setting-value" required></td>
@@ -73,8 +79,33 @@ function showSystemSettings(){
 
             $(".system-setting-value").on('blur',function(event){
                 var index = $(event.currentTarget).parent().parent().data("index");
-                systemSettings[index][1] = $(event.currentTarget).val();
+                tempSettings[index][1] = $(event.currentTarget).val();
             });
         }
     });
 }
+
+let settingMappings = {
+    "KUBE_NODE_IP" : "setupData.action.ip",
+    "KUBE_APISERVER_IP" : "setupData.action.apiserver"
+}
+
+export function doMapping(action){
+    var mappings = _.pairs(settingMappings);
+    _.each(mappings,function(mapping){
+        var paths = mapping[1].split(".");
+        var target = action[paths[0]];
+        for(var i =1; i< paths.length-1; i++){
+            target = target[paths[i]];
+        }
+
+        var value = _.find(systemSettings,function(setting){
+            return setting[0] == mapping[0];
+        })[1];
+
+        if(_.isEmpty(target[paths[paths.length-1]])){
+            target[paths[paths.length-1]] = value;
+        }
+    })
+}
+

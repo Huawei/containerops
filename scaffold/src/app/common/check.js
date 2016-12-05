@@ -195,16 +195,16 @@ function checkActionCompleteness(data,stageindex,actionindex){
 
 function checkActionBaseSetting(data,stageindex,actionindex){
     var completeness = true;
-    if(_.isEmpty(data.setupData.pod.spec.containers[0].resources.limits.cpu)){
+    if(_.isEmpty(data.setupData.pod.spec.containers[0].resources.limits.cpu.toString())){
         notify("CPU limits missed ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
         completeness = false;
-    }else if(_.isEmpty(data.setupData.pod.spec.containers[0].resources.limits.memory)){
+    }else if(_.isEmpty(data.setupData.pod.spec.containers[0].resources.limits.memory.toString())){
         notify("Memory limits missed ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
         completeness = false;
-    }else if(_.isEmpty(data.setupData.pod.spec.containers[0].resources.requests.cpu)){
+    }else if(_.isEmpty(data.setupData.pod.spec.containers[0].resources.requests.cpu.toString())){
         notify("CPU requests missed ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
         completeness = false;
-    }else if(_.isEmpty(data.setupData.pod.spec.containers[0].resources.requests.memory)){
+    }else if(_.isEmpty(data.setupData.pod.spec.containers[0].resources.requests.memory.toString())){
         notify("Memory requests missed ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
         completeness = false;
     }else if(isUsingGlobalVar(data.setupData.pod.spec.containers[0].resources.limits.cpu)){
@@ -282,5 +282,5 @@ function checkActionAdvancedSetting(data,stageindex,actionindex){
 }
 
 function isUsingGlobalVar(value){
-    return !_.isUndefined(value) && value.indexOf("@") == 0 && value.lastIndexOf("@") == value.length-1;
+    return !_.isUndefined(value) && value.toString().indexOf("@") == 0 && value.toString().lastIndexOf("@") == value.toString().length-1;
 }
