@@ -12,7 +12,7 @@ summary: Getting Start With ContainerOps
 ### Create Component
 - __Click New Component button, input component name, version__
 
-![image](../../images/createcomponent.png)
+
 
 | FIELD |  DESCRIPTION |
 | -------- | -------- |
@@ -21,7 +21,7 @@ summary: Getting Start With ContainerOps
 
 - __Click View button__
 
-![image](../../images/componentlist.png)
+
 
 | FIELD |  DESCRIPTION |
 | -------- | -------- |
@@ -34,7 +34,7 @@ summary: Getting Start With ContainerOps
 
 - __Input base config info__
 
-![image](../../images/componentbaseconfig.png)
+
 
 | FIELD |  DESCRIPTION |
 | -------- | -------- |
@@ -51,7 +51,7 @@ summary: Getting Start With ContainerOps
 
 - __Tree Edit__
 
-![image](../../images/componenttreeedit.png)
+
 
 | FIELD |  DESCRIPTION |
 | -------- | -------- |
@@ -62,7 +62,7 @@ summary: Getting Start With ContainerOps
 
 - __Event Edit__
 
-![image](../../images/componenteventedit.png)
+
 
 | FIELD |  DESCRIPTION |
 | -------- | -------- |
@@ -79,7 +79,7 @@ summary: Getting Start With ContainerOps
 
 - __Save Component__
 
-![image](../../images/componentsave.png)
+
 
 | FIELD |  DESCRIPTION |
 | -------- | -------- |
@@ -90,7 +90,7 @@ summary: Getting Start With ContainerOps
 ### Create Workflow
 - __Click New Workflow button, input workflow name, version__
 
-![image](../../images/workflowcreate.png)
+
 
 | FIELD |  DESCRIPTION |
 | -------- | -------- |
@@ -99,7 +99,7 @@ summary: Getting Start With ContainerOps
 
 - __View workflow__
 
-![image](../../images/workflowlist.png)
+
 
 | FIELD |  DESCRIPTION |
 | -------- | -------- |
@@ -112,7 +112,7 @@ summary: Getting Start With ContainerOps
 
 - __Add  Workflow__
 
-![image](../../images/workflowaddstage.png)
+
 
 | FIELD |  DESCRIPTION |
 | -------- | -------- |
@@ -123,20 +123,20 @@ summary: Getting Start With ContainerOps
 
 - __Add Action__
 
-![image](../../images/workflowaddaction.png)
+
 
 
 - __Add Component to Action__
 
-![image](../../images/workflowactionaddcomponent.png)
+
 
 - __Load Component to Action__
 
-![image](../../images/workflowloadcomponent.png)
+
 
 - __Set Action Value__
 
-![image](../../images/workflowactionset.png)
+
 
 | FIELD |  DESCRIPTION |
 | -------- | -------- |
@@ -155,11 +155,11 @@ summary: Getting Start With ContainerOps
 
 - __Set Action relation__
 
-![image](../../images/workflowaddrelation.png)
+
 
 - __Set start stage__
 
-![image](../../images/workflowsetstartstage.png)
+
 
 | FIELD |  DESCRIPTION |
 | -------- | -------- |
@@ -170,32 +170,30 @@ summary: Getting Start With ContainerOps
 
 - __Set maual Action relation__
 
-![image](../../images/workflowmaualrelation.png)
+
 
 - __Set save workflow relation__
 
-![image](../../images/workflowsave.png)
+
 
 - __Open switch workflow__
 
-![image](../../images/workflowswitch.png)
+
 
 - __Open switch workflow__
 
-![image](../../images/workflowswitch.png)
+
 
 
 ### History
 
 - __Workflow history list__
 
-![image](../../images/historylist.png)
-
-- __Workflow Action history__
-
-![image](../../images/HistoryAction.png)
 
 
 - __Workflow Action history__
 
-![image](../../images/HistoryAction.png)
+
+
+
+- __Workflow Action history__
