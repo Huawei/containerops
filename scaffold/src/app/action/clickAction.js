@@ -71,6 +71,10 @@ function showActionEditor(action) {
             $("#action-component-select").select2({
                 minimumResultsForSearch: Infinity
             });
+
+            $("#service-type-select").select2({
+               minimumResultsForSearch: Infinity
+            });
             
             // use global vars
             var globalvars = _.map(workflowVars,function(item){
@@ -170,14 +174,15 @@ function showComponentList(action) {
             $(".cload").on("click", function(event) {
                 var target = $(event.currentTarget);
                 var componentName = target.parent().parent().data("pname");
+                var componentVersionName = target.parent().parent().data("version");
                 var componentVersionID = target.parent().parent().data("versionid");
-                LoadComponentToAction(componentName, componentVersionID, action);
+                LoadComponentToAction(componentName, componentVersionName, componentVersionID, action);
             })
         }
     });
 }
 
-function LoadComponentToAction(componentName, componentVersionID, action) {
+function LoadComponentToAction(componentName, componentVersionName, componentVersionID, action) {
     var promise = getComponent(componentName, componentVersionID);
     promise.done(function(data) {
         loading.hide();
@@ -194,7 +199,8 @@ function LoadComponentToAction(componentName, componentVersionID, action) {
             action.env = [].concat(data.env);
             action.component = {
                 "name": componentName,
-                "versionid": componentVersionID
+                "versionid": componentVersionID,
+                "versionname" : componentVersionName
             }
             showActionEditor(action);
         }

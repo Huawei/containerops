@@ -20,27 +20,35 @@ import { notify } from "../common/notify";
 import { loading } from "../common/loading";
 
 let startData;
+let urlcopy,tokencopy;
+
 export function initStartSetup(start){
     startData = start;
 
     // url and token
     showWorkflow_URL_Token();
-    var urlcopy = new Clipboard('#copyUrl');
-    var tokencopy = new Clipboard('#copyToken');
-    urlcopy.on('success', function(e) {
-        notify("Url copied.","info");
-        e.clearSelection();
-    });
-    urlcopy.on('error', function(e) {
-        notify("Copy url failed.","info");
-    });
-    tokencopy.on('success', function(e) {
-        notify("Token copied.","info");
-        e.clearSelection();
-    });
-    tokencopy.on('error', function(e) {
-        notify("Copy token failed.","info");
-    });
+
+    if(_.isUndefined(urlcopy)){
+        urlcopy = new Clipboard('#copyUrl');
+        urlcopy.on('success', function(e) {
+            notify("Url copied.","info");
+            e.clearSelection();
+        });
+        urlcopy.on('error', function(e) {
+            notify("Copy url failed.","info");
+        });
+    }
+    
+    if(_.isUndefined(tokencopy)){
+        tokencopy = new Clipboard('#copyToken');
+        tokencopy.on('success', function(e) {
+            notify("Token copied.","info");
+            e.clearSelection();
+        });
+        tokencopy.on('error', function(e) {
+            notify("Copy token failed.","info");
+        });
+    } 
 
     initStartIO(start);
 }

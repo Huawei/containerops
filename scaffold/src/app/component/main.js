@@ -238,10 +238,11 @@ function initComponentEdit(){
             // view select init
             $("#action-component-select").select2({
                minimumResultsForSearch: Infinity
-             });
-            // $("#k8s-service-protocol").select2({
-            //    minimumResultsForSearch: Infinity
-            // });      
+            });
+            
+            $("#service-type-select").select2({
+               minimumResultsForSearch: Infinity
+            });     
         }
     });
 }

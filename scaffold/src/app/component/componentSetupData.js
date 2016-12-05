@@ -29,10 +29,6 @@ export function setActionType(){
     data.action.type = $("#action-component-select").val();
 }
 
-export function setActionName(){
-    data.action.name = $("#action-name").val();
-}
-
 export function setActionTimeout(){
     data.action.timeout = $("#action-timeout").val();
 }
@@ -63,16 +59,15 @@ export function getUseNodePort(){
     }
 }
 
-export function setUseNodePort(isuse){
-    if(isuse){
-        data.service.spec.type = "NodePort";
+export function setServiceType(){
+    data.service.spec.type = $("#service-type-select").val();
+    if(data.service.spec.type == "NodePort"){
         _.each(data.service.spec.ports,function(item){
           if(_.isUndefined(item.nodePort)){
             item.nodePort = "";
           }
         })
     }else{
-        data.service.spec.type = "ClusterIP";
         _.each(data.service.spec.ports,function(item){
           if(!_.isUndefined(item.nodePort)){
             delete item.nodePort;
@@ -189,8 +184,8 @@ var metadata = {
       "containers": [
         {
           "resources": {
-            "limits":{"cpu": 2.0, "memory": "1024Mi"},
-            "requests":{"cpu": 1.0, "memory": "128Mi"}
+            "limits":{"cpu": 0.2, "memory": "1024Mi"},
+            "requests":{"cpu": 0.1, "memory": "128Mi"}
           }
         }
       ]

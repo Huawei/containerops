@@ -101,17 +101,9 @@ export function initActionSetup(action){
     });
 
     // ports
-    if(actionSetupData.getUseNodePort()){
-        $("#use-node-port").prop("checked",true);
-    }else{
-        $("#use-node-port").prop("checked",false);
-    }
-    $("#use-node-port").on("click",function(){
-        if($("#use-node-port")[0].checked){
-            actionSetupData.setUseNodePort(true);
-        }else{
-            actionSetupData.setUseNodePort(false);
-        }
+    $("#service-type-select").val(actionSetupData.data.service.spec.type);
+    $("#service-type-select").on('change',function(){
+        actionSetupData.setServiceType();    
         showPorts();
     });
     showPorts();
