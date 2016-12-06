@@ -65,6 +65,7 @@
     "html-webpack-plugin": "^2.24.1",
     "json-loader": "^0.5.4",
     "lite-server": "^2.2.2",
+    "open-browser-webpack-plugin": "0.0.3",
     "raw-loader": "^0.5.1",
     "sass-loader": "^4.0.2",
     "source-map-loader": "^0.1.5",
