@@ -15,6 +15,7 @@ limitations under the License.
  */
 
 import * as actionEnvData from "./actionEnvData";
+import {workflowVars} from "../workflow/workflowVar";
 
 export function initActionEnv(action){
     actionEnvData.getActionEnvData(action);
@@ -79,5 +80,14 @@ function showActionEnvKVs(){
     $(".c-rm-kv").on('click',function(event){
         actionEnvData.removeEnv(event);
         showActionEnvKVs();
+    }); 
+
+    var globalvars = _.map(workflowVars,function(item){
+                        return "@"+item[0]+"@";
+                    });
+    $(".allowFromVar").autocomplete({
+        source:[globalvars],
+        limit: 100,
+        visibleLimit: 5
     }); 
 }

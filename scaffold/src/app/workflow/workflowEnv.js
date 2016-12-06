@@ -17,6 +17,7 @@ limitations under the License.
 import * as workflowDataService from "./workflowData";
 import { notify, confirm } from "../common/notify";
 import { loading } from "../common/loading";
+import {workflowVars} from "./workflowVar";
 
 let workflowName, workflowVersionID;
 let workflowEnvs;
@@ -95,7 +96,7 @@ function showEnvKVs() {
                                 +'KEY'
                             +'</label>'
                             +'<div class="col-sm-9" data-index="' + index + '">'
-                                +'<input type="text" value="' + item[0] + '" class="form-control pp-env-input pp-env-key" required>'
+                                +'<input type="text" value="' + item[0] + '" class="form-control pp-env-input pp-env-key allowFromVar" required>'
                             +'</div>'
                         +'</div>'
                     +'</div>'
@@ -105,7 +106,7 @@ function showEnvKVs() {
                                 +'VALUE'
                             +'</label>'
                             +'<div class="col-sm-9" data-index="' + index + '">' 
-                                +'<input type="text" class="form-control pp-env-input pp-env-value" required>'
+                                +'<input type="text" class="form-control pp-env-input pp-env-value allowFromVar" required>'
                             +'</div>'
                         +'</div>'
                     +'</div>'
@@ -122,12 +123,12 @@ function showEnvKVs() {
     });
 
     $(".pp-env-key").on('blur',function(event){
-        var index = $(event.currentTarget).parent().data("index");
+        var index = $(event.currentTarget).parent().parent().data("index");
         workflowEnvs[index][0] = $(event.currentTarget).val();
     });
 
     $(".pp-env-value").on('blur',function(event){
-        var index = $(event.currentTarget).parent().data("index");
+        var index = $(event.currentTarget).parent().parent().data("index");
         workflowEnvs[index][1] = $(event.currentTarget).val();
     });
 
@@ -136,6 +137,15 @@ function showEnvKVs() {
         workflowEnvs.splice(index, 1);
         showEnvKVs();
     }); 
+
+    var globalvars = _.map(workflowVars,function(item){
+        return "@"+item[0]+"@";
+    });
+    $(".allowFromVar").autocomplete({
+        source:[globalvars],
+        limit: 100,
+        visibleLimit: 5
+    });
 }
 
 function saveWorkflowEnvs() {
