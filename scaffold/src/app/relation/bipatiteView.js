@@ -76,11 +76,7 @@ export function bipatiteView(importJson,outputJson,linePathData){
 
 
 function getRelationArray(importTree,outputTree){
-
-	// var visibleInputStr = getVisibleInputStr();
-	// var visibleOutputStr = getVisibleOutputStr();
-	// var visibleInput = visibleInputStr.split(";");
- //    var visibleOutput = visibleOutputStr.split(";");
+	
 	return initPipeline(importTree,outputTree);
 }
 
