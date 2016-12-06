@@ -129,11 +129,19 @@ export function initAction() {
                 .on("mouseover", function(ad, ai) {
                     var x = ad.translateX;
                     var y = ad.translateY + constant.svgActionHeight;
-                    let text = "Click to Edit";
-                    let width = null;
-                    if (ad.setupData && ad.setupData.action && ad.setupData.action.name && ad.setupData.action.name != "") {
-                        text = ad.setupData.action.name;
-                        width = text.length * 7 + 20;
+                    let text = "Click to Assign Component for Action";
+                    let width = 250;
+                    let height = null;
+                    // if (ad.component.name && ad.setupData && ad.setupData.action && ad.setupData.action.name && ad.setupData.action.name != "") {
+                    if (ad.component && ad.component.name && ad.setupData && ad.setupData.action ) {
+                        text = ["Component: " + ad.component.name + "[" + ad.component.versionname+"]",
+                               "Name: " +ad.setupData.action.name,"Timeout: " + ad.setupData.action.timeout+"(S)",
+                               "Image: " + ad.setupData.action.image.name + ":"+ad.setupData.action.image.tag,
+                               "Limits:[cpu:" +ad.setupData.pod.spec.containers[0].resources.limits.cpu+", memory:" + ad.setupData.pod.spec.containers[0].resources.limits.memory+"(Mi)]",
+                               "Requests:[cpu:" +ad.setupData.pod.spec.containers[0].resources.requests.cpu+", memory:" + ad.setupData.pod.spec.containers[0].resources.requests.memory+"(Mi)]"];
+                        // width = text.length * 7 + 20;
+                        width = 300;
+                        height = text.length * constant.popupHeight;
                     }
                     let options = {
                         "x": x,
@@ -141,7 +149,8 @@ export function initAction() {
                         "text": text,
                         "popupId": "workflow-element-popup",
                         "parentView": constant.workflowView,
-                        "width": width
+                        "width": width,
+                        "height": height
                     };
                     util.showToolTip(options);
                 })

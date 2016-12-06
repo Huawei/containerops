@@ -65,7 +65,7 @@ export let WORKFLOW_START = "workflow-start",
     g = null,
 
     popupWidth = 110,
-    popupHeight = 25,
+    popupHeight = 22,
     currentSelectedItem = null,
     
     zoomFactor = 0.2,
