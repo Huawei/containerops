@@ -16,6 +16,7 @@ limitations under the License.
  
 import * as actionSetupData from "./actionSetupData";
 import {notify} from "../common/notify";
+import {workflowVars} from "../workflow/workflowVar";
 
 export function initActionSetup(action){
     actionSetupData.getActionSetupData(action);
@@ -90,12 +91,12 @@ export function initActionSetup(action){
         actionSetupData.setCPURequest();
     });
 
-    $("#k8s-memory-limits").val(actionSetupData.getMemoryLimit());
+    $("#k8s-memory-limits").val(actionSetupData.data.pod.spec.containers[0].resources.limits.memory);
     $("#k8s-memory-limits").on("blur",function(){
         actionSetupData.setMemoryLimit();
     });
 
-    $("#k8s-memory-requests").val(actionSetupData.getMemoryRequest());
+    $("#k8s-memory-requests").val(actionSetupData.data.pod.spec.containers[0].resources.requests.memory);
     $("#k8s-memory-requests").on("blur",function(){
         actionSetupData.setMemoryRequest();
     });
@@ -219,6 +220,15 @@ function showPorts(){
         actionSetupData.addServicePort();
         showPorts();
     });
+
+    var globalvars = _.map(workflowVars,function(item){
+                        return "@"+item[0]+"@";
+                    });
+    $(".allowFromVar").autocomplete({
+        source:[globalvars],
+        limit: 100,
+        visibleLimit: 5
+    }); 
 }
 
 function toJsonYaml(type){
