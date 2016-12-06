@@ -104,8 +104,8 @@ func PutActionV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-// PutActionEventV1Handler is all action callback handler
-func PutActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
+// PostActionEventV1Handler is all action callback handler
+func PostActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": "ok"})
 
 	bodyByte, _ := ctx.Req.Body().Bytes()
@@ -113,21 +113,21 @@ func PutActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
 	reqBody := make(map[string]interface{})
 	err := json.Unmarshal(bodyByte, &reqBody)
 	if err != nil {
-		log.Error("[action's PutActionEventV1Handler]:error when unmarshal reqBody:", string(bodyByte), " ===>error is:", err.Error())
+		log.Error("[action's PostActionEventV1Handler]:error when unmarshal reqBody:", string(bodyByte), " ===>error is:", err.Error())
 		result, _ := json.Marshal(map[string]string{"message": "illegal request body,want a json obj,got:" + string(bodyByte)})
 		return http.StatusBadRequest, result
 	}
 
 	eventKey, ok := reqBody["EVENT"].(string)
 	if !ok {
-		log.Error("[action's PutActionEventV1Handler]:error when get eventKey from request, want a string, got:", reqBody["EVENT"])
+		log.Error("[action's PostActionEventV1Handler]:error when get eventKey from request, want a string, got:", reqBody["EVENT"])
 		result, _ := json.Marshal(map[string]string{"message": "eventKey is not a string"})
 		return http.StatusBadRequest, result
 	}
 
-	eventIdF, ok := reqBody["EVENTID"].(float64)
+	eventIdF, ok := reqBody["EVENT_ID"].(float64)
 	if !ok {
-		log.Error("[action's PutActionEventV1Handler]:error when get eventID from request, want a number, got:", reqBody["EVENTID"])
+		log.Error("[action's PostActionEventV1Handler]:error when get event_ID from request, want a number, got:", reqBody["EVENT_ID"])
 		result, _ := json.Marshal(map[string]string{"message": "eventId is not a number"})
 		return http.StatusBadRequest, result
 	}
@@ -135,34 +135,34 @@ func PutActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
 	eventId := int64(eventIdF)
 	runId, ok := reqBody["RUN_ID"].(string)
 	if !ok {
-		log.Error("[action's PutActionEventV1Handler]:error when get runID from request, want a string, got:", reqBody["RUN_ID"])
+		log.Error("[action's PostActionEventV1Handler]:error when get runID from request, want a string, got:", reqBody["RUN_ID"])
 		result, _ := json.Marshal(map[string]string{"message": "runId is not a string"})
 		return http.StatusBadRequest, result
 	}
 
 	if len(strings.Split(runId, "-")) < 3 {
-		log.Error("[action's PutActionEventV1Handler]:runID illegal,want XX-XX-XX, got:", runId)
+		log.Error("[action's PostActionEventV1Handler]:runID illegal,want XX-XX-XX, got:", runId)
 		result, _ := json.Marshal(map[string]string{"message": "illegal runID"})
 		return http.StatusBadRequest, result
 	}
 
 	actionLogId, err := strconv.ParseInt(strings.Split(runId, "-")[2], 10, 64)
 	if err != nil {
-		log.Error("[action's PutActionEventV1Handler]:error when get actionLogId from runID, want number, got:", runId)
+		log.Error("[action's PostActionEventV1Handler]:error when get actionLogId from runID, want number, got:", runId)
 		result, _ := json.Marshal(map[string]string{"message": "illegal actionLogId id"})
 		return http.StatusBadRequest, result
 	}
 
 	actionLog, err := module.GetActionLog(actionLogId)
 	if err != nil {
-		log.Error("[action's PutActionEventV1Handler]:error when get action's info:", err.Error())
+		log.Error("[action's PostActionEventV1Handler]:error when get action's info:", err.Error())
 		result, _ := json.Marshal(map[string]string{"message": "error when get target action"})
 		return http.StatusBadRequest, result
 	}
 
 	err = actionLog.RecordEvent(eventId, eventKey, reqBody, ctx.Req.Header)
 	if err != nil {
-		log.Error("[action's PutActionEventV1Handler]:error when record action's event:", err.Error())
+		log.Error("[action's PostActionEventV1Handler]:error when record action's event:", err.Error())
 		result, _ := json.Marshal(map[string]string{"message": "error when record action's event"})
 		return http.StatusBadRequest, result
 	}
@@ -171,19 +171,19 @@ func PutActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-// PutActionRegisterV1Handler is all action register here
-func PutActionRegisterV1Handler(ctx *macaron.Context) (int, []byte) {
+// PostActionRegisterV1Handler is all action register here
+func PostActionRegisterV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": "ok"})
 
 	bodyByte, err := ctx.Req.Body().Bytes()
 	if err != nil {
-		log.Error("[action's PutActionRegisterV1Handler]:error when get request body:", err.Error())
+		log.Error("[action's PostActionRegisterV1Handler]:error when get request body:", err.Error())
 		result, _ := json.Marshal(map[string]string{"message": "error when getrequest body:" + err.Error()})
 		return http.StatusBadRequest, result
 	}
 
 	if string(bodyByte) == "" {
-		log.Error("[action's PutActionRegisterV1Handler]:got an empty reqBody")
+		log.Error("[action's PostActionRegisterV1Handler]:got an empty reqBody")
 		result, _ := json.Marshal(map[string]string{"message": "illegal request body: empty body"})
 		return http.StatusBadRequest, result
 	}
@@ -191,7 +191,7 @@ func PutActionRegisterV1Handler(ctx *macaron.Context) (int, []byte) {
 	reqBody := make(map[string]interface{})
 	err = json.Unmarshal(bodyByte, &reqBody)
 	if err != nil {
-		log.Error("[action's PutActionRegisterV1Handler]:error when unmarshal reqBody:", string(bodyByte), " ===>error is:", err.Error())
+		log.Error("[action's PostActionRegisterV1Handler]:error when unmarshal reqBody:", string(bodyByte), " ===>error is:", err.Error())
 		result, _ := json.Marshal(map[string]string{"message": "illegal request body: want a json obj,got:" + string(bodyByte)})
 		return http.StatusBadRequest, result
 	}
@@ -216,14 +216,14 @@ func PutActionRegisterV1Handler(ctx *macaron.Context) (int, []byte) {
 
 	actionLogId, err := strconv.ParseInt(strings.Split(runId, "-")[2], 10, 64)
 	if err != nil {
-		log.Error("[action's PutActionEventV1Handler]:error when get actionLogId from runID, want number, got:", runId)
+		log.Error("[action's PostActionRegisterV1Handler]:error when get actionLogId from runID, want number, got:", runId)
 		result, _ := json.Marshal(map[string]string{"message": "illegal actionLogId id"})
 		return http.StatusBadRequest, result
 	}
 
 	actionLog, err := module.GetActionLog(actionLogId)
 	if err != nil {
-		log.Error("[action's PutActionEventV1Handler]:error when get action's info:", err.Error())
+		log.Error("[action's PostActionRegisterV1Handler]:error when get action's info:", err.Error())
 		result, _ := json.Marshal(map[string]string{"message": "error when get target action"})
 		return http.StatusBadRequest, result
 	}
