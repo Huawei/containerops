@@ -282,7 +282,7 @@ export function showToolTip(options) {
     parentView
         .append("g")
         .attr("id", popupId);
-    parentView.selectAll("#" + popupId)
+    parentView.select("#" + popupId)
         .append("rect")
         .attr("width", width)
         .attr("height", height)
@@ -296,13 +296,44 @@ export function showToolTip(options) {
         .attr("ry", 3)
         .style("fill", constant.toolTipBackground)
         .style("opacity", 0.9)
-    parentView.selectAll("#" + popupId)
+
+    parentView.select("#" + popupId)
         .append("text")
         .attr("x", x + 10)
-        .attr("y", y + height / 2 + 4)
         .style("fill", "white")
-        .style("opacity", 0.9)
-        .text(text)
+        // .style("opacity", 0.9)
+        .style("font-size", 13)
+    if(judgeType(text) == "array"){
+        parentView.select("#" + popupId).select("text")
+           .attr("y", y)
+        parentView.select("#" + popupId).select("text").selectAll("tspan")
+          .data(text)
+          .enter()
+          .append("tspan")
+          .attr("x", x + 10)
+          .attr("y", function(d, i){
+             return y + (i+1)*constant.popupHeight - constant.popupHeight/2 + 4;
+          })
+          .text(function(d,i){
+             if(d.length > 43){
+                return d.substring(0, 40) + "..."
+             }else {
+                return d;
+             }
+             // var scale = Number($("#"+popupId).parent().attr("scale"));
+             // if(d.length > 43 - parseInt(43 * (1-scale))){
+             //    return d.substring(0, 40-parseInt(40*(1-scale))) + "..."
+             // }else {
+             //    return d;
+             // }
+          })
+    }else if(judgeType(text) == "string"){
+         parentView.select("#" + popupId).select("text")
+           .attr("y", y + height / 2 + 4)
+           .text(text)
+    }
+
+
 }
 
 export function cleanToolTip(containerView, id) {

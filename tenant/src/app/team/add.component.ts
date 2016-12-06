@@ -37,7 +37,7 @@ export class TeamAddComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-      (<any>$('.select2')).select2();
+      (<any>$('.select2')).select2({minimumResultsForSearch: Infinity});
        this.getOrgs();
 	}
 

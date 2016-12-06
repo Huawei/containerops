@@ -11,6 +11,7 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 // const autoprefixer = require('autoprefixer');
 var ProvidePlugin = require('webpack/lib/ProvidePlugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var OpenBrowserPlugin = require('open-browser-webpack-plugin');
 const validate = require('webpack-validator');
 var metadata = {
     title: 'Tenant',
@@ -35,6 +36,7 @@ module.exports = validate({
     // entry: { 'polyfills': './src/polyfills.ts', 'main': './src/main.ts' },
     entry: {
 
+        // 'server'：'webpack/hot/dev-server',
         'polyfills': './src/polyfills.ts',
         'vendor': './src/vendor.ts',
         'main': './src/main.ts'
@@ -170,7 +172,8 @@ module.exports = validate({
                 // Holder: 'jasny-bootstrap/docs/assets/js/vendor/holder.js',
                 // markdown: 'markdown/lib/markdown.js',
                 // Shuffle: 'shufflejs/dist/shuffle.js'
-        })
+        }),
+        new OpenBrowserPlugin({ url: 'http://localhost:3000' })
     ],
 
     // Other module loader config
@@ -185,8 +188,8 @@ module.exports = validate({
         host: metadata.host,
         // contentBase: 'src/',
         historyApiFallback: true,
-        watchOptions: { aggregateTimeout: 300, poll: 1000 },
-        outputPath: '/dist/'
+        watchOptions: { aggregateTimeout: 300, poll: 1000 }
+        // outputPath: '/dist/'
     }
     // we need this due to problems with es6-shim
     // node: {global: 'window', progress: false, crypto: 'empty', module: false, clearImmediate: false, setImmediate: false}
