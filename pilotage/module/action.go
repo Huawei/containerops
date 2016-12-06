@@ -804,7 +804,7 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 		return err
 	}
 
-	if eventKey == models.EVENT_TASK_RESULT {
+	if eventKey == models.EVENT_TASK_STATUS {
 		resultReqBody, ok := reqBody["INFO"].(map[string]interface{})
 		if !ok {
 			log.Error("[actionLog's RecordEvent]:error when get request's info body, want a json obj, got:", reqBody["INFO"])
@@ -821,13 +821,9 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 			result = ""
 		}
 
-		output, ok := resultReqBody["output"].(map[string]interface{})
-		outputStr := ""
+		outputStr, ok := resultReqBody["output"].(string)
 		if !ok {
 			outputStr = ""
-		} else {
-			outputBytes, _ := json.Marshal(output)
-			outputStr = string(outputBytes)
 		}
 
 		recordErr := RecordOutcom(actionLog.Workflow, actionLog.FromWorkflow, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, eventId, status, result, outputStr)
