@@ -142,11 +142,14 @@ export function initWorkflow() {
                 util.showToolTip(options);
 
             } else if (d.type == constant.WORKFLOW_STAGE || d.type == constant.WORKFLOW_START) {
-                let text = "Click to Edit";
-                let width = null;
-                if (d.setupData && d.setupData.name && d.setupData.name != "") {
-                    text = d.setupData.name;
-                    width = text.length * 8 + 20;
+                let text = d.type==constant.WORKFLOW_START?"Click to Edit Output":"Click to Edit Name and Timeout";
+                let width = 220;
+                let height = null;
+                if (d.setupData && ((d.setupData.name && d.setupData.name != "") || (d.setupData.timeout && d.setupData.timeout != ""))) {
+                    text = ["Name: " + d.setupData.name, "Timeout: "+d.setupData.timeout+"(S)"];
+                    // width = text.length * 8 + 20;
+                    width = 300;
+                    height = text.length * constant.popupHeight;
                 }
                 options = {
                     "x": i * constant.WorkflowNodeSpaceSize + constant.workflowNodeStartX,
@@ -154,7 +157,8 @@ export function initWorkflow() {
                     "text": text,
                     "popupId": "workflow-element-popup",
                     "parentView": constant.workflowView,
-                    "width": width
+                    "width": width,
+                    "height":height
                 };
                 util.showToolTip(options);
             }
