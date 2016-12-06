@@ -75,12 +75,12 @@ export function initComponentSetup(component){
         componentSetupData.setCPURequest();
     });
 
-    $("#k8s-memory-limits").val(componentSetupData.getMemoryLimit());
+    $("#k8s-memory-limits").val(componentSetupData.data.pod.spec.containers[0].resources.limits.memory);
     $("#k8s-memory-limits").on("blur",function(){
         componentSetupData.setMemoryLimit();
     });
 
-    $("#k8s-memory-requests").val(componentSetupData.getMemoryRequest());
+    $("#k8s-memory-requests").val(componentSetupData.data.pod.spec.containers[0].resources.requests.memory);
     $("#k8s-memory-requests").on("blur",function(){
         componentSetupData.setMemoryRequest();
     });

@@ -126,24 +126,12 @@ export function setCPURequest(){
   data.pod.spec.containers[0].resources.requests.cpu = $("#k8s-cpu-requests").val();
 }
 
-export function getMemoryLimit(){
-  var value = data.pod.spec.containers[0].resources.limits.memory;
-  return Number(value.substring(0,value.length-2));
-}
-
 export function setMemoryLimit(){
-  var value = $("#k8s-memory-limits").val();
-  data.pod.spec.containers[0].resources.limits.memory = value.toString() + "Mi";
-}
-
-export function getMemoryRequest(){
-  var value = data.pod.spec.containers[0].resources.requests.memory;
-  return Number(value.substring(0,value.length-2));
+  data.pod.spec.containers[0].resources.limits.memory = $("#k8s-memory-limits").val();
 }
 
 export function setMemoryRequest(){
-  var value = $("#k8s-memory-requests").val();
-  data.pod.spec.containers[0].resources.requests.memory = value.toString() + "Mi";
+  data.pod.spec.containers[0].resources.requests.memory = $("#k8s-memory-requests").val();
 }
 
 export function setServiceAdvanced(value){
