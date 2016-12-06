@@ -37,17 +37,28 @@ export function initActionIO(action){
     fromEdit_OutputCodeContainer = $("#outputCodeEditor")[0];
     fromEdit_OutputTreeContainer = $("#outputTreeEditor")[0];
 
-    // input output from edit
-    $("#tree-edit-tab").on('click',function(){
-        initTreeEdit();
-    })
+    $("#jsonMode").hide();
 
-    $("#event-edit-tab").on('click',function(){
+    // input output from edit
+    $("#design-tab").on('click',function(){
+        initTreeEdit();
         initFromEdit("input");
         initFromEdit("output");
     })
 
-    initTreeEdit();
+    // action design way
+    $(".action-json").on('click',function(){
+        $("#designMode").hide();
+        $("#jsonMode").show();
+        initFromEdit("input");
+        initFromEdit("output");
+    });
+
+    $(".action-design").on('click',function(){
+        $("#designMode").show();
+        $("#jsonMode").hide();
+        initTreeEdit();
+    });
 }
 
 export function initTreeEdit(){

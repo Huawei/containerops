@@ -242,7 +242,7 @@ function initComponentEdit(){
             
             $("#service-type-select").select2({
                minimumResultsForSearch: Infinity
-            });     
+            });
         }
     });
 }
