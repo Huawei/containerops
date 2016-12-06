@@ -92,23 +92,21 @@ export function setServiceType(){
 
 export function setServicePort(event){
   var target = $(event.currentTarget);
-  var index = target.parent().data("index");
+  var index = target.parent().parent().data("index");
   var value = target.val();
-  data.service.spec.ports[index].port = parseInt(value);
+  data.service.spec.ports[index].port = target.val();
 }
 
 export function setServiceTargetPort(event){
   var target = $(event.currentTarget);
-  var index = target.parent().data("index");
-  var value = target.val();
-  data.service.spec.ports[index].targetPort = parseInt(value);
+  var index = target.parent().parent().data("index");
+  data.service.spec.ports[index].targetPort = target.val();
 }
 
 export function setServiceNodePort(event){
   var target = $(event.currentTarget);
-  var index = target.parent().data("index");
-  var value = target.val();
-  data.service.spec.ports[index].nodePort = parseInt(value);
+  var index = target.parent().parent().data("index");
+  data.service.spec.ports[index].nodePort = target.val();
 }
 
 export function removeServicePorts(event){
@@ -140,24 +138,12 @@ export function setCPURequest(){
   data.pod.spec.containers[0].resources.requests.cpu = $("#k8s-cpu-requests").val();
 }
 
-export function getMemoryLimit(){
-  var value = data.pod.spec.containers[0].resources.limits.memory;
-  return Number(value.substring(0,value.length-2));
-}
-
 export function setMemoryLimit(){
-  var value = $("#k8s-memory-limits").val();
-  data.pod.spec.containers[0].resources.limits.memory = value.toString() + "Mi";
-}
-
-export function getMemoryRequest(){
-  var value = data.pod.spec.containers[0].resources.requests.memory;
-  return Number(value.substring(0,value.length-2));
+  data.pod.spec.containers[0].resources.limits.memory = $("#k8s-memory-limits").val();
 }
 
 export function setMemoryRequest(){
-  var value = $("#k8s-memory-requests").val();
-  data.pod.spec.containers[0].resources.requests.memory = value.toString() + "Mi";
+  data.pod.spec.containers[0].resources.requests.memory = $("#k8s-memory-requests").val();
 }
 
 export function setServiceAdvanced(value){
