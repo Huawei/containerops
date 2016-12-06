@@ -51,6 +51,17 @@ export function findOutputLines(itemId) {
     });
     return relatedLines;
 }
+export function hasLinkWithStartStage(itemId){
+    var inputLines = findInputLines(itemId);
+    var obj = _.find(inputLines, function(line){
+          return line.startData.id == "start-stage";
+    })
+    if(_.isEmpty(obj)){
+        return {"hasLink":false, "startData":""};
+    }else{
+        return {"hasLink":true, "startData":obj.startData};
+    }
+}
 export function removeRelatedLines(args) {
     if (isString(args)) {
         var relatedLines = findAllRelatedLines(args);
@@ -295,7 +306,7 @@ export function showToolTip(options) {
         .attr("rx", 3)
         .attr("ry", 3)
         .style("fill", constant.toolTipBackground)
-        .style("opacity", 0.9)
+        // .style("opacity", 0.9)
 
     parentView.select("#" + popupId)
         .append("text")
