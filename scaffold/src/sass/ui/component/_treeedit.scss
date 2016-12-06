@@ -9,6 +9,65 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. */
 
+.action-way-div{
+  margin-bottom : 10px;
+  margin-top: -20px;
+}
+
+.action-design-select{
+  background-image:url(/assets/images/action-design-select.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 40px;
+  height: 40px;
+  float:right;
+  margin-right: 20px;
+  cursor:pointer;
+}
+
+.action-json{
+  background-image:url(/assets/images/action-json.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 40px;
+  height: 40px;
+  float:right;
+  margin-right: 20px;
+  cursor:pointer;
+
+  &:hover{
+    background-image:url(/assets/images/action-json-select.png);
+    opacity: 0.5;
+  }
+}
+
+.action-design{
+  background-image:url(/assets/images/action-design.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 40px;
+  height: 40px;
+  float:right;
+  margin-right: 20px;
+  cursor:pointer;
+
+  &:hover{
+    background-image:url(/assets/images/action-design-select.png);
+    opacity: 0.5;
+  }
+}
+
+.action-json-select{
+  background-image:url(/assets/images/action-json-select.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 40px;
+  height: 40px;
+  float:right;
+  margin-right: 20px;
+  cursor:pointer;
+}
+
 // panel body
 .input-panel-heading{
   background-color:#f0f0f0 !important;
