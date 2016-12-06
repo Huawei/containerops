@@ -30,7 +30,11 @@ import { loading } from "../common/loading";
 import { getConflict, svgTree } from "./actionConflict";
 import {workflowVars} from "../workflow/workflowVar";
 
+let filter = "";
+
 export function clickAction(sd, si) {
+    filter = "";
+    
     if (sd.component) {
         showActionEditor(sd);
     } else {
@@ -121,6 +125,8 @@ function showComponentList(action) {
         success: function(data) {
             $("#actionMain").html($(data));
 
+            $(".component-filter-input").val(filter);
+
             $(".newcomponent").on('click', function() {
                 $(".menu-component").parent().addClass("active");
                 $(".menu-workflow").parent().removeClass("active");
@@ -129,8 +135,15 @@ function showComponentList(action) {
                 showNewComponent(true);
             })
 
+            $("#searchComponent").on('click', function() {
+                filter = $(".component-filter-input").val();
+                showComponentList(action);
+            })
+
+            var components = doFilter(filter);
+console.log(components)
             $(".componentlist_body").empty();
-            _.each(allComponents, function(item) {
+            _.each(components, function(item) {
                 var pprow = `<tr class="pp-row">
                                 <td class="pptd">
                                     <span class="glyphicon glyphicon-menu-down treeclose treecontroller" data-name=` 
@@ -217,4 +230,14 @@ function LoadComponentToAction(componentName, componentVersionName, componentVer
 
 function jsonChanged(root, json) {
     root.val(JSON.stringify(json));
+}
+
+function doFilter(filter){
+    var tempComponents = _.map(allComponents,function(item){
+        return $.extend(true,{},item);
+    });
+
+    return _.filter(tempComponents,function(item){
+        return item.name.toLowerCase().indexOf(filter) >= 0;
+    })
 }
