@@ -231,3 +231,16 @@ button.close {
    padding-left:15px !important;
    padding-right:15px !important;
 }
+
+// component choose
+.chooseComponentHeader{
+  width:40%;
+  float: left;
+  margin-bottom:10px;
+}
+
+.component-filter-input{
+  background-color:#fff;
+  background:url(/assets/images/search.png) 5px 60% no-repeat #fff;
+  padding-left:26px;
+}
