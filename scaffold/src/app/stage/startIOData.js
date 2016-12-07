@@ -57,27 +57,42 @@ export function setEvent(e){
     data[selectedTab].event = e;
 }
 
-export function findEventSelectDom(){
-    return $(".output-type-event-div[data-index="+ selectedTab +"]").find(".output-event-select");
+export function findGitHubEventSelectDom(){
+    return $(".output-type-event-div[data-index="+ selectedTab +"]").find(".github-event-select");
+}
+
+export function findGitLabEventSelectDom(){
+    return $(".output-type-event-div[data-index="+ selectedTab +"]").find(".gitlab-event-select");
 }
 
 export function findEventInputDom(){
     return $(".output-type-event-div[data-index="+ selectedTab +"]").find(".output-event-input");
 }
 
-export function setEventSelect(){
-    data[selectedTab].event = findEventSelectDom().val();
+export function setEventSelect(type){
+    if(type == "github"){
+        data[selectedTab].event = findGitHubEventSelectDom().val();
+    }else if(type == "gitlab"){
+        data[selectedTab].event = findGitLabEventSelectDom().val();
+    }  
 }
 
 export function setEventInput(){
     data[selectedTab].event = findEventInputDom().val();
 }
 
-export function setEventSelectDom(){
-    findEventSelectDom().val(data[selectedTab].event);
-    findEventSelectDom().select2({
-        minimumResultsForSearch: Infinity
-    });
+export function setEventSelectDom(type){
+    if(type == "github"){
+        findGitHubEventSelectDom().val(data[selectedTab].event);
+        findGitHubEventSelectDom().select2({
+            minimumResultsForSearch: Infinity
+        });
+    }else if(type == "gitlab"){
+        findGitLabEventSelectDom().val(data[selectedTab].event);
+        findGitLabEventSelectDom().select2({
+            minimumResultsForSearch: Infinity
+        });
+    }
 }
 
 export function setEventInputDom(){
