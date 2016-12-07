@@ -36,11 +36,11 @@ const (
 	//CharacterComponentEvent is Event use for component.
 	CharacterComponentEvent
 
-	EVENT_COMPONENT_START = "COMPONENT_START"
-	EVENT_TASK_START      = "TASK_START"
-	EVENT_TASK_STATUS     = "TASK_STATUS"
-	EVENT_TASK_RESULT     = "TASK_RESULT"
-	EVENT_COMPONENT_STOP  = "COMPONENT_STOP"
+	EVENT_COMPONENT_START = "CO_COMPONENT_START"
+	EVENT_TASK_START      = "CO_TASK_START"
+	EVENT_TASK_STATUS     = "CO_TASK_STATUS"
+	EVENT_TASK_RESULT     = "CO_TASK_RESULT"
+	EVENT_COMPONENT_STOP  = "CO_COMPONENT_STOP"
 )
 
 const (
@@ -55,7 +55,7 @@ type EventDefinition struct {
 	Title      string     `json:"title" sql:"null;type:varchar(255)"`      //Event name for display.
 	Namespace  string     `json:"namespace" sql:"null;type:varchar(255)"`  //Event name for display.
 	Repository string     `json:"repository" sql:"null;type:varchar(255)"` //Event name for display.
-	Pipeline   int64      `json:"pipeline" sql:"null"`                     //
+	Workflow   int64      `json:"workflow" sql:"null"`                     //
 	Stage      int64      `json:"stage" sql:"null"`                        //
 	Action     int64      `json:"action" sql:"not null;default:0"`         // action's id that event bind
 	Character  int64      `json:"character" sql:"not null;default:0"`      //CharacterServiceEvent or CharacterComponentEvent.
@@ -89,10 +89,10 @@ type Event struct {
 	Character     int64      `json:"character" sql:"not null;default:0"`      //CharacterServiceEvent or CharacterComponentEvent.
 	Namespace     string     `json:"namespace" sql:"null;type:varchar(255)"`  //Event name for display.
 	Repository    string     `json:"repository" sql:"null;type:varchar(255)"` //Event name for display.
-	Pipeline      int64      `json:"pipeline" sql:"not null;default:0"`       //Pipeline's ID.
+	Workflow      int64      `json:"workflow" sql:"not null;default:0"`       //Workflow's ID.
 	Stage         int64      `json:"stage" sql:"not null;default:0"`          //Stage's ID.
 	Action        int64      `json:"action" sql:"not null;default:0"`         //Action's ID.
-	Sequence      int64      `json:"sequence" sql:"not null;default:0"`       //Pipeline sequence number.
+	Sequence      int64      `json:"sequence" sql:"not null;default:0"`       //Workflow sequence number.
 	CreatedAt     time.Time  `json:"created" sql:""`                          //
 	UpdatedAt     time.Time  `json:"updated" sql:""`                          //
 	DeletedAt     *time.Time `json:"deleted" sql:"index"`                     //
@@ -122,4 +122,41 @@ func (e *EventJson) TableName() string {
 
 func (e *EventJson) GetEventJson() *gorm.DB {
 	return db.Model(&EventJson{})
+}
+
+type WorkflowVar struct {
+	ID        int64      `json:"id" gorm:"primary_key"`        //
+	Workflow  int64      `json:"workflow"`                     //
+	Key       string     `json:"key" gorm:"type:varchar(255)"` //
+	Default   string     `json:"default" gorm:"type:longtext"` //
+	Vaule     string     `json:"value" gorm:"type:longtext"`   //
+	CreatedAt time.Time  `json:"created" sql:""`               //
+	UpdatedAt time.Time  `json:"updated" sql:""`               //
+	DeletedAt *time.Time `json:"deleted" sql:"index"`          //
+}
+
+func (r *WorkflowVar) TableName() string {
+	return "workflow_var"
+}
+
+func (r *WorkflowVar) GetWorkflowVar() *gorm.DB {
+	return db.Model(&WorkflowVar{})
+}
+
+type RuntimeWorkflowVar struct {
+	ID        int64  `json:"id" gorm:"primary_key"`          //
+	Workflow  int64  `json:"workflow"`                       //
+	RunID     int64  `json:"runID"`                          //
+	Key       string `json:"key" gorm:"type:varchar(255)"`   //
+	Default   string `json:"default" gorm:"type:longtext"`   //
+	Vaule     string `json:"value" gorm:"type:longtext"`     //
+	ChangeLog string `json:"changelog" gorm:"type:longtext"` //
+}
+
+func (r *RuntimeWorkflowVar) TableName() string {
+	return "runtime_workflow_var"
+}
+
+func (r *RuntimeWorkflowVar) GetRuntimeWorkflowVar() *gorm.DB {
+	return db.Model(&RuntimeWorkflowVar{})
 }

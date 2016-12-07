@@ -17,7 +17,7 @@ limitations under the License.
 import { jsonEditor } from "../../vendor/jquery.jsoneditor";
 import { bipatiteView } from "./bipatiteView";
 import { resizeWidget } from "../theme/widget";
-import { pipelineData } from "../pipeline/main";
+import { workflowData } from "../workflow/main";
 import * as constant from "../common/constant";
 
 
@@ -27,7 +27,7 @@ export var lineOutputJSON = {};
 
 export function editLine(editPage, currentLine) {
     var id = currentLine.attr("id");
-    $("#pipeline-info-edit").html($(editPage));
+    $("#workflow-info-edit").html($(editPage));
 
 
     $("#importDiv").html("");
@@ -55,7 +55,7 @@ export function editLine(editPage, currentLine) {
         })
 
         if(currentLineData.startData.id == "start-stage"){
-            currentLineData.startData =pipelineData[0];
+            currentLineData.startData =workflowData[0];
         }else{
             currentLineData.startData = getAction(currentLineData.startData.id);
         }
@@ -74,8 +74,8 @@ export function editLine(editPage, currentLine) {
 
 
 function getAction(actionId) {
-    for (let i = 0; i < pipelineData.length; i ++) {
-        let stage = pipelineData[i];
+    for (let i = 0; i < workflowData.length; i ++) {
+        let stage = workflowData[i];
         if (stage.actions) {
             for (let j = 0; j < stage.actions.length; j ++ ) {
                 let action = stage.actions[j];

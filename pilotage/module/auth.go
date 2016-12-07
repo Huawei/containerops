@@ -17,20 +17,20 @@ limitations under the License.
 package module
 
 const (
-	// AuthTypePipelineDefault is default auth type that pipeline doesn't spec a target
-	AuthTypePipelineDefault = "default"
-	// AuthTypePipelineStartAPI is auth that given by api request
-	AuthTypePipelineStartAPI = "PipelineStartAPI"
-	// AuthTypePipelineStartDone is auth that given by system when pipeline start auth is all done
-	AuthTypePipelineStartDone = "PipelineStartDone"
+	// AuthTypeWorkflowDefault is default auth type that workflow doesn't spec a target
+	AuthTypeWorkflowDefault = "default"
+	// AuthTypeWorkflowStartAPI is auth that given by api request
+	AuthTypeWorkflowStartAPI = "WorkflowStartAPI"
+	// AuthTypeWorkflowStartDone is auth that given by system when workflow start auth is all done
+	AuthTypeWorkflowStartDone = "WorkflowStartDone"
 
-	// AuthTypePipelineDefault is default auth type that pipeline doesn't spec a target
+	// AuthTypeWorkflowDefault is default auth type that workflow doesn't spec a target
 	AuthTypeStageDefault = "default"
 	// AuthTypePreStageDone is auth that given by system when pre stage run success
 	AuthTypePreStageDone = "PreStageDone"
 	// AuthTyptStageStartDon is auth that given by system when a stage get all auth it request
 	AuthTyptStageStartDone = "StageStartDone"
 
-	// AuthAuthorizerDefault is default auth authorizer that pipeline doesn't spec a authorizer
+	// AuthAuthorizerDefault is default auth authorizer that workflow doesn't spec a authorizer
 	AuthTokenDefault = "default"
 )

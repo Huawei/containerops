@@ -26,11 +26,6 @@ export function initComponentSetup(component){
         componentSetupData.setActionType();    
     });
 
-    $("#action-name").val(componentSetupData.data.action.name);
-    $("#action-name").on("blur",function(){
-        componentSetupData.setActionName();
-    });
-
     $("#action-timeout").val(componentSetupData.data.action.timeout);
     $("#action-timeout").on("blur",function(){
         componentSetupData.setActionTimeout();
@@ -80,32 +75,24 @@ export function initComponentSetup(component){
         componentSetupData.setCPURequest();
     });
 
-    $("#k8s-memory-limits").val(componentSetupData.getMemoryLimit());
+    $("#k8s-memory-limits").val(componentSetupData.data.pod.spec.containers[0].resources.limits.memory);
     $("#k8s-memory-limits").on("blur",function(){
         componentSetupData.setMemoryLimit();
     });
 
-    $("#k8s-memory-requests").val(componentSetupData.getMemoryRequest());
+    $("#k8s-memory-requests").val(componentSetupData.data.pod.spec.containers[0].resources.requests.memory);
     $("#k8s-memory-requests").on("blur",function(){
         componentSetupData.setMemoryRequest();
     });
 
     // ports
-    if(componentSetupData.getUseNodePort()){
-        $("#use-node-port").prop("checked",true);
-    }else{
-        $("#use-node-port").prop("checked",false);
-    }
-    $("#use-node-port").on("click",function(){
-        if($("#use-node-port")[0].checked){
-            componentSetupData.setUseNodePort(true);
-        }else{
-            componentSetupData.setUseNodePort(false);
-        }
+    $("#service-type-select").val(componentSetupData.data.service.spec.type);
+    $("#service-type-select").on('change',function(){
+        componentSetupData.setServiceType();    
         showComponentPorts();
     });
     showComponentPorts();
-
+    
     // advanced setting
     $("#serviceCodeEditor").val(JSON.stringify(componentSetupData.data.service_advanced,null,2));
     $("#serviceCodeEditor").on("blur",function(){

@@ -33,15 +33,6 @@ export function setStageTimeout(){
     data.timeout = $("#stage-timeout").val();
 }
 
-// export function setStageEnv(){
-//     data.env = $("#stage-env").val();
-// }
-
-// export function setStageCallbackUrl(){
-//     data.callbackurl = $("#stage-callback-url").val();
-// }
-
-
 var metadata = {
   "name" : "",
   "timeout" : ""

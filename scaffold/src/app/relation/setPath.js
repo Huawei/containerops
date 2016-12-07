@@ -17,7 +17,7 @@ limitations under the License.
 import * as constant from "../common/constant";
 import { editLine } from "./editLine";
 import * as util from "../common/util";
-import * as initButton from "../pipeline/initButton";
+import * as initButton from "../workflow/initButton";
 import { makeFrontLayer, makeBackLayer } from "./lineHover";
 /* draw real line between from node and to node */
 export function setPath(options) {
@@ -27,14 +27,14 @@ export function setPath(options) {
     /* line start point(x,y) is the circle(x,y) */
     var startPoint = {},
         endPoint = {};
-    if (fromDom.type == constant.PIPELINE_START) {
+    if (fromDom.type == constant.WORKFLOW_START) {
         startPoint = { x: fromDom.translateX + 1, y: fromDom.translateY + 57 };
-    } else if (fromDom.type == constant.PIPELINE_ACTION) {
+    } else if (fromDom.type == constant.WORKFLOW_ACTION) {
         startPoint = { x: fromDom.translateX + 19, y: fromDom.translateY + 4 };
     }
     endPoint = { x: toDom.translateX - 12, y: toDom.translateY + 4 };
     
-    constant.lineView[options.pipelineLineViewId]
+    constant.lineView[options.workflowLineViewId]
         .append("path")
         .attr("d", getPathData(startPoint, endPoint))
         .attr("fill", "none")

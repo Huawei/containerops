@@ -17,7 +17,7 @@ limitations under the License.
 import * as util from "../common/util";
 import * as constant from "../common/constant";
 
-export function mouseoverRelevantPipeline(param) {
+export function mouseoverRelevantWorkflow(param) {
     var outputLines = util.findOutputLines(param.id);
     _.each(outputLines, function(line) {
         d3.select("#" + line.id).attr("stroke", function() {
@@ -28,7 +28,7 @@ export function mouseoverRelevantPipeline(param) {
 }
 
 
-export function mouseoutRelevantPipeline(param) {
+export function mouseoutRelevantWorkflow(param) {
     var outputLines = util.findOutputLines(param.id);
     var tempLines = constant.linePathAry;
     if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "line") {

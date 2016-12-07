@@ -2,7 +2,7 @@
 createNewComponent
     [Arguments]    ${url}    ${namespace}    ${body}    ${message}    ${statuscode}
     Create Session    session    ${url}
-    ${resp}=    Post Request    session    /pipeline/v1/${namespace}/component    ${body}
+    ${resp}=    Post Request    session    /workflow/v1/${namespace}/component    ${body}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -16,7 +16,7 @@ createNewComponent
 getComponentList
     [Arguments]    ${url}    ${namespace}    ${statuscode}    ${message}
     Create Session    session    ${url}
-    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/component
+    ${resp}=    Get Request    session    /workflow/v1/${namespace}/component
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -30,7 +30,7 @@ getComponentList
 getComponentInfo
     [Arguments]    ${url}    ${namespace}    ${statuscode}    ${componentName}    ${componentID}    ${message}
     Create Session    session    ${url}
-    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/component/${componentName}?id=${componentID}
+    ${resp}=    Get Request    session    /workflow/v1/${namespace}/component/${componentName}?id=${componentID}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -42,7 +42,7 @@ getComponentInfo
 saveComponent
     [Arguments]    ${url}    ${namespace}    ${body}    ${message}    ${statuscode}    ${componentName}
     Create Session    session    ${url}
-    ${resp}=    Put Request    session    /pipeline/v1/${namespace}/component/${componentName}    ${body}
+    ${resp}=    Put Request    session    /workflow/v1/${namespace}/component/${componentName}    ${body}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -56,7 +56,7 @@ saveComponent
 createNewWorkflow
     [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
     Create Session    session    ${url}
-    ${resp}=    Post Request    session    /pipeline/v1/${namespace}/${repository}    ${body}
+    ${resp}=    Post Request    session    /workflow/v1/${namespace}/${repository}    ${body}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -70,7 +70,7 @@ createNewWorkflow
 getWorkflowList
     [Arguments]    ${url}    ${namespace}    ${repository}    ${statuscode}
     Create Session    session    ${url}
-    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}
+    ${resp}=    Get Request    session    /workflow/v1/${namespace}/${repository}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -81,10 +81,10 @@ getWorkflowList
     [Return]    ${json['list'][0]['id']}    ${json['list'][0]['name']}
 
 getWorkflowInfo
-    [Arguments]    ${url}    ${namespace}    ${repository}    ${statuscode}    ${pipelineID}    ${pipelineName}
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${statuscode}    ${workflowID}    ${workflowName}
     ...    ${message}
     Create Session    session    ${url}
-    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/json?id=${pipelineID}
+    ${resp}=    Get Request    session    /workflow/v1/${namespace}/${repository}/${workflowName}/json?id=${workflowID}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -95,9 +95,9 @@ getWorkflowInfo
 
 saveWorkflow
     [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
-    ...    ${pipelineName}
+    ...    ${workflowName}
     Create Session    session    ${url}
-    ${resp}=    Put Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}    ${body}
+    ${resp}=    Put Request    session    /workflow/v1/${namespace}/${repository}/${workflowName}    ${body}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -110,9 +110,9 @@ saveWorkflow
 
 setWorkflowEnv
     [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
-    ...    ${pipelineName}
+    ...    ${workflowName}
     Create Session    session    ${url}
-    ${resp}=    Put Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/env    ${body}
+    ${resp}=    Put Request    session    /workflow/v1/${namespace}/${repository}/${workflowName}/env    ${body}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -124,10 +124,10 @@ setWorkflowEnv
     Delete All Sessions
 
 getWorkflowEnv
-    [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}    ${pipelineID}
-    ...    ${pipelineName}
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}    ${workflowID}
+    ...    ${workflowName}
     Create Session    session    ${url}
-    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/env?id=${pipelineID}
+    ${resp}=    Get Request    session    /workflow/v1/${namespace}/${repository}/${workflowName}/env?id=${workflowID}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -138,9 +138,9 @@ getWorkflowEnv
 
 modifyWorkflowStatus
     [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
-    ...    ${pipelineName}
+    ...    ${workflowName}
     Create Session    session    ${url}
-    ${resp}=    Put Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/state    ${body}
+    ${resp}=    Put Request    session    /workflow/v1/${namespace}/${repository}/${workflowName}/state    ${body}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -151,9 +151,9 @@ modifyWorkflowStatus
 
 runWorkflow
     [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
-    ...    ${pipelineName}
+    ...    ${workflowName}
     Create Session    session    ${url}
-    ${resp}=    Post Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/exec    ${body}
+    ${resp}=    Post Request    session    /workflow/v1/${namespace}/${repository}/${workflowName}/exec    ${body}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -167,22 +167,22 @@ runWorkflow
 getWorkflowHistoryList
     [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}
     Create Session    session    ${url}
-    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}/histories
+    ${resp}=    Get Request    session    /workflow/v1/${namespace}/${repository}/histories
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
     Should Contain    ${resp.content}    ${message}
     ${json}    To JSON    ${resp.content}
     log    ${json}
-    log    ${json['pipelineList'][0]['versionList'][0]['sequenceList'][0]['pipelineSequenceID']}
+    log    ${json['workflowList'][0]['versionList'][0]['sequenceList'][0]['workflowSequenceID']}
     Delete All Sessions
-    [Return]    ${json['pipelineList'][0]['versionList'][0]['sequenceList'][0]['pipelineSequenceID']}
+    [Return]    ${json['workflowList'][0]['versionList'][0]['sequenceList'][0]['workflowSequenceID']}
 
 getWorkflowHistory
-    [Arguments]    ${url}    ${namespace}    ${repository}    ${statuscode}    ${pipelineID}    ${pipelineName}
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${statuscode}    ${workflowID}    ${workflowName}
     ...    ${message}    ${sequenceId}    ${version}
     Create Session    session    ${url}
-    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/${version}/define
+    ${resp}=    Get Request    session    /workflow/v1/${namespace}/${repository}/${workflowName}/${version}/define
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -197,7 +197,7 @@ getWorkflowHistory
 getGithubEventJson
     [Arguments]    ${url}    ${statuscode}    ${eventName}    ${message}
     Create Session    session    ${url}
-    ${resp}=    Get Request    session    /pipeline/v1/eventJson/github/${eventName}
+    ${resp}=    Get Request    session    /workflow/v1/eventJson/github/${eventName}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -207,10 +207,10 @@ getGithubEventJson
     Delete All Sessions
 
 getWorkflowTokenAndUrl
-    [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}    ${pipelineID}
-    ...    ${pipelineName}
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}    ${workflowID}
+    ...    ${workflowName}
     Create Session    session    ${url}
-    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/token?id=${pipelineID}
+    ${resp}=    Get Request    session    /workflow/v1/${namespace}/${repository}/${workflowName}/token?id=${workflowID}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -220,10 +220,10 @@ getWorkflowTokenAndUrl
     Delete All Sessions
 
 getWorkflowActionRunHistory
-    [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}    ${pipelineName}
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}    ${workflowName}
     ...    ${stageName}    ${actionName}    ${actionLogID}
     Create Session    session    ${url}
-    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/stage/${stageName}/${actionName}/history?actionLogId=${actionLogID}
+    ${resp}=    Get Request    session    /workflow/v1/${namespace}/${repository}/${workflowName}/stage/${stageName}/${actionName}/history?actionLogId=${actionLogID}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -233,10 +233,10 @@ getWorkflowActionRunHistory
     Delete All Sessions
 
 getWorkflowActionRelationInfo
-    [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}    ${pipelineSequenceID}
-    ...    ${pipelineName}    ${startActionId}    ${endActionId}
+    [Arguments]    ${url}    ${namespace}    ${repository}    ${message}    ${statuscode}    ${workflowSequenceID}
+    ...    ${workflowName}    ${startActionId}    ${endActionId}
     Create Session    session    ${url}
-    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/${pipelineSequenceID}/lineHistory?startActionId=${startActionId}&endActionId=${endActionId}
+    ${resp}=    Get Request    session    /workflow/v1/${namespace}/${repository}/${workflowName}/${workflowSequenceID}/lineHistory?startActionId=${startActionId}&endActionId=${endActionId}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -248,7 +248,7 @@ getWorkflowActionRelationInfo
 getWorkflowExceptList
     [Arguments]    ${url}    ${namespace}    ${repository}    ${statuscode}    ${message}
     Create Session    session    ${url}
-    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/${repository}
+    ${resp}=    Get Request    session    /workflow/v1/${namespace}/${repository}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -259,7 +259,7 @@ componentOps
     [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
     ...    ${componentName}
     Create Session    session    ${url}
-    ${resp}=    Put Request    session    /pipeline/v1/${namespace}/${repository}/${componentName}/event    ${body}
+    ${resp}=    Put Request    session    /workflow/v1/${namespace}/${repository}/${componentName}/event    ${body}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -274,7 +274,7 @@ componentReg
     [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
     ...    ${componentName}
     Create Session    session    ${url}
-    ${resp}=    Put Request    session    /pipeline/v1/${namespace}/${repository}/${componentName}/register    ${body}
+    ${resp}=    Put Request    session    /workflow/v1/${namespace}/${repository}/${componentName}/register    ${body}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -288,7 +288,7 @@ componentReg
 getComponentExceptList
     [Arguments]    ${url}    ${namespace}    ${statuscode}    ${message}
     Create Session    session    ${url}
-    ${resp}=    Get Request    session    /pipeline/v1/${namespace}/component
+    ${resp}=    Get Request    session    /workflow/v1/${namespace}/component
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}
@@ -297,9 +297,9 @@ getComponentExceptList
 
 specifiesWorkflowRunVersion
     [Arguments]    ${url}    ${namespace}    ${repository}    ${body}    ${message}    ${statuscode}
-    ...    ${pipelineName}    ${version}
+    ...    ${workflowName}    ${version}
     Create Session    session    ${url}
-    ${resp}=    Post Request    session    /pipeline/v1/${namespace}/${repository}/${pipelineName}/exec?version=${version}    ${body}
+    ${resp}=    Post Request    session    /workflow/v1/${namespace}/${repository}/${workflowName}/exec?version=${version}    ${body}
     log    ${resp.status_code}
     log    ${resp.content}
     Should Be Equal As Strings    ${resp.status_code}    ${statuscode}

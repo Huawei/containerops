@@ -14,67 +14,67 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-import * as pipelineDataService from "./pipelineData";
+import * as workflowDataService from "./workflowData";
 import { notify, confirm } from "../common/notify";
 import { loading } from "../common/loading";
+import {hideWorkflowEnv} from "./workflowEnv";
+import {workflowData} from "./main";
 
-let pipelineName, pipelineVersionID;
-let pipelineEnvs;
+let workflowName, workflowVersionID,tempWorkflowVars;
+export let workflowVars;
 
-export function initPipelineEnv(name,versionid){
-    pipelineName = name;
-    pipelineVersionID = versionid;
+export function initWorkflowVar(name,versionid){
+    workflowName = name;
+    workflowVersionID = versionid;
+
+    getVarList();
 }
 
-export function showPipelineEnv() {
+export function showWorkflowVar() {
     if ($("#env-setting").hasClass("env-setting-closed")) {
         $("#env-setting").removeClass("env-setting-closed");
         $("#env-setting").addClass("env-setting-opened");
-        $("#close_pp_env").removeClass("pipeline-open-env");
-        $("#close_pp_env").addClass("pipeline-close-env");
+        $("#close_pp_env").removeClass("workflow-open-env");
+        $("#close_pp_env").addClass("workflow-close-env");
 
         $.ajax({
-            url: "../../templates/pipeline/envSetting.html",
+            url: "../../templates/workflow/varSetting.html",
             type: "GET",
             cache: false,
             success: function(data) {
                 $("#env-setting").html($(data));
 
-                $(".add-env").on('click', function() {
-                    pipelineEnvs.push(["", ""]);
-                    showEnvKVs();
+                $(".add-var").on('click', function() {
+                    tempWorkflowVars.push(["", ""]);
+                    showVarKVs();
                 });
 
-                $(".pipeline-close-env").on('click', function() {
-                    hidePipelineEnv();
+                $(".workflow-close-env").on('click', function() {
+                    hideWorkflowEnv();
                 });
 
-                $(".save-env").on('click', function() {
-                    savePipelineEnvs();
+                $(".save-var").on('click', function() {
+                    saveWorkflowVars();
                 });
 
-                getEnvList();
+                getVarList(true);
             }
         });
 
     } else {
-        hidePipelineEnv();
+        hideWorkflowEnv();
     }
 }
 
-export function hidePipelineEnv() {
-    $("#env-setting").removeClass("env-setting-opened");
-    $("#env-setting").addClass("env-setting-closed");
-    $("#close_pp_env").removeClass("pipeline-close-env");
-    $("#close_pp_env").addClass("pipeline-open-env");
-}
-
-function getEnvList() {
-    var promise = pipelineDataService.getEnvs(pipelineName, pipelineVersionID);
+function getVarList(isshow) {
+    var promise = workflowDataService.getVars(workflowName, workflowVersionID);
     promise.done(function(data) {
         loading.hide();
-        pipelineEnvs = _.pairs(data.env);
-        showEnvKVs();
+        tempWorkflowVars = _.pairs(data.var);
+        workflowVars = _.pairs($.extend(true,{},data.var));
+        if(isshow){
+            showVarKVs();
+        }   
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
@@ -86,16 +86,16 @@ function getEnvList() {
     });
 }
 
-function showEnvKVs() {
-    $("#envs").empty();
-    _.each(pipelineEnvs,function(item,index){
+function showVarKVs() {
+    $("#vars").empty();
+    _.each(tempWorkflowVars,function(item,index){
          var row = '<div class="env-row"><div class="env-key-div">'
                         +'<div>'
                             +'<label for="normal-field" class="col-sm-3 control-label" style="margin-top:5px">'
                                 +'KEY'
                             +'</label>'
                             +'<div class="col-sm-9" data-index="' + index + '">'
-                                +'<input type="text" value="' + item[0] + '" class="form-control pp-env-input pp-env-key" required>'
+                                +'<input type="text" value="' + item[0] + '" class="form-control pp-env-input pp-var-key" required>'
                             +'</div>'
                         +'</div>'
                     +'</div>'
@@ -105,46 +105,48 @@ function showEnvKVs() {
                                 +'VALUE'
                             +'</label>'
                             +'<div class="col-sm-9" data-index="' + index + '">' 
-                                +'<input type="text" class="form-control pp-env-input pp-env-value" required>'
+                                +'<input type="text" class="form-control pp-env-input pp-var-value" required>'
                             +'</div>'
                         +'</div>'
                     +'</div>'
-                    +'<div class="env-remove-div pp-rm-kv" data-index="' + index + '">'
+                    +'<div class="env-remove-div pp-rm-vkv" data-index="' + index + '">'
                         +'<span class="glyphicon glyphicon-remove"></span>'
                     +'</div></div>';
-        $("#envs").append(row);
-        $("#envs").find("div[data-index="+index+"]").find(".pp-env-value").val(item[1]);
+        $("#vars").append(row);
+        $("#vars").find("div[data-index="+index+"]").find(".pp-var-value").val(item[1]);
     });
 
-    $(".pp-env-key").on('input',function(event){
+    $(".pp-var-key").on('input',function(event){
         var key = $(event.currentTarget).val();
         $(event.currentTarget).val(key.toUpperCase());
     });
 
-    $(".pp-env-key").on('blur',function(event){
+    $(".pp-var-key").on('blur',function(event){
         var index = $(event.currentTarget).parent().data("index");
-        pipelineEnvs[index][0] = $(event.currentTarget).val();
+        tempWorkflowVars[index][0] = $(event.currentTarget).val();
     });
 
-    $(".pp-env-value").on('blur',function(event){
+    $(".pp-var-value").on('blur',function(event){
         var index = $(event.currentTarget).parent().data("index");
-        pipelineEnvs[index][1] = $(event.currentTarget).val();
+        tempWorkflowVars[index][1] = $(event.currentTarget).val();
     });
 
-    $(".pp-rm-kv").on('click',function(event){
+    $(".pp-rm-vkv").on('click',function(event){
         var index = $(event.currentTarget).data("index");
-        pipelineEnvs.splice(index, 1);
-        showEnvKVs();
+        tempWorkflowVars.splice(index, 1);
+        showVarKVs();
     }); 
 }
 
-function savePipelineEnvs() {
-    var promise = pipelineDataService.setEnvs(pipelineName, pipelineVersionID, pipelineEnvs);
+function saveWorkflowVars() {
+    var promise = workflowDataService.setVars(workflowName, workflowVersionID, tempWorkflowVars);
     if (promise) {
         promise.done(function(data) {
             loading.hide();
             notify(data.message, "success");
-            hidePipelineEnv();
+            hideWorkflowEnv();
+            getVarList();
+            $("#workflow-info-edit").html("");
         });
         promise.fail(function(xhr, status, error) {
             loading.hide();
@@ -153,7 +155,13 @@ function savePipelineEnvs() {
             } else if(xhr.statusText != "abort") {
                 notify("Server is unreachable", "error");
             }
-            hidePipelineEnv();
+            hideWorkflowEnv();
         });
     }
+}
+
+export function isAvailableVar(target){
+    var varKeys = _.unzip(workflowVars)[0];
+    var targetKey = target.substring(1,target.length-1);
+    return _.indexOf(varKeys,targetKey) >= 0 ? true : false;
 }

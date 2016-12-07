@@ -14,29 +14,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-import {pipelineApi} from "../common/api";
+import {workflowApi} from "../common/api";
 
-let allPipelines = [];
+let allWorkflows = [];
 
-export function getAllPipelines(){
-    return pipelineApi.list();
+export function getAllWorkflows(){
+    return workflowApi.list();
 }
 
-export function getPipeline(name,versionid){
-    return pipelineApi.data(name,versionid);
+export function getWorkflow(name,versionid){
+    return workflowApi.data(name,versionid);
 }
 
-export function addPipeline(){
+export function addWorkflow(){
     if(!$('#newpp-form').parsley().validate()){
         return false;
     }
     var name = $("#pp-name").val();
     var version = $("#pp-version").val();
 
-    return pipelineApi.add(name,version);
+    return workflowApi.add(name,version);
 }
 
-export function savePipeline(name,version,versionid,nodes,lines){
+export function saveWorkflow(name,version,versionid,nodes,lines){
     var reqbody = {
         "id" : versionid,
         "version" : version.toString(),
@@ -46,20 +46,20 @@ export function savePipeline(name,version,versionid,nodes,lines){
         }
     }
 
-    return pipelineApi.save(name,reqbody);
+    return workflowApi.save(name,reqbody);
 }
 
-export function addPipelineVersion(name, versionid, nodes,lines){
+export function addWorkflowVersion(name, versionid, nodes,lines){
     if(!$('#newpp-version-form').parsley().validate()){
         return false;
     }else{
         var version = $("#pp-newversion").val();
-        return savePipeline(name, version, versionid, nodes,lines)
+        return saveWorkflow(name, version, versionid, nodes,lines)
     }
 }
 
 export function getEnvs(name,versionid){
-    return pipelineApi.getEnv(name,versionid);
+    return workflowApi.getEnv(name,versionid);
 }
 
 export function setEnvs(name,versionid,envs){
@@ -68,11 +68,11 @@ export function setEnvs(name,versionid,envs){
         "env" : _.object(envs)
     }
 
-    return pipelineApi.setEnv(name,reqbody);
+    return workflowApi.setEnv(name,reqbody);
 }
 
 export function getVars(name,versionid){
-    return pipelineApi.getVar(name,versionid);
+    return workflowApi.getVar(name,versionid);
 }
 
 export function setVars(name,versionid,vars){
@@ -81,7 +81,7 @@ export function setVars(name,versionid,vars){
         "var" : _.object(vars)
     }
 
-    return pipelineApi.setVar(name,reqbody);
+    return workflowApi.setVar(name,reqbody);
 }
 
 export function changeState(name,versionid,state){
@@ -90,9 +90,9 @@ export function changeState(name,versionid,state){
         "state" : state
     }
 
-    return pipelineApi.changeState(name,reqbody);
+    return workflowApi.changeState(name,reqbody);
 }
 
 export function getToken(name,versionid){
-    return pipelineApi.getToken(name,versionid);
+    return workflowApi.getToken(name,versionid);
 }

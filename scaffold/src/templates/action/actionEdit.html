@@ -31,15 +31,8 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="tree-edit-tab" data-toggle="tab" href="#tree_edit" role="tab" aria-controls="tree_edit" aria-expanded="false">
-                                        <span>Tree Edit</span>
-                                        <i class="arrow arrow-left"></i>
-                                        <i class="arrow arrow-right"></i>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="event-edit-tab" data-toggle="tab" href="#event_edit" role="tab" aria-controls="event_edit" aria-expanded="true">
-                                        <span>Event Edit</span>
+                                    <a class="nav-link" id="design-tab" data-toggle="tab" href="#design" role="tab" aria-controls="design" aria-expanded="false">
+                                        <span>Design</span>
                                         <i class="arrow arrow-left"></i>
                                         <i class="arrow arrow-right"></i>
                                     </a>
@@ -99,7 +92,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="normal-field" class="col-sm-4 control-label">
-                                                        End Point
+                                                        Repository Name
                                                     </label>
                                                     <div class="col-sm-7">
                                                         <input type="text" id="k8s-pod-image-name" name="k8s-pod-image-name" class="form-control allowFromVar" required>
@@ -121,7 +114,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="normal-field" class="col-sm-4 control-label">
-                                                        Data From
+                                                        External Data URI
                                                     </label>
                                                     <div class="col-sm-7">
                                                         <input type="text" id="action-data-from" name="action-data-from" class="form-control allowFromVar" required>
@@ -215,12 +208,18 @@
                                                 <div class="row"> 
                                                     <div class="col-md-6">
                                                         <div class="form-group">
-                                                            <label class="col-sm-4 control-label">
-                                                             <input type="checkbox" id="use-node-port" name="use-node-port"> <span style="margin-left:5px">Node Port</span>
-                                                         </label>
-                                                     </div>
-                                                 </div>
-                                             </div>
+                                                            <label for="normal-field" class="col-sm-4 control-label">
+                                                                Service Type
+                                                            </label>
+                                                            <div class="col-sm-7 input-group">
+                                                                <select id="service-type-select" style="width:100%">
+                                                                    <option value="ClusterIP">Cluster IP</option>
+                                                                    <option value="NodePort">Node Port</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div id="ports-setting" class="row port-setting-div">
                                             </div>
@@ -260,28 +259,110 @@
                                     </div>
                                 </form>
                             </div>
-                            <div class="tab-pane" id="tree_edit" class="tab-pane" role="tabpanel" aria-labelledby="tree-edit-tab" aria-expanded="false">
-                                <div class="row">
+                            <div role="tabpanel" class="tab-pane" id="design" aria-labelledby="design-tab" aria-expanded="false">
+                                <div id="designMode">
+                                    <div class="action-way-div row">
+                                        <span class="action-design-select"></span>
+                                        <span class="action-json" title="switch to json mode"></span>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 import-div">
+                                            <div class="panel">
+                                                <div class="panel-heading input-panel-heading">
+                                                    <i class="glyphicon glyphicon-cloud-upload inputicon"></i>
+                                                    <span class="panel-title">Input Tree</span>
+                                                    <span class="panel-subtitle">The action default input json data</span>
+                                                </div>
+                                                <div class="panel-body input-panel-body" style="min-height:500px">
+                                                    <div id="inputTreeStart" class="tree-add-button">
+                                                        <div id="inputStartBtn" class="btn-div">
+                                                            <span class="glyphicon glyphicon-plus nohover"></span>
+                                                            <div class="desc">
+                                                                <label class="desc-label">Add New Value</label>
+                                                                <div class="desc-btn">
+                                                                    <span class="glyphicon glyphicon-plus"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div id="inputTreeDiv" class="json-editor"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 import-div">
+                                            <div class="panel">
+                                                <div class="panel-heading clearfix">
+                                                    <i class="glyphicon glyphicon-cloud-download outputicon"></i>
+                                                    <span class="panel-title">Output Tree</span>
+                                                    <span class="panel-subtitle">The action default output json data</span>
+                                                </div>
+                                                <div class="panel-body" style="min-height:500px">
+                                                    <div id="outputTreeStart" class="tree-add-button">
+                                                        <div id="outputStartBtn" class="btn-div">
+                                                            <span class="glyphicon glyphicon-plus nohover"></span>
+                                                            <div class="desc">
+                                                                <label class="desc-label">Add New Value</label>
+                                                                <div class="desc-btn">
+                                                                    <span class="glyphicon glyphicon-plus"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div id="outputTreeDiv" class="json-editor"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tree-icon-desc-row">
+                                        <div class="tree-icon-desc-item">
+                                            <div class="tree-icon icon-s"></div>
+                                            <div class="tree-icon-label">String</div>
+                                        </div>
+                                        <div class="tree-icon-desc-item">
+                                            <div class="tree-icon icon-o"></div>
+                                            <div class="tree-icon-label">Object</div>
+                                        </div>
+                                        <div class="tree-icon-desc-item">
+                                            <div class="tree-icon icon-n"></div>
+                                            <div class="tree-icon-label">Number</div>
+                                        </div>
+                                        <div class="tree-icon-desc-item">
+                                            <div class="tree-icon icon-a"></div>
+                                            <div class="tree-icon-label">Array</div>
+                                        </div>
+                                        <div class="tree-icon-desc-item">
+                                            <div class="tree-icon icon-b"></div>
+                                            <div class="tree-icon-label">Boolean</div>
+                                        </div>
+                                        <div class="tree-icon-desc-item">
+                                            <div class="tree-icon icon-none"></div>
+                                            <div class="tree-icon-label">Null</div>
+                                        </div>
+                                        <div class="tree-icon-desc-item">
+                                            <div class="tree-icon icon-add"></div>
+                                            <div class="tree-icon-label">Add New Value</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="jsonMode">
+                                    <div class="action-way-div row">
+                                        <span class="action-design" title="switch to design mode"></span>
+                                        <span class="action-json-select"></span>
+                                    </div>
                                     <div class="col-md-6 import-div">
                                         <div class="panel">
                                             <div class="panel-heading input-panel-heading">
                                                 <i class="glyphicon glyphicon-cloud-upload inputicon"></i>
-                                                <span class="panel-title">Input Tree</span>
+                                                <span class="panel-title">Input From Edit</span>
                                                 <span class="panel-subtitle">The action default input json data</span>
                                             </div>
-                                            <div class="panel-body input-panel-body" style="min-height:500px">
-                                                <div id="inputTreeStart" class="tree-add-button">
-                                                    <div id="inputStartBtn" class="btn-div">
-                                                        <span class="glyphicon glyphicon-plus nohover"></span>
-                                                        <div class="desc">
-                                                            <label class="desc-label">Add New Value</label>
-                                                            <div class="desc-btn">
-                                                                <span class="glyphicon glyphicon-plus"></span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                            <div class="panel-body input-panel-body">
+                                                <div id="inputCodeEditor" class="codeEditor"></div>
+                                                <div class="col-md-4 col-md-offset-4 row editor-transfer">
+                                                    <span id="inputFromJson" class="col-md-4 code-to-tree"></span>
+                                                    <span id="inputToJson" class="col-md-4 tree-to-code"></span>
                                                 </div>
-                                                <div id="inputTreeDiv" class="json-editor"></div>
+                                                <div id="inputTreeEditor" class="treeEditor"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -289,89 +370,17 @@
                                         <div class="panel">
                                             <div class="panel-heading clearfix">
                                                 <i class="glyphicon glyphicon-cloud-download outputicon"></i>
-                                                <span class="panel-title">Output Tree</span>
+                                                <span class="panel-title">Output From Edit</span>
                                                 <span class="panel-subtitle">The action default output json data</span>
                                             </div>
-                                            <div class="panel-body" style="min-height:500px">
-                                                <div id="outputTreeStart" class="tree-add-button">
-                                                    <div id="outputStartBtn" class="btn-div">
-                                                        <span class="glyphicon glyphicon-plus nohover"></span>
-                                                        <div class="desc">
-                                                            <label class="desc-label">Add New Value</label>
-                                                            <div class="desc-btn">
-                                                                <span class="glyphicon glyphicon-plus"></span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                            <div class="panel-body">
+                                                <div id="outputCodeEditor" class="codeEditor"></div>
+                                                <div class="col-md-4 col-md-offset-4 row editor-transfer">
+                                                    <span id="outputFromJson" class="col-md-4 code-to-tree"></span>
+                                                    <span id="outputToJson" class="col-md-4 tree-to-code"></span>
                                                 </div>
-                                                <div id="outputTreeDiv" class="json-editor"></div>
+                                                <div id="outputTreeEditor" class="treeEditor"></div>
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="tree-icon-desc-row">
-                                    <div class="tree-icon-desc-item">
-                                        <div class="tree-icon icon-s"></div>
-                                        <div class="tree-icon-label">String</div>
-                                    </div>
-                                    <div class="tree-icon-desc-item">
-                                        <div class="tree-icon icon-o"></div>
-                                        <div class="tree-icon-label">Object</div>
-                                    </div>
-                                    <div class="tree-icon-desc-item">
-                                        <div class="tree-icon icon-n"></div>
-                                        <div class="tree-icon-label">Number</div>
-                                    </div>
-                                    <div class="tree-icon-desc-item">
-                                        <div class="tree-icon icon-a"></div>
-                                        <div class="tree-icon-label">Array</div>
-                                    </div>
-                                    <div class="tree-icon-desc-item">
-                                        <div class="tree-icon icon-b"></div>
-                                        <div class="tree-icon-label">Boolean</div>
-                                    </div>
-                                    <div class="tree-icon-desc-item">
-                                        <div class="tree-icon icon-none"></div>
-                                        <div class="tree-icon-label">Null</div>
-                                    </div>
-                                    <div class="tree-icon-desc-item">
-                                        <div class="tree-icon icon-add"></div>
-                                        <div class="tree-icon-label">Add New Value</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row tab-pane" id="event_edit" class="tab-pane" role="tabpanel" aria-labelledby="event-edit-tab" aria-expanded="false">
-                                <div class="col-md-6 import-div">
-                                    <div class="panel">
-                                        <div class="panel-heading input-panel-heading">
-                                            <i class="glyphicon glyphicon-cloud-upload inputicon"></i>
-                                            <span class="panel-title">Input From Edit</span>
-                                            <span class="panel-subtitle">The action default input json data</span>
-                                        </div>
-                                        <div class="panel-body input-panel-body">
-                                            <div id="inputCodeEditor" class="codeEditor"></div>
-                                            <div class="col-md-4 col-md-offset-4 row editor-transfer">
-                                                <span id="inputFromJson" class="col-md-4 code-to-tree"></span>
-                                                <span id="inputToJson" class="col-md-4 tree-to-code"></span>
-                                            </div>
-                                            <div id="inputTreeEditor" class="treeEditor"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 import-div">
-                                    <div class="panel">
-                                        <div class="panel-heading clearfix">
-                                            <i class="glyphicon glyphicon-cloud-download outputicon"></i>
-                                            <span class="panel-title">Output From Edit</span>
-                                            <span class="panel-subtitle">The action default output json data</span>
-                                        </div>
-                                        <div class="panel-body">
-                                            <div id="outputCodeEditor" class="codeEditor"></div>
-                                            <div class="col-md-4 col-md-offset-4 row editor-transfer">
-                                                <span id="outputFromJson" class="col-md-4 code-to-tree"></span>
-                                                <span id="outputToJson" class="col-md-4 tree-to-code"></span>
-                                            </div>
-                                            <div id="outputTreeEditor" class="treeEditor"></div>
                                         </div>
                                     </div>
                                 </div>
