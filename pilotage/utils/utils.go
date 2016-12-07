@@ -26,7 +26,6 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
-	"time"
 )
 
 func IsDirExist(path string) bool {
@@ -117,7 +116,7 @@ func ValidatePassword(password string) error {
 }
 
 func MD5(key string) string {
-	md5String := fmt.Sprintf("dockyard %s is a container %d hub", key, time.Now().Unix())
+	md5String := fmt.Sprintf("dockyard %s is a container hub", key)
 	h := md5.New()
 	h.Write([]byte(md5String))
 

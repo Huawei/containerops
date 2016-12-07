@@ -30,6 +30,9 @@ const (
 	CO_DATA = "CO_DATA"
 
 	CO_SET_GLOBAL_VAR_URL = "CO_SET_GLOBAL_VAR_URL"
+
+	CO_LINKSTART_TOKEN = "CO_LINKSTART_TOKEN"
+	CO_LINKSTART_URL   = "CO_LINKSTART_URL"
 )
 
 var (
@@ -76,6 +79,8 @@ func init() {
 	}
 
 	eventURLMap[CO_SET_GLOBAL_VAR_URL] = os.Getenv(CO_SET_GLOBAL_VAR_URL)
+	eventINFOMap[CO_LINKSTART_TOKEN] = os.Getenv(CO_LINKSTART_TOKEN)
+	eventURLMap[CO_LINKSTART_URL] = os.Getenv(CO_LINKSTART_URL)
 
 	log.Println("[component util]", "<===init done")
 	log.Println("[component util]", "<===got event map:", eventINFOMap)
@@ -195,6 +200,29 @@ func ChangeGlobalVar(varName, value string) error {
 	respBody, _ := ioutil.ReadAll(resp.Body)
 
 	log.Println("[component util]", "===>component send event:", CO_SET_GLOBAL_VAR_URL, " got resp:\n", string(respBody), "\n")
+	return nil
+}
+
+func LinkStart(workflowName, workflowVersion string, startJson map[string]interface{}) error {
+	reqBody := make(map[string]interface{})
+
+	startJsonBytes, _ := json.Marshal(startJson)
+
+	reqBody["RUN_ID"] = eventINFOMap[CO_RUN_ID]
+	reqBody["linkInfoMap"] = map[string]interface{}{"token": eventINFOMap[CO_LINKSTART_TOKEN], "workflowName": workflowName, "workflowVersion": workflowVersion, "startJson": string(startJsonBytes)}
+
+	reqBodyBytes, _ := json.Marshal(reqBody)
+
+	log.Println("[component util]", "===>component start link start, \ntoken:", eventINFOMap[CO_LINKSTART_TOKEN], "\nworkflow:", workflowName, ":", workflowVersion, "\nstartjson:", startJson, "\nbody:", string(reqBodyBytes), "\nto:", eventURLMap[CO_LINKSTART_URL]+workflowName)
+	resp, err := http.Post(eventURLMap[CO_LINKSTART_URL]+workflowName, "application/json", bytes.NewReader(reqBodyBytes))
+	if err != nil {
+		log.Println("[component util]", "===>component send event:", CO_LINKSTART_URL, " to:", eventURLMap[CO_LINKSTART_URL]+workflowName, " \t error, error is:", err.Error())
+		return errors.New("error when send req to workflow")
+	}
+
+	respBody, _ := ioutil.ReadAll(resp.Body)
+
+	log.Println("[component util]", "===>component send event:", CO_LINKSTART_URL, " got resp:\n", string(respBody), "\n")
 	return nil
 }
 
