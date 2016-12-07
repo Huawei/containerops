@@ -16,9 +16,10 @@ limitations under the License.
  
 import {jsonEditor} from "../../vendor/jquery.jsoneditor";
 import {notify} from "../common/notify";
-import {pipelineApi} from "../common/api";
+import {workflowApi} from "../common/api";
 import {loading} from "../common/loading";
 import * as startIOData from "./startIOData";
+import {workflowVars} from "../workflow/workflowVar";
 
 var treeEdit_OutputContainer;
 var fromEdit_OutputCodeContainer,fromEdit_OutputTreeContainer;
@@ -94,7 +95,7 @@ function showOutputTabs(){
                                     <div class="row col-md-6 event-input-div">
                                         <label class="col-md-4 control-label">Event</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control output-event-input" required>
+                                            <input type="text" class="form-control output-event-input allowFromVar" required>
                                         </div>
                                     </div>
                                 </div>
@@ -189,6 +190,16 @@ function showOutputTabs(){
         fromTreeToCode("output");
     });
 
+    // use global vars
+    var globalvars = _.map(workflowVars,function(item){
+        return "@"+item[0]+"@";
+    });
+    $(".allowFromVar").autocomplete({
+        source:[globalvars],
+        limit: 100,
+        visibleLimit: 5
+    }); 
+
     // init trigger
     startIOData.findSelectedStartOutputTabDom().find("a").addClass("active");
     startIOData.findSelectedStartOutputTabContentDom().addClass("active");
@@ -200,8 +211,8 @@ function initOutputDiv(){
     selectType(startIOData.getTypeSelect());
 }
 
-function selectType(pipelineType,isTypeChange){
-    if(pipelineType == "github" || pipelineType == "gitlab"){
+function selectType(workflowType,isTypeChange){
+    if(workflowType == "github" || workflowType == "gitlab"){
         startIOData.findEventSelectDivDom().show();
         startIOData.findEventInputDivDom().hide();
         startIOData.findOutputTreeViewerDom().show();
@@ -336,7 +347,7 @@ function initFromView(){
 
 export function getOutputForEvent(selecetedEvent){
     if(startIOData.isEventOptionAvailable()){
-        var promise = pipelineApi.eventOutput(selecetedEvent);
+        var promise = workflowApi.eventOutput(selecetedEvent);
         promise.done(function(data){
             loading.hide();
             startIOData.setJson(data.output);

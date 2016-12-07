@@ -15,38 +15,46 @@ limitations under the License.
  */
 
 import {initStartIO,initTreeEdit,initFromEdit,initFromView,getOutputForEvent} from "./startIO";
-import {getPipelineToken} from "../pipeline/main";
+import {getWorkflowToken} from "../workflow/main";
 import { notify } from "../common/notify";
 import { loading } from "../common/loading";
 
 let startData;
+let urlcopy,tokencopy;
+
 export function initStartSetup(start){
     startData = start;
 
     // url and token
-    showPipeline_URL_Token();
-    var urlcopy = new Clipboard('#copyUrl');
-    var tokencopy = new Clipboard('#copyToken');
-    urlcopy.on('success', function(e) {
-        notify("Url copied.","info");
-        e.clearSelection();
-    });
-    urlcopy.on('error', function(e) {
-        notify("Copy url failed.","info");
-    });
-    tokencopy.on('success', function(e) {
-        notify("Token copied.","info");
-        e.clearSelection();
-    });
-    tokencopy.on('error', function(e) {
-        notify("Copy token failed.","info");
-    });
+    showWorkflow_URL_Token();
+
+    if(_.isUndefined(urlcopy)){
+        urlcopy = new Clipboard('#copyUrl');
+        urlcopy.on('success', function(e) {
+            notify("Url copied.","info");
+            e.clearSelection();
+        });
+        urlcopy.on('error', function(e) {
+            notify("Copy url failed.","info");
+        });
+    }
+    
+    if(_.isUndefined(tokencopy)){
+        tokencopy = new Clipboard('#copyToken');
+        tokencopy.on('success', function(e) {
+            notify("Token copied.","info");
+            e.clearSelection();
+        });
+        tokencopy.on('error', function(e) {
+            notify("Copy token failed.","info");
+        });
+    } 
 
     initStartIO(start);
 }
 
-function showPipeline_URL_Token(){
-    var promise = getPipelineToken();
+function showWorkflow_URL_Token(){
+    var promise = getWorkflowToken();
     promise.done(function(data) {
         loading.hide();
         $("#pp-url").val(data.url);

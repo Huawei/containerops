@@ -25,7 +25,7 @@ export function dragDropSetPath(options) {
     var fromNodeData = options.data; /* from node data */
     // var _path = d3.select("svg>g").insert("path", ":nth-child(2)").attr("class", "drag-drop-line"),
     // var _path = d3.select("svg>g").append("path").attr("class", "drag-drop-line"),
-    var _path = d3.select("#pipeline-line-view").append("path").attr("class", "drag-drop-line");
+    var _path = d3.select("#workflow-line-view").append("path").attr("class", "drag-drop-line");
     var svgDOM = $("#div-d3-main-svg > svg"),
         svgOffsetX = svgDOM.offset().left,
         svgOffsetY = svgDOM.offset().top,
@@ -64,10 +64,10 @@ export function dragDropSetPath(options) {
 
         }
 
-        if (toNodeData != undefined && toNodeData.translateX > fromNodeData.translateX && toNodeData.type === "pipeline-action") {
+        if (toNodeData != undefined && toNodeData.translateX > fromNodeData.translateX && toNodeData.type === "workflow-action") {
             
             let dataJson = {
-                pipelineLineViewId: "pipeline-line-view",
+                workflowLineViewId: "workflow-line-view",
                 startData: fromNodeData,
                 endData: toNodeData,
                 startPoint: { x: fromNodeData.translateX, y: fromNodeData.translateY },

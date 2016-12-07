@@ -17,7 +17,7 @@ limitations under the License.
 import {resizeWidget} from "../theme/widget";
 import {initStartSetup} from "./startSetup";
 
-let pipelineType,selectedEvent;
+let workflowType,selectedEvent;
 export function clickStart(sd, si) {
     //show git form
     $.ajax({
@@ -25,7 +25,7 @@ export function clickStart(sd, si) {
         type: "GET",
         cache: false,
         success: function (data) {
-            $("#pipeline-info-edit").html($(data));
+            $("#workflow-info-edit").html($(data));
 
             initStartSetup(sd);
             

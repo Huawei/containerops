@@ -33,20 +33,29 @@
                                 <th>Name</th>
                                 <th>Description</th>
                                 <th>Organization</th>
-                                <th>Operation</th>
+                                <th>Authority</th>
+                                <th width="30%">Operation</th>
                             </tr>
                         </thead>
                         <tbody>
                         	<tr *ngFor="let team of teams">
                                 <td>{{team.name}}</td>
                                 <td>{{team.desc}}</td>
-                                <td>{{team.org}}</td>
+                                <td>{{team.org.name}}</td>
+                                <td>{{team.auth}}</td>
                                  <td>
                                 	<button type="button" class="btn btn-primary btn-sm" (click)="manageMembers(team.id)">
-	                                    <!-- <i class="glyphicon glyphicon-plus"></i> -->
                                         <i class="fa fa-users"></i>
-	                                    Manage Members
+	                                     Members
 	                                </button>
+                                    <button type="button" class="btn btn-info btn-sm" (click)="manageAuth(team.id)">
+                                        <i class="fa fa-unlock-alt"></i>
+                                        Atuhority
+                                    </button>
+                                    <button type="button" class="btn btn-warning btn-sm" >
+                                        <i class="fa fa-database"></i>
+                                        Repository
+                                    </button>
                                 </td>
 
                             </tr>

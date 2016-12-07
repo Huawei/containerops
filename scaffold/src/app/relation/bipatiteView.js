@@ -16,7 +16,7 @@ limitations under the License.
 
 import {getPathData} from "./setPath";
 import {isObject,isArray,isBoolean,isNumber,isString} from "../common/util";
-import {addRelation,delRelation,initPipeline} from "./relation";
+import {addRelation,delRelation,initWorkflow} from "./relation";
 import { notify } from "../common/notify";
 
 var fromParentDom,toParentDom,startKey;
@@ -76,8 +76,9 @@ export function bipatiteView(importJson,outputJson,linePathData){
 
 
 function getRelationArray(importTree,outputTree){
-	
-	return initPipeline(importTree,outputTree);
+
+	return initWorkflow(importTree,outputTree);
+
 }
 
 

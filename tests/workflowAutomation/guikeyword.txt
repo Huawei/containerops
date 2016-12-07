@@ -62,30 +62,30 @@ GUI save component
 
 GUI create workflow
     [Arguments]    ${workflowName}    ${workflowVersion}    ${message}
-    Click Link    link=Pipeline
-    Wait Until Element Is Visible    //*[@id="nopipeline"]/div/div[2]/button
-    Click Button    //*[@id="nopipeline"]/div/div[2]/button
+    Click Link    link=workflow
+    Wait Until Element Is Visible    //*[@id="noworkflow"]/div/div[2]/button
+    Click Button    //*[@id="noworkflow"]/div/div[2]/button
     Wait Until Element Is Visible    id=pp-name
     Input Text    id=pp-name    ${workflowName}
     Input Text    id=pp-version    ${workflowVersion}
     Click Button    id=newppBtn
     sleep    3
-    Element Should Contain    xpath=//*[@id="pipelinelist"]/div/section/div/div/table/tbody/tr[2]/td[4]/button    ${message}
+    Element Should Contain    xpath=//*[@id="workflowlist"]/div/section/div/div/table/tbody/tr[2]/td[4]/button    ${message}
 
 GUI save workflow
     [Arguments]    ${componentName}    ${k8s-ip}    ${k8s-api-server}
-    Wait Until Element Is Visible    xpath=//*[@id="pipelinelist"]/div/section/div/div/table/tbody/tr[2]/td[4]/button
-    Click Button    xpath=//*[@id="pipelinelist"]/div/section/div/div/table/tbody/tr[2]/td[4]/button
+    Wait Until Element Is Visible    xpath=//*[@id="workflowlist"]/div/section/div/div/table/tbody/tr[2]/td[4]/button
+    Click Button    xpath=//*[@id="workflowlist"]/div/section/div/div/table/tbody/tr[2]/td[4]/button
     Wait Until Element Is Visible    id=add-stage
     Click Element    id=add-stage
     sleep    5
-    Click Element    xpath=//*[contains(@id,"pipeline-stage")]
+    Click Element    xpath=//*[contains(@id,"workflow-stage")]
     Wait Until Element Is Visible    id=stage-name
     Input Text    id=stage-name    ${componentName}
     Input Text    id=stage-timeout    3000
     Click Element    id=addActionBtn
-    Wait Until Element Is Visible    //*[starts-with(@id,"pipeline-action-")]
-    Click Element    //*[starts-with(@id,"pipeline-action-")]
+    Wait Until Element Is Visible    //*[starts-with(@id,"workflow-action-")]
+    Click Element    //*[starts-with(@id,"workflow-action-")]
     Wait Until Element Is Visible    //*[@id="actionMain"]/div[1]/button
     Click Element    //*[@id="actionMain"]/div[1]/button
     Wait Until Element Is Visible    //*[@id="actionMain"]/div/table/tbody/tr[2]/td[3]/button
@@ -108,7 +108,7 @@ GUI save workflow
     Click Element    //*[@id="outputTreeDiv"]/div[1]/div/div/ul/li[2]/ul/li[3]/button
     sleep    5
     Selenium2Library.Mouse Down    css=circle
-    Selenium2Library.Mouse Up    //*[starts-with(@id,"action-self-line-pipeline-stage-")][1]/*[starts-with(@id,"action-self-line-output-pipeline-action-")][1]
+    Selenium2Library.Mouse Up    //*[starts-with(@id,"action-self-line-workflow-stage-")][1]/*[starts-with(@id,"action-self-line-output-workflow-action-")][1]
     Click Element    css=button.btn.btn-primary
     Click Link    link=Save
 
@@ -130,11 +130,11 @@ GUI check workflow
     Click Element    //*[@id="designerMenubar"]/div[2]/div/button[1]/span
 
 GUI switch workflow
-    Click Element    css=span.pipeline-state.pipeline-off
+    Click Element    css=span.workflow-state.workflow-off
 
 GUI search workflow history
     Click Element    link=History
-    Wait Until Element Is Visible    //*[@id="historyPipelinelist"]/div/section/div/div/table/tbody/tr[3]/td[4]/button
-    Click Element    //*[@id="historyPipelinelist"]/div/section/div/div/table/tbody/tr[3]/td[4]/button
+    Wait Until Element Is Visible    //*[@id="historyworkflowlist"]/div/section/div/div/table/tbody/tr[3]/td[4]/button
+    Click Element    //*[@id="historyworkflowlist"]/div/section/div/div/table/tbody/tr[3]/td[4]/button
     sleep    5
     Click Element    //*[starts-with(@id,"action-s-")]/*[starts-with(@id,"a-")]

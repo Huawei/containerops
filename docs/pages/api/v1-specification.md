@@ -9,18 +9,18 @@ summary: V1 Specification
 
 ## API V1 Operations
 
-### Create Workflow
+### createComponent
 
 | HTTP Method |  Request Address |
-| -------- | -------- |
-| POST  | /pipeline/v1/:namespace/:repository |
+| -------- | ------ |
+| POST  |/v2/:namespace/component|
 
-#### Body:
+#### body
 
 ```
 {
   "name": "pythoncheck",
-  "version": "1.0"
+  "version": "v1.0.1"
 }
 ```
 
@@ -28,15 +28,112 @@ summary: V1 Specification
 
 ```
 {
-  "message": "create new pipeline success"
+  "message": "create new component success"
 }
 ```
-
-### getPipelineList
+### deleteComponent
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository |
+| Delete  |/v2/:namespace/component/:component|
+
+#### response json
+
+```
+{
+  "message": "delete component success"
+}
+```
+
+### changeComponent
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| PUT  |/v2/:namespace/component/:component|
+
+#### body
+
+```
+{
+  "id": 2,
+  "version": "v1.0.1",
+  "define": {
+    "env": [
+      {
+        "key": "CO_DATA",
+        "value": "{\"test\":true}"
+      }
+    ],
+    "inputJson": {
+      "gitUrl": "www"
+    },
+    "outputJson": {
+      "status": true
+    },
+    "setupData": {
+      "action": {
+        "apiserver": "",
+        "datafrom": ":3000/",
+        "image": {
+          "name": "pythoncheck",
+          "tag": "1.0.1"
+        },
+        "ip": "",
+        "name": "",
+        "timeout": "2000",
+        "type": "Kubernetes",
+        "useAdvanced": false
+      },
+      "pod": {
+        "spec": {
+          "containers": [
+            {
+              "resources": {
+                "limits": {
+                  "cpu": 0.2,
+                  "memory": "256Mi"
+                },
+                "requests": {
+                  "cpu": 0.1,
+                  "memory": "128Mi"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "pod_advanced": {},
+      "service": {
+        "spec": {
+          "ports": [
+            {
+              "nodePort": 32001,
+              "port": 8000,
+              "targetPort": 8000
+            }
+          ],
+          "type": "NodePort"
+        }
+      },
+      "service_advanced": {}
+    }
+  }
+}
+```
+
+#### response json
+
+```
+{
+  "message": "success"
+}
+```
+
+### get component list
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| GET  |/v2/:namespace/component/list|
 
 #### response json
 
@@ -44,12 +141,245 @@ summary: V1 Specification
 {
   "list": [
     {
-      "id": 68,  //pipelineID
-      "name": "pythoncheck", //pipelineName
+      "id": 2,
+      "name": "pythoncheck",
       "version": [
         {
-          "id": 68,
-          "version": "1.0",
+          "id": 2,
+          "version": "v1.0.1",
+          "versionCode": 1
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "name": "busybox",
+      "version": [
+        {
+          "id": 1,
+          "version": "1.0.1",
+          "versionCode": 1
+        }
+      ]
+    }
+  ]
+}
+```
+
+### get component info
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| GET  |/v2/:namespace/component/:componentName?id=:componentID|
+
+#### response json
+
+```
+{
+  "env": [
+    {
+      "key": "CO_DATA",
+      "value": "{\"test\":true}"
+    }
+  ],
+  "inputJson": {
+    "gitUrl": "www"
+  },
+  "outputJson": {
+    "status": true
+  },
+  "setupData": {
+    "action": {
+      "apiserver": "",
+      "datafrom": ":3000/",
+      "image": {
+        "name": "pythoncheck",
+        "tag": "1.0.1"
+      },
+      "ip": "",
+      "name": "",
+      "timeout": "3000",
+      "type": "Kubernetes",
+      "useAdvanced": false
+    },
+    "pod": {
+      "spec": {
+        "containers": [
+          {
+            "resources": {
+              "limits": {
+                "cpu": 0.2,
+                "memory": "256Mi"
+              },
+              "requests": {
+                "cpu": 0.1,
+                "memory": "128Mi"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "pod_advanced": {},
+    "service": {
+      "spec": {
+        "ports": [
+          {
+            "nodePort": 32001,
+            "port": 8000,
+            "targetPort": 8000
+          }
+        ],
+        "type": "NodePort"
+      }
+    },
+    "service_advanced": {}
+  }
+}
+```
+
+### saveComponentInfo
+
+Save component as new version used the same api.
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| PUT  |/v2/:namespace/component/:componentName|
+
+#### body
+
+```
+{
+  "id": 2,
+  "version": "v1.0.1",
+  "define": {
+    "inputJson": {
+      "gitUrl": "www"
+    },
+    "outputJson": {
+      "status": true
+    },
+    "setupData": {
+      "action": {
+        "type": "Kubernetes",
+        "name": "",
+        "timeout": "3000",
+        "ip": "",
+        "apiserver": "",
+        "image": {
+          "name": "pythoncheck",
+          "tag": "1.0.1"
+        },
+        "useAdvanced": false,
+        "datafrom": ":3000/"
+      },
+      "service": {
+        "spec": {
+          "type": "NodePort",
+          "ports": [
+            {
+              "port": 8000,
+              "targetPort": 8000,
+              "nodePort": 32001
+            }
+          ]
+        }
+      },
+      "pod": {
+        "spec": {
+          "containers": [
+            {
+              "resources": {
+                "limits": {
+                  "cpu": 0.2,
+                  "memory": "256Mi"
+                },
+                "requests": {
+                  "cpu": 0.1,
+                  "memory": "128Mi"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "service_advanced": {},
+      "pod_advanced": {}
+    },
+    "env": [
+      {
+        "key": "CO_DATA",
+        "value": "{\"test\":true}"
+      }
+    ]
+  }
+}
+```
+
+#### response json
+
+```
+{
+  "message": "success"
+}
+```
+
+### Create Workflow
+
+| HTTP Method |  Request Address |
+| -------- | -------- |
+| POST  | /v2/:namespace/:repository/workflow/v1/define |
+
+#### Body:
+
+```
+{
+  "name": "pythoncheck",
+  "version": "v1.0.1"
+}
+```
+
+#### response json
+
+```
+{
+  "message": "create new workflow success"
+}
+```
+
+### getWorkflowList
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| GET  | /v2/:namespace/:repository/workflow/v1/define/list |
+
+#### response json
+
+```
+{
+  "list": [
+    {
+      "id": 2,
+      "name": "pythoncheck",
+      "version": [
+        {
+          "id": 2,
+          "version": "v1.0.1",
+          "versionCode": 1
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "name": "busybox",
+      "version": [
+        {
+          "id": 1,
+          "status": {
+            "status": true,
+            "time": "2016-12-05 22:41:38"
+          },
+          "version": "1.0.1",
           "versionCode": 1
         }
       ]
@@ -59,11 +389,11 @@ summary: V1 Specification
 ```
 
 
-### getPipelineInfo
+### getWorkflowInfo
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/json?id=:pipelineID |
+| GET  | /v2/:namespace/:repository/workflow/v1/define/:workflowName?id=:workflowID |
 
 #### response json
 
@@ -74,33 +404,34 @@ summary: V1 Specification
       "endData": {
         "component": {
           "name": "pythoncheck",
-          "versionid": 137
+          "versionid": 2,
+          "versionname": "v1.0.1"
         },
         "env": [
           {
-            "key": "gitUrl",
-            "value": "123456"
+            "key": "CO_DATA",
+            "value": "{\"test\":true}"
           }
         ],
         "height": 38,
-        "id": "pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745",
+        "id": "workflow-action-ac85dff0-bb63-11e6-be23-4d9fe51a1df7",
         "inputJson": {
-          "gitUrl": "https://github.com/Huawei/containerops.git"
+          "gitUrl": "www"
         },
         "outputJson": {
           "status": true
         },
         "setupData": {
           "action": {
-            "apiserver": "http://192.168.10.131:8080",
-            "datafrom": "{}",
+            "apiserver": "192.168.10.131:8080",
+            "datafrom": ":3000/",
             "image": {
-              "name": "xiechuan/pythoncheck",
-              "tag": "1.0"
+              "name": "pythoncheck",
+              "tag": "1.0.1"
             },
             "ip": "192.168.10.131",
-            "name": "pythoncheck",
-            "timeout": "30000",
+            "name": "pythoncheck ",
+            "timeout": "2000",
             "type": "Kubernetes",
             "useAdvanced": false
           },
@@ -110,12 +441,12 @@ summary: V1 Specification
                 {
                   "resources": {
                     "limits": {
-                      "cpu": "0.1",
-                      "memory": "128Mi"
+                      "cpu": 0.2,
+                      "memory": "256Mi"
                     },
                     "requests": {
-                      "cpu": "0.1",
-                      "memory": "64Mi"
+                      "cpu": 0.1,
+                      "memory": "128Mi"
                     }
                   }
                 }
@@ -138,58 +469,65 @@ summary: V1 Specification
           "service_advanced": {}
         },
         "translateX": 253.5,
-        "translateY": 224,
-        "type": "pipeline-action",
+        "translateY": 201,
+        "type": "workflow-action",
         "width": 38
       },
       "endPoint": {
         "x": 253.5,
-        "y": 224
+        "y": 201
       },
-      "id": "start-stage-pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745",
-      "pipelineLineViewId": "pipeline-line-view",
-      "relation": [
-        {
-          "finalPath": "start-stage.gitUrl",
-          "from": ".gitUrl",
-          "to": ".gitUrl"
-        }
-      ],
+      "id": "start-stage-workflow-action-ac85dff0-bb63-11e6-be23-4d9fe51a1df7",
+      "relation": {
+        "pull_customize": [
+          {
+            "from": ".gitUrl",
+            "to": ".gitUrl"
+          }
+        ]
+      },
       "startData": {
         "height": 52,
         "id": "start-stage",
-        "outputJson": {
-          "gitUrl": ""
-        },
-        "setupData": {
-          "event": "PullRequest",
-          "type": "customize"
-        },
+        "outputJson": [
+          {
+            "event": "pull",
+            "json": {
+              "gitUrl": ""
+            },
+            "type": "customize"
+          }
+        ],
+        "setupData": {},
         "translateX": 50,
-        "translateY": 107,
-        "type": "pipeline-start",
+        "translateY": 84,
+        "type": "workflow-start",
         "width": 45
       },
       "startPoint": {
         "x": 50,
-        "y": 107
-      }
+        "y": 84
+      },
+      "workflowLineViewId": "workflow-line-view"
     }
   ],
   "stageList": [
     {
       "height": 52,
       "id": "start-stage",
-      "outputJson": {
-        "gitUrl": ""
-      },
-      "setupData": {
-        "event": "PullRequest",
-        "type": "customize"
-      },
+      "outputJson": [
+        {
+          "event": "pull",
+          "json": {
+            "gitUrl": ""
+          },
+          "type": "customize"
+        }
+      ],
+      "setupData": {},
       "translateX": 50,
-      "translateY": 107,
-      "type": "pipeline-start",
+      "translateY": 84,
+      "type": "workflow-start",
       "width": 45
     },
     {
@@ -197,33 +535,34 @@ summary: V1 Specification
         {
           "component": {
             "name": "pythoncheck",
-            "versionid": 137
+            "versionid": 2,
+            "versionname": "v1.0.1"
           },
           "env": [
             {
-              "key": "TEST",
-              "value": "123456"
+              "key": "CO_DATA",
+              "value": "{\"test\":true}"
             }
           ],
           "height": 38,
-          "id": "pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745",
+          "id": "workflow-action-ac85dff0-bb63-11e6-be23-4d9fe51a1df7",
           "inputJson": {
-            "gitUrl": "https://github.com/Huawei/containerops.git"
+            "gitUrl": "www"
           },
           "outputJson": {
             "status": true
           },
           "setupData": {
             "action": {
-              "apiserver": "http://192.168.10.131:8080",
-              "datafrom": "{}",
+              "apiserver": "192.168.10.131:8080",
+              "datafrom": ":3000/",
               "image": {
-                "name": "xiechuan/pythoncheck",
-                "tag": "1.0"
+                "name": "pythoncheck",
+                "tag": "1.0.1"
               },
               "ip": "192.168.10.131",
-              "name": "pythoncheck",
-              "timeout": "30000",
+              "name": "pythoncheck ",
+              "timeout": "2000",
               "type": "Kubernetes",
               "useAdvanced": false
             },
@@ -233,12 +572,12 @@ summary: V1 Specification
                   {
                     "resources": {
                       "limits": {
-                        "cpu": "0.1",
-                        "memory": "128Mi"
+                        "cpu": 0.2,
+                        "memory": "256Mi"
                       },
                       "requests": {
-                        "cpu": "0.1",
-                        "memory": "64Mi"
+                        "cpu": 0.1,
+                        "memory": "128Mi"
                       }
                     }
                   }
@@ -261,31 +600,31 @@ summary: V1 Specification
             "service_advanced": {}
           },
           "translateX": 253.5,
-          "translateY": 224,
-          "type": "pipeline-action",
+          "translateY": 201,
+          "type": "workflow-action",
           "width": 38
         }
       ],
-      "class": "pipeline-stage",
+      "class": "workflow-stage",
       "drawX": 0,
       "drawY": 0,
       "height": 52,
-      "id": "pipeline-stage-1d4ce1d0-a3fd-11e6-8e43-dbedb3b31745",
+      "id": "workflow-stage-a400c890-bb63-11e6-be23-4d9fe51a1df7",
       "setupData": {
         "name": "pythoncheck",
         "timeout": "3000"
       },
       "translateX": 250,
-      "translateY": 107,
-      "type": "pipeline-stage",
+      "translateY": 84,
+      "type": "workflow-stage",
       "width": 45
     },
     {
       "height": 52,
       "id": "add-stage",
       "translateX": 450,
-      "translateY": 107,
-      "type": "pipeline-add-stage",
+      "translateY": 84,
+      "type": "workflow-add-stage",
       "width": 45
     },
     {
@@ -293,8 +632,8 @@ summary: V1 Specification
       "id": "end-stage",
       "setupData": {},
       "translateX": 650,
-      "translateY": 107,
-      "type": "pipeline-end",
+      "translateY": 84,
+      "type": "workflow-end",
       "width": 45
     }
   ],
@@ -302,53 +641,54 @@ summary: V1 Specification
 }
 ```
 
-###  savePipelineInfo
+###  saveWorkflowInfo
 
 Save workflow as the new version use same API.
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| PUT  | /pipeline/v1/:namespace/:repository/:pipelineName|
+| PUT  | /v2/:namespace/:repository/workflow/v1/define/:workflowName|
 
 #### body
 
 ```
 {
-  "id": 68,
-  "version": "1.0",
+  "id": 2,
+  "version": "v1.0.1",
   "define": {
     "lineList": [
       {
-        "pipelineLineViewId": "pipeline-line-view",
-        "startData": {
-          "id": "start-stage",
-          "setupData": {
-            "type": "customize",
-            "event": "PullRequest"
-          },
-          "type": "pipeline-start",
-          "width": 45,
-          "height": 52,
-          "translateX": 50,
-          "translateY": 107,
-          "outputJson": {
-            "gitUrl": ""
-          }
-        },
         "endData": {
-          "id": "pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745",
-          "type": "pipeline-action",
+          "component": {
+            "name": "pythoncheck",
+            "versionid": 2,
+            "versionname": "v1.0.1"
+          },
+          "env": [
+            {
+              "key": "CO_DATA",
+              "value": "{\"test\":true}"
+            }
+          ],
+          "height": 38,
+          "id": "workflow-action-ac85dff0-bb63-11e6-be23-4d9fe51a1df7",
+          "inputJson": {
+            "gitUrl": "www"
+          },
+          "outputJson": {
+            "status": true
+          },
           "setupData": {
             "action": {
-              "apiserver": "http://192.168.10.131:8080",
-              "datafrom": "{}",
+              "apiserver": "192.168.10.131:8080",
+              "datafrom": ":3000/",
               "image": {
-                "name": "xiechuan/pythoncheck",
-                "tag": "1.0"
+                "name": "pythoncheck",
+                "tag": "1.0.1"
               },
               "ip": "192.168.10.131",
-              "name": "pythoncheck",
-              "timeout": "30000",
+              "name": "pythoncheck ",
+              "timeout": "2000",
               "type": "Kubernetes",
               "useAdvanced": false
             },
@@ -358,12 +698,12 @@ Save workflow as the new version use same API.
                   {
                     "resources": {
                       "limits": {
-                        "cpu": "0.1",
-                        "memory": "128Mi"
+                        "cpu": 0.2,
+                        "memory": "256Mi"
                       },
                       "requests": {
-                        "cpu": "0.1",
-                        "memory": "64Mi"
+                        "cpu": 0.1,
+                        "memory": "128Mi"
                       }
                     }
                   }
@@ -385,86 +725,101 @@ Save workflow as the new version use same API.
             },
             "service_advanced": {}
           },
-          "translateY": 224,
-          "width": 38,
-          "height": 38,
           "translateX": 253.5,
-          "inputJson": {
-            "gitUrl": "https://github.com/Huawei/containerops.git"
-          },
-          "outputJson": {
-            "status": true
-          },
-          "env": [
-            {
-              "key": "TEST",
-              "value": "123456"
-            }
-          ],
-          "component": {
-            "name": "pythoncheck",
-            "versionid": 137
-          }
-        },
-        "startPoint": {
-          "x": 50,
-          "y": 107
+          "translateY": 201,
+          "type": "workflow-action",
+          "width": 38
         },
         "endPoint": {
           "x": 253.5,
-          "y": 224
+          "y": 201
         },
-        "id": "start-stage-pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745",
-        "relation": [
-          {
-            "to": ".gitUrl",
-            "from": ".gitUrl",
-            "finalPath": "start-stage.gitUrl"
-          }
-        ]
+        "id": "start-stage-workflow-action-ac85dff0-bb63-11e6-be23-4d9fe51a1df7",
+        "relation": {
+          "pull_customize": [
+            {
+              "from": ".gitUrl",
+              "to": ".gitUrl"
+            }
+          ]
+        },
+        "startData": {
+          "height": 52,
+          "id": "start-stage",
+          "outputJson": [
+            {
+              "event": "pull",
+              "json": {
+                "gitUrl": ""
+              },
+              "type": "customize"
+            }
+          ],
+          "setupData": {},
+          "translateX": 50,
+          "translateY": 84,
+          "type": "workflow-start",
+          "width": 45
+        },
+        "startPoint": {
+          "x": 50,
+          "y": 84
+        },
+        "workflowLineViewId": "workflow-line-view"
       }
     ],
     "stageList": [
       {
-        "id": "start-stage",
-        "setupData": {
-          "type": "customize",
-          "event": "PullRequest"
-        },
-        "type": "pipeline-start",
-        "width": 45,
         "height": 52,
+        "id": "start-stage",
+        "outputJson": [
+          {
+            "event": "pull",
+            "json": {
+              "gitUrl": ""
+            },
+            "type": "customize"
+          }
+        ],
+        "setupData": {},
         "translateX": 50,
-        "translateY": 107,
-        "outputJson": {
-          "gitUrl": ""
-        }
+        "translateY": 100.4,
+        "type": "workflow-start",
+        "width": 45
       },
       {
-        "id": "pipeline-stage-1d4ce1d0-a3fd-11e6-8e43-dbedb3b31745",
-        "type": "pipeline-stage",
-        "class": "pipeline-stage",
-        "drawX": 0,
-        "drawY": 0,
-        "width": 45,
-        "height": 52,
-        "translateX": 250,
-        "translateY": 107,
         "actions": [
           {
-            "id": "pipeline-action-224ec5e0-a3fd-11e6-8e43-dbedb3b31745",
-            "type": "pipeline-action",
+            "component": {
+              "name": "pythoncheck",
+              "versionid": 2,
+              "versionname": "v1.0.1"
+            },
+            "env": [
+              {
+                "key": "CO_DATA",
+                "value": "{\"test\":true}"
+              }
+            ],
+            "height": 38,
+            "id": "workflow-action-ac85dff0-bb63-11e6-be23-4d9fe51a1df7",
+            "inputJson": {
+              "gitUrl": "www"
+            },
+            "outputJson": {
+              "status": true
+            },
             "setupData": {
               "action": {
-                "apiserver": "http://192.168.10.131:8080",
-                "datafrom": "{}",
+                "apiserver": "192.168.10.131:8080",
+                "datafrom": ":3000/",
                 "image": {
-                  "name": "xiechuan/pythoncheck",
-                  "tag": "1.0"
+                  "name": "pythoncheck",
+                  "tag": "1.0.1"
                 },
                 "ip": "192.168.10.131",
-                "name": "pythoncheck",
-                "timeout": "30000",
+                "name": "pythoncheck ",
+                "timeout": "2000",
                 "type": "Kubernetes",
                 "useAdvanced": false
               },
@@ -474,12 +829,12 @@ Save workflow as the new version use same API.
                     {
                       "resources": {
                         "limits": {
-                          "cpu": "0.1",
-                          "memory": "128Mi"
+                          "cpu": 0.2,
+                          "memory": "256Mi"
                         },
                         "requests": {
-                          "cpu": "0.1",
-                          "memory": "64Mi"
+                          "cpu": 0.1,
+                          "memory": "128Mi"
                         }
                       }
                     }
@@ -501,49 +856,42 @@ Save workflow as the new version use same API.
               },
               "service_advanced": {}
             },
-            "translateY": 224,
-            "width": 38,
-            "height": 38,
             "translateX": 253.5,
-            "inputJson": {
-              "gitUrl": "https://github.com/Huawei/containerops.git"
-            },
-            "outputJson": {
-              "status": true
-            },
-            "env": [
-              {
-                "key": "TEST",
-                "value": "123456"
-              }
-            ],
-            "component": {
-              "name": "pythoncheck",
-              "versionid": 137
-            }
+            "translateY": 217.4,
+            "type": "workflow-action",
+            "width": 38
           }
         ],
+        "class": "workflow-stage",
+        "drawX": 0,
+        "drawY": 0,
+        "height": 52,
+        "id": "workflow-stage-a400c890-bb63-11e6-be23-4d9fe51a1df7",
         "setupData": {
           "name": "pythoncheck",
           "timeout": "3000"
-        }
+        },
+        "translateX": 250,
+        "translateY": 100.4,
+        "type": "workflow-stage",
+        "width": 45
       },
       {
-        "id": "add-stage",
-        "type": "pipeline-add-stage",
-        "width": 45,
         "height": 52,
+        "id": "add-stage",
         "translateX": 450,
-        "translateY": 107
+        "translateY": 100.4,
+        "type": "workflow-add-stage",
+        "width": 45
       },
       {
+        "height": 52,
         "id": "end-stage",
         "setupData": {},
-        "type": "pipeline-end",
-        "width": 45,
-        "height": 52,
         "translateX": 650,
-        "translateY": 107
+        "translateY": 100.4,
+        "type": "workflow-end",
+        "width": 45
       }
     ]
   }
@@ -559,19 +907,34 @@ Save workflow as the new version use same API.
 }
 ```
 
-### set pipeline env
+###  deleteWorkflowInfo
+
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| PUT  |/pipeline/v1/:namespace/:repository/:pipelineName/env|
+| DELETE  | /v2/:namespace/:repository/workflow/v1/define/:workflowName|
+
+#### response json
+
+```
+{
+  "message": "success"
+}
+```
+
+### set workflow env
+
+| HTTP Method |  Request Address |
+| -------- | ------ |
+| PUT  |/v2/:namespace/:repository/workflow/v1/define/:workflowName/env|
 
 #### body
 
 ```
 {
-  "id": 68,
+  "id": 2,
   "env": {
-    "GITURL": "https://github.com/Huawei/containerops.git"
+    "TEST": "123456"
   }
 }
 ```
@@ -584,18 +947,18 @@ Save workflow as the new version use same API.
 }
 ```
 
-### GET pipeline env
+### GET workflow env
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  |/pipeline/v1/:namespace/:repository/:pipelineName/env?id=:pipelineID|
+| GET  |/v2/:namespace/:repository/workflow/v1/define/:workflowName/env?id=:workflowID|
 
 #### response json
 
 ```
 {
   "env": {
-    "GITURL": "https://github.com/Huawei/containerops.git"
+    "TEST": "123456"
   }
 }
 ```
@@ -604,18 +967,46 @@ Save workflow as the new version use same API.
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/eventJson/github/:eventName|
+| GET  | /v2/:namespace/:repository/workflow/v1/define/event/github/:eventName|
 
 #### response json
 
 ```
 {
   "output": {
-    "description": "",
-    "master_branch": "master",
-    "pusher_type": "user",
-    "ref": "0.0.1",
-    "ref_type": "tag",
+    "deployment": {
+      "created_at": "2015-05-05T23:40:38Z",
+      "creator": {
+        "avatar_url": "https://avatars.githubusercontent.com/u/6752317?v=3",
+        "events_url": "https://api.github.com/users/baxterthehacker/events{/privacy}",
+        "followers_url": "https://api.github.com/users/baxterthehacker/followers",
+        "following_url": "https://api.github.com/users/baxterthehacker/following{/other_user}",
+        "gists_url": "https://api.github.com/users/baxterthehacker/gists{/gist_id}",
+        "gravatar_id": "",
+        "html_url": "https://github.com/baxterthehacker",
+        "id": 6752317,
+        "login": "baxterthehacker",
+        "organizations_url": "https://api.github.com/users/baxterthehacker/orgs",
+        "received_events_url": "https://api.github.com/users/baxterthehacker/received_events",
+        "repos_url": "https://api.github.com/users/baxterthehacker/repos",
+        "site_admin": false,
+        "starred_url": "https://api.github.com/users/baxterthehacker/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/baxterthehacker/subscriptions",
+        "type": "User",
+        "url": "https://api.github.com/users/baxterthehacker"
+      },
+      "description": null,
+      "environment": "production",
+      "id": 710692,
+      "payload": {},
+      "ref": "master",
+      "repository_url": "https://api.github.com/repos/baxterthehacker/public-repo",
+      "sha": "9049f1265b7d61be4a8904a9a27120d2064dab3b",
+      "statuses_url": "https://api.github.com/repos/baxterthehacker/public-repo/deployments/710692/statuses",
+      "task": "deploy",
+      "updated_at": "2015-05-05T23:40:38Z",
+      "url": "https://api.github.com/repos/baxterthehacker/public-repo/deployments/710692"
+    },
     "repository": {
       "archive_url": "https://api.github.com/repos/baxterthehacker/public-repo/{archive_format}{/ref}",
       "assignees_url": "https://api.github.com/repos/baxterthehacker/public-repo/assignees{/user}",
@@ -729,18 +1120,18 @@ Save workflow as the new version use same API.
 #### eventName
 |Create | Delete | Deployment | DeploymentStatus | Fork | Gollum | IssueComment | Issues | Member | PageBuild | Public | PullRequestReviewComment | PullRequestReview | PullRequest | Push | Repository|Release|Status|TeamAdd|Watch|
 
-### change pipeline state
+### change workflow state
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| PUT  |/pipeline/v1/:namespace/:repository/:pipelineName/state|
+| PUT  |/v2/:namespace/:repository/workflow/v1/define/:workflowName/state|
 
 #### body
 
 ```
 {
-  "id": 68,
-  "state": 1 #0 OFF, 1 ON
+  "id": 2,
+  "state": 1   #1 ON, 0 OFF
 }
 ```
 
@@ -756,7 +1147,7 @@ Save workflow as the new version use same API.
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| POST  | /pipeline/v1/:namespace/:repository/:pipelineName/exec?version=:version|
+| POST  | /v2/:namespace/:repository/workflow/v1/exec/:workflowName|
 
 #### body
 ```
@@ -768,225 +1159,17 @@ Save workflow as the new version use same API.
 #### response json
 ```
 {
-  "result": "pipeline start ..."
+  "result": "workflow start ..."
 }
 ```
 
-### createComponent
+
+
+### get workflow token and url
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| PUT  |/pipeline/v1/demo/component|
-
-#### body
-
-```
-{
-  "name": "pythoncheck",
-  "version": "1.0"
-}
-```
-
-#### response json
-
-```
-{
-  "message": "create new component success"
-}
-```
-
-### get component list
-
-| HTTP Method |  Request Address |
-| -------- | ------ |
-| GET  |/pipeline/v1/:namespace/component|
-
-#### response json
-
-```
-{
-  "list": [
-    {
-      "id": 248,   //componentID
-      "name": "pythoncheck",   //componentName
-      "version": [
-        {
-          "id": 248,
-          "version": "1.0",
-          "versionCode": 1
-        }
-      ]
-    }
-  ]
-}
-```
-
-### get component info
-
-| HTTP Method |  Request Address |
-| -------- | ------ |
-| GET  |/pipeline/v1/:namespace/component/:componentName?id=:componentID|
-
-#### response json
-
-```
-{
-  "env": [
-    {
-      "key": "CO_DATA",
-      "value": "{'contents':'sonar.projectKey:python-sonar-runner sonar.projectName=python-sonar-runner sonar.projectVersion=1.0 sonar.sources=src sonar.language=py sonar.sourceEncoding=UTF-8','filename':'sonar-project.properties'}"
-    }
-  ],
-  "inputJson": {
-    "gitUrl": "https://github.com/xiechuanj/python-sonar-runner.git"
-  },
-  "outputJson": {
-    "status": true
-  },
-  "setupData": {
-    "action": {
-      "apiserver": "",
-      "datafrom": "{}",
-      "image": {
-        "name": "xiechuan/pythoncheck",
-        "tag": "1.0"
-      },
-      "ip": "",
-      "name": "pythoncheck",
-      "timeout": "3000",
-      "type": "Kubernetes",
-      "useAdvanced": false
-    },
-    "pod": {
-      "spec": {
-        "containers": [
-          {
-            "resources": {
-              "limits": {
-                "cpu": "0.1",
-                "memory": "128Mi"
-              },
-              "requests": {
-                "cpu": "0.1",
-                "memory": "64Mi"
-              }
-            }
-          }
-        ]
-      }
-    },
-    "pod_advanced": {},
-    "service": {
-      "spec": {
-        "ports": [
-          {
-            "nodePort": 32001,
-            "port": 8000,
-            "targetPort": 8000
-          }
-        ],
-        "type": "NodePort"
-      }
-    },
-    "service_advanced": {}
-  }
-}
-```
-
-### saveComponentInfo
-
-Save component as new version used the same api.
-
-| HTTP Method |  Request Address |
-| -------- | ------ |
-| PUT  |/pipeline/v1/:namespace/component/:componentName|
-
-#### body
-
-```
-{
-  "id": 248,
-  "version": "1.0",
-  "define": {
-    "inputJson": {
-      "gitUrl": "https://github.com/xiechuanj/python-sonar-runner.git"
-    },
-    "outputJson": {
-      "status": true,
-      "result":""
-    },
-    "setupData": {
-      "action": {
-        "type": "Kubernetes",
-        "name": "pythoncheck",
-        "timeout": "3000",
-        "ip": "",
-        "apiserver": "",
-        "image": {
-          "name": "xiechuan/pythoncheck",
-          "tag": "1.0"
-        },
-        "useAdvanced": false,
-        "datafrom": "{}"
-      },
-      "service": {
-        "spec": {
-          "type": "NodePort",
-          "ports": [
-            {
-              "port": 8000,
-              "targetPort": 8000,
-              "nodePort": 32001
-            }
-          ]
-        }
-      },
-      "pod": {
-        "spec": {
-          "containers": [
-            {
-              "resources": {
-                "limits": {
-                  "cpu": "0.1",
-                  "memory": "128Mi"
-                },
-                "requests": {
-                  "cpu": "0.1",
-                  "memory": "64Mi"
-                }
-              }
-            }
-          ]
-        }
-      },
-      "service_advanced": {},
-      "pod_advanced": {}
-    },
-    "env": [
-      {
-        "key": "CO_DATA",
-        "value": "{'contents':'sonar.projectKey:python-sonar-runner sonar.projectName=python-sonar-runner sonar.projectVersion=1.0 sonar.sources=src sonar.language=py sonar.sourceEncoding=UTF-8','filename':'sonar-project.properties'}"
-      }
-    ]
-  }
-}
-```
-
-#### response json
-
-```
-{
-  "message": "success"
-}
-```
-
-
-
-### get pipelien token and url
-
-| HTTP Method |  Request Address |
-| -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/token?id=:pipelineID|
+| GET  | /v2/:namespace/:repository/workflow/v1/define/:workflow/token?id=:workflowID|
 
 #### response json
 
@@ -997,33 +1180,35 @@ Save component as new version used the same api.
 }
 ```
 
-### getPipelineHistories
+### getWorkflowHistories
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository/histories|
+| GET  |/v2/:namespace/:repository/workflow/v1/log/list|
 
 #### response json
 
 ```
 {
-  "pipelineList": [
+  "workflowList": [
     {
-      "id": 68,
-      "name": "pythoncheck",
+      "id": 1,
+      "name": "busybox",
       "versionList": [
         {
-          "id": 68,
-          "info": "Success :0 Total :1",
-          "name": "1.0",
+          "id": 1,
+          "info": "Success: 0 Total: 1",
+          "name": "1.0.1",
           "sequenceList": [
             {
-              "pipelineSequenceID": 26,   //pipelineSequenceID
               "sequence": 1,
-              "status": false,
-              "time": "2016-11-08 14:46:09"
+              "status": 1,
+              "time": "2016-12-05 22:41:38",
+              "workflowSequenceID": 1
             }
-          ]
+          ],
+          "success": 0,
+          "total": 1
         }
       ]
     }
@@ -1031,11 +1216,11 @@ Save component as new version used the same api.
 }
 ```
 
-### getPipelineHistory
+### getWorkflowHistory
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/:version/define?sequenceId=:pipelineSequenceID|
+| GET  | /v2/:namespace/:repository/workflow/v1/log/:workflowName/:version?sequence=:workflowSequenceID|
 
 #### response json
 
@@ -1045,59 +1230,67 @@ Save component as new version used the same api.
     "lineList": [
       {
         "endData": {
-          "id": "a-196",   //actionLogID
+          "id": "a-1",
           "setupData": {
             "action": {
-              "name": "pythoncheck"
+              "name": "busybox"
             }
-          },
-          "type": "pipeline-action"
+          }
         },
-        "id": "s-400-a-196",
-        "pipelineLineViewId": "pipeline-line-view",
+        "id": "s-1-a-1",
         "startData": {
-          "id": "s-400",
-          "type": "pipeline-start"
-        }
+          "id": "s-1",
+          "type": "workflow-start"
+        },
+        "workflowLineViewId": "workflow-line-view"
       }
     ],
+    "sequence": 1,
     "stageList": [
       {
-        "id": "s-400",  //stageLogID
+        "id": "s-1",
+        "name": "busybox-start-stage",
+        "runTime": "2016-12-05 22:41:38 - 2016-12-05 22:41:40",
         "setupData": {
-          "name": "pythoncheck-start-stage"
+          "name": "busybox-start-stage"
         },
-        "status": true,
-        "type": "pipeline-start"
+        "status": 3,
+        "type": "workflow-start"
       },
       {
         "actions": [
           {
-            "id": "a-196",
+            "id": "a-1",
             "setupData": {
-              "name": "pythoncheck"
+              "name": "busybox"
             },
-            "status": false,
-            "type": "pipeline-action"
+            "status": 4,
+            "type": "workflow-action"
           }
         ],
-        "id": "s-401",
+        "id": "s-2",
+        "name": "ffsdafd",
+        "runTime": "2016-12-05 22:41:38 - ",
         "setupData": {
-          "name": "pythoncheck"
+          "name": "ffsdafd"
         },
-        "status": false,
-        "type": "pipeline-stage"
+        "status": 1,
+        "type": "workflow-stage"
       },
       {
-        "id": "s-402",
+        "id": "s-3",
+        "name": "busybox-end-stage",
+        "runTime": "2016-12-05 22:41:38 - ",
         "setupData": {
-          "name": "pythoncheck-end-stage"
+          "name": "busybox-end-stage"
         },
-        "status": false,
-        "type": "pipeline-end"
+        "status": 0,
+        "type": "workflow-end"
       }
     ],
-    "status": false
+    "status": 1,
+    "version": "1.0.1",
+    "workflow": "busybox"
   }
 }
 ```
@@ -1106,14 +1299,14 @@ Save component as new version used the same api.
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/stage/:stageName/history?stageLogId=:stageLogID|
+| GET  | /v2/:namespace/:repository/workflow/v1/log/:workflowName/:version/:sequenceID/stage/:stageName|
 
 
 ### getActionRunHistory
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/:version/:sequence/stage/:stageName/action/:actionName/define?actionLogId=:actionLogID|
+| GET  | /v2/:namespace/:repository/workflow/v1/log/:workflowName/:version/:sequenceID/stage/:stageName/action/:actionName|
 
 #### response json
 
@@ -1121,20 +1314,10 @@ Save component as new version used the same api.
 {
   "result": {
     "data": {
-      "input": {
-        "gitUrl": "https://github.com/xiechuanj/python-sonar-runner.git"
-      },
+      "input": {},
       "output": {}
     },
-    "logList": [
-      "2016-11-08 19:35:09 -> {\"EVENTID\": 1207, \"EVENT\": \"COMPONENT_START\", \"RUN_ID\": \"30,419,202,1,137\"}",
-      "2016-11-08 19:35:09 -> {\"data\":\"{\\\"gitUrl\\\":\\\"https://github.com/xiechuanj/python-sonar-runner.git\\\"}\",\"resp\":\"{\\\"gitUrl\\\":\\\"https://github.com/xiechuanj/python-sonar-runner.git\\\"}\\r\\n\"}",
-      "2016-11-08 19:35:09 -> {\"EVENTID\": 1209, \"EVENT\": \"TASK_START\", \"RUN_ID\": \"30,419,202,1,137\"}",
-      "2016-11-08 19:35:09 -> {\"EVENTID\": 1211, \"INFO\": {\"TASK_STATUS\": \"RUNNING\"}, \"EVENT\": \"TASK_STATUS\", \"RUN_ID\": \"30,419,202,1,137\"}",
-      "2016-11-08 19:35:09 -> {\"EVENTID\": 1211, \"INFO\": {\"TASK_STATUS\": \"GET RESULT\"}, \"EVENT\": \"TASK_STATUS\", \"RUN_ID\": \"30,419,202,1,137\"}",
-      "2016-11-08 19:35:09 -> {\"EVENTID\": 1210, \"INFO\": {\"status\": true, \"result\": {}}, \"EVENT\": \"TASK_RESULT\", \"RUN_ID\": \"30,419,202,1,137\"}",
-      "2016-11-08 19:35:10 -> {\"EVENTID\": 1208, \"EVENT\": \"COMPONENT_STOP\", \"RUN_ID\": \"30,419,202,1,137\"}"
-    ]
+    "logList": []
   }
 }
 ```
@@ -1143,7 +1326,7 @@ Save component as new version used the same api.
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| GET  | /pipeline/v1/:namespace/:repository/:pipelineName/:version/:lineid|
+| GET  |/v2/:namespace/:repository/workflow/v1/log/:workflowName/:version/:sequenceID/:relation|
 
 #### response json
 
@@ -1153,9 +1336,7 @@ Save component as new version used the same api.
     "input": {
       "gitUrl": "https://github.com/xiechuanj/python-sonar-runner.git"
     },
-    "output": {
-      "gitUrl": "https://github.com/xiechuanj/python-sonar-runner.git"
-    }
+    "output": {}
   }
 }
 ```
@@ -1164,7 +1345,7 @@ Save component as new version used the same api.
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| PUT  | /pipeline/v1/:namespace/:repository/:pipelineName/event|
+| PUT  | /workflow/v1/:namespace/:repository/:workflowName/event|
 
 #### body
 
@@ -1199,7 +1380,7 @@ Save component as new version used the same api.
 
 | HTTP Method |  Request Address |
 | -------- | ------ |
-| PUT  | /pipeline/v1/:namespace/:repository/:pipelineName/register|
+| PUT  | /workflow/v1/:namespace/:repository/:workflowName/register|
 
 #### body
 

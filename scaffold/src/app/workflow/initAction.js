@@ -17,11 +17,11 @@ limitations under the License.
 import * as constant from "../common/constant";
 import * as util from "../common/util";
 
-import { mouseoverRelevantPipeline, mouseoutRelevantPipeline } from "../relation/lineHover";
+import { mouseoverRelevantWorkflow, mouseoutRelevantWorkflow } from "../relation/lineHover";
 import { clickAction } from "../action/clickAction";
-import { pipelineData } from "./main";
+import { workflowData } from "./main";
 import { initLine } from "./initLine";
-import { initPipeline } from "./initPipeline";
+import { initWorkflow } from "./initWorkflow";
 import { deleteAction } from "../action/addOrDeleteAction";
 import * as initButton from "./initButton";
 import * as config from "../common/config";
@@ -56,8 +56,8 @@ export function initAction() {
     constant.actionsView.selectAll("g").remove();
 
     /* draw actions in actionView , data source is stage.actions */
-    constant.pipelineView.selectAll("image").each(function(d, i) {
-        if (d.type == constant.PIPELINE_STAGE && d.actions != null && d.actions.length > 0) {
+    constant.workflowView.selectAll("image").each(function(d, i) {
+        if (d.type == constant.WORKFLOW_STAGE && d.actions != null && d.actions.length > 0) {
             var actionViewId = "action" + "-" + d.id;
             
             constant.actionView[actionViewId] = constant.actionsView.append("g")
@@ -121,27 +121,36 @@ export function initAction() {
                     constant.setCurrentSelectedItem({ "data": ad, "parentData": d, "type": "action" });
                     initButton.updateButtonGroup("action");
                     d3.select("#" + ad.id).attr("href", config.getSVG(config.SVG_ACTION_SELECTED));
-                    util.cleanToolTip(constant.pipelineView, "#pipeline-element-popup");
+                    util.cleanToolTip(constant.workflowView, "#workflow-element-popup");
                 })
                 .on("mouseout", function(ad, ai) {
-                    util.cleanToolTip(constant.pipelineView, "#pipeline-element-popup");
+                    util.cleanToolTip(constant.workflowView, "#workflow-element-popup");
                 })
                 .on("mouseover", function(ad, ai) {
                     var x = ad.translateX;
                     var y = ad.translateY + constant.svgActionHeight;
-                    let text = "Click to Edit";
-                    let width = null;
-                    if (ad.setupData && ad.setupData.action && ad.setupData.action.name && ad.setupData.action.name != "") {
-                        text = ad.setupData.action.name;
-                        width = text.length * 7 + 20;
+                    let text = "Click to Assign Component for Action";
+                    let width = 250;
+                    let height = null;
+                    // if (ad.component.name && ad.setupData && ad.setupData.action && ad.setupData.action.name && ad.setupData.action.name != "") {
+                    if (ad.component && ad.component.name && ad.setupData && ad.setupData.action ) {
+                        text = ["Component: " + ad.component.name + "[" + ad.component.versionname+"]",
+                               "Name: " +ad.setupData.action.name,"Timeout: " + ad.setupData.action.timeout+"(S)",
+                               "Image: " + ad.setupData.action.image.name + ":"+ad.setupData.action.image.tag,
+                               "Limits:[cpu:" +ad.setupData.pod.spec.containers[0].resources.limits.cpu+", memory:" + ad.setupData.pod.spec.containers[0].resources.limits.memory+"(Mi)]",
+                               "Requests:[cpu:" +ad.setupData.pod.spec.containers[0].resources.requests.cpu+", memory:" + ad.setupData.pod.spec.containers[0].resources.requests.memory+"(Mi)]"];
+                        // width = text.length * 7 + 20;
+                        width = 300;
+                        height = text.length * constant.popupHeight;
                     }
                     let options = {
                         "x": x,
                         "y": y,
                         "text": text,
-                        "popupId": "pipeline-element-popup",
-                        "parentView": constant.pipelineView,
-                        "width": width
+                        "popupId": "workflow-element-popup",
+                        "parentView": constant.workflowView,
+                        "width": width,
+                        "height": height
                     };
                     util.showToolTip(options);
                 })

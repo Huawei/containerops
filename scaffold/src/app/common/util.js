@@ -97,7 +97,7 @@ export function transformAnimation(args, type) {
                     translateY = item.type == "siblings" ? (d.translateY - constant.ActionNodeSpaceSize) : (0 - constant.ActionNodeSpaceSize);
 
                 } else if (type == "stage") {
-                    translateX = item.type == "siblings" ? (d.translateX - constant.PipelineNodeSpaceSize) : (0 - constant.PipelineNodeSpaceSize);
+                    translateX = item.type == "siblings" ? (d.translateX - constant.WorkflowNodeSpaceSize) : (0 - constant.WorkflowNodeSpaceSize);
                     translateY = item.type == "siblings" ? d.translateY : 0;
 
                 }
@@ -155,9 +155,9 @@ export function draged(d) {
             .attr("transform", "translate(" + d3.event.x + "," + d3.event.y + ") scale(" + scale + ")");
 
     } else {
-        var scale = Number(constant.pipelineView.attr("scale"));
+        var scale = Number(constant.workflowView.attr("scale"));
         var translate = "translate(" + (d3.event.x) + "," + (d3.event.y) + ") scale(" + scale + ")";
-        var targetCollection = [constant.pipelineView, constant.actionsView, constant.linesView];
+        var targetCollection = [constant.workflowView, constant.actionsView, constant.linesView];
         _.each(targetCollection, function(target) {
             target
                 .attr("translateX", d3.event.x)
@@ -180,7 +180,7 @@ function redraw(d) {
             .attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
             .attr("scale", d3.event.scale)
     } else {
-        var targetCollection = [constant.pipelineView, constant.actionsView, constant.linesView];
+        var targetCollection = [constant.workflowView, constant.actionsView, constant.linesView];
         _.each(targetCollection, function(target) {
             target
                 .attr("translateX", d3.event.translate[0])
@@ -195,7 +195,7 @@ export function zoomed(type, target, scaleObj) {
     var currentTranslateX = Number(target.attr("translateX"));
     var currentTranslateY = Number(target.attr("translateY"));
     var currentTranslate = [currentTranslateX, currentTranslateY];
-    // zoom.scale(scale).translate(currentTranslate).event(constant.pipelineView);
+    // zoom.scale(scale).translate(currentTranslate).event(constant.workflowView);
     d3.transition().duration(constant.zoomDuration).tween("zoom", function() {
         if (type == "zoomin") {
             scaleObj.zoomTargetScale = (scaleObj.zoomScale + constant.zoomFactor) <= constant.zoomMaximum ? (scaleObj.zoomScale + constant.zoomFactor) : constant.zoomMaximum;
@@ -282,7 +282,7 @@ export function showToolTip(options) {
     parentView
         .append("g")
         .attr("id", popupId);
-    parentView.selectAll("#" + popupId)
+    parentView.select("#" + popupId)
         .append("rect")
         .attr("width", width)
         .attr("height", height)
@@ -296,13 +296,44 @@ export function showToolTip(options) {
         .attr("ry", 3)
         .style("fill", constant.toolTipBackground)
         .style("opacity", 0.9)
-    parentView.selectAll("#" + popupId)
+
+    parentView.select("#" + popupId)
         .append("text")
         .attr("x", x + 10)
-        .attr("y", y + height / 2 + 4)
         .style("fill", "white")
-        .style("opacity", 0.9)
-        .text(text)
+        // .style("opacity", 0.9)
+        .style("font-size", 13)
+    if(judgeType(text) == "array"){
+        parentView.select("#" + popupId).select("text")
+           .attr("y", y)
+        parentView.select("#" + popupId).select("text").selectAll("tspan")
+          .data(text)
+          .enter()
+          .append("tspan")
+          .attr("x", x + 10)
+          .attr("y", function(d, i){
+             return y + (i+1)*constant.popupHeight - constant.popupHeight/2 + 4;
+          })
+          .text(function(d,i){
+             if(d.length > 43){
+                return d.substring(0, 40) + "..."
+             }else {
+                return d;
+             }
+             // var scale = Number($("#"+popupId).parent().attr("scale"));
+             // if(d.length > 43 - parseInt(43 * (1-scale))){
+             //    return d.substring(0, 40-parseInt(40*(1-scale))) + "..."
+             // }else {
+             //    return d;
+             // }
+          })
+    }else if(judgeType(text) == "string"){
+         parentView.select("#" + popupId).select("text")
+           .attr("y", y + height / 2 + 4)
+           .text(text)
+    }
+
+
 }
 
 export function cleanToolTip(containerView, id) {

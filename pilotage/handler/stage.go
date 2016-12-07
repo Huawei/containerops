@@ -65,8 +65,8 @@ func GetStageHistoryInfoV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	pipelineName := ctx.Params(":workflow")
-	if pipelineName == "" {
+	workflowName := ctx.Params(":workflow")
+	if workflowName == "" {
 		result, _ = json.Marshal(map[string]string{"errMsg": "workflow can't be empty"})
 		return http.StatusBadRequest, result
 	}
@@ -84,7 +84,7 @@ func GetStageHistoryInfoV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	stageLogInfo, err := module.GetStageLogByName(namespace, repository, pipelineName, sequenceInt, stageName)
+	stageLogInfo, err := module.GetStageLogByName(namespace, repository, workflowName, sequenceInt, stageName)
 	if err != nil {
 		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
 		return http.StatusBadRequest, result

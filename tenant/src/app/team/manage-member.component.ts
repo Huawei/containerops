@@ -4,6 +4,8 @@ import { TeamDataService } from './data.service';
 import { UserService } from '../user/user.service';
 import { NotifyService } from '../common/notify.service';
 
+var _ = require("underscore");
+// declare _ 
 @Component({
   selector: 'team-manage-members',
   template: require('../../template/team/manage-member.html')
@@ -50,7 +52,6 @@ export class TeamManageMemberComponent implements OnInit {
 	
     toggleMember(event:any, opt:string, id = undefined){
         let checked = event.currentTarget.checked;
-        // let target = opt == "add" ? this.usersToBeAdd : this.usersToBeRemove
         if(checked){
         	if(id == undefined){
         		if(opt == "add"){
@@ -87,20 +88,7 @@ export class TeamManageMemberComponent implements OnInit {
 
         }
     }
-	// addMembers(): void {
-	// 	try{
-	// 		//fake, to be deleted
-	// 		this.teamDataService.updateTeam(this.usersToBeAdd, this.team, "add");
-	// 		this.notifyService.notify("Add member to '" + this.team.name + "' successfully.","success");
-	// 		this.usersToBeAdd = [];
-	// 		this.getMembers();
-	// 		this.getOthers();
-	// 		//fake end
-	// 	}catch(e){
-	// 		this.notifyService.notify("Fail to add member.","error");
-	// 		this.usersToBeAdd = [];
-	// 	}
-	// }
+
 	updateMembers(opt:string) : void{
 		var targetArray = opt == "add" ? this.usersToBeAdd : this.usersToBeRemove;
 		var msg = opt == "add" ? "Add member to " : "Remove member from ";
@@ -130,10 +118,12 @@ export class TeamManageMemberComponent implements OnInit {
 		}
 	}
     clickToOperate(user:any, opt:string){
-       // this.usersToBeAdd.push(user.username);
-       // this.addMembers();
+
        var targetArray = opt == "add" ? this.usersToBeAdd : this.usersToBeRemove;
-       	   targetArray.push(user);
+       	   if(!_.contains(targetArray, user)){
+       	   	  targetArray.push(user);
+       	   }
+       	   
        this.updateMembers(opt);
     }
     
