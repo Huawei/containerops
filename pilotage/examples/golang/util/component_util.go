@@ -28,6 +28,8 @@ const (
 	CO_REGISTER_URL = "CO_register"
 
 	CO_DATA = "CO_DATA"
+
+	CO_SET_GLOBAL_VAR_URL = "CO_SET_GLOBAL_VAR_URL"
 )
 
 var (
@@ -73,9 +75,10 @@ func init() {
 		}
 	}
 
+	eventURLMap[CO_SET_GLOBAL_VAR_URL] = os.Getenv(CO_SET_GLOBAL_VAR_URL)
+
 	log.Println("[component util]", "<===init done")
 	log.Println("[component util]", "<===got event map:", eventINFOMap)
-
 }
 
 func NotifyEvent(eventName string, status bool, result, output string) error {
@@ -171,6 +174,28 @@ func HoldProj(port int64) {
 
 	isWaitData = true
 	http.ListenAndServe(":"+strconv.FormatInt(port, 10), nil)
+}
+
+func ChangeGlobalVar(varName, value string) error {
+	reqBody := make(map[string]interface{})
+
+	reqBody["RUN_ID"] = eventINFOMap[CO_RUN_ID]
+	reqBody["varMap"] = map[string]interface{}{"KEY": varName, "VALUE": value}
+
+	reqBodyBytes, _ := json.Marshal(reqBody)
+
+	log.Println("[component util]", "===>component start change global var info, \nvar name:", varName, "\nvalue:", value, "\nreqBody:", reqBody, "\nto:", eventURLMap[CO_SET_GLOBAL_VAR_URL])
+	resp, err := http.Post(eventURLMap[CO_SET_GLOBAL_VAR_URL], "application/json", bytes.NewReader(reqBodyBytes))
+
+	if err != nil {
+		log.Println("[component util]", "===>component send event:", CO_SET_GLOBAL_VAR_URL, " to:", eventURLMap[CO_SET_GLOBAL_VAR_URL], " \t error, error is:", err.Error())
+		return errors.New("error when send req to workflow")
+	}
+
+	respBody, _ := ioutil.ReadAll(resp.Body)
+
+	log.Println("[component util]", "===>component send event:", CO_SET_GLOBAL_VAR_URL, " got resp:\n", string(respBody), "\n")
+	return nil
 }
 
 func waitData(port int64) {
