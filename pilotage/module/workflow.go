@@ -608,7 +608,7 @@ func (workflowInfo *Workflow) UpdateWorkflowInfo(define map[string]interface{}) 
 
 	workflowOriginalManifestMap := make(map[string]interface{})
 	if workflowInfo.Manifest != "" {
-		err := json.Unmarshal([]byte(workflowInfo.Manifest), workflowOriginalManifestMap)
+		err := json.Unmarshal([]byte(workflowInfo.Manifest), &workflowOriginalManifestMap)
 		if err != nil {
 			log.Error("[workflow's UpdateWorkflowInfo]:error unmarshal workflow's manifest info:", err.Error(), " set it to empty")
 			workflowInfo.Manifest = ""
@@ -1085,6 +1085,20 @@ func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*Workf
 		if err != nil {
 			<-workflowlogSequenceGenerateChan
 			log.Error("[workflow's GenerateNewLog]:when generate stage log:", err.Error())
+			return nil, err
+		}
+	}
+
+	allVarList := make([]models.WorkflowVar, 0)
+	new(models.WorkflowVar).GetWorkflowVar().Where("workflow = ?", workflowInfo.ID).Find(&allVarList)
+
+	for _, varInfo := range allVarList {
+		tempVar := new(WorkflowVar)
+		tempVar.WorkflowVar = &varInfo
+		err := tempVar.GenerateNewLog(db, workflowLog)
+		if err != nil {
+			<-workflowlogSequenceGenerateChan
+			log.Error("[workflow's GenerateNewLog]:when generate var log:", err.Error())
 			return nil, err
 		}
 	}

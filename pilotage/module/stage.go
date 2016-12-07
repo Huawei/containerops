@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"errors"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Huawei/containerops/pilotage/models"
@@ -103,7 +104,7 @@ func CreateNewStage(db *gorm.DB, preStageId int64, workflowInfo *models.Workflow
 	stageType := models.StageTypeRun
 	actionIdMap := make(map[string]int64)
 	stageName := ""
-	timeout := int64(60 * 60 * 24 * 36)
+	timeout := strconv.FormatInt(int64(60*60*24*36), 10)
 	requestMapList := make([]interface{}, 0)
 	authType := AuthTypePreStageDone
 
@@ -125,7 +126,7 @@ func CreateNewStage(db *gorm.DB, preStageId int64, workflowInfo *models.Workflow
 		authType = AuthTypeWorkflowStartDone
 		stageType = models.StageTypeStart
 		stageName = workflowInfo.Workflow + "-start-stage"
-		timeout = 0
+		timeout = "0"
 
 		if sourceMapList, ok := defineMap["outputJson"].([]interface{}); ok {
 			sourceMap := make(map[string]interface{}, 0)
@@ -203,7 +204,7 @@ func CreateNewStage(db *gorm.DB, preStageId int64, workflowInfo *models.Workflow
 	} else if stageDefineType == WorkflowStageTypeEnd {
 		stageType = models.StageTypeEnd
 		stageName = workflowInfo.Workflow + "-end-stage"
-		timeout = 0
+		timeout = "0"
 	} else if stageDefineType == WorkflowStageTypeRun {
 		if setupDataMap, ok := defineMap["setupData"].(map[string]interface{}); ok {
 			if defineName, ok := setupDataMap["name"]; ok {
@@ -215,11 +216,12 @@ func CreateNewStage(db *gorm.DB, preStageId int64, workflowInfo *models.Workflow
 			}
 
 			defineTimeoutStr, ok := setupDataMap["timeout"].(string)
-			if ok {
-				var err error
-				timeout, err = strconv.ParseInt(defineTimeoutStr, 10, 64)
+			if ok && !strings.Contains(defineTimeoutStr, "@") && !strings.Contains(defineTimeoutStr, "@") {
+				timeoutInt, err := strconv.ParseInt(defineTimeoutStr, 10, 64)
 				if err != nil {
-					timeout = 0
+					timeout = "0"
+				} else {
+					timeout = strconv.FormatInt(timeoutInt, 10)
 				}
 			}
 		}
@@ -295,9 +297,13 @@ func CreateNewStage(db *gorm.DB, preStageId int64, workflowInfo *models.Workflow
 		}
 
 		actionIdMap, err = CreateNewActions(db, workflowInfo, stage, actionDefineList)
-		// actionIdMap, err = createActionByDefine(actionDefineList, stage.ID)
 		if err != nil {
 			log.Error("[stage's CreateNewStage]:error when create actions by defineList:", actionDefineList, " ===>error is:", err.Error())
+			rollbackErr := db.Rollback().Error
+			if rollbackErr != nil {
+				log.Error("[action's CreateNewStage]:when rollback in save action's info:", rollbackErr.Error())
+				return 0, "", nil, errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
+			}
 			return 0, "", nil, err
 		}
 	}
@@ -337,6 +343,11 @@ func (stageInfo *Stage) GenerateNewLog(db *gorm.DB, workflowLog *models.Workflow
 	err := new(models.Action).GetAction().Where("workflow = ?", workflowLog.FromWorkflow).Where("stage = ?", stageInfo.ID).Find(&actionList).Error
 	if err != nil {
 		log.Error("[Stage's GenerateNewLog]:when get action list by stage info", stageInfo, "===>error is :", err.Error())
+		rollbackErr := db.Rollback().Error
+		if rollbackErr != nil {
+			log.Error("[stage's GenerateNewLog]:when rollback in save stage log:", rollbackErr.Error())
+			return 0, errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
+		}
 		return 0, err
 	}
 
@@ -593,6 +604,13 @@ func (stageLog *StageLog) Auth(authMap map[string]interface{}) error {
 }
 
 func (stageLog *StageLog) Start() {
+	err := stageLog.changeGlobalVar()
+	if err != nil {
+		log.Error("[stageLog's Start]:error when change stage's Global var info:", err.Error())
+		stageLog.Stop(StageStopScopeAll, StageStopReasonRunFailed, models.StageLogStateRunFailed)
+		return
+	}
+
 	nextStageCanStartChan := make(chan bool, 1)
 	go stageLog.WaitAllActionDone(nextStageCanStartChan)
 
@@ -619,7 +637,7 @@ func (stageLog *StageLog) Start() {
 	}
 
 	actionLogList := make([]models.ActionLog, 0)
-	err := new(models.ActionLog).GetActionLog().Where("workflow = ?", stageLog.Workflow).Where("stage = ?", stageLog.ID).Find(&actionLogList).Error
+	err = new(models.ActionLog).GetActionLog().Where("workflow = ?", stageLog.Workflow).Where("stage = ?", stageLog.ID).Find(&actionLogList).Error
 	if err != nil {
 		log.Error("[stageLog's Start]:error when get actionLog list fron db:", err.Error())
 		stageLog.Stop(StageStopScopeAll, StageStopReasonRunFailed, models.StageLogStateRunFailed)
@@ -709,7 +727,7 @@ func (stageLog *StageLog) Stop(scope, reason string, runState int64) {
 	}
 
 	for _, actionLog := range actionLogList {
-		if scope == StageStopScopeRecyclable && actionLog.Timeout != 0 {
+		if scope == StageStopScopeRecyclable && actionLog.Timeout != "" {
 			needStopActionList = append(needStopActionList, actionLog)
 		} else {
 			needStopActionList = append(needStopActionList, actionLog)
@@ -800,8 +818,16 @@ func (stageLog *StageLog) WaitAllActionDone(nextStageCanStartChan chan bool) {
 		}
 	}()
 
-	if stageLog.Timeout != 0 {
-		duration, _ := time.ParseDuration(strconv.FormatInt(stageLog.Timeout, 10) + "s")
+	if stageLog.Timeout != "" && stageLog.Timeout != "0" {
+		_, err := strconv.ParseInt(stageLog.Timeout, 10, 64)
+		if err != nil {
+			log.Error("[stageLog's WaitAllActionDone]:error when parse stage's timeout vaule:", err.Error())
+			nextStageCanStartChan <- false
+			stageLog.Stop(StageStopScopeAll, StageStopReasonRunFailed, models.StageLogStateRunFailed)
+			return
+		}
+
+		duration, err := time.ParseDuration(stageLog.Timeout + "s")
 		select {
 		case <-time.After(duration):
 			log.Error("[stageLog's WaitAllActionDone]:got a timeout from stage", stageLog)
@@ -815,4 +841,43 @@ func (stageLog *StageLog) WaitAllActionDone(nextStageCanStartChan chan bool) {
 		runResult := <-finalResultChan
 		nextStageCanStartChan <- runResult
 	}
+}
+
+func (stageLog *StageLog) changeGlobalVar() error {
+	if strings.HasPrefix(stageLog.Timeout, "@") && strings.HasSuffix(stageLog.Timeout, "@") {
+		varKey := stageLog.Timeout[1 : len(stageLog.Timeout)-2]
+
+		varValue, err := getWorkflowVarLogInfo(stageLog.Workflow, stageLog.Sequence, varKey)
+		if err != nil {
+			log.Error("[stageLog's changeGlobalVar]:stage:", stageLog.Stage, " got an error when get:", varKey, " from db:", err.Error())
+			return errors.New("error when get workflow var info")
+		}
+
+		timeoutInt, err := strconv.ParseInt(varValue, 10, 64)
+		if err != nil {
+			log.Error("[stageLog's changeGlobalVar]:stage:", stageLog.Stage, " set time as:", stageLog.Timeout, " but when parse var's value(", varValue, ") to int got a error:", err.Error())
+			return errors.New("use a NaN value to stage's timeout")
+		}
+
+		stageLog.Timeout = strconv.FormatInt(timeoutInt, 10)
+	}
+
+	if strings.HasPrefix(stageLog.Stage, "@") && strings.HasSuffix(stageLog.Stage, "@") {
+		varKey := stageLog.Stage[1 : len(stageLog.Stage)-2]
+
+		varValue, err := getWorkflowVarLogInfo(stageLog.Workflow, stageLog.Sequence, varKey)
+		if err != nil {
+			log.Error("[stageLog's changeGlobalVar]:stage:", stageLog.Stage, " use a name both start and end with '@',but not a global value")
+		} else {
+			stageLog.Stage = varValue
+		}
+	}
+
+	err := stageLog.GetStageLog().Save(stageLog).Error
+	if err != nil {
+		log.Error("[stageLog's changeGlobalVar]:error when save stage's change to db:", err.Error())
+		return errors.New("error when save change to db")
+	}
+
+	return nil
 }
