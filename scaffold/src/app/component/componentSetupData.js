@@ -79,22 +79,19 @@ export function setServiceType(){
 export function setServicePort(event){
   var target = $(event.currentTarget);
   var index = target.parent().data("index");
-  var value = target.val();
-  data.service.spec.ports[index].port = parseInt(value);
+  data.service.spec.ports[index].port = target.val();
 }
 
 export function setServiceTargetPort(event){
   var target = $(event.currentTarget);
   var index = target.parent().data("index");
-  var value = target.val();
-  data.service.spec.ports[index].targetPort = parseInt(value);
+  data.service.spec.ports[index].targetPort = target.val();
 }
 
 export function setServiceNodePort(event){
   var target = $(event.currentTarget);
   var index = target.parent().data("index");
-  var value = target.val();
-  data.service.spec.ports[index].nodePort = parseInt(value);
+  data.service.spec.ports[index].nodePort = target.val();
 }
 
 export function removeServicePorts(event){
@@ -172,8 +169,8 @@ var metadata = {
       "containers": [
         {
           "resources": {
-            "limits":{"cpu": 0.2, "memory": "1024Mi"},
-            "requests":{"cpu": 0.1, "memory": "128Mi"}
+            "limits":{"cpu": "0.2", "memory": "1024"},
+            "requests":{"cpu": "0.1", "memory": "128"}
           }
         }
       ]
