@@ -123,25 +123,27 @@ func (p *Workflow) GetWorkflow() *gorm.DB {
 
 //WorkflowLog is workflow run history log.
 type WorkflowLog struct {
-	ID           int64      `json:"id" gorm:"primary_key"`                       //
-	Namespace    string     `json:"namespace" sql:"not null;type:varchar(255)"`  //Username or organization
-	Repository   string     `json:"repository" sql:"not null;type:varchar(255)"` //
-	Workflow     string     `json:"workflow" sql:"not null;type:varchar(255)"`   //workflow name
-	FromWorkflow int64      `json:"fromWorkflow" sql:"not null;default:0"`       //
-	Version      string     `json:"version" sql:"null;type:varchar(255)"`        //User define Workflow version
-	VersionCode  int64      `json:"versionCode" sql:"null;type:varchar(255)"`    //System define Workflow version,unique,for query
-	Sequence     int64      `json:"sequence" sql:"not null;default:0"`           //workflow run sequence
-	RunState     int64      `json:"runState" sql:"null;type:bigint"`             //workflow run state
-	Event        int64      `json:"event" sql:"null;default:0"`                  //
-	Manifest     string     `json:"manifest"sql:"null;type:longtext"`            //
-	Description  string     `json:"description" sql:"null;type:text"`            //
-	SourceInfo   string     `json:"source" sql:"null;type:longtext"`             // define of source like : [{"sourceType":"Github","headerKey":"X-Hub-Signature","eventList":",pull request,","secretKey":"asdfFDSA!@d12"}]
-	Env          string     `json:"env" sql:"null;type:longtext"`                // env that all action in this workflow will get
-	Requires     string     `json:"requires" sql:"type:longtext"`                // workflow run requires auth
-	AuthList     string     `json:"authList" sql:"type:longtext"`                //
-	CreatedAt    time.Time  `json:"created" sql:""`                              //
-	UpdatedAt    time.Time  `json:"updated" sql:""`                              //
-	DeletedAt    *time.Time `json:"deleted" sql:"index"`                         //
+	ID              int64      `json:"id" gorm:"primary_key"`                       //
+	Namespace       string     `json:"namespace" sql:"not null;type:varchar(255)"`  //Username or organization
+	Repository      string     `json:"repository" sql:"not null;type:varchar(255)"` //
+	Workflow        string     `json:"workflow" sql:"not null;type:varchar(255)"`   //workflow name
+	FromWorkflow    int64      `json:"fromWorkflow" sql:"not null;default:0"`       //
+	PreWorkflow     int64      `json:"preWorkflow" sql:"not null;default:0"`
+	PreWorkflowInfo string     `json:"preWorkflowInfo"`
+	Version         string     `json:"version" sql:"null;type:varchar(255)"`     //User define Workflow version
+	VersionCode     int64      `json:"versionCode" sql:"null;type:varchar(255)"` //System define Workflow version,unique,for query
+	Sequence        int64      `json:"sequence" sql:"not null;default:0"`        //workflow run sequence
+	RunState        int64      `json:"runState" sql:"null;type:bigint"`          //workflow run state
+	Event           int64      `json:"event" sql:"null;default:0"`               //
+	Manifest        string     `json:"manifest"sql:"null;type:longtext"`         //
+	Description     string     `json:"description" sql:"null;type:text"`         //
+	SourceInfo      string     `json:"source" sql:"null;type:longtext"`          // define of source like : [{"sourceType":"Github","headerKey":"X-Hub-Signature","eventList":",pull request,","secretKey":"asdfFDSA!@d12"}]
+	Env             string     `json:"env" sql:"null;type:longtext"`             // env that all action in this workflow will get
+	Requires        string     `json:"requires" sql:"type:longtext"`             // workflow run requires auth
+	AuthList        string     `json:"authList" sql:"type:longtext"`             //
+	CreatedAt       time.Time  `json:"created" sql:""`                           //
+	UpdatedAt       time.Time  `json:"updated" sql:""`                           //
+	DeletedAt       *time.Time `json:"deleted" sql:"index"`                      //
 }
 
 //TableName is return the table name of Workflow in MySQL database.

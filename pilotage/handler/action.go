@@ -305,6 +305,95 @@ func PostActionSetVarV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
+func PostActionLinkStartV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{"message": "ok"})
+
+	bodyByte, _ := ctx.Req.Body().Bytes()
+
+	reqBody := make(map[string]interface{})
+	err := json.Unmarshal(bodyByte, &reqBody)
+	if err != nil {
+		log.Error("[action's PostActionEventV1Handler]:error when unmarshal reqBody:", string(bodyByte), " ===>error is:", err.Error())
+		result, _ := json.Marshal(map[string]string{"message": "illegal request body,want a json obj,got:" + string(bodyByte)})
+		return http.StatusBadRequest, result
+	}
+
+	runId, ok := reqBody["RUN_ID"].(string)
+	if !ok {
+		log.Error("[action's PostActionEventV1Handler]:error when get runID from request, want a string, got:", reqBody["RUN_ID"])
+		result, _ := json.Marshal(map[string]string{"message": "runId is not a string"})
+		return http.StatusBadRequest, result
+	}
+
+	if len(strings.Split(runId, "-")) < 3 {
+		log.Error("[action's PostActionEventV1Handler]:runID illegal,want XX-XX-XX, got:", runId)
+		result, _ := json.Marshal(map[string]string{"message": "illegal runID"})
+		return http.StatusBadRequest, result
+	}
+
+	actionLogId, err := strconv.ParseInt(strings.Split(runId, "-")[2], 10, 64)
+	if err != nil {
+		log.Error("[action's PostActionEventV1Handler]:error when get actionLogId from runID, want number, got:", runId)
+		result, _ := json.Marshal(map[string]string{"message": "illegal actionLogId id"})
+		return http.StatusBadRequest, result
+	}
+
+	linkInfoMap, ok := reqBody["linkInfoMap"].(map[string]interface{})
+	if !ok {
+		log.Error("[action's PostActionSetVarV1Handler]:error when get linkInfoMap from request, want a obj, got:", reqBody["linkInfoMap"])
+		result, _ := json.Marshal(map[string]string{"message": "linkInfoMap is illegal"})
+		return http.StatusBadRequest, result
+	}
+
+	token, ok := linkInfoMap["token"].(string)
+	if !ok {
+		log.Error("[action's PostActionSetVarV1Handler]:error when get token from request's linkInfoMap, want a string, got:", linkInfoMap["token"])
+		result, _ := json.Marshal(map[string]string{"message": "token is not a string"})
+		return http.StatusBadRequest, result
+	}
+
+	workflowName, ok := linkInfoMap["workflowName"].(string)
+	if !ok {
+		log.Error("[action's PostActionSetVarV1Handler]:error when get workflowName from request's linkInfoMap, want a string, got:", linkInfoMap["workflowName"])
+		result, _ := json.Marshal(map[string]string{"message": "workflowName is not a string"})
+		return http.StatusBadRequest, result
+	}
+
+	workflowVersion, ok := linkInfoMap["workflowVersion"].(string)
+	if !ok {
+		log.Error("[action's PostActionSetVarV1Handler]:error when get workflowVersion from request's linkInfoMap, want a string, got:", linkInfoMap["workflowVersion"])
+		result, _ := json.Marshal(map[string]string{"message": "workflowVersion is not a string"})
+		return http.StatusBadRequest, result
+	}
+
+	startJsonStr, ok := linkInfoMap["startJson"].(string)
+	if !ok {
+		log.Error("[action's PostActionSetVarV1Handler]:error when get startJson from request's linkInfoMap, want a string, got:", linkInfoMap["startJson"])
+		result, _ := json.Marshal(map[string]string{"message": "startJson is not a string"})
+		return http.StatusBadRequest, result
+	}
+
+	startJson := make(map[string]interface{})
+	err = json.Unmarshal([]byte(startJsonStr), &startJson)
+
+	actionLog, err := module.GetActionLog(actionLogId)
+	if err != nil {
+		log.Error("[action's PostActionEventV1Handler]:error when get action's info:", err.Error())
+		result, _ := json.Marshal(map[string]string{"message": "error when get target action"})
+		return http.StatusBadRequest, result
+	}
+
+	err = actionLog.LinkStartWorkflow(runId, token, workflowName, workflowVersion, startJson)
+	if err != nil {
+		log.Error("[action's PostActionEventV1Handler]:error when record action's event:", err.Error())
+		result, _ := json.Marshal(map[string]string{"message": "error when record action's event"})
+		return http.StatusBadRequest, result
+	}
+
+	result, _ = json.Marshal(map[string]string{"message": "ok"})
+	return http.StatusOK, result
+}
+
 //PutStartActionV1Handler is
 func PutStartActionV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
