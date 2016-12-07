@@ -167,7 +167,7 @@ type Stage struct {
 	Event       int64      `json:"event" sql:"null;default:0"`                  //
 	Manifest    string     `json:"manifest" sql:"null;type:longtext"`           //
 	Env         string     `json:"env" sql:"null;type:longtext"`                //
-	Timeout     int64      `json:"timeout"`                                     //
+	Timeout     string     `json:"timeout"`                                     //
 	Requires    string     `json:"requires" sql:"type:longtext"`                // workflow run requires auth
 	CreatedAt   time.Time  `json:"created" sql:""`                              //
 	UpdatedAt   time.Time  `json:"updated" sql:""`                              //
@@ -201,7 +201,7 @@ type StageLog struct {
 	Event        int64      `json:"event" sql:"null;default:0"`                  //
 	Manifest     string     `json:"manifest" sql:"null;type:longtext"`           //
 	Env          string     `json:"env" sql:"null;type:longtext"`                //
-	Timeout      int64      `json:"timeout"`                                     //
+	Timeout      string     `json:"timeout"`                                     //
 	Requires     string     `json:"requires" sql:"type:longtext"`                // workflow run requires auth
 	AuthList     string     `json:"authList" sql:"type:longtext"`                //
 	CreatedAt    time.Time  `json:"created" sql:""`                              //
@@ -237,8 +237,9 @@ type Action struct {
 	Swarm       string     `json:"swarm" sql:"null;type:text"`                  //
 	Input       string     `json:"input" sql:"null;type:text"`                  //
 	Output      string     `json:"input" sql:"null;type:text"`                  //
-	Endpoint    string     `json:"endpoint"`                                    //
-	Timeout     int64      `json:"timeout"`                                     //
+	ImageName   string     `json:"imageName"`                                   //
+	ImageTag    string     `json:"imageTag"`                                    //
+	Timeout     string     `json:"timeout"`                                     //
 	Requires    string     `json:"requires" sql:"type:longtext"`                // workflow run requires auth
 	CreatedAt   time.Time  `json:"created" sql:""`                              //
 	UpdatedAt   time.Time  `json:"updated" sql:""`                              //
@@ -278,8 +279,9 @@ type ActionLog struct {
 	Swarm        string     `json:"swarm" sql:"null;type:text"`                  //
 	Input        string     `json:"input" sql:"null;type:text"`                  //
 	Output       string     `json:"input" sql:"null;type:text"`                  //
-	Endpoint     string     `json:"endpoint"`                                    //
-	Timeout      int64      `json:"timeout"`                                     //
+	ImageName    string     `json:"imageName"`                                   //
+	ImageTag     string     `json:"imageTag"`                                    //
+	Timeout      string     `json:"timeout"`                                     //
 	Requires     string     `json:"requires" sql:"type:longtext"`                // workflow run requires auth
 	AuthList     string     `json:"authList" sql:"type:longtext"`                //
 	CreatedAt    time.Time  `json:"created" sql:""`                              //
