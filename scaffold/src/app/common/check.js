@@ -16,7 +16,7 @@ limitations under the License.
 
 import {notify} from "../common/notify";
 import * as constant from "../common/constant";
-import {isAvailableVar} from "../workflow/workflowVar";
+import {isAvailableVar,getValue} from "../workflow/workflowVar";
 
 // validate
 export function workflowCheck(data){
@@ -58,13 +58,13 @@ function checkWorkflowStart(data){
                 break;
             }
 
-            if(isUsingGlobalVar(item.event)){
-                completeness = isAvailableVar(item.event);
-                if(!completeness){
-                    notify("Output event is using an unknown global variable ---- < Start stage / Output " + (i+1)+" >","info");
-                    break;
-                }
-            }    
+            // if(isUsingGlobalVar(item.event)){
+            //     completeness = isAvailableVar(item.event);
+            //     if(!completeness){
+            //         notify("Output event is using an unknown global variable ---- < Start stage / Output " + (i+1)+" >","info");
+            //         break;
+            //     }
+            // }    
         }
     }
 
@@ -82,12 +82,16 @@ function checkWorkflowStage(data,index){
     }else if(_.isEmpty(data.setupData.timeout)){
         notify("Timeout missed ---- < Stage No. " + index+" >","info");
         completeness = false;
-    }else if(isUsingGlobalVar(data.setupData.name)){
+    }
+
+    if(completeness && isUsingGlobalVar(data.setupData.name)){
         completeness = isAvailableVar(data.setupData.name);
         if(!completeness){
             notify("Name is using an unknown global variable ---- < Stage No. " + index+" >","info");
         }
-    }else if(isUsingGlobalVar(data.setupData.timeout)){
+    }
+
+    if(completeness && isUsingGlobalVar(data.setupData.timeout)){
         completeness = isAvailableVar(data.setupData.timeout);
         if(!completeness){
             notify("Timeout is using an unknown global variable ---- < Stage No. " + index+" >","info");
@@ -123,6 +127,11 @@ function checkWorkflowAction(data,stageindex,actionindex){
     }else{
         completeness = checkActionCompleteness(data,stageindex,actionindex);
     }
+
+    if(completeness && !_.isEmpty(data.env)){
+        completeness = checkActionEnv(data,stageindex,actionindex);
+    }
+
     return completeness;
 }
 
@@ -153,37 +162,51 @@ function checkActionCompleteness(data,stageindex,actionindex){
         completeness = checkActionBaseSetting(data,stageindex,actionindex);
     }else if(data.setupData.action.useAdvanced){
         completeness = checkActionAdvancedSetting(data,stageindex,actionindex);
-    }else if(isUsingGlobalVar(data.setupData.action.name)){
+    }
+
+    if(completeness && isUsingGlobalVar(data.setupData.action.name)){
         completeness = isAvailableVar(data.setupData.action.name);
         if(!completeness){
             notify("Name is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
         }
-    }else if(isUsingGlobalVar(data.setupData.action.timeout)){
+    }
+
+    if(completeness && isUsingGlobalVar(data.setupData.action.timeout)){
         completeness = isAvailableVar(data.setupData.action.timeout);
         if(!completeness){
             notify("Timeout is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
         }
-    }else if(isUsingGlobalVar(data.setupData.action.image.name)){
+    }
+
+    if(completeness && isUsingGlobalVar(data.setupData.action.image.name)){
         completeness = isAvailableVar(data.setupData.action.image.name);
         if(!completeness){
-            notify("Image name is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
+            notify("Repository name is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
         }
-    }else if(isUsingGlobalVar(data.setupData.action.image.tag)){
+    }
+
+    if(completeness && isUsingGlobalVar(data.setupData.action.image.tag)){
         completeness = isAvailableVar(data.setupData.action.image.tag);
         if(!completeness){
             notify("Image tag is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
         }
-    }else if(isUsingGlobalVar(data.setupData.action.datafrom)){
+    }
+
+    if(completeness && isUsingGlobalVar(data.setupData.action.datafrom)){
         completeness = isAvailableVar(data.setupData.action.datafrom);
         if(!completeness){
-            notify("Data From is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
+            notify("External data uri is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
         }
-    }else if(isUsingGlobalVar(data.setupData.action.ip)){
+    }
+
+    if(completeness && isUsingGlobalVar(data.setupData.action.ip)){
         completeness = isAvailableVar(data.setupData.action.ip);
         if(!completeness){
             notify("Kubernetes IP is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
         }
-    }else if(isUsingGlobalVar(data.setupData.action.apiserver)){
+    }
+
+    if(completeness && isUsingGlobalVar(data.setupData.action.apiserver)){
         completeness = isAvailableVar(data.setupData.action.apiserver);
         if(!completeness){
             notify("Kubernetes api server is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
@@ -207,26 +230,6 @@ function checkActionBaseSetting(data,stageindex,actionindex){
     }else if(_.isEmpty(data.setupData.pod.spec.containers[0].resources.requests.memory.toString())){
         notify("Memory requests missed ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
         completeness = false;
-    }else if(isUsingGlobalVar(data.setupData.pod.spec.containers[0].resources.limits.cpu)){
-        completeness = isAvailableVar(data.setupData.pod.spec.containers[0].resources.limits.cpu);
-        if(!completeness){
-            notify("CPU limits is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
-        }
-    }else if(isUsingGlobalVar(data.setupData.pod.spec.containers[0].resources.limits.memory)){
-        completeness = isAvailableVar(data.setupData.pod.spec.containers[0].resources.limits.memory);
-        if(!completeness){
-            notify("Memory limits is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
-        }
-    }else if(isUsingGlobalVar(data.setupData.pod.spec.containers[0].resources.requests.cpu)){
-        completeness = isAvailableVar(data.setupData.pod.spec.containers[0].resources.requests.cpu);
-        if(!completeness){
-            notify("CPU requests is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
-        }
-    }else if(isUsingGlobalVar(data.setupData.pod.spec.containers[0].resources.requests.memory)){
-        completeness = isAvailableVar(data.setupData.pod.spec.containers[0].resources.requests.memory);
-        if(!completeness){
-            notify("Memory requests is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
-        }
     }else{
         var type = data.setupData.service.spec.type;
         var ports = data.setupData.service.spec.ports;
@@ -243,25 +246,59 @@ function checkActionBaseSetting(data,stageindex,actionindex){
                 notify("Ports or target ports missed ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
                 completeness = false;
                 break;
-            }else if(isUsingGlobalVar(ports[i].port)){
+            }
+
+            if(completeness && isUsingGlobalVar(ports[i].port)){
                 completeness = isAvailableVar(ports[i].port);
                 if(!completeness){
                     notify("Port is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
                     break;
                 }
-            }else if(isUsingGlobalVar(ports[i].targetPort)){
+            }
+
+            if(completeness && isUsingGlobalVar(ports[i].targetPort)){
                 completeness = isAvailableVar(ports[i].targetPort);
                 if(!completeness){
                     notify("Target port is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
                     break;
                 }
-            }else if(type == "NodePort" && isUsingGlobalVar(ports[i].nodePort)){
+            }
+
+            if(completeness && type == "NodePort" && isUsingGlobalVar(ports[i].nodePort)){
                 completeness = isAvailableVar(ports[i].nodePort);
                 if(!completeness){
                     notify("Node port is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
                     break;
                 }
             }
+        }
+    }
+
+    if(completeness && isUsingGlobalVar(data.setupData.pod.spec.containers[0].resources.limits.cpu)){
+        completeness = isAvailableVar(data.setupData.pod.spec.containers[0].resources.limits.cpu);
+        if(!completeness){
+            notify("CPU limits is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
+        }
+    }
+
+    if(completeness && isUsingGlobalVar(data.setupData.pod.spec.containers[0].resources.limits.memory)){
+        completeness = isAvailableVar(data.setupData.pod.spec.containers[0].resources.limits.memory);
+        if(!completeness){
+            notify("Memory limits is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
+        }
+    }
+
+    if(completeness && isUsingGlobalVar(data.setupData.pod.spec.containers[0].resources.requests.cpu)){
+        completeness = isAvailableVar(data.setupData.pod.spec.containers[0].resources.requests.cpu);
+        if(!completeness){
+            notify("CPU requests is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
+        }
+    }
+
+    if(completeness && isUsingGlobalVar(data.setupData.pod.spec.containers[0].resources.requests.memory)){
+        completeness = isAvailableVar(data.setupData.pod.spec.containers[0].resources.requests.memory);
+        if(!completeness){
+            notify("Memory requests is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
         }
     }
 
@@ -281,6 +318,60 @@ function checkActionAdvancedSetting(data,stageindex,actionindex){
     return completeness;
 }
 
-function isUsingGlobalVar(value){
+export function isUsingGlobalVar(value){
     return !_.isUndefined(value) && value.toString().indexOf("@") == 0 && value.toString().lastIndexOf("@") == value.toString().length-1;
 }
+
+function checkActionEnv(data,stageindex,actionindex){
+    var completeness = true;
+    for(var i=0;i<data.env.length;i++){
+        var env = data.env[i];
+        if(isUsingGlobalVar(env.key)){
+            completeness = isAvailableVar(env.key);
+            if(!completeness){
+                notify("Env key '" + env.key + "' is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
+                break;
+            }
+
+            var realkey = getValue(env.key.substring(1,env.key.length-1));
+            completeness = isEnvKeyLegal(realkey);
+            if(!completeness){
+                notify("Env key '" + env.key + "' is illegal. Key is not allowed to start with 'CO_' ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
+                break;
+            }
+
+        }else{
+            completeness = isEnvKeyLegal(env.key);
+            if(!completeness){
+                notify("Env key '" + env.key + "' is illegal. Key is not allowed to start with 'CO_' ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
+                break;
+            }
+        }
+
+        if(completeness && isUsingGlobalVar(env.value)){
+            completeness = isAvailableVar(env.value);
+            if(!completeness){
+                notify("Env value of key '" + env.key + "' is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
+                break;
+            }
+        }
+    }
+    return completeness;
+}
+
+export function isEnvsLegal(envs){
+    var illegalOnes = _.filter(envs,function(env){
+        return !/^(.?$|[^C].+|C[^O].+|CO[^_].*)/.test(env.key);
+    });
+
+    if(illegalOnes.length>0){
+        return false;
+    }else{
+        return true;
+    }
+}
+
+export function isEnvKeyLegal(key){
+    return /^(.?$|[^C].+|C[^O].+|CO[^_].*)/.test(key);
+}
+
