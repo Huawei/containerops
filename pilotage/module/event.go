@@ -17,9 +17,11 @@ limitations under the License.
 package module
 
 import (
+	"encoding/json"
 	"errors"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Huawei/containerops/pilotage/models"
 
@@ -28,13 +30,23 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+type WorkflowVar struct {
+	*models.WorkflowVar
+}
+
+type WorkflowVarLog struct {
+	*models.WorkflowVarLog
+}
+
 var eventList = map[string]string{
 	"CO_COMPONENT_START": "CO_COMPONENT_START",
 	"CO_COMPONENT_STOP":  "CO_COMPONENT_STOP",
 	"CO_TASK_START":      "CO_TASK_START",
 	"CO_TASK_RESULT":     "CO_TASK_RESULT",
 	"CO_TASK_STATUS":     "CO_TASK_STATUS",
-	"CO_REGISTER_URL":    "CO_register"}
+	"CO_REGISTER_URL":    "CO_register",
+}
+
 var projectAddr = ""
 
 func init() {
@@ -80,7 +92,7 @@ func setSystemEvent(db *gorm.DB, actionLog *models.ActionLog) error {
 		tempEvent.Character = models.CharacterComponentEvent
 		tempEvent.Type = models.TypeSystemEvent
 		tempEvent.Source = models.SourceInnerEvent
-		tempEvent.Definition = projectAddr + "/v2/" + actionLog.Namespace + "/" + actionLog.Repository + "/workflow/v1/event/" + workflowLog.Workflow + "/" + value
+		tempEvent.Definition = projectAddr + "/v2/" + actionLog.Namespace + "/" + actionLog.Repository + "/workflow/v1/runtime/event/" + workflowLog.Workflow + "/" + value
 
 		err := db.Save(tempEvent).Error
 		if err != nil {
@@ -255,4 +267,54 @@ func GetWorkflowVarInfo(id int64) (map[string]string, error) {
 	}
 
 	return resultMap, nil
+}
+
+func (workflowVar *WorkflowVar) GenerateNewLog(db *gorm.DB, workflowLog *models.WorkflowLog) error {
+	if db == nil {
+		db = models.GetDB()
+		db = db.Begin()
+	}
+
+	changeLogMap := make(map[string]interface{})
+	changeLogMap["user"] = "system"
+	changeLogMap["time"] = time.Now().Format("2006-01-02 15:04:05")
+	changeLogMap["action"] = "init data: set key:" + workflowVar.Key + " 's value to" + workflowVar.Default
+
+	changeLogList := make([]interface{}, 0)
+	changeLogList = append(changeLogList, changeLogMap)
+
+	changeInfoBytes, _ := json.Marshal(changeLogList)
+
+	varLog := new(models.WorkflowVarLog)
+	varLog.Workflow = workflowLog.ID
+	varLog.FromWorkflow = workflowLog.FromWorkflow
+	varLog.Sequence = workflowLog.Sequence
+	varLog.Key = workflowVar.Key
+	varLog.Default = workflowVar.Default
+	varLog.Vaule = varLog.Default
+	varLog.ChangeLog = string(changeInfoBytes)
+
+	err := varLog.GetWorkflowVarLog().Save(varLog).Error
+	if err != nil {
+		rollbackErr := db.Rollback().Error
+		if rollbackErr != nil {
+			log.Error("[Workflow's GenerateNewLog]:when rollback in save workflow var log:", rollbackErr.Error())
+			return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
+		}
+
+		return err
+	}
+
+	return nil
+}
+
+func getWorkflowVarLogInfo(workflow, sequence int64, key string) (string, error) {
+	varInfo := new(models.WorkflowVarLog)
+	err := varInfo.GetWorkflowVarLog().Where("workflow = ?", workflow).Where("sequence = ?", sequence).Where("key = ?", key).Error
+	if err != nil {
+		log.Error("[workflowVarLog's getWorkflowVarLogInfo]:get workflow var info from db error:", err.Error())
+		return "", errors.New("stage's timeout is not a global value")
+	}
+
+	return varInfo.Vaule, nil
 }

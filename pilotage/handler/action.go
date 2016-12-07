@@ -233,6 +233,78 @@ func PostActionRegisterV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
+func PostActionSetVarV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{"message": ""})
+
+	bodyByte, _ := ctx.Req.Body().Bytes()
+
+	reqBody := make(map[string]interface{})
+	err := json.Unmarshal(bodyByte, &reqBody)
+	if err != nil {
+		log.Error("[action's PostActionSetVarV1Handler]:error when unmarshal reqBody:", string(bodyByte), " ===>error is:", err.Error())
+		result, _ := json.Marshal(map[string]string{"message": "illegal request body,want a json obj,got:" + string(bodyByte)})
+		return http.StatusBadRequest, result
+	}
+
+	runId, ok := reqBody["RUN_ID"].(string)
+	if !ok {
+		log.Error("[action's PostActionSetVarV1Handler]:error when get runID from request, want a string, got:", reqBody["RUN_ID"])
+		result, _ := json.Marshal(map[string]string{"message": "runId is not a string"})
+		return http.StatusBadRequest, result
+	}
+
+	if len(strings.Split(runId, "-")) < 3 {
+		log.Error("[action's PostActionSetVarV1Handler]:runID illegal,want XX-XX-XX, got:", runId)
+		result, _ := json.Marshal(map[string]string{"message": "illegal runID"})
+		return http.StatusBadRequest, result
+	}
+
+	actionLogId, err := strconv.ParseInt(strings.Split(runId, "-")[0], 10, 64)
+	if err != nil {
+		log.Error("[action's PostActionSetVarV1Handler]:error when get actionLogId from runID, want number, got:", runId)
+		result, _ := json.Marshal(map[string]string{"message": "illegal actionLogId id"})
+		return http.StatusBadRequest, result
+	}
+
+	varMap, ok := reqBody["varMap"].(map[string]interface{})
+	if !ok {
+		log.Error("[action's PostActionSetVarV1Handler]:error when get varMap from request, want a obj, got:", reqBody["varMap"])
+		result, _ := json.Marshal(map[string]string{"message": "runId is not a string"})
+		return http.StatusBadRequest, result
+	}
+
+	varKey, ok := varMap["KEY"].(string)
+	if !ok {
+		log.Error("[action's PostActionSetVarV1Handler]:error when get varKey from request's varMap, want a string, got:", varMap["KEY"])
+		result, _ := json.Marshal(map[string]string{"message": "varKey is not a string"})
+		return http.StatusBadRequest, result
+	}
+
+	varValue, ok := varMap["VALUE"].(string)
+	if !ok {
+		log.Error("[action's PostActionSetVarV1Handler]:error when get varValue from request's varMap, want a string, got:", varMap["VALUE"])
+		result, _ := json.Marshal(map[string]string{"message": "varValue is not a string"})
+		return http.StatusBadRequest, result
+	}
+
+	actionLog, err := module.GetActionLog(actionLogId)
+	if err != nil {
+		log.Error("[action's PostActionEventV1Handler]:error when get action's info:", err.Error())
+		result, _ := json.Marshal(map[string]string{"message": "error when get target action"})
+		return http.StatusBadRequest, result
+	}
+
+	err = actionLog.ChangeWorkflowRuntimeVar(runId, varKey, varValue)
+	if err != nil {
+		log.Error("[action's PostActionSetVarV1Handler]:error when change action's var:", err.Error())
+		result, _ := json.Marshal(map[string]string{"message": "error when change action's var"})
+		return http.StatusBadRequest, result
+	}
+
+	result, _ = json.Marshal(map[string]string{"message": "ok"})
+	return http.StatusOK, result
+}
+
 //PutStartActionV1Handler is
 func PutStartActionV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
