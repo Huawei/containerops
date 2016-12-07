@@ -17,7 +17,8 @@ limitations under the License.
 import * as workflowDataService from "./workflowData";
 import { notify, confirm } from "../common/notify";
 import { loading } from "../common/loading";
-import {workflowVars} from "./workflowVar";
+import {workflowVars,isAvailableVar,getValue} from "./workflowVar";
+import {isUsingGlobalVar,isEnvKeyLegal} from "../common/check";
 
 let workflowName, workflowVersionID;
 let workflowEnvs;
@@ -149,21 +150,58 @@ function showEnvKVs() {
 }
 
 function saveWorkflowEnvs() {
-    var promise = workflowDataService.setEnvs(workflowName, workflowVersionID, workflowEnvs);
-    if (promise) {
-        promise.done(function(data) {
-            loading.hide();
-            notify(data.message, "success");
-            hideWorkflowEnv();
-        });
-        promise.fail(function(xhr, status, error) {
-            loading.hide();
-            if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
-                notify(xhr.responseJSON.errMsg, "error");
-            } else if(xhr.statusText != "abort") {
-                notify("Server is unreachable", "error");
+    if(validateEnvs()){
+        var promise = workflowDataService.setEnvs(workflowName, workflowVersionID, workflowEnvs);
+        if (promise) {
+            promise.done(function(data) {
+                loading.hide();
+                notify(data.message, "success");
+                hideWorkflowEnv();
+            });
+            promise.fail(function(xhr, status, error) {
+                loading.hide();
+                if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
+                    notify(xhr.responseJSON.errMsg, "error");
+                } else if(xhr.statusText != "abort") {
+                    notify("Server is unreachable", "error");
+                }
+                hideWorkflowEnv();
+            });
+        }
+    } 
+}
+
+function validateEnvs(){
+    var result = true;
+    for(var i=0;i<workflowEnvs.length;i++){
+        var env = workflowEnvs[i];
+        if(isUsingGlobalVar(env[0])){
+            result = isAvailableVar(env[0]);
+            if(!result){
+                notify("Env key '" + env[0] + "' is using an unknown global variable","info");
+                break;
             }
-            hideWorkflowEnv();
-        });
+
+            var realkey = getValue(env[0].substring(1,env[0].length-1));
+            result = isEnvKeyLegal(realkey);
+            if(!result){
+                notify("Env key '" + env[0] + "' is illegal. Key is not allowed to start with 'CO_'","info");
+                break;
+            }
+
+        }else if(isUsingGlobalVar(env[1])){
+            result = isAvailableVar(env[1]);
+            if(!result){
+                notify("Env value of key '" + env[0] + "' is using an unknown global variable","info");
+                break;
+            }
+        }else{
+            result = isEnvKeyLegal(env[0]);
+            if(!result){
+                notify("Env key '" + env[0] + "' is illegal. Key is not allowed to start with 'CO_'","info");
+                break;
+            }
+        }
     }
+    return result;
 }
