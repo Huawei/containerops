@@ -78,24 +78,25 @@ items.push({
 
 
 items.push({
-      text: 'ValueType',
+      text: 'Add Node',
       title: 'Change the type of value',
       className: 'jsoneditor-type-',
       submenu: [
         {
-          text: 'Changeable',
-          className: 'jsoneditor-value-change',
-          title: "titles.changeable",
+          text: 'Insert',
+          className: 'jsoneditor-value-insert',
+          title: "titles.insert",
           click: function (button,opt) {
-            changeValueType("changeable",button,opt);
+            var expander = $(button).parents(".jsoneditor-contextmenu-root-treeedit").siblings(".expander");
+            expander.click();
           }
         },
         {
-          text: 'Unchangeable',
-          className: 'jsoneditor-value-unchange',
-          title: "titles.unchangeable",
+          text: 'Append',
+          className: 'jsoneditor-value-append',
+          title: "titles.append",
           click: function (button,opt) {
-            changeValueType("unchangeable",button,opt);
+            
           }
         }
     ]
@@ -410,17 +411,6 @@ function changeType(type,button,opt){
     value.change();
 }
 
-function changeValueType(type,button,opt){
-    var item = button.parents(".item:eq(0)");
-    var input = item.find(">input.value");
-
-    if(type == "changeable"){
-        input.addClass("show");
-    }else{
-        input.removeClass("show");
-    }
-    
-}
 
 function assignType(item, val) {
     var className = 'null';
