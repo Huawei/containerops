@@ -104,7 +104,7 @@ type Workflow struct {
 	State       int64      `json:"state" sql:"null;type:bigint"`                //workflow state
 	Manifest    string     `json:"manifest" sql:"null;type:longtext"`           //
 	Description string     `json:"description" sql:"null;type:text"`            //
-	SourceInfo  string     `json:"source"`                                      // define of source like : {"token":"","sourceList":[{"sourceType":"Github","headerKey":"X-Hub-Signature","eventList":",pull request,"]}
+	SourceInfo  string     `json:"source" sql:"null;type:longtext"`             // define of source like : {"token":"","sourceList":[{"sourceType":"Github","headerKey":"X-Hub-Signature","eventList":",pull request,"]}
 	Env         string     `json:"env" sql:"null;type:longtext"`                // env that all action in this workflow will get
 	Requires    string     `json:"requires" sql:"type:longtext"`                // workflow run requires auth
 	CreatedAt   time.Time  `json:"created" sql:""`                              //
@@ -135,7 +135,7 @@ type WorkflowLog struct {
 	Event        int64      `json:"event" sql:"null;default:0"`                  //
 	Manifest     string     `json:"manifest"sql:"null;type:longtext"`            //
 	Description  string     `json:"description" sql:"null;type:text"`            //
-	SourceInfo   string     `json:"source"`                                      // define of source like : [{"sourceType":"Github","headerKey":"X-Hub-Signature","eventList":",pull request,","secretKey":"asdfFDSA!@d12"}]
+	SourceInfo   string     `json:"source" sql:"null;type:longtext"`             // define of source like : [{"sourceType":"Github","headerKey":"X-Hub-Signature","eventList":",pull request,","secretKey":"asdfFDSA!@d12"}]
 	Env          string     `json:"env" sql:"null;type:longtext"`                // env that all action in this workflow will get
 	Requires     string     `json:"requires" sql:"type:longtext"`                // workflow run requires auth
 	AuthList     string     `json:"authList" sql:"type:longtext"`                //

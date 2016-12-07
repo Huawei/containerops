@@ -8,13 +8,13 @@ import (
 )
 
 type Checker interface {
-	support(eventMap map[string]string) bool
+	Support(eventMap map[string]string) bool
 	Check(eventMap map[string]string, expectedToken string, reqHeader http.Header, reqBody []byte) (bool, error)
 }
 
 func GetWorkflowExecCheckerList() ([]Checker, error) {
 	checkers := make([]Checker, 0)
-	checkerNameList := configure.GetStringSlice("auth.authchecker.workflow.exec")
+	checkerNameList := configure.GetStringSlice("auth.checker")
 
 	for _, checkerName := range checkerNameList {
 		checker, err := getChecker(checkerName)

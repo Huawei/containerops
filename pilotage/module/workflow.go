@@ -936,15 +936,17 @@ func (workflowInfo *Workflow) BeforeExecCheck(reqHeader http.Header, reqBody []b
 		return false, nil, err
 	}
 
-	for _, checker := range checkerList {
-		passCheck, err = checker.Check(eventInfoMap, expectedToken, reqHeader, reqBody)
-		if !passCheck {
-			log.Error("[workflow's BeforeExecCheck]:check failed:", checker, "===>", err.Error(), "\neventInfoMap:", eventInfoMap, "\nreqHeader:", reqHeader, "\nreqBody:", reqBody)
-			return false, nil, err
+	for _, c := range checkerList {
+		if c.Support(eventInfoMap) {
+			passCheck, err = c.Check(eventInfoMap, expectedToken, reqHeader, reqBody)
+			if !passCheck {
+				log.Error("[workflow's BeforeExecCheck]:check failed:", c, "===>", err, "\neventInfoMap:", eventInfoMap, "\nreqHeader:", reqHeader, "\nreqBody:", reqBody)
+				return false, nil, errors.New("failed when check exec req")
+			}
 		}
 	}
 
-	return true, eventInfoMap, nil
+	return passCheck, eventInfoMap, nil
 }
 
 func getExecReqEventInfo(sourceList []interface{}, reqHeader http.Header) (map[string]string, error) {
