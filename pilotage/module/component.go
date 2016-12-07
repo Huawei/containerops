@@ -1063,7 +1063,7 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 	allEventMap["CO_RUN_ID"] = kube.runID
 	allEventMap["CO_EVENT_LIST"] = strings.TrimPrefix(eventListStr, ";")
 	allEventMap["CO_DATA"] = string(dataMapBytes)
-	// allEventMap["CO_SET_GLOBAL_VAR_URL"] =
+	allEventMap["CO_SET_GLOBAL_VAR_URL"] = projectAddr + "/v2/" + actionLog.Namespace + "/" + actionLog.Repository + "/workflow/v1/runtime/var/" + strconv.FormatInt(actionLog.Workflow, 10)
 
 	for key, value := range allEventMap {
 		tempEnv := make(map[string]interface{})
