@@ -115,6 +115,7 @@ function drawTree(conflict, actionId){
 
 export function getConflict(actionId) {
     $("#conflictTreeView").empty();
+    // showStartStageCondition(actionId);
     let svg = d3.select("#conflictTreeView").append("svg")
         .attr("width", "100%")
         .attr("height", "100%");
@@ -151,7 +152,32 @@ export function getConflict(actionId) {
 
     drawTree(conflict, actionId);
 }
+function showStartStageCondition(actionId){
+   var validation = util.hasLinkWithStartStage(actionId);
+   if(validation.hasLink){
+      var option = _.template('<option value="<%= value %>"><%= value %></option>');
+      var options = "";
+      _.each(validation.startData.outputJson, function(item){
+           options += option({'value':item.event+"_"+item.type});
+      })
+      // var template = '<select>' + options + '</select>';
+      var template = '<div class="row">'+
+                        '<label class="control-label">' +
+                            'Select Output:' +
+                        '</label>' +
+                        '<div class="input-group">' +
+                            '<select id="start-stage-condition" style="width:100%">' +
+                                options +
+                            '</select>' +
+                        '</div>' +
+                     '</div>'
+      $("#conflictTreeView").append(template);
+      $("#start-stage-condition").select2({
+                minimumResultsForSearch: Infinity
+       });
+   }
 
+}
 export function redrawTree(actionId) {
     d3.selectAll("#conflictNode > g").remove();
     d3.selectAll("#conflictLine > path").remove();
