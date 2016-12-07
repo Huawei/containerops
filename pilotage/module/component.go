@@ -968,7 +968,15 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 	if len(containers) < 1 {
 		containerInfo := make(map[string]interface{})
 		containerInfo["name"] = kube.runID + "-pod"
-		containerInfo["image"] = kube.componentInfo.Endpoint
+
+		imageName := kube.componentInfo.ImageName
+		if kube.componentInfo.ImageTag != "" {
+			imageName += ":" + kube.componentInfo.ImageTag
+		} else {
+			imageName += ":leatest"
+		}
+
+		containerInfo["image"] = imageName
 
 		containers = append(containers, containerInfo)
 	}
@@ -1055,6 +1063,7 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 	allEventMap["CO_RUN_ID"] = kube.runID
 	allEventMap["CO_EVENT_LIST"] = strings.TrimPrefix(eventListStr, ";")
 	allEventMap["CO_DATA"] = string(dataMapBytes)
+	// allEventMap["CO_SET_GLOBAL_VAR_URL"] =
 
 	for key, value := range allEventMap {
 		tempEnv := make(map[string]interface{})
@@ -1070,7 +1079,13 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 			container["name"] = kube.runID + "-pod"
 		}
 		if _, ok := container["image"]; !ok {
-			container["image"] = kube.componentInfo.Endpoint
+			imageName := kube.componentInfo.ImageName
+			if kube.componentInfo.ImageTag != "" {
+				imageName += ":" + kube.componentInfo.ImageTag
+			} else {
+				imageName += ":leatest"
+			}
+			container["image"] = imageName
 		}
 
 		if env, ok := container["env"]; ok {

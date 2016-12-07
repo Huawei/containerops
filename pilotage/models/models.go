@@ -51,7 +51,7 @@ func Migrate() {
 	OpenDatabase()
 
 	db.AutoMigrate(&ServiceDefinition{}, &Service{}, &Component{})
-	db.AutoMigrate(&Workflow{}, &WorkflowLog{}, &WorkflowSequence{}, &WorkflowVar{}, &RuntimeWorkflowVar{}, &Stage{}, &StageLog{}, &Action{}, &ActionLog{}, &Outcome{})
+	db.AutoMigrate(&Workflow{}, &WorkflowLog{}, &WorkflowSequence{}, &WorkflowVar{}, &WorkflowVarLog{}, &Stage{}, &StageLog{}, &Action{}, &ActionLog{}, &Outcome{})
 	db.AutoMigrate(&EventDefinition{}, &Event{}, &EventJson{})
 	db.AutoMigrate(&UserSetting{})
 
