@@ -44,7 +44,7 @@ var eventList = map[string]string{
 	"CO_TASK_START":      "CO_TASK_START",
 	"CO_TASK_RESULT":     "CO_TASK_RESULT",
 	"CO_TASK_STATUS":     "CO_TASK_STATUS",
-	"CO_REGISTER_URL":    "CO_register",
+	"CO_REGISTER_URL":    "register",
 }
 
 var projectAddr = ""
