@@ -1100,6 +1100,7 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 			}
 		}
 		container["env"] = envList
+		container["imagePullPolicy"] = "IfNotPresent"
 
 		ports := make([]map[string]interface{}, 0)
 		serviceAddrInfo := strings.Split(serviceAddr, ":")
