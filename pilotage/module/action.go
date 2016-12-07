@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/Huawei/containerops/pilotage/models"
+	"github.com/Huawei/containerops/pilotage/utils"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/jinzhu/gorm"
@@ -407,7 +408,7 @@ func (actionLog *ActionLog) GetActionLineInfo() ([]map[string]interface{}, error
 
 	relationList, ok := manifestMap["relation"].([]interface{})
 	if !ok {
-		log.Error("[actionLog's GetActionLineInfo]:error when get action's relation from action's manifestMap:", manifestMap, manifestMap["relation"].(int64))
+		log.Error("[actionLog's GetActionLineInfo]:error when get action's relation from action's manifestMap:", manifestMap)
 		return lineList, nil
 	}
 
@@ -1235,27 +1236,6 @@ func (actionLog *ActionLog) ChangeWorkflowRuntimeVar(runId string, varKey, varVa
 	return nil
 }
 
-func getResultFromRelation(outputJson string, relationList []Relation, result map[string]interface{}) error {
-	fromActionData := make(map[string]interface{})
-
-	err := json.Unmarshal([]byte(outputJson), &fromActionData)
-	if err != nil {
-		log.Error("[actionLog's getResultFromRelation]:error when unmarshal action's output json:", outputJson, " ===>error is:", err.Error())
-		return errors.New("error when parse from action data2:" + err.Error() + "\n" + outputJson)
-	}
-
-	for _, relation := range relationList {
-		fromData, err := getJsonDataByPath(strings.TrimPrefix(relation.From, "."), fromActionData)
-		if err != nil {
-			return errors.New("error when get fromData :" + err.Error())
-		}
-
-		setDataToMapByPath(fromData, result, strings.TrimPrefix(relation.To, "."))
-	}
-
-	return nil
-}
-
 func (actionLog *ActionLog) changeGlobalVar() error {
 	// change action's name
 	if strings.HasPrefix(actionLog.Action, "@") && strings.HasSuffix(actionLog.Action, "@") {
@@ -1459,6 +1439,77 @@ func (actionLog *ActionLog) changeGlobalVar() error {
 	if err != nil {
 		log.Error("[actionLog's changeGlobalVar]:error when save action's change to db:", err.Error())
 		return errors.New("error when save change to db")
+	}
+
+	return nil
+}
+
+func (actionLog *ActionLog) LinkStartWorkflow(runId, token, workflowName, workflowVersion string, startJson map[string]interface{}) error {
+	expectToken := utils.MD5(actionLog.Action + runId)
+	if expectToken != token {
+		log.Info("[actionLog's LinkStartWorkflow]:action(", actionLog.ID, ") runid is:(", runId, ") error when check token: want:", expectToken, " got:", token)
+		return errors.New("token is illegal")
+	}
+
+	workflowInfo, err := GetLatestRunableWorkflow(actionLog.Namespace, actionLog.Repository, workflowName, workflowVersion)
+	if err != nil {
+		log.Error("[actionLog's LinkStartWorkflow]:error when get workflow info:", err.Error())
+		return errors.New("get workflow error")
+	}
+
+	startDataBytes, _ := json.Marshal(startJson)
+
+	authMap := make(map[string]interface{})
+	authMap["type"] = AuthTypeWorkflowDefault
+	authMap["token"] = AuthTokenDefault
+	authMap["runID"] = runId
+	authMap["eventName"] = "linkstart"
+	authMap["eventType"] = "system-linkstart"
+	authMap["time"] = time.Now().Format("2006-01-02 15:04:05")
+
+	workflowLog, err := Run(workflowInfo.ID, authMap, string(startDataBytes))
+	if err != nil {
+		log.Error("[actionLog's LinkStartWorkflow]:error when run workflow:", err.Error())
+		return errors.New("workflow run error")
+	}
+
+	preInfoMap := make(map[string]interface{})
+	preInfoMap["workflowID"] = actionLog.Workflow
+	preInfoMap["stageID"] = actionLog.Stage
+	preInfoMap["actionID"] = actionLog.ID
+	preInfoMap["token"] = token
+
+	preInfoBytes, _ := json.Marshal(preInfoMap)
+
+	workflowLog.PreWorkflow = actionLog.Workflow
+	workflowLog.PreWorkflowInfo = string(preInfoBytes)
+
+	err = workflowLog.GetWorkflowLog().Save(workflowLog).Error
+	if err != nil {
+		log.Error("[actionLog's LinkStartWorkflow]:error when update workflow info to db:", err.Error())
+		workflowLog.Stop(WorkflowStopReasonRunFailed, models.WorkflowLogStateRunFailed)
+		return errors.New("error when update workflow info")
+	}
+
+	return nil
+}
+
+func getResultFromRelation(outputJson string, relationList []Relation, result map[string]interface{}) error {
+	fromActionData := make(map[string]interface{})
+
+	err := json.Unmarshal([]byte(outputJson), &fromActionData)
+	if err != nil {
+		log.Error("[actionLog's getResultFromRelation]:error when unmarshal action's output json:", outputJson, " ===>error is:", err.Error())
+		return errors.New("error when parse from action data2:" + err.Error() + "\n" + outputJson)
+	}
+
+	for _, relation := range relationList {
+		fromData, err := getJsonDataByPath(strings.TrimPrefix(relation.From, "."), fromActionData)
+		if err != nil {
+			return errors.New("error when get fromData :" + err.Error())
+		}
+
+		setDataToMapByPath(fromData, result, strings.TrimPrefix(relation.To, "."))
 	}
 
 	return nil
