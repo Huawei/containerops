@@ -351,14 +351,19 @@ export function saveWorkflowData(next) {
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
-        if (!next) {
-            if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
-                notify(xhr.responseJSON.errMsg, "error");
-            } else if(xhr.statusText != "abort") {
-                notify("Server is unreachable", "error");
-            }
-        } else {
-            next();
+        // if (!next) {
+        //     if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
+        //         notify(xhr.responseJSON.errMsg, "error");
+        //     } else if(xhr.statusText != "abort") {
+        //         notify("Server is unreachable", "error");
+        //     }
+        // } else {
+        //     next();
+        // }
+        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
+            notify(xhr.responseJSON.errMsg, "error");
+        } else if(xhr.statusText != "abort") {
+            notify("Server is unreachable", "error");
         }
     });
 }

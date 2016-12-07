@@ -128,10 +128,10 @@ export let workflowApi = {
 	    pendingPromise.push(promise);
 	    return promise;
 	},
-	"eventOutput" : function(name){
+	"eventOutput" : function(site,name){
 		initApiInvocation(true);
 		var promise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.workflow.eventOutput.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{site}/g, "github").replace(/{eventName}/g, name),
+	        "url": apiUrlConf.host + apiUrlConf.workflow.eventOutput.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{site}/g, site).replace(/{eventName}/g, name),
 	        "type": "GET",
 	        "dataType": "json",
 	        "cache": false

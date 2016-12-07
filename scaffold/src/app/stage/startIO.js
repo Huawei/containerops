@@ -61,6 +61,7 @@ function showOutputTabs(){
                                         <div class="col-md-8">
                                             <select class="output-type-select" style="width:100%">
                                                 <option value="github">Github</option>
+                                                <option value="gitlab">Gitlab</option>
                                                 <option value="customize">Customize</option>
                                             </select>
                                         </div>
@@ -68,7 +69,7 @@ function showOutputTabs(){
                                     <div class="row col-md-6 event-select-div">
                                         <label class="col-md-4 control-label">Event</label>
                                         <div class="col-md-8">
-                                            <select class="output-event-select" style="width:100%">
+                                            <select class="github-event-select" style="width:100%">
                                                 <option value="Create">Create</option>
                                                 <option value="Delete">Delete</option>
                                                 <option value="Deployment">Deployment</option>
@@ -89,6 +90,13 @@ function showOutputTabs(){
                                                 <option value="Status">Status</option>
                                                 <option value="TeamAdd">Team Add</option>
                                                 <option value="Watch">Watch</option>
+                                            </select>
+                                            <select class="gitlab-event-select" style="width:100%">
+                                                <option value="Push Hook">Push</option>
+                                                <option value="Tag Push Hook">Tag Push</option>
+                                                <option value="Note Hook">Connents</option>
+                                                <option value="Issue Hook">Issues</option>
+                                                <option value="Merge Request Hook">Merge Request</option>
                                             </select>
                                         </div>
                                     </div>
@@ -160,9 +168,14 @@ function showOutputTabs(){
         selectType(startIOData.getTypeSelect(),true);
     });
 
-    $(".output-event-select").on("change",function(){
-        startIOData.setEventSelect();
-        getOutputForEvent(startIOData.getEventSelect());
+    $(".github-event-select").on("change",function(){
+        startIOData.setEventSelect("github");
+        getOutputForEvent(startIOData.getTypeSelect(),startIOData.getEventSelect());
+    });
+
+    $(".gitlab-event-select").on("change",function(){
+        startIOData.setEventSelect("gitlab");
+        getOutputForEvent(startIOData.getTypeSelect(),startIOData.getEventSelect());
     });
 
     $(".output-event-input").on("blur",function(){
@@ -212,33 +225,48 @@ function initOutputDiv(){
 }
 
 function selectType(workflowType,isTypeChange){
+    if(isTypeChange){
+        startIOData.setJson({});
+        startIOData.setEvent("");
+    } 
+
     if(workflowType == "github" || workflowType == "gitlab"){
         startIOData.findEventSelectDivDom().show();
         startIOData.findEventInputDivDom().hide();
         startIOData.findOutputTreeViewerDom().show();
         startIOData.findOutputTreeDesignerDom().hide();
-        
-        startIOData.setEventSelectDom();
+
+        if(workflowType == "github"){
+            startIOData.findGitHubEventSelectDom().show();
+            startIOData.findGitLabEventSelectDom().hide();
+            startIOData.findGitLabEventSelectDom().next().hide();
+        }else if(workflowType == "gitlab"){
+            startIOData.findGitHubEventSelectDom().hide();
+            startIOData.findGitHubEventSelectDom().next().hide();
+            startIOData.findGitLabEventSelectDom().show();
+        }
 
         if(_.isEmpty(startIOData.getJson()) || isTypeChange){
             if(_.isEmpty(startIOData.getEventSelect())){
-                startIOData.setEvent("PullRequest");
-                startIOData.setEventSelectDom();
+                if(workflowType == "github"){
+                    startIOData.setEvent("PullRequest");
+                }else if(workflowType == "gitlab"){
+                    startIOData.setEvent("Push Hook");
+                }
+                
+                startIOData.setEventSelectDom(workflowType);
             }
-            getOutputForEvent(startIOData.getEventSelect()); 
+            getOutputForEvent(startIOData.getTypeSelect(),startIOData.getEventSelect()); 
         }else{
             initFromView();
         }
+
+        startIOData.setEventSelectDom(workflowType);
     }else{
         startIOData.findEventSelectDivDom().hide();
         startIOData.findEventInputDivDom().show();
         startIOData.findOutputTreeViewerDom().hide();
         startIOData.findOutputTreeDesignerDom().show();
-
-        if(isTypeChange){
-            startIOData.setJson({});
-            startIOData.setEvent("");
-        } 
 
         startIOData.setEventInputDom();
 
@@ -345,9 +373,9 @@ function initFromView(){
     fromEdit_TreeEditor.expandAll();
 }
 
-export function getOutputForEvent(selecetedEvent){
+export function getOutputForEvent(selectedType,selecetedEvent){
     if(startIOData.isEventOptionAvailable()){
-        var promise = workflowApi.eventOutput(selecetedEvent);
+        var promise = workflowApi.eventOutput(selectedType,selecetedEvent);
         promise.done(function(data){
             loading.hide();
             startIOData.setJson(data.output);
