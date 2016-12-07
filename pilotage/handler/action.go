@@ -259,7 +259,7 @@ func PostActionSetVarV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	actionLogId, err := strconv.ParseInt(strings.Split(runId, "-")[0], 10, 64)
+	actionLogId, err := strconv.ParseInt(strings.Split(runId, "-")[2], 10, 64)
 	if err != nil {
 		log.Error("[action's PostActionSetVarV1Handler]:error when get actionLogId from runID, want number, got:", runId)
 		result, _ := json.Marshal(map[string]string{"message": "illegal actionLogId id"})
