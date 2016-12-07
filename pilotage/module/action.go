@@ -408,7 +408,7 @@ func (actionLog *ActionLog) GetActionLineInfo() ([]map[string]interface{}, error
 
 	relationList, ok := manifestMap["relation"].([]interface{})
 	if !ok {
-		log.Error("[actionLog's GetActionLineInfo]:error when get action's relation from action's manifestMap:", manifestMap, manifestMap["relation"].(int64))
+		log.Error("[actionLog's GetActionLineInfo]:error when get action's relation from action's manifestMap:", manifestMap)
 		return lineList, nil
 	}
 
