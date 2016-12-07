@@ -10,7 +10,7 @@ import (
 type tokenChecker struct {
 }
 
-func (checker *tokenChecker) support(eventMap map[string]string) bool {
+func (checker *tokenChecker) Support(eventMap map[string]string) bool {
 	return true
 }
 
