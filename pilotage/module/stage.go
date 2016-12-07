@@ -223,6 +223,8 @@ func CreateNewStage(db *gorm.DB, preStageId int64, workflowInfo *models.Workflow
 				} else {
 					timeout = strconv.FormatInt(timeoutInt, 10)
 				}
+			} else if ok {
+				timeout = setupDataMap["timeout"].(string)
 			}
 		}
 	} else {
@@ -680,6 +682,9 @@ func (stageLog *StageLog) Start() {
 				stageLog.Stop(StageStopScopeAll, StageStopReasonRunFailed, models.StageLogStateRunFailed)
 				return
 			}
+		} else {
+			log.Error("[stageLog's Start]:error when run stage:", stageLog.Stage, " workflow run failed")
+			stageLog.Stop(StageStopScopeAll, StageStopReasonRunFailed, models.StageLogStateRunFailed)
 		}
 	}()
 
@@ -845,7 +850,7 @@ func (stageLog *StageLog) WaitAllActionDone(nextStageCanStartChan chan bool) {
 
 func (stageLog *StageLog) changeGlobalVar() error {
 	if strings.HasPrefix(stageLog.Timeout, "@") && strings.HasSuffix(stageLog.Timeout, "@") {
-		varKey := stageLog.Timeout[1 : len(stageLog.Timeout)-2]
+		varKey := stageLog.Timeout[1 : len(stageLog.Timeout)-1]
 
 		varValue, err := getWorkflowVarLogInfo(stageLog.Workflow, stageLog.Sequence, varKey)
 		if err != nil {
@@ -863,13 +868,35 @@ func (stageLog *StageLog) changeGlobalVar() error {
 	}
 
 	if strings.HasPrefix(stageLog.Stage, "@") && strings.HasSuffix(stageLog.Stage, "@") {
-		varKey := stageLog.Stage[1 : len(stageLog.Stage)-2]
+		varKey := stageLog.Stage[1 : len(stageLog.Stage)-1]
 
 		varValue, err := getWorkflowVarLogInfo(stageLog.Workflow, stageLog.Sequence, varKey)
 		if err != nil {
 			log.Error("[stageLog's changeGlobalVar]:stage:", stageLog.Stage, " use a name both start and end with '@',but not a global value")
 		} else {
 			stageLog.Stage = varValue
+		}
+	}
+
+	if strings.HasPrefix(stageLog.Title, "@") && strings.HasSuffix(stageLog.Title, "@") {
+		varKey := stageLog.Title[1 : len(stageLog.Title)-1]
+
+		varValue, err := getWorkflowVarLogInfo(stageLog.Workflow, stageLog.Sequence, varKey)
+		if err != nil {
+			log.Error("[stageLog's changeGlobalVar]:stage:", stageLog.Stage, " use a name both start and end with '@',but not a global value")
+		} else {
+			stageLog.Title = varValue
+		}
+	}
+
+	if strings.HasPrefix(stageLog.Description, "@") && strings.HasSuffix(stageLog.Description, "@") {
+		varKey := stageLog.Description[1 : len(stageLog.Description)-1]
+
+		varValue, err := getWorkflowVarLogInfo(stageLog.Workflow, stageLog.Sequence, varKey)
+		if err != nil {
+			log.Error("[stageLog's changeGlobalVar]:stage:", stageLog.Stage, " use a name both start and end with '@',but not a global value")
+		} else {
+			stageLog.Description = varValue
 		}
 	}
 
