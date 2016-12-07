@@ -132,13 +132,16 @@ func CreateNewActions(db *gorm.DB, workflowInfo *models.Workflow, stageInfo *mod
 					}
 				}
 
-				if timeoutStr, ok := actionSetupDataMap["timeout"].(string); ok {
-					var err error
-					if _, err = strconv.ParseInt(timeoutStr, 10, 64); err == nil {
-						actionTimeout = timeoutStr
-					} else {
+				defineTimeoutStr, ok := actionSetupDataMap["timeout"].(string)
+				if ok && !strings.Contains(defineTimeoutStr, "@") && !strings.Contains(defineTimeoutStr, "@") {
+					timeoutInt, err := strconv.ParseInt(defineTimeoutStr, 10, 64)
+					if err != nil {
 						actionTimeout = "0"
+					} else {
+						actionTimeout = strconv.FormatInt(timeoutInt, 10)
 					}
+				} else if ok {
+					actionTimeout = actionSetupDataMap["timeout"].(string)
 				}
 
 				configMap := make(map[string]interface{})
@@ -1185,7 +1188,7 @@ func (actionLog *ActionLog) ChangeWorkflowRuntimeVar(runId string, varKey, varVa
 	db = db.Begin()
 
 	varInfo := new(models.WorkflowVarLog)
-	err := db.Model(&models.WorkflowVarLog{}).Where("workflow = ?", actionLog.Workflow).Where("sequence = ?", actionLog.Sequence).Where("key = ?", varKey).First(varInfo).Error
+	err := db.Model(&models.WorkflowVarLog{}).Where("workflow = ?", actionLog.Workflow).Where("sequence = ?", actionLog.Sequence).Where("`key` = ?", varKey).First(varInfo).Error
 
 	if err != nil && err.Error() != "result not found" {
 		log.Error("[actionLog's ChangeWorkflowRuntimeVar]:error when get workflow var info from db:", err.Error())
@@ -1200,7 +1203,7 @@ func (actionLog *ActionLog) ChangeWorkflowRuntimeVar(runId string, varKey, varVa
 	changeLogMap := make(map[string]interface{})
 	changeLogMap["user"] = runId
 	changeLogMap["time"] = time.Now().Format("2006-01-02 15:04:05")
-	changeLogMap["action"] = "set key:" + varKey + " 's value to" + varValue
+	changeLogMap["action"] = "set key:" + varKey + " 's value to:" + varValue
 
 	changeLogList := make([]interface{}, 0)
 	if varInfo.ChangeLog != "" {
@@ -1256,7 +1259,7 @@ func getResultFromRelation(outputJson string, relationList []Relation, result ma
 func (actionLog *ActionLog) changeGlobalVar() error {
 	// change action's name
 	if strings.HasPrefix(actionLog.Action, "@") && strings.HasSuffix(actionLog.Action, "@") {
-		varKey := actionLog.Action[1 : len(actionLog.Action)-2]
+		varKey := actionLog.Action[1 : len(actionLog.Action)-1]
 
 		varValue, err := getWorkflowVarLogInfo(actionLog.Workflow, actionLog.Sequence, varKey)
 		if err != nil {
@@ -1268,20 +1271,20 @@ func (actionLog *ActionLog) changeGlobalVar() error {
 
 	// change action's imageName
 	if strings.HasPrefix(actionLog.ImageName, "@") && strings.HasSuffix(actionLog.ImageName, "@") {
-		varKey := actionLog.ImageName[1 : len(actionLog.ImageName)-2]
+		varKey := actionLog.ImageName[1 : len(actionLog.ImageName)-1]
 
 		varValue, err := getWorkflowVarLogInfo(actionLog.Workflow, actionLog.Sequence, varKey)
 		if err != nil {
 			log.Error("[actionLog's changeGlobalVar]:action:", actionLog.Action, " use ImageName both start and end with '@',but not a global value")
 			return errors.New("error action's image name is illegal")
 		} else {
-			actionLog.Action = varValue
+			actionLog.ImageName = varValue
 		}
 	}
 
 	// change action's imageTag
 	if strings.HasPrefix(actionLog.ImageTag, "@") && strings.HasSuffix(actionLog.ImageTag, "@") {
-		varKey := actionLog.ImageTag[1 : len(actionLog.ImageTag)-2]
+		varKey := actionLog.ImageTag[1 : len(actionLog.ImageTag)-1]
 
 		varValue, err := getWorkflowVarLogInfo(actionLog.Workflow, actionLog.Sequence, varKey)
 		if err != nil {
@@ -1294,7 +1297,7 @@ func (actionLog *ActionLog) changeGlobalVar() error {
 
 	// change action's timeout
 	if strings.HasPrefix(actionLog.Timeout, "@") && strings.HasSuffix(actionLog.Timeout, "@") {
-		varKey := actionLog.Timeout[1 : len(actionLog.Timeout)-2]
+		varKey := actionLog.Timeout[1 : len(actionLog.Timeout)-1]
 
 		varValue, err := getWorkflowVarLogInfo(actionLog.Workflow, actionLog.Sequence, varKey)
 		if err != nil {
@@ -1313,13 +1316,25 @@ func (actionLog *ActionLog) changeGlobalVar() error {
 
 	// change action's title
 	if strings.HasPrefix(actionLog.Title, "@") && strings.HasSuffix(actionLog.Title, "@") {
-		varKey := actionLog.Title[1 : len(actionLog.Title)-2]
+		varKey := actionLog.Title[1 : len(actionLog.Title)-1]
 
 		varValue, err := getWorkflowVarLogInfo(actionLog.Workflow, actionLog.Sequence, varKey)
 		if err != nil {
 			log.Error("[actionLog's changeGlobalVar]:action:", actionLog.Action, " use a title both start and end with '@',but not a global value")
 		} else {
 			actionLog.Title = varValue
+		}
+	}
+
+	// change action's description
+	if strings.HasPrefix(actionLog.Description, "@") && strings.HasSuffix(actionLog.Description, "@") {
+		varKey := actionLog.Description[1 : len(actionLog.Description)-1]
+
+		varValue, err := getWorkflowVarLogInfo(actionLog.Workflow, actionLog.Sequence, varKey)
+		if err != nil {
+			log.Error("[actionLog's changeGlobalVar]:action:", actionLog.Action, " use a title both start and end with '@',but not a global value")
+		} else {
+			actionLog.Description = varValue
 		}
 	}
 
@@ -1335,7 +1350,7 @@ func (actionLog *ActionLog) changeGlobalVar() error {
 	if platformMap, ok := manifestMap["platform"].(map[string]interface{}); ok {
 		host, ok := platformMap["platformHost"].(string)
 		if ok && strings.HasPrefix(host, "@") && strings.HasSuffix(host, "@") {
-			varKey := host[1 : len(host)-2]
+			varKey := host[1 : len(host)-1]
 
 			varValue, err := getWorkflowVarLogInfo(actionLog.Workflow, actionLog.Sequence, varKey)
 			if err != nil {
@@ -1362,7 +1377,7 @@ func (actionLog *ActionLog) changeGlobalVar() error {
 		afterChangeEnvMap := make(map[string]string)
 		for key, value := range envMap {
 			if strings.HasPrefix(key, "@") && strings.HasSuffix(key, "@") {
-				varKey := key[1 : len(key)-2]
+				varKey := key[1 : len(key)-1]
 
 				varValue, err := getWorkflowVarLogInfo(actionLog.Workflow, actionLog.Sequence, varKey)
 				if err != nil {
@@ -1373,7 +1388,7 @@ func (actionLog *ActionLog) changeGlobalVar() error {
 			}
 
 			if strings.HasPrefix(value, "@") && strings.HasSuffix(value, "@") {
-				varKey := value[1 : len(value)-2]
+				varKey := value[1 : len(value)-1]
 
 				varValue, err := getWorkflowVarLogInfo(actionLog.Workflow, actionLog.Sequence, varKey)
 				if err != nil {
@@ -1402,7 +1417,7 @@ func (actionLog *ActionLog) changeGlobalVar() error {
 	}
 
 	if strings.HasPrefix(nodeIPStr, "@") && strings.HasSuffix(nodeIPStr, "@") {
-		varKey := nodeIPStr[1 : len(nodeIPStr)-2]
+		varKey := nodeIPStr[1 : len(nodeIPStr)-1]
 
 		varValue, err := getWorkflowVarLogInfo(actionLog.Workflow, actionLog.Sequence, varKey)
 		if err != nil {
@@ -1454,7 +1469,7 @@ func changeMapInfoWithGlobalVar(workflow, sequence int64, sourceMap map[string]i
 
 	for key, value := range sourceMap {
 		if strings.HasPrefix(key, "@") && strings.HasSuffix(key, "@") {
-			varKey := key[1 : len(key)-2]
+			varKey := key[1 : len(key)-1]
 
 			varValue, err := getWorkflowVarLogInfo(workflow, sequence, varKey)
 			if err != nil {
@@ -1470,7 +1485,7 @@ func changeMapInfoWithGlobalVar(workflow, sequence int64, sourceMap map[string]i
 
 			var afterReplace string
 			if strings.HasPrefix(valueStr, "@") && strings.HasSuffix(valueStr, "@") {
-				varKey := valueStr[1 : len(valueStr)-2]
+				varKey := valueStr[1 : len(valueStr)-1]
 
 				varValue, err := getWorkflowVarLogInfo(workflow, sequence, varKey)
 				if err != nil {
@@ -1484,17 +1499,14 @@ func changeMapInfoWithGlobalVar(workflow, sequence int64, sourceMap map[string]i
 			}
 
 			if key == "memory" {
-				valueStr += "Mi"
-				value = valueStr
+				afterReplace += "Mi"
 			}
 
-			if key == "nodePort" || key == "port" || key == "targetPort" {
-				valueInt, err := strconv.ParseInt(afterReplace, 10, 64)
-				if err != nil {
-					value = afterReplace
-				} else {
-					value = valueInt
-				}
+			valueInt, err := strconv.ParseInt(afterReplace, 10, 64)
+			if err != nil {
+				value = afterReplace
+			} else {
+				value = valueInt
 			}
 
 		case map[string]interface{}:
@@ -1513,7 +1525,7 @@ func changeMapInfoWithGlobalVar(workflow, sequence int64, sourceMap map[string]i
 
 					var afterReplace string
 					if strings.HasPrefix(valueStr, "@") && strings.HasSuffix(valueStr, "@") {
-						varKey := valueStr[1 : len(valueStr)-2]
+						varKey := valueStr[1 : len(valueStr)-1]
 
 						varValue, err := getWorkflowVarLogInfo(workflow, sequence, varKey)
 						if err != nil {

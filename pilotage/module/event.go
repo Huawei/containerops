@@ -310,7 +310,7 @@ func (workflowVar *WorkflowVar) GenerateNewLog(db *gorm.DB, workflowLog *models.
 
 func getWorkflowVarLogInfo(workflow, sequence int64, key string) (string, error) {
 	varInfo := new(models.WorkflowVarLog)
-	err := varInfo.GetWorkflowVarLog().Where("workflow = ?", workflow).Where("sequence = ?", sequence).Where("key = ?", key).Error
+	err := varInfo.GetWorkflowVarLog().Where("workflow = ?", workflow).Where("sequence = ?", sequence).Where("`key` = ?", key).First(varInfo).Error
 	if err != nil {
 		log.Error("[workflowVarLog's getWorkflowVarLogInfo]:get workflow var info from db error:", err.Error())
 		return "", errors.New("stage's timeout is not a global value")
