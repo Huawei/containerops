@@ -165,3 +165,9 @@ export function isAvailableVar(target){
     var targetKey = target.substring(1,target.length-1);
     return _.indexOf(varKeys,targetKey) >= 0 ? true : false;
 }
+
+export function getValue(key){
+    return _.find(workflowVars,function(item){
+        return item[0] == key;
+    })[1];
+}

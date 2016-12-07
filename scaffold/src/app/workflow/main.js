@@ -280,7 +280,7 @@ function showWorkflowDesigner(state) {
             });
 
             $(".saveworkflow").on('click', function() {
-                saveWorkflowData();
+                saveWorkflowData(getWorkflowData);
             });
 
             $(".newworkflowversion").on('click', function() {

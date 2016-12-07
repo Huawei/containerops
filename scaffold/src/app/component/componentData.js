@@ -16,6 +16,7 @@ limitations under the License.
 
 import {notify} from "../common/notify";
 import {componentApi} from "../common/api";
+import {isEnvsLegal} from "../common/check";
 
 let allComponents = [];
 
@@ -68,6 +69,9 @@ export function validateComponent(componentData){
         return false;
     }else if(_.isEmpty(componentData.outputJson)){
         notify("Component output json is empty.","error");
+        return false;
+    }else if(!_.isEmpty(componentData.env) && !isEnvsLegal(componentData.env)){
+        notify("Component env key is not allowed to start with 'CO_'.","error");
         return false;
     }else{
         return true;
