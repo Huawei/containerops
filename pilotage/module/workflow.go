@@ -291,12 +291,12 @@ func GetStageHistoryInfo(stageLogId int64) (map[string]interface{}, error) {
 	return result, nil
 }
 
-func Run(workflowId int64, authMap map[string]interface{}, startData string) error {
+func Run(workflowId int64, authMap map[string]interface{}, startData string) (*WorkflowLog, error) {
 	workflowInfo := new(models.Workflow)
 	err := workflowInfo.GetWorkflow().Where("id = ?", workflowId).First(workflowInfo).Error
 	if err != nil {
 		log.Error("[workflow's Run]:error when get workflow's info from db:", err.Error())
-		return errors.New("error when get target workflow info:" + err.Error())
+		return nil, errors.New("error when get target workflow info:" + err.Error())
 	}
 	workflow := new(Workflow)
 	workflow.Workflow = workflowInfo
@@ -304,13 +304,13 @@ func Run(workflowId int64, authMap map[string]interface{}, startData string) err
 	eventName, ok := authMap["eventName"].(string)
 	if !ok {
 		log.Error("[workflow's Run]:error when parse eventName,want a string, got:", authMap["eventName"])
-		return errors.New("error when get eventName")
+		return nil, errors.New("error when get eventName")
 	}
 
 	eventType, ok := authMap["eventType"].(string)
 	if !ok {
 		log.Error("[workflow's Run]:error when parse eventName,want a string, got:", authMap["eventType"])
-		return errors.New("error when get eventType")
+		return nil, errors.New("error when get eventType")
 	}
 
 	eventMap := make(map[string]string)
@@ -320,22 +320,22 @@ func Run(workflowId int64, authMap map[string]interface{}, startData string) err
 	// first generate a workflow log to record all current workflow's info which will be used in feature
 	workflowLog, err := workflow.GenerateNewLog(eventMap)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// let workflow log listen all auth, if all auth is ok, start run this workflow log
 	err = workflowLog.Listen(startData)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// auth this workflow log by given auth info
 	err = workflowLog.Auth(authMap)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return workflowLog, nil
 }
 
 func GetWorkflow(workflowId int64) (*Workflow, error) {
@@ -940,7 +940,7 @@ func (workflowInfo *Workflow) BeforeExecCheck(reqHeader http.Header, reqBody []b
 		if c.Support(eventInfoMap) {
 			passCheck, err = c.Check(eventInfoMap, expectedToken, reqHeader, reqBody)
 			if !passCheck {
-				log.Error("[workflow's BeforeExecCheck]:check failed:", c, "===>", err, "\neventInfoMap:", eventInfoMap, "\nreqHeader:", reqHeader, "\nreqBody:", reqBody)
+				log.Error("[workflow's BeforeExecCheck]:check failed:", c, "===>", err, "\neventInfoMap:", eventInfoMap, "\nreqHeader:", reqHeader, "\nreqBody:", string(reqBody))
 				return false, nil, errors.New("failed when check exec req")
 			}
 		}

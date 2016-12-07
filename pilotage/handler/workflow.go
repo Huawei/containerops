@@ -578,7 +578,7 @@ func ExecuteWorkflowV1Handler(ctx *macaron.Context) (int, []byte) {
 		authMap["eventType"] = eventMap["sourceType"]
 		authMap["time"] = time.Now().Format("2006-01-02 15:04:05")
 
-		err := module.Run(workflowInfo.ID, authMap, string(reqBody))
+		_, err := module.Run(workflowInfo.ID, authMap, string(reqBody))
 		if err != nil {
 			result, _ = json.Marshal(map[string]string{"result": "error when run workflow:" + err.Error()})
 			return http.StatusBadRequest, result

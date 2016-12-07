@@ -93,6 +93,8 @@ func SetRouters(m *macaron.Macaron) {
 							m.Post("/event/:workflow/:event", handler.PostActionEventV1Handler)
 
 							m.Post("/var/:workflow", handler.PostActionSetVarV1Handler)
+
+							m.Post("/linkstart/:workflow/:target", handler.PostActionLinkStartV1Handler)
 						})
 
 						m.Group("/log", func() {

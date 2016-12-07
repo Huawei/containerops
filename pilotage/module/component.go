@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/Huawei/containerops/pilotage/models"
+	"github.com/Huawei/containerops/pilotage/utils"
 	log "github.com/Sirupsen/logrus"
 )
 
@@ -1064,6 +1065,8 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 	allEventMap["CO_EVENT_LIST"] = strings.TrimPrefix(eventListStr, ";")
 	allEventMap["CO_DATA"] = string(dataMapBytes)
 	allEventMap["CO_SET_GLOBAL_VAR_URL"] = projectAddr + "/v2/" + actionLog.Namespace + "/" + actionLog.Repository + "/workflow/v1/runtime/var/" + strconv.FormatInt(actionLog.Workflow, 10)
+	allEventMap["CO_LINKSTART_TOKEN"] = utils.MD5(actionLog.Action + kube.runID)
+	allEventMap["CO_LINKSTART_URL"] = projectAddr + "/v2/" + actionLog.Namespace + "/" + actionLog.Repository + "/workflow/v1/runtime/linkstart/" + strconv.FormatInt(actionLog.Workflow, 10) + "/"
 
 	for key, value := range allEventMap {
 		tempEnv := make(map[string]interface{})
