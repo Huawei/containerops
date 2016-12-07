@@ -9,7 +9,7 @@ import (
 type strChecker struct {
 }
 
-func (checker *strChecker) support(eventMap map[string]string) bool {
+func (checker *strChecker) Support(eventMap map[string]string) bool {
 	if eventMap["sourceType"] == "gitlab" {
 		return true
 	}
