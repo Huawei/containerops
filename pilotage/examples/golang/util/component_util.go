@@ -10,6 +10,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -20,6 +21,8 @@ const (
 
 	CO_COMPONENT_START = "CO_COMPONENT_START"
 	CO_COMPONENT_STOP  = "CO_COMPONENT_STOP"
+
+	CO_ACTION_TIMEOUT = "CO_ACTION_TIMEOUT"
 
 	CO_TASK_START  = "CO_TASK_START"
 	CO_TASK_RESULT = "CO_TASK_RESULT"
@@ -62,6 +65,7 @@ func init() {
 	eventINFOMap[CO_EVENT_LIST] = os.Getenv(CO_EVENT_LIST)
 	eventINFOMap[CO_COMPONENT_START] = os.Getenv(CO_COMPONENT_START)
 	eventINFOMap[CO_COMPONENT_STOP] = os.Getenv(CO_COMPONENT_STOP)
+	eventINFOMap[CO_ACTION_TIMEOUT] = os.Getenv(CO_ACTION_TIMEOUT)
 	eventINFOMap[CO_TASK_START] = os.Getenv(CO_TASK_START)
 	eventINFOMap[CO_TASK_RESULT] = os.Getenv(CO_TASK_RESULT)
 	eventINFOMap[CO_TASK_STATUS] = os.Getenv(CO_TASK_STATUS)
@@ -172,13 +176,17 @@ func GetData(port int64, forceRefresh bool, dataChan chan map[string]interface{}
 	return nil
 }
 
-func HoldProj(port int64) {
-	if isWaitData {
-		return
+func HoldProj() {
+	timeout, err := strconv.Atoi(eventINFOMap[CO_ACTION_TIMEOUT])
+	if err != nil {
+		timeout = 0
 	}
-
-	isWaitData = true
-	http.ListenAndServe(":"+strconv.FormatInt(port, 10), nil)
+	if timeout <= 0 {
+		c := make(chan bool, 1)
+		<- c
+	} else {
+		time.Sleep(timeout * time.Second)
+	}
 }
 
 func ChangeGlobalVar(varName, value string) error {
