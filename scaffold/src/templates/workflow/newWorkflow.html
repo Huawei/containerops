@@ -23,8 +23,7 @@
                                 <div class="form-group">
                                     <label for="normal-field" class="col-sm-3 control-label">Name</label>
                                     <div class="col-sm-6">
-                                        <input type="text" id="pp-name" name="pp-name" class="form-control"
-                                                       placeholder="Workflow Name" required>
+                                        <input type="text" id="pp-name" name="pp-name" class="form-control" placeholder="Workflow Name" pattern="^[a-zA-Z0-9.~_-]*$" required>
                                     </div>
                                 </div>
                             </div>
@@ -34,7 +33,7 @@
                                 <div class="form-group">
                                     <label for="hint-field" class="col-sm-3 control-label">Version</label>
                                     <div class="col-sm-6">
-                                        <input type="text" id="pp-version" name="pp-version" class="form-control" placeholder="Workflow Version Name" required>
+                                        <input type="text" id="pp-version" name="pp-version" class="form-control" placeholder="Workflow Version Name" pattern="^[a-zA-Z0-9.~_-]*$" required>
                                     </div>
                                 </div>
                             </div>
