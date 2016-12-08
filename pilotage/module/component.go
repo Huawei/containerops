@@ -255,9 +255,12 @@ func UpdateComponentInfo(componentInfo models.Component) error {
 		}
 
 		if timeout, ok := componentSetupDetail["timeout"].(string); ok {
-			timeoutInt, err := strconv.ParseInt(timeout, 10, 64)
-			if err != nil {
-				return errors.New("component's timeout is not a string")
+			timeoutInt := int64(0)
+			if timeout != "" {
+				timeoutInt, err = strconv.ParseInt(timeout, 10, 64)
+				if err != nil {
+					return errors.New("component's timeout is not a string")
+				}
 			}
 			componentInfo.Timeout = timeoutInt
 		}

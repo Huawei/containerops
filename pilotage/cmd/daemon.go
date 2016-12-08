@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"os"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/macaron.v1"
 
@@ -83,6 +84,8 @@ func init() {
 
 // startDeamon() start Pilotage's REST API daemon.
 func startDeamon(cmd *cobra.Command, args []string) {
+	log.SetOutput(os.Stdout)
+
 	// first open database conn
 	models.OpenDatabase()
 
