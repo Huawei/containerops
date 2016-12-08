@@ -91,11 +91,24 @@ function checkWorkflowStage(data,index){
         }
     }
 
-    if(completeness && isUsingGlobalVar(data.setupData.timeout)){
-        completeness = isAvailableVar(data.setupData.timeout);
-        if(!completeness){
-            notify("Timeout is using an unknown global variable ---- < Stage No. " + index+" >","info");
-        }
+    if(completeness){
+        if(isUsingGlobalVar(data.setupData.timeout)){
+            completeness = isAvailableVar(data.setupData.timeout);
+            if(!completeness){
+                notify("Timeout is using an unknown global variable ---- < Stage No. " + index+" >","info");
+            }else{
+                var realkey = data.setupData.timeout.substring(1,data.setupData.timeout.length-1);
+                completeness = checkTimeout(getValue(realkey));
+                if(!completeness){
+                    notify("Timeout must be equal to or greater than 0---- < Stage No. " + index+" >","info");
+                }
+            }
+        }else{
+            completeness = checkTimeout(data.setupData.timeout);
+            if(!completeness){
+                notify("Timeout must be equal to or greater than 0---- < Stage No. " + index+" >","info");
+            }
+        } 
     }
 
     if(!completeness){
@@ -140,10 +153,12 @@ function checkActionCompleteness(data,stageindex,actionindex){
     if(_.isEmpty(data.setupData.action.name)){
         notify("Name missed ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
         completeness = false;
-    }else if(_.isEmpty(data.setupData.action.timeout)){
-        notify("Timeout missed ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
-        completeness = false;
-    }else if(_.isEmpty(data.setupData.action.image.name)){
+    }
+    // else if(_.isEmpty(data.setupData.action.timeout)){
+    //     notify("Timeout missed ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
+    //     completeness = false;
+    // }
+    else if(_.isEmpty(data.setupData.action.image.name)){
         notify("Image name missed ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
         completeness = false;
     }else if(_.isEmpty(data.setupData.action.image.tag)){
@@ -171,11 +186,24 @@ function checkActionCompleteness(data,stageindex,actionindex){
         }
     }
 
-    if(completeness && isUsingGlobalVar(data.setupData.action.timeout)){
-        completeness = isAvailableVar(data.setupData.action.timeout);
-        if(!completeness){
-            notify("Timeout is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
-        }
+    if(completeness && !_.isEmpty(data.setupData.action.timeout)){
+        if(isUsingGlobalVar(data.setupData.action.timeout)){
+            completeness = isAvailableVar(data.setupData.action.timeout);
+            if(!completeness){
+                notify("Timeout is using an unknown global variable ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
+            }else{
+                var realkey = data.setupData.action.timeout.substring(1,data.setupData.action.timeout.length-1);
+                completeness = checkTimeout(getValue(realkey));
+                if(!completeness){
+                    notify("Timeout must be equal to or greater than 0---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
+                }
+            }
+        }else{
+            completeness = checkTimeout(data.setupData.action.timeout);
+            if(!completeness){
+                notify("Timeout must be equal to or greater than 0---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
+            }
+        }    
     }
 
     if(completeness && isUsingGlobalVar(data.setupData.action.image.name)){
@@ -375,3 +403,7 @@ export function isEnvKeyLegal(key){
     return /^(.?$|[^C].+|C[^O].+|CO[^_].*)/.test(key);
 }
 
+function checkTimeout(value){
+    var _value = Number(value);
+    return !_.isNaN(_value) && _value >= 0;
+}
