@@ -185,7 +185,7 @@ func HoldProj() {
 		c := make(chan bool, 1)
 		<- c
 	} else {
-		time.Sleep(timeout * time.Second)
+		time.Sleep(time.Duration(timeout) * time.Second)
 	}
 }
 
