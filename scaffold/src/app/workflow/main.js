@@ -30,7 +30,7 @@ import {initWorkflowVar,showWorkflowVar} from "./workflowVar";
 
 export let allWorkflows;
 
-export let workflowData;
+export let workflowData,workflowSettingData;
 let workflowDataOriginalCopy,linePathAryOriginalCopy;
 let workflowName, workflowVersion, workflowVersionID,workflowHasHistory;
 
@@ -153,6 +153,7 @@ function getWorkflowData() {
         loading.hide();
         workflowData = data.stageList;
         setLinePathAry(data.lineList); 
+        workflowSettingData = data.setting;
         showWorkflowDesigner(data.status);
     });
     promise.fail(function(xhr, status, error) {
