@@ -48,24 +48,26 @@ export function initButton() {
         });
     util.showZoomBtn(1, "zoomin", constant.buttonView, constant.workflowView, scaleObj);
     util.showZoomBtn(2, "zoomout", constant.buttonView, constant.workflowView, scaleObj);
+    showOptBtn(3, "setting", "wfSettingBtn");
 }
 export function updateButtonGroup(currentItemType) {
     cleanOptBtn();
     if (constant.currentSelectedItem != null) {
         if (currentItemType == "stage") {
-            showOptBtn(3, "add");
-            showOptBtn(4, "delete", currentItemType);
+            showOptBtn(4, "add");
+            showOptBtn(5, "delete");
         } else if (currentItemType == "action") {
-            showOptBtn(3, "delete", currentItemType);
+            showOptBtn(4, "delete");
         } else if (currentItemType == "line") {
-            showOptBtn(3, "removeLink");
+            showOptBtn(4, "removeLink");
         } else {
             cleanOptBtn();
         }
     }
 }
 
-function showOptBtn(index, type) {
+function showOptBtn(index, type, css_class) {
+    css_class = css_class || "optBtn";
     constant.buttonView
         .append("image")
         .attr("xlink:href", function(ad, ai) {
@@ -75,6 +77,8 @@ function showOptBtn(index, type) {
                 return config.getSVG(config.SVG_DELETE);
             } else if (type == "removeLink") {
                 return config.getSVG(config.SVG_REMOVE_LINK);
+            } else if(type == 'setting'){
+                return config.getSVG(config.SVG_WORKFLOW_SET);
             }
 
         })
@@ -96,16 +100,19 @@ function showOptBtn(index, type) {
                 return "deleteBtn";
             } else if (type == "removeLink") {
                 return "removeLinkBtn";
+            } else if(type == "setting"){
+                return "wfSettingBtn";
             }
 
         })
-        .attr("class", "optBtn")
+        .attr("class", css_class)
         .attr("width", constant.buttonWidth)
         .attr("height", constant.buttonHeight)
         .on("mouseover", function(d, i) {
             d3.select(this).style("cursor", "pointer");
             let content = "";
             let href = "";
+            let width = null;
             if (type == "add") {
                 content = "Add Action";
                 href = config.getSVG(config.SVG_ADD_ACTION_SELECTED);
@@ -117,6 +124,10 @@ function showOptBtn(index, type) {
             } else if (type == "removeLink") {
                 content = "Remove Link";
                  href = config.getSVG(config.SVG_REMOVE_LINK_SELECTED);
+            } else if (type == "setting") {
+                content = "Workflow Setting";
+                 href = config.getSVG(config.SVG_WORKFLOW_SET_SELECTED);
+                 width = 130;
             }
             d3.select(this).attr("href", href);
             let options = {
@@ -124,7 +135,8 @@ function showOptBtn(index, type) {
                 "y": Number(d3.select(this).attr("translateY")) + constant.buttonHeight,
                 "text": content,
                 "popupId": "button-element-popup",
-                "parentView": constant.buttonView
+                "parentView": constant.buttonView,
+                'width':width
             };
             util.showToolTip(options);
         })
@@ -139,6 +151,8 @@ function showOptBtn(index, type) {
 
             } else if (type == "removeLink") {
                 href = config.getSVG(config.SVG_REMOVE_LINK);
+            } else if(type == "setting"){
+                href = config.getSVG(config.SVG_WORKFLOW_SET);
             }
             d3.select(this).attr("href", href);
         })
@@ -196,6 +210,8 @@ function showOptBtn(index, type) {
                 constant.linePathAry.splice(index, 1);
                 cleanOptBtn();
                 constant.setCurrentSelectedItem(null);
+            } else if(type == 'setting'){
+                console.log('workflow setting function');
             }
 
         })
