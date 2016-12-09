@@ -20,12 +20,13 @@ import * as config from "../common/config";
 
 import { initAction } from "./initAction";
 import { addAction, deleteAction } from "../action/addOrDeleteAction";
-import { workflowData } from "./main";
+import { workflowData,workflowSettingData } from "./main";
 import { animationForRemoveStage, initWorkflow } from "./initWorkflow";
 import { addStage, deleteStage } from "../stage/addOrDeleteStage";
 import { animationForRemoveAction } from "./initAction";
 import { setPath } from "../relation/setPath";
 import { initLine } from "./initLine";
+import { initWorkflowSetting } from "./workflowSetting";
 
 let rectBackgroundY = 15;
 
@@ -211,7 +212,8 @@ function showOptBtn(index, type, css_class) {
                 cleanOptBtn();
                 constant.setCurrentSelectedItem(null);
             } else if(type == 'setting'){
-                console.log('workflow setting function');
+                // initWorkflowSetting(workflowSettingData);
+                initWorkflowSetting({});
             }
 
         })
