@@ -141,7 +141,7 @@ function showComponentList(action) {
             })
 
             var components = doFilter(filter);
-console.log(components)
+            
             $(".componentlist_body").empty();
             _.each(components, function(item) {
                 var pprow = `<tr class="pp-row">
