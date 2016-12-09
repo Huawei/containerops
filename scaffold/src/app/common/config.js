@@ -19,6 +19,8 @@ export let
     PNG_SUFFIX = ".png",
     SVG_BASEDIR = "../../assets/svg/",
     SVG_SUFFIX = ".svg",
+    SVG_WORKFLOW_SET = "workflow-setting",
+    SVG_WORKFLOW_SET_SELECTED = "workflow-setting-selected",
     SVG_START = "start-latest",
     SVG_START_SELECTED = "start-selected-latest",
     SVG_STAGE = "stage-latest",
