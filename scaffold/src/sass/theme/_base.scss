@@ -1417,14 +1417,16 @@ div.jsoneditor-contextmenu ul li ul {
 
   h4{
     margin:0;
-    line-height:50px;
+    line-height:45px;
     padding-left:25px;
+    font-size:13px;
+    font-weight: bold;
   }
   .tree-bg-left{
     left:0;
     top:0;
     bottom:0;
-    width:50%;
+    width:49%;
     position:absolute;
     background-color:#f2f2f2;
 
@@ -1435,7 +1437,7 @@ div.jsoneditor-contextmenu ul li ul {
   }
 
   .tree-bg-right{
-    width:50%;
+    width:49%;
     right:0;
     top:0;
     bottom:0;
