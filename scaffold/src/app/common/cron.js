@@ -16,15 +16,18 @@ limitations under the License.
 
 export let cron = {
 
+    targetTask : {},
+
     entries : [],
 
     $el : "",
 
     period : "",
 
-    initCronEntry : function(targetdom,cronEntry){
-        this.entries = cronEntry.split(" ");
-        setPeriod();
+    initCronEntry : function(targetdom,task){
+        this.targetTask = task;
+        this.entries = task.cronEntry.split(" ");
+        this.setPeriod();
         this.$el = targetdom;
         this.showCronEntry();
     },
@@ -45,17 +48,17 @@ export let cron = {
     },
 
     setPeriod : function(){
-        if(entries[0] == "*"){
+        if(this.entries[0] == "*"){
             this.period = "minute";
-        }else if(entries[1] == "*"){
+        }else if(this.entries[1] == "*"){
             this.period = "hour";
-        }else if(entries[2] == "*" && entries[4] == "*"){
+        }else if(this.entries[2] == "*" && this.entries[4] == "*"){
             this.period = "day";
-        }else if(entries[2] == "*" && entries[3] == "*"){
+        }else if(this.entries[2] == "*" && this.entries[3] == "*"){
             this.period = "week";
-        }else if(entries[3] == "*" && entries[4] == "*"){
+        }else if(this.entries[3] == "*" && this.entries[4] == "*"){
             this.period = "month";
-        }else if(entries[4] == "*"){
+        }else if(this.entries[4] == "*"){
             this.period = "year";
         }                   
     },
@@ -92,9 +95,12 @@ export let cron = {
         var self = this;
 
         self.findDomElement(".cron-period-type").val(self.period);
-        self.findDomElement(".cron-period-type").select2({
-            minimumResultsForSearch: Infinity
-        });
+        if(!self.findDomElement(".cron-period-type").next().hasClass("select2")){
+            self.findDomElement(".cron-period-type").select2({
+                minimumResultsForSearch: Infinity
+            });
+        }
+        
         self.findDomElement(".cron-period-type").on("change",function(){
             self.period = self.findDomElement(".cron-period-type").val();
             self.blockDisplayControl();
@@ -128,6 +134,8 @@ export let cron = {
                 self.selectionControl(".cron-time-hour",1);
                 break;
         }
+
+        self.showEntry();
     },
 
     findDomElement : function(selector){
@@ -136,24 +144,71 @@ export let cron = {
 
     selectionControl : function(selector,index){
         var self = this;
+
+        if(self.entries[index] == "*"){
+            self.entries[index] = "1";
+        }
         self.findDomElement(selector).val(self.entries[index]);
-        self.findDomElement(selector).select2({
-            minimumResultsForSearch: Infinity
-        });
-        self.findDomElement(selector).off("change");
+
+        if(!self.findDomElement(selector).next().hasClass("select2")){
+            self.findDomElement(selector).select2({
+                minimumResultsForSearch: Infinity
+            });
+        }
+        
         self.findDomElement(selector).on("change",function(){
             self.entries[index] = self.findDomElement(selector).val();
             self.showEntry();
         });
-
-        self.showEntry();
     },
 
     showEntry : function(){
+        this.resetEntry();
         this.findDomElement(".cron-val").text(this.getEntry());
     },
 
     getEntry : function(){
         return this.entries.join(" ");
+    },
+
+    resetEntry : function(){
+        var self = this;
+        switch(self.period){
+            case "minute": 
+                self.entries[0] = "*";
+                self.entries[1] = "*";
+                self.entries[2] = "*";
+                self.entries[3] = "*";
+                self.entries[4] = "*";
+                break;
+            case "hour" : 
+                self.entries[1] = "*";
+                self.entries[2] = "*";
+                self.entries[3] = "*";
+                self.entries[4] = "*";
+                break;
+            case "day" :
+                self.entries[2] = "*";
+                self.entries[3] = "*";
+                self.entries[4] = "*";
+                break;
+            case "week" :
+                self.entries[2] = "*";
+                self.entries[3] = "*";
+                break;
+            case "month" :
+                self.entries[3] = "*";
+                self.entries[4] = "*";
+                break;
+            case "year" :
+                self.entries[4] = "*";
+                break;
+        }
+
+        self.changeTask();
+    },
+
+    changeTask : function(){
+        this.targetTask.cronEntry = this.getEntry();
     }
 };

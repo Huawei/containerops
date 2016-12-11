@@ -212,8 +212,7 @@ function showOptBtn(index, type, css_class) {
                 cleanOptBtn();
                 constant.setCurrentSelectedItem(null);
             } else if(type == 'setting'){
-                // initWorkflowSetting(workflowSettingData);
-                initWorkflowSetting({});
+                initWorkflowSetting(workflowSettingData);
             }
 
         })
