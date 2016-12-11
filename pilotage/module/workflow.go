@@ -432,7 +432,7 @@ func GetActionLinkStartInfo(namespace, repository, workflow, version, action str
 	workflows := make([]models.WorkflowLog, 0)
 	err := new(models.WorkflowLog).GetWorkflowLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("pre_workflow = ?", workflowID).Where("pre_action = ?", actionID).Where("run_state > ?", 1).Find(&workflows).Error
 	if err != nil {
-		log.Error("[workflow's GetWorkflowSequenceList]:error when get workflow run log from db:", err.Error())
+		log.Error("[workflow's GetActionLinkStartInfo]:error when get workflow run log from db:", err.Error())
 		return nil, errors.New("error when get sequence info")
 	}
 
@@ -449,7 +449,7 @@ func GetActionLinkStartInfo(namespace, repository, workflow, version, action str
 		sequenceMap["time"] = workflowInfo.CreatedAt.Format("15:04")
 		stageList, err := getSequenceStageInfo(namespace, repository, workflowInfo.ID, workflowInfo.Sequence)
 		if err != nil {
-			log.Error("[workflow's GetWorkflowSequenceList]:error when get sequence's stage list:", err.Error())
+			log.Error("[workflow's GetActionLinkStartInfo]:error when get sequence's stage list:", err.Error())
 			return nil, errors.New("error when get sequence info")
 		}
 
@@ -503,6 +503,13 @@ func getSequenceActionInfo(namespace, repository string, workflow, sequence, sta
 	}
 
 	for _, actionInfo := range actions {
+		count := int64(0)
+		err := new(models.WorkflowLog).GetWorkflowLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("pre_workflow = ?", actionInfo.Workflow).Where("pre_action = ?", actionInfo.ID).Count(&count).Error
+		if err != nil && err.Error() != "record not found" {
+			log.Error("[workflow's getSequenceActionInfo]:error when get link start workflow info from db:", err.Error())
+			return nil, errors.New("error when get workflow info")
+		}
+
 		actionMap := make(map[string]interface{})
 		actionMap["actionName"] = actionInfo.Action
 		actionMap["actionId"] = actionInfo.ID
@@ -510,7 +517,7 @@ func getSequenceActionInfo(namespace, repository string, workflow, sequence, sta
 		actionMap["isTimeout"] = actionInfo.FailReason == ActionStopReasonTimeout
 		actionMap["timeout"] = actionInfo.Timeout
 		actionMap["runTime"] = strconv.FormatFloat(actionInfo.UpdatedAt.Sub(actionInfo.CreatedAt).Seconds(), 'f', 0, 64)
-		actionMap["isStartWorkflow"] = ""
+		actionMap["isStartWorkflow"] = count > 0
 		actionMap["startWorkflowResult"] = false
 
 		result = append(result, actionMap)
