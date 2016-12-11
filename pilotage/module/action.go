@@ -1103,8 +1103,8 @@ func (actionLog *ActionLog) sendDataToService(data []byte) ([]*http.Response, er
 }
 
 func (actionLog *ActionLog) WaitActionDone() {
-	_, err := strconv.ParseInt(actionLog.Timeout, 10, 64)
-	if err != nil {
+	timeout, err := strconv.ParseInt(actionLog.Timeout, 10, 64)
+	if err != nil || timeout < 0 {
 		log.Error("[actionLog's WaitActionDone]:error when parse action's timeout, want a number, got:", actionLog.Timeout)
 		actionLog.Stop(ActionStopReasonRunFailed, models.ActionLogStateRunFailed)
 	}
