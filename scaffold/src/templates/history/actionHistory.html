@@ -24,8 +24,8 @@
                         <div class="clearfix">
                             <ul class="nav nav-tabs pull-xs-left" id="actionTabs" role="tablist" style="background-color:#f7f7f7">
                                 <li class="nav-item">
-                                    <a class="nav-link active" id="stream-tab" data-toggle="tab" href="#stream" role="tab" aria-controls="stream" aria-expanded="false">
-                                        <span>Action Stream Data</span>
+                                    <a class="nav-link active" id="resultlogs-tab" data-toggle="tab" href="#resultlogs" role="tab" aria-controls="resultlogs" aria-expanded="false">
+                                        <span>Result Logs</span>
                                         <i class="arrow arrow-left"></i>
                                         <i class="arrow arrow-right"></i>
                                     </a>
@@ -37,10 +37,40 @@
                                         <i class="arrow arrow-right"></i>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="stream-tab" data-toggle="tab" href="#stream" role="tab" aria-controls="stream" aria-expanded="false">
+                                        <span>Action Stream Data</span>
+                                        <i class="arrow arrow-left"></i>
+                                        <i class="arrow arrow-right"></i>
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                         <div class="tab-content mb-lg" id="actionTabsContent">
-                            <div role="tabpanel" class="tab-pane clearfix active" id="stream" aria-labelledby="stream-tab" aria-expanded="true">
+                           
+                             <div class="tab-pane" id="resultlogs" class="tab-pane" role="tabpanel1" aria-labelledby="resultlogs-tab-tab" aria-expanded="false">
+
+                            </div>
+
+                            <div class="tab-pane" id="logs" class="tab-pane  active" role="tabpanel2" aria-labelledby="logs-tab" aria-expanded="false">
+                                <table id="logs-table" class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Time</th>
+                                            <th>Event</th>
+                                            <th>EVENTID</th>
+                                            <th>RUN_ID</th>
+                                            <th>INFO_STATUS</th>
+                                            <th>INFO_RESULT</th>
+                                            <th>DETAILS</th>
+                                        </tr>  
+                                    </thead>
+                                    <tbody id="logs-tr"></tbody>
+                                </table>
+                            </div>
+
+                            <div role="tabpanel3" class="tab-pane clearfix" id="stream" aria-labelledby="stream-tab" aria-expanded="true">
                                 <div class="row">
                                     <div class="col-md-6 import-div">
                                         <div class="panel">
@@ -65,23 +95,6 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="tab-pane" id="logs" class="tab-pane" role="tabpanel" aria-labelledby="logs-tab" aria-expanded="false">
-                                <table id="logs-table" class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th>Time</th>
-                                            <th>Event</th>
-                                            <th>EVENTID</th>
-                                            <th>RUN_ID</th>
-                                            <th>INFO_STATUS</th>
-                                            <th>INFO_RESULT</th>
-                                            <th>DETAILS</th>
-                                        </tr>  
-                                    </thead>
-                                    <tbody id="logs-tr"></tbody>
-                                </table>
                             </div>
                         </div>
                     </div>
