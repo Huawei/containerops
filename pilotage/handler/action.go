@@ -175,60 +175,60 @@ func PostActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
 func PostActionRegisterV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": "ok"})
 
-	bodyByte, err := ctx.Req.Body().Bytes()
-	if err != nil {
-		log.Error("[action's PostActionRegisterV1Handler]:error when get request body:", err.Error())
-		result, _ := json.Marshal(map[string]string{"message": "error when getrequest body:" + err.Error()})
-		return http.StatusBadRequest, result
-	}
+	// bodyByte, err := ctx.Req.Body().Bytes()
+	// if err != nil {
+	// 	log.Error("[action's PostActionRegisterV1Handler]:error when get request body:", err.Error())
+	// 	result, _ := json.Marshal(map[string]string{"message": "error when getrequest body:" + err.Error()})
+	// 	return http.StatusBadRequest, result
+	// }
 
-	if string(bodyByte) == "" {
-		log.Error("[action's PostActionRegisterV1Handler]:got an empty reqBody")
-		result, _ := json.Marshal(map[string]string{"message": "illegal request body: empty body"})
-		return http.StatusBadRequest, result
-	}
+	// if string(bodyByte) == "" {
+	// 	log.Error("[action's PostActionRegisterV1Handler]:got an empty reqBody")
+	// 	result, _ := json.Marshal(map[string]string{"message": "illegal request body: empty body"})
+	// 	return http.StatusBadRequest, result
+	// }
 
-	reqBody := make(map[string]interface{})
-	err = json.Unmarshal(bodyByte, &reqBody)
-	if err != nil {
-		log.Error("[action's PostActionRegisterV1Handler]:error when unmarshal reqBody:", string(bodyByte), " ===>error is:", err.Error())
-		result, _ := json.Marshal(map[string]string{"message": "illegal request body: want a json obj,got:" + string(bodyByte)})
-		return http.StatusBadRequest, result
-	}
+	// reqBody := make(map[string]interface{})
+	// err = json.Unmarshal(bodyByte, &reqBody)
+	// if err != nil {
+	// 	log.Error("[action's PostActionRegisterV1Handler]:error when unmarshal reqBody:", string(bodyByte), " ===>error is:", err.Error())
+	// 	result, _ := json.Marshal(map[string]string{"message": "illegal request body: want a json obj,got:" + string(bodyByte)})
+	// 	return http.StatusBadRequest, result
+	// }
 
-	runId, ok := reqBody["RUN_ID"].(string)
-	if !ok {
-		result, _ := json.Marshal(map[string]string{"message": "illegal runId, runId is not a string"})
-		return http.StatusBadRequest, result
-	}
+	// runId, ok := reqBody["RUN_ID"].(string)
+	// if !ok {
+	// 	result, _ := json.Marshal(map[string]string{"message": "illegal runId, runId is not a string"})
+	// 	return http.StatusBadRequest, result
+	// }
 
-	receiveUrl, ok := reqBody["RECEIVE_URL"].(string)
-	if !ok {
-		result, _ := json.Marshal(map[string]string{"message": "illegal receiveUrl, receiveUrl is not a string"})
-		return http.StatusBadRequest, result
-	}
+	// receiveUrl, ok := reqBody["RECEIVE_URL"].(string)
+	// if !ok {
+	// 	result, _ := json.Marshal(map[string]string{"message": "illegal receiveUrl, receiveUrl is not a string"})
+	// 	return http.StatusBadRequest, result
+	// }
 
-	if len(strings.Split(runId, "-")) != 3 {
-		// illegal runId return
-		result, _ := json.Marshal(map[string]string{"message": "illegal id:" + runId})
-		return http.StatusBadRequest, result
-	}
+	// if len(strings.Split(runId, "-")) != 3 {
+	// 	// illegal runId return
+	// 	result, _ := json.Marshal(map[string]string{"message": "illegal id:" + runId})
+	// 	return http.StatusBadRequest, result
+	// }
 
-	actionLogId, err := strconv.ParseInt(strings.Split(runId, "-")[2], 10, 64)
-	if err != nil {
-		log.Error("[action's PostActionRegisterV1Handler]:error when get actionLogId from runID, want number, got:", runId)
-		result, _ := json.Marshal(map[string]string{"message": "illegal actionLogId id"})
-		return http.StatusBadRequest, result
-	}
+	// actionLogId, err := strconv.ParseInt(strings.Split(runId, "-")[2], 10, 64)
+	// if err != nil {
+	// 	log.Error("[action's PostActionRegisterV1Handler]:error when get actionLogId from runID, want number, got:", runId)
+	// 	result, _ := json.Marshal(map[string]string{"message": "illegal actionLogId id"})
+	// 	return http.StatusBadRequest, result
+	// }
 
-	actionLog, err := module.GetActionLog(actionLogId)
-	if err != nil {
-		log.Error("[action's PostActionRegisterV1Handler]:error when get action's info:", err.Error())
-		result, _ := json.Marshal(map[string]string{"message": "error when get target action"})
-		return http.StatusBadRequest, result
-	}
+	// actionLog, err := module.GetActionLog(actionLogId)
+	// if err != nil {
+	// 	log.Error("[action's PostActionRegisterV1Handler]:error when get action's info:", err.Error())
+	// 	result, _ := json.Marshal(map[string]string{"message": "error when get target action"})
+	// 	return http.StatusBadRequest, result
+	// }
 
-	go actionLog.SendDataToAction(receiveUrl)
+	// go actionLog.SendDataToAction(receiveUrl)
 
 	return http.StatusOK, result
 }

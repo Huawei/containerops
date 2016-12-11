@@ -1063,6 +1063,8 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 		allEventMap["CO_SERVICE_ADDR"] = serviceAddr
 	}
 
+	timeoutInt, _ := strconv.ParseInt(actionLog.Timeout, 10, 64)
+
 	allEventMap["CO_POD_NAME"] = podName
 	allEventMap["CO_RUN_ID"] = kube.runID
 	allEventMap["CO_EVENT_LIST"] = strings.TrimPrefix(eventListStr, ";")
@@ -1070,6 +1072,7 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 	allEventMap["CO_SET_GLOBAL_VAR_URL"] = projectAddr + "/v2/" + actionLog.Namespace + "/" + actionLog.Repository + "/workflow/v1/runtime/var/" + strconv.FormatInt(actionLog.Workflow, 10)
 	allEventMap["CO_LINKSTART_TOKEN"] = utils.MD5(actionLog.Action + kube.runID)
 	allEventMap["CO_LINKSTART_URL"] = projectAddr + "/v2/" + actionLog.Namespace + "/" + actionLog.Repository + "/workflow/v1/runtime/linkstart/" + strconv.FormatInt(actionLog.Workflow, 10) + "/"
+	allEventMap["CO_ACTION_TIMEOUT"] = timeoutInt
 
 	for key, value := range allEventMap {
 		tempEnv := make(map[string]interface{})

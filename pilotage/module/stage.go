@@ -826,8 +826,8 @@ func (stageLog *StageLog) WaitAllActionDone(nextStageCanStartChan chan bool) {
 	}()
 
 	if stageLog.Timeout != "" && stageLog.Timeout != "0" {
-		_, err := strconv.ParseInt(stageLog.Timeout, 10, 64)
-		if err != nil {
+		timeout, err := strconv.ParseInt(stageLog.Timeout, 10, 64)
+		if err != nil || timeout < 0 {
 			log.Error("[stageLog's WaitAllActionDone]:error when parse stage's timeout vaule:", err.Error())
 			nextStageCanStartChan <- false
 			stageLog.Stop(StageStopScopeAll, StageStopReasonRunFailed, models.StageLogStateRunFailed)
