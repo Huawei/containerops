@@ -9,15 +9,15 @@ if __name__ == "__main__":
     ComponentStart()
     
     # prepare task
-    cmd = "git clone https://github.com/pingcap/pd.git /root/gopath/src/github.com/pingcap/pd"
+    cmd = "git clone --depth=50 https://github.com/pingcap/tikv.git pingcap/tikv"
     execCommand(cmd)
     
     # TaskStart
     TaskStart()
     
     
-    os.chdir("/root/gopath/src/github.com/pingcap/pd")
-    cmd = "make dev"
+    os.chdir("pingcap/tikv")
+    cmd = "make test"
     
     # Task exec
     status = execCommand(cmd)
