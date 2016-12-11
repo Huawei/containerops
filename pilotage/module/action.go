@@ -778,6 +778,7 @@ func (actionLog *ActionLog) Stop(reason string, runState int64) {
 	}
 
 	actionLog.RunState = runState
+	actionLog.FailReason = reason
 	err = actionLog.GetActionLog().Save(actionLog).Error
 	if err != nil {
 		log.Error("[actionLog's Stop]:error when change action state:", actionLog, " ===>error is:", err.Error())
@@ -1482,6 +1483,8 @@ func (actionLog *ActionLog) LinkStartWorkflow(runId, token, workflowName, workfl
 	preInfoBytes, _ := json.Marshal(preInfoMap)
 
 	workflowLog.PreWorkflow = actionLog.Workflow
+	workflowLog.PreStage = actionLog.Stage
+	workflowLog.PreAction = actionLog.ID
 	workflowLog.PreWorkflowInfo = string(preInfoBytes)
 
 	err = workflowLog.GetWorkflowLog().Save(workflowLog).Error

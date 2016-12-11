@@ -129,11 +129,14 @@ type WorkflowLog struct {
 	Workflow        string     `json:"workflow" sql:"not null;type:varchar(255)"`   //workflow name
 	FromWorkflow    int64      `json:"fromWorkflow" sql:"not null;default:0"`       //
 	PreWorkflow     int64      `json:"preWorkflow" sql:"not null;default:0"`
+	PreStage        int64      `json:"preStage" sql:"not null;default:0"`
+	PreAction       int64      `json:"preAction" sql:"not null;default:0"`
 	PreWorkflowInfo string     `json:"preWorkflowInfo"`
 	Version         string     `json:"version" sql:"null;type:varchar(255)"`     //User define Workflow version
 	VersionCode     int64      `json:"versionCode" sql:"null;type:varchar(255)"` //System define Workflow version,unique,for query
 	Sequence        int64      `json:"sequence" sql:"not null;default:0"`        //workflow run sequence
 	RunState        int64      `json:"runState" sql:"null;type:bigint"`          //workflow run state
+	FailReason      string     `json:"failReason"`                               //
 	Event           int64      `json:"event" sql:"null;default:0"`               //
 	Manifest        string     `json:"manifest"sql:"null;type:longtext"`         //
 	Description     string     `json:"description" sql:"null;type:text"`         //
@@ -200,6 +203,7 @@ type StageLog struct {
 	Title        string     `json:"title" sql:"not null;type:varchar(255)"`      //Stage title for display
 	Description  string     `json:"description" sql:"null;type:text"`            //
 	RunState     int64      `json:"runState" sql:"null;type:bigint"`             //stage run state
+	FailReason   string     `json:"failReason"`                                  //
 	Event        int64      `json:"event" sql:"null;default:0"`                  //
 	Manifest     string     `json:"manifest" sql:"null;type:longtext"`           //
 	Env          string     `json:"env" sql:"null;type:longtext"`                //
@@ -269,6 +273,7 @@ type ActionLog struct {
 	FromStage    int64      `json:"fromStage" sql:"not null;default:0"`          //
 	FromAction   int64      `json:"fromAction" sql:"not null;default:0"`         //
 	RunState     int64      `json:"runState" sql:"null;type:bigint"`             //action run state
+	FailReason   string     `json:"failReason"`                                  //
 	Component    int64      `json:"component" sql:"not null;default:0"`          //
 	Service      int64      `json:"service" sql:"not null;default:0"`            //
 	Action       string     `json:"action" sql:"not null;varchar(255)"`          //
