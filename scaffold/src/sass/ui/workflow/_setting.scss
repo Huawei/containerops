@@ -40,3 +40,118 @@ limitations under the License. */
 .switch-off:hover{
   opacity: 0.5;
 }
+
+.timed-task-row{
+  background-color:#f3f3f3;
+  width:92%;
+  min-height: 100px;
+  float: left;
+  margin:10px 4%;
+  clear:both;
+}
+
+.task-design-div{
+  float: left;
+  margin: 15px 20px;
+}
+
+.task-action-div{
+  float: right;
+  margin: 10px 15px;
+}
+
+.task-designer-on{
+  background-image:url(/assets/images/icon-list.png);
+  background-repeat:no-repeat;
+  background-size:contain;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  float:left;
+  margin:3px 10px;
+  cursor: pointer;
+}
+
+.task-designer-off{
+  background-image:url(/assets/images/icon-list-no.png);
+  background-repeat:no-repeat;
+  background-size:contain;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  float:left;
+  margin:3px 10px;
+  cursor: pointer;
+}
+
+.task-designer-on:hover{
+  opacity: 0.5;
+}
+
+.task-designer-off:hover{
+  opacity: 0.5;
+}
+
+.task-editor-on{
+  background-image:url(/assets/images/icon-edit.png);
+  background-repeat:no-repeat;
+  background-size:contain;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  float:left;
+  margin:3px 10px;
+  cursor: pointer;
+}
+
+.task-editor-off{
+  background-image:url(/assets/images/icon-edit-no.png);
+  background-repeat:no-repeat;
+  background-size:contain;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  float:left;
+  margin:3px 10px;
+  cursor: pointer;
+}
+
+.task-editor-on:hover{
+  opacity: 0.5;
+}
+
+.task-editor-off:hover{
+  opacity: 0.5;
+}
+
+.task-delete{
+  background-image:url(/assets/images/icon-delete-no.png);
+  background-repeat:no-repeat;
+  background-size:contain;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  float:left;
+  margin:3px 10px;
+  cursor: pointer;
+}
+
+.task-delete:hover{
+  background-image:url(/assets/images/icon-delete.png);
+}
+
+.cron-designer{
+  margin: 7px 20px;
+}
+
+.cron-result{
+  margin: 20px 20px 0px 20px;
+}
+
+.cron-val{
+  margin-left:15px;
+}
+
+.cron-block{
+  margin-left:10px;
+}
