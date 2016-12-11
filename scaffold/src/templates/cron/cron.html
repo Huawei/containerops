@@ -12,9 +12,9 @@
 -->
 
 <div class="row">
-    <div>
+    <div class="cron-designer">
     	<span class="cron-period">Every 
-    		<select class="cron-period-type">
+    		<select class="cron-period-type" style="width:100px">
     			<option value="minute">Minute</option>
 				<option value="hour">Hour</option>
 				<option value="day">Day</option>
@@ -24,7 +24,7 @@
 			</select> 
 		</span>
 		<span class="cron-block cron-block-dom"> on the 
-			<select class="cron-dom">
+			<select class="cron-dom" style="width:100px">
 				<option value="1">1st</option>
 				<option value="2">2nd</option>
 				<option value="3">3rd</option>
@@ -59,7 +59,7 @@
 			</select> 
 		</span>
 		<span class="cron-block cron-block-month"> of 
-			<select class="cron-month">
+			<select class="cron-month" style="width:100px">
 				<option value="1">January</option>
 				<option value="2">February</option>
 				<option value="3">March</option>
@@ -75,7 +75,7 @@
 			</select> 
 		</span>
 		<span class="cron-block cron-block-mins"> at 
-			<select class="cron-mins">
+			<select class="cron-mins" style="width:100px">
 				<option value="0">00</option>
 				<option value="1">01</option>
 				<option value="2">02</option>
@@ -140,7 +140,7 @@
 			minutes past the hour 
 		</span>
 		<span class="cron-block cron-block-dow"> on 
-			<select class="cron-dow">
+			<select class="cron-dow" style="width:100px">
 				<option value="0">Sunday</option>
 				<option value="1">Monday</option>
 				<option value="2">Tuesday</option>
@@ -151,7 +151,7 @@
 			</select> 
 		</span>
 		<span class="cron-block cron-block-time"> at 
-			<select class="cron-time-hour">
+			<select class="cron-time-hour" style="width:100px">
 				<option value="0">00</option>
 				<option value="1">01</option>
 				<option value="2">02</option>
@@ -178,7 +178,7 @@
 				<option value="23">23</option>
 			</select>
 			:
-			<select class="cron-time-min">
+			<select class="cron-time-min" style="width:100px">
 				<option value="0">00</option>
 				<option value="1">01</option>
 				<option value="2">02</option>
@@ -242,7 +242,8 @@
 			</select>
 		</span>
 	</div>
-    <p>Generated cron entry: 
+    <div class="cron-result">
+    	<span>Generated cron entry: </span>
     	<span class="cron-val"></span>
-    </p>
+    </div>
 </div>
