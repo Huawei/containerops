@@ -426,6 +426,41 @@ func GetWorkflowSequenceList(namespace, repository, workflow, version string, ve
 	return result, nil
 }
 
+func GetActionLinkStartInfo(namespace, repository, workflow, version, action string, sequence, workflowID, actionID int64) ([]map[string]interface{}, error) {
+	result := make([]map[string]interface{}, 0)
+
+	workflows := make([]models.WorkflowLog, 0)
+	err := new(models.WorkflowLog).GetWorkflowLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("pre_workflow = ?", workflowID).Where("pre_action = ?", actionID).Where("run_state > ?", 1).Find(&workflows).Error
+	if err != nil {
+		log.Error("[workflow's GetWorkflowSequenceList]:error when get workflow run log from db:", err.Error())
+		return nil, errors.New("error when get sequence info")
+	}
+
+	for _, workflowInfo := range workflows {
+		sequenceMap := make(map[string]interface{})
+		sequenceMap["workflowName"] = workflowInfo.Workflow
+		sequenceMap["workflowId"] = workflowInfo.ID
+		sequenceMap["versionName"] = workflowInfo.Version
+		sequenceMap["versionId"] = workflowInfo.ID
+		sequenceMap["sequenceId"] = workflowInfo.ID
+		sequenceMap["runTime"] = strconv.FormatFloat(workflowInfo.UpdatedAt.Sub(workflowInfo.CreatedAt).Seconds(), 'f', 0, 64)
+		sequenceMap["runResult"] = workflowInfo.RunState
+		sequenceMap["date"] = workflowInfo.CreatedAt.Format("2006-01-02")
+		sequenceMap["time"] = workflowInfo.CreatedAt.Format("15:04")
+		stageList, err := getSequenceStageInfo(namespace, repository, workflowInfo.ID, workflowInfo.Sequence)
+		if err != nil {
+			log.Error("[workflow's GetWorkflowSequenceList]:error when get sequence's stage list:", err.Error())
+			return nil, errors.New("error when get sequence info")
+		}
+
+		sequenceMap["stages"] = stageList
+
+		result = append(result, sequenceMap)
+	}
+
+	return result, nil
+}
+
 func getSequenceStageInfo(namespace, repository string, workflow, sequence int64) ([]map[string]interface{}, error) {
 	result := make([]map[string]interface{}, 0)
 
