@@ -139,41 +139,17 @@ func TaskStatus(status bool, info, output string) error {
 }
 
 func GetData(port int64, forceRefresh bool, dataChan chan map[string]interface{}) error {
-	if !forceRefresh {
-		dataMap := make(map[string]interface{})
-		err := json.Unmarshal([]byte(eventINFOMap[CO_DATA]), &dataMap)
-		if err == nil {
-			dataChan <- dataMap
-			return nil
-		}
-
-		log.Println("[component util]", "===>error when get CO_DATA:", err.Error(), " get data from server ...")
+	dataMap := make(map[string]interface{})
+	err := json.Unmarshal([]byte(eventINFOMap[CO_DATA]), &dataMap)
+	if err == nil {
+		dataChan <- dataMap
+		return nil
 	}
 
-	reqBody := make(map[string]interface{})
-	reqBody["RUN_ID"] = eventINFOMap[CO_RUN_ID]
-	reqBody["POD_NAME"] = eventINFOMap[CO_POD_NAME]
-	reqBody["RECEIVE_URL"] = "/receivedata"
+	log.Println("[component util]", "===>error when get CO_DATA:", err.Error())
 
-	reqBodyBytes, _ := json.Marshal(reqBody)
-
-	log.Println("[component util]", "===>component send register req to:", eventURLMap[CO_REGISTER_URL], " with body:", string(reqBodyBytes))
-	resp, err := http.Post(eventURLMap[CO_REGISTER_URL], "application/json", bytes.NewReader(reqBodyBytes))
-	if err != nil {
-		log.Println("[component util]", "===>error when get data from workflow:", err.Error())
-		return errors.New("error when get data from workflow")
-	}
-
-	respBody, _ := ioutil.ReadAll(resp.Body)
-	log.Println("[component util]", "===>component get register resp:", string(respBody), "\nstart wait workflow send data")
-
-	// get data from workflow
-	go waitData(port)
-
-	data := <-receiveDataChan
-	dataChan <- data
-
-	return nil
+	dataChan <- dataMap
+	return errors.New("error when get data")
 }
 
 func HoldProj() {
@@ -183,7 +159,7 @@ func HoldProj() {
 	}
 	if timeout <= 0 {
 		c := make(chan bool, 1)
-		<- c
+		<-c
 	} else {
 		time.Sleep(time.Duration(timeout) * time.Second)
 	}
