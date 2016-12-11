@@ -211,6 +211,8 @@ func GetWorkflowInfo(namespace, repository, workflowName string, workflowId int6
 
 	resultMap["lineList"] = make([]map[string]interface{}, 0)
 
+	resultMap["setting"] = make(map[string]interface{})
+
 	resultMap["status"] = false
 
 	return resultMap, nil
