@@ -408,6 +408,7 @@ func GetWorkflowSequenceList(namespace, repository, workflow, version string, ve
 	for _, workflowInfo := range workflows {
 		sequenceMap := make(map[string]interface{})
 		sequenceMap["sequenceId"] = workflowInfo.ID
+		sequenceMap["sequence"] = workflowInfo.Sequence
 		sequenceMap["runTime"] = strconv.FormatFloat(workflowInfo.UpdatedAt.Sub(workflowInfo.CreatedAt).Seconds(), 'f', 0, 64)
 		sequenceMap["runResult"] = workflowInfo.RunState
 		sequenceMap["date"] = workflowInfo.CreatedAt.Format("2006-01-02")
@@ -503,11 +504,19 @@ func getSequenceActionInfo(namespace, repository string, workflow, sequence, sta
 	}
 
 	for _, actionInfo := range actions {
-		count := int64(0)
-		err := new(models.WorkflowLog).GetWorkflowLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("pre_workflow = ?", actionInfo.Workflow).Where("pre_action = ?", actionInfo.ID).Count(&count).Error
+		linkStartWorkflows := make([]models.WorkflowLog, 0)
+		err := new(models.WorkflowLog).GetWorkflowLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("pre_workflow = ?", actionInfo.Workflow).Where("pre_action = ?", actionInfo.ID).Find(&linkStartWorkflows).Error
 		if err != nil && err.Error() != "record not found" {
 			log.Error("[workflow's getSequenceActionInfo]:error when get link start workflow info from db:", err.Error())
 			return nil, errors.New("error when get workflow info")
+		}
+
+		runResult := models.WorkflowLogStateRunSuccess
+		for _, linkstartInfo := range linkStartWorkflows {
+			if linkstartInfo.RunState != models.WorkflowLogStateRunSuccess {
+				runResult = models.WorkflowLogStateRunFailed
+				break
+			}
 		}
 
 		actionMap := make(map[string]interface{})
@@ -517,8 +526,8 @@ func getSequenceActionInfo(namespace, repository string, workflow, sequence, sta
 		actionMap["isTimeout"] = actionInfo.FailReason == ActionStopReasonTimeout
 		actionMap["timeout"] = actionInfo.Timeout
 		actionMap["runTime"] = strconv.FormatFloat(actionInfo.UpdatedAt.Sub(actionInfo.CreatedAt).Seconds(), 'f', 0, 64)
-		actionMap["isStartWorkflow"] = count > 0
-		actionMap["startWorkflowResult"] = false
+		actionMap["isStartWorkflow"] = len(linkStartWorkflows) > 0
+		actionMap["startWorkflowResult"] = runResult
 
 		result = append(result, actionMap)
 	}
