@@ -281,7 +281,7 @@ function addActionDetailEvent(version){
 			versionId:dataset.versionid,
 			versionName:dataset.versionname,
 			stageId:dataset.stageid,
-			stageName:dataset.stageName,
+			stageName:dataset.stagename,
 			actionId:dataset.actionid,
 			actionName:dataset.actionname,
 			sequence:dataset.sequence,

@@ -128,15 +128,16 @@ function addMore(vd,index,pdId,pdName,vdId,vdName){
 }
 
 let historyAbout;
+var isAction, actionId;
 export function getSequenceDetail(selected_history) {
     // todo: 判断 action 来源
     // 在  initSequenceActionByStage   判断属性
 
-    var actionId = selected_history.actionId;
+    actionId = selected_history.actionId;
     var actionName = selected_history.actionName;
     var stageId = selected_history.stageId;
     var stageName = selected_history.stageName;
-    var isAction = null;
+  
     if ( actionId != null || actionId > 0){
         isAction = true;
         
