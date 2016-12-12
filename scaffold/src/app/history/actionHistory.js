@@ -61,11 +61,11 @@ function showActionHistoryView(history,actionname) {
                 let logTime = log.substr(0,19);
                 sequenceLogDetail[index] = logJson.INFO;
 
-                var resultLog = null;
-                if ( logJson.EVENT == 'CO_TASK_RESULT'){
-                     resultLog = logJson.InFO;
+                // var resultLog = null;
+                // if ( logJson.EVENT == 'CO_TASK_RESULT'){
+                //      resultLog = logJson.InFO;
 
-                }
+                // }
 
 
 
