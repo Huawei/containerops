@@ -201,14 +201,111 @@ func GetWorkflowHistoriesV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	// resultMap, err := module.GetWorkflowHistoriesList(namespace)
-	resultMap, err := module.GetWorkflowRunHistoryList(namespace, repository)
+	page := ctx.QueryInt64("page")
+	if page == int64(0) {
+		result, _ = json.Marshal(map[string]string{"errMsg": "request page can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	prePageCount := ctx.QueryInt64("prePageCount")
+	if prePageCount == int64(0) {
+		result, _ = json.Marshal(map[string]string{"errMsg": "request prePageCount can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	resultMap, err := module.GetWorkflowList(namespace, repository, page, prePageCount)
 	if err != nil {
 		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
 		return http.StatusBadRequest, result
 	}
 
-	result, _ = json.Marshal(map[string]interface{}{"workflowList": resultMap})
+	result, _ = json.Marshal(resultMap)
+	return http.StatusOK, result
+}
+
+func GetWorkflowVersionHistoriesV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{"message": ""})
+
+	namespace := ctx.Params(":namespace")
+	if namespace == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "namespace can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	repository := ctx.Params(":repository")
+	if repository == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "repository can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	workflow := ctx.Params(":workflow")
+	if workflow == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "workflow can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	workflowId := ctx.QueryInt64("id")
+	if workflowId == int64(0) {
+		result, _ = json.Marshal(map[string]string{"errMsg": "request workflowId can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	resultMap, err := module.GetWorkflowVersionList(namespace, repository, workflow, workflowId)
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	result, _ = json.Marshal(resultMap)
+	return http.StatusOK, result
+}
+
+func GetWorkflowSequenceHistoriesV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{"message": ""})
+
+	namespace := ctx.Params(":namespace")
+	if namespace == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "namespace can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	repository := ctx.Params(":repository")
+	if repository == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "repository can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	workflow := ctx.Params(":workflow")
+	if workflow == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "workflow can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	version := ctx.Params(":version")
+	if version == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "version can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	versionId := ctx.QueryInt64("id")
+	if versionId == int64(0) {
+		result, _ = json.Marshal(map[string]string{"errMsg": "request  versionId can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	sum := ctx.QueryInt64("sequenceNum")
+	if sum == int64(0) {
+		result, _ = json.Marshal(map[string]string{"errMsg": "request sequence number can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	resultMap, err := module.GetWorkflowSequenceList(namespace, repository, workflow, version, versionId, sum)
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	result, _ = json.Marshal(resultMap)
 	return http.StatusOK, result
 }
 
@@ -341,6 +438,68 @@ func GetSequenceLineHistoryV1Handler(ctx *macaron.Context) (int, []byte) {
 	resultMap["define"] = map[string]interface{}{
 		"input":  lineInputData,
 		"output": lineoutputData,
+	}
+
+	result, _ = json.Marshal(resultMap)
+	return http.StatusOK, result
+}
+
+func GetActionLinkstartListV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{"message": ""})
+
+	namespace := ctx.Params(":namespace")
+	if namespace == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "namespace can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	repository := ctx.Params(":repository")
+	if repository == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "repository can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	workflow := ctx.Params(":workflow")
+	if workflow == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "workflow can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	version := ctx.Params(":version")
+	if version == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "version can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	sequenceStr := ctx.Params(":sequence")
+	sequence, _ := strconv.ParseInt(sequenceStr, 10, 64)
+	if sequence == int64(0) {
+		result, _ = json.Marshal(map[string]string{"errMsg": "sequence can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	action := ctx.Params(":action")
+	if action == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "action can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	workflowID := ctx.QueryInt64("workflowId")
+	if workflowID == int64(0) {
+		result, _ = json.Marshal(map[string]string{"errMsg": "workflow's id can't be zero"})
+		return http.StatusBadRequest, result
+	}
+
+	actionID := ctx.QueryInt64("actionId")
+	if actionID == int64(0) {
+		result, _ = json.Marshal(map[string]string{"errMsg": "action's id can't be zero"})
+		return http.StatusBadRequest, result
+	}
+
+	resultMap, err := module.GetActionLinkStartInfo(namespace, repository, workflow, version, action, sequence, workflowID, actionID)
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when get action link start info"})
+		return http.StatusBadRequest, result
 	}
 
 	result, _ = json.Marshal(resultMap)

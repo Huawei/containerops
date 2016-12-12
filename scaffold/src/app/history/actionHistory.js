@@ -58,8 +58,16 @@ function showActionHistoryView(history,actionname) {
                 allLogs = allLogs.replace(/\\n/g , "\\u003cbr /\\u003e")
                 let logJson = JSON.parse(allLogs);
                 let num = index + 1;
-                sequenceLogDetail[index] = logJson.INFO;
                 let logTime = log.substr(0,19);
+                sequenceLogDetail[index] = logJson.INFO;
+
+                var resultLog = null;
+                if ( logJson.EVENT == 'CO_TASK_RESULT'){
+                     resultLog = logJson.InFO;
+
+                }
+
+
 
                 var row = `<tr class="log-item"><td>`
                         + num +`</td><td>`
@@ -68,7 +76,8 @@ function showActionHistoryView(history,actionname) {
                         + logJson.EVENTID +`</td><td>`
                         + logJson.RUN_ID +`</td><td>`
                         + logJson.INFO.status +`</td><td>`
-                        + logJson.INFO.result +`</td><td><button data-logid="`
+                        + logJson.INFO.result +`</td>`
+                        + `<td><button data-logid="`
                         + "info_" + index + `" type="button" class="btn btn-success sequencelog-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:14px"></i>&nbsp;&nbsp;Detail</button></td></tr>`;
                 $("#logs-tr").append(row);
             })

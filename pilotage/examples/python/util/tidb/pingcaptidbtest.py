@@ -9,21 +9,26 @@ if __name__ == "__main__":
     ComponentStart(result="component start ...")
 
     # prepare task
-    cmd = "git clone https://github.com/pingcap/pd.git /root/gopath/src/github.com/pingcap/pd"
+    cmd = "git clone https://github.com/pingcap/tidb.git /root/gopath/src/github.com/pingcap/tidb"
     execCommand(cmd)
 
     # TaskStart
     TaskStart(result="task start ...")
 
+    os.chdir("/root/gopath/src/github.com/pingcap/tidb")
 
-    os.chdir("/root/gopath/src/github.com/pingcap/pd")
+    execCommand("rm -rf store/tikv/*_slow_test.go")
+
+    # Task exec
     cmd = "make dev"
+
 
     # Task exec
     status = execCommand(cmd)
 
     # reesult status
     TaskResult(result="task result ...", status=status)
+
 
     # TaskStatus
     TaskStatus(result="task status ...", status=status)
@@ -33,4 +38,3 @@ if __name__ == "__main__":
 
     # wait
     holdWait()
-

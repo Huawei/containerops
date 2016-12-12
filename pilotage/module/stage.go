@@ -32,8 +32,9 @@ import (
 const (
 	StageStopReasonTimeout = "TIME_OUT"
 
-	StageStopReasonRunSuccess = "RunSuccess"
-	StageStopReasonRunFailed  = "RunFailed"
+	StageStopReasonRunSuccess     = "RunSuccess"
+	StageStopReasonRunFailed      = "RunFailed"
+	StageStopReasonPreStageFailed = "PreStageFailed"
 
 	StageStopScopeAll        = "all"
 	StageStopScopeRecyclable = "recyclable"
@@ -746,6 +747,7 @@ func (stageLog *StageLog) Stop(scope, reason string, runState int64) {
 	}
 
 	stageLog.RunState = runState
+	stageLog.FailReason = reason
 	err = stageLog.GetStageLog().Save(stageLog).Error
 	if err != nil {
 		log.Error("[stageLog's Stop]:error when change stage's run state:", stageLog, " ===>error is:", err.Error())
@@ -824,8 +826,8 @@ func (stageLog *StageLog) WaitAllActionDone(nextStageCanStartChan chan bool) {
 	}()
 
 	if stageLog.Timeout != "" && stageLog.Timeout != "0" {
-		_, err := strconv.ParseInt(stageLog.Timeout, 10, 64)
-		if err != nil {
+		timeout, err := strconv.ParseInt(stageLog.Timeout, 10, 64)
+		if err != nil || timeout < 0 {
 			log.Error("[stageLog's WaitAllActionDone]:error when parse stage's timeout vaule:", err.Error())
 			nextStageCanStartChan <- false
 			stageLog.Stop(StageStopScopeAll, StageStopReasonRunFailed, models.StageLogStateRunFailed)
@@ -837,7 +839,7 @@ func (stageLog *StageLog) WaitAllActionDone(nextStageCanStartChan chan bool) {
 		case <-time.After(duration):
 			log.Error("[stageLog's WaitAllActionDone]:got a timeout from stage", stageLog)
 			nextStageCanStartChan <- false
-			stageLog.Stop(StageStopScopeAll, StageStopReasonRunFailed, models.StageLogStateRunFailed)
+			stageLog.Stop(StageStopScopeAll, StageStopReasonTimeout, models.StageLogStateRunFailed)
 			return
 		case runResult := <-finalResultChan:
 			nextStageCanStartChan <- runResult
