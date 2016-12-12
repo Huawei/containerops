@@ -309,6 +309,16 @@ export let historyApi = {
 	    });
 	    pendingPromise.push(promise);
 	    return promise;
+	},
+	getHistoryData:function(res){
+		var promise = $.ajax({
+			"url":apiUrlConf.host + res.url,
+			"type":res.type,
+			"dataType":'json',
+			"cache": false
+		});
+		pendingPromise.push(promise);
+	  return promise;	
 	}
 }
 

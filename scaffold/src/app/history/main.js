@@ -20,145 +20,23 @@ import { setPath } from "../relation/setPath";
 import { notify } from "../common/notify";
 import { getActionHistory } from "./actionHistory";
 import { getLineHistory } from "./lineHistory";
+import { getHistoryList } from "./historyList";
 // import * as initButton from "../workflow/initButton";
 import {changeCurrentElement} from "../common/util";
 import * as sequenceUtil from "./initUtil";
 
 export function initHistoryPage() {
-
-    loading.show();
-    var promise = historyDataService.getWorkflowHistories();
-    promise.done(function(data) {
-        loading.hide();
-        constant.sequenceAllList = data.workflowList;
-        getHistoryList();
-    });
-    promise.fail(function(xhr, status, error) {
-        loading.hide();
-        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
-            notify(xhr.responseJSON.errMsg, "error");
-        } else if(xhr.statusText != "abort") {
-            notify("Server is unreachable", "error");
-        }
-    });
+    getHistory();
 }
 
-function getHistoryList() {
+function getHistory() {
     $.ajax({
         url: "../../templates/history/historyList.html",
         type: "GET",
         cache: false,
         success: function(data) {
             $("#main").html($(data));
-            $("#historyWorkflowlist").show("slow");
-
-            $(".workflowlist_body").empty();
-            var hppItem = $(".workflowlist_body");
-
-            if (constant.sequenceAllList.length > 0) {
-
-                _.each(constant.sequenceAllList, function(pd) {
-                    var hpRow = `<tr data-id=` 
-                        + pd.id + ` class="pp-row"><td class="pptd"><span class="glyphicon glyphicon-menu-down treeclose pp-controller" data-name=`
-                        + pd.name + `></span><span style="margin-left:10px">`
-                        + pd.name + `</span></td><td></td><td></td><td></td></tr>`;
-                    hppItem.append(hpRow);
-
-                    _.each(pd.versionList, function(vd) {
-                        var hvRow = `<tr data-pname=` 
-                            + pd.name + ` data-version=` 
-                            + vd.name + ` data-versionid=` 
-                            + vd.id + ` class="ppversion-row"><td></td>`;
-
-                        if (_.isUndefined(vd.status) && vd.sequenceList.length == 0) {
-                            hvRow += `<td class="pptd">` 
-                                    + vd.name + `</td><td><div class="state-list"><div class="state-icon-list state-norun"></div></div></td><td></td>`;
-                            hppItem.append(hvRow);
-                        }else {
-                            hvRow += `<td class="pptd"><span class="glyphicon glyphicon-menu-down treeclose pp-v-controller"></span><span style="margin-left:10px">` + vd.name + `</span></td>`;
-                            hvRow += `<td class="pptd">`+ vd.info +`</td>`;
-                            hvRow += `<td></td></tr>`;
-                            hppItem.append(hvRow);
-
-                            if (vd.sequenceList.length > 0) {
-                                if(vd.sequenceList.length > 5){
-                                    var sdRowArray = forVdSequenceList(vd.sequenceList,0,5,pd.id,pd.name,vd.id,vd.name);
-                                    _.each(sdRowArray,function(row){
-                                       hppItem.append(row);
-                                    });
-                                } else{
-                                var sdRowArray = forVdSequenceList(vd.sequenceList,0,0,pd.id,pd.name,vd.id,vd.name);
-                                 _.each(sdRowArray,function(row){
-                                    hppItem.append(row);
-                                 });
-                                }
-                                
-                                $("#btn_"+pd.name+"_"+pd.id).on("click",function(){
-                                    addMore(vd.sequenceList,5,pd.id,pd.name,vd.id,vd.name);
-                                });
-                            } 
-                        }   
-                    });
-                });
-
-
-                $(".pp-controller").on("click", function(event) {
-                    var target = $(event.currentTarget);
-                    if (target.hasClass("treeclose")) {
-                        target.removeClass("glyphicon-menu-down treeclose");
-                        target.addClass("glyphicon-menu-right treeopen");
-
-                        var name = target.data("name");
-                        $('tr[data-pname="' + name + '"]').hide();
-                    } else {
-                        target.addClass("glyphicon-menu-down treeclose");
-                        target.removeClass("glyphicon-menu-right treeopen");
-
-                        var name = target.data("name");
-                        $('tr[data-pname="' + name + '"]').show();
-                        if ($('tr[data-pname="' + name + '"]').find(".pp-v-controller").hasClass("treeopen")) {
-                            $('tr[data-pname="' + name + '"]').find(".pp-v-controller").trigger("click");
-                        }
-                    }
-                });
-
-                $(".pp-v-controller").on("click", function(event) {
-                    var target = $(event.currentTarget);
-                    var pname = target.parent().parent().data("pname");
-                    var vid = target.parent().parent().data("versionid");
-                    if (target.hasClass("treeclose")) {
-                        target.removeClass("glyphicon-menu-down treeclose");
-                        target.addClass("glyphicon-menu-right treeopen");
-
-                        $('.sequence-row[data-pname="' + pname + '"][data-versionid="' + vid + '"]').hide();
-                    } else {
-                        target.addClass("glyphicon-menu-down treeclose");
-                        target.removeClass("glyphicon-menu-right treeopen");
-
-                        $('.sequence-row[data-pname="' + pname + '"][data-versionid="' + vid + '"]').show();
-                    }
-                });
-
-                $(".sequence-detail").on("click", function(event) {
-                    var pname = $(event.currentTarget).parent().parent().data("pname");
-                    var vid = $(event.currentTarget).parent().parent().data("versionid");
-                    var vname = $(event.currentTarget).parent().parent().data("version");
-                    var sid = $(event.currentTarget).parent().parent().data("id");
-                    var sStatus = $(event.currentTarget).parent().parent().data("status");
-                    var selected_history = {
-                        "workflowName": pname,
-                        "VersionID": vid,
-                        "versionName": vname,
-                        "sequence": sid,
-                        "sequenceStatus": sStatus
-                    };
-                    getSequenceDetail(selected_history);
-                });
-            } else {
-                var nodataRow = `<tr><td colspan="4" style="text-align:center">No histories found.</td></tr>`;
-                hppItem.append(nodataRow);
-            }
-
+            getHistoryList();
         }
     });
 }
@@ -166,7 +44,7 @@ function getHistoryList() {
 function forVdSequenceList(vd,index,length,pdId,pdName,vdId,vdName){
 
     var hsRowArray = [];
-// console.log("vd",vd)
+    // console.log("vd",vd)
     var tempLength = (length > 0) ? length : vd.length;
 
 
