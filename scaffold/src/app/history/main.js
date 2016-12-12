@@ -285,6 +285,7 @@ export function getSequenceDetail(selected_history) {
         } else if( data.define.stageList.length > 0 && isAction){
             initSequenceView(selected_history);
             getActionHistory(historyAbout.workflowName,historyAbout.versionName,historyAbout.sequence,historyAbout.stageName,historyAbout.actionName);
+        }
 
     });
 
@@ -847,14 +848,14 @@ function initSequenceStageLine() {
 
     });
 
-    initSequenceActionByStage(hasAction);
+    initSequenceActionByStage();
     initSequenceAction2StageLine();
     initSequenceActionLinkBase();
     initSequenceActionLinkBasePoint();
     initSequencePath();
 }
 
-function initSequenceActionByStage(hasAction) {
+function initSequenceActionByStage() {
     constant.sequenceActionsView.selectAll("g").remove();
     /* draw actions in actionView , data source is stage.actions */
     constant.sequenceWorkflowView.selectAll("image").each(function(d, i) {
