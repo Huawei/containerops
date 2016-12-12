@@ -213,8 +213,7 @@
   height: 35px;
   line-height: 35px;
   margin-top: 10px;
-  width: calc(-50%);
-  width: -webkit-calc(-50%);
+  width: 100%;
   text-align: center;
   float: right;
 }
@@ -356,7 +355,7 @@
 }
 #startedRecords .time {
   margin-right: 20px;
-  width: 130px;
+  width: 140px;
   margin-top: 10px;
   float: left;
 }
@@ -375,8 +374,8 @@
 }
 #startedRecords .stages {
   padding: 10px 10px 5px;
-  width: calc(-170%);
-  width: -webkit-calc(-170%);
+  width: calc(-180%);
+  width: -webkit-calc(-180%);
   float: left;
 }
 #startedRecords .item-stage {
