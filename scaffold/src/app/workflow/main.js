@@ -26,6 +26,7 @@ import { initButton } from "./initButton";
 import {getSequenceDetail} from "../history/main";
 import {initWorkflowEnv,showWorkflowEnv} from "./workflowEnv";
 import {initWorkflowVar,showWorkflowVar} from "./workflowVar";
+import {initWorkflowSetting} from "./workflowSetting";
 
 
 export let allWorkflows;
@@ -318,6 +319,8 @@ function showWorkflowDesigner(state) {
                 return $.extend(true,{},item);
             });
             workflowSettingDataOriginalCopy = $.extend(true,{},workflowSettingData);
+
+            initWorkflowSetting(workflowSettingData);
         }
     });
 }
