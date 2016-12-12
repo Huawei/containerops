@@ -1,0 +1,36 @@
+FROM ubuntu:14.04
+
+MAINTAINER xiechuan  <xiechuanj@gmail.com>
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    file \
+    make \
+    build-essential \
+    checkinstall \
+    libgflags-dev \
+    libsnappy-dev \
+    liblz4-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    ca-certificates \
+    git \
+    python \
+    && rm -rf /var/lib/apt/lists/* && apt-get clean
+
+RUN cd / && \
+    curl -L https://github.com/facebook/rocksdb/archive/4.12.fb.tar.gz -o rocksdb.tar.gz && \
+    tar xzf rocksdb.tar.gz && \
+    cd rocksdb-4.12.fb && \
+    PORTABLE=1 make shared_lib && \
+    make install && \
+    cd / && \
+    rm -rf /rocksdb-4.12.fb /rocksdb.tar.gz
+
+RUN curl -sSf https://static.rust-lang.org/rustup.sh | sh -s  -- --date=2016-10-06 --disable-sudo -y --channel=nightly
+
+
+COPY *.py ./
+
+CMD python pingcaptikvtest.py
+

@@ -126,8 +126,9 @@ gulp.task('dev:css-replace', ['dev:styles', 'dev:html'], function() {
  *  This will replace imported script in index.html
  */
 gulp.task('dev:script-replace', ['dev:scripts', 'dev:html'], function() {
+    var randomCopy = "?copy=" + Math.random();
     return gulp.src('dev/src/index.html')
-        .pipe(replace(/<script\/>/g, '<script src="main.js"></script>'))
+        .pipe(replace(/<script\/>/g, '<script src="main.js'+randomCopy+'"></script>'))
         .pipe(gulp.dest('dev/src'))
         .on('error', gutil.log);
 });
