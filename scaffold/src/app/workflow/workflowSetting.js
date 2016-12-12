@@ -121,17 +121,15 @@ function showTimedTasks(){
 	$("#timed-tasks-div").empty();
     _.each(setting.timedTasks.tasks,function(task,index){
         var row = `<div class="timed-task-row" data-index="`+ index +`">
-        				<div class="task-design-div"></div>
+        				<div class="task-design-div col-md-10"></div>
                     	<div class="task-action-div">`;
 
         if(task.byDesigner){
-        	row += `<div><span class="task-designer-on"></span></div>`;
-        	row += `<div><span class="task-editor-off"></span></div>`;
-        	row += `<div><span class="task-delete"></span></div>`;
+        	row += `<div><span class="task-editor" title="Use Task Editor"></span></div>`;
+        	row += `<div><span class="task-delete" title="Delete Task"></span></div>`;
         }else{
-        	row += `<span class="task-designer-off"></span>`;
-        	row += `<span class="task-editor-on"></span>`;
-        	row += `<span class="task-delete"></span>`;
+        	row += `<div><span class="task-designer" title="Use Task Designer"></span></div>`;
+        	row += `<div><span class="task-delete" title="Delete Task"></span></div>`;
         }
                     	
         row += `</div></div>`
@@ -143,6 +141,26 @@ function showTimedTasks(){
         deleteTask(event);
         showTimedTasks();
     });
+
+    $(".task-editor").on('click',function(event){
+    	var index = $(event.currentTarget).parent().parent().parent().data("index");
+    	setting.timedTasks.tasks[index].byDesigner = false;
+    	setting.timedTasks.tasks[index].cronEntry = "";
+    	showTimedTasks();
+    });
+
+    $(".task-designer").on('click',function(event){
+    	var index = $(event.currentTarget).parent().parent().parent().data("index");
+    	setting.timedTasks.tasks[index].byDesigner = true;
+    	setting.timedTasks.tasks[index].cronEntry = "* * * * *";
+    	showTimedTasks();
+    });
+
+    $(".cron-editor").on('blur',function(event){
+    	var index = $(event.currentTarget).parent().parent().parent().parent().data("index");
+		setting.timedTasks.tasks[index].cronEntry = $(event.currentTarget).val();
+		$(event.currentTarget).parent().parent().find(".cron-val").text(setting.timedTasks.tasks[index].cronEntry);
+    });
 }
 
 function addTimedTask(){
@@ -152,7 +170,7 @@ function addTimedTask(){
 }
 
 function deleteTask(event){
-	var index = $(event.currentTarget).parent().parent().data("index");
+	var index = $(event.currentTarget).parent().parent().parent().data("index");
 	setting.timedTasks.tasks.splice(index,1);
 }
 
@@ -160,8 +178,19 @@ function showTask(task,index){
 	if(task.byDesigner){
 		var cronInstance = $.extend(true,{},cron);
 		cronInstance.initCronEntry($(".timed-task-row[data-index="+index+"]").find(".task-design-div"),task);
+	}else{
+		var editor = `<div class="row">
+					    <div class="cron-designer">
+					    	<input class="cron-editor" type="text" placeholder="Please enter your cron task expression" value="`+ task.cronEntry +`">
+						</div>
+					    <div class="cron-result">
+					    	<span>Generated cron entry: </span>
+					    	<span class="cron-val">`+ task.cronEntry +`</span>
+					    </div>
+					</div>`;
+		$(".timed-task-row[data-index="+index+"]").find(".task-design-div").empty();
+		$(".timed-task-row[data-index="+index+"]").find(".task-design-div").append(editor);	
 	}
-	
 }
 
 var metadata = {
