@@ -98,6 +98,7 @@ func startDeamon(cmd *cobra.Command, args []string) {
 	switch listenMode {
 	case "http":
 		listenaddr := fmt.Sprintf("%s:%d", address, port)
+		fmt.Println("pilotage is listen:", listenaddr)
 		if err := http.ListenAndServe(listenaddr, m); err != nil {
 			fmt.Printf("Start Pilotage http service error: %v\n", err.Error())
 		}

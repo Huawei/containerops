@@ -94,22 +94,25 @@ var (
 
 //Workflow is DevOps workflow definition unit.
 type Workflow struct {
-	ID          int64      `json:"id" gorm:"primary_key"`                       //
-	Namespace   string     `json:"namespace" sql:"not null;type:varchar(255)"`  //Username or organization
-	Repository  string     `json:"repository" sql:"not null;type:varchar(255)"` //
-	Workflow    string     `json:"workflow" sql:"not null;type:varchar(255)"`   //workflow name
-	Event       int64      `json:"event" sql:"null;default:0"`                  //
-	Version     string     `json:"version" sql:"null;type:varchar(255)"`        //User define Workflow version
-	VersionCode int64      `json:"versionCode" sql:"null;type:varchar(255)"`    //System define Workflow version,unique,for query
-	State       int64      `json:"state" sql:"null;type:bigint"`                //workflow state
-	Manifest    string     `json:"manifest" sql:"null;type:longtext"`           //
-	Description string     `json:"description" sql:"null;type:text"`            //
-	SourceInfo  string     `json:"source" sql:"null;type:longtext"`             // define of source like : {"token":"","sourceList":[{"sourceType":"Github","headerKey":"X-Hub-Signature","eventList":",pull request,"]}
-	Env         string     `json:"env" sql:"null;type:longtext"`                // env that all action in this workflow will get
-	Requires    string     `json:"requires" sql:"type:longtext"`                // workflow run requires auth
-	CreatedAt   time.Time  `json:"created" sql:""`                              //
-	UpdatedAt   time.Time  `json:"updated" sql:""`                              //
-	DeletedAt   *time.Time `json:"deleted" sql:"index"`                         //
+	ID              int64      `json:"id" gorm:"primary_key"`                       //
+	Namespace       string     `json:"namespace" sql:"not null;type:varchar(255)"`  //Username or organization
+	Repository      string     `json:"repository" sql:"not null;type:varchar(255)"` //
+	Workflow        string     `json:"workflow" sql:"not null;type:varchar(255)"`   //workflow name
+	Event           int64      `json:"event" sql:"null;default:0"`                  //
+	Version         string     `json:"version" sql:"null;type:varchar(255)"`        //User define Workflow version
+	VersionCode     int64      `json:"versionCode" sql:"null;type:varchar(255)"`    //System define Workflow version,unique,for query
+	State           int64      `json:"state" sql:"null;type:bigint"`                //workflow state
+	Manifest        string     `json:"manifest" sql:"null;type:longtext"`           //
+	Description     string     `json:"description" sql:"null;type:text"`            //
+	SourceInfo      string     `json:"source" sql:"null;type:longtext"`             // define of source like : {"token":"","sourceList":[{"sourceType":"Github","headerKey":"X-Hub-Signature","eventList":",pull request,"]}
+	Env             string     `json:"env" sql:"null;type:longtext"`                // env that all action in this workflow will get
+	Requires        string     `json:"requires" sql:"type:longtext"`                // workflow run requires auth
+	IsLimitInstance bool       `json:"isLimitInstance"`                             //
+	LimitInstance   int64      `json:"limitInstance"`                               //
+	CurrentInstance int64      `json:"currentInstance"`                             //
+	CreatedAt       time.Time  `json:"created" sql:""`                              //
+	UpdatedAt       time.Time  `json:"updated" sql:""`                              //
+	DeletedAt       *time.Time `json:"deleted" sql:"index"`                         //
 }
 
 //TableName is return the table name of Workflow in MySQL database.
