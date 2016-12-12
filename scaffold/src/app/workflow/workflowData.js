@@ -36,13 +36,14 @@ export function addWorkflow(){
     return workflowApi.add(name,version);
 }
 
-export function saveWorkflow(name,version,versionid,nodes,lines){
+export function saveWorkflow(name,version,versionid,nodes,lines,setting){
     var reqbody = {
         "id" : versionid,
         "version" : version.toString(),
         "define":{
             "lineList" : lines,
-            "stageList" : nodes
+            "stageList" : nodes,
+            "setting" : setting
         }
     }
 
