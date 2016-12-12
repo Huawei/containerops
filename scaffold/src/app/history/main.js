@@ -129,7 +129,6 @@ function addMore(vd,index,pdId,pdName,vdId,vdName){
 
 let historyAbout;
 export function getSequenceDetail(selected_history) {
-
     // todo: 判断 action 来源
     // 在  initSequenceActionByStage   判断属性
 
