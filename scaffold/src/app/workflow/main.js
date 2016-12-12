@@ -381,7 +381,7 @@ function showNewWorkflowVersion() {
             $("#pp-name-newversion").val(workflowName);
 
             $("#newppVersionBtn").on('click', function() {
-                var promise = workflowDataService.addWorkflowVersion(workflowName, workflowVersionID, workflowData, linePathAry);
+                var promise = workflowDataService.addWorkflowVersion(workflowName, workflowVersionID, workflowData, linePathAry, workflowSettingData);
                 if (promise) {
                     promise.done(function(data) {
                         loading.hide();

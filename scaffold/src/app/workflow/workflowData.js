@@ -50,12 +50,12 @@ export function saveWorkflow(name,version,versionid,nodes,lines,setting){
     return workflowApi.save(name,reqbody);
 }
 
-export function addWorkflowVersion(name, versionid, nodes,lines){
+export function addWorkflowVersion(name, versionid, nodes,lines,setting){
     if(!$('#newpp-version-form').parsley().validate()){
         return false;
     }else{
         var version = $("#pp-newversion").val();
-        return saveWorkflow(name, version, versionid, nodes,lines)
+        return saveWorkflow(name, version, versionid, nodes,lines,setting)
     }
 }
 
