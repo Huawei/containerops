@@ -220,7 +220,7 @@ function renderSequences(workflowName,workflowId,version,sequences) {
 
 	if(sequences.length>showSequenceNum){
 		addMore = '<div class="over-hidden">'+
-									'<div class="addRecords bg-stage extend" onClick="get()">...more...</div>'+
+									'<div class="addRecords bg-stage extend">...more...</div>'+
 								'</div>'
 	}
 
@@ -281,7 +281,7 @@ function addActionDetailEvent(version){
 			versionId:dataset.versionid,
 			versionName:dataset.versionname,
 			stageId:dataset.stageid,
-			stageName:dataset.stageName,
+			stageName:dataset.stagename,
 			actionId:dataset.actionid,
 			actionName:dataset.actionname,
 			sequence:dataset.sequence,
