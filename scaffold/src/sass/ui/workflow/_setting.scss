@@ -60,19 +60,7 @@ limitations under the License. */
   margin: 10px 15px;
 }
 
-.task-designer-on{
-  background-image:url(/assets/images/icon-list.png);
-  background-repeat:no-repeat;
-  background-size:contain;
-  width: 20px;
-  height: 20px;
-  display: inline-block;
-  float:left;
-  margin:3px 10px;
-  cursor: pointer;
-}
-
-.task-designer-off{
+.task-designer{
   background-image:url(/assets/images/icon-list-no.png);
   background-repeat:no-repeat;
   background-size:contain;
@@ -80,31 +68,15 @@ limitations under the License. */
   height: 20px;
   display: inline-block;
   float:left;
-  margin:3px 10px;
+  margin:10px 10px;
   cursor: pointer;
 }
 
-.task-designer-on:hover{
-  opacity: 0.5;
+.task-designer:hover{
+  background-image:url(/assets/images/icon-list.png);
 }
 
-.task-designer-off:hover{
-  opacity: 0.5;
-}
-
-.task-editor-on{
-  background-image:url(/assets/images/icon-edit.png);
-  background-repeat:no-repeat;
-  background-size:contain;
-  width: 20px;
-  height: 20px;
-  display: inline-block;
-  float:left;
-  margin:3px 10px;
-  cursor: pointer;
-}
-
-.task-editor-off{
+.task-editor{
   background-image:url(/assets/images/icon-edit-no.png);
   background-repeat:no-repeat;
   background-size:contain;
@@ -112,16 +84,12 @@ limitations under the License. */
   height: 20px;
   display: inline-block;
   float:left;
-  margin:3px 10px;
+  margin:10px 10px;
   cursor: pointer;
 }
 
-.task-editor-on:hover{
-  opacity: 0.5;
-}
-
-.task-editor-off:hover{
-  opacity: 0.5;
+.task-editor:hover{
+  background-image:url(/assets/images/icon-edit.png);
 }
 
 .task-delete{
@@ -132,7 +100,7 @@ limitations under the License. */
   height: 20px;
   display: inline-block;
   float:left;
-  margin:3px 10px;
+  margin:10px 10px;
   cursor: pointer;
 }
 
@@ -142,6 +110,7 @@ limitations under the License. */
 
 .cron-designer{
   margin: 7px 20px;
+  width: 100%;
 }
 
 .cron-result{
@@ -154,4 +123,10 @@ limitations under the License. */
 
 .cron-block{
   margin-left:10px;
+}
+
+.cron-editor{
+  width: 100%;
+  height: 50px;
+  padding: 15px 10px;
 }

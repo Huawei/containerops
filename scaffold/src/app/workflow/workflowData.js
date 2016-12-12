@@ -36,25 +36,26 @@ export function addWorkflow(){
     return workflowApi.add(name,version);
 }
 
-export function saveWorkflow(name,version,versionid,nodes,lines){
+export function saveWorkflow(name,version,versionid,nodes,lines,setting){
     var reqbody = {
         "id" : versionid,
         "version" : version.toString(),
         "define":{
             "lineList" : lines,
-            "stageList" : nodes
+            "stageList" : nodes,
+            "setting" : setting
         }
     }
 
     return workflowApi.save(name,reqbody);
 }
 
-export function addWorkflowVersion(name, versionid, nodes,lines){
+export function addWorkflowVersion(name, versionid, nodes,lines,setting){
     if(!$('#newpp-version-form').parsley().validate()){
         return false;
     }else{
         var version = $("#pp-newversion").val();
-        return saveWorkflow(name, version, versionid, nodes,lines)
+        return saveWorkflow(name, version, versionid, nodes,lines,setting)
     }
 }
 
