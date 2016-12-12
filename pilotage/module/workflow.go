@@ -739,7 +739,7 @@ func (workflowInfo *Workflow) CreateNewVersion(define map[string]interface{}, ve
 		return err
 	}
 
-	return workflowInfo.UpdateWorkflowInfo(define)
+	return newWorkflowInfo.UpdateWorkflowInfo(define)
 }
 
 func (workflowInfo *Workflow) GetWorkflowToken() (map[string]interface{}, error) {
@@ -858,7 +858,7 @@ func (workflowInfo *Workflow) UpdateWorkflowInfo(define map[string]interface{}) 
 		return err
 	}
 
-	relationMap, stageDefineList, err := workflowInfo.getWorkflowDefineInfo(workflowInfo.Workflow)
+	relationMap, stageDefineList, settingMap, err := workflowInfo.getWorkflowDefineInfo(workflowInfo.Workflow)
 	if err != nil {
 		log.Error("[workflow's UpdateWorkflowInfo]:when get workflow's define info:", err.Error())
 		rollbackErr := db.Rollback().Error
@@ -970,11 +970,67 @@ func (workflowInfo *Workflow) UpdateWorkflowInfo(define map[string]interface{}) 
 		}
 	}
 
+	if instanceSetting, ok := settingMap["runningInstances"]; ok {
+		setting, ok := instanceSetting.(map[string]interface{})
+		if !ok {
+			log.Error("[workflow's UpdateWorkflowInfo]:error when parse instanceSetting map,want a json obj, got:", settingMap["runningInstances"])
+			rollbackErr := db.Rollback().Error
+			if rollbackErr != nil {
+				log.Error("[workflow's UpdateWorkflowInfo]:when rollback in parse instance Setting map:", rollbackErr.Error())
+				return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
+			}
+			return errors.New("error when save workflow's define info:" + err.Error())
+		}
+
+		available, ok := setting["available"].(bool)
+		if !ok {
+			available = false
+		}
+
+		instanceNum := int64(0)
+		instanceNumF, ok := setting["number"].(float64)
+		if ok {
+			instanceNum = int64(instanceNumF)
+		}
+
+		workflowInfo.IsLimitInstance = available
+		workflowInfo.LimitInstance = instanceNum
+
+		err = db.Save(workflowInfo).Error
+		if err != nil {
+			log.Error("[workflow's UpdateWorkflowInfo]:when save workflow's info:", workflowInfo, " ===>error is:", err.Error())
+			rollbackErr := db.Rollback().Error
+			if rollbackErr != nil {
+				log.Error("[workflow's UpdateWorkflowInfo]:when rollback in save workflow's info:", rollbackErr.Error())
+				return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
+			}
+			return err
+		}
+	}
+
+	if taskSetting, ok := settingMap["timedTasks"]; ok {
+		taskMap, ok := taskSetting.(map[string]interface{})
+		if !ok {
+			log.Error("[workflow's UpdateWorkflowInfo]:error when get task map info,want a json obj, got:", taskMap)
+			rollbackErr := db.Rollback().Error
+			if rollbackErr != nil {
+				log.Error("[workflow's UpdateWorkflowInfo]:when rollback in got a task setting map:", rollbackErr.Error())
+				return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
+			}
+			return errors.New("error when save workflow's define info:" + err.Error())
+		}
+		err = workflowInfo.updateTimerTask(taskMap)
+	}
+
 	db.Commit()
 	return nil
 }
 
-func (workflow *Workflow) getWorkflowDefineInfo(workflowInfo *models.Workflow) (map[string]interface{}, []map[string]interface{}, error) {
+func (workflow *Workflow) updateTimerTask(taskMap map[string]interface{}) error {
+	return nil
+}
+
+func (workflow *Workflow) getWorkflowDefineInfo(workflowInfo *models.Workflow) (map[string]interface{}, []map[string]interface{}, map[string]interface{}, error) {
 	lineList := make([]map[string]interface{}, 0)
 	stageList := make([]map[string]interface{}, 0)
 
@@ -982,27 +1038,27 @@ func (workflow *Workflow) getWorkflowDefineInfo(workflowInfo *models.Workflow) (
 	err := json.Unmarshal([]byte(workflowInfo.Manifest), &manifestMap)
 	if err != nil {
 		log.Error("[workflow's getWorkflowDefineInfo]:error when unmarshal workflow's manifes info:", workflow.Manifest, " ===>error is:", err.Error())
-		return nil, nil, errors.New("error when unmarshal workflow manifes info:" + err.Error())
+		return nil, nil, nil, errors.New("error when unmarshal workflow manifes info:" + err.Error())
 	}
 
 	defineMap, ok := manifestMap["define"].(map[string]interface{})
 	if !ok {
 		log.Error("[workflow's getWorkflowDefineInfo]:workflow's define is not a json obj:", manifestMap["define"])
-		return nil, nil, errors.New("workflow's define is not a json:" + err.Error())
+		return nil, nil, nil, errors.New("workflow's define is not a json:" + err.Error())
 	}
 
 	realtionMap := make(map[string]interface{})
 	if linesList, ok := defineMap["lineList"].([]interface{}); ok {
 		if !ok {
 			log.Error("[workflow's getWorkflowDefineInfo]:error in workflow's lineList define,want a array,got:", defineMap["lineList"])
-			return nil, nil, errors.New("workflow's lineList define is not an array")
+			return nil, nil, nil, errors.New("workflow's lineList define is not an array")
 		}
 
 		for _, lineInfo := range linesList {
 			lineInfoMap, ok := lineInfo.(map[string]interface{})
 			if !ok {
 				log.Error("[workflow's getWorkflowDefineInfo]:error in workflow's line define: want a json obj,got:", lineInfo)
-				return nil, nil, errors.New("workflow's line info is not a json")
+				return nil, nil, nil, errors.New("workflow's line info is not a json")
 			}
 
 			lineList = append(lineList, lineInfoMap)
@@ -1012,13 +1068,13 @@ func (workflow *Workflow) getWorkflowDefineInfo(workflowInfo *models.Workflow) (
 			endData, ok := lineInfo["endData"].(map[string]interface{})
 			if !ok {
 				log.Error("[workflow's getWorkflowDefineInfo]:error in workflow's line define:line doesn't define any end point info:", lineInfo)
-				return nil, nil, errors.New("workflow's line define is illegal,don't have a end point info")
+				return nil, nil, nil, errors.New("workflow's line define is illegal,don't have a end point info")
 			}
 
 			endPointId, ok := endData["id"].(string)
 			if !ok {
 				log.Error("[workflow's getWorkflowDefineInfo]:error in workflow's line define:end point's id is not a string:", endData)
-				return nil, nil, errors.New("workflow's line define is illegal,endPoint id is not a string")
+				return nil, nil, nil, errors.New("workflow's line define is illegal,endPoint id is not a string")
 			}
 
 			if _, ok := realtionMap[endPointId]; !ok {
@@ -1029,13 +1085,13 @@ func (workflow *Workflow) getWorkflowDefineInfo(workflowInfo *models.Workflow) (
 			startData, ok := lineInfo["startData"].(map[string]interface{})
 			if !ok {
 				log.Error("[workflow's getWorkflowDefineInfo]:error in workflow's line define:line doesn't define any start point info:", lineInfo)
-				return nil, nil, errors.New("workflow's line define is illegal,don;t have a start point info")
+				return nil, nil, nil, errors.New("workflow's line define is illegal,don;t have a start point info")
 			}
 
 			startDataId, ok := startData["id"].(string)
 			if !ok {
 				log.Error("[workflow's getWorkflowDefineInfo]:error in workflow's line define:start point's id is not a string:", endData)
-				return nil, nil, errors.New("workflow's line define is illegal,startPoint id is not a string")
+				return nil, nil, nil, errors.New("workflow's line define is illegal,startPoint id is not a string")
 			}
 
 			if startDataId == "start-stage" {
@@ -1072,26 +1128,38 @@ func (workflow *Workflow) getWorkflowDefineInfo(workflowInfo *models.Workflow) (
 	stageListInfo, ok := defineMap["stageList"]
 	if !ok {
 		log.Error("[workflow's getWorkflowDefineInfo]:error in workflow's define:workflow doesn't define any stage info", defineMap)
-		return nil, nil, errors.New("workflow don't have a stage define")
+		return nil, nil, nil, errors.New("workflow don't have a stage define")
 	}
 
 	stagesList, ok := stageListInfo.([]interface{})
 	if !ok {
 		log.Error("[workflow's getWorkflowDefineInfo]:error in stageList's define:want array,got:", stageListInfo)
-		return nil, nil, errors.New("workflow's stageList define is not an array")
+		return nil, nil, nil, errors.New("workflow's stageList define is not an array")
 	}
 
 	for _, stageInfo := range stagesList {
 		stageInfoMap, ok := stageInfo.(map[string]interface{})
 		if !ok {
 			log.Error("[workflow's getWorkflowDefineInfo]:error in stage's define,want a json obj,got:", stageInfo)
-			return nil, nil, errors.New("workflow's stage info is not a json")
+			return nil, nil, nil, errors.New("workflow's stage info is not a json obj")
 		}
 
 		stageList = append(stageList, stageInfoMap)
 	}
 
-	return realtionMap, stageList, nil
+	setting, ok := defineMap["setting"].(map[string]interface{})
+	if !ok {
+		log.Error("[workflow's getWorkflowDefineInfo]:error when get workflow setting: want a json obj, got:", defineMap["setting"])
+		return nil, nil, nil, errors.New("workflow's setting info is not a json obj")
+	}
+
+	setting, ok = setting["data"].(map[string]interface{})
+	if !ok {
+		log.Error("[workflow's getWorkflowDefineInfo]:error when get workflow setting's data: want a json obj, got:", defineMap["setting"])
+		return nil, nil, nil, errors.New("workflow's setting info is not a json obj")
+	}
+
+	return realtionMap, stageList, setting, nil
 }
 
 func (workflowInfo *Workflow) BeforeExecCheck(reqHeader http.Header, reqBody []byte) (bool, map[string]string, error) {
@@ -1143,6 +1211,28 @@ func (workflowInfo *Workflow) BeforeExecCheck(reqHeader http.Header, reqBody []b
 		}
 	}
 
+	// check run instance number
+	db := models.GetDB().Begin()
+	workflow := new(models.Workflow)
+	err = db.Raw("select * from workflow where id = ? for update", workflowInfo.ID).Scan(workflow).Error
+	if err != nil {
+		log.Error("[workflow's BeforeExecCheck]:error when get workflow info  from db:", err.Error())
+		db.Rollback()
+		return false, nil, errors.New("failed when check exec req")
+	}
+
+	if workflow.IsLimitInstance {
+		if workflow.LimitInstance <= workflow.CurrentInstance {
+			log.Error("[workflow's BeforeExecCheck]:workflow:", workflow.Workflow, " current run:", workflow.CurrentInstance, " max run num:", workflow.LimitInstance, " start failed ...")
+			db.Rollback()
+			return false, nil, errors.New("no useable run instance")
+		}
+	}
+
+	workflow.CurrentInstance += 1
+
+	db.Save(workflow)
+	db.Commit()
 	return passCheck, eventInfoMap, nil
 }
 
@@ -1616,6 +1706,23 @@ func (workflowLog *WorkflowLog) Stop(reason string, runState int64) {
 	if err != nil {
 		log.Error("[workflowLog's Stop]:error when change workflowlog's run state:", workflowLog, " ===>error is:", err.Error())
 	}
+
+	db := models.GetDB().Begin()
+	workflowInfo := new(models.Workflow)
+	err = db.Raw("select * from workflow where id = ?", workflowLog.FromWorkflow).Scan(workflowInfo).Error
+	if err != nil {
+		log.Error("[workflowLog's Stop]:error when get workflow info from db:", err.Error())
+		db.Rollback()
+	}
+
+	workflowInfo.CurrentInstance -= 1
+	err = db.Save(workflowInfo).Error
+	if err != nil {
+		log.Error("[workflowLog's Stop]:error when save workflow info from db:", err.Error())
+		db.Rollback()
+	}
+
+	db.Commit()
 }
 
 func (workflowLog *WorkflowLog) recordWorkflowStartData(startData string) error {
