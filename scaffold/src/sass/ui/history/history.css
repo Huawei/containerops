@@ -378,8 +378,8 @@
 
 #startedRecords .stages {
   padding: 10px 10px 5px;
-  width: calc(100% - 270px);
-  width: -webkit-calc(100% - 270px);
+  width: calc(100% - 280px);
+  width: -webkit-calc(100% - 280px);
   float: left;
 }
 
