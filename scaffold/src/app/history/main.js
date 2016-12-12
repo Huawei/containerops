@@ -147,8 +147,12 @@ function getHistoryList() {
                     var sStatus = $(event.currentTarget).parent().parent().data("status");
                     var selected_history = {
                         "workflowName": pname,
-                        "VersionID": vid,
+                        "versionID": vid,
                         "versionName": vname,
+                        "stageID": vid,
+                        "stageName": vname,
+                        "actionID": vid,
+                        "actionName": vname,
                         "sequence": sid,
                         "sequenceStatus": sStatus
                     };
@@ -249,9 +253,24 @@ function addMore(vd,index,pdId,pdName,vdId,vdName){
 
 }
 
-
 let historyAbout;
 export function getSequenceDetail(selected_history) {
+
+    // todo: 判断 action 来源
+    // 在  initSequenceActionByStage   判断属性
+
+    var actionId = selected_history.actionId;
+    var actionName = selected_history.actionName;
+    var stageId = selected_history.stageId;
+    var stageName = selected_history.stageName;
+    var isAction = null;
+    if ( actionId != null || actionId > 0){
+        isAction = true;
+        
+    }else {
+        isAction = false;
+    }
+
     historyAbout = selected_history;
     loading.show();
     constant.sequenceRunStatus = selected_history.sequenceStatus;
@@ -261,9 +280,13 @@ export function getSequenceDetail(selected_history) {
         constant.sequenceRunData = data.define.stageList;
         constant.refreshSequenceRunData = data.define.stageList;
         constant.sequenceLinePathArray = data.define.lineList;
-        if (data.define.stageList.length > 0) {
+        if (data.define.stageList.length > 0 && !isAction ) {
             initSequenceView(selected_history);
+        } else if( data.define.stageList.length > 0 && isAction){
+            initSequenceView(selected_history);
+            getActionHistory(historyAbout.workflowName,historyAbout.versionName,historyAbout.sequence,historyAbout.stageName,historyAbout.actionName);
         }
+
     });
 
     promise.fail(function(xhr, status, error) {
@@ -852,33 +875,33 @@ function initSequenceActionByStage() {
                 .append("image")
                 .attr("xlink:href", function(ad, ai) {
 
-                    if (ad.status == 1 || ad.status == 0) {
+                    if (ad.status == 1 || ad.status == 0 || isAction) {
 
-                        if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "action" && constant.currentSelectedItem.data.id == ad.id) {
+                        if ( ad.id == actionId || (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "action" && constant.currentSelectedItem.data.id == ad.id)) {
                             return "../../assets/svg/history-action-selected-waitStart.svg";
                         } else {
                             return "../../assets/svg/history-action-waitStart.svg";
                         }
 
-                    } else if (ad.status == 2) {
+                    } else if (ad.status == 2 || isAction) {
 
-                        if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "action" && constant.currentSelectedItem.data.id == ad.id) {
+                        if ( ad.id == actionId || (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "action" && constant.currentSelectedItem.data.id == ad.id)) {
                             return "../../assets/svg/history-action-selected-running.svg";
                         } else {
                             return "../../assets/svg/history-action-running.svg";
                         }
 
-                    } else if (ad.status == 3) {
+                    } else if (ad.status == 3 || isAction) {
 
-                        if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "action" && constant.currentSelectedItem.data.id == ad.id) {
+                        if ( ad.id == actionId || (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "action" && constant.currentSelectedItem.data.id == ad.id)) {
                             return "../../assets/svg/history-action-selected-success.svg";
                         } else {
                             return "../../assets/svg/history-action-success.svg";
                         }
 
-                    }else if (ad.status == 4) {
+                    }else if (ad.status == 4 || isAction) {
 
-                        if (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "action" && constant.currentSelectedItem.data.id == ad.id) {
+                        if ( ad.id == actionId || (constant.currentSelectedItem != null && constant.currentSelectedItem.type == "action" && constant.currentSelectedItem.data.id == ad.id)) {
                             return "../../assets/svg/history-action-selected-fail.svg";
                         } else {
                             return "../../assets/svg/history-action-fail.svg";
