@@ -23,10 +23,6 @@ import (
 	"github.com/Huawei/containerops/pilotage/handler"
 )
 
-// /v1
-// /v2
-// 	/root,config,system,admin,adminstration,guest,org,orgni..,devops,containerops,clond,cloneNatinve,nativeCloud
-
 //SetRouters is pilotage router's definition fucntion.
 func SetRouters(m *macaron.Macaron) {
 	m.Group("/v2", func() {
