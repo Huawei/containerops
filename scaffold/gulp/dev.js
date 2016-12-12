@@ -92,7 +92,7 @@ gulp.task('dev:json', function() {
  */
 gulp.task("dev:browserify", ['dev:babel'], function() {
     var b = browserify({
-        entries: ["dev/src/app/index.js", "dev/src/app/theme/settings.js", "dev/src/app/theme/app.js"]
+        entries: ["dev/src/app/index.js", "dev/src/app/theme/settings.js", "dev/src/app/theme/app.js","dev/src/app/history/paginate.js" ]
     });
     return b.bundle()
         .pipe(source("main.js"))

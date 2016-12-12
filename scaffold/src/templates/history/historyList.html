@@ -1,50 +1,122 @@
-<!-- 
-    Copyright 2014 Huawei Technologies Co., Ltd. All rights reserved.
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-        http://www.apache.org/licenses/LICENSE-2.0
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License. 
--->
-<div id="historyWorkflowlist" class="row hidden-div">
-    <div class="col-lg-12">
-        <section class="widget">
-            <div class="widget-body">
-                <legend>
-                    <strong>History</strong> List
-                </legend>
-                <div>
-                    <div class="state-desc">
-                        <div class="state-icon-desc state-fail"></div>
-                        <span class="state-label-desc">Fail To Run</span>
-                    </div>
-                    <div class="state-desc">
-                        <div class="state-icon-desc state-success"></div>
-                        <span class="state-label-desc">Succeed To Run</span>
-                    </div>
-                    <div class="state-desc">
-                        <div class="state-icon-desc state-norun"></div>
-                        <span class="state-label-desc">Not Run Yet</span>
-                    </div>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Workflow Name</th>
-                                <th>Version</th>
-                                <th>State</th>
-                                <th>Operation</th>
-                            </tr>
-                        </thead>
-                        <tbody class="workflowlist_body">
-
-                        </tbody>
-                    </table>
+<div id="history">
+  <div id="historyMap">
+    <ul class="maps">
+      <li class="stage-map">
+        <div class="map-lt">
+          <span>Stage</span>
+          <h3 class="stage-name"></h3>
+          <p class="marg-no">
+            <span class="action-name bg-action"></span>
+            <span class="action-name bg-action"></span>
+          </p>
+        </div>
+        <div class="map-rt">
+          <p class="marg-bt-five">
+            <img src="../../assets/images/icon-goworkflow.png" />
+            <span>Action to Workflow</span>
+          </p>
+          <p class="marg-no">
+            <img src="../../assets/images/icon-running.png" />
+            <span>Action all Running</span>
+          </p>
+        </div>
+      </li>
+      <li class="status-map">
+        <div class="map-lt">
+          <img src="../../assets/images/icon-status.png" />
+          <span>Status</span>
+          <h3 class="stage-name"></h3>
+          <p class="marg-no">
+            <span class="action-name bg-fail"></span>
+            <span>FAIL</span>
+          </p>
+        </div>
+        <div class="map-rt">
+          <p class="marg-bt-five">
+            <span class="action-name bg-running"></span>
+            <span>RUNNING</span>
+          </p>
+          <p class="marg-no">
+            <span class="action-name bg-success"></span>
+            <span>SUCCESS</span>
+          </p>
+        </div>
+      </li>
+      <li class="time-map">
+        <div class="map-lt">
+          <img src="../../assets/images/icon-time.png" />
+          <h3 class="stage-name"></h3>
+          <p class="marg-no">
+            <span class="action-name"></span>
+            <span>Less</span>
+          </p>
+        </div>
+        <div class="map-lt">
+          <p class="marg-bt-five">
+            <span class="action-name bg-fail-x"></span>
+            <span class="action-name bg-fail-s"></span>
+            <span class="action-name bg-fail-m"></span>
+            <span class="action-name bg-fail"></span>
+            <span class="action-name bg-fail-l"></span>
+          </p>
+          <p class="marg-no">
+            <span class="action-name bg-success-x"></span>
+            <span class="action-name bg-success-s"></span>
+            <span class="action-name bg-success-m"></span>
+            <span class="action-name bg-success"></span>
+            <span class="action-name bg-success-l"></span>
+          </p>
+        </div>
+        <div class="time-rt">
+          More
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div id="historyList">
+   
+  </div>
+  <div id="historyPages">
+    <div id="paginate"></div>
+  </div>
+  <div id="workflowDialog" class="dispN">
+    <div class="shade"></div>
+    <div id="startedRecords">
+      <div id="infos">
+        <div class="breadcrumbs">
+        </div>
+        <div class="record-info">
+          <div class="records">
+            <!-- <div class="item-record">
+              <div class="workflow-name">workflowname</div>
+              <div class="time">
+                <span class="date">Dec 06</span>
+                <span class="hour">21:09</span>
+              </div>
+              <div class="stages bg-stage">
+                <div class="item-stage">
+                  <h5 class="stage-name bg-success"></h5>
+                  <p class="actions">
+                    <span class="action-name no-start bg-success"></span>
+                    <span class="action-name start bg-fail"></span>
+                    <span class="action-name no-start bg-fail"></span>
+                  </p>
                 </div>
-            </div>
-        </section>
+                <div class="item-stage">
+                  <h5 class="stage-name bg-success"></h5>
+                  <p class="actions">
+                    <span class="action-name no-start bg-success"></span>
+                    <span class="action-name start bg-fail"></span>
+                    <span class="action-name no-start bg-fail"></span>
+                  </p>
+                </div>
+              </div>
+            </div> -->
+          </div>
+        </div>
+      </div>
+      <div class="fa fa-times close"></div>
     </div>
+  </div>
 </div>
+     
