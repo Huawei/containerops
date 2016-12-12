@@ -6,14 +6,14 @@ if __name__ == "__main__":
     init()
     
     # ComponentStart
-    ComponentStart()
+    ComponentStart(result="component start ...")
     
     # prepare task
     cmd = "git clone --depth=50 https://github.com/pingcap/tikv.git pingcap/tikv"
     execCommand(cmd)
     
     # TaskStart
-    TaskStart()
+    TaskStart(result="task start ...")
     
     
     os.chdir("pingcap/tikv")
@@ -23,13 +23,13 @@ if __name__ == "__main__":
     status = execCommand(cmd)
    
     # reesult status
-    TaskResult({"status": status,})
+    TaskResult(result="task result ...", status=status)
     
     # TaskStatus
-    TaskStatus({"status":status,})
+    TaskStatus(result="task status ...", status=status)
     
     #ComponentStop
-    ComponentStop()
+    ComponentStop(result="component stop ...")
 
     # wait
     holdWait()
