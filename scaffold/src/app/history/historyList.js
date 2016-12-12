@@ -273,6 +273,8 @@ function addStartWorkflowEvent(version){
 
 function addActionDetailEvent(version){
 	$('#historyList .action-name').on('click',function(){
+		event.stopPropagation();
+		window.event.cancelBubble = true;
 		var dataset = $(this)[0].dataset;
 		var params = {
 			workflowName:dataset.workflowname,
