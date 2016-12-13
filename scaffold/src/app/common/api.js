@@ -43,7 +43,10 @@ let apiUrlConf = {
 		// "workflowHistories" : "/v2/{namespace}/{repository}/workflow/v1/history/list",
 		"workflowHistory" : "/v2/{namespace}/{repository}/workflow/v1/history/{workflowName}/{version}?sequence={sequence}",
 		"action" : "/v2/{namespace}/{repository}/workflow/v1/history/{workflowName}/{version}/{sequence}/stage/{stageName}/action/{actionName}",
-		"relation" : "/v2/{namespace}/{repository}/workflow/v1/history/{workflowName}/{version}/{sequence}/{lineId}"
+		"relation" : "/v2/{namespace}/{repository}/workflow/v1/history/{workflowName}/{version}/{sequence}/{lineId}",
+		"containerLog": "/v2/workflow/v1/",
+		"schedule": "/v2/workflow/v1/"
+
 	},
 
 	"setting" : "/v2/{namespace}/{repository}/system/v1/setting"
@@ -310,6 +313,12 @@ export let historyApi = {
 	    pendingPromise.push(promise);
 	    return promise;
 	},
+	"containerLog": function (){
+		
+	},
+	"scheduleLog": function (){
+
+	},
 	getHistoryData:function(res){
 		var promise = $.ajax({
 			"url":apiUrlConf.host + res.url,
@@ -319,7 +328,7 @@ export let historyApi = {
 		});
 		pendingPromise.push(promise);
 	  return promise;	
-	}
+	} 
 }
 
 export let settingApi = {
