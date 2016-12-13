@@ -261,7 +261,7 @@ function showWorkflowDesigner(state) {
 
             $(".workflow-state").on('click',function(event){
                 if($(event.currentTarget).hasClass("workflow-off")){
-                    if(!workflowCheck(workflowData)){
+                    if(!workflowCheck(workflowData,workflowSettingData)){
                         notify("This workflow does not pass the availability check, please make it available before ", "error");
                     }else{
                         beforeRunWorkflow();
@@ -272,7 +272,7 @@ function showWorkflowDesigner(state) {
             });
 
             $(".checkworkflow").on('click', function() {
-                workflowCheck(workflowData);
+                workflowCheck(workflowData,workflowSettingData);
             });
 
             $(".saveworkflow").on('click', function() {
