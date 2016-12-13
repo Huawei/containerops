@@ -167,9 +167,10 @@ function renderSequences(workflowName,workflowId,version,sequences) {
 
 			var stagesItem = '<div class="item-stage">'+
             						'<h5 class="stage-name '+stageResult+'"></h5>';
-			var actions = '<p class="actions">';
+			var actions = '';
 
 			if(st.actions.length>0){
+				actions += '<p class="actions">';
 				st.actions.map(function(at,i){
 					var isStartWorkflow = 'no-start';
 					var isExtraAction = at.isTimeout? '':' extra-action ';
@@ -198,7 +199,7 @@ function renderSequences(workflowName,workflowId,version,sequences) {
 									 '</span>';
 				})
 			}else{
-				actions+='<span class="action-name no-start"></span>';
+				actions += '<p class="actions no-start">';
 			}
 			
 
@@ -229,7 +230,7 @@ function renderSequences(workflowName,workflowId,version,sequences) {
 
 	addMoreEvent();
 	addStartWorkflowEvent(version);
-	addActionDetailEvent(version)
+	addActionDetailEvent('#historyList .action-name');
 }
 
 function addMoreEvent(){
@@ -271,8 +272,8 @@ function addStartWorkflowEvent(version){
 	})
 }
 
-function addActionDetailEvent(version){
-	$('#historyList .action-name').on('click',function(){
+function addActionDetailEvent(selector){
+	$(selector).on('click',function(){
 		event.stopPropagation();
 		window.event.cancelBubble = true;
 		var dataset = $(this)[0].dataset;
@@ -371,7 +372,7 @@ function getStartedWorkflows(workflowName,workflowId,version,sequence,sequenceId
 }
 
 function rendStartedActionInfo(workflowName,versionName,stageName,actionName,selector){
-	var nav = workflowName+' >> '+ versionName+' >> '+ stageName+' >> '+actionName;
+	var nav = workflowName+' >> '+ versionName+' > '+ stageName+' > '+actionName;
 	$(selector).html(nav);
 }
 
@@ -401,9 +402,10 @@ function renderStartedWorkflows(workflows,selector){
 
 			var stagesItem = '<div class="item-stage">'+
             						'<h5 class="stage-name '+stageResult+'"></h5>';
-			var actions = '<p class="actions">';
+			var actions = '';
 
 			if(st.actions.length>0){
+				actions += '<p class="actions">';
 				st.actions.map(function(at,i){
 					var isStartWorkflow = 'no-start';
 					var isExtraAction = at.isTimeout? '':' extra-action ';
@@ -432,7 +434,7 @@ function renderStartedWorkflows(workflows,selector){
 									 '</span>';
 				})
 			}else{
-				actions+='<span class="action-name no-start"></span>';
+				actions += '<p class="actions no-start">';
 			}
 			
 
@@ -449,6 +451,8 @@ function renderStartedWorkflows(workflows,selector){
 
 	records=records+recordItem+'</div>';
 	$(selector).html(records);
+
+	addActionDetailEvent('#workflowDialog .action-name');
 }
 
 function getPages(totalNum,selector){
