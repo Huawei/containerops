@@ -75,7 +75,7 @@ function initNumofRunningInstances(){
 
 	$("#numof-running-instances").val(setting.runningInstances.number);
 	$("#numof-running-instances").on("blur",function(){
-		setting.runningInstances.number = Number($("#numof-running-instances").val());
+		setting.runningInstances.number = $("#numof-running-instances").val();
 	});
 }
 

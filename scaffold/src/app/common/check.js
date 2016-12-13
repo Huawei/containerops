@@ -19,7 +19,7 @@ import * as constant from "../common/constant";
 import {isAvailableVar,getValue} from "../workflow/workflowVar";
 
 // validate
-export function workflowCheck(data){
+export function workflowCheck(data,setting){
     var completeness = true;
     for(var index=0;index<data.length;index++){
         var item = data[index];
@@ -32,6 +32,9 @@ export function workflowCheck(data){
             break;
         }
     }
+
+    completeness = checkSetting(setting);
+
     if(completeness){
         notify("Workflow is available.","success");
     }
@@ -261,10 +264,10 @@ function checkActionBaseSetting(data,stageindex,actionindex){
     }else{
         var type = data.setupData.service.spec.type;
         var ports = data.setupData.service.spec.ports;
-        if(ports.length == 0){
-            notify("No ports setting ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
-            completeness = false;
-        }
+        // if(ports.length == 0){
+        //     notify("No ports setting ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
+        //     completeness = false;
+        // }
         for(var i=0;i<ports.length;i++){
             if(_.compact(_.values(ports[i])).length<3 && type == "NodePort"){
                 notify("Ports or target ports or node ports missed ---- < Stage No. " + stageindex + " / Action No. " + (actionindex+1)+" >","info");
@@ -406,4 +409,39 @@ export function isEnvKeyLegal(key){
 function checkTimeout(value){
     var _value = Number(value);
     return !_.isNaN(_value) && _value >= 0;
+}
+
+function checkSetting(setting){
+    var completeness = true;
+
+    if(!_.isUndefined(setting.data)){
+        if(setting.data.runningInstances.available){
+            completeness = !_.isEmpty(setting.data.runningInstances.number.toString()) && checkTimeout(setting.data.runningInstances.number);
+            if(!completeness){
+                notify("Number of running instances must be equal to or greater than 0 ---- < Workflow setting >","info");
+                return completeness;
+            }
+        }
+        
+        if(setting.data.timedTasks.available){
+            for(var i=0; i<setting.data.timedTasks.tasks.length;i++){
+                var cron = setting.data.timedTasks.tasks[i].cronEntry;
+                completeness = checkCronTask(cron);
+                if(!completeness){
+                    notify("Cron entry of timed task No. " + (i+1) + " is illegal ---- < Workflow setting >","info");
+                    break;
+                }
+            }
+        }
+    }
+
+    return completeness;
+}
+
+function checkCronTask(cron){
+    if(!_.isEmpty(cron) && cron.split(" ").length >= 5){
+        return true;
+    }else{
+        return false;
+    }
 }
