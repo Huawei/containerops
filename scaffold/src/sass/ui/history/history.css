@@ -335,18 +335,23 @@
   left: 55px;
   right: 55px;
   top: 160px;
-  padding: 20px 12px;
+  padding: 4rem;
   position: absolute;
   z-index: 10002;
+  border-radius: 8px;
 }
 #startedRecords .close {
   position: absolute;
-  right: 2px;
-  top: 2px;
-  font-size: 20px;
+  right: 1.5rem;
+  top: 1rem;
+  font-size: 3rem;
 }
 #startedRecords .breadcrumbs {
-  margin-bottom: 44px;
+  margin-bottom: 3rem;
+  font-size: 18px;
+  border-bottom: 2px solid #217CA6;
+  padding-left: 1rem;
+  color: #217CA6;
 }
 #startedRecords .item-record {
   overflow: hidden;

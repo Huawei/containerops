@@ -383,7 +383,7 @@ function renderStartedWorkflows(workflows,selector){
 		var isStagesBg = i%2===0?'bg-stage':'';
 		var isBorder = i%2===0? '':'border-record ';
 		recordItem += '<div class="item-record '+isBorder+'">';
-		var workflowName = '<div class="workflow-name">'+s.workflowName+'</div>';
+		var workflowName = '<div class="workflow-name">'+s.workflowName+'：</div>';
 
 		var time='<div class="time">'+
 					      '<span class="date">'+s.date+'</span>'+

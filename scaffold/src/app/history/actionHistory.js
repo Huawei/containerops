@@ -24,7 +24,6 @@ export function getActionHistory(workflowName,versionName,workflowRunSequence,st
     // loading.show();
     var promise = historyDataService.getActionRunHistory(workflowName,versionName,workflowRunSequence,stageName,actionName);
     promise.done(function(data) {
-                console.log("action-data==>", data);
         loading.hide();
         showActionHistoryView(data.result,actionName);
     });
@@ -38,8 +37,9 @@ export function getActionHistory(workflowName,versionName,workflowRunSequence,st
     });
 }
 
-let sequenceLogDetail = [];
-let sequencResultLogs = [];
+let eventStatusData;
+let sequenceLogDetailData = [];
+let sequencResultLogsData = [];
 function showActionHistoryView(history,actionname) {
     $.ajax({
         url: "../../templates/history/actionHistory.html",
@@ -55,42 +55,33 @@ function showActionHistoryView(history,actionname) {
             var outputStream = JSON.stringify(history.data.output,undefined,2);
             $("#action-output-stream").val(outputStream);
 
-             _.each(history.logList,function(log,index){
+            var eventLogs = history.logList;
+            _.each(eventLogs,function(log,index){
+
                 let allLogs = log.substr(23);
                 allLogs = allLogs.replace(/\\n/g , "\\u003cbr /\\u003e")
-                let logJson = JSON.parse(allLogs);
-                let num = index + 1;
-                let logTime = log.substr(0,19);
-                sequenceLogDetail[index] = logJson.INFO;
+                eventStatusData = JSON.parse(allLogs);
+                let lineNo = index + 1;
+                let eventTime = log.substr(0,19);
 
-                // var resultLog = null;
-                // if ( logJson.EVENT == 'CO_TASK_RESULT'){
-                //      resultLog = logJson.InFO;
+                sequenceLogDetailData.push(eventStatusData.INFO);
+                getEventStatus(eventStatusData,eventTime,lineNo);
 
-                // }
-
-
-
-                var row = `<tr class="log-item"><td>`
-                        + num +`</td><td>`
-                        + logTime +`</td><td>`
-                        + logJson.EVENT +`</td><td>`
-                        + logJson.EVENTID +`</td><td>`
-                        + logJson.RUN_ID +`</td><td>`
-                        + logJson.INFO.status +`</td><td>`
-                        + logJson.INFO.result +`</td>`
-                        + `<td><button data-logid="`
-                        + "info_" + index + `" type="button" class="btn btn-success sequencelog-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:14px"></i>&nbsp;&nbsp;Detail</button></td></tr>`;
-                $("#logs-tr").append(row);
+                if ( eventStatusData.EVENT == "CO_TASK_RESULT" && eventStatusData.INFO != null ){
+                    let uResultLog = JSON.stringify(eventStatusData.INFO); 
+                     sequencResultLogsData.push(uResultLog);
+                }
+                
             })
 
-             resizeWidget()
+            getResultLog(sequencResultLogsData);
+            resizeWidget()
 
             $(".sequencelog-detail").on("click",function(e){
                 let target = $(e.target);
                 var tempLogIdArray = (target.attr("data-logid")).split("_");
                 if(null != tempLogIdArray && tempLogIdArray.length > 1){
-                    var logjsoin =  sequenceLogDetail[tempLogIdArray[1]];
+                    var logjsoin =  sequenceLogDetailData[tempLogIdArray[1]];
                     let detailData = "";
                     for( let prop in logjsoin){
                         var showLogJson = logjsoin[prop];
@@ -123,5 +114,33 @@ function showActionHistoryView(history,actionname) {
             })
         }
     });
+}
+
+
+function getEventStatus(eventData,eventTime,lineNo){
+    var row = `<tr class="log-item"><td>`
+            + lineNo +`</td><td>`
+            + eventTime +`</td><td>`
+            + eventData.EVENT +`</td><td>`
+            + eventData.EVENT_ID +`</td><td>`
+            + eventData.RUN_ID +`</td><td>`
+            + eventData.INFO.status +`</td><td>`
+            + eventData.INFO.result +`</td>`
+            + `<td><button data-logid="`
+            + "info_" + (lineNo - 1) + `" type="button" class="btn btn-success sequencelog-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:14px"></i>&nbsp;&nbsp;Detail</button></td></tr>`;
+    
+    $("#logs-tr").append(row);
+}
+
+function getResultLog(resultData){
+    $("#resultLog_list").html();
+    if( resultData != null && resultData.length>0) {
+        _.each(resultData,function(rd,i){
+            var row = `<tr><td class="loglist-td">`+i+`</td><td>`
+                + rd +`</td></tr>`; 
+            $("#resultLog_list").append(row);
+        })
+        sequencResultLogsData = [];
+    }
 }
 

@@ -39,6 +39,9 @@ export function getLineDataInfo(workflowName,versionName,workflowRunSequence,seq
 export function getContainerLog(){
 	return historyApi.containerLog();
 }
+export function getScheduleLog(){
+	return historyApi.scheduleLog();
+}
 
 
 
