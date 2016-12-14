@@ -24,6 +24,7 @@ export function getActionHistory(workflowName,versionName,workflowRunSequence,st
     // loading.show();
     var promise = historyDataService.getActionRunHistory(workflowName,versionName,workflowRunSequence,stageName,actionName);
     promise.done(function(data) {
+                console.log("action-data==>", data);
         loading.hide();
         showActionHistoryView(data.result,actionName);
     });
@@ -38,6 +39,7 @@ export function getActionHistory(workflowName,versionName,workflowRunSequence,st
 }
 
 let sequenceLogDetail = [];
+let sequencResultLogs = [];
 function showActionHistoryView(history,actionname) {
     $.ajax({
         url: "../../templates/history/actionHistory.html",

@@ -1,111 +1,161 @@
 <!-- 
-    Copyright 2014 Huawei Technologies Co., Ltd. All rights reserved.
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-        http://www.apache.org/licenses/LICENSE-2.0
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License. 
+	Copyright 2014 Huawei Technologies Co., Ltd. All rights reserved.
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+		http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License. 
 -->
 <div class="row">
-    <div class="col-lg-12">
-        <section class="widget">
-            <div class="widget-body">
-                <fieldset>
-                    <legend id="actionHistoryTitle"></legend>
-                    <div class="widget-controls">
-                        <a data-widgster="fullscreen" title="" href="#" data-original-title="Full Screen" style="display: inline;"><i class="glyphicon glyphicon-fullscreen"></i></a>
-                        <a data-widgster="restore" title="" href="#" style="display: none;" data-original-title="Restore"><i class="glyphicon glyphicon-resize-small"></i></a>
-                    </div>
-                    <div class="col-lg-12">
-                        <div class="clearfix">
-                            <ul class="nav nav-tabs pull-xs-left" id="actionTabs" role="tablist" style="background-color:#f7f7f7">
-                                <li class="nav-item">
-                                    <a class="nav-link active " id="resultlogs-tab" data-toggle="tab" href="#resultlogs" role="tab" aria-controls="resultlogs" aria-expanded="false">
-                                        <span>Result Logs</span>
-                                        <i class="arrow arrow-left"></i>
-                                        <i class="arrow arrow-right"></i>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="logs-tab" data-toggle="tab" href="#logs" role="tab" aria-controls="logs" aria-expanded="false">
-                                        <span>Show Logs</span>
-                                        <i class="arrow arrow-left"></i>
-                                        <i class="arrow arrow-right"></i>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="stream-tab" data-toggle="tab" href="#stream" role="tab" aria-controls="stream" aria-expanded="false">
-                                        <span>Action Stream Data</span>
-                                        <i class="arrow arrow-left"></i>
-                                        <i class="arrow arrow-right"></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="tab-content mb-lg" id="actionTabsContent">
-                           
-                             <div class="tab-pane active" id="resultlogs" role="tabpanel" aria-labelledby="resultlogs-tab-tab" aria-expanded="false">
-                            </div>
+	<div class="col-lg-12">
+		<section class="widget">
+			<div class="widget-body">
+				<fieldset>
+					<legend id="actionHistoryTitle"></legend>
+					<div class="widget-controls">
+						<a data-widgster="fullscreen" title="" href="#" data-original-title="Full Screen" style="display: inline;"><i class="glyphicon glyphicon-fullscreen"></i></a>
+						<a data-widgster="restore" title="" href="#" style="display: none;" data-original-title="Restore"><i class="glyphicon glyphicon-resize-small"></i></a>
+					</div>
+					<div class="col-lg-12">
+						<div class="clearfix">
+							<ul class="nav nav-tabs pull-xs-left" id="actionTabs" role="tablist" style="background-color:#f7f7f7">
+								<li class="nav-item">
+									<a class="nav-link active " id="resultlog-tab" data-toggle="tab" href="#resultlog" role="tab" aria-controls="resultlogs" aria-expanded="false">
+										<span>Result Logs</span>
+										<i class="arrow arrow-left"></i>
+										<i class="arrow arrow-right"></i>
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" id="containerLog-tab" data-toggle="tab" href="#containerLog" role="tab" aria-controls="resultlogs" aria-expanded="false">
+										<span>Container Logs</span>
+										<i class="arrow arrow-left"></i>
+										<i class="arrow arrow-right"></i>
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" id="actionLog-tab" data-toggle="tab" href="#actionLog" role="tab" aria-controls="resultlogs" aria-expanded="false">
+										<span>Action Log</span>
+										<i class="arrow arrow-left"></i>
+										<i class="arrow arrow-right"></i>
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" id="stageLog-tab" data-toggle="tab" href="#stageLog" role="tab" aria-controls="resultlogs" aria-expanded="false">
+										<span>Stage Log</span>
+										<i class="arrow arrow-left"></i>
+										<i class="arrow arrow-right"></i>
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" id="workflowLog-tab" data-toggle="tab" href="#workflowLog" role="tab" aria-controls="resultlogs" aria-expanded="false">
+										<span>Workflow Log</span>
+										<i class="arrow arrow-left"></i>
+										<i class="arrow arrow-right"></i>
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" id="evnLog-tab" data-toggle="tab" href="#evnLog" role="tab" aria-controls="logs" aria-expanded="false">
+										<span>Event Status</span>
+										<i class="arrow arrow-left"></i>
+										<i class="arrow arrow-right"></i>
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" id="stream-tab" data-toggle="tab" href="#stream" role="tab" aria-controls="stream" aria-expanded="false">
+										<span>Action Stream Data</span>
+										<i class="arrow arrow-left"></i>
+										<i class="arrow arrow-right"></i>
+									</a>
+								</li>
+							</ul>
+						</div>
+						<div class="tab-content mb-lg" id="actionTabsContent">
+						   
+							<div class="tab-pane active" id="resultlog" role="tabpanel" aria-labelledby="resultlogs-tab-tab" aria-expanded="false"></div>
 
-                            <div class="tab-pane" id="logs" role="tabpanel" aria-labelledby="logs-tab" aria-expanded="false">
-                                <table id="logs-table" class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th>Time</th>
-                                            <th>Event</th>
-                                            <th>EVENTID</th>
-                                            <th>RUN_ID</th>
-                                            <th>INFO_STATUS</th>
-                                            <th>INFO_RESULT</th>
-                                            <th>DETAILS</th>
-                                        </tr>  
-                                    </thead>
-                                    <tbody id="logs-tr"></tbody>
-                                </table>
-                            </div>
+							<div class="tab-pane" id="containerLog" role="tabpanel" aria-labelledby="logs-tab" aria-expanded="false">
+								<div class="item-table">
+									<div class="item-th">
+											<div class="item-td"><b class="log-key">Time：</b><span class="log-value"></span></div>
+											<div class="item-td"><b class="log-key">Stream：</b><span class="log-value"></span></div>
+									</div>
+									<div class="item-tr">
+											<div class="item-col-td">
+												time=\"2016-12-10T04:55:00Z\" level=info msg=\"Starting Weaveworks NPC v1.7.1\
+											</div>
+									</div>
+								</div> 
+							</div>
 
-                            <div role="tabpanel" class="tab-pane clearfix" id="stream" aria-labelledby="stream-tab" aria-expanded="true">
-                                <div class="row">
-                                    <div class="col-md-6 import-div">
-                                        <div class="panel">
-                                            <div class="panel-heading input-panel-heading">
-                                                <i class="glyphicon glyphicon-cloud-upload inputicon"></i>
-                                                <span class="panel-title">Show Input</span>
-                                            </div>
-                                            <div class="panel-body input-panel-body" style="min-height:500px;padding:10px">
-                                                <textarea class="advanced-service-textarea" id="action-input-stream" disabled></textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 import-div">
-                                        <div class="panel">
-                                            <div class="panel-heading clearfix">
-                                                <i class="glyphicon glyphicon-cloud-download outputicon"></i>
-                                                <span class="panel-title">Show Output</span>
-                                            </div>
-                                            <div class="panel-body" style="min-height:500px;padding:10px">
-                                                <textarea class="advanced-service-textarea" id="action-output-stream" disabled></textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </fieldset>
-            </div>
-        </section>
-    </div>
+							<div class="tab-pane" id="actionLog" role="tabpanel" aria-labelledby="logs-tab" aria-expanded="false"></div>
+
+							<div class="tab-pane" id="stageLog" role="tabpanel" aria-labelledby="logs-tab" aria-expanded="false"></div>
+
+							<div class="tab-pane" id="workflowLog" role="tabpanel" aria-labelledby="logs-tab" aria-expanded="false"></div>
+
+							<div class="tab-pane" id="evnLog" role="tabpanel" aria-labelledby="logs-tab" aria-expanded="false">
+								<table id="logs-table" class="table table-bordered">
+									<thead>
+										<tr>
+											<th></th>
+											<th>Time</th>
+											<th>Event</th>
+											<th>EVENT_ID</th>
+											<th>RUN_ID</th>
+											<th>INFO_STATUS</th>
+											<th>INFO_RESULT</th>
+											<th>DETAILS</th>
+										</tr>  
+									</thead>
+									<tbody id="logs-tr"></tbody>
+								</table>
+							</div>
+
+
+							<div role="tabpanel" class="tab-pane clearfix" id="stream" aria-labelledby="stream-tab" aria-expanded="true">
+								<div class="row">
+									<div class="col-md-6 import-div">
+										<div class="panel">
+											<div class="panel-heading input-panel-heading">
+												<i class="glyphicon glyphicon-cloud-upload inputicon"></i>
+												<span class="panel-title">Show Input</span>
+											</div>
+											<div class="panel-body input-panel-body" style="min-height:500px;padding:10px">
+												<textarea class="advanced-service-textarea" id="action-input-stream" disabled></textarea>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-6 import-div">
+										<div class="panel">
+											<div class="panel-heading clearfix">
+												<i class="glyphicon glyphicon-cloud-download outputicon"></i>
+												<span class="panel-title">Show Output</span>
+											</div>
+											<div class="panel-body" style="min-height:500px;padding:10px">
+												<textarea class="advanced-service-textarea" id="action-output-stream" disabled></textarea>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</fieldset>
+			</div>
+		</section>
+	</div>
 </div>
 
 <div id="dialog" class="mcover">
-    <div class="dialogWindow">
-        <button id="detailClose" type="button" class="close" ><span class="glyphicon glyphicon-remove-circle"></span></button> 
-        <div class="dialogContant"></div>      
-    </div> 
+	<div class="dialogWindow">
+		<button id="detailClose" type="button" class="close" ><span class="glyphicon glyphicon-remove-circle"></span></button> 
+		<div class="dialogContant"></div>      
+	</div> 
 </div>
