@@ -149,7 +149,6 @@ export function getSequenceDetail(selected_history) {
     constant.sequenceRunStatus = selected_history.sequenceStatus;
     var promise = historyDataService.getWorkflowHistory(selected_history.workflowName, selected_history.versionName, selected_history.sequence);
     promise.done(function(data) {
-            console.log("getSequenceDetail-data==>", data);
         loading.hide();
         constant.sequenceRunData = data.define.stageList;
         constant.refreshSequenceRunData = data.define.stageList;
