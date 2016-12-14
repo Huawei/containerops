@@ -314,9 +314,23 @@ export let historyApi = {
 	    return promise;
 	},
 	"containerLog": function (){
+		initApiInvocation();
+		var promise = $.ajax({
+	        "url": apiUrlConf.host + apiUrlConf.history.relation.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{workflowName}/g, workflowName).replace(/{version}/g, versionName).replace(/{sequence}/g, workflowRunSequence).replace(/{lineId}/g, sequenceLineId),
+	        "type": "GET",
+	        "dataType": "json",
+	        "cache": false
+	    });
 		
 	},
 	"scheduleLog": function (){
+		initApiInvocation();
+		var promise = $.ajax({
+	        "url": apiUrlConf.host + apiUrlConf.history.relation.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{workflowName}/g, workflowName).replace(/{version}/g, versionName).replace(/{sequence}/g, workflowRunSequence).replace(/{lineId}/g, sequenceLineId),
+	        "type": "GET",
+	        "dataType": "json",
+	        "cache": false
+	    });
 
 	},
 	getHistoryData:function(res){
