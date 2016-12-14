@@ -36,6 +36,10 @@ export function getLineDataInfo(workflowName,versionName,workflowRunSequence,seq
     return historyApi.relation(workflowName,versionName,workflowRunSequence,sequenceLineId);
 }
 
+export function getContainerLog(){
+	return historyApi.containerLog();
+}
+
 
 
 
