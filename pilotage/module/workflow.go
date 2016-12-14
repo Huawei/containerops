@@ -444,6 +444,7 @@ func GetActionLinkStartInfo(namespace, repository, workflow, version, action str
 		sequenceMap["versionName"] = workflowInfo.Version
 		sequenceMap["versionId"] = workflowInfo.ID
 		sequenceMap["sequenceId"] = workflowInfo.ID
+		sequenceMap["sequence"] = workflowInfo.Sequence
 		sequenceMap["runTime"] = strconv.FormatFloat(workflowInfo.UpdatedAt.Sub(workflowInfo.CreatedAt).Seconds(), 'f', 0, 64)
 		sequenceMap["runResult"] = workflowInfo.RunState
 		sequenceMap["date"] = workflowInfo.CreatedAt.Format("2006-01-02")
@@ -739,7 +740,9 @@ func (workflowInfo *Workflow) CreateNewVersion(define map[string]interface{}, ve
 		return err
 	}
 
-	return newWorkflowInfo.UpdateWorkflowInfo(define)
+	newInfo := new(Workflow)
+	newInfo.Workflow = newWorkflowInfo
+	return newInfo.UpdateWorkflowInfo(define)
 }
 
 func (workflowInfo *Workflow) GetWorkflowToken() (map[string]interface{}, error) {
