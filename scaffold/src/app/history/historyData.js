@@ -36,12 +36,12 @@ export function getLineDataInfo(workflowName,versionName,workflowRunSequence,seq
     return historyApi.relation(workflowName,versionName,workflowRunSequence,sequenceLineId);
 }
 
-export function getContainerLog(){
-	return historyApi.containerLog();
-}
-export function getScheduleLog(){
-	return historyApi.scheduleLog();
-}
+// export function getContainerLog(){
+// 	return historyApi.containerLog();
+// }
+// export function getScheduleLog(){
+// 	return historyApi.scheduleLog();
+// }
 
 export function getWorkflows(page,workflowNum,isInitPages){
   return historyApi.getWorkflows(page,workflowNum,isInitPages);
