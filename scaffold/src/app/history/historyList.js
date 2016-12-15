@@ -1,8 +1,22 @@
+/*
+Copyright 2014 Huawei Technologies Co., Ltd. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ */
 import * as historyDataService from "./historyData";
 import { notify } from "../common/notify";
 import { loading } from "../common/loading";
 import { getSequenceDetail } from "./main";
-// import * as paginate from "./paginate";
 
 const sequenceWidth = 20;
 const sequenceHeight = 20;
@@ -11,7 +25,7 @@ const sequenceMargin = 3;
 
 var currentPage = 1;
 var workflowNum = 10;
-var showSequenceNum = 2;
+var showSequenceNum = 10;
 
 var historyList = '#historyList';
 var historyPages = '#paginate';
@@ -46,52 +60,69 @@ export function getHistoryList(){
 }
 
 function getWorkflows(page,workflowNum,isInitPages) {
-	var params = {
-		url:resUrl.workflow+'?page='+page+'&prePageCount='+workflowNum,
-		type:'GET',
-		callback:function(data){
-			totalWorkflows = data.totalWorkflows;
-			workflows = data.workflows;
-			renderWorkflows(workflows,historyList);
-			getVersions(workflows[0].workflowName,workflows[0].workflowId);
-			if(isInitPages){
-				getPages(totalWorkflows,historyPages);
-			}
+	loading.show();
+	var promise = historyDataService.getWorkflows(page,workflowNum,isInitPages);
+	promise.done(function(data) {
+    loading.hide();
+		totalWorkflows = data.totalWorkflows;
+		workflows = data.workflows;
+		renderWorkflows(workflows,historyList);
+		getVersions(workflows[0].workflowName,workflows[0].workflowId);
+		if(isInitPages){
+			getPages(totalWorkflows,historyPages);
 		}
-	};
-	getData(params)
+  });
+  promise.fail(function(xhr, status, error) {
+    loading.hide();
+    if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
+        notify(xhr.responseJSON.errMsg, "error");
+    } else if(xhr.statusText != "abort") {
+        notify("Server is unreachable", "error");
+    }
+  });
 }
 
 function getVersions(workflowName,workflowId) {
-	var params = {
-		url:resUrl.version.replace(/{workflowName}/g,workflowName).replace(/{workflowID}/g,workflowId),
-		type:'GET',
-		callback:function(data){
-			versions = data;
-			renderVersions(versions,'#'+workflowName);
-			versions.map(function(vision,i){ getSequences(workflowName,workflowId,vision,sequenceNum) })
-		}
-	};
-	getData(params)
+	loading.show();
+	var promise = historyDataService.getVersions(workflowName,workflowId);
+	promise.done(function(data) {
+    loading.hide();
+		versions = data;
+		renderVersions(versions,'#'+workflowName);
+		versions.map(function(vision,i){ getSequences(workflowName,workflowId,vision,sequenceNum) })
+  });
+  promise.fail(function(xhr, status, error) {
+    loading.hide();
+    if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
+        notify(xhr.responseJSON.errMsg, "error");
+    } else if(xhr.statusText != "abort") {
+        notify("Server is unreachable", "error");
+    }
+  });
 }
 
 function getSequences(workflowName,workflowId,version,sequenceNum) {
 	var versionName = version.versionName;
 	var versionId = version.versionId;
-	var params = {
-		url:resUrl.sequence.replace(/{workflowName}/g,workflowName).replace(/{versionName}/g,versionName).replace(/{versionID}/g,versionId).replace(/{versionName}/g,versionName).replace(/{sequenceNum}/g,sequenceNum),
-		type:'GET',
-		callback:function(data){
-			sequences = data;
-			renderSequences(workflowName,workflowId,version,sequences);
-		}
-	};
-	getData(params)
+	loading.show();
+	var promise = historyDataService.getSequences(workflowName,workflowId,versionName,versionId,sequenceNum);
+	promise.done(function(data) {
+    loading.hide();
+		sequences = data;
+		renderSequences(workflowName,workflowId,version,sequences);
+  });
+  promise.fail(function(xhr, status, error) {
+    loading.hide();
+    if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
+        notify(xhr.responseJSON.errMsg, "error");
+    } else if(xhr.statusText != "abort") {
+        notify("Server is unreachable", "error");
+    }
+  });
 }
 
 function renderWorkflows(workflows,selector) {
 	clearOldData(selector);
-
 	var workflow='';
 
 	workflows.map(function(w,i){
@@ -139,93 +170,100 @@ function renderSequences(workflowName,workflowId,version,sequences) {
 	var sumarySpace = '';
 	var recordItem = '';
 	var records = '<div class="records">';
-	sequences.map(function(s,i){
-		var isShow = i<showSequenceNum ? 'dispB':'dispN';
-		var isStagesBg = i%2===0?'bg-stage':'';
-		var isBorder = i%2===0? '':'border-record ';
+	var sequence = '';
 
-		var sequenceResult = stageColor[s.runResult];
+	if(sequences.length>0){
+		sequences.map(function(s,i){
+			var isShow = i<showSequenceNum ? 'dispB':'dispN';
+			var isStagesBg = i%2===0?'bg-stage':'';
+			var isBorder = i%2===0? '':'border-record ';
 
-		sumarySpace +='<span class="space '+sequenceResult+'"></span>';
+			var sequenceResult = stageColor[s.runResult];
 
-		recordItem += '<div class="item-record pad-lt-ten '+isBorder+' '+isShow+'">';
+			sumarySpace +='<span class="space '+sequenceResult+'"></span>';
 
-		var time='<div class="time">'+
-					      '<span class="date">'+s.date+'</span>'+
-					      '<span class="hour">'+s.time+'</span>'+
-					    '</div>';
+			recordItem += '<div class="item-record pad-lt-ten '+isBorder+' '+isShow+'">';
 
-		var stages = '<div class="stages '+isStagesBg+'">';
+			var time='<div class="time">'+
+						      '<span class="date">'+s.date+'</span>'+
+						      '<span class="hour">'+s.time+'</span>'+
+						    '</div>';
 
-		s.stages.map(function(st,i){
-			var stageResult = '';
-			if(st.isTimeout){
-				stageResult = getRunStatus(st);
-			}else{
-				stageResult = stageColor[st.runResult];
-			}
+			var stages = '<div class="stages '+isStagesBg+'">';
 
-			var stagesItem = '<div class="item-stage">'+
-            						'<h5 class="stage-name '+stageResult+'"></h5>';
-			var actions = '';
+			s.stages.map(function(st,i){
+				var stageResult = '';
+				if(st.isTimeout){
+					stageResult = getRunStatus(st);
+				}else{
+					stageResult = stageColor[st.runResult];
+				}
 
-			if(st.actions.length>0){
-				actions += '<p class="actions">';
-				st.actions.map(function(at,i){
-					var isStartWorkflow = 'no-start';
-					var isExtraAction = at.isTimeout? '':' extra-action ';
-					var isBorderAction = 'bord-action';
-					var actionToWorkflow = '';
-					var actionResult = '';
-					var startStatus = '';
-					var extraResult = '';
-					var dataset = 'data-workflowname="'+workflowName+'" data-workflowid="'+workflowId+'" data-versionname="'+version.versionName+'" data-versionid="'+version.versionId+'" data-sequence="'+s.sequence+'" data-sequenceid="'+s.sequenceId+'" data-stagename="'+st.stageName+'" data-stageid="'+st.stageId+'" data-status="'+s.runResult+'" data-actionid="'+at.actionId+'" data-actionname="'+at.actionName+'"';
+				var stagesItem = '<div class="item-stage">'+
+	            						'<h5 class="stage-name '+stageResult+'"></h5>';
+				var actions = '';
 
-					if(at.isTimeout){
-						isBorderAction = '';
-						actionResult = getRunStatus(at);
-					}else{
-						extraResult = stageColor[at.runResult];
-					}
+				if(st.actions.length>0){
+					actions += '<p class="actions">';
+					st.actions.map(function(at,i){
+						var isStartWorkflow = 'no-start';
+						var isExtraAction = at.isTimeout? '':' extra-action ';
+						var isBorderAction = 'bord-action';
+						var actionToWorkflow = '';
+						var actionResult = '';
+						var startStatus = '';
+						var extraResult = '';
+						var dataset = 'data-workflowname="'+workflowName+'" data-workflowid="'+workflowId+'" data-versionname="'+version.versionName+'" data-versionid="'+version.versionId+'" data-sequence="'+s.sequence+'" data-sequenceid="'+s.sequenceId+'" data-stagename="'+st.stageName+'" data-stageid="'+st.stageId+'" data-status="'+s.runResult+'" data-actionid="'+at.actionId+'" data-actionname="'+at.actionName+'"';
 
-					if(at.isStartWorkflow){
-						startStatus = actionStartStatus[at.startWorkflowResult];
-						isStartWorkflow = 'start';
-						actionToWorkflow = '<img class="start-status" src="'+startStatus+'" >';
-					}
-					
-					actions+='<span class="action-name '+isStartWorkflow+' '+isExtraAction+' '+isBorderAction+' '+extraResult+' '+actionResult+'" '+dataset+'>'+
-									 		actionToWorkflow +
-									 '</span>';
-				})
-			}else{
-				actions += '<p class="actions no-start">';
-			}
-			
+						if(at.isTimeout){
+							isBorderAction = '';
+							actionResult = getRunStatus(at);
+						}else{
+							extraResult = stageColor[at.runResult];
+						}
 
-			actions+='</p>';
-			stagesItem=stagesItem+actions+'</div>';
-			stages+=stagesItem;
+						if(at.isStartWorkflow){
+							startStatus = actionStartStatus[at.startWorkflowResult];
+							isStartWorkflow = 'start';
+							actionToWorkflow = '<img class="start-status" src="'+startStatus+'" >';
+						}
+						
+						actions+='<span class="action-name '+isStartWorkflow+' '+isExtraAction+' '+isBorderAction+' '+extraResult+' '+actionResult+'" '+dataset+'>'+
+										 		actionToWorkflow +
+										 '</span>';
+					})
+				}else{
+					actions += '<p class="actions no-start">';
+				}
+				
+
+				actions+='</p>';
+				stagesItem=stagesItem+actions+'</div>';
+				stages+=stagesItem;
+			})
+
+			stages+='</div>';
+
+			recordItem=recordItem+time+stages;
+			recordItem+='</div>';
 		})
 
-		stages+='</div>';
+		summary=summary+sumarySpace+'</div>';
+		records=records+recordItem+'</div>';
 
-		recordItem=recordItem+time+stages;
-		recordItem+='</div>';
-	})
+		var addMore = '';
 
-	summary=summary+sumarySpace+'</div>';
-	records=records+recordItem+'</div>';
-
-	var addMore = '';
-
-	if(sequences.length>showSequenceNum){
-		addMore = '<div class="over-hidden">'+
-									'<div class="addRecords bg-stage extend">...more...</div>'+
-								'</div>'
+		if(sequences.length>showSequenceNum){
+			addMore = '<div class="over-hidden">'+
+										'<div class="addRecords bg-stage extend">...more...</div>'+
+									'</div>'
+		}
+		
+		sequence = summary + records + addMore;
+	}else{
+		sequence = '<p class="text-center">no records</p>';
 	}
 
-	var sequence = summary + records + addMore;
 	$('#'+version.versionId).append(sequence);
 
 	addMoreEvent();
@@ -357,18 +395,34 @@ function isGetVersions (workflowName,workflowId,selector){
 }
 
 function getStartedWorkflows(workflowName,workflowId,version,sequence,sequenceId,stageName,actionId,actionName){
-	var params = {
-		url:resUrl.startedWorkflow.replace(/{workflowName}/g,workflowName).replace(/{versionName}/g,version.versionName).replace(/{sequence}/g,sequence).replace(/{actionName}/g,actionName).replace(/{workflowID}/g,sequenceId).replace(/{actionID}/g,actionId),
-		type:'GET',
-		callback:function(data){
-			currentStartedWorkflows = data;
-			isShowBounced(workflowDialog,true);
-			addCloseEvent(workflowDialog);
-			rendStartedActionInfo(workflowName,version.versionName,stageName,actionName,breadcrumbs);
-			renderStartedWorkflows(currentStartedWorkflows,startedRecords);
-		}
-	};
-	getData(params)
+	// var params = {
+	// 	url:resUrl.startedWorkflow.replace(/{workflowName}/g,workflowName).replace(/{versionName}/g,version.versionName).replace(/{sequence}/g,sequence).replace(/{actionName}/g,actionName).replace(/{workflowID}/g,sequenceId).replace(/{actionID}/g,actionId),
+	// 	type:'GET',
+	// 	callback:function(data){
+	// 		currentStartedWorkflows = data;
+	// 		isShowBounced(workflowDialog,true);
+	// 		addCloseEvent(workflowDialog);
+	// 		rendStartedActionInfo(workflowName,version.versionName,stageName,actionName,breadcrumbs);
+	// 		renderStartedWorkflows(currentStartedWorkflows,startedRecords);
+	// 	}
+	// };
+	var promise = historyDataService.getStartedWorkflows(workflowName,workflowId,version,sequence,sequenceId,stageName,actionId,actionName);
+	promise.done(function(data) {
+    loading.hide();
+		currentStartedWorkflows = data;
+		isShowBounced(workflowDialog,true);
+		addCloseEvent(workflowDialog);
+		rendStartedActionInfo(workflowName,version.versionName,stageName,actionName,breadcrumbs);
+		renderStartedWorkflows(currentStartedWorkflows,startedRecords);
+  });
+  promise.fail(function(xhr, status, error) {
+    loading.hide();
+    if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
+        notify(xhr.responseJSON.errMsg, "error");
+    } else if(xhr.statusText != "abort") {
+        notify("Server is unreachable", "error");
+    }
+  });
 }
 
 function rendStartedActionInfo(workflowName,versionName,stageName,actionName,selector){
@@ -497,19 +551,3 @@ function addCloseEvent(selector){
 	})
 }
 
-function getData(params){
-	loading.show();
-	var promise = historyDataService.getHistoryData(params);
-	promise.done(function(data) {
-    loading.hide();
-		params.callback(data);
-  });
-  promise.fail(function(xhr, status, error) {
-    loading.hide();
-    if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
-        notify(xhr.responseJSON.errMsg, "error");
-    } else if(xhr.statusText != "abort") {
-        notify("Server is unreachable", "error");
-    }
-  });
-}

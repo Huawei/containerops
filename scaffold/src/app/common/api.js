@@ -45,8 +45,11 @@ let apiUrlConf = {
 		"action" : "/v2/{namespace}/{repository}/workflow/v1/history/{workflowName}/{version}/{sequence}/stage/{stageName}/action/{actionName}",
 		"relation" : "/v2/{namespace}/{repository}/workflow/v1/history/{workflowName}/{version}/{sequence}/{lineId}",
 		"containerLog": "/v2/workflow/v1/",
-		"schedule": "/v2/workflow/v1/"
-
+		"schedule": "/v2/workflow/v1/",
+		"workflow":"/v2/demo/demo/workflow/v1/history/workflow/list",
+		"version":"/v2/demo/demo/workflow/v1/history/workflow/{workflowName}/version/list?id={workflowID}",
+		"sequence":"/v2/demo/demo/workflow/v1/history/workflow/{workflowName}/version/{versionName}/list?id={versionID}&sequenceNum={sequenceNum}",
+		"startedWorkflow":"/v2/demo/demo/workflow/v1/history/workflow/{workflowName}/version/{versionName}/sequence/{sequence}/action/{actionName}/linkstart/list?workflowId={workflowID}&actionId={actionID}"
 	},
 
 	"setting" : "/v2/{namespace}/{repository}/system/v1/setting"
@@ -342,6 +345,46 @@ export let historyApi = {
 		});
 		pendingPromise.push(promise);
 	  return promise;	
+	},
+	getWorkflows(page,workflowNum,isInitPages){
+		var promise = $.ajax({
+			"url":apiUrlConf.host + apiUrlConf.history.workflow+'?page='+page+'&prePageCount='+workflowNum,
+			"type":'GET',
+			"dataType":'json',
+			"cache": false
+		});
+		pendingPromise.push(promise);
+	  return promise;
+	},
+	getVersions(workflowName,workflowId){
+		var promise = $.ajax({
+			"url":apiUrlConf.host + apiUrlConf.history.version.replace(/{workflowName}/g,workflowName).replace(/{workflowID}/g,workflowId),
+			"type":'GET',
+			"dataType":'json',
+			"cache": false
+		});
+		pendingPromise.push(promise);
+	  return promise;
+	},
+	getSequences(workflowName,workflowId,versionName,versionId,sequenceNum){
+		var promise = $.ajax({
+			"url":apiUrlConf.host + apiUrlConf.history.sequence.replace(/{workflowName}/g,workflowName).replace(/{versionName}/g,versionName).replace(/{versionID}/g,versionId).replace(/{versionName}/g,versionName).replace(/{sequenceNum}/g,sequenceNum),
+			"type":'GET',
+			"dataType":'json',
+			"cache": false
+		});
+		pendingPromise.push(promise);
+	  return promise;
+	},
+	getStartedWorkflows(workflowName,workflowId,version,sequence,sequenceId,stageName,actionId,actionName){
+		var promise = $.ajax({
+			"url":apiUrlConf.host + apiUrlConf.history.startedWorkflow.replace(/{workflowName}/g,workflowName).replace(/{versionName}/g,version.versionName).replace(/{sequence}/g,sequence).replace(/{actionName}/g,actionName).replace(/{workflowID}/g,sequenceId).replace(/{actionID}/g,actionId),
+			"type":'GET',
+			"dataType":'json',
+			"cache": false
+		});
+		pendingPromise.push(promise);
+	  return promise;
 	} 
 }
 
