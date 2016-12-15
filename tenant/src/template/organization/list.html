@@ -1,14 +1,11 @@
-<h3 class="page-title">
-    <strong>Organization </strong> - List
-</h3>
-<div class="row content no-org-div" *ngIf="orgs.length == 0">
+<div class="row content no-data-div" *ngIf="orgs.length == 0">
     <div class="row col-md-12">
         <div class="col-md-6 col-md-offset-3" style="text-align:center">
             <div>
             You don't belong to any organization, please click button below to create your first one.
             </div>
             <br/>
-            <button type="button" class="btn btn-success new-org-btn" (click)="showNewOrg()">
+            <button type="button" class="btn btn-success new-btn" (click)="showNewOrg()">
                 <i class="glyphicon glyphicon-plus"></i>
                 <span>New Organization</span>
             </button>
@@ -16,6 +13,9 @@
     </div>
 </div>
 <div class="row" *ngIf="orgs.length > 0">
+    <h3 class="page-title">
+        <strong>Organization </strong> - List
+    </h3>
     <div class="col-lg-12">
         <section class="widget">
             <div class="widget-body">
@@ -26,7 +26,7 @@
                     </button>
                 </legend>
                 <div>
-                    <table class="table">
+                    <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>Name</th>

@@ -14,7 +14,7 @@ export class TeamDataService {
 
 		if(orgid){
 			teams = _.filter(teams,function(team){
-				return team.orgid == orgid;
+				return team.org.id == orgid;
 			});
 		}
 
