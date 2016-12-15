@@ -587,34 +587,36 @@ func (actionLog *ActionLog) Listen() error {
 		return errors.New("can't listen target action,change action's state failed")
 	}
 
-	canStartChan := make(chan bool, 1)
+	canStartChan := make(chan models.ActionLog, 1)
 	go func() {
+		aLog := *actionLog.ActionLog
 		for true {
 			time.Sleep(1 * time.Second)
 
-			err := actionLog.GetActionLog().Where("id = ?", actionLog.ID).First(actionLog).Error
+			err := aLog.GetActionLog().Where("id = ?", aLog.ID).First(&aLog).Error
 			if err != nil {
-				log.Error("[actionLog's Listen]:error when get actionLog's info:", actionLog, " ===>error is:", err.Error())
-				canStartChan <- false
+				log.Error("[actionLog's Listen]:error when get actionLog's info:", aLog, " ===>error is:", err.Error())
+				canStartChan <- *new(models.ActionLog)
 				break
 			}
-			if actionLog.Requires == "" || actionLog.Requires == "[]" {
-				log.Info("[actionLog's Listen]:actionLog", actionLog, " is ready and will start")
-				canStartChan <- true
+			if aLog.Requires == "" || aLog.Requires == "[]" {
+				canStartChan <- aLog
 				break
 			}
 		}
 	}()
 
 	go func() {
-		canStart := <-canStartChan
-		if !canStart {
-			log.Error("[actionLog's Listen]:actionLog can't start", actionLog)
-			actionLog.Stop(StageStopReasonRunFailed, models.ActionLogStateRunFailed)
+		aLog := <-canStartChan
+
+		Log := new(ActionLog)
+		Log.ActionLog = &aLog
+		if aLog.ID == 0 {
+			log.Error("[actionLog's Listen]:actionLog can't start", aLog)
+			Log.Stop(StageStopReasonRunFailed, models.ActionLogStateRunFailed)
 			return
 		}
-
-		go actionLog.Start()
+		go Log.Start()
 	}()
 
 	return nil
