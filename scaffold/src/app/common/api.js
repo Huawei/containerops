@@ -44,8 +44,8 @@ let apiUrlConf = {
 		"workflowHistory" : "/v2/{namespace}/{repository}/workflow/v1/history/{workflowName}/{version}?sequence={sequence}",
 		"action" : "/v2/{namespace}/{repository}/workflow/v1/history/{workflowName}/{version}/{sequence}/stage/{stageName}/action/{actionName}",
 		"relation" : "/v2/{namespace}/{repository}/workflow/v1/history/{workflowName}/{version}/{sequence}/{lineId}",
-		"containerLog": "/v2/workflow/v1/",
-		"schedule": "/v2/workflow/v1/",
+		// "containerLog": "/v2/workflow/v1/",
+		// "schedule": "/v2/workflow/v1/",
 		"workflow":"/v2/demo/demo/workflow/v1/history/workflow/list",
 		"version":"/v2/demo/demo/workflow/v1/history/workflow/{workflowName}/version/list?id={workflowID}",
 		"sequence":"/v2/demo/demo/workflow/v1/history/workflow/{workflowName}/version/{versionName}/list?id={versionID}&sequenceNum={sequenceNum}",
@@ -271,18 +271,6 @@ export let componentApi = {
 
 
 export let historyApi = {
-	
-	// "workflowHistories" : function () {
-	// 	initApiInvocation();
-	// 	var promise = $.ajax({
-	// 		"url" : apiUrlConf.host + apiUrlConf.history.workflowHistories.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo"),
-	// 		"type" : "GET",
-	// 		"dataType" : "json",
-	// 		"cache": false
-	// 	});
-	// 	pendingPromise.push(promise);
-	// 	return promise;
-	// },
 	"workflowHistory" : function(workflowName,versionName,workflowRunSequence){
 		initApiInvocation();
 		var promise = $.ajax({
@@ -316,26 +304,26 @@ export let historyApi = {
 	    pendingPromise.push(promise);
 	    return promise;
 	},
-	"containerLog": function (){
-		initApiInvocation();
-		var promise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.history.relation.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{workflowName}/g, workflowName).replace(/{version}/g, versionName).replace(/{sequence}/g, workflowRunSequence).replace(/{lineId}/g, sequenceLineId),
-	        "type": "GET",
-	        "dataType": "json",
-	        "cache": false
-	    });
+	// "containerLog": function (){
+	// 	initApiInvocation();
+	// 	var promise = $.ajax({
+	//         "url": apiUrlConf.host + apiUrlConf.history.relation.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{workflowName}/g, workflowName).replace(/{version}/g, versionName).replace(/{sequence}/g, workflowRunSequence).replace(/{lineId}/g, sequenceLineId),
+	//         "type": "GET",
+	//         "dataType": "json",
+	//         "cache": false
+	//     });
 		
-	},
-	"scheduleLog": function (){
-		initApiInvocation();
-		var promise = $.ajax({
-	        "url": apiUrlConf.host + apiUrlConf.history.relation.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{workflowName}/g, workflowName).replace(/{version}/g, versionName).replace(/{sequence}/g, workflowRunSequence).replace(/{lineId}/g, sequenceLineId),
-	        "type": "GET",
-	        "dataType": "json",
-	        "cache": false
-	    });
+	// },
+	// "scheduleLog": function (){
+	// 	initApiInvocation();
+	// 	var promise = $.ajax({
+	//         "url": apiUrlConf.host + apiUrlConf.history.relation.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{workflowName}/g, workflowName).replace(/{version}/g, versionName).replace(/{sequence}/g, workflowRunSequence).replace(/{lineId}/g, sequenceLineId),
+	//         "type": "GET",
+	//         "dataType": "json",
+	//         "cache": false
+	//     });
 
-	},
+	// },
 	getHistoryData:function(res){
 		var promise = $.ajax({
 			"url":apiUrlConf.host + res.url,
