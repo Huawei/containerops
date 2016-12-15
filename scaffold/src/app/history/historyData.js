@@ -43,6 +43,22 @@ export function getScheduleLog(){
 	return historyApi.scheduleLog();
 }
 
+export function getWorkflows(page,workflowNum,isInitPages){
+  return historyApi.getWorkflows(page,workflowNum,isInitPages);
+}
+
+export function getVersions(workflowName,workflowId){
+  return historyApi.getVersions(workflowName,workflowId);
+}
+
+export function getSequences(workflowName,workflowId,versionName,versionId,sequenceNum){
+  return historyApi.getSequences(workflowName,workflowId,versionName,versionId,sequenceNum);
+}
+
+export function getStartedWorkflows(workflowName,workflowId,version,sequence,sequenceId,stageName,actionId,actionName){
+  return historyApi.getStartedWorkflows(workflowName,workflowId,version,sequence,sequenceId,stageName,actionId,actionName);
+}
+
 
 
 
