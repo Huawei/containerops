@@ -467,9 +467,7 @@ function timerSequenceWorkflowData(refreshSelect_hisotry){
             notify("Server is unreachable", "error");
         }
     });
-       
-}
-
+}  
 
 function showRefreshSequenceView(refreshWorkflowSequenceData) {
     constant.sequenceWorkflowView.selectAll("image")
