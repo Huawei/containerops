@@ -354,7 +354,7 @@ func GetWorkflowList(namespace, repository string, page, prePageCount int64) (ma
 
 	count := int64(0)
 	err = db.Count(&count).Error
-	if err != nil && err.Error() != "record not found" {
+	if err != nil && err.Error() != "sql: no rows in result set" {
 		log.Error("[workflow's GetWorkflowList]:error when count workfow num from db:", err.Error())
 		return nil, errors.New("error when get workflow list")
 	}
