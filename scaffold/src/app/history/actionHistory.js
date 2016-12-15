@@ -56,26 +56,32 @@ function showActionHistoryView(history,actionname) {
             $("#action-output-stream").val(outputStream);
 
             var eventLogs = history.logList;
-            _.each(eventLogs,function(log,index){
+            if(eventLogs.length > 0 && eventLogs != null){
+                _.each(eventLogs,function(log,index){
 
-                let allLogs = log.substr(23);
-                allLogs = allLogs.replace(/\\n/g , "\\u003cbr /\\u003e")
-                eventStatusData = JSON.parse(allLogs);
-                let lineNo = index + 1;
-                let eventTime = log.substr(0,19);
+                    let allLogs = log.substr(23);
+                    allLogs = allLogs.replace(/\\n/g , "\\u003cbr /\\u003e")
+                    eventStatusData = JSON.parse(allLogs);
+                    let lineNo = index + 1;
+                    let eventTime = log.substr(0,19);
 
-                sequenceLogDetailData.push(eventStatusData.INFO);
-                getEventStatus(eventStatusData,eventTime,lineNo);
+                    sequenceLogDetailData.push(eventStatusData.INFO);
+                    getEventStatus(eventStatusData,eventTime,lineNo);
 
-                if ( eventStatusData.EVENT == "CO_TASK_RESULT" && eventStatusData.INFO != null ){
-                    let uResultLog = JSON.stringify(eventStatusData.INFO); 
-                     sequencResultLogsData.push(uResultLog);
-                }
-                
-            })
+                    if ( eventStatusData.EVENT == "CO_TASK_RESULT" && eventStatusData.INFO != null ){
+                        let uResultLog = JSON.stringify(eventStatusData.INFO); 
+                         sequencResultLogsData.push(uResultLog);
+                    }
+                })
 
-            getResultLog(sequencResultLogsData);
-            resizeWidget()
+                getResultLog(sequencResultLogsData);
+                resizeWidget()
+
+            } else{
+                let tipsInfo = `<h4 style="text-align:center;">There is no data Please see the other content </h4>`;
+                $("#resultlog").html( tipsInfo );
+                $("#evnLog").html( tipsInfo );
+            }
 
             $(".sequencelog-detail").on("click",function(e){
                 let target = $(e.target);
