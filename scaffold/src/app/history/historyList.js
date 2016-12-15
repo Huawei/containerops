@@ -126,14 +126,17 @@ function renderWorkflows(workflows,selector) {
 	var workflow='';
 
 	workflows.map(function(w,i){
-		var hasWorkflow = i===0? ' hasWorkflow':'';
+		var hasWorkflow = i===0? ' hasWorkflow ':'';
 		var isIn = i===0? 'in':'';
+		var isExtend = i===0?' extended ':'';
+		var extendImg = i===0?'assets/images/icon-extend.png':'assets/images/icon-collapse.png';
+
 		workflow += '<div class="item">'+
 									'<div class="title">'+
 								    '<img src="assets/images/icon-workflow.png"/>'+
 								    '<span>'+w.workflowName+'</span>'+
 								    '<a href="#'+w.workflowName+'" data-toggle="collapse" class="extend">'+
-								      '<img src="assets/images/icon-collapse.png" class="extend-icon '+hasWorkflow+'" data-workflowname="'+w.workflowName+'" data-workflowid="'+w.workflowId+'" >'+
+								      '<img src="'+extendImg+'" class="extend-icon '+isExtend+hasWorkflow+'" data-workflowname="'+w.workflowName+'" data-workflowid="'+w.workflowId+'" >'+
 								    '</a>'+
 								  '</div>'+
 								  '<div id="'+w.workflowName+'" class="collapse version-tab '+isIn+'">'+
@@ -310,7 +313,7 @@ function addStartWorkflowEvent(version){
 	})
 }
 
-function addActionDetailEvent(selector){
+export function addActionDetailEvent(selector){
 	$(selector).on('click',function(){
 		event.stopPropagation();
 		window.event.cancelBubble = true;
@@ -537,7 +540,7 @@ function clearOldData(selector){
 	$(selector).empty();
 }
 
-function isShowBounced(selector,boolean){
+export function isShowBounced(selector,boolean){
 	if(boolean){
 		$(selector).removeClass('dispN');
 	}else{
