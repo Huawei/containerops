@@ -313,7 +313,7 @@ function addStartWorkflowEvent(version){
 	})
 }
 
-function addActionDetailEvent(selector){
+export function addActionDetailEvent(selector){
 	$(selector).on('click',function(){
 		event.stopPropagation();
 		window.event.cancelBubble = true;
@@ -540,7 +540,7 @@ function clearOldData(selector){
 	$(selector).empty();
 }
 
-function isShowBounced(selector,boolean){
+export function isShowBounced(selector,boolean){
 	if(boolean){
 		$(selector).removeClass('dispN');
 	}else{
