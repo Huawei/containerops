@@ -10,9 +10,12 @@ var _ = require("underscore");
 })
 
 export class IndexComponent implements OnInit { 
+	currentUser;
 	selectedNav;
 
 	constructor(private router: Router){
+		this.currentUser = sessionStorage["currentUser"]; 
+
 		if(_.isUndefined(this.selectedNav)){
 			this.selectedNav = "org";
 		}
