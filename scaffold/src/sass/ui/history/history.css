@@ -141,40 +141,6 @@
   background: #217ca6;
   line-height: inherit;
 }
-/* vi change */
-#history { padding:15px;background-color: #fff;}
-#historyList .title {
-  background: #F7F7F7;
-  color: #7c7c7c;
-  height: 50px;
-  line-height: 30px;
-  padding: 10px;
-  font-size: 18px;
-  position: relative;
-  border-bottom: 2px solid #999;
-}
-#historyList .title .extend {
-  top: 30%;
-  right: 13px;
-}
-#historyList .title img {
-  width: 30px;
-  height: 30px;
-  margin-right: 8px;
-}
-#historyList .title img.extend-icon  {
-  width: 20px;
-  height: 20px;
-  margin-right: 8px;
-}
-#historyList .version-tab .nav-tabs {
-  border-bottom: 2px solid #DEDEDE;
-}
-#historyList .version-nav a,#historyList .version-nav a.active {
-  background: #DEDEDE;
-  color: #7c7c7c;
-}
-/* vi change end */
 
 #historyList .summary {
   border-bottom: 1px solid #E9EAEA;
@@ -484,3 +450,50 @@
 #startedRecords .start {
   width: 44px;
 }
+
+/* vi change */
+#history { padding:15px;background-color: #fff;}
+#historyList .title {
+  background: #F7F7F7;
+  color: #7c7c7c;
+  height: 50px;
+  line-height: 30px;
+  padding: 10px;
+  font-size: 18px;
+  position: relative;
+  border-bottom: 2px solid #999;
+}
+#historyList .title .extend {
+  top: 30%;
+  right: 13px;
+}
+#historyList .title img {
+  width: 30px;
+  height: 30px;
+  margin-right: 8px;
+}
+#historyList .title img.extend-icon  {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+}
+#historyList .version-tab .nav-tabs {
+  border-bottom: 2px solid #DEDEDE;
+}
+#historyList .version-nav a,#historyList .version-nav a.active {
+  background: #DEDEDE;
+  color: #7c7c7c;
+}
+#historyList .summary {
+  border-bottom: 1px solid #E9EAEA;
+  margin: -1em -1em 2em -1em;
+  line-height: normal;
+}
+#historyList .stages {
+  padding: 5px 20px;
+}
+
+#historyList .tab-content > .tab-pane{
+  padding: 30px;
+}
+/* vi change end */
