@@ -137,7 +137,7 @@ function initView(importTree,outputTree,linePathData){
 	    	if(toPath != undefined){
 
 	    		if(startClass != endClass){
-		    		notify("Difference type", "error");
+		    		notify("Different types can't build relationships", "error");
 		    		return false;
 		    	}
 
@@ -163,8 +163,8 @@ function initView(importTree,outputTree,linePathData){
 	});
 
 	
-
-	$("#removeLine").click(function(){
+    $('#removeLine').off('click');
+	$("#removeLine").on('click', function(){
 		var path = $("#bipatiteLineSvg path.active");
 		var index = path.attr("data-index"); 
 		if(isArray(linePathData.relation)){
