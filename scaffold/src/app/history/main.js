@@ -186,6 +186,7 @@ function initSequenceView(selected_history) {
 
             $(".backtolist").on('click', function() {
                 initHistoryPage();
+                clearTimeout(timer);
             });
 
             let $div = $("#div-d3-main-svg").height($("main").height() * 3 / 7);
@@ -439,6 +440,7 @@ function showSequenceView(workflowSequenceData) {
     // initAction();
 }
 
+var timer ;
 function timerSequenceWorkflowData(refreshSelect_hisotry){
     var promise = historyDataService.getWorkflowHistory(refreshSelect_hisotry.workflowName, refreshSelect_hisotry.versionName, refreshSelect_hisotry.sequence);
     promise.done(function(data) {
@@ -450,11 +452,10 @@ function timerSequenceWorkflowData(refreshSelect_hisotry){
             showRefreshSequenceView(constant.refreshSequenceRunData);
         }
 
-        var timer ;
         if(constant.sequenceRunStatus == 1 || constant.sequenceRunStatus == 2){
-            timer = setTimeout(function(){timerSequenceWorkflowData(refreshSelect_hisotry);},10000);
+            timer = setTimeout(function(){timerSequenceWorkflowData(refreshSelect_hisotry);},5000);
         }else{
-            clearInterval(timer); 
+            clearTimeout(timer); 
         }
     });
 
