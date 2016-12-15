@@ -9,13 +9,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. */
 
-/*
+
 .newStartOutput, .deleteStartOutput{
 	margin: -6px 10px
 }
-*/
 
-#startInputTabsContent{
+
+/*#startInputTabsContent{
 	padding-bottom:30px
 }
 
@@ -29,6 +29,22 @@ limitations under the License. */
 }
 
 .input-json-div{
+	margin-top:30px;
+}*/
+#startOutputTabsContent{
+	padding-bottom:30px
+}
+
+.startOutputTreeViewer{
+	height:500px;
+	margin-right:-30px
+}
+
+.startOutputTreeDesigner{
+	margin-right:-30px
+}
+
+.output-json-div{
 	margin-top:30px;
 }
 
