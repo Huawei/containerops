@@ -9,24 +9,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. */
 
+/*
 .newStartOutput, .deleteStartOutput{
 	margin: -6px 10px
 }
+*/
 
-#startOutputTabsContent{
+#startInputTabsContent{
 	padding-bottom:30px
 }
 
-.startOutputTreeViewer{
+.startInputTreeViewer{
 	height:500px;
 	margin-right:-30px
 }
 
-.startOutputTreeDesigner{
+.startInputTreeDesigner{
 	margin-right:-30px
 }
 
-.output-json-div{
+.input-json-div{
 	margin-top:30px;
 }
 
@@ -34,4 +36,14 @@ limitations under the License. */
 #copyUrl, #copyToken{
   margin-top:10px;
   cursor: pointer;
+}
+#startInputTabs .nav-tabs > .nav-item > .nav-link:hover{
+
+}
+#startInputTabs.nav-tabs > .nav-item .nav-link.active{
+	background-color:#ddd;
+	color:#000;
+}
+#startInputTabs.nav-tabs > .nav-item .nav-link.active:hover, .nav-tabs > .nav-item .nav-link.active:focus{
+
 }
