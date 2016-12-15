@@ -37,7 +37,8 @@ export class TeamAddComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-      (<any>$('.select2')).select2({minimumResultsForSearch: Infinity});
+      (<any>$('.select2')).select2({minimumResultsForSearch: Infinity})
+      						.on("change",(e) => this.team.org.id = $(e.target).val());
        this.getOrgs();
 	}
 

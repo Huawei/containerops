@@ -24,9 +24,11 @@ limitations under the License. */
 }
 
 .td-viewer {
-    background-color: #d9f7e8;
-    color: #A1D2BA;
-    border: none;
+    opacity: 0.6;
+    margin : 7px;
+    &:hover{
+        opacity: 1;
+    }
 }
 
 // nav sidebar control

@@ -4,6 +4,8 @@ import {OrgDataService} from './data.service';
 import {TeamDataService} from '../team/data.service';
 import { NotifyService } from '../common/notify.service';
 
+var _ = require("underscore");
+
 @Component({
   selector: 'org-add-team',
   template: require('../../template/organization/addTeam.html')
@@ -13,7 +15,14 @@ export class OrgAddTeamComponent implements OnInit {
 	org;
 	team = {
 		"name" : "",
-		"desc" : ""
+		"desc" : "",
+		"org" : {"id":1,"name":""},
+		"auth":[]
+	};
+	auth = {
+		"read":false,
+		"write":false,
+		'admin':false
 	};
 
 	constructor(private router: Router,
@@ -33,12 +42,15 @@ export class OrgAddTeamComponent implements OnInit {
 	      let id = +params['id'];
 	      this.org = this.orgDataService.getOrg(id);
 	    });
+
+	    this.team.org.id = this.org.id;
+	    this.team.org.name = this.org.name;
 	}
 
 	addTeam(): void {
 		try{
 			//fake, to be deleted
-			this.team["orgid"] = this.org.id;
+			this.caclAuth();
 			this.teamDataService.addTeam(this.team);
 			this.notifyService.notify("Add team '" + this.team.name + "' successfully.","success");
 
@@ -51,5 +63,14 @@ export class OrgAddTeamComponent implements OnInit {
 
 	cancelAdd(): void{
 		this.router.navigate(['/organization', this.org.id]);
-	}	
+	}
+
+	caclAuth(): void{
+    	var self = this;
+    	_.each(this.auth, function(value, key){
+            if(value){
+            	self.team.auth.push(key);
+            }
+    	})
+    }	
 }
