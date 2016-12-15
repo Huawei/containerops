@@ -46,6 +46,7 @@ export class LoginComponent implements OnInit {
 					this.notifyService.notify("No such user or password is incorrect.","info");
 				}else{
 					this.notifyService.notify("Welcome. " + self.user.username , "success");
+					sessionStorage["currentUser"] = self.user.username;
 					this.changeNav('index');
 				}
 			}
