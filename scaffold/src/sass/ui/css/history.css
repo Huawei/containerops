@@ -217,11 +217,31 @@
   width: 100%;
   text-align: center;
   float: right;
+  cursor: pointer;
 }
 #historyMap {
   overflow: hidden;
   background: #fff;
   font-size: 14px;
+}
+#historyMap .filter {
+  float: left;
+  position: relative;
+  margin-top: 18px;
+}
+#historyMap .filter .keywords {
+  width: 200px;
+  padding: 5px 36px 5px 8px;
+  outline: none;
+}
+#historyMap .filter .search {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  font-size: 16px;
+  padding: 6px 6px 7px;
+  background: #d7d7d7;
+  cursor: pointer;
 }
 #historyMap .maps {
   float: right;
@@ -334,18 +354,23 @@
   left: 55px;
   right: 55px;
   top: 160px;
-  padding: 20px 12px;
+  padding: 4rem;
   position: absolute;
   z-index: 10002;
+  border-radius: 8px;
 }
 #startedRecords .close {
   position: absolute;
-  right: 2px;
-  top: 2px;
-  font-size: 20px;
+  right: 1.5rem;
+  top: 1rem;
+  font-size: 3rem;
 }
 #startedRecords .breadcrumbs {
-  margin-bottom: 44px;
+  margin-bottom: 3rem;
+  font-size: 18px;
+  border-bottom: 2px solid #217CA6;
+  padding-left: 1rem;
+  color: #217CA6;
 }
 #startedRecords .item-record {
   overflow: hidden;
@@ -427,4 +452,58 @@
 #startedRecords .start {
   width: 44px;
 }
+/* vi change */
+#history {
+  padding: 15px;
+  background-color: #fff;
+}
+#historyList .title {
+  background: #F7F7F7;
+  color: #7c7c7c;
+  height: 50px;
+  line-height: 30px;
+  padding: 10px;
+  font-size: 18px;
+  position: relative;
+  border-bottom: 2px solid #999;
+}
+#historyList .title .extend {
+  top: 30%;
+  right: 13px;
+}
+#historyList .title img {
+  width: 30px;
+  height: 30px;
+  margin-right: 8px;
+}
+#historyList .title img.extend-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+}
+#historyList .version-tab .nav-tabs {
+  border-bottom: 2px solid #DEDEDE;
+}
+#historyList .version-nav a,
+#historyList .version-nav a.active {
+  background: #DEDEDE;
+  color: #7c7c7c;
+}
+#historyList .summary {
+  border-bottom: 1px solid #E9EAEA;
+  margin: -1em -1em 2em -1em;
+  line-height: normal;
+}
+#historyList .stages {
+  padding: 5px 20px;
+}
+#historyList .tab-content > .tab-pane {
+  padding: 30px;
+}
+#startedRecords {
+  background: #fdfdfd;
+  border: 2px solid #fff;
+  box-shadow: 0 0 20px 0 rgba(255, 255, 255, 0.8);
+}
+/* vi change end */
 /*# sourceMappingURL=history.css.map */

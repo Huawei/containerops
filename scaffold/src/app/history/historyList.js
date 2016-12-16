@@ -32,6 +32,8 @@ var historyPages = '#paginate';
 var startedRecords = "#infos .record-info";
 var workflowDialog = '#workflowDialog';
 var breadcrumbs = '#infos .breadcrumbs';
+var workflowSearch = '#historyMap .search';
+var antistop = '#historyMap .keywords';
 var summaryWidth = $(historyList).width() - sequencePad * 3 *2;
 var sequenceNum = Math.floor(summaryWidth / (sequenceWidth + sequenceMargin));
 
@@ -54,14 +56,15 @@ var workflows = [];
 var versions = [];
 var sequences = [];
 var currentStartedWorkflows = [];
+var filterWorkflow = '';
 
-export function getHistoryList(){
-	getWorkflows(currentPage,workflowNum,isInitPages)
+export function getHistoryList(keywords,filterType){
+	getWorkflows(currentPage,workflowNum,isInitPages,keywords,filterType);
 }
 
-function getWorkflows(page,workflowNum,isInitPages) {
+function getWorkflows(page,workflowNum,isInitPages,keywords,filterType) {
 	loading.show();
-	var promise = historyDataService.getWorkflows(page,workflowNum,isInitPages);
+	var promise = historyDataService.getWorkflows(page,workflowNum,isInitPages,keywords,filterType);
 	promise.done(function(data) {
     loading.hide();
 		totalWorkflows = data.totalWorkflows;
@@ -530,7 +533,7 @@ function getPages(totalNum,selector){
 			onChange: function(currentPage){
 				currentPage = currentPage;
 				isInitPages = false;
-				getWorkflows(currentPage,workflowNum)
+				getWorkflows(currentPage,workflowNum,isInitPages,filterWorkflow,filterType)
 			}
 		})
 	}
@@ -538,6 +541,18 @@ function getPages(totalNum,selector){
 
 function clearOldData(selector){
 	$(selector).empty();
+}
+
+export function addFilterWorklowEvent(){
+	$(workflowSearch).on('click',function(){
+		var val = $(antistop).val();
+		if(val){
+			filterWorkflow = val;
+			currentPage = 1;
+			isInitPages = true;
+			getWorkflows(currentPage,workflowNum,isInitPages,filterWorkflow,'fuzzy');
+		}
+	})
 }
 
 export function isShowBounced(selector,boolean){
