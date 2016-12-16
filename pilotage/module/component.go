@@ -44,6 +44,7 @@ var (
 
 type component interface {
 	Start() error
+	Update()
 	Stop() error
 	SendData(receiveDataUri string, data []byte) ([]*http.Response, error)
 }
@@ -842,6 +843,8 @@ func (kube *kubeComponent) StartRC(serviceAddr string) error {
 		}
 	}
 
+	go kube.Update()
+
 	return nil
 }
 
@@ -1151,6 +1154,7 @@ func (kube *kubeComponent) GetServiceInfo() (map[string]interface{}, error) {
 	}
 
 	respBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
 		log.Error("[kubeComponent's GetServiceInfo]:error when read resp body info:", err.Error(), " ===>error code:", resp.StatusCode)
 		return nil, errors.New("error when get service err body:" + err.Error() + "==== error code is :" + strconv.FormatInt(int64(resp.StatusCode), 10))
@@ -1164,4 +1168,73 @@ func (kube *kubeComponent) GetServiceInfo() (map[string]interface{}, error) {
 	}
 
 	return result, nil
+}
+
+func (kube *kubeComponent) Update() {
+	info, err := kube.GetPodInfo()
+	if err != nil {
+		log.Error("[kubeComponent's UpdatePodInfo]:error when get pod info:", err.Error())
+		return
+	}
+
+	if info != nil {
+		containerLogName := ""
+		if metadataMap, ok := info["metadata"].(map[string]interface{}); ok {
+			containerName := metadataMap["name"].(string)
+			containerLogName = containerName
+		}
+
+		containerLogName = containerLogName + "_" + kube.namespace + "_" + containerLogName + "-"
+
+		if statusMap, ok := info["status"].(map[string]interface{}); ok {
+			if containerStatuses, ok := statusMap["containerStatuses"].([]interface{}); ok {
+				if len(containerStatuses) > 0 {
+					containerInfo := containerStatuses[0].(map[string]interface{})
+					containerID := containerInfo["containerID"].(string)
+					containerLogName = containerLogName + containerID + ".log"
+				}
+			}
+		}
+
+		err := kube.componentInfo.GetActionLog().Where("id = ?", kube.componentInfo.ID).UpdateColumn("container_id", containerLogName).Error
+		if err != nil {
+			log.Error("[kubeComponent's UpdatePodInfo]:error when update action's container_id:", err.Error())
+		}
+	}
+}
+
+func (kube *kubeComponent) GetPodInfo() (map[string]interface{}, error) {
+	// first get pod's lable
+	podName := "pod-" + kube.runID
+
+	podLable := "WORKFLOW_DEFAULT_POD_LABLE" + podName
+
+	kubeReqUrl := kube.apiServerUri + "/api/v1/namespaces/" + kube.componentInfo.Namespace + "/pods?labelSelector=" + podLable
+
+	resp, err := http.Get(kubeReqUrl)
+	if err != nil {
+		log.Error("[kubeComponent's GetPodInfo]:error when send req to kube:", err.Error())
+		return nil, err
+	}
+
+	respBody, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		log.Error("[kubeComponent's GetPodInfo]:error when read resp body info:", err.Error(), " ===>error code:", resp.StatusCode)
+		return nil, errors.New("error when get service err body:" + err.Error() + "==== error code is :" + strconv.FormatInt(int64(resp.StatusCode), 10))
+	}
+
+	result := make(map[string]interface{})
+	err = json.Unmarshal(respBody, &result)
+	if err != nil {
+		log.Error("[kubeComponent's GetPodInfo]:error when unmarshal respBody, want a json obj, got :", string(respBody), "\n ===>error is:", err.Error())
+		return nil, err
+	}
+	pods := result["items"].([]interface{})
+	if len(pods) == 0 {
+		return nil, nil
+	}
+
+	podInfo := pods[0].(map[string]interface{})
+	return podInfo, nil
 }
