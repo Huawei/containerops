@@ -26,6 +26,7 @@ import {changeCurrentElement} from "../common/util";
 import * as sequenceUtil from "./initUtil";
 
 export function initHistoryPage() {
+    clearTimeout(timer);
     getHistory();
 }
 
