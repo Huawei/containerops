@@ -22,7 +22,7 @@
                 <legend>
                     <button type="button" class="btn btn-success btn-sm" style="float:right" (click)="showNewRepo()">
                         <i class="fa fa-plus"></i>
-                        New
+                        <span>New</span>
                     </button>
                 </legend>
                 <div>
@@ -41,9 +41,9 @@
                                 <td>{{repo.url}}</td>
                                 <td>{{repo.imagetag}}</td>
                                 <td>
-                                	<button type="button" class="btn btn-success btn-sm td-viewer" (click)="showRepoDetail(repo.id)">
-	                                    <i class="glyphicon glyphicon-eye-open"></i>
-	                                    <span>View</span>
+                                	<button type="button" class="btn btn-primary btn-sm td-viewer" (click)="showRepoDetail(repo.id)">
+	                                    <i class="fa fa-users"></i>
+	                                    <span>Teams</span>
 	                                </button>
                                 </td>
                             </tr>

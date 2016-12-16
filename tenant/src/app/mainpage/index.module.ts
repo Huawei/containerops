@@ -23,6 +23,8 @@ import { TeamManageAuthComponent } from '../team/manage-auth.component';
 // repo
 import { RepoListComponent }  from '../repository/list.component';
 import { RepoAddComponent }  from '../repository/add.component';
+import { RepoDetailComponent }  from '../repository/detail.component';
+import { RepoAddTeamComponent }  from '../repository/addteam.component';
 
 // services
 import { OrgDataService } from '../organization/data.service';
@@ -52,7 +54,9 @@ import { routing } from './index.router';
     TeamManageMemberComponent,
     TeamManageAuthComponent,
   	RepoListComponent,
-    RepoAddComponent
+    RepoAddComponent,
+    RepoDetailComponent,
+    RepoAddTeamComponent
   ],
   providers: [
     OrgDataService,
