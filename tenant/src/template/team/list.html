@@ -23,7 +23,7 @@
                     <!-- <strong>Team</strong> List -->
                     <button type="button" class="btn btn-success btn-sm pull-right" (click)="showNewTeam()">
                         <i class="fa fa-plus"></i>
-                        New
+                        <span>New</span>
                     </button>
                 </legend>
                 <div>
@@ -46,15 +46,15 @@
                                  <td>
                                 	<button type="button" class="btn btn-primary btn-sm td-viewer" (click)="manageMembers(team.id)">
                                         <i class="fa fa-users"></i>
-	                                     Members
+	                                    <span>Members</span>
 	                                </button>
                                     <button type="button" class="btn btn-info btn-sm td-viewer" (click)="manageAuth(team.id)">
                                         <i class="fa fa-unlock-alt"></i>
-                                        Atuhority
+                                        <span>Atuhority</span>
                                     </button>
                                     <button type="button" class="btn btn-warning btn-sm td-viewer" >
                                         <i class="fa fa-database"></i>
-                                        Repository
+                                        <span>Repository</span>
                                     </button>
                                 </td>
 
