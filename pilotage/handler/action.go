@@ -98,6 +98,63 @@ func GetActionHistoryInfoV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
+func GetActionConsoleLogV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{"message": ""})
+
+	namespace := ctx.Params(":namespace")
+	if namespace == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "namespace can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	repository := ctx.Params(":repository")
+	if repository == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "repository can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	workflowName := ctx.Params(":workflow")
+	if workflowName == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "workflow can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	sequence := ctx.Params(":sequence")
+	sequenceInt, err := strconv.ParseInt(sequence, 10, 64)
+	if err != nil || sequenceInt == int64(0) {
+		result, _ = json.Marshal(map[string]string{"errMsg": "sequence error"})
+		return http.StatusBadRequest, result
+	}
+
+	stageName := ctx.Params(":stage")
+	if stageName == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "stage can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	actionName := ctx.Params(":action")
+	if actionName == "" {
+		result, _ = json.Marshal(map[string]string{"errMsg": "action can't be empty"})
+		return http.StatusBadRequest, result
+	}
+
+	actionLogInfo, err := module.GetActionLogByName(namespace, repository, workflowName, sequenceInt, stageName, actionName)
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	logList, err := actionLogInfo.GetActionConsoleLog()
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	result, _ = json.Marshal(map[string]interface{}{"list": logList})
+
+	return http.StatusOK, result
+}
+
 //PutActionV1Handler is
 func PutActionV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})

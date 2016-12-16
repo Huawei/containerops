@@ -517,6 +517,76 @@ func (actionLog *ActionLog) GetActionHistoryInfo() (map[string]interface{}, erro
 	return result, nil
 }
 
+func (actionLog *ActionLog) GetActionConsoleLog() ([]map[string]interface{}, error) {
+	result := make([]map[string]interface{}, 0)
+
+	var kube component
+	if actionLog.Component != 0 {
+		c, err := InitComponetNew(actionLog)
+		if err != nil {
+			log.Error("[actionLog's GetActionConsoleLog]:error when init component:", err.Error())
+			RecordOutcom(actionLog.Workflow, actionLog.FromWorkflow, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, 0, false, "start action error", "error when init component:"+err.Error())
+			actionLog.Stop(ActionStopReasonRunFailed, models.ActionLogStateRunFailed)
+			return nil, nil
+		} else {
+			kube = c
+		}
+	}
+
+	if actionLog.ContainerId == "" {
+		temp := make(map[string]interface{})
+
+		temp["log"] = "can't get action's container log"
+		temp["stream"] = "workflow"
+		temp["time"] = time.Now().Format("2006-01-02 15:04:05")
+
+		result = append(result, temp)
+
+		kube.Update()
+
+		return result, nil
+	}
+
+	if kube != nil {
+		platformSetting, err := actionLog.GetActionPlatformInfo()
+		if err != nil {
+			log.Error("[actionLog's GetActionConsoleLog]:error when get given actionLog's platformSetting:", actionLog, " ===>error is:", err.Error())
+			return nil, errors.New("error when get action's info")
+		}
+
+		logServerUrl := platformSetting["platformHost"] + "/api/v1/proxy/namespaces/kube-system/services/elasticsearch-logging/_search?" + "q=tag:kubernetes.var.log.containers." + actionLog.ContainerId
+
+		resp, err := http.Get(logServerUrl)
+		if err != nil {
+			go kube.Update()
+			log.Error("[actionLog's GetActionConsoleLog]:error when get action's log:", err.Error())
+			return nil, errors.New("error when get log info from server")
+		}
+
+		respBody, _ := ioutil.ReadAll(resp.Body)
+		defer resp.Body.Close()
+		respMap := make(map[string]interface{})
+		json.Unmarshal(respBody, &respMap)
+		if hits, ok := respMap["hits"].(map[string]interface{}); ok {
+			if hitsList, ok := hits["hits"].([]interface{}); ok {
+				for _, info := range hitsList {
+					if hitMap, ok := info.(map[string]interface{}); ok {
+						if sourceMap, ok := hitMap["_source"].(map[string]interface{}); ok {
+							tempMap := make(map[string]interface{})
+							tempMap["stream"] = sourceMap["stream"]
+							tempMap["time"] = sourceMap["@timestamp"]
+							tempMap["log"] = sourceMap["log"]
+
+							result = append(result, tempMap)
+						}
+					}
+				}
+			}
+		}
+	}
+	return result, nil
+}
+
 func (actionLog *ActionLog) GetInputData() (map[string]interface{}, error) {
 	inputMap := make(map[string]interface{})
 

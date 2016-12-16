@@ -102,6 +102,7 @@ func SetRouters(m *macaron.Macaron) {
 							m.Get("/:workflow/:version", handler.GetWorkflowHistoryDefineV1Handler)
 							m.Get("/:workflow/:version/:sequence/stage/:stage", handler.GetStageHistoryInfoV1Handler)
 							m.Get("/:workflow/:version/:sequence/stage/:stage/action/:action", handler.GetActionHistoryInfoV1Handler)
+							m.Get("/:workflow/:version/:sequence/stage/:stage/action/:action/console/log", handler.GetActionConsoleLogV1Handler)
 							m.Get("/:workflow/:version/:sequence/:relation", handler.GetSequenceLineHistoryV1Handler)
 						})
 					})
