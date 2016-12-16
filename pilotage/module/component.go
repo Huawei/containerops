@@ -777,8 +777,7 @@ func (kube *kubeComponent) StartService() (string, error) {
 	for _, port := range respPorts {
 		portF, ok := port["nodePort"].(float64)
 		if !ok {
-			log.Error("[kubeComponent's StartService]:error when get service's nodeport is not a number:", port)
-			return "", errors.New("error when parse create service resp: nodePort is not a number!")
+			portF = float64(0)
 		}
 		portStr := strconv.FormatFloat(portF, 'f', 0, 64)
 
