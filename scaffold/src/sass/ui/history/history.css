@@ -222,6 +222,7 @@
   width: 100%;
   text-align: center;
   float: right;
+  cursor: pointer;
 }
 #historyMap {
   overflow: hidden;
@@ -495,5 +496,11 @@
 
 #historyList .tab-content > .tab-pane{
   padding: 30px;
+}
+
+#startedRecords{
+  background: #fdfdfd;
+  border: 2px solid #fff;
+  box-shadow: 0 0 20px 0 rgba(255,255,255,.8);
 }
 /* vi change end */
