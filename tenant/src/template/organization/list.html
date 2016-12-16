@@ -22,7 +22,7 @@
                 <legend>
                     <button type="button" class="btn btn-success btn-sm" style="float:right" (click)="showNewOrg()">
                         <i class="fa fa-plus"></i>
-                        New
+                        <span>New</span>
                     </button>
                 </legend>
                 <div>
@@ -39,9 +39,9 @@
                                 <td>{{org.name}}</td>
                                 <td>{{org.desc}}</td>
                                 <td>
-                                	<button type="button" class="btn btn-success btn-sm td-viewer" (click)="showOrgDetail(org.id)">
-	                                    <i class="glyphicon glyphicon-eye-open"></i>
-	                                    <span>View</span>
+                                	<button type="button" class="btn btn-primary btn-sm td-viewer" (click)="showOrgDetail(org.id)">
+	                                    <i class="fa fa-users"></i>
+	                                    <span>Teams</span>
 	                                </button>
                                 </td>
                             </tr>

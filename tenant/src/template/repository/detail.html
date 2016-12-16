@@ -1,26 +1,26 @@
 <h3 class="page-title" *ngIf="teams.length == 0">
-    <a [routerLink]="['/organization']"><strong>Organization</strong></a> 
-    <span><strong>{{" / " + org.name}}</strong></span> 
+    <a [routerLink]="['/repository']"><strong>Repository</strong></a> 
+    <span><strong>{{" / " + repo.name}}</strong></span> 
     &nbsp;&nbsp;
-    <a [routerLink]="['/organization']"><i class="fa fa-reply-all" title="back"></i></a>
+    <a [routerLink]="['/repository']"><i class="fa fa-reply-all" title="back"></i></a>
 </h3>
 <h3 class="page-title" *ngIf="teams.length > 0">
-    <a [routerLink]="['/organization']"><strong>Organization</strong></a> 
-    <span><strong>{{" / " + org.name}}</strong></span> 
+    <a [routerLink]="['/repository']"><strong>Repository</strong></a> 
+    <span><strong>{{" / " + repo.name}}</strong></span> 
     <span><strong>{{" / Team"}}</strong> - List</span> 
     &nbsp;&nbsp;
-    <a [routerLink]="['/organization']"><i class="fa fa-reply-all" title="back"></i></a>
+    <a [routerLink]="['/repository']"><i class="fa fa-reply-all" title="back"></i></a>
 </h3>
 <div class="row content no-data-div" *ngIf="teams.length == 0">
     <div class="row col-md-12">
         <div class="col-md-6 col-md-offset-3" style="text-align:center">
             <div>
-            No team found in the organization, please click button below to create the first one.
+            No team can access the repository, please click button below to add the first one.
             </div>
             <br/>
             <button type="button" class="btn btn-success new-btn" (click)="showNewTeam()">
                 <i class="glyphicon glyphicon-plus"></i>
-                <span>New Team</span>
+                <span>Add Team</span>
             </button>
         </div>
     </div>
@@ -31,8 +31,8 @@
             <div class="widget-body">
                 <legend>
                     <button type="button" class="btn btn-success btn-sm" style="float:right" (click)="showNewTeam()">
-                        <i class="fa fa-plus"></i>
-                        <span>New</span>
+                        <i class="glyphicon glyphicon-plus"></i>
+                        <span>Add Team</span>
                     </button>
                 </legend>
                 <div>
@@ -41,6 +41,7 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Description</th>
+                                <th>Organization</th>
                                 <th>Authority</th>
                             </tr>
                         </thead>
@@ -48,7 +49,8 @@
                             <tr *ngFor="let team of teams">
                                 <td>{{team.name}}</td>
                                 <td>{{team.desc}}</td>
-                                <td>{{team.auth}}</td>
+                                <td>{{team.org.name}}</td>
+                                <td>{{team.repoauth}}</td>
                             </tr>
                         </tbody>
                     </table>
