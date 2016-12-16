@@ -340,13 +340,17 @@ func Run(workflowId int64, authMap map[string]interface{}, startData string) (*W
 	return workflowLog, nil
 }
 
-func GetWorkflowList(namespace, repository string, page, prePageCount int64) (map[string]interface{}, error) {
+func GetWorkflowList(namespace, repository string, page, prePageCount int64, filter, filtertype string) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 
-	db := new(models.WorkflowLog).GetWorkflowLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Order("-id").Group("workflow")
+	if filtertype == "fuzzy" {
+		filter = "%" + filter + "%"
+	}
+
+	db := new(models.WorkflowLog).GetWorkflowLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("workflow like ?", filter).Order("-id").Group("workflow")
 
 	workflowList := make([]models.WorkflowLog, 0)
-	err := models.GetDB().Raw("SELECT * FROM (SELECT * FROM workflow_log ORDER BY id DESC) i WHERE `i`.deleted_at IS NULL AND ((i.namespace = '" + namespace + "') AND (i.repository = '" + repository + "')) GROUP BY i.workflow LIMIT " + strconv.FormatInt(prePageCount, 10) + " OFFSET " + strconv.FormatInt((page-1)*prePageCount, 10)).Scan(&workflowList).Error
+	err := models.GetDB().Raw("SELECT * FROM (SELECT * FROM workflow_log WHERE `workflow_log`.deleted_at IS NULL AND workflow like ? AND workflow_log.namespace = ? AND workflow_log.repository = ? ORDER BY id DESC) i GROUP BY i.workflow LIMIT ? OFFSET ?", filter, namespace, repository, prePageCount, (page-1)*prePageCount).Scan(&workflowList).Error
 	if err != nil && err.Error() != "record not found" {
 		log.Error("[workflow's GetWorkflowList]:error when get workflow list from db:", err.Error())
 		return nil, errors.New("error when get workflow list")
