@@ -22,10 +22,12 @@ import { TeamManageMemberComponent } from '../team/manage-member.component';
 import { TeamManageAuthComponent } from '../team/manage-auth.component';
 // repo
 import { RepoListComponent }  from '../repository/list.component';
+import { RepoAddComponent }  from '../repository/add.component';
 
 // services
 import { OrgDataService } from '../organization/data.service';
 import { TeamDataService } from '../team/data.service';
+import { RepoDataService } from '../repository/data.service';
 
 import { routing } from './index.router';
 
@@ -49,11 +51,13 @@ import { routing } from './index.router';
     TeamDetailComponent,
     TeamManageMemberComponent,
     TeamManageAuthComponent,
-  	RepoListComponent
+  	RepoListComponent,
+    RepoAddComponent
   ],
   providers: [
     OrgDataService,
-    TeamDataService
+    TeamDataService,
+    RepoDataService
   ],
   bootstrap: [ IndexComponent ]
 })
