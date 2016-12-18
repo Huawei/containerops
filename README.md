@@ -2,28 +2,37 @@
 
 ## What's ContainerOps?
 
-> ContainerOps is a DevOps orchestration.
+### Why DevOps orchestration?
 
+There are countless projects, plugins, services in the DevOps workflow. However, no one covers all DevOps tasks. The developers are facing huge risk and investment when transitioning from any tools to another. How should improve the DevOps process and increase iteration speed? The principle of DevOps orchestration is keeping the process and tools, assemble them into orchestration engine and deliver the context between them. Then improve the DevOps by add or replace through orchestration engine without interrupt the process. DevOps is a step by step process, and invasive change is dangerous.
 
-There is many projects, plugins, services in the DevOps workflow. However, no one covers all DevOps tasks, and we could only choose different projects and services together assembling into DevOps workflow. How to determine the order and pass the context between them?  In the DevOps need orchestration for improving efficiency and iteration speed. 
+### ContainerOps is a DevOps orchestration platform with the container technology.
 
-ContainerOps is DevOps orchestration. It builds a DevOps workflow orchestrating tools or services, and giving the trigger data or customizes data from the workflow start trigger to the every stage. So don’t need to abandon the original DevOps solution, just add ContainerOps as the top orchestration, scheduling the existing build system, continuous integration system or continuous deployment system, adding any features used and reused container DevOps component.
+ContainerOps is DevOps orchestration platform with the container. It has an engine orchestrating tools, components or services, and running with Kubernetes. ContainerOps provides tools encapsulate plugins or any programs into a container, and a set of environment variables used for interaction with the engine. We call this container included DevOps task is component. All components running in the Kubernetes, and the lifestyle managed by the engine. At the same time, the engine integrated with DevOps services like Github or Travis CI, and interacted with them through REST API. The ContainerOps designed for cloud native development scenario and running within container orchestration.
 
-![Workflow Running](docs/images/workflow-running.gif)
+### Concept - Component 
 
-> What's the DevOps component?
+A DevOps function developed in any programming language like Bash, Golang, Python or C++ could encapsulate as a containerized DevOps component. This guarantee that the DevOps task always run the same, regardless of its environment. Moreover, the developers do not care the resource of running components, and the orchestration engine use Kubernetes run them. It is more easily use than scripts and share. We are working on a component registry at https://opshub.sh.
 
-ContainerOps provide a specification about how to encapsulate the DevOps task into a container. A DevOps function developed in any programming language like Bash, Golang, Python or C++ could encapsulate as a containerized DevOps component. This guarantee that the DevOps task always run the same, regardless of its environment.
+The component has environment variables. Some variables value is JSON data format, set by orchestration engine when running. Some variables are REST API URL, post data to interact with the engine.
+
+### Concept - Event
 
 ![Event Linking](docs/images/event-link.jpg)
 
 ![Event Conflict](docs/images/event-conflict.jpg)
 
-> Drawing the DevOps Workflow.
+### Concept - Workflow
 
 The ContainerOps has a DevOps workflow WYSIWYG editor in the browser. The user could define the DevOps workflow by drag or drop the line or set the data flow from workflow trigger to the end by the same way.
 
-> DevOps With Container, DevOps For Container!
+![Workflow Running](docs/images/workflow-running.gif)
+
+### ContainerOps VS. Jenkins
+
+### ContainerOps VS. Travis CI And Other Hosted Offering 
+
+### ContainerOps VS. Concourse 
 
 ## Certificate of Origin
 
