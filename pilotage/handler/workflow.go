@@ -215,6 +215,9 @@ func GetWorkflowHistoriesV1Handler(ctx *macaron.Context) (int, []byte) {
 
 	filter := ctx.Query("filter")
 	filtertype := ctx.Query("filtertype")
+	if filtertype == "" {
+		filtertype = "fuzzy"
+	}
 
 	resultMap, err := module.GetWorkflowList(namespace, repository, page, prePageCount, filter, filtertype)
 	if err != nil {
