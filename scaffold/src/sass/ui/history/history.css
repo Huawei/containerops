@@ -229,6 +229,25 @@
   background: #fff;
   font-size: 14px;
 }
+#historyMap .filter {
+  float: left;
+  position: relative;
+  margin-top: 18px;
+}
+#historyMap .filter .keywords {
+  width: 200px;
+  padding: 5px 36px 5px 8px;
+  outline: none;
+}
+#historyMap .filter .search {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  font-size: 16px;
+  padding: 6px 6px 7px;
+  background: #d7d7d7;
+  cursor: pointer;
+}
 #historyMap .maps {
   float: right;
   padding: 10px 3px;

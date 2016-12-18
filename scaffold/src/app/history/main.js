@@ -20,25 +20,34 @@ import { setPath } from "../relation/setPath";
 import { notify } from "../common/notify";
 import { getActionHistory } from "./actionHistory";
 import { getLineHistory } from "./lineHistory";
-import { getHistoryList } from "./historyList";
-// import * as initButton from "../workflow/initButton";
+import { getHistoryList,addFilterWorklowEvent } from "./historyList";
 import {changeCurrentElement} from "../common/util";
 import * as sequenceUtil from "./initUtil";
 
+var filterType = 'fuzzy';
 export function initHistoryPage() {
-    getHistory();
+    var type = arguments.length===0 ? 'fuzzy': 'exact';
+    var keywords = arguments.length===0 ? '-1': arguments[0];
+    clearTimeout(timer);
+    setFilterType(type);
+    getHistory(keywords,filterType);  
 }
 
-function getHistory() {
+function getHistory(keywords,filterType) {
     $.ajax({
         url: "../../templates/history/historyList.html",
         type: "GET",
         cache: false,
         success: function(data) {
             $("#main").html($(data));
-            getHistoryList();
+            addFilterWorklowEvent();
+            getHistoryList(keywords,filterType);
         }
     });
+}
+
+function setFilterType(type){
+    filterType = type;
 }
 
 function forVdSequenceList(vd,index,length,pdId,pdName,vdId,vdName){
