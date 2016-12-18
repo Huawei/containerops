@@ -76,7 +76,6 @@ function showActionHistoryView(history,actionname) {
                 })
 
                 getResultLog(sequencResultLogsData);
-                // getContainerLogs()
                 resizeWidget()
 
             } else{
@@ -86,7 +85,7 @@ function showActionHistoryView(history,actionname) {
             }
 
             $(".sequencelog-detail").on("click",function(e){
-                let target = $(e.target);
+                let target = $(e.currentTarget);
                 var tempLogIdArray = (target.attr("data-logid")).split("_");
                 if(null != tempLogIdArray && tempLogIdArray.length > 1){
                     var logjsoin =  sequenceLogDetailData[tempLogIdArray[1]];
@@ -164,15 +163,16 @@ function getResultLog(resultData){
     }
 }
 
-export function getContainerLogs(){
-    var promise = historyDataService.getContainerLog();
-    promise.done(function(data){
+export function getContainerLogs(workflowName,versionName,workflowRunSequence,stageName,actionName){
+    var promise = historyDataService.getContainerLogsData(workflowName,versionName,workflowRunSequence,stageName,actionName);
+    promise.done(function(data) {
+        console.log(data)
         _.each(data,function(cd,i){
-            let unitLogs = `<div class="item-th">
+            let unitLogs = `<div class="item-table"><div class="item-th">
                             <div class="item-td"><b class="log-key">Time：</b><span class="log-value">`
                             + cd.time +`</span></div><div class="item-td"><b class="log-key">Stream：</b><span class="log-value">`
                             + cd.stream +`</span></div></div><div class="item-tr"><div class="item-col-td">`
-                            + cd.log +`</div></div>`
+                            + cd.log +`</div></div></div>`
 
             $("#containerLog").append(unitLogs);
 

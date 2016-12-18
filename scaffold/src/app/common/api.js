@@ -44,7 +44,7 @@ let apiUrlConf = {
 		"workflowHistory" : "/v2/{namespace}/{repository}/workflow/v1/history/{workflowName}/{version}?sequence={sequence}",
 		"action" : "/v2/{namespace}/{repository}/workflow/v1/history/{workflowName}/{version}/{sequence}/stage/{stageName}/action/{actionName}",
 		"relation" : "/v2/{namespace}/{repository}/workflow/v1/history/{workflowName}/{version}/{sequence}/{lineId}",
-		// "containerLog": "/v2/workflow/v1/",
+		"containerLog": "/v2/{namespace}/{repository}/workflow/v1/history/{workflowName}/{version}/{sequence}/stage/{stageName}/action/{actionName}/console/log",
 		// "schedule": "/v2/workflow/v1/",
 		"workflow":"/v2/demo/demo/workflow/v1/history/workflow/list",
 		"version":"/v2/demo/demo/workflow/v1/history/workflow/{workflowName}/version/list?id={workflowID}",
@@ -304,16 +304,16 @@ export let historyApi = {
 	    pendingPromise.push(promise);
 	    return promise;
 	},
-	// "containerLog": function (){
-	// 	initApiInvocation();
-	// 	var promise = $.ajax({
-	//         "url": apiUrlConf.host + apiUrlConf.history.relation.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{workflowName}/g, workflowName).replace(/{version}/g, versionName).replace(/{sequence}/g, workflowRunSequence).replace(/{lineId}/g, sequenceLineId),
-	//         "type": "GET",
-	//         "dataType": "json",
-	//         "cache": false
-	//     });
+	"containerLog": function (workflowName,versionName,workflowRunSequence,stageName,actionName){
+		initApiInvocation(true);
+		var promise = $.ajax({
+	        "url": apiUrlConf.host + apiUrlConf.history.containerLog.replace(/{namespace}/g, "demo").replace(/{repository}/g, "demo").replace(/{workflowName}/g, workflowName).replace(/{version}/g, versionName).replace(/{sequence}/g, workflowRunSequence).replace(/{stageName}/g, stageName).replace(/{actionName}/g, actionName),
+	        "type": "GET",
+	        "dataType": "json",
+	        "cache": false
+	    });
 		
-	// },
+	},
 	// "scheduleLog": function (){
 	// 	initApiInvocation();
 	// 	var promise = $.ajax({
