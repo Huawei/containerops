@@ -1171,35 +1171,39 @@ func (kube *kubeComponent) GetServiceInfo() (map[string]interface{}, error) {
 }
 
 func (kube *kubeComponent) Update() {
-	info, err := kube.GetPodInfo()
-	if err != nil {
-		log.Error("[kubeComponent's UpdatePodInfo]:error when get pod info:", err.Error())
-		return
-	}
-
-	if info != nil {
-		containerLogName := ""
-		if metadataMap, ok := info["metadata"].(map[string]interface{}); ok {
-			containerName := metadataMap["name"].(string)
-			containerLogName = containerName
+	for i := 0; i < 10; i++ {
+		info, err := kube.GetPodInfo()
+		if err != nil {
+			log.Error("[kubeComponent's UpdatePodInfo]:error when get pod info:", err.Error())
+			return
 		}
 
-		containerLogName = containerLogName + "_" + kube.namespace + "_" + containerLogName + "-"
+		if info != nil {
+			containerLogName := ""
+			if metadataMap, ok := info["metadata"].(map[string]interface{}); ok {
+				containerName := metadataMap["name"].(string)
+				containerLogName = containerName
+			}
 
-		if statusMap, ok := info["status"].(map[string]interface{}); ok {
-			if containerStatuses, ok := statusMap["containerStatuses"].([]interface{}); ok {
-				if len(containerStatuses) > 0 {
-					containerInfo := containerStatuses[0].(map[string]interface{})
-					containerID := containerInfo["containerID"].(string)
-					containerLogName = containerLogName + containerID + ".log"
+			containerLogName = containerLogName + "_" + kube.namespace + "_" + containerLogName + "-"
+
+			if statusMap, ok := info["status"].(map[string]interface{}); ok {
+				if containerStatuses, ok := statusMap["containerStatuses"].([]interface{}); ok {
+					if len(containerStatuses) > 0 {
+						containerInfo := containerStatuses[0].(map[string]interface{})
+						containerID := containerInfo["containerID"].(string)
+						containerLogName = containerLogName + strings.TrimPrefix(containerID, "docker://") + ".log"
+					}
 				}
 			}
-		}
 
-		err := kube.componentInfo.GetActionLog().Where("id = ?", kube.componentInfo.ID).UpdateColumn("container_id", containerLogName).Error
-		if err != nil {
-			log.Error("[kubeComponent's UpdatePodInfo]:error when update action's container_id:", err.Error())
+			err := kube.componentInfo.GetActionLog().Where("id = ?", kube.componentInfo.ID).UpdateColumn("container_id", containerLogName).Error
+			if err != nil {
+				log.Error("[kubeComponent's UpdatePodInfo]:error when update action's container_id:", err.Error())
+			}
+			break
 		}
+		time.Sleep(1 * time.Second)
 	}
 }
 
@@ -1209,7 +1213,7 @@ func (kube *kubeComponent) GetPodInfo() (map[string]interface{}, error) {
 
 	podLable := "WORKFLOW_DEFAULT_POD_LABLE" + podName
 
-	kubeReqUrl := kube.apiServerUri + "/api/v1/namespaces/" + kube.componentInfo.Namespace + "/pods?labelSelector=" + podLable
+	kubeReqUrl := kube.apiServerUri + "/api/v1/namespaces/" + kube.componentInfo.Namespace + "/pods?labelselector=" + podLable
 
 	resp, err := http.Get(kubeReqUrl)
 	if err != nil {
@@ -1230,6 +1234,7 @@ func (kube *kubeComponent) GetPodInfo() (map[string]interface{}, error) {
 		log.Error("[kubeComponent's GetPodInfo]:error when unmarshal respBody, want a json obj, got :", string(respBody), "\n ===>error is:", err.Error())
 		return nil, err
 	}
+
 	pods := result["items"].([]interface{})
 	if len(pods) == 0 {
 		return nil, nil
