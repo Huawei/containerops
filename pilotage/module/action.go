@@ -1,6 +1,7 @@
 package module
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
@@ -517,8 +518,10 @@ func (actionLog *ActionLog) GetActionHistoryInfo() (map[string]interface{}, erro
 	return result, nil
 }
 
-func (actionLog *ActionLog) GetActionConsoleLog() ([]map[string]interface{}, error) {
-	result := make([]map[string]interface{}, 0)
+func (actionLog *ActionLog) GetActionConsoleLog(key string, size int64) (map[string]interface{}, error) {
+	resultList := make([]map[string]interface{}, 0)
+	resultKey := ""
+	result := make(map[string]interface{})
 
 	var kube component
 	if actionLog.Component != 0 {
@@ -540,7 +543,8 @@ func (actionLog *ActionLog) GetActionConsoleLog() ([]map[string]interface{}, err
 		temp["stream"] = "workflow"
 		temp["time"] = time.Now().Format("2006-01-02 15:04:05")
 
-		result = append(result, temp)
+		resultList = append(resultList, temp)
+		result["list"] = resultList
 
 		kube.Update()
 
@@ -554,9 +558,26 @@ func (actionLog *ActionLog) GetActionConsoleLog() ([]map[string]interface{}, err
 			return nil, errors.New("error when get action's info")
 		}
 
-		logServerUrl := platformSetting["platformHost"] + "/api/v1/proxy/namespaces/kube-system/services/elasticsearch-logging/_search?" + "q=tag:kubernetes.var.log.containers." + actionLog.ContainerId
+		logServerUrl := platformSetting["platformHost"] + "/api/v1/proxy/namespaces/kube-system/services/elasticsearch-logging/_search"
+		logReqBody := []byte("")
+		if key == "" {
+			logServerUrl += "?scroll=10m"
+			bodyMap := map[string]interface{}{
+				"query": map[string]interface{}{
+					"match": map[string]string{
+						"tag": "kubernetes.var.log.containers." + actionLog.ContainerId}},
+				"size": size}
 
-		resp, err := http.Get(logServerUrl)
+			logReqBody, _ = json.Marshal(bodyMap)
+		} else {
+			logServerUrl += "/scroll"
+			bodyMap := map[string]string{
+				"scroll":    "10m",
+				"scroll_id": key}
+			logReqBody, _ = json.Marshal(bodyMap)
+		}
+
+		resp, err := http.Post(logServerUrl, "application/json", bytes.NewReader(logReqBody))
 		if err != nil {
 			go kube.Update()
 			log.Error("[actionLog's GetActionConsoleLog]:error when get action's log:", err.Error())
@@ -567,6 +588,7 @@ func (actionLog *ActionLog) GetActionConsoleLog() ([]map[string]interface{}, err
 		defer resp.Body.Close()
 		respMap := make(map[string]interface{})
 		json.Unmarshal(respBody, &respMap)
+		isEnd := true
 		if hits, ok := respMap["hits"].(map[string]interface{}); ok {
 			if hitsList, ok := hits["hits"].([]interface{}); ok {
 				for _, info := range hitsList {
@@ -577,13 +599,31 @@ func (actionLog *ActionLog) GetActionConsoleLog() ([]map[string]interface{}, err
 							tempMap["time"] = sourceMap["@timestamp"]
 							tempMap["log"] = sourceMap["log"]
 
-							result = append(result, tempMap)
+							resultList = append(resultList, tempMap)
 						}
 					}
 				}
+
+				if len(hitsList) == 0 && key != "" {
+					reqBodyMap := map[string]interface{}{"scroll_id": []string{key}}
+					client := &http.Client{}
+					reqBody, _ := json.Marshal(reqBodyMap)
+					req, _ := http.NewRequest(http.MethodDelete, logServerUrl, bytes.NewReader(reqBody))
+					resp, _ := client.Do(req)
+					defer resp.Body.Close()
+				} else {
+					isEnd = false
+				}
 			}
 		}
+
+		if scroll_id, ok := respMap["_scroll_id"].(string); ok && !isEnd {
+			resultKey = scroll_id
+		}
 	}
+
+	result["list"] = resultList
+	result["key"] = resultKey
 	return result, nil
 }
 
