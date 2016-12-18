@@ -77,7 +77,7 @@ func CreateNewWorkflow(namespace, repository, workflowName, workflowVersion stri
 	}
 
 	if count > 0 {
-		return "", errors.New("pipelien name is exist!")
+		return "", errors.New("workflow name is exist!")
 	}
 
 	workflowInfo := new(models.Workflow)
@@ -340,13 +340,17 @@ func Run(workflowId int64, authMap map[string]interface{}, startData string) (*W
 	return workflowLog, nil
 }
 
-func GetWorkflowList(namespace, repository string, page, prePageCount int64) (map[string]interface{}, error) {
+func GetWorkflowList(namespace, repository string, page, prePageCount int64, filter, filtertype string) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 
-	db := new(models.WorkflowLog).GetWorkflowLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Group("workflow")
+	if filtertype == "fuzzy" {
+		filter = "%" + filter + "%"
+	}
+
+	db := new(models.WorkflowLog).GetWorkflowLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("workflow like ?", filter).Order("-id").Group("workflow")
 
 	workflowList := make([]models.WorkflowLog, 0)
-	err := db.Limit(int(prePageCount)).Offset(int((page - 1) * prePageCount)).Find(&workflowList).Error
+	err := models.GetDB().Raw("SELECT * FROM (SELECT * FROM workflow_log WHERE `workflow_log`.deleted_at IS NULL AND workflow like ? AND workflow_log.namespace = ? AND workflow_log.repository = ? ORDER BY id DESC) i GROUP BY i.workflow LIMIT ? OFFSET ?", filter, namespace, repository, prePageCount, (page-1)*prePageCount).Scan(&workflowList).Error
 	if err != nil && err.Error() != "record not found" {
 		log.Error("[workflow's GetWorkflowList]:error when get workflow list from db:", err.Error())
 		return nil, errors.New("error when get workflow list")
@@ -399,7 +403,7 @@ func GetWorkflowSequenceList(namespace, repository, workflow, version string, ve
 	result := make([]map[string]interface{}, 0)
 
 	workflows := make([]models.WorkflowLog, 0)
-	err := new(models.WorkflowLog).GetWorkflowLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("workflow = ?", workflow).Where("version = ?", version).Where("run_state > ?", 1).Limit(int(sum)).Find(&workflows).Error
+	err := new(models.WorkflowLog).GetWorkflowLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("workflow = ?", workflow).Where("version = ?", version).Where("run_state > ?", 1).Order("-updated_at").Limit(int(sum)).Find(&workflows).Error
 	if err != nil {
 		log.Error("[workflow's GetWorkflowSequenceList]:error when get workflow run log from db:", err.Error())
 		return nil, errors.New("error when get sequence info")

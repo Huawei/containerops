@@ -23,7 +23,7 @@ import { loading } from "../common/loading";
 import { setLinePathAry, linePathAry, setCurrentSelectedItem } from "../common/constant";
 import { workflowCheck } from "../common/check";
 import { initButton } from "./initButton";
-import {getSequenceDetail} from "../history/main";
+import {initHistoryPage} from "../history/main";
 import {initWorkflowEnv,showWorkflowEnv} from "./workflowEnv";
 import {initWorkflowVar,showWorkflowVar} from "./workflowVar";
 import {initWorkflowSetting} from "./workflowSetting";
@@ -548,13 +548,7 @@ function showLogHistory(){
     $(".menu-history").parent().addClass("active");
     $(".menu-workflow").parent().removeClass("active");
                     
-    var workflowInfo = {
-        "workflowName" : workflowName,
-        "workflowVersionID" : workflowVersionID,
-        "workflowVersion" : workflowVersion,
-        "sequenceID" : ""
-    };
-    getSequenceDetail(workflowInfo);
+    initHistoryPage(workflowName);
 }
 
 function isWorkflowChanged(){

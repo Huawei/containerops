@@ -178,6 +178,9 @@ legend{
 }
 
 // history log textarea 
+#actionTabsContent.tab-content {
+  max-height: 600px;
+}
 .history-log{
   white-space:nowrap; 
   width:100%;
@@ -188,7 +191,7 @@ legend{
 }
 #logs-tr td {
   white-space: nowrap;
-  vertical-align: middle;
+  vertical-align: top;
 }
 button.close {
   font-size: 4rem;
