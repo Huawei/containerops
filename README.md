@@ -1,7 +1,5 @@
 # ContainerOps - DevOps Orchestration
 
-## What's ContainerOps?
-
 ### Why DevOps orchestration?
 
 There are countless projects, plugins, services in the DevOps workflow. However, no one covers all DevOps tasks. The developers are facing huge risk and investment when transitioning from any tools to another. How should improve the DevOps process and increase iteration speed? The principle of DevOps orchestration is keeping the process and tools, assemble them into orchestration engine and deliver the context between them. Then improve the DevOps by add or replace through orchestration engine without interrupt the process. DevOps is a step by step process, and invasive change is dangerous.
