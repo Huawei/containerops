@@ -334,9 +334,13 @@ export let historyApi = {
 		pendingPromise.push(promise);
 	  return promise;	
 	},
-	"getWorkflows":function (page,workflowNum,isInitPages){
+	getWorkflows(page,workflowNum,isInitPages,keywords,filterType){
+		var isKeywords = '&filter='+keywords+'&filtertype='+filterType;
+		if(keywords === '-1'){
+			isKeywords = '&filtertype='+filterType;
+		}
 		var promise = $.ajax({
-			"url":apiUrlConf.host + apiUrlConf.history.workflow+'?page='+page+'&prePageCount='+workflowNum,
+			"url":apiUrlConf.host + apiUrlConf.history.workflow+'?page='+page+'&prePageCount='+workflowNum+isKeywords,
 			"type":'GET',
 			"dataType":'json',
 			"cache": false

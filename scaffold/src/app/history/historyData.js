@@ -43,8 +43,8 @@ export function getLineDataInfo(workflowName,versionName,workflowRunSequence,seq
 // 	return historyApi.scheduleLog();
 // }
 
-export function getWorkflows(page,workflowNum,isInitPages){
-  return historyApi.getWorkflows(page,workflowNum,isInitPages);
+export function getWorkflows(page,workflowNum,isInitPages,keywords,filterType){
+  return historyApi.getWorkflows(page,workflowNum,isInitPages,keywords,filterType);
 }
 
 export function getVersions(workflowName,workflowId){
