@@ -214,7 +214,7 @@ export let workflowApi = {
 	    pendingPromise.push(promise);
 	    return promise;
 	}
-}
+};
 
 // component
 export let componentApi = {
@@ -267,7 +267,7 @@ export let componentApi = {
 	    pendingPromise.push(promise);
 	    return promise;
 	}
-}
+};
 
 
 export let historyApi = {
@@ -324,7 +324,7 @@ export let historyApi = {
 	//     });
 
 	// },
-	getHistoryData:function(res){
+	"getHistoryData":function(res){
 		var promise = $.ajax({
 			"url":apiUrlConf.host + res.url,
 			"type":res.type,
@@ -348,7 +348,7 @@ export let historyApi = {
 		pendingPromise.push(promise);
 	  return promise;
 	},
-	getVersions(workflowName,workflowId){
+	"getVersions":function(workflowName,workflowId){
 		var promise = $.ajax({
 			"url":apiUrlConf.host + apiUrlConf.history.version.replace(/{workflowName}/g,workflowName).replace(/{workflowID}/g,workflowId),
 			"type":'GET',
@@ -358,7 +358,7 @@ export let historyApi = {
 		pendingPromise.push(promise);
 	  return promise;
 	},
-	getSequences(workflowName,workflowId,versionName,versionId,sequenceNum){
+	"getSequences":function(workflowName,workflowId,versionName,versionId,sequenceNum){
 		var promise = $.ajax({
 			"url":apiUrlConf.host + apiUrlConf.history.sequence.replace(/{workflowName}/g,workflowName).replace(/{versionName}/g,versionName).replace(/{versionID}/g,versionId).replace(/{versionName}/g,versionName).replace(/{sequenceNum}/g,sequenceNum),
 			"type":'GET',
@@ -368,7 +368,7 @@ export let historyApi = {
 		pendingPromise.push(promise);
 	  return promise;
 	},
-	getStartedWorkflows(workflowName,workflowId,version,sequence,sequenceId,stageName,actionId,actionName){
+	"getStartedWorkflows":function(workflowName,workflowId,version,sequence,sequenceId,stageName,actionId,actionName){
 		var promise = $.ajax({
 			"url":apiUrlConf.host + apiUrlConf.history.startedWorkflow.replace(/{workflowName}/g,workflowName).replace(/{versionName}/g,version.versionName).replace(/{sequence}/g,sequence).replace(/{actionName}/g,actionName).replace(/{workflowID}/g,sequenceId).replace(/{actionID}/g,actionId),
 			"type":'GET',
@@ -378,7 +378,7 @@ export let historyApi = {
 		pendingPromise.push(promise);
 	  return promise;
 	} 
-}
+};
 
 export let settingApi = {
 	"list" : function(){
@@ -404,4 +404,4 @@ export let settingApi = {
 	    pendingPromise.push(promise);
 	    return promise;
 	}
-}
+};

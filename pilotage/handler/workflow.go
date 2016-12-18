@@ -213,7 +213,10 @@ func GetWorkflowHistoriesV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	resultMap, err := module.GetWorkflowList(namespace, repository, page, prePageCount)
+	filter := ctx.Query("filter")
+	filtertype := ctx.Query("filtertype")
+
+	resultMap, err := module.GetWorkflowList(namespace, repository, page, prePageCount, filter, filtertype)
 	if err != nil {
 		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
 		return http.StatusBadRequest, result
