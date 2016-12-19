@@ -28,6 +28,7 @@ import (
 	"gopkg.in/macaron.v1"
 
 	"github.com/Huawei/containerops/pilotage/models"
+	"github.com/Huawei/containerops/pilotage/module"
 	"github.com/Huawei/containerops/pilotage/utils"
 	"github.com/Huawei/containerops/pilotage/web"
 	"github.com/containerops/configure"
@@ -88,6 +89,9 @@ func startDeamon(cmd *cobra.Command, args []string) {
 
 	// first open database conn
 	models.OpenDatabase()
+
+	// load all timer
+	module.InitTimerTask()
 
 	m := macaron.New()
 

@@ -1034,6 +1034,58 @@ func (workflowInfo *Workflow) UpdateWorkflowInfo(define map[string]interface{}) 
 }
 
 func (workflow *Workflow) updateTimerTask(taskMap map[string]interface{}) error {
+	db := models.GetDB().Begin()
+	available, ok := taskMap["available"].(bool)
+	if !ok {
+		available = false
+	}
+
+	db.Model(&models.Timer{}).Where("namespace = ?", workflow.Namespace).Where("repository = ?", workflow.Repository).Where("workflow = ?", workflow.ID).Delete(&models.Timer{})
+	if taskList, ok := taskMap["tasks"].([]interface{}); ok {
+		for _, task := range taskList {
+			if taskMap, ok := task.(map[string]interface{}); ok {
+				cron, ok := taskMap["cronEntry"].(string)
+				if !ok {
+					log.Error("[workflow's updateTimerTask]:error when get cronEntry:want a string, got:", taskMap["cronEntry"])
+					continue
+				}
+
+				eventName, ok := taskMap["eventName"].(string)
+				if !ok {
+					log.Error("[workflow's updateTimerTask]:error when get eventName:want a string, got:", taskMap["eventName"])
+					continue
+				}
+
+				eventType, ok := taskMap["eventType"].(string)
+				if !ok {
+					log.Error("[workflow's updateTimerTask]:error when get eventType:want a string, got:", taskMap["eventType"])
+					continue
+				}
+
+				startJson, ok := taskMap["startJson"].(map[string]interface{})
+				if !ok {
+					log.Error("[workflow's updateTimerTask]:error when get startJson:want a json obj, got:", taskMap["startJson"])
+					continue
+				}
+
+				startJsonBytes, _ := json.Marshal(startJson)
+
+				timer := new(models.Timer)
+				timer.Namespace = workflow.Namespace
+				timer.Repository = workflow.Repository
+				timer.Workflow = workflow.ID
+				timer.Available = available
+				timer.Cron = cron
+				timer.EventType = eventType
+				timer.EventName = eventName
+				timer.StartJson = string(startJsonBytes)
+
+				db.Save(timer)
+			}
+		}
+	}
+	db.Commit()
+	UpdateWorkflowTimer(workflow.Namespace, workflow.Repository, workflow.ID)
 	return nil
 }
 
@@ -1219,20 +1271,30 @@ func (workflowInfo *Workflow) BeforeExecCheck(reqHeader http.Header, reqBody []b
 	}
 
 	// check run instance number
+	pass, err := checkInstanceNum(workflowInfo.ID)
+	if !pass {
+		return false, nil, err
+	}
+
+	return passCheck, eventInfoMap, nil
+}
+
+func checkInstanceNum(workflowInfoID int64) (bool, error) {
+	// check run instance number
 	db := models.GetDB().Begin()
 	workflow := new(models.Workflow)
-	err = db.Raw("select * from workflow where id = ? for update", workflowInfo.ID).Scan(workflow).Error
+	err := db.Raw("select * from workflow where id = ? for update", workflowInfoID).Scan(workflow).Error
 	if err != nil {
 		log.Error("[workflow's BeforeExecCheck]:error when get workflow info  from db:", err.Error())
 		db.Rollback()
-		return false, nil, errors.New("failed when check exec req")
+		return false, errors.New("failed when check exec req")
 	}
 
 	if workflow.IsLimitInstance {
 		if workflow.LimitInstance <= workflow.CurrentInstance {
 			log.Error("[workflow's BeforeExecCheck]:workflow:", workflow.Workflow, " current run:", workflow.CurrentInstance, " max run num:", workflow.LimitInstance, " start failed ...")
 			db.Rollback()
-			return false, nil, errors.New("no useable run instance")
+			return false, errors.New("no useable run instance")
 		}
 	}
 
@@ -1240,7 +1302,8 @@ func (workflowInfo *Workflow) BeforeExecCheck(reqHeader http.Header, reqBody []b
 
 	db.Save(workflow)
 	db.Commit()
-	return passCheck, eventInfoMap, nil
+
+	return true, nil
 }
 
 func getExecReqEventInfo(sourceList []interface{}, reqHeader http.Header) (map[string]string, error) {
