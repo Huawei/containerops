@@ -44,68 +44,15 @@ limitations under the License. */
 .timed-task-row{
   background-color:#f3f3f3;
   width:92%;
-  min-height: 100px;
+  min-height: 40px;
   float: left;
   margin:10px 4%;
   clear:both;
-}
+  color: #959595;
 
-.task-design-div{
-  float: left;
-  margin: 15px 20px;
-}
-
-.task-action-div{
-  float: right;
-  margin: 10px 15px;
-}
-
-.task-designer{
-  background-image:url(/assets/images/icon-list-no.png);
-  background-repeat:no-repeat;
-  background-size:contain;
-  width: 20px;
-  height: 20px;
-  display: inline-block;
-  float:left;
-  margin:10px 10px;
-  cursor: pointer;
-}
-
-.task-designer:hover{
-  background-image:url(/assets/images/icon-list.png);
-}
-
-.task-editor{
-  background-image:url(/assets/images/icon-edit-no.png);
-  background-repeat:no-repeat;
-  background-size:contain;
-  width: 20px;
-  height: 20px;
-  display: inline-block;
-  float:left;
-  margin:10px 10px;
-  cursor: pointer;
-}
-
-.task-editor:hover{
-  background-image:url(/assets/images/icon-edit.png);
-}
-
-.task-delete{
-  background-image:url(/assets/images/icon-delete-no.png);
-  background-repeat:no-repeat;
-  background-size:contain;
-  width: 20px;
-  height: 20px;
-  display: inline-block;
-  float:left;
-  margin:10px 10px;
-  cursor: pointer;
-}
-
-.task-delete:hover{
-  background-image:url(/assets/images/icon-delete.png);
+  .jsoneditor-menu{
+    background-color:#959595;
+  }
 }
 
 .cron-designer{
@@ -129,4 +76,49 @@ limitations under the License. */
   width: 100%;
   height: 50px;
   padding: 15px 10px;
+}
+
+.cron-input-json{
+  width:100%;
+}
+
+.task-header{
+  padding: 10px 10px;
+  border-bottom: 1px solid #c1c1c1;
+  margin-left: 10px;
+  width:100%;
+  font-weight: 500;
+}
+
+.task-design-div{
+  width: 85%;
+  float: left;
+}
+
+.task-simplify-div{
+  width: 85%;
+  float: left;
+  padding: 10px 15px;
+}
+
+.task-cron-div, .task-input-div{
+  width:100%;
+  margin: 15px 20px;
+
+  .control-label{
+    margin-top:4px;
+  }
+}
+
+.task-action-div{
+  float: right;
+  margin: 10px 15px;
+  .action{
+    margin-left:5px;
+    opacity: 0.7;
+    cursor: pointer;
+    &:hover{
+      opacity: 1;
+    }
+  }
 }
