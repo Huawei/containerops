@@ -179,7 +179,6 @@
   padding: 5px 10px;
   width: calc(100% - 140px);
   width: -webkit-calc(100% - 140px);
-  overflow: auto;
   float: left;
 }
 #historyList .item-stage {
@@ -199,7 +198,7 @@
 }
 #historyList .action-name {
   display: inline-block;
-  height: 20px;
+  height: 14px;
   margin: 0 1px 0 0;
   cursor: pointer;
 }
@@ -207,14 +206,14 @@
   position: absolute;
   right: 1px;
   top: 2px;
-  height: 16px;
+  height: 10px;
 }
 
 #historyList .no-start {
-  width: 30px;
+  width: 22px;
 }
 #historyList .start {
-  width: 52px;
+  width: 44px;
 }
 .addRecords {
   height: 35px;
@@ -356,11 +355,12 @@
 }
 #startedRecords {
   background: #fff;
-  left: 250px;
-  right: 50px;
+  width: 90%;
+  left: 55px;
+  right: 55px;
   top: 160px;
   padding: 4rem;
-  position: fixed;
+  position: absolute;
   z-index: 10002;
   border-radius: 8px;
 }
@@ -434,7 +434,7 @@
 #startedRecords .action-name,
 #startedRecords .extra-action {
   display: inline-block;
-  height: 20px;
+  height: 13px;
   margin: 0 1px 0 0;
   position: relative;
 }
@@ -444,7 +444,7 @@
 }
 
 #startedRecords .extra-action {
-  height: 20px;
+  height: 12px;
 }
 
 #startedRecords .action-name .start-status {
@@ -464,11 +464,11 @@
 }
 
 #startedRecords .no-start {
-  width: 30px;
+  width: 22px;
 }
 
 #startedRecords .start {
-  width: 52px;
+  width: 44px;
 }
 
 /* vi change */
