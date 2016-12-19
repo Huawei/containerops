@@ -76,24 +76,42 @@
 								</li>
 							</ul>
 						</div>
-						<div class="tab-content mb-lg" id="actionTabsContent">
+						<div class="tab-content mb-lg" id="actionTabsContent" class="historyActionTabsContent">
 						   
 							<div class="tab-pane active" id="resultlog" role="tabpanel" aria-labelledby="resultlogs-tab-tab" aria-expanded="false">
 								<div class="showBox">
 									<table class="table table-striped" >
-							      <thead>
-							        <tr>
-							          <th> </th>
-							          <th> </th>
-							        </tr>
-							      </thead>
-							      <tbody id="resultLog_list"></tbody>
+										<thead>
+											<tr>
+											<th> </th>
+											<th> </th>
+											</tr>
+										</thead>
+										<tbody id="resultLog_list"></tbody>
 							    </table>
 								</div>
 							</div>
 
 							<div class="tab-pane" id="containerLog" role="tabpanel" aria-labelledby="logs-tab" aria-expanded="false">
-								<h4 style="text-align:center;">There is no data Please see the other content </h4>
+								<table class="table">
+									<thead>
+										<tr>
+											<th>Time</th>
+											<th>Stream</th>
+											<th>Log</th>
+										</tr>
+									</thead>
+									<tbody id="item-containerLog">
+										
+									</tbody>
+								</table>
+			                    <div class="item-table" id="item-containerLog">
+					                <div class="item-th">
+					                    <div class="item-td"></div>
+					                    <div class="item-td"></div>
+					                    <div class="item-td"></div>
+					                </div>
+					            </div>
 							</div>
 <!-- 
 							<div class="tab-pane" id="actionLog" role="tabpanel" aria-labelledby="logs-tab" aria-expanded="false"></div>
@@ -103,7 +121,7 @@
 							<div class="tab-pane" id="workflowLog" role="tabpanel" aria-labelledby="logs-tab" aria-expanded="false"></div>
 -->
 							<div class="tab-pane" id="evnLog" role="tabpanel" aria-labelledby="logs-tab" aria-expanded="false">
-								<table id="logs-table" class="table table-bordered">
+								<table id="logs-table" class="table ">
 									<thead>
 										<tr>
 											<th></th>
