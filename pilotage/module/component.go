@@ -1191,8 +1191,11 @@ func (kube *kubeComponent) Update() {
 				if containerStatuses, ok := statusMap["containerStatuses"].([]interface{}); ok {
 					if len(containerStatuses) > 0 {
 						containerInfo := containerStatuses[0].(map[string]interface{})
-						containerID := containerInfo["containerID"].(string)
-						containerLogName = containerLogName + strings.TrimPrefix(containerID, "docker://") + ".log"
+						if containerID, ok := containerInfo["containerID"].(string); ok {
+							containerLogName = containerLogName + strings.TrimPrefix(containerID, "docker://") + ".log"
+						} else {
+							continue
+						}
 					}
 				}
 			}
