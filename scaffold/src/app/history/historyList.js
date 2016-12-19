@@ -195,6 +195,14 @@ function renderSequences(workflowName,workflowId,version,sequences) {
 						      '<span class="hour">'+s.time+'</span>'+
 						    '</div>';
 
+			var startedWorkflowName = '';
+
+			if(s.startWorkflowName){
+				startedWorkflowName = '<div class="start-workflow-name">'+
+										'<img src="../../assets/images/icon-goworkflow.png" title="'+s.startWorkflowName+'"/>'+
+									'</div>'
+			}
+
 			var stages = '<div class="stages '+isStagesBg+'">';
 
 			s.stages.map(function(st,i){
@@ -250,7 +258,7 @@ function renderSequences(workflowName,workflowId,version,sequences) {
 
 			stages+='</div>';
 
-			recordItem=recordItem+time+stages;
+			recordItem=recordItem+time+startedWorkflowName+stages;
 			recordItem+='</div>';
 		})
 
@@ -301,6 +309,9 @@ function addMore($this){
 
 function addStartWorkflowEvent(version){
 	$('.start-status').on('click',function(event){
+		var y = event.pageY;
+		$('#startedRecords').css('top',y);
+		console.log(event)
 		event.stopPropagation();
 		window.event.cancelBubble = true;
 		var dataset = $(this).parent()[0].dataset;
