@@ -165,8 +165,7 @@ export function getContainerLogs(workflowName,versionName,workflowRunSequence,st
     promise.done(function(data) {
         loading.hide();
         var consoleList = data.list;
-        if(consoleList != null && consoleList.length > 0){
-
+        if(consoleList != null && consoleList.length > 0 ){
             let key = data.key;
             var template = _.template(
                 `<tr>
@@ -184,24 +183,32 @@ export function getContainerLogs(workflowName,versionName,workflowRunSequence,st
             $("#item-containerLog").append(unitLogs); 
                 
             let moreBtn = `<div id="btn-more-area"><a href="javascript:void(0)" id="btn-more" class="btn-more" >... more ...</a></div>`;
-            if(key != ""){
+
+            if(key != undefined && key != ""){
                 $("#containerLog").append(moreBtn);
-            }
+            } 
 
             $("#btn-more").on("click",function (){
-                getContainerLogs(workflowName,versionName,workflowRunSequence,stageName,actionName,key);
+                if(key != ""){
+                    getContainerLogs(workflowName,versionName,workflowRunSequence,stageName,actionName,key);
+                }
+                loading.hide();
                 $("#btn-more-area").remove();
             });
 
-        } else{
-
+        }else if( key == "" && key == undefined){
             let tipsInfo = `<h4 style="text-align:center;">There is no data Please see the other content </h4>`;
             $("#containerLog").html( tipsInfo );
+
+        } else{
+           $("#btn-more-area").remove();
         }
 
     });
     promise.fail(function(xhr, status, error) {
         loading.hide();
+        
+
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
         } else if(xhr.statusText != "abort") {

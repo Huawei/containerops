@@ -866,11 +866,11 @@ function initSequenceActionByStage() {
                     var x = ad.translateX;
                     var y = ad.translateY + constant.svgActionHeight;
                     let text = "";
-                    let width = null;
+                    let width = 150;
                     let options = {};
                     if (ad.setupData && ad.setupData.name && ad.setupData.name != "") {
                         text = ad.setupData.name;
-                        width = text.length * 7 + 20;
+                        width = text.length * 12 + 20;
                         options = {
                             "x": x,
                             "y": y,
