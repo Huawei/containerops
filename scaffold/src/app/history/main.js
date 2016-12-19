@@ -215,7 +215,7 @@ function initSequenceView(selected_history) {
             }    
 
             constant.setSvgWidth("100%");
-            constant.setSvgHeight($div.height());
+            constant.setSvgHeight("100%");
             constant.setWorkflowNodeStartX(50);
             constant.setWorkflowNodeStartY($div.height() * 0.2);
 
@@ -444,7 +444,6 @@ function showSequenceView(workflowSequenceData) {
     initSequenceStageLine();
     if(constant.sequenceRunStatus == 1 || constant.sequenceRunStatus == 2){
         timerSequenceWorkflowData(historyAbout)
-        // showRefreshsSequenceView(constant.refreshSequenceRunData,selected_history);
     }
     // initAction();
 }
