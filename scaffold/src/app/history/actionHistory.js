@@ -19,6 +19,7 @@ import * as historyDataService from "./historyData";
 import { notify } from "../common/notify";
 import { loading } from "../common/loading";
 
+let splitStartY;
 // function(workflowName,versionName,workflowRunSequence,stageName,actionName){
 export function getActionHistory(workflowName,versionName,workflowRunSequence,stageName,actionName) {
     // loading.show();
@@ -31,7 +32,7 @@ export function getActionHistory(workflowName,versionName,workflowRunSequence,st
         loading.hide();
         if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
             notify(xhr.responseJSON.errMsg, "error");
-        } else {
+        } else if(xhr.statusText != "abort") {
             notify("Server is unreachable", "error");
         }
     });
@@ -75,6 +76,7 @@ function showActionHistoryView(history,actionname) {
                 })
 
                 getResultLog(sequencResultLogsData);
+                // getContainerLogs()
                 resizeWidget()
 
             } else{
@@ -118,6 +120,17 @@ function showActionHistoryView(history,actionname) {
                    $("#dialog").hide(); 
                 })
             })
+
+            $(".designer-split").on("dragstart",function(event){
+                splitStartY = event.originalEvent.y;
+            })
+
+            $(".designer-split").on("dragend",function(event){
+                var svgDiv = $("#div-d3-main-svg");
+                alert(svgDiv.height())
+                alert(splitStartY)
+                svgDiv.height(svgDiv.height() + event.originalEvent.y - splitStartY);
+            })
         }
     });
 }
@@ -130,8 +143,7 @@ function getEventStatus(eventData,eventTime,lineNo){
             + eventData.EVENT +`</td><td>`
             + eventData.EVENT_ID +`</td><td>`
             + eventData.RUN_ID +`</td><td>`
-            + eventData.INFO.status +`</td><td>`
-            + eventData.INFO.result +`</td>`
+            + eventData.INFO.status +`</td>`
             + `<td><button data-logid="`
             + "info_" + (lineNo - 1) + `" type="button" class="btn btn-success sequencelog-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:14px"></i>&nbsp;&nbsp;Detail</button></td></tr>`;
     
@@ -141,12 +153,38 @@ function getEventStatus(eventData,eventTime,lineNo){
 function getResultLog(resultData){
     $("#resultLog_list").html();
     if( resultData != null && resultData.length>0) {
+        console.log("rdata==>",resultData)
         _.each(resultData,function(rd,i){
+            let rdJson = JSON.parse(rd);
             var row = `<tr><td class="loglist-td">`+i+`</td><td>`
-                + rd +`</td></tr>`; 
+                + rdJson.result +`</td></tr>`; 
             $("#resultLog_list").append(row);
         })
         sequencResultLogsData = [];
     }
+}
+
+export function getContainerLogs(){
+    var promise = historyDataService.getContainerLog();
+    promise.done(function(data){
+        _.each(data,function(cd,i){
+            let unitLogs = `<div class="item-th">
+                            <div class="item-td"><b class="log-key">Time：</b><span class="log-value">`
+                            + cd.time +`</span></div><div class="item-td"><b class="log-key">Stream：</b><span class="log-value">`
+                            + cd.stream +`</span></div></div><div class="item-tr"><div class="item-col-td">`
+                            + cd.log +`</div></div>`
+
+            $("#containerLog").append(unitLogs);
+
+        });
+    });
+    promise.fail(function(xhr, status, error){
+        loading.hide();
+        if (!_isUnderfined(xhr.responseJSON) && xhr.responseJSON.errMsg){
+            notify(xhr.responseJSON.errMsg,"error");
+        }else if(xhr.statusText != "abort"){
+            notify("Server is unreachable","error");
+        }
+    });
 }
 

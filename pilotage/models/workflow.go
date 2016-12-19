@@ -280,6 +280,7 @@ type ActionLog struct {
 	Component    int64      `json:"component" sql:"not null;default:0"`          //
 	Service      int64      `json:"service" sql:"not null;default:0"`            //
 	Action       string     `json:"action" sql:"not null;varchar(255)"`          //
+	ContainerId  string     `json:"containerID"`                                 //
 	Title        string     `json:"title" sql:"not null;type:varchar(255)"`      //
 	Description  string     `json:"description" sql:"null;type:text"`            //
 	Event        int64      `json:"event" sql:"null;default:0"`                  //
