@@ -565,8 +565,10 @@ func (actionLog *ActionLog) GetActionConsoleLog(key string, size int64) (map[str
 			bodyMap := map[string]interface{}{
 				"query": map[string]interface{}{
 					"match": map[string]string{
-						"tag": "kubernetes.var.log.containers." + actionLog.ContainerId}},
-				"size": size}
+						"tag":  "kubernetes.var.log.containers." + actionLog.ContainerId,
+						"type": "phrase"}},
+				"size": size,
+				"sort": "@timestamp"}
 
 			logReqBody, _ = json.Marshal(bodyMap)
 		} else {
