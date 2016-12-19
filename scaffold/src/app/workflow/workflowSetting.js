@@ -120,22 +120,69 @@ function initTimedTasks(){
 function showTimedTasks(){
 	$("#timed-tasks-div").empty();
     _.each(setting.timedTasks.tasks,function(task,index){
-        var row = `<div class="timed-task-row" data-index="`+ index +`">
-        				<div class="task-design-div col-md-10"></div>
-                    	<div class="task-action-div">`;
+        var row = `<div class="timed-task-row" data-index="`+ index +`">`;
+
+        if(task.collapse){
+        	row +=	`<div class="task-design-div" style="display:none">`;
+        }else{
+        	row +=	`<div class="task-design-div">`;
+        }
+        
+        row += `<div class="task-header">Expression</div>
+	        	<div class="task-cron-div"></div>
+	        	<div class="task-header">Start Json</div>
+	        	<div class="task-input-div"></div>
+	        	</div>`;
+
+	    if(task.collapse){
+        	row += `<div class="task-simplify-div">Task : `  + task.cronEntry 
+								+ `  |  Event Type: ` + task.eventType + ` |  Event Name: ` 
+								+ task.eventName + `</div>`;
+        }else{
+        	row += `<div class="task-simplify-div" style="display:none"></div>`;
+        }
+
+        row += `<div class="task-action-div">`;
 
         if(task.byDesigner){
-        	row += `<div><span class="task-editor" title="Use Task Editor"></span></div>`;
-        	row += `<div><span class="task-delete" title="Delete Task"></span></div>`;
+        	row += `<span class="fa fa-edit action task-editor" title="Use Task Editor"></span>`;
+        	row += `<span class="glyphicon glyphicon-remove action task-delete" title="Delete Task"></span>`;
         }else{
-        	row += `<div><span class="task-designer" title="Use Task Designer"></span></div>`;
-        	row += `<div><span class="task-delete" title="Delete Task"></span></div>`;
+        	row += `<span class="fa fa-list-ul action task-designer" title="Use Task Designer"></span>`;
+        	row += `<span class="glyphicon glyphicon-remove action task-delete" title="Delete Task"></span>`;
+        }
+
+        if(task.collapse){
+        	row += `<span class="glyphicon glyphicon-chevron-up action task-collapse"></span>`;
+        }else{
+        	row += `<span class="glyphicon glyphicon-chevron-down action task-collapse"></span>`;
         }
                     	
         row += `</div></div>`
         $("#timed-tasks-div").append(row);
         showTask(task,index);
     });
+	
+	$(".task-collapse").on("click",function(event){
+		var target = $(event.currentTarget);
+		var index = target.parent().parent().data("index");
+		if(target.hasClass("glyphicon-chevron-down")){
+			target.removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
+			target.parent().parent().find(".task-design-div").hide();
+			target.parent().parent().find(".task-simplify-div").show();
+			var simpiliedTask = "Task : " + setting.timedTasks.tasks[index].cronEntry 
+								+ "  |  Event Type: " + setting.timedTasks.tasks[index].eventType + " |  Event Name: " 
+								+ setting.timedTasks.tasks[index].eventName; 
+			target.parent().parent().find(".task-simplify-div").text(simpiliedTask);
+
+			setting.timedTasks.tasks[index].collapse = true;
+		}else if(target.hasClass("glyphicon-chevron-up")){
+			target.removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
+			target.parent().parent().find(".task-design-div").show();
+			target.parent().parent().find(".task-simplify-div").hide();
+			setting.timedTasks.tasks[index].collapse = false;
+		}
+	})
 
     $(".task-delete").on('click',function(event){
         deleteTask(event);
@@ -143,21 +190,21 @@ function showTimedTasks(){
     });
 
     $(".task-editor").on('click',function(event){
-    	var index = $(event.currentTarget).parent().parent().parent().data("index");
+    	var index = $(event.currentTarget).parent().parent().data("index");
     	setting.timedTasks.tasks[index].byDesigner = false;
     	setting.timedTasks.tasks[index].cronEntry = "";
     	showTimedTasks();
     });
 
     $(".task-designer").on('click',function(event){
-    	var index = $(event.currentTarget).parent().parent().parent().data("index");
+    	var index = $(event.currentTarget).parent().parent().data("index");
     	setting.timedTasks.tasks[index].byDesigner = true;
     	setting.timedTasks.tasks[index].cronEntry = "* * * * *";
     	showTimedTasks();
     });
 
     $(".cron-editor").on('blur',function(event){
-    	var index = $(event.currentTarget).parent().parent().parent().parent().data("index");
+    	var index = $(event.currentTarget).parent().parent().parent().parent().parent().data("index");
 		setting.timedTasks.tasks[index].cronEntry = $(event.currentTarget).val();
 		$(event.currentTarget).parent().parent().find(".cron-val").text(setting.timedTasks.tasks[index].cronEntry);
     });
@@ -170,14 +217,14 @@ function addTimedTask(){
 }
 
 function deleteTask(event){
-	var index = $(event.currentTarget).parent().parent().parent().data("index");
+	var index = $(event.currentTarget).parent().parent().data("index");
 	setting.timedTasks.tasks.splice(index,1);
 }
 
 function showTask(task,index){
 	if(task.byDesigner){
 		var cronInstance = $.extend(true,{},cron);
-		cronInstance.initCronEntry($(".timed-task-row[data-index="+index+"]").find(".task-design-div"),task);
+		cronInstance.initCronEntry($(".timed-task-row[data-index="+index+"]").find(".task-cron-div"),task);
 	}else{
 		var editor = `<div class="row">
 					    <div class="cron-designer">
@@ -188,9 +235,71 @@ function showTask(task,index){
 					    	<span class="cron-val">`+ task.cronEntry +`</span>
 					    </div>
 					</div>`;
-		$(".timed-task-row[data-index="+index+"]").find(".task-design-div").empty();
-		$(".timed-task-row[data-index="+index+"]").find(".task-design-div").append(editor);	
+		$(".timed-task-row[data-index="+index+"]").find(".task-cron-div").empty();
+		$(".timed-task-row[data-index="+index+"]").find(".task-cron-div").append(editor);	
 	}
+
+	showInputJson(task,index);
+}
+
+function showInputJson(task,index){
+	var inputJsonDom = `<div class="row">
+							<div class="form-group col-md-6">
+								<div for="hint-field" class="col-sm-4 control-label">
+									Event Type
+								</div>
+								<div class="col-sm-7 input-group">
+									<input type="text" class="form-control eventType"> 
+								</div>
+							</div>
+							<div class="form-group col-md-6">
+								<div for="normal-field" class="col-sm-4 control-label">
+									Event Name
+								</div>
+								<div class="col-sm-7">
+									<input type="text" class="form-control eventName">
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="form-group col-md-12">
+								<div for="normal-field" class="col-sm-2 control-label">
+									Start Json
+								</div>
+								<div class="col-sm-10">
+									<div class="cron-input-json"></div>
+								</div>
+							</div>
+						</div>`;
+
+	$(".timed-task-row[data-index="+index+"]").find(".task-input-div").append(inputJsonDom);
+
+	var codeOptions = {
+        "mode": "code",
+        "indentation": 2,
+        "onChange" : function(){
+        	try{
+        		task.startJson = codeEditor.get();
+        	}catch(e){
+        		console.log("Start json of timed task " + (index+1) + " is invalid.")
+        	}
+        }
+    };
+
+    var parentDom = $(".timed-task-row[data-index="+index+"]").find(".task-input-div");
+	var codeContainer = parentDom.find(".cron-input-json")[0];
+	var codeEditor = new JSONEditor(codeContainer, codeOptions);
+	codeEditor.set(task.startJson);
+
+	parentDom.find(".eventType").val(task.eventType);
+	parentDom.find(".eventType").on("blur",function(){
+		task.eventType = parentDom.find(".eventType").val();
+	})
+
+	parentDom.find(".eventName").val(task.eventName);
+	parentDom.find(".eventName").on("blur",function(){
+		task.eventName = parentDom.find(".eventName").val();
+	})
 }
 
 var metadata = {
@@ -205,6 +314,10 @@ var metadata = {
 }
 
 var metatask = {
+	"collapse" : false,
 	"byDesigner" : true,
-	"cronEntry" : "* * * * *"
+	"cronEntry" : "* * * * *",
+	"startJson" : {},
+	"eventType" : "",
+	"eventName" : ""
 }
