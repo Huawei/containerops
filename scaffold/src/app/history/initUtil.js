@@ -14,8 +14,149 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
+import * as config from "../common/config";
 import * as constant from "../common/constant";
 import * as sequenceUtil from "./initUtil";
+
+export function isObject(o) {
+    return Object.prototype.toString.call(o) == '[object Object]';
+}
+export function isArray(o) {
+    return Object.prototype.toString.call(o) == '[object Array]';
+}
+export function isBoolean(o) {
+    return Object.prototype.toString.call(o) == '[object Boolean]';
+}
+export function isNumber(o) {
+    return Object.prototype.toString.call(o) == '[object Number]';
+}
+export function isString(o) {
+    return Object.prototype.toString.call(o) == '[object String]';
+}
+
+export function findAllRelatedLines(itemId) {
+    var relatedLines = _.filter(constant.linePathAry, function(item) {
+        return (item.startData != undefined && item.endData != undefined) && (item.startData.id == itemId || item.endData.id == itemId)
+    });
+    return relatedLines;
+}
+export function findInputLines(itemId) {
+    var relatedLines = _.filter(constant.linePathAry, function(item) {
+        return (item.endData != undefined) && (item.endData.id == itemId)
+    });
+    return relatedLines;
+}
+export function findOutputLines(itemId) {
+    var relatedLines = _.filter(constant.linePathAry, function(item) {
+        return (item.startData != undefined) && (item.startData.id == itemId)
+    });
+    return relatedLines;
+}
+export function hasLinkWithStartStage(itemId){
+    var inputLines = findInputLines(itemId);
+    var obj = _.find(inputLines, function(line){
+          return line.startData.id == "start-stage";
+    })
+    if(_.isEmpty(obj)){
+        return {"hasLink":false, "startData":""};
+    }else{
+        return {"hasLink":true, "startData":obj.startData};
+    }
+}
+export function removeRelatedLines(args) {
+    if (isString(args)) {
+        var relatedLines = findAllRelatedLines(args);
+        constant.setLinePathAry(_.difference(constant.linePathAry, relatedLines));
+    } else {
+        _.each(args, function(item) {
+            removeRelatedLines(item.id);
+        })
+    }
+
+}
+export function findAllActionsOfStage(stageId) {
+    var groupId = "#action" + "-" + stageId;
+    var selector = groupId + "> image";
+    return $(selector);
+}
+export function disappearAnimation(args) {
+    if (isString(args)) {
+        d3.selectAll(args)
+            .transition()
+            .duration(200)
+            .style("opacity", 0);
+    } else {
+        _.each(args, function(selector) {
+            disappearAnimation(selector);
+        })
+    }
+
+}
+export function transformAnimation(args, type) {
+    _.each(args, function(item) {
+        d3.selectAll(item.selector)
+            .filter(function(d, i) {
+                return i > item.itemIndex
+            })
+            .transition()
+            .delay(200)
+            .duration(200)
+            .attr("transform", function(d, i) {
+                var translateX = 0,
+                    translateY = 0;
+                if (type == "action") {
+                    translateX = item.type == "siblings" ? d.translateX : 0;
+                    translateY = item.type == "siblings" ? (d.translateY - constant.ActionNodeSpaceSize) : (0 - constant.ActionNodeSpaceSize);
+
+                } else if (type == "stage") {
+                    translateX = item.type == "siblings" ? (d.translateX - constant.WorkflowNodeSpaceSize) : (0 - constant.WorkflowNodeSpaceSize);
+                    translateY = item.type == "siblings" ? d.translateY : 0;
+
+                }
+                return "translate(" + translateX + "," + translateY + ")";
+
+            });
+    })
+
+}
+
+export function judgeType(target) {
+    if (isObject(target)) {
+        return "object";
+    } else if (isArray(target)) {
+        return "array";
+    } else if (isBoolean(target)) {
+        return "boolean";
+    } else if (isString(target)) {
+        return "string";
+    } else if (isNumber(target)) {
+        return "number";
+    } else {
+        return "null";
+    }
+}
+
+export function changeCurrentElement(previousData) {
+    if (previousData != null) {
+        switch (previousData.type) {
+            case "stage":
+                d3.select("#" + previousData.data.id).attr("href", config.getSVG(config.SVG_STAGE));
+                break;
+            case "start":
+                d3.select("#" + previousData.data.id).attr("href", config.getSVG(config.SVG_START));
+                break;
+            case "action":
+                d3.select("#" + previousData.data.id).attr("href", config.getSVG(config.SVG_ACTION));
+                break;
+            case "line":
+                d3.select("#" + previousData.data.attr("id")).attr("stroke", "#E6F3E9");
+                break;
+
+        }
+
+    }
+
+}
 
 export function draged(d) {
     if (d && d.name && d.name == "conflictTree") {
@@ -93,9 +234,9 @@ export function showZoomBtn(index, type, containerView, target, scaleObj, option
         .append("image")
         .attr("xlink:href", function(ad, ai) {
             if (type == "zoomin") {
-                return "../../assets/svg/zoomin.svg";
+                return config.getSVG(config.SVG_ZOOMIN);
             } else if (type == "zoomout") {
-                return "../../assets/svg/zoomout.svg";
+                 return config.getSVG(config.SVG_ZOOMOUT);
             }
 
         })
@@ -119,10 +260,10 @@ export function showZoomBtn(index, type, containerView, target, scaleObj, option
             let href = "";
             if (type == "zoomin") {
                 content = "Zoomin";
-                href = "../../assets/svg/zoomin.svg";
+                href = config.getSVG(config.SVG_ZOOMIN);
             } else if (type == "zoomout") {
                 content = "Zoomout";
-                href = "../../assets/svg/zoomout.svg";
+                href = config.getSVG(config.SVG_ZOOMOUT);
             }
             d3.select(this).attr("href", href);
             let options = {
@@ -153,7 +294,7 @@ export function showToolTip(options) {
     parentView
         .append("g")
         .attr("id", popupId);
-    parentView.selectAll("#" + popupId)
+    parentView.select("#" + popupId)
         .append("rect")
         .attr("width", width)
         .attr("height", height)
@@ -166,14 +307,45 @@ export function showToolTip(options) {
         .attr("rx", 3)
         .attr("ry", 3)
         .style("fill", constant.toolTipBackground)
-        .style("opacity", 0.9)
-    parentView.selectAll("#" + popupId)
+        // .style("opacity", 0.9)
+
+    parentView.select("#" + popupId)
         .append("text")
         .attr("x", x + 10)
-        .attr("y", y + height / 2 + 4)
         .style("fill", "white")
-        .style("opacity", 0.9)
-        .text(text)
+        // .style("opacity", 0.9)
+        .style("font-size", 13)
+    if(judgeType(text) == "array"){
+        parentView.select("#" + popupId).select("text")
+           .attr("y", y)
+        parentView.select("#" + popupId).select("text").selectAll("tspan")
+          .data(text)
+          .enter()
+          .append("tspan")
+          .attr("x", x + 10)
+          .attr("y", function(d, i){
+             return y + (i+1)*constant.popupHeight - constant.popupHeight/2 + 4;
+          })
+          .text(function(d,i){
+             if(d.length > 43){
+                return d.substring(0, 40) + "..."
+             }else {
+                return d;
+             }
+             // var scale = Number($("#"+popupId).parent().attr("scale"));
+             // if(d.length > 43 - parseInt(43 * (1-scale))){
+             //    return d.substring(0, 40-parseInt(40*(1-scale))) + "..."
+             // }else {
+             //    return d;
+             // }
+          })
+    }else if(judgeType(text) == "string"){
+         parentView.select("#" + popupId).select("text")
+           .attr("y", y + height / 2 + 4)
+           .text(text)
+    }
+
+
 }
 
 export function cleanToolTip(containerView, id) {
@@ -181,6 +353,8 @@ export function cleanToolTip(containerView, id) {
 }
 
  let rectBackgroundY = 15;
+
+
 export function initButton() {
     let scaleObj = { "zoomScale": 1, "zoomTargetScale": 1 };
     constant.sequenceButtonView
@@ -198,6 +372,6 @@ export function initButton() {
         .style({
             "fill": "#f7f7f7"
         });
-    sequenceUtil.showZoomBtn(1, "zoomin", constant.sequenceButtonView, constant.sequenceWorkflowView, scaleObj);
-    sequenceUtil.showZoomBtn(2, "zoomout", constant.sequenceButtonView, constant.sequenceWorkflowView, scaleObj);
+    showZoomBtn(1, "zoomin", constant.sequenceButtonView, constant.sequenceWorkflowView, scaleObj);
+    showZoomBtn(2, "zoomout", constant.sequenceButtonView, constant.sequenceWorkflowView, scaleObj);
 }
