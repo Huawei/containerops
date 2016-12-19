@@ -36,8 +36,8 @@ export function getLineDataInfo(workflowName,versionName,workflowRunSequence,seq
     return historyApi.relation(workflowName,versionName,workflowRunSequence,sequenceLineId);
 }
 
-export function getContainerLogsData(workflowName,versionName,workflowRunSequence,stageName,actionName){
-	return historyApi.containerLog(workflowName,versionName,workflowRunSequence,stageName,actionName);
+export function getContainerLogsData(workflowName,versionName,workflowRunSequence,stageName,actionName,key){
+	return historyApi.containerLog(workflowName,versionName,workflowRunSequence,stageName,actionName,key);
 }
 // export function getScheduleLog(){
 // 	return historyApi.scheduleLog();

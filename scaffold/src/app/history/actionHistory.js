@@ -126,8 +126,6 @@ function showActionHistoryView(history,actionname) {
 
             $(".designer-split").on("dragend",function(event){
                 var svgDiv = $("#div-d3-main-svg");
-                alert(svgDiv.height())
-                alert(splitStartY)
                 svgDiv.height(svgDiv.height() + event.originalEvent.y - splitStartY);
             })
         }
@@ -143,7 +141,7 @@ function getEventStatus(eventData,eventTime,lineNo){
             + eventData.EVENT_ID +`</td><td>`
             + eventData.RUN_ID +`</td><td>`
             + eventData.INFO.status +`</td>`
-            + `<td><button data-logid="`
+            + `<td class="td-vertop"><button data-logid="`
             + "info_" + (lineNo - 1) + `" type="button" class="btn btn-success sequencelog-detail"><i class="glyphicon glyphicon-list-alt" style="font-size:14px"></i>&nbsp;&nbsp;Detail</button></td></tr>`;
     
     $("#logs-tr").append(row);
@@ -163,20 +161,36 @@ function getResultLog(resultData){
     }
 }
 
-export function getContainerLogs(workflowName,versionName,workflowRunSequence,stageName,actionName){
-    var promise = historyDataService.getContainerLogsData(workflowName,versionName,workflowRunSequence,stageName,actionName);
+export function getContainerLogs(workflowName,versionName,workflowRunSequence,stageName,actionName,key){
+    var promise = historyDataService.getContainerLogsData(workflowName,versionName,workflowRunSequence,stageName,actionName,key);
     promise.done(function(data) {
-        console.log(data)
-        _.each(data,function(cd,i){
-            let unitLogs = `<div class="item-table"><div class="item-th">
-                            <div class="item-td"><b class="log-key">Time：</b><span class="log-value">`
-                            + cd.time +`</span></div><div class="item-td"><b class="log-key">Stream：</b><span class="log-value">`
-                            + cd.stream +`</span></div></div><div class="item-tr"><div class="item-col-td">`
-                            + cd.log +`</div></div></div>`
+        loading.hide();
+        var consoleList = data.list;
+        let key = data.key;
+        var template = _.template(
+            `<tr>
+                <td><%- time %></td>
+                <td><%- stream %></td>
+                <td class="td-warp"><%- log %></td>
+            </tr>`
+        );
 
-            $("#containerLog").append(unitLogs);
+        let unitLogs= "";
+        _.each(consoleList, function(item){
+          unitLogs += template({'time':item.time, 'stream':item.stream, 'log':item.log});
+        })
+        $("#item-containerLog").append(unitLogs); 
+            
+            let moreBtn = `<div><a href="javascript:void(0)" id="btn-more" class="btn-more" >... more ...</a></div>`;
+            if(key != ""){
+                $("#containerLog").append(moreBtn);
+            }
 
-        });
+            $("#btn-more").on("click",function (){
+                getContainerLogs(workflowName,versionName,workflowRunSequence,stageName,actionName,key);
+                $("#btn-more").hide();
+            });
+
     });
     promise.fail(function(xhr, status, error){
         loading.hide();
