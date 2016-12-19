@@ -1584,6 +1584,11 @@ func (actionLog *ActionLog) LinkStartWorkflow(runId, token, workflowName, workfl
 	authMap["eventName"] = eventName
 	authMap["eventType"] = eventType
 	authMap["time"] = time.Now().Format("2006-01-02 15:04:05")
+	pass, err := checkInstanceNum(workflowInfo.ID)
+	if !pass {
+		log.Error("[actionLog's LinkStartWorkflow]:error when checkworkflow instance num:", err.Error())
+		return err
+	}
 
 	workflowLog, err := Run(workflowInfo.ID, authMap, string(startDataBytes))
 	if err != nil {
