@@ -9,23 +9,35 @@ ContainerOps is DevOps orchestration platform with the container. It has an engi
 
 ### Concept - Component 
 
-A DevOps function developed in any programming language like Bash, Golang, Python or C++ could encapsulate as a containerized DevOps component. This guarantee that the DevOps task always run the same, regardless of its environment. Moreover, the developers do not care the resource of running components, and the orchestration engine use Kubernetes run them. It is more easily use than scripts and share. We are working on a component registry at https://opshub.sh.
+A DevOps function developed in any programming language like Bash, Golang, Python or C++ could encapsulate as a containerized DevOps component. This guarantee that the DevOps task always run the same, regardless of its environment. Moreover, the developers do not care the resource of running components, and the orchestration engine use Kubernetes run them. It is more easily use than scripts and share. We are working on a component registry to invigorate the community. The registry will release in Q1, 2017 at https://opshub.sh. 
 
-The component has environment variables. Some variables value is JSON data format, set by orchestration engine when running. Some variables are REST API URL, post data to interact with the engine.
+The component has a set of environment variables. Some variables value is JSON data, and they are the input values which are the dependency of the component running. Some variables value is REST API URL, the program post data to interact with orchestration engine.
 
 ### Concept - Event
 
+There is a special environment variable named CO_DATA, the value is JSON data. When the developer designs a component, customize the JSON what's the component running requirements. The JSON data is the component input event. The CO_DATA is not the only environment variable which provides input data, and the developer set any global environment variables for all elements of workflow could read or write.
+
+There is another special environment variable named CO_TASK_RESULT, the value is REST API URL. When the developer designs the component, customize the output JSON data post to the URL in the HTTP body. The JSON data is the component output event.
+
+Orchestration engine collects the input data and output data, and transfer from one or more output event to one input event. The developer designs the DevOps workflow, at the same time designs the component event flow by drag and draw. The engine map the one or more output JSON data to input JSON data of component automatically, the developer could change the mapping relation in the workflow designer.
+
 ![Event Linking](docs/images/event-link.jpg)
+
+However, the engine could not merge the conflict events mapping. It shows all conflicts, only remove this could be saved to run.
 
 ![Event Conflict](docs/images/event-conflict.jpg)
 
 ### Concept - Workflow
 
-The ContainerOps has a DevOps workflow WYSIWYG editor in the browser. The user could define the DevOps workflow by drag or drop the line or set the data flow from workflow trigger to the end by the same way.
+Usually, we define different stages in the DevOps orchestration. The stage is the phase of DevOps workflow, and the developer could define any number of the stage according to organizational structure, project property, programming language, other factors. How define stage is a philosophy, you should define follow the best practices in DevOps.
+
+The ContainerOps define any task on stage named action. The action links the component or a service. All tasks of stage execute at the same time, and the events deliver to actions of another stage.
 
 ![Workflow Running](docs/images/workflow-running.gif)
 
 ### ContainerOps VS. Jenkins
+
+Jenkins need shell scripts and dependencies, and the developer should maintain the pipeline of jobs.  The component of ContainerOps is easily maintaining.
 
 ### ContainerOps VS. Travis CI And Other Hosted Offering 
 
