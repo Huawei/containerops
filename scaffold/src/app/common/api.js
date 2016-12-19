@@ -334,7 +334,7 @@ export let historyApi = {
 		pendingPromise.push(promise);
 	  return promise;	
 	},
-	getWorkflows(page,workflowNum,isInitPages,keywords,filterType){
+	"getWorkflows":function(page,workflowNum,isInitPages,keywords,filterType){
 		var isKeywords = '&filter='+keywords+'&filtertype='+filterType;
 		if(keywords === '-1'){
 			isKeywords = '&filtertype='+filterType;
