@@ -690,11 +690,15 @@ func (kube *kubeComponent) StartService() (string, error) {
 
 	if len(ports) == 0 {
 		log.Error("[kubeComponent's StartService]:service config doesn't has any port:", specMap)
-		return "", errors.New("component must spec at least one port")
+		// return "", errors.New("component must spec at least one port")
 	}
 
 	// set selector
-	selectorMap := make(map[string]string)
+	selectorMap, ok := specMap["selector"].(map[string]interface{})
+	if !ok {
+		selectorMap = make(map[string]interface{})
+	}
+
 	selectorMap["WORKFLOW_DEFAULT_POD_LABLE"] = "pod-" + kube.runID
 
 	specMap["selector"] = selectorMap
@@ -769,7 +773,7 @@ func (kube *kubeComponent) StartService() (string, error) {
 
 	if len(respPorts) < 1 {
 		log.Error("[kubeComponent's StartService]:error when get resp ports,resp ports is null,resp is:", respSpecMap)
-		return "", errors.New("error when read create service resp:, service has not set a port！")
+		// return "", errors.New("error when read create service resp:, service has not set a port！")
 	}
 
 	portsStr := ""
@@ -929,7 +933,6 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 		labelsMap, ok = labelInfo.(map[string]interface{})
 		if !ok {
 			log.Error("[kubeComponent's GetPodDefine]:error when get component's labels define,define is not a json obj:", labelInfo)
-			return nil, errors.New("component's kube config error, labels is not a json!")
 		}
 	}
 
@@ -1185,14 +1188,17 @@ func (kube *kubeComponent) Update() {
 				containerLogName = containerName
 			}
 
-			containerLogName = containerLogName + "_" + kube.namespace + "_" + containerLogName + "-"
+			containerLogName = containerLogName + "_" + kube.namespace + "_" + kube.runID + "-pod-"
 
 			if statusMap, ok := info["status"].(map[string]interface{}); ok {
 				if containerStatuses, ok := statusMap["containerStatuses"].([]interface{}); ok {
 					if len(containerStatuses) > 0 {
 						containerInfo := containerStatuses[0].(map[string]interface{})
-						containerID := containerInfo["containerID"].(string)
-						containerLogName = containerLogName + strings.TrimPrefix(containerID, "docker://") + ".log"
+						if containerID, ok := containerInfo["containerID"].(string); ok {
+							containerLogName = containerLogName + strings.TrimPrefix(containerID, "docker://") + ".log"
+						} else {
+							continue
+						}
 					}
 				}
 			}
@@ -1211,9 +1217,9 @@ func (kube *kubeComponent) GetPodInfo() (map[string]interface{}, error) {
 	// first get pod's lable
 	podName := "pod-" + kube.runID
 
-	podLable := "WORKFLOW_DEFAULT_POD_LABLE" + podName
+	podLable := "WORKFLOW_DEFAULT_POD_LABLE%3D" + podName
 
-	kubeReqUrl := kube.apiServerUri + "/api/v1/namespaces/" + kube.componentInfo.Namespace + "/pods?labelselector=" + podLable
+	kubeReqUrl := kube.apiServerUri + "/api/v1/namespaces/" + kube.componentInfo.Namespace + "/pods?labelSelector=" + podLable
 
 	resp, err := http.Get(kubeReqUrl)
 	if err != nil {
