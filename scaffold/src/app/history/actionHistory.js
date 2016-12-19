@@ -150,7 +150,6 @@ function getEventStatus(eventData,eventTime,lineNo){
 function getResultLog(resultData){
     $("#resultLog_list").html();
     if( resultData != null && resultData.length>0) {
-        console.log("rdata==>",resultData)
         _.each(resultData,function(rd,i){
             let rdJson = JSON.parse(rd);
             var row = `<tr><td class="loglist-td">`+i+`</td><td>`
@@ -166,38 +165,47 @@ export function getContainerLogs(workflowName,versionName,workflowRunSequence,st
     promise.done(function(data) {
         loading.hide();
         var consoleList = data.list;
-        let key = data.key;
-        var template = _.template(
-            `<tr>
-                <td><%- time %></td>
-                <td><%- stream %></td>
-                <td class="td-warp"><%- log %></td>
-            </tr>`
-        );
+        if(consoleList != null && consoleList.length > 0){
 
-        let unitLogs= "";
-        _.each(consoleList, function(item){
-          unitLogs += template({'time':item.time, 'stream':item.stream, 'log':item.log});
-        })
-        $("#item-containerLog").append(unitLogs); 
-            
-            let moreBtn = `<div><a href="javascript:void(0)" id="btn-more" class="btn-more" >... more ...</a></div>`;
+            let key = data.key;
+            var template = _.template(
+                `<tr>
+                    <td><%- time %></td>
+                    <td><%- stream %></td>
+                    <td class="td-warp"><%- log %></td>
+                </tr>`
+            );
+
+            let unitLogs= "";
+            _.each(consoleList, function(item,index){
+              unitLogs += template({'time':item.time, 'stream':item.stream, 'log':item.log});
+            });
+
+            $("#item-containerLog").append(unitLogs); 
+                
+            let moreBtn = `<div id="btn-more-area"><a href="javascript:void(0)" id="btn-more" class="btn-more" >... more ...</a></div>`;
             if(key != ""){
                 $("#containerLog").append(moreBtn);
             }
 
             $("#btn-more").on("click",function (){
                 getContainerLogs(workflowName,versionName,workflowRunSequence,stageName,actionName,key);
-                $("#btn-more").hide();
+                $("#btn-more-area").remove();
             });
 
+        } else{
+
+            let tipsInfo = `<h4 style="text-align:center;">There is no data Please see the other content </h4>`;
+            $("#containerLog").html( tipsInfo );
+        }
+
     });
-    promise.fail(function(xhr, status, error){
+    promise.fail(function(xhr, status, error) {
         loading.hide();
-        if (!_isUnderfined(xhr.responseJSON) && xhr.responseJSON.errMsg){
-            notify(xhr.responseJSON.errMsg,"error");
-        }else if(xhr.statusText != "abort"){
-            notify("Server is unreachable","error");
+        if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.errMsg) {
+            notify(xhr.responseJSON.errMsg, "error");
+        } else if(xhr.statusText != "abort") {
+            notify("Server is unreachable", "error");
         }
     });
 }
