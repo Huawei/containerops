@@ -565,9 +565,10 @@ func (actionLog *ActionLog) GetActionConsoleLog(key string, size int64) (map[str
 			logServerUrl += "?scroll=10m"
 			bodyMap := map[string]interface{}{
 				"query": map[string]interface{}{
-					"match": map[string]string{
-						"tag":  "kubernetes.var.log.containers." + actionLog.ContainerId,
-						"type": "phrase"}},
+					"match": map[string]interface{}{
+						"tag": map[string]string{
+							"query": "kubernetes.var.log.containers." + actionLog.ContainerId,
+							"type":  "phrase"}}},
 				"size": size,
 				"sort": "@timestamp"}
 
@@ -580,6 +581,7 @@ func (actionLog *ActionLog) GetActionConsoleLog(key string, size int64) (map[str
 			logReqBody, _ = json.Marshal(bodyMap)
 		}
 
+		log.Info("[actionLog's GetActionConsoleLog]:send req to ", logServerUrl, " req body is :", string(logReqBody))
 		resp, err := http.Post(logServerUrl, "application/json", bytes.NewReader(logReqBody))
 		if err != nil {
 			go kube.Update()
@@ -1584,6 +1586,11 @@ func (actionLog *ActionLog) LinkStartWorkflow(runId, token, workflowName, workfl
 	authMap["eventName"] = eventName
 	authMap["eventType"] = eventType
 	authMap["time"] = time.Now().Format("2006-01-02 15:04:05")
+	pass, err := checkInstanceNum(workflowInfo.ID)
+	if !pass {
+		log.Error("[actionLog's LinkStartWorkflow]:error when checkworkflow instance num:", err.Error())
+		return err
+	}
 
 	workflowLog, err := Run(workflowInfo.ID, authMap, string(startDataBytes))
 	if err != nil {
