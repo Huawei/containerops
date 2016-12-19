@@ -54,6 +54,7 @@ func Migrate() {
 	db.AutoMigrate(&Workflow{}, &WorkflowLog{}, &WorkflowSequence{}, &WorkflowVar{}, &WorkflowVarLog{}, &Stage{}, &StageLog{}, &Action{}, &ActionLog{}, &Outcome{})
 	db.AutoMigrate(&EventDefinition{}, &Event{}, &EventJson{})
 	db.AutoMigrate(&UserSetting{})
+	db.AutoMigrate(&Timer{})
 
 	log.Info("AutMigrate database structs.")
 }
