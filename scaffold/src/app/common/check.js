@@ -431,6 +431,20 @@ function checkSetting(setting){
                     notify("Cron entry of timed task No. " + (i+1) + " is illegal ---- < Workflow setting >","info");
                     break;
                 }
+
+                if(_.isEmpty(setting.data.timedTasks.tasks[i].eventType)){
+                    notify("Event type of timed task No. " + (i+1) + " is required ---- < Workflow setting >","info");
+                    completeness = false;
+                    break;
+                }else if(_.isEmpty(setting.data.timedTasks.tasks[i].eventName)){
+                    notify("Event name of timed task No. " + (i+1) + " is required ---- < Workflow setting >","info");
+                    completeness = false;
+                    break;
+                }else if(_.isEmpty(setting.data.timedTasks.tasks[i].startJson)){
+                    notify("Start json of timed task No. " + (i+1) + " is required ---- < Workflow setting >","info");
+                    completeness = false;
+                    break;
+                }
             }
         }
     }
