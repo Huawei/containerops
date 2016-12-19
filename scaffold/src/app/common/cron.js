@@ -39,8 +39,8 @@ export let cron = {
             type: "GET",
             cache: false,
             success: function (data) {
-                self.$el.empty();
-                self.$el.append($(data));    
+                // self.$el.empty();
+                self.$el.prepend($(data));    
                 self.blockDisplayControl();
                 self.setSelections();
             }
