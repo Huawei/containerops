@@ -166,6 +166,7 @@ func CreateNewActions(db *gorm.DB, workflowInfo *models.Workflow, stageInfo *mod
 					podConfigKey := "pod"
 					serviceConfigKey := "service"
 					if useAdvanced {
+						configMap["useAdvanced"] = true
 						podConfigKey = "pod_advanced"
 						serviceConfigKey = "service_advanced"
 					}
@@ -1525,30 +1526,32 @@ func (actionLog *ActionLog) changeGlobalVar() error {
 		kubeSettingMap["nodeIP"] = nodeIPStr
 	}
 
-	podConfigMap, ok := kubeSettingMap["podConfig"].(map[string]interface{})
-	if ok {
-		podConfig, err := changeMapInfoWithGlobalVar(actionLog.Workflow, actionLog.Sequence, podConfigMap)
-		if err != nil {
-			log.Error("[actionLog's changeGlobalVar]:action:", actionLog.Action, " error when change pod config:", err.Error())
-			return errors.New("action's pod config is illegal")
+	if useAdvanced, ok := kubeSettingMap["useAdvanced"].(bool); !ok || !useAdvanced {
+		podConfigMap, ok := kubeSettingMap["podConfig"].(map[string]interface{})
+		if ok {
+			podConfig, err := changeMapInfoWithGlobalVar(actionLog.Workflow, actionLog.Sequence, podConfigMap)
+			if err != nil {
+				log.Error("[actionLog's changeGlobalVar]:action:", actionLog.Action, " error when change pod config:", err.Error())
+				return errors.New("action's pod config is illegal")
+			}
+
+			kubeSettingMap["podConfig"] = podConfig
 		}
 
-		kubeSettingMap["podConfig"] = podConfig
-	}
+		serviceConfigMap, ok := kubeSettingMap["serviceConfig"].(map[string]interface{})
+		if ok {
+			serviceConfig, err := changeMapInfoWithGlobalVar(actionLog.Workflow, actionLog.Sequence, serviceConfigMap)
+			if err != nil {
+				log.Error("[actionLog's changeGlobalVar]:action:", actionLog.Action, " error when change service config:", err.Error())
+				return errors.New("action's service config is illegal")
+			}
 
-	serviceConfigMap, ok := kubeSettingMap["serviceConfig"].(map[string]interface{})
-	if ok {
-		serviceConfig, err := changeMapInfoWithGlobalVar(actionLog.Workflow, actionLog.Sequence, serviceConfigMap)
-		if err != nil {
-			log.Error("[actionLog's changeGlobalVar]:action:", actionLog.Action, " error when change service config:", err.Error())
-			return errors.New("action's service config is illegal")
+			kubeSettingMap["serviceConfig"] = serviceConfig
 		}
 
-		kubeSettingMap["serviceConfig"] = serviceConfig
+		kubeSettingBytes, _ := json.Marshal(kubeSettingMap)
+		actionLog.Kubernetes = string(kubeSettingBytes)
 	}
-
-	kubeSettingBytes, _ := json.Marshal(kubeSettingMap)
-	actionLog.Kubernetes = string(kubeSettingBytes)
 
 	err = new(models.ActionLog).GetActionLog().Save(actionLog.ActionLog).Error
 	if err != nil {
