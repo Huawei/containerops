@@ -138,19 +138,25 @@ func GetActionConsoleLogV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
+	key := ctx.Query("key")
+	size := ctx.QueryInt64("size")
+	if size == 0 {
+		size = 10
+	}
+
 	actionLogInfo, err := module.GetActionLogByName(namespace, repository, workflowName, sequenceInt, stageName, actionName)
 	if err != nil {
 		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
 		return http.StatusBadRequest, result
 	}
 
-	logList, err := actionLogInfo.GetActionConsoleLog()
+	logResult, err := actionLogInfo.GetActionConsoleLog(key, size)
 	if err != nil {
 		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
 		return http.StatusBadRequest, result
 	}
 
-	result, _ = json.Marshal(map[string]interface{}{"list": logList})
+	result, _ = json.Marshal(logResult)
 
 	return http.StatusOK, result
 }
