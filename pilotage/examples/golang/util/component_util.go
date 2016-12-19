@@ -187,13 +187,19 @@ func ChangeGlobalVar(varName, value string) error {
 	return nil
 }
 
-func LinkStart(workflowName, workflowVersion string, startJson map[string]interface{}) error {
+func LinkStart(workflowName, workflowVersion, eventName, eventType string, startJson map[string]interface{}) error {
 	reqBody := make(map[string]interface{})
 
 	startJsonBytes, _ := json.Marshal(startJson)
 
 	reqBody["RUN_ID"] = eventINFOMap[CO_RUN_ID]
-	reqBody["linkInfoMap"] = map[string]interface{}{"token": eventINFOMap[CO_LINKSTART_TOKEN], "workflowName": workflowName, "workflowVersion": workflowVersion, "startJson": string(startJsonBytes)}
+	reqBody["linkInfoMap"] = map[string]interface{}{
+		"token":           eventINFOMap[CO_LINKSTART_TOKEN],
+		"workflowName":    workflowName,
+		"workflowVersion": workflowVersion,
+		"eventName":       eventName,
+		"eventType":       eventType,
+		"startJson":       string(startJsonBytes)}
 
 	reqBodyBytes, _ := json.Marshal(reqBody)
 

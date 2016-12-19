@@ -19,6 +19,7 @@ import * as historyDataService from "./historyData";
 import { setPath } from "../relation/setPath";
 import { notify } from "../common/notify";
 import { getActionHistory } from "./actionHistory";
+import { getContainerLogs } from "./actionHistory";
 import { getLineHistory } from "./lineHistory";
 import { getHistoryList,addFilterWorklowEvent } from "./historyList";
 import {changeCurrentElement} from "../common/util";
@@ -167,6 +168,7 @@ export function getSequenceDetail(selected_history) {
         } else if( data.define.stageList.length > 0 && isAction){
             initSequenceView(selected_history);
             getActionHistory(historyAbout.workflowName,historyAbout.versionName,historyAbout.sequence,historyAbout.stageName,historyAbout.actionName);
+            getContainerLogs(historyAbout.workflowName,historyAbout.versionName,historyAbout.sequence,historyAbout.stageName,historyAbout.actionName,"");
         }
 
     });
@@ -836,6 +838,7 @@ function initSequenceActionByStage() {
                 .on("click", function(ad, ai) {
                     // workflowName,versionName,workflowRunSequence,stageName,actionName
                     getActionHistory(historyAbout.workflowName,historyAbout.versionName,historyAbout.sequence, d.setupData.name, ad.setupData.name);
+                    getContainerLogs(historyAbout.workflowName,historyAbout.versionName,historyAbout.sequence, d.setupData.name, ad.setupData.name,"");
                     if (ad.status == 1 || ad.status == 0) {
                         historyChangeCurrentElement(constant.currentSelectedItem);
                         constant.setCurrentSelectedItem({ "data": ad, "parentData": d, "type": "action", "status": ad.status });

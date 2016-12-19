@@ -138,19 +138,25 @@ func GetActionConsoleLogV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
+	key := ctx.Query("key")
+	size := ctx.QueryInt64("size")
+	if size == 0 {
+		size = 10
+	}
+
 	actionLogInfo, err := module.GetActionLogByName(namespace, repository, workflowName, sequenceInt, stageName, actionName)
 	if err != nil {
 		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
 		return http.StatusBadRequest, result
 	}
 
-	logList, err := actionLogInfo.GetActionConsoleLog()
+	logResult, err := actionLogInfo.GetActionConsoleLog(key, size)
 	if err != nil {
 		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
 		return http.StatusBadRequest, result
 	}
 
-	result, _ = json.Marshal(map[string]interface{}{"list": logList})
+	result, _ = json.Marshal(logResult)
 
 	return http.StatusOK, result
 }
@@ -423,6 +429,20 @@ func PostActionLinkStartV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
+	eventName, ok := linkInfoMap["eventName"].(string)
+	if !ok {
+		log.Error("[action's PostActionSetVarV1Handler]:error when get eventName from request's linkInfoMap, want a string, got:", linkInfoMap["eventName"])
+		result, _ := json.Marshal(map[string]string{"message": "eventName is not a string"})
+		return http.StatusBadRequest, result
+	}
+
+	eventType, ok := linkInfoMap["eventType"].(string)
+	if !ok {
+		log.Error("[action's PostActionSetVarV1Handler]:error when get eventType from request's linkInfoMap, want a string, got:", linkInfoMap["eventType"])
+		result, _ := json.Marshal(map[string]string{"message": "eventType is not a string"})
+		return http.StatusBadRequest, result
+	}
+
 	startJsonStr, ok := linkInfoMap["startJson"].(string)
 	if !ok {
 		log.Error("[action's PostActionSetVarV1Handler]:error when get startJson from request's linkInfoMap, want a string, got:", linkInfoMap["startJson"])
@@ -440,7 +460,7 @@ func PostActionLinkStartV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	err = actionLog.LinkStartWorkflow(runId, token, workflowName, workflowVersion, startJson)
+	err = actionLog.LinkStartWorkflow(runId, token, workflowName, workflowVersion, eventName, eventType, startJson)
 	if err != nil {
 		log.Error("[action's PostActionEventV1Handler]:error when record action's event:", err.Error())
 		result, _ := json.Marshal(map[string]string{"message": "error when record action's event"})
