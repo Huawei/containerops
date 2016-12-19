@@ -1559,7 +1559,7 @@ func (actionLog *ActionLog) changeGlobalVar() error {
 	return nil
 }
 
-func (actionLog *ActionLog) LinkStartWorkflow(runId, token, workflowName, workflowVersion string, startJson map[string]interface{}) error {
+func (actionLog *ActionLog) LinkStartWorkflow(runId, token, workflowName, workflowVersion, eventName, eventType string, startJson map[string]interface{}) error {
 	expectToken := utils.MD5(actionLog.Action + runId)
 	if expectToken != token {
 		log.Info("[actionLog's LinkStartWorkflow]:action(", actionLog.ID, ") runid is:(", runId, ") error when check token: want:", expectToken, " got:", token)
@@ -1578,8 +1578,8 @@ func (actionLog *ActionLog) LinkStartWorkflow(runId, token, workflowName, workfl
 	authMap["type"] = AuthTypeWorkflowDefault
 	authMap["token"] = AuthTokenDefault
 	authMap["runID"] = runId
-	authMap["eventName"] = "linkstart"
-	authMap["eventType"] = "system-linkstart"
+	authMap["eventName"] = eventName
+	authMap["eventType"] = eventType
 	authMap["time"] = time.Now().Format("2006-01-02 15:04:05")
 
 	workflowLog, err := Run(workflowInfo.ID, authMap, string(startDataBytes))
