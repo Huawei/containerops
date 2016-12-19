@@ -135,7 +135,7 @@ function showTimedTasks(){
 	        	</div>`;
 
 	    if(task.collapse){
-        	row += `<div class="task-simplify-div">Task :`  + task.cronEntry 
+        	row += `<div class="task-simplify-div">Task : `  + task.cronEntry 
 								+ `  |  Event Type: ` + task.eventType + ` |  Event Name: ` 
 								+ task.eventName + `</div>`;
         }else{
