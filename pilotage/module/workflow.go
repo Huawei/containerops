@@ -32,10 +32,11 @@ import (
 )
 
 const (
-	WorkflowStopReasonTimeout = "TIME_OUT"
+	WorkflowStopReasonInstanceFull = "NO_ROOM_FOR_RUN_INSTANCE"
+	WorkflowStopReasonTimeout      = "TIME_OUT"
 
-	WorkflowStopReasonRunSuccess = "RunSuccess"
-	WorkflowStopReasonRunFailed  = "RunFailed"
+	WorkflowStopReasonRunSuccess = "WORKFLOW_RUN_SUCCESS"
+	WorkflowStopReasonRunFailed  = "WORKFLOW_RUN_FAILED"
 )
 
 var (
@@ -211,7 +212,14 @@ func GetWorkflowInfo(namespace, repository, workflowName string, workflowId int6
 
 	resultMap["lineList"] = make([]map[string]interface{}, 0)
 
-	resultMap["setting"] = make(map[string]interface{})
+	resultMap["setting"] = map[string]interface{}{
+		"runningInstances": map[string]interface{}{
+			"available": false,
+			"number":    10},
+		"timedTasks": map[string]interface{}{
+			"available": false,
+			"tasks":     make([]interface{}, 0),
+		}}
 
 	resultMap["status"] = false
 
@@ -302,7 +310,7 @@ func Run(workflowId int64, authMap map[string]interface{}, startData string) (*W
 	}
 
 	if workflowInfo.State == models.WorkflowStateDisable {
-		return nil, errors.New("workflow is not run able")
+		return nil, errors.New("workflow is not runnable")
 	}
 
 	workflow := new(Workflow)

@@ -32,9 +32,9 @@ import (
 const (
 	StageStopReasonTimeout = "TIME_OUT"
 
-	StageStopReasonRunSuccess     = "RunSuccess"
-	StageStopReasonRunFailed      = "RunFailed"
-	StageStopReasonPreStageFailed = "PreStageFailed"
+	StageStopReasonRunSuccess     = "RUN_SUCCESS"
+	StageStopReasonRunFailed      = "STAGE_RUN_FAILED"
+	StageStopReasonPreStageFailed = "PRE_STAGE_RUN_FAILED"
 
 	StageStopScopeAll        = "all"
 	StageStopScopeRecyclable = "recyclable"
