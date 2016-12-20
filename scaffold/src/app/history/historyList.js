@@ -190,8 +190,11 @@ function renderSequences(workflowName,workflowId,version,sequences) {
 
 			recordItem += '<div class="item-record pad-lt-ten '+isBorder+' '+isShow+'">';
 
+			var arr = s.date.split('-');
+
 			var time='<div class="time">'+
-						      '<span class="date">'+s.date+'</span>'+
+						      '<span class="year">'+arr[0].slice(2)+'</span>'+
+						      '<span class="date">'+arr[1]+'-'+arr[2]+'</span>'+
 						      '<span class="hour">'+s.time+'</span>'+
 						    '</div>';
 
@@ -309,7 +312,7 @@ function addMore($this){
 
 function addStartWorkflowEvent(version){
 	$('.start-status').on('click',function(event){
-		var y = event.pageY;
+		var y = event.pageY+10+'px';
 		$('#startedRecords').css('top',y);
 		console.log(event)
 		event.stopPropagation();
@@ -455,9 +458,11 @@ function renderStartedWorkflows(workflows,selector){
 		var isBorder = i%2===0? '':'border-record ';
 		recordItem += '<div class="item-record '+isBorder+'">';
 		var workflowName = '<div class="workflow-name">'+s.workflowName+'：</div>';
+		var arr = s.date.split('-');
 
 		var time='<div class="time">'+
-					      '<span class="date">'+s.date+'</span>'+
+					      '<span class="year">'+arr[0].slice(2)+'</span>'+
+					      '<span class="date">'+arr[1]+'-'+arr[2]+'</span>'+
 					      '<span class="hour">'+s.time+'</span>'+
 					    '</div>';
 
