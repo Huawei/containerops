@@ -428,12 +428,13 @@ function isGetVersions (workflowName,workflowId,$selector){
 function getStartedWorkflows(workflowName,workflowId,version,sequence,sequenceId,stageName,actionId,actionName){
 	var promise = historyDataService.getStartedWorkflows(workflowName,workflowId,version,sequence,sequenceId,stageName,actionId,actionName);
 	promise.done(function(data) {
-    loading.hide();
+    	loading.hide();
 		currentStartedWorkflows = data;
 		isShowBounced(workflowDialog,true);
 		addCloseEvent(workflowDialog);
 		rendStartedActionInfo(workflowName,version.versionName,stageName,actionName,breadcrumbs);
 		renderStartedWorkflows(currentStartedWorkflows,startedRecords);
+		resetMainHeight();
   });
   promise.fail(function(xhr, status, error) {
     loading.hide();
@@ -565,6 +566,14 @@ function getPages(totalNum,selector){
 
 function clearOldData(selector){
 	$(selector).empty();
+}
+
+function resetMainHeight(){
+	var pad = 50;
+	var height = $('#startedRecords').height();
+	var mainHeight = $('#main').height();
+	var totalHeight = pad + height + mainHeight + 'px';
+	$('#main').css('height',totalHeight);
 }
 
 export function addFilterWorklowEvent(){
