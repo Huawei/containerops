@@ -36,7 +36,6 @@ var workflowSearch = '#historyMap .search';
 var antistop = '#historyMap .keywords';
 var summaryWidth = '';
 var sequenceNum = 10;
-console.log(sequenceNum)
 
 var resUrl = {
 	"workflow":"/v2/demo/demo/workflow/v1/history/workflow/list",
@@ -65,6 +64,7 @@ export function getSequenceNum(){
 }
 
 export function getHistoryList(keywords,filterType){
+	keywords?$(antistop).val(keywords):'';
 	getWorkflows(currentPage,workflowNum,isInitPages,keywords,filterType);
 }
 
@@ -72,13 +72,15 @@ function getWorkflows(page,workflowNum,isInitPages,keywords,filterType) {
 	loading.show();
 	var promise = historyDataService.getWorkflows(page,workflowNum,isInitPages,keywords,filterType);
 	promise.done(function(data) {
-    loading.hide();
-		totalWorkflows = data.totalWorkflows;
-		workflows = data.workflows;
-		renderWorkflows(workflows,historyList);
-		getVersions(workflows[0].workflowName,workflows[0].workflowId);
-		if(isInitPages){
-			getPages(totalWorkflows,historyPages);
+		loading.hide();
+		if(data.workflows.length>0){
+			totalWorkflows = data.totalWorkflows;
+			workflows = data.workflows;
+			renderWorkflows(workflows,historyList);
+			getVersions(workflows[0].workflowName,workflows[0].workflowId);
+			if(isInitPages){
+				getPages(totalWorkflows,historyPages);
+			}
 		}
   });
   promise.fail(function(xhr, status, error) {
@@ -199,7 +201,7 @@ function renderSequences(workflowName,workflowId,version,sequences) {
 			var arr = s.date.split('-');
 
 			var time='<div class="time">'+
-						      '<span class="year">'+arr[0].slice(2)+'</span>'+
+						      '<img src="../../assets/images/preworkflow.png" class="year">'+
 						      '<span class="date">'+arr[1]+'-'+arr[2]+'</span>'+
 						      '<span class="hour">'+s.time+'</span>'+
 						    '</div>';
@@ -421,17 +423,6 @@ function isGetVersions (workflowName,workflowId,selector){
 }
 
 function getStartedWorkflows(workflowName,workflowId,version,sequence,sequenceId,stageName,actionId,actionName){
-	// var params = {
-	// 	url:resUrl.startedWorkflow.replace(/{workflowName}/g,workflowName).replace(/{versionName}/g,version.versionName).replace(/{sequence}/g,sequence).replace(/{actionName}/g,actionName).replace(/{workflowID}/g,sequenceId).replace(/{actionID}/g,actionId),
-	// 	type:'GET',
-	// 	callback:function(data){
-	// 		currentStartedWorkflows = data;
-	// 		isShowBounced(workflowDialog,true);
-	// 		addCloseEvent(workflowDialog);
-	// 		rendStartedActionInfo(workflowName,version.versionName,stageName,actionName,breadcrumbs);
-	// 		renderStartedWorkflows(currentStartedWorkflows,startedRecords);
-	// 	}
-	// };
 	var promise = historyDataService.getStartedWorkflows(workflowName,workflowId,version,sequence,sequenceId,stageName,actionId,actionName);
 	promise.done(function(data) {
     loading.hide();
@@ -467,7 +458,7 @@ function renderStartedWorkflows(workflows,selector){
 		var arr = s.date.split('-');
 
 		var time='<div class="time">'+
-					      '<span class="year">'+arr[0].slice(2)+'</span>'+
+					      '<img src="../../assets/images/preworkflow.png" class="year">'+
 					      '<span class="date">'+arr[1]+'-'+arr[2]+'</span>'+
 					      '<span class="hour">'+s.time+'</span>'+
 					    '</div>';
@@ -555,7 +546,7 @@ function getPages(totalNum,selector){
 			onChange: function(currentPage){
 				currentPage = currentPage;
 				isInitPages = false;
-				getWorkflows(currentPage,workflowNum,isInitPages,filterWorkflow,filterType)
+				getWorkflows(currentPage,workflowNum,isInitPages,filterWorkflow,'fuzzy');
 			}
 		})
 	}

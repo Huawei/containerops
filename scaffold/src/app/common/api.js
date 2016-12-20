@@ -327,7 +327,7 @@ export let historyApi = {
 	},
 	getWorkflows(page,workflowNum,isInitPages,keywords,filterType){
 		var isKeywords = '&filter='+keywords+'&filtertype='+filterType;
-		if(keywords === '-1'){
+		if(!keywords){
 			isKeywords = '&filtertype='+filterType;
 		}
 		var promise = $.ajax({
