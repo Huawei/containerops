@@ -32,10 +32,11 @@ import (
 )
 
 const (
-	WorkflowStopReasonTimeout = "TIME_OUT"
+	WorkflowStopReasonInstanceFull = "NO_ROOM_FOR_RUN_INSTANCE"
+	WorkflowStopReasonTimeout      = "TIME_OUT"
 
-	WorkflowStopReasonRunSuccess = "RunSuccess"
-	WorkflowStopReasonRunFailed  = "RunFailed"
+	WorkflowStopReasonRunSuccess = "WORKFLOW_RUN_SUCCESS"
+	WorkflowStopReasonRunFailed  = "WORKFLOW_RUN_FAILED"
 )
 
 var (
@@ -141,7 +142,7 @@ func GetWorkflowListByNamespaceAndRepository(namespace, repository string) ([]ma
 
 				latestWorkflowLog := new(models.WorkflowLog)
 				err := latestWorkflowLog.GetWorkflowLog().Where("from_workflow = ?", workflowVersion.ID).Order("-id").First(latestWorkflowLog).Error
-				if err != nil {
+				if err != nil && err.Error() == "record not found" {
 					log.Error("[workflow's GetWorkflowListByNamespaceAndRepository]:error when get workflow's latest run info:", err.Error())
 				}
 
@@ -211,7 +212,15 @@ func GetWorkflowInfo(namespace, repository, workflowName string, workflowId int6
 
 	resultMap["lineList"] = make([]map[string]interface{}, 0)
 
-	resultMap["setting"] = make(map[string]interface{})
+	resultMap["setting"] = map[string]interface{}{
+		"data": map[string]interface{}{
+			"runningInstances": map[string]interface{}{
+				"available": false,
+				"number":    10},
+			"timedTasks": map[string]interface{}{
+				"available": false,
+				"tasks":     make([]interface{}, 0),
+			}}}
 
 	resultMap["status"] = false
 
@@ -302,7 +311,7 @@ func Run(workflowId int64, authMap map[string]interface{}, startData string) (*W
 	}
 
 	if workflowInfo.State == models.WorkflowStateDisable {
-		return nil, errors.New("workflow is not run able")
+		return nil, errors.New("workflow is not runnable")
 	}
 
 	workflow := new(Workflow)
@@ -426,6 +435,7 @@ func GetWorkflowSequenceList(namespace, repository, workflow, version string, ve
 		sequenceMap["runResult"] = workflowInfo.RunState
 		sequenceMap["date"] = workflowInfo.CreatedAt.Format("2006-01-02")
 		sequenceMap["time"] = workflowInfo.CreatedAt.Format("15:04")
+		sequenceMap["error"] = workflowInfo.FailReason
 		if workflowInfo.PreWorkflow != 0 {
 			preWorkflow := new(models.WorkflowLog)
 			err := preWorkflow.GetWorkflowLog().Where("id = ?", workflowInfo.PreWorkflow).First(&preWorkflow).Error
@@ -503,6 +513,7 @@ func getSequenceStageInfo(namespace, repository string, workflow, sequence int64
 		stageMap["isTimeout"] = stageInfo.FailReason == StageStopReasonTimeout
 		stageMap["timeout"] = stageInfo.Timeout
 		stageMap["runTime"] = strconv.FormatFloat(stageInfo.UpdatedAt.Sub(stageInfo.CreatedAt).Seconds(), 'f', 0, 64)
+		stageMap["error"] = stageInfo.FailReason
 		actionList, err := getSequenceActionInfo(namespace, repository, stageInfo.Workflow, stageInfo.Sequence, stageInfo.ID)
 		if err != nil {
 			log.Error("[workflow's getSequenceStageInfo]:error when get sequence's action list:", err.Error())
@@ -551,6 +562,7 @@ func getSequenceActionInfo(namespace, repository string, workflow, sequence, sta
 		actionMap["runTime"] = strconv.FormatFloat(actionInfo.UpdatedAt.Sub(actionInfo.CreatedAt).Seconds(), 'f', 0, 64)
 		actionMap["isStartWorkflow"] = len(linkStartWorkflows) > 0
 		actionMap["startWorkflowResult"] = runResult
+		actionMap["error"] = actionInfo.FailReason
 
 		result = append(result, actionMap)
 	}
