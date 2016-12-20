@@ -417,6 +417,15 @@ func GetWorkflowSequenceList(namespace, repository, workflow, version string, ve
 		sequenceMap["runResult"] = workflowInfo.RunState
 		sequenceMap["date"] = workflowInfo.CreatedAt.Format("2006-01-02")
 		sequenceMap["time"] = workflowInfo.CreatedAt.Format("15:04")
+		if workflowInfo.PreWorkflow != 0 {
+			preWorkflow := new(models.WorkflowLog)
+			err := preWorkflow.GetWorkflowLog().Where("id = ?", workflowInfo.PreWorkflow).First(&preWorkflow).Error
+			if err != nil {
+				log.Error("[workflow's GetWorkflowSequenceList]:error when get preworkflow info from db:", err.Error())
+			} else {
+				sequenceMap["startWorkflowName"] = preWorkflow.Workflow
+			}
+		}
 		stageList, err := getSequenceStageInfo(namespace, repository, workflowInfo.ID, workflowInfo.Sequence)
 		if err != nil {
 			log.Error("[workflow's GetWorkflowSequenceList]:error when get sequence's stage list:", err.Error())
