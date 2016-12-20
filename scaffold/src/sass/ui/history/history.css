@@ -8,7 +8,8 @@
   background: #E9EAEA;
 }
 .bg-stage {
-  background: #EFEFEF;
+  background: #f7f7f7;
+  /* background: #EFEFEF; */
 }
 .bg-fail {
   background: #e60012;
@@ -389,19 +390,27 @@
   top: 1rem;
   font-size: 3rem;
 }
+#startedRecords .close:hover,#startedRecords .close:focus {
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+  opacity: 0.9;
+  filter: alpha(opacity=90);
+}
 #startedRecords .breadcrumbs {
   margin-bottom: 3rem;
   font-size: 18px;
   border-bottom: 2px solid #217CA6;
   padding-left: 1rem;
-  color: #217CA6;
+  color: #fff;
+  /* color: #217CA6; */
 }
 #startedRecords .item-record {
   overflow: hidden;
 }
 #startedRecords .workflow-name {
   width: 120px;
-  margin-top: 10px;
+  margin-top: 17px;
   float: left;
 }
 
@@ -479,8 +488,9 @@
   line-height: 30px;
   padding: 10px;
   font-size: 18px;
+  font-weight: 500;
   position: relative;
-  border-bottom: 2px solid #999;
+  border-bottom: 2px solid #d9d9d9;
 }
 #historyList .title .extend {
   top: 30%;
@@ -490,8 +500,8 @@
   line-height: 16px;
 }
 #historyList .title img {
-  width: 30px;
-  height: 30px;
+  width: 20px;
+  height: 20px;
   margin-right: 8px;
 }
 #historyList .title img.extend-icon  {
@@ -521,8 +531,14 @@
 }
 
 #startedRecords{
-  /*background: #fdfdfd;*/
-  border: 2px solid #fff;
-  box-shadow: 0 0 20px 0 rgba(255,255,255,.8);
+  background: rgba(0,0,0,.85);
+  border: 2px solid #cccaca;
+  box-shadow: 0 0 20px 0 rgba(0,0,0,.8);
+  margin-bottom:6rem;
+}
+.record-info {
+  background:#fff;
+  padding:8px 8px 8px 20px;
+  border-radius: 4px;
 }
 /* vi change end */
