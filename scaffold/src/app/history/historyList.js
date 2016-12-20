@@ -200,19 +200,18 @@ function renderSequences(workflowName,workflowId,version,sequences) {
 
 			var arr = s.date.split('-');
 
-			var time='<div class="time">'+
-						      '<img src="../../assets/images/preworkflow.png" class="year">'+
-						      '<span class="date">'+arr[1]+'-'+arr[2]+'</span>'+
-						      '<span class="hour">'+s.time+'</span>'+
-						    '</div>';
-
 			var startedWorkflowName = '';
 
 			if(s.startWorkflowName){
-				startedWorkflowName = '<div class="start-workflow-name">'+
-										'<img src="../../assets/images/icon-goworkflow.png" title="'+s.startWorkflowName+'"/>'+
-									'</div>'
+				startedWorkflowName = '<img src="../../assets/images/preworkflow.png" class="year" title="'+s.startWorkflowName+'">';
 			}
+
+			var time='<div class="time">'+
+				      startedWorkflowName+
+				      '<span class="date">'+arr[1]+'-'+arr[2]+'</span>'+
+				      '<span class="hour">'+s.time+'</span>'+
+				    '</div>';
+
 
 			var stages = '<div class="stages '+isStagesBg+'">';
 
@@ -269,7 +268,7 @@ function renderSequences(workflowName,workflowId,version,sequences) {
 
 			stages+='</div>';
 
-			recordItem=recordItem+time+startedWorkflowName+stages;
+			recordItem=recordItem+time+stages;
 			recordItem+='</div>';
 		})
 
@@ -455,10 +454,17 @@ function renderStartedWorkflows(workflows,selector){
 		var isBorder = i%2===0? '':'border-record ';
 		recordItem += '<div class="item-record '+isBorder+'">';
 		var workflowName = '<div class="workflow-name">'+s.workflowName+'：</div>';
+
+		var startedWorkflowName = '';
+
+		if(s.startWorkflowName){
+			startedWorkflowName = '<img src="../../assets/images/preworkflow.png" class="year" title="'+s.startWorkflowName+'">';
+		}
+
 		var arr = s.date.split('-');
 
 		var time='<div class="time">'+
-					      '<img src="../../assets/images/preworkflow.png" class="year">'+
+					      startedWorkflowName+
 					      '<span class="date">'+arr[1]+'-'+arr[2]+'</span>'+
 					      '<span class="hour">'+s.time+'</span>'+
 					    '</div>';
