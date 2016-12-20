@@ -213,13 +213,14 @@ func GetWorkflowInfo(namespace, repository, workflowName string, workflowId int6
 	resultMap["lineList"] = make([]map[string]interface{}, 0)
 
 	resultMap["setting"] = map[string]interface{}{
-		"runningInstances": map[string]interface{}{
-			"available": false,
-			"number":    10},
-		"timedTasks": map[string]interface{}{
-			"available": false,
-			"tasks":     make([]interface{}, 0),
-		}}
+		"data": map[string]interface{}{
+			"runningInstances": map[string]interface{}{
+				"available": false,
+				"number":    10},
+			"timedTasks": map[string]interface{}{
+				"available": false,
+				"tasks":     make([]interface{}, 0),
+			}}}
 
 	resultMap["status"] = false
 
