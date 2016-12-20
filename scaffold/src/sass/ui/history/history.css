@@ -334,10 +334,10 @@
   width: 25px;
 }
 #historyMap .status-map img {
-  width: 25px;
+  width: 20px;
 }
 #historyMap .time-map img {
-  width: 50px;
+  width: 40px;
 }
 #historyMap .status-map .map-lt {
   text-align: right;
@@ -389,6 +389,9 @@
   right: 1.5rem;
   top: 1rem;
   font-size: 3rem;
+  text-shadow: 0 1px 10px #fff;
+  opacity: 0.5;
+  filter: alpha(opacity=50);
 }
 #startedRecords .close:hover,#startedRecords .close:focus {
   color: #fff;
@@ -540,5 +543,6 @@
   background:#fff;
   padding:8px 8px 8px 20px;
   border-radius: 4px;
+  margin-bottom: 10px;
 }
 /* vi change end */
