@@ -118,6 +118,9 @@ function initTimedTasks(){
 }
 
 function showTimedTasks(){
+	var x = window.scrollX;
+	var y = window.scrollY;
+
 	$("#timed-tasks-div").empty();
     _.each(setting.timedTasks.tasks,function(task,index){
         var row = `<div class="timed-task-row" data-index="`+ index +`">`;
@@ -193,6 +196,7 @@ function showTimedTasks(){
     	var index = $(event.currentTarget).parent().parent().data("index");
     	setting.timedTasks.tasks[index].byDesigner = false;
     	setting.timedTasks.tasks[index].cronEntry = "";
+    	setting.timedTasks.tasks[index].collapse = false;
     	showTimedTasks();
     });
 
@@ -200,6 +204,7 @@ function showTimedTasks(){
     	var index = $(event.currentTarget).parent().parent().data("index");
     	setting.timedTasks.tasks[index].byDesigner = true;
     	setting.timedTasks.tasks[index].cronEntry = "* * * * *";
+    	setting.timedTasks.tasks[index].collapse = false;
     	showTimedTasks();
     });
 
@@ -208,6 +213,8 @@ function showTimedTasks(){
 		setting.timedTasks.tasks[index].cronEntry = $(event.currentTarget).val();
 		$(event.currentTarget).parent().parent().find(".cron-val").text(setting.timedTasks.tasks[index].cronEntry);
     });
+
+    window.scrollTo(x,y);
 }
 
 function addTimedTask(){
