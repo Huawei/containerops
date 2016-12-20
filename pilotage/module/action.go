@@ -20,10 +20,10 @@ import (
 const (
 	ActionStopReasonTimeout = "TIME_OUT"
 
-	ActionStopReasonSendDataFailed = "SendDataFailed"
+	ActionStopReasonSendDataFailed = "SEND_DATA_FAILED"
 
-	ActionStopReasonRunSuccess = "RunSuccess"
-	ActionStopReasonRunFailed  = "RunFailed"
+	ActionStopReasonRunSuccess = "ACTION_RUN_SUCCESS"
+	ActionStopReasonRunFailed  = "ACTION_RUN_FAILED"
 )
 
 var (
