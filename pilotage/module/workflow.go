@@ -142,7 +142,7 @@ func GetWorkflowListByNamespaceAndRepository(namespace, repository string) ([]ma
 
 				latestWorkflowLog := new(models.WorkflowLog)
 				err := latestWorkflowLog.GetWorkflowLog().Where("from_workflow = ?", workflowVersion.ID).Order("-id").First(latestWorkflowLog).Error
-				if err != nil {
+				if err != nil && err.Error() == "record not found" {
 					log.Error("[workflow's GetWorkflowListByNamespaceAndRepository]:error when get workflow's latest run info:", err.Error())
 				}
 
