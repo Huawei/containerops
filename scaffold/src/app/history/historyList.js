@@ -141,13 +141,14 @@ function renderWorkflows(workflows,selector) {
 		var isIn = i===0? 'in':'';
 		var isExtend = i===0?' extended ':'';
 		var extendImg = i===0?'assets/images/icon-extend.png':'assets/images/icon-collapse.png';
+		var dataset = 'data-workflowname="'+w.workflowName+'" data-workflowid="'+w.workflowId+'"';
 
 		workflow += '<div class="item">'+
 									'<div class="title">'+
 								    '<img src="assets/images/icon-workflow.png"/>'+
 								    '<span>'+w.workflowName+'</span>'+
-								    '<a href="#'+w.workflowName+'" data-toggle="collapse" class="extend">'+
-								      '<img src="'+extendImg+'" class="extend-icon '+isExtend+hasWorkflow+'" data-workflowname="'+w.workflowName+'" data-workflowid="'+w.workflowId+'" >'+
+								    '<a href="#'+w.workflowName+'" data-toggle="collapse" class="extend" '+dataset+'>'+
+								      '<img src="'+extendImg+'" class="extend-icon '+isExtend+hasWorkflow+'" '+dataset+'>'+
 								    '</a>'+
 								  '</div>'+
 								  '<div id="'+w.workflowName+'" class="collapse version-tab '+isIn+'">'+
@@ -156,7 +157,7 @@ function renderWorkflows(workflows,selector) {
 	});
 	
 	$(selector).append(workflow);
-	addWorkflowEvent()
+	addWorkflowEvent();
 }
 
 function renderVersions(versions,selector) {
@@ -223,8 +224,10 @@ function renderSequences(workflowName,workflowId,version,sequences) {
 					stageResult = stageColor[st.runResult];
 				}
 
+				var error = st['error'] ? 'title="'+st['error']+'"': '';
+
 				var stagesItem = '<div class="item-stage">'+
-	            						'<h5 class="stage-name '+stageResult+'"></h5>';
+	            						'<h5 class="stage-name '+stageResult+'" '+error+'></h5>';
 				var actions = '';
 
 				if(st.actions.length>0){
@@ -397,26 +400,27 @@ function getRunTimeColor(stage,range){
 }
 
 function addWorkflowEvent(){
-	$('.extend>img').on('click',function(){
-		var extended = $(this).hasClass('extended');
-		if(extended){
-			$(this).removeClass('extended');
-			$(this).attr('src','assets/images/icon-collapse.png');
-		}else{
-			$(this).addClass('extended');
-			$(this).attr('src','assets/images/icon-extend.png');
-		}
+	$('.extend').on('click',function(){
 		var dataset = $(this)[0].dataset;
 		var workflowName = dataset.workflowname;
 		var workflowId = dataset.workflowid;
-		isGetVersions(workflowName,workflowId,$(this));
+		var $selector = $(this).find('img');
+		isGetVersions(workflowName,workflowId,$selector);
 	})
 }
 
-function isGetVersions (workflowName,workflowId,selector){
-	var hasWorkflow = $(selector).hasClass('hasWorkflow');
+function isGetVersions (workflowName,workflowId,$selector){
+	var extended = $selector.hasClass('extended');
+	if(extended){
+		$selector.removeClass('extended');
+		$selector.attr('src','assets/images/icon-collapse.png');
+	}else{
+		$selector.addClass('extended');
+		$selector.attr('src','assets/images/icon-extend.png');
+	}
+	var hasWorkflow = $selector.hasClass('hasWorkflow');
 	if(!hasWorkflow){
-		$(selector).addClass('hasWorkflow');
+		$selector.addClass('hasWorkflow');
 		getVersions(workflowName,workflowId)
 	}
 }
@@ -448,7 +452,7 @@ function rendStartedActionInfo(workflowName,versionName,stageName,actionName,sel
 
 function renderStartedWorkflows(workflows,selector){
 	var recordItem = '';
-	var records = '<div class="record-info">';
+	var records = '';
 	workflows.map(function(s,i){
 		var isStagesBg = i%2===0?'bg-stage':'';
 		var isBorder = i%2===0? '':'border-record ';
@@ -479,8 +483,9 @@ function renderStartedWorkflows(workflows,selector){
 				stageResult = stageColor[st.runResult];
 			}
 
+			var error = st['error'] ? 'title="'+st['error']+'"': '';
 			var stagesItem = '<div class="item-stage">'+
-            						'<h5 class="stage-name '+stageResult+'"></h5>';
+            						'<h5 class="stage-name '+stageResult+'" '+error+'></h5>';
 			var actions = '';
 
 			if(st.actions.length>0){
