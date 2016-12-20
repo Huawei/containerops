@@ -300,6 +300,11 @@ func Run(workflowId int64, authMap map[string]interface{}, startData string) (*W
 		log.Error("[workflow's Run]:error when get workflow's info from db:", err.Error())
 		return nil, errors.New("error when get target workflow info:" + err.Error())
 	}
+
+	if workflowInfo.State == models.WorkflowStateDisable {
+		return nil, errors.New("workflow is not run able")
+	}
+
 	workflow := new(Workflow)
 	workflow.Workflow = workflowInfo
 
@@ -347,8 +352,6 @@ func GetWorkflowList(namespace, repository string, page, prePageCount int64, fil
 		filter = "%" + filter + "%"
 	}
 
-	db := new(models.WorkflowLog).GetWorkflowLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("workflow like ?", filter).Order("-id").Group("workflow")
-
 	workflowList := make([]models.WorkflowLog, 0)
 	err := models.GetDB().Raw("SELECT * FROM (SELECT * FROM workflow_log WHERE `workflow_log`.deleted_at IS NULL AND workflow like ? AND workflow_log.namespace = ? AND workflow_log.repository = ? ORDER BY id DESC) i GROUP BY i.workflow LIMIT ? OFFSET ?", filter, namespace, repository, prePageCount, (page-1)*prePageCount).Scan(&workflowList).Error
 	if err != nil && err.Error() != "record not found" {
@@ -356,8 +359,10 @@ func GetWorkflowList(namespace, repository string, page, prePageCount int64, fil
 		return nil, errors.New("error when get workflow list")
 	}
 
-	count := int64(0)
-	err = db.Count(&count).Error
+	count := new(struct {
+		Count int64
+	})
+	err = models.GetDB().Raw("select count(distinct(workflow)) as count from workflow_log where deleted_at IS NULL and namespace = ? and repository = ? and workflow like ?", namespace, repository, filter).Scan(count).Error
 	if err != nil && err.Error() != "sql: no rows in result set" {
 		log.Error("[workflow's GetWorkflowList]:error when count workfow num from db:", err.Error())
 		return nil, errors.New("error when get workflow list")
@@ -372,7 +377,7 @@ func GetWorkflowList(namespace, repository string, page, prePageCount int64, fil
 		workflows = append(workflows, tempMap)
 	}
 
-	result["totalWorkflows"] = count
+	result["totalWorkflows"] = count.Count
 	result["workflows"] = workflows
 
 	return result, nil
@@ -401,6 +406,10 @@ func GetWorkflowVersionList(namespace, repository, workflow string, workflowID i
 
 func GetWorkflowSequenceList(namespace, repository, workflow, version string, versionID, sum int64) ([]map[string]interface{}, error) {
 	result := make([]map[string]interface{}, 0)
+
+	if sum < 1 || sum < 100 {
+		sum = 10
+	}
 
 	workflows := make([]models.WorkflowLog, 0)
 	err := new(models.WorkflowLog).GetWorkflowLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("workflow = ?", workflow).Where("version = ?", version).Where("run_state > ?", 1).Order("-updated_at").Limit(int(sum)).Find(&workflows).Error
@@ -1057,6 +1066,10 @@ func (workflow *Workflow) updateTimerTask(taskMap map[string]interface{}) error 
 				if !ok {
 					log.Error("[workflow's updateTimerTask]:error when get cronEntry:want a string, got:", taskMap["cronEntry"])
 					continue
+				}
+
+				if len(strings.Split(cron, " ")) == 5 {
+					cron = "0 " + cron
 				}
 
 				eventName, ok := taskMap["eventName"].(string)
