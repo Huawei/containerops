@@ -21,7 +21,7 @@ import { notify } from "../common/notify";
 import { getActionHistory } from "./actionHistory";
 import { getContainerLogs } from "./actionHistory";
 import { getLineHistory } from "./lineHistory";
-import { getHistoryList,addFilterWorklowEvent } from "./historyList";
+import { getHistoryList,addFilterWorklowEvent,getSequenceNum } from "./historyList";
 import {changeCurrentElement} from "../common/util";
 import * as sequenceUtil from "./initUtil";
 
@@ -42,6 +42,7 @@ function getHistory(keywords,filterType) {
         success: function(data) {
             $("#main").html($(data));
             addFilterWorklowEvent();
+            getSequenceNum();
             getHistoryList(keywords,filterType);
         }
     });

@@ -34,8 +34,9 @@ var workflowDialog = '#workflowDialog';
 var breadcrumbs = '#infos .breadcrumbs';
 var workflowSearch = '#historyMap .search';
 var antistop = '#historyMap .keywords';
-var summaryWidth = $(historyList).width() - sequencePad * 3 *2;
-var sequenceNum = Math.floor(summaryWidth / (sequenceWidth + sequenceMargin));
+var summaryWidth = '';
+var sequenceNum = 10;
+console.log(sequenceNum)
 
 var resUrl = {
 	"workflow":"/v2/demo/demo/workflow/v1/history/workflow/list",
@@ -57,6 +58,11 @@ var versions = [];
 var sequences = [];
 var currentStartedWorkflows = [];
 var filterWorkflow = '';
+
+export function getSequenceNum(){
+	summaryWidth = $(historyList).width() - sequencePad * 3 *2;
+	sequenceNum = summaryWidth ? Math.floor(summaryWidth / (sequenceWidth + sequenceMargin)): sequenceNum;
+}
 
 export function getHistoryList(keywords,filterType){
 	getWorkflows(currentPage,workflowNum,isInitPages,keywords,filterType);
