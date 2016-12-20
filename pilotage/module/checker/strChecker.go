@@ -10,7 +10,7 @@ type strChecker struct {
 }
 
 func (checker *strChecker) Support(eventMap map[string]string) bool {
-	if eventMap["sourceType"] == "gitlab" {
+	if eventMap["sourceType"] == "gitlab" || eventMap["sourceType"] == "github" {
 		return true
 	}
 
@@ -20,7 +20,7 @@ func (checker *strChecker) Support(eventMap map[string]string) bool {
 func (checker *strChecker) Check(eventMap map[string]string, expectedToken string, reqHeader http.Header, reqBody []byte) (bool, error) {
 	passCheck := false
 
-	if eventMap["sourceType"] != "gitlab" {
+	if eventMap["sourceType"] != "gitlab" && eventMap["sourceType"] != "github" {
 		passCheck = false
 		return passCheck, errors.New("strChecker doesn't support type:" + eventMap["sourceType"])
 	}
@@ -30,7 +30,15 @@ func (checker *strChecker) Check(eventMap map[string]string, expectedToken strin
 		if strings.Contains(string(reqBody), `"action":"open"`) {
 			passCheck = true
 		}
+	case "pull_request":
+		if strings.Contains(string(reqBody), `"action":"opened"`) {
+			passCheck = true
+		}
 	}
 
-	return passCheck, nil
+	if passCheck {
+		return passCheck, nil
+	}
+
+	return passCheck, errors.New("strChecker failed")
 }

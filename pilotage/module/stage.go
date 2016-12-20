@@ -48,6 +48,29 @@ const (
 var (
 	stagelogAuthChan   chan bool
 	stagelogListenChan chan bool
+	allEventMap        = map[string]map[string]string{
+		"github": map[string]string{
+			"Create":                   "create",
+			"Delete":                   "delete",
+			"Deployment":               "deployment",
+			"DeploymentStatus":         "deployment_status",
+			"Fork":                     "fork",
+			"Gollum":                   "gollum",
+			"IssueComment":             "issue_comment",
+			"Issues":                   "issues",
+			"Member":                   "member",
+			"PageBuild":                "page_build",
+			"Public":                   "public",
+			"PullRequest":              "pull_request",
+			"PullRequestReview":        "pull_request_review",
+			"PullRequestReviewComment": "pull_request_review_comment",
+			"Push":       "push",
+			"Release":    "release",
+			"Repository": "repository",
+			"Status":     "status",
+			"TeamAdd":    "team_add",
+			"Watch":      "watch"},
+		"gitlab": map[string]string{}}
 )
 
 type Stage struct {
@@ -148,6 +171,10 @@ func CreateNewStage(db *gorm.DB, preStageId int64, workflowInfo *models.Workflow
 				eventType, ok := sourceInfoMap["event"].(string)
 				if !ok {
 					continue
+				}
+
+				if sourceType == "github" {
+					eventType = allEventMap[sourceType][eventType]
 				}
 
 				if _, ok := allSourceMap[sourceType].(map[string]bool); !ok {
