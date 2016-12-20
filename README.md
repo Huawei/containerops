@@ -9,9 +9,9 @@ ContainerOps is a container-based DevOps orchestration platform. It comprises an
 
 ### Concept - Component 
 
-A DevOps function developed in any programming language like Bash, Golang, Python or C++ could encapsulate as a containerized DevOps component. This guarantee that the DevOps task always run the same, regardless of its environment. Moreover, the developers do not care the resource of running components, and the orchestration engine use Kubernetes run them. It is more easily use than scripts and share. We are working on a component registry to invigorate the community. The registry will release in Q1, 2017 at https://opshub.sh. 
+A DevOps function developed in any programming languages like Bash, Golang, Python or C++ could be encapsulated as a containerized DevOps Component. This guarantees that the DevOps task always runs at the same way, regardless of its environment. Moreover, the developers do not care the resource of running Components, and the Orchestration Engine uses Kubernetes to run them. It is more easy to use and share than scripts. We are working on a Component Registry to invigorate the community. The Registry will release in Q1, 2017 at https://opshub.sh. 
 
-The component has a set of environment variables. Some variables value is JSON data, and they are the input values which are the dependency of the component running. Some variables value is REST API URL, the program post data to interact with orchestration engine.
+The Component has a set of environment variables. Some variables value is JSON data, and they are the input values which are the dependency of the running component . Some variables value is REST API URL, the program posts data to interact with Orchestration Engine.
 
 ### Concept - Event
 
