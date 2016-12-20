@@ -47,7 +47,7 @@
   background: #f8b62b;
 }
 .border-record {
-  border: 1px solid #d7d7d7;
+  /*border: 1px solid #d7d7d7;*/
 }
 .bord-action {
   border: 2px solid #f7ab00;
@@ -169,13 +169,11 @@
 #historyList .year, 
 #startedRecords .year {
   position: absolute;
-  top: -7px;
-  left: -9px;
+  top: -12px;
+  left: -10px;
   z-index: 10000;
-  padding: 1px 3px;
-  background: #000;
-  color: #fff;
-  border-radius: 3px;
+  width: 24px;
+  max-height: 24px;
 }
 #historyList .date,
 #historyList .hour,
