@@ -300,6 +300,11 @@ func Run(workflowId int64, authMap map[string]interface{}, startData string) (*W
 		log.Error("[workflow's Run]:error when get workflow's info from db:", err.Error())
 		return nil, errors.New("error when get target workflow info:" + err.Error())
 	}
+
+	if workflowInfo.State == models.WorkflowStateDisable {
+		return nil, errors.New("workflow is not run able")
+	}
+
 	workflow := new(Workflow)
 	workflow.Workflow = workflowInfo
 
