@@ -156,27 +156,45 @@
 #historyList .item-record {
   overflow: hidden;
 }
-#historyList .time {
+#historyList .time,
+#startedRecords .time {
   margin-right: 20px;
   width: 60px;
-  margin-top: 5px;
+  margin-top: 10px;
   text-align: center;
   float: left;
+  position: relative;
+  font-size: 12px;
+}
+#historyList .year, 
+#startedRecords .year {
+  position: absolute;
+  top: -7px;
+  left: -9px;
+  z-index: 10000;
+  padding: 1px 3px;
+  background: #000;
+  color: #fff;
+  border-radius: 3px;
 }
 #historyList .date,
-#historyList .hour {
+#historyList .hour,
+#startedRecords .date,
+#startedRecords .hour {
   width: 100%;
   height: 20px;
   line-height: 20px;
   display: block;
 }
-#historyList .date {
+#historyList .date,
+#startedRecords .date {
   background: #E9EAEA;
   border: 1px solid #E9EAEA;
-  border-radius: 3px 0 0 3px;
+  border-radius: 3px 3px 0 0;
 }
-#historyList .hour {
-  border-radius: 0 3px 3px 0;
+#historyList .hour,
+#startedRecords .hour {
+  border-radius: 0 0 3px 3px;
   border: 1px solid #E9EAEA;
 }
 #historyList .stages {
@@ -388,34 +406,13 @@
   margin-top: 10px;
   float: left;
 }
-#startedRecords .time {
-  margin-right: 20px;
-  width: 140px;
-  margin-top: 10px;
-  float: left;
-}
-#startedRecords .date,
-#startedRecords .hour {
-  padding: 4px 7px;
-}
-
-#startedRecords .date {
-  background: #E9EAEA;
-  border: 1px solid #E9EAEA;
-  border-radius: 3px 0 0 3px;
-}
-
-#startedRecords .hour {
-  border-radius: 0 3px 3px 0;
-  border: 1px solid #E9EAEA;
-}
 
 #startedRecords .stages {
   padding: 10px 10px 5px;
-  width: calc(100% - 280px);
-  width: -webkit-calc(100% - 280px);
+  width: calc(100% - 200px);
+  width: -webkit-calc(100% - 200px);
   float: left;
-  min-height: 50px;
+  min-height: 55px;
 }
 
 #startedRecords .item-stage {
@@ -515,7 +512,7 @@
 }
 #historyList .stages {
   padding: 5px 20px;
-  min-height: 50px;
+  min-height: 55px;
 }
 
 #historyList .tab-content > .tab-pane{
