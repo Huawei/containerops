@@ -435,6 +435,7 @@ func GetWorkflowSequenceList(namespace, repository, workflow, version string, ve
 		sequenceMap["runResult"] = workflowInfo.RunState
 		sequenceMap["date"] = workflowInfo.CreatedAt.Format("2006-01-02")
 		sequenceMap["time"] = workflowInfo.CreatedAt.Format("15:04")
+		sequenceMap["error"] = workflowInfo.FailReason
 		if workflowInfo.PreWorkflow != 0 {
 			preWorkflow := new(models.WorkflowLog)
 			err := preWorkflow.GetWorkflowLog().Where("id = ?", workflowInfo.PreWorkflow).First(&preWorkflow).Error
@@ -512,6 +513,7 @@ func getSequenceStageInfo(namespace, repository string, workflow, sequence int64
 		stageMap["isTimeout"] = stageInfo.FailReason == StageStopReasonTimeout
 		stageMap["timeout"] = stageInfo.Timeout
 		stageMap["runTime"] = strconv.FormatFloat(stageInfo.UpdatedAt.Sub(stageInfo.CreatedAt).Seconds(), 'f', 0, 64)
+		stageMap["error"] = stageInfo.FailReason
 		actionList, err := getSequenceActionInfo(namespace, repository, stageInfo.Workflow, stageInfo.Sequence, stageInfo.ID)
 		if err != nil {
 			log.Error("[workflow's getSequenceStageInfo]:error when get sequence's action list:", err.Error())
@@ -560,6 +562,7 @@ func getSequenceActionInfo(namespace, repository string, workflow, sequence, sta
 		actionMap["runTime"] = strconv.FormatFloat(actionInfo.UpdatedAt.Sub(actionInfo.CreatedAt).Seconds(), 'f', 0, 64)
 		actionMap["isStartWorkflow"] = len(linkStartWorkflows) > 0
 		actionMap["startWorkflowResult"] = runResult
+		actionMap["error"] = actionInfo.FailReason
 
 		result = append(result, actionMap)
 	}
