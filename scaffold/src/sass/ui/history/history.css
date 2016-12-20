@@ -199,8 +199,8 @@
 }
 #historyList .stages {
   padding: 5px 10px;
-  width: calc(100% - 140px);
-  width: -webkit-calc(100% - 140px);
+  width: calc(100% - 80px);
+  width: -webkit-calc(100% - 80px);
   float: left;
 }
 #historyList .item-stage {
