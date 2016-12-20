@@ -5,7 +5,7 @@ There are countless tools, projects, plugins, services adopted in the DevOps wor
 
 ### ContainerOps is a DevOps orchestration platform with the container technology.
 
-ContainerOps is DevOps orchestration platform with the container. It has an engine orchestrating tools, components or services, and running with Kubernetes. ContainerOps provides tools encapsulate plugins or any programs into a container, and a set of environment variables used for interaction with the engine. We call this container included DevOps task is component. All components running in the Kubernetes, and the lifestyle managed by the engine. At the same time, the engine integrated with DevOps services like Github or Travis CI, and interacted with them through REST API. The ContainerOps designed for cloud native App development and running within container cluster.
+ContainerOps is a container-based DevOps orchestration platform. It comprises an Orchestration Engine, couple of Components or Services, which are all running in the Kubernetes cluster. ContainerOps provides a serials of tools encapsulating plugins or any programing languages into a container,  a sort of mechanism for interaction with Orchestration Engine by environment variables. We call this specific Container including DevOps task as Component. The lifecycle of all Components  is managed by the Orchestration Engine. At the same time, the Engine can be integrated with  the third-party DevOps services like Github or Travis CI, and interacts with them via REST API. The ContainerOps is designed for Cloud-Native App development and deployment within Kubernetes cluster.
 
 ### Concept - Component 
 
