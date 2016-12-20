@@ -28,7 +28,7 @@ import * as sequenceUtil from "./initUtil";
 var filterType = 'fuzzy';
 export function initHistoryPage() {
     var type = arguments.length===0 ? 'fuzzy': 'exact';
-    var keywords = arguments.length===0 ? '-1': arguments[0];
+    var keywords = arguments.length===0 ? '': arguments[0];
     clearTimeout(timer);
     setFilterType(type);
     getHistory(keywords,filterType);  
