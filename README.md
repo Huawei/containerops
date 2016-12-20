@@ -29,15 +29,15 @@ However, the engine could not merge the conflict events mapping. It shows all co
 
 ### Concept - Workflow
 
-Usually, we define different stages in the DevOps orchestration. The stage is the phase of DevOps workflow, and the developer could define any number of the stage according to organizational structure, project property, programming language, other factors. How define stage is a philosophy, you should define follow the best practices in DevOps.
+Usually, We define different stages in the DevOps orchestration. The stage is the phase of DevOps workflow, and the developer could define any amounts of the stages according to organization structure, project property, programming language, other factors. How to define stages is a philosophy, you should define them follow the best practices in DevOps.
 
-The ContainerOps define any task on stage named action. The action links the component or a service. All tasks of stage execute at the same time, and the events deliver to actions of another stage.
+The ContainerOps defines any task on stages as action. The action links the Components or Services. All tasks of the same stage execute at the same time, and the events are delivered to the actions of subsequent stage.
 
 ![Workflow Running](docs/images/workflow-running.gif)
 
 ### ContainerOps VS. Jenkins
 
-Jenkins need shell scripts and dependencies, and the developer should maintain the pipeline of jobs.  The component of ContainerOps is easily maintaining.
+Jenkins needs shell scripts and dependencies, and the developer should maintain the pipeline of jobs.  The Component of ContainerOps is easily maintained.
 
 ### ContainerOps VS. Travis CI And Other Hosted Offering 
 
