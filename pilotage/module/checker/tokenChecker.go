@@ -4,6 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/hex"
+	"errors"
 	"net/http"
 )
 
@@ -27,7 +28,7 @@ func (checker *tokenChecker) Check(eventMap map[string]string, expectedToken str
 			passCheck = true
 		}
 	case "github":
-		mac := hmac.New(sha1.New, []byte(eventMap["token"]))
+		mac := hmac.New(sha1.New, []byte(expectedToken))
 		mac.Write(reqBody)
 		expectedMAC := mac.Sum(nil)
 		expectedSig := "sha1=" + hex.EncodeToString(expectedMAC)
@@ -36,5 +37,10 @@ func (checker *tokenChecker) Check(eventMap map[string]string, expectedToken str
 			passCheck = true
 		}
 	}
-	return passCheck, nil
+
+	if passCheck {
+		return passCheck, nil
+	}
+
+	return passCheck, errors.New("token checker failed")
 }
