@@ -15,15 +15,15 @@ The component has a set of environment variables. Some variables value is JSON d
 
 ### Concept - Event
 
-There is a special environment variable named CO_DATA, the value is JSON data. When the developer designs a component, customize the JSON what's the component running requirements. The JSON data is the component input event. The CO_DATA is not the only environment variable which provides input data, and the developer set any global environment variables for all elements of workflow could read or write.
+There is a special environment variable named CO_DATA, the value is JSON data. When the developer designs a Component, customize the JSON what's the component running requirements. The JSON data is the Component input event. The CO_DATA is not only the environment variable which provides input data, and the developer set any global environment variables for all elements of workflow could read or write.
 
-There is another special environment variable named CO_TASK_RESULT, the value is REST API URL. When the developer designs the component, customize the output JSON data post to the URL in the HTTP body. The JSON data is the component output event.
+There is another special environment variable named CO_TASK_RESULT, the value is REST API URL. When the developer designs the Component, customize the output JSON data post to the URL in the HTTP body. The JSON data is the Component output event.
 
-Orchestration engine collects the input data and output data, and transfer from one or more output event to one input event. The developer designs the DevOps workflow, at the same time designs the component event flow by drag and draw. The engine map the one or more output JSON data to input JSON data of component automatically, the developer could change the mapping relation in the workflow designer.
+Orchestration Engine collects the input data and output data, and transfer from one or more outputs event to the input event. The developer designs the DevOps workflow, at the same time designs the Component event flow by drag and draw. The Engine maps  one or more output JSON data to input JSON data of Component automatically, the developer could change the mapping relation in the workflow designer.
 
 ![Event Linking](docs/images/event-link.jpg)
 
-However, the engine could not merge the conflict events mapping. It shows all conflicts, only remove this could be saved to run.
+However, the Engine could not merge the conflict events mapping. It shows all conflicts, only removing this could be saved to run.
 
 ![Event Conflict](docs/images/event-conflict.jpg)
 
