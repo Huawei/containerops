@@ -208,7 +208,7 @@
 }
 #historyList .stage-name,
 #historyMap .stage-name {
-  height: 2px;
+  height: 4px;
   width: 100%;
   margin-bottom: 4px;
 }
@@ -485,6 +485,9 @@
 #historyList .title .extend {
   top: 30%;
   right: 13px;
+  width: 20px;
+  height: 20px;
+  line-height: 16px;
 }
 #historyList .title img {
   width: 30px;
@@ -494,7 +497,7 @@
 #historyList .title img.extend-icon  {
   width: 20px;
   height: 20px;
-  margin-right: 8px;
+  margin-right: 0;
 }
 #historyList .version-tab .nav-tabs {
   border-bottom: 2px solid #DEDEDE;
