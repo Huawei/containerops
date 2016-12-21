@@ -15,10 +15,10 @@ limitations under the License.
  */
 
 import * as constant from "../common/constant";
-import { editLine } from "./editLine";
+// import { editLine } from "./editLine";
 import * as util from "../common/util";
-import * as initButton from "../workflow/initButton";
-import { makeFrontLayer, makeBackLayer } from "./lineHover";
+// import * as initButton from "../workflow/initButton";
+import { makeFrontLayer, makeBackLayer, clickWorkflowLine } from "./lineHover";
 /* draw real line between from node and to node */
 export function setPath(options) {
     var fromDom = $("#" + options.startData.id)[0].__data__;
@@ -53,21 +53,8 @@ export function setPath(options) {
         .attr("id", options.id)
         .style("cursor", "pointer")
         .on("click", function(d) {
-            this.parentNode.appendChild(this); // make this line to front layer
-            var self = $(this);
-            util.changeCurrentElement(constant.currentSelectedItem);
-            constant.setCurrentSelectedItem({ "data": self, "type": "line" });
-            initButton.updateButtonGroup("line");
-            d3.select(this).attr("stroke", "#81D9EC");
-            $.ajax({
-                url: "../../templates/relation/editLine.html",
-                type: "GET",
-                cache: false,
-                success: function(data) {
-                    editLine(data, self);
-                }
-            });
-        });
+            clickWorkflowLine(this);
+        })
 }
 
 export function getPathData(startPoint, endPoint) {
