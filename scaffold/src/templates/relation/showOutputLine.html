@@ -1,0 +1,28 @@
+<table class="table" style="table-layout:fixed;width:300px;">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Start</th>
+            <th>End</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% _.each(lines, function(line, index){ %>
+            <tr data-lineid="<%= line.id %>" class="output-line-tr">
+                <td style="width:10px;">
+                    <%= index %>
+                </td>
+                <td style="text-overflow:ellipsis; overflow:hidden;width:100px;">
+                    <% if(line.startData.type == 'workflow-start'){ %>
+                        <%= 'Start Stage' %>
+                            <% } else{ %>
+                                <%= line.startData.setupData.action ? line.startData.setupData.action.name : ""  %>
+                                    <% } %>
+                </td>
+                <td style="text-overflow:ellipsis; overflow:hidden;width:190px;">
+                    <%= line.endData.setupData.action ? line.endData.setupData.action.name : ""  %>
+                </td>
+            </tr>
+            <% }) %>
+    </tbody>
+</table>

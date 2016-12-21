@@ -17,7 +17,7 @@ limitations under the License.
 import * as constant from "../common/constant";
 import * as util from "../common/util";
 import { setPath } from "../relation/setPath";
-import { mouseoverRelevantWorkflow, mouseoutRelevantWorkflow } from "../relation/lineHover";
+import { mouseoverRelevantWorkflow, mouseoutRelevantWorkflow, showOutputLines } from "../relation/lineHover";
 import { dragDropSetPath } from "../relation/dragDropSetPath";
 
 export function initLine() {
@@ -93,6 +93,9 @@ export function initLine() {
                 .on("mouseout", function(cd, ci) {
                     mouseoutRelevantWorkflow(d);
                 })
+                // .on("click", function(cd, ci){
+                //     showOutputLines(d,i);
+                // })
 
         }
         /* draw line from action 2 stage and circle of action self to accept and emit lines  */

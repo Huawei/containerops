@@ -434,7 +434,7 @@ function jsonType(json){
 
 
 function dragDropLine(point){
-
+    
 	var offsetTop = $("#bipatiteLineSvg").offset().top;
 	var offsetLeft = $("#bipatiteLineSvg").offset().left;
 	var x1 = point[0]-offsetLeft+51;
@@ -456,6 +456,7 @@ function dragDropLine(point){
 		d3.select(".drag-drop-line")
 		.attr("d",d);
 	}
+    $("#removeLine").addClass("hide");
 
 }
 
