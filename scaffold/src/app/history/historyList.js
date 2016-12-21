@@ -458,7 +458,8 @@ function renderStartedWorkflows(workflows,selector){
 		var isStagesBg = i%2===0?'bg-stage':'';
 		var isBorder = i%2===0? '':'border-record ';
 		recordItem += '<div class="item-record '+isBorder+'">';
-		var workflowName = '<div class="workflow-name">'+s.workflowName+'：</div>';
+		var workflowName = s.workflowName.length>=15?s.workflowName.slice(0,15)+'...':s.workflowName;
+		var workflowName = '<div class="workflow-name">'+workflowName+'：</div>';
 
 		var startedWorkflowName = '';
 
