@@ -200,6 +200,7 @@
   padding: 5px 10px;
   width: calc(100% - 80px);
   width: -webkit-calc(100% - 80px);
+  overflow: auto;
   float: left;
 }
 #historyList .item-stage {
@@ -424,6 +425,7 @@
   width: -webkit-calc(100% - 200px);
   float: left;
   min-height: 55px;
+  overflow: auto;
 }
 
 #startedRecords .item-stage {

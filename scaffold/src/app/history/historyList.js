@@ -22,6 +22,7 @@ const sequenceWidth = 20;
 const sequenceHeight = 20;
 const sequencePad = 10;
 const sequenceMargin = 3;
+const stageMargin = 5;
 
 var currentPage = 1;
 var workflowNum = 10;
@@ -214,7 +215,7 @@ function renderSequences(workflowName,workflowId,version,sequences) {
 				    '</div>';
 
 
-			var stages = '<div class="stages '+isStagesBg+'">';
+			var stages = '<div class="stages '+isStagesBg+'"><div class="wrap">';
 
 			s.stages.map(function(st,i){
 				var stageResult = '';
@@ -269,7 +270,7 @@ function renderSequences(workflowName,workflowId,version,sequences) {
 				stages+=stagesItem;
 			})
 
-			stages+='</div>';
+			stages+='</div></div>';
 
 			recordItem=recordItem+time+stages;
 			recordItem+='</div>';
@@ -293,9 +294,22 @@ function renderSequences(workflowName,workflowId,version,sequences) {
 
 	$('#'+version.versionId).append(sequence);
 
+	resetWrapWidth();
 	addMoreEvent();
 	addStartWorkflowEvent(version);
 	addActionDetailEvent('#historyList .action-name');
+}
+
+function resetWrapWidth(){
+	$('.stages').each(function(index, el) {
+		var width = 0;
+		var $stage = $(this);
+		$stage.find('.item-stage').each(function(i,e){
+			var stageWidth = $(this).width()+ stageMargin;
+			width += stageWidth;
+		})
+		$stage.find('.wrap').css('width',width+'px');
+	});
 }
 
 function addMoreEvent(){
@@ -459,7 +473,7 @@ function renderStartedWorkflows(workflows,selector){
 		var isBorder = i%2===0? '':'border-record ';
 		recordItem += '<div class="item-record '+isBorder+'">';
 		var workflowName = s.workflowName.length>=15?s.workflowName.slice(0,15)+'...':s.workflowName;
-		var workflowName = '<div class="workflow-name">'+workflowName+'：</div>';
+		var workflowName = '<div class="workflow-name">'+workflowName+'</div>';
 
 		var startedWorkflowName = '';
 
@@ -475,7 +489,7 @@ function renderStartedWorkflows(workflows,selector){
 					      '<span class="hour">'+s.time+'</span>'+
 					    '</div>';
 
-		var stages = '<div class="stages '+isStagesBg+'">';
+		var stages = '<div class="stages '+isStagesBg+'"><div class="wrap">';
 
 		s.stages.map(function(st,i){
 			var stageResult = '';
@@ -529,7 +543,7 @@ function renderStartedWorkflows(workflows,selector){
 			stages+=stagesItem;
 		})
 
-		stages+='</div>';
+		stages+='</div></div>';
 
 		recordItem=recordItem+workflowName+time+stages;
 		recordItem+='</div>';
@@ -538,6 +552,7 @@ function renderStartedWorkflows(workflows,selector){
 	records=records+recordItem+'</div>';
 	$(selector).html(records);
 
+	resetWrapWidth();
 	addActionDetailEvent('#workflowDialog .action-name');
 }
 
