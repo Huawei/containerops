@@ -415,6 +415,7 @@
   width: 120px;
   margin-top: 17px;
   float: left;
+  overflow: hidden;
 }
 
 #startedRecords .stages {
