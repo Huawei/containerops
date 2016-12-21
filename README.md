@@ -2,11 +2,11 @@
 
 ### Why DevOps orchestration?
 
-There are many tools, projects, plugins, services adopted in the DevOps workflow. However, no one can cover all DevOps tasks. When developers move from one tool to another, they are facing the huge risk of investment. How should we promote the DevOps process and make iteration more speedy? The principle of DevOps orchestration is to keep your original process working without any changes and just assemble tools, projects, plugins, services into orchestration engine.  Improvements to the DevOps process through by adding or replacing tools, projects, plugins, services via orchestration engine without interrupting the process. DevOps needs a step by step promotion, and invasive change is dangerous. 
+There are many tools, projects, plugins, services adopted in the DevOps workflow. However, no one can cover all DevOps tasks. When developers move from one tool to another, they are facing the huge risk of reinvestment. How should we promote the DevOps process and make iteration more speedy? The principle of DevOps orchestration is to keep your original process working without any changes and just assemble tools, projects, plugins, services into orchestration engine. Improvements to the DevOps process can be done by gradually adding or replacing tools, projects, plugins or services for a smooth migration, and overall, DevOps needs to be promoted step by step, invasive changes are dangerous.
 
 ### ContainerOps is a DevOps orchestration platform with the container technology.
 
-ContainerOps is DevOps orchestration platform with the container. It has an engine orchestrating tools, components or services, and running with Kubernetes. ContainerOps provides tools encapsulate plugins or any programs into a container, and a set of environment variables used for interaction with the engine. We call this container included DevOps task is component. All components running in the Kubernetes, and the lifestyle managed by the engine. At the same time, the engine integrated with DevOps services like Github or Travis CI, and interacted with them through REST API. The ContainerOps designed for cloud native App development and running within container cluster.
+ContainerOps is a DevOps orchestration platform built with containers. It has an orchestrating engine to drive components or services, and runs on Kubernetes. ContainerOps provides tools to encapsulate plugins or any programs into a container, and a set of environment variables are used for interaction with the engine. We call this container encapsulated DevOps task a component. All components run in Kubernetes, and the lifecycle of the tasks are managed by the engine. At the same time, the engine can be integrated with DevOps services like Github or Travis CI through REST API. The ContainerOps is designed for cloud native app development and runs within container cluster.
 
 ### Concept - Component 
 
@@ -38,11 +38,13 @@ The ContainerOps define any task on stage named action. The action links the com
 
 ### ContainerOps VS. Jenkins
 
-1. Jenkins servers become snowflakes. Maintain a DevOps workflow need past shell script into the textboxes of UI, upload and install multiple plugins, install dependencies in the slaves.The ContainerOps cloud clearly defines the DevOps workflow drawing and dragging. It uses the component endpoint URL and doesn't need to download and install. All dependencies already include in the component, doesn't need install.
+1. Jenkins servers become snowflakes. Maintaining a DevOps workflow needs pasting shell script into the textboxes of UI, uploading and installing multiple plugins and dependencies in the slaves. The ContainerOps could clearly define the DevOps workflow by drawing and dragging through a GUI IDE. It uses the component endpoint URLs and doesn't need to download and install. All dependencies are already self-contained in the component.
 
-2. Jenkins has no first class support for pipelines, and Jenkins 2.0 tries to address this by promoting a Pipeline plugins. However, it misses the point of DevOps. There are many tools and services throughout the whole DevOps process and each with the pipeline of their own. A pipeline does not resolve the split DevOps tools chain and difficult to pass the context in the whole workflow. These are the problems the ContainerOps want to resolve.
+2. Jenkins has no first class support for pipelines, and Jenkins 2.0 tries to address this by introducing a Pipeline plugins. However, it misses the point of DevOps. There are many tools and services throughout the whole Jenkins process and each has its own pipeline. With the cloud native app becomes more and more sophiscated, this increasing complexity makes tools to be isolated in the chain and finding a good way to pass context in the whole workflow becomes critical. These are the problems ContainerOps wants to resolve.
 
-3. Plugins accomplish everything you care about in Jenkins. The ContainerOps aims never to have plugins instead of with component. The component already has dependencies. The resources of running a component handle by ContainerOps engine through the Kubernetes.
+3. Plugins accomplish everything you care about in Jenkins, and plugin has dependencies on the environment. The ContainerOps use container-encapsulated components instead of plugins, and all dependencies have been self contained in the component. The resources of running a component is handle by the ContainerOps engine through Kubernetes.
+
+
 
 ## Certificate of Origin
 
