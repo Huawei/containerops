@@ -13,7 +13,7 @@ summary:
 
 There are many tools, projects, plugins, services adopted in the DevOps workflow. However, no one can cover all DevOps tasks. When developers move from one tool to another, they are facing the huge risk of reinvestment. How should we promote the DevOps process and make iteration more speedy? The principle of DevOps orchestration is to keep your original process working without any changes and just assemble tools, projects, plugins, services into orchestration engine. Improvements to the DevOps process can be done by gradually adding or replacing tools, projects, plugins or services for a smooth migration, and overall, DevOps needs to be promoted step by step, invasive changes are dangerous.
 
-{% include image.html file="CloudNativeLandscape_v0.9.2.jpg" url="https://github.com/cncf/landscape" alt="Cloud Native Landscape" caption="Cloud Native Landscape" %"}
+{% include image.html file="CloudNativeLandscape_v0.9.2.jpg" url="https://github.com/cncf/landscape" alt="Cloud Native Landscape" caption="Cloud Native Landscape" %}
 
 ### ContainerOps is a DevOps orchestration platform with the container technology.
 
