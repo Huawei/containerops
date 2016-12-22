@@ -1,7 +1,8 @@
 @font-face {
   font-family: 'Open Sans';
   font-style: normal;
-  font-weight: 300;
+  font-weight: 400;
+  /* font-weight: 300; */
   src: local('Open Sans Light'), local('OpenSans-Light'),
   url(../assets/fonts/google/open-sans-light.woff) format('woff');
 }
@@ -29,7 +30,8 @@
 @font-face {
   font-family: 'Open Sans';
   font-style: italic;
-  font-weight: 300;
+  font-weight: 400;
+  /* font-weight: 300; */
   src: local('Open Sans Light Italic'), local('OpenSansLight-Italic'),
   url(../assets/fonts/google/open-sans-light-italic.woff) format('woff');
 }
