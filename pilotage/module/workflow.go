@@ -329,6 +329,14 @@ func Run(workflowId int64, authMap map[string]interface{}, startData string) (*W
 		return nil, errors.New("error when get eventType")
 	}
 
+	if eventType == "github" {
+		for event, realName := range allEventMap["github"] {
+			if realName == eventName {
+				eventName = event
+			}
+		}
+	}
+
 	eventMap := make(map[string]string)
 	eventMap["eventName"] = eventName
 	eventMap["eventType"] = eventType
@@ -421,7 +429,7 @@ func GetWorkflowSequenceList(namespace, repository, workflow, version string, ve
 	}
 
 	workflows := make([]models.WorkflowLog, 0)
-	err := new(models.WorkflowLog).GetWorkflowLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("workflow = ?", workflow).Where("version = ?", version).Where("run_state > ?", 1).Order("-updated_at").Limit(int(sum)).Find(&workflows).Error
+	err := new(models.WorkflowLog).GetWorkflowLog().Where("namespace = ?", namespace).Where("repository = ?", repository).Where("workflow = ?", workflow).Where("version = ?", version).Where("run_state > ?", 1).Order("-id").Limit(int(sum)).Find(&workflows).Error
 	if err != nil {
 		log.Error("[workflow's GetWorkflowSequenceList]:error when get workflow run log from db:", err.Error())
 		return nil, errors.New("error when get sequence info")
@@ -1298,7 +1306,8 @@ func (workflowInfo *Workflow) BeforeExecCheck(reqHeader http.Header, reqBody []b
 		if c.Support(eventInfoMap) {
 			passCheck, err = c.Check(eventInfoMap, expectedToken, reqHeader, reqBody)
 			if !passCheck {
-				log.Error("[workflow's BeforeExecCheck]:check failed:", c, "===>", err, "\neventInfoMap:", eventInfoMap, "\nreqHeader:", reqHeader, "\nreqBody:", string(reqBody))
+				// log.Error("[workflow's BeforeExecCheck]:check failed:", c, "===>", err, "\neventInfoMap:", eventInfoMap, "\nreqHeader:", reqHeader, "\nreqBody:", string(reqBody))
+				log.Error("[workflow's BeforeExecCheck]:check failed:", c, "===>", err)
 				return false, nil, errors.New("failed when check exec req")
 			}
 		}
