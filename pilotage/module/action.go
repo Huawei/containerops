@@ -526,7 +526,7 @@ func (actionLog *ActionLog) GetActionConsoleLog(key string, size int64) (map[str
 
 	var kube component
 	if actionLog.Component != 0 {
-		c, err := InitComponetNew(actionLog)
+		c, err := NewComponent(actionLog)
 		if err != nil {
 			log.Error("[actionLog's GetActionConsoleLog]:error when init component:", err.Error())
 			RecordOutcom(actionLog.Workflow, actionLog.FromWorkflow, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, 0, false, "start action error", "error when init component:"+err.Error())
@@ -858,7 +858,7 @@ func (actionLog *ActionLog) Start() {
 	}
 
 	if actionLog.Component != 0 {
-		c, err := InitComponetNew(actionLog)
+		c, err := NewComponent(actionLog)
 		if err != nil {
 			log.Error("[actionLog's Start]:error when init component:", err.Error())
 			RecordOutcom(actionLog.Workflow, actionLog.FromWorkflow, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, 0, false, "start action error", "error when init component:"+err.Error())
@@ -903,7 +903,7 @@ func (actionLog *ActionLog) Stop(reason string, runState int64) {
 	}
 
 	if actionLog.Component != 0 {
-		c, err := InitComponetNew(actionLog)
+		c, err := NewComponent(actionLog)
 		if err != nil {
 			log.Error("[actionLog's Stop]:error when init component:", err.Error())
 			return
@@ -921,7 +921,7 @@ func (actionLog *ActionLog) Stop(reason string, runState int64) {
 }
 
 func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody map[string]interface{}, headerInfo http.Header) error {
-	c, err := InitComponetNew(actionLog)
+	c, err := NewComponent(actionLog)
 	if err != nil {
 		recordErr := RecordOutcom(actionLog.Workflow, actionLog.FromWorkflow, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, eventId, false, "component init error:"+err.Error(), "")
 		if recordErr != nil {
@@ -1205,7 +1205,7 @@ func (actionLog *ActionLog) merageFromActionsOutputData(relationInfo []interface
 }
 
 func (actionLog *ActionLog) sendDataToComponent(targetUrl string, data []byte) ([]*http.Response, error) {
-	c, err := InitComponetNew(actionLog)
+	c, err := NewComponent(actionLog)
 	if err != nil {
 		log.Error("[actionLog's sendDataToComponent]:error when init component info:", err.Error())
 		return nil, errors.New("error when init component info:" + err.Error())
