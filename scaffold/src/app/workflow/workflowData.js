@@ -14,29 +14,40 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-import {workflowApi} from "../common/api";
+import {ajaxCall} from "../common/api";
 
 let allWorkflows = [];
 
 export function getAllWorkflows(){
-    return workflowApi.list();
+    return ajaxCall("workflow.list");
 }
 
 export function getWorkflow(name,versionid){
-    return workflowApi.data(name,versionid);
+    var params = {
+        "workflowName" : name,
+        "workflowID" : versionid
+    }
+    return ajaxCall("workflow.detail",params);
 }
 
 export function addWorkflow(){
     if(!$('#newpp-form').parsley().validate()){
         return false;
     }
-    var name = $("#pp-name").val();
-    var version = $("#pp-version").val();
 
-    return workflowApi.add(name,version);
+    var reqbody = {
+        "name" : $("#pp-name").val(),
+        "version" : $("#pp-version").val()
+    }
+
+    return ajaxCall("workflow.add",{},reqbody);
 }
 
 export function saveWorkflow(name,version,versionid,nodes,lines,setting){
+    var params = {
+        "workflowName" : name
+    }
+
     var reqbody = {
         "id" : versionid,
         "version" : version.toString(),
@@ -47,7 +58,7 @@ export function saveWorkflow(name,version,versionid,nodes,lines,setting){
         }
     }
 
-    return workflowApi.save(name,reqbody);
+    return ajaxCall("workflow.save",params,reqbody);
 }
 
 export function addWorkflowVersion(name, versionid, nodes,lines,setting){
@@ -60,40 +71,67 @@ export function addWorkflowVersion(name, versionid, nodes,lines,setting){
 }
 
 export function getEnvs(name,versionid){
-    return workflowApi.getEnv(name,versionid);
+    var params = {
+        "workflowName" : name,
+        "workflowID" : versionid
+    }
+
+    return ajaxCall("workflow.getEnv",params);
 }
 
 export function setEnvs(name,versionid,envs){
+    var params = {
+        "workflowName" : name
+    }
+
     var reqbody = {
         "id" : versionid,
         "env" : _.object(envs)
     }
 
-    return workflowApi.setEnv(name,reqbody);
+    return ajaxCall("workflow.setEnv",params,reqbody);
 }
 
 export function getVars(name,versionid){
-    return workflowApi.getVar(name,versionid);
+    var params = {
+        "workflowName" : name,
+        "workflowID" : versionid
+    }
+
+    return ajaxCall("workflow.getVar",params);
 }
 
 export function setVars(name,versionid,vars){
+    var params = {
+        "workflowName" : name
+    }
+
     var reqbody = {
         "id" : versionid,
         "var" : _.object(vars)
     }
 
-    return workflowApi.setVar(name,reqbody);
+    return ajaxCall("workflow.setVar",params,reqbody);
 }
 
 export function changeState(name,versionid,state){
+    var params = {
+        "workflowName" : name
+    }
+
     var reqbody = {
         "id" : versionid,
         "state" : state
     }
 
-    return workflowApi.changeState(name,reqbody);
+    return ajaxCall("workflow.changeState",params,reqbody);
 }
 
 export function getToken(name,versionid){
-    return workflowApi.getToken(name,versionid);
+    var params = {
+        "workflowName" : name,
+        "workflowID" : versionid
+    }
+
+    return ajaxCall("workflow.getToken",params);
 }
