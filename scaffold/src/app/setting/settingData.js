@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-import {settingApi} from "../common/api";
+import {ajaxCall} from "../common/api";
 
 export function getAllSystemSettings(){
-    return settingApi.list();
+    return ajaxCall("setting.list");
 }
 
 export function saveSystemSettings(setting){
@@ -25,5 +25,5 @@ export function saveSystemSettings(setting){
         "setting" : setting
     }
 
-    return settingApi.save(reqbody);
+    return ajaxCall("setting.save",{},reqbody);
 }
