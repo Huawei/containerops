@@ -16,9 +16,9 @@ type dockerImage struct {
 func NewDockerImage(name, tag string) (*dockerImage, error) {
 	client, err := dockerClient("localhost", 2376)
 	if err != nil {
-		return fmt.Errorf("New docker client error: %s", err)
+		return nil, fmt.Errorf("New docker client error: %s", err)
 	}
-	return &dockerImage{*client, name, tag}
+	return &dockerImage{client, name, tag}, nil
 }
 
 func dockerClient(hostname string, port uint64) (*docker.Client, error) {
