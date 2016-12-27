@@ -33,7 +33,9 @@ export function workflowCheck(data,setting){
         }
     }
 
-    completeness = checkSetting(setting);
+    if(completeness){
+        completeness = checkSetting(setting);
+    }
 
     if(completeness){
         notify("Workflow is available.","success");
