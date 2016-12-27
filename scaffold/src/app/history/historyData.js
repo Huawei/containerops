@@ -14,58 +14,102 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-import {historyApi} from "../common/api";
+import {ajaxCall} from "../common/api";
 
-export function getHistoryData(params){
-  return historyApi.getHistoryData(params);
-}
+// export function getHistoryData(params){
+//   return historyApi.getHistoryData(params);
+// }
 
-export function getWorkflowHistories( ){
-    return historyApi.workflowHistories( );
-}
+// export function getWorkflowHistories( ){
+//     return historyApi.workflowHistories( );
+// }
 
 export function getWorkflowHistory(workflowName,versionName,workflowRunSequence){
-    return historyApi.workflowHistory(workflowName,versionName,workflowRunSequence);
+    var params = {
+      "workflowName" : workflowName,
+      "version" : versionName,
+      "sequence" : workflowRunSequence
+    }
+
+    return ajaxCall("history.workflowHistory",params);
 }
 
 export function getActionRunHistory(workflowName,versionName,workflowRunSequence,stageName,actionName){
-    return historyApi.action(workflowName,versionName,workflowRunSequence,stageName,actionName);
+    var params = {
+      "workflowName" : workflowName,
+      "version" : versionName,
+      "sequence" : workflowRunSequence,
+      "stageName" : stageName,
+      "actionName" : actionName
+    }
+
+    return ajaxCall("history.action",params);
 }
 
 export function getLineDataInfo(workflowName,versionName,workflowRunSequence,sequenceLineId){
-    return historyApi.relation(workflowName,versionName,workflowRunSequence,sequenceLineId);
+    var params = {
+      "workflowName" : workflowName,
+      "version" : versionName,
+      "sequence" : workflowRunSequence,
+      "lineId" : sequenceLineId
+    }
+
+    return ajaxCall("history.relation",params);
 }
 
 export function getContainerLogsData(workflowName,versionName,workflowRunSequence,stageName,actionName,key){
-	return historyApi.containerLog(workflowName,versionName,workflowRunSequence,stageName,actionName,key);
-}
-// export function getScheduleLog(){
-// 	return historyApi.scheduleLog();
-// }
+    var params = {
+      "workflowName" : workflowName,
+      "version" : versionName,
+      "sequence" : workflowRunSequence,
+      "stageName" : stageName,
+      "actionName" : actionName,
+      "key" : key
+    }
 
-export function getWorkflows(page,workflowNum,isInitPages,keywords,filterType){
-  return historyApi.getWorkflows(page,workflowNum,isInitPages,keywords,filterType);
+	  return ajaxCall("history.containerLog",params);
+}
+
+export function getWorkflows(page,workflowNum,keywords,filterType){
+    var params = {
+      "page" : page,
+      "workflowNum" : workflowNum,
+      "keywords" : keywords,
+      "filterType" : filterType
+    }
+
+    return ajaxCall("history.list",params);
 }
 
 export function getVersions(workflowName,workflowId){
-  return historyApi.getVersions(workflowName,workflowId);
+    var params = {
+      "workflowName" : workflowName,
+      "workflowID" : workflowId
+    }
+
+    return ajaxCall("history.version",params);
 }
 
 export function getSequences(workflowName,workflowId,versionName,versionId,sequenceNum){
-  return historyApi.getSequences(workflowName,workflowId,versionName,versionId,sequenceNum);
+    var params = {
+      "workflowName" : workflowName,
+      "versionName" : versionName,
+      "versionID" : versionId,
+      "sequenceNum" : sequenceNum
+    }
+
+    return ajaxCall("history.sequence",params);
 }
 
 export function getStartedWorkflows(workflowName,workflowId,version,sequence,sequenceId,stageName,actionId,actionName){
-  return historyApi.getStartedWorkflows(workflowName,workflowId,version,sequence,sequenceId,stageName,actionId,actionName);
+    var params = {
+      "workflowName" : workflowName,
+      "versionName" : version,
+      "sequence" : sequence,
+      "actionName" : actionName,
+      "workflowID" : workflowId,
+      "actionID" : actionId
+    }
+
+    return ajaxCall("history.startedWorkflow",params);
 }
-
-
-
-
-// export function sequenceData(workflowName,versionID,workflowRunSequenceID){
-//     return historyApi.sequenceData(workflowName,versionID,workflowRunSequenceID);
-// }
-
-// export function sequenceList( ){
-//     return historyApi.sequenceList( );
-//}

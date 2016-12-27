@@ -18,6 +18,9 @@ import {initWorkflowPage,hideWorkflowEnv} from "./workflow/main";
 import {initComponentPage} from "./component/main";
 import {initHistoryPage} from "./history/main";
 import {initSystemSettings,initSystemSettingPage} from "./setting/main";
+import {initApi} from "./common/api";
+
+initApi("demo","demo");
 
 $._messengerDefaults = {
     extraClasses: 'messenger-fixed messenger-theme-future messenger-on-bottom messenger-on-right'
