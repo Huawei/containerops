@@ -71,7 +71,7 @@ export function getHistoryList(keywords,filterType){
 
 function getWorkflows(page,workflowNum,isInitPages,keywords,filterType) {
 	loading.show();
-	var promise = historyDataService.getWorkflows(page,workflowNum,isInitPages,keywords,filterType);
+	var promise = historyDataService.getWorkflows(page,workflowNum,keywords,filterType);
 	promise.done(function(data) {
 		loading.hide();
 		if(data.workflows.length>0){
