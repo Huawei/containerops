@@ -16,7 +16,7 @@ limitations under the License.
  
 import {jsonEditor} from "../../vendor/jquery.jsoneditor";
 import {notify} from "../common/notify";
-import {workflowApi} from "../common/api";
+import {ajaxCall} from "../common/api";
 import {loading} from "../common/loading";
 import * as startIOData from "./startIOData";
 // import {workflowVars} from "../workflow/workflowVar";
@@ -375,7 +375,11 @@ function initFromView(){
 
 export function getOutputForEvent(selectedType,selecetedEvent){
     if(startIOData.isEventOptionAvailable()){
-        var promise = workflowApi.eventOutput(selectedType,selecetedEvent);
+        var params = {
+            "site" : selectedType,
+            "eventName" : selecetedEvent
+        }
+        var promise = ajaxCall("workflow.eventOutput",params);
         promise.done(function(data){
             loading.hide();
             startIOData.setJson(data.output);

@@ -15,27 +15,35 @@ limitations under the License.
  */
 
 import {notify} from "../common/notify";
-import {componentApi} from "../common/api";
+import {ajaxCall} from "../common/api";
 import {isEnvsLegal} from "../common/check";
 
 let allComponents = [];
 
 export function getAllComponents(){
-     return componentApi.list();
+     return ajaxCall("component.list");
 }
 
 export function getComponent(name,versionid){
-    return componentApi.data(name,versionid);
+    var params = {
+        "componentName" : name,
+        "componentID" : versionid
+    }
+
+    return ajaxCall("component.detail",params);
 }
 
 export function addComponent(){
     if(!$('#newcomponent-form').parsley().validate()){
         return false;
     }
-    var name = $("#c-name").val();
-    var version = $("#c-version").val();
 
-    return componentApi.add(name,version);
+    var reqbody = {
+        "name" : $("#c-name").val(),
+        "version" : $("#c-version").val()
+    }
+
+    return ajaxCall("component.add",{},reqbody);
 }
 
 export function addComponentVersion(name, versionid, componentData){
@@ -48,13 +56,17 @@ export function addComponentVersion(name, versionid, componentData){
 }
 
 export function saveComponent(name, version, versionid, componentData){
+    var params = {
+        "componentName" : name
+    }
+
     var reqbody = {
         "id" : versionid,
         "version" : version.toString(),
         "define": componentData
     }
 
-    return componentApi.save(name,reqbody); 
+    return ajaxCall("component.save",params,reqbody);
 }
 
 export function validateComponent(componentData){
