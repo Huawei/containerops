@@ -43,9 +43,9 @@ entries:
       output: web
       url: /concept-architecture.html
 
-    - title: Pipeline
+    - title: Workflow
       output: web
-      url: /concept-pipeline.html
+      url: /concept-workflow.html
 
     - title: Stage
       output: web
@@ -102,7 +102,7 @@ entries:
     - title: Writing Component
       output: web
       url: /writing-component.html
-    
+
     - title: Component Endpoint
       output: web
       url: /component-endpoint.html
@@ -114,7 +114,7 @@ entries:
 
         - title: Golang
           output: web
-          url: /golang-component.html    
+          url: /golang-component.html
 
         - title: NodeJS
           output: web
@@ -134,12 +134,12 @@ entries:
 
         - title: PHP
           output: web
-          url: /web-component.html  
+          url: /web-component.html
 
     - title: Component Specification
       output: web
       url: /component-specification.html
-  
+
   - title: Service
     output: web
     folderitems:
@@ -152,17 +152,17 @@ entries:
       output: web
       url: /service-diretory.html
 
-  - title: Pipeline
+  - title: Workflow
     output: web
     folderitems:
 
-      - title: Design Pipeline
+      - title: Design Workflow
         output: web
-        url: /design-pipeline.html
+        url: /design-workflow.html
 
-      - title: Executing Pipeline
+      - title: Executing workflow
         output: web
-        url: /executing-pipeline.html
+        url: /executing-workflow.html
 
       - title: Review Result
         output: web
