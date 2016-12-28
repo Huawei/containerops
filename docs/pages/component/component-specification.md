@@ -8,7 +8,7 @@ summary: Component Sepecification
 folder: component
 ---
 
-### 1. Following all [] value can be found the docker images env variable
+### 1. Following all [] value can be found the docker container env variable
 
 ### 2. Each component of the implementation process
 - __After the component started to [COMPONENT_START] url send EVENT type for the COMPONENT_START EVENT notifications__
