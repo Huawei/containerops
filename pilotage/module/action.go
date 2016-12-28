@@ -28,7 +28,6 @@ const (
 
 var (
 	actionlogAuthChan         chan bool
-	actionlogListenChan       chan bool
 	actionlogSetGlobalVarChan chan bool
 )
 
@@ -47,7 +46,6 @@ type Relation struct {
 
 func init() {
 	actionlogAuthChan = make(chan bool, 1)
-	actionlogListenChan = make(chan bool, 1)
 	actionlogSetGlobalVarChan = make(chan bool, 1)
 }
 
@@ -681,9 +679,6 @@ func (actionLog *ActionLog) GetOutputData() (map[string]interface{}, error) {
 }
 
 func (actionLog *ActionLog) Listen() error {
-	actionlogListenChan <- true
-	defer func() { <-actionlogListenChan }()
-
 	err := actionLog.GetActionLog().Where("id = ?", actionLog.ID).First(actionLog).Error
 	if err != nil {
 		log.Error("[actionLog's Listen]:error when get action info from db:", actionLog, " ===>error is:", err.Error())
@@ -705,20 +700,20 @@ func (actionLog *ActionLog) Listen() error {
 	canStartChan := make(chan models.ActionLog, 1)
 	go func() {
 		aLog := *actionLog.ActionLog
-		for true {
-			time.Sleep(1 * time.Second)
+		//for true {
+		//	time.Sleep(1 * time.Second)
 
 			err := aLog.GetActionLog().Where("id = ?", aLog.ID).First(&aLog).Error
 			if err != nil {
 				log.Error("[actionLog's Listen]:error when get actionLog's info:", aLog, " ===>error is:", err.Error())
 				canStartChan <- *new(models.ActionLog)
-				break
+				//break
 			}
 			if aLog.Requires == "" || aLog.Requires == "[]" {
 				canStartChan <- aLog
-				break
+				//break
 			}
-		}
+		//}
 	}()
 
 	go func() {
@@ -1751,4 +1746,8 @@ func changeMapInfoWithGlobalVar(workflow, sequence int64, sourceMap map[string]i
 	}
 
 	return result, nil
+}
+
+func NewMockAction(component *models.Component, input, envs string) error {
+	return nil
 }

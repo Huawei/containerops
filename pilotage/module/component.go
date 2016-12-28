@@ -35,7 +35,7 @@ import (
 const (
 	// K8SCOMPONENT means component will run in k8s
 	K8SCOMPONENT = "KUBERNETES"
-	// K8SCOMPONENT means component will run in swarm
+	// SWARMCOMPONENT means component will run in swarm
 	SWARMCOMPONENT = "SWARM"
 )
 
@@ -1044,7 +1044,7 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 			}
 		}
 		container["env"] = envList
-		container["imagePullPolicy"] = "IfNotPresent"
+		container["imagePullPolicy"] = "Always"
 
 		ports := make([]map[string]interface{}, 0)
 		serviceAddrInfo := strings.Split(serviceAddr, ":")
