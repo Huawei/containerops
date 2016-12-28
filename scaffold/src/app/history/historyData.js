@@ -104,8 +104,11 @@ export function getSequences(workflowName,workflowId,versionName,versionId,seque
 export function getStartedWorkflows(workflowName,workflowId,version,sequence,sequenceId,stageName,actionId,actionName){
     var params = {
       "workflowName" : workflowName,
-      "versionName" : version,
+      "versionName" : version.versionName,
+      "versionId" : version.versionId,
       "sequence" : sequence,
+      "sequenceID" : sequenceId,
+      "stageName" : stageName,
       "actionName" : actionName,
       "workflowID" : workflowId,
       "actionID" : actionId

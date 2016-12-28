@@ -143,7 +143,7 @@ let apiUrlConf = {
 		},
 
 		startedWorkflow : {
-			"url" :	"/workflow/{workflowName}/version/{versionName}/sequence/{sequence}/action/{actionName}/linkstart/list?workflowId={workflowID}&actionId={actionID}",
+			"url" :	"/workflow/{workflowName}/version/{versionName}/sequence/{sequence}/action/{actionName}/linkstart/list?workflowId={sequenceID}&actionId={actionID}",
 			"type" : "GET"
 		}
 	},
