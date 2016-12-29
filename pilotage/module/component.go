@@ -35,12 +35,8 @@ import (
 const (
 	// K8SCOMPONENT means component will run in k8s
 	K8SCOMPONENT = "KUBERNETES"
-	// SWARMCOMPONENT means component will run in swarm
+	// K8SCOMPONENT means component will run in swarm
 	SWARMCOMPONENT = "SWARM"
-)
-
-var (
-	createComponentChan chan bool
 )
 
 type component interface {
@@ -60,10 +56,6 @@ type kubeComponent struct {
 	componentInfo models.ActionLog
 }
 
-func init() {
-	createComponentChan = make(chan bool, 1)
-}
-
 // GetComponentListByNamespace is get component list by given namespace
 func GetComponentListByNamespace(namespace string) ([]map[string]interface{}, error) {
 	resultMap := make([]map[string]interface{}, 0)
@@ -76,34 +68,34 @@ func GetComponentListByNamespace(namespace string) ([]map[string]interface{}, er
 	}
 
 	for _, componentInfo := range componentList {
-		if _, ok := componentsMap[componentInfo.Component]; !ok {
+		if _, ok := componentsMap[componentInfo.Name]; !ok {
 			tempMap := make(map[string]interface{})
 			tempMap["version"] = make(map[int64]interface{})
-			componentsMap[componentInfo.Component] = tempMap
+			componentsMap[componentInfo.Name] = tempMap
 		}
 
-		componentMap := componentsMap[componentInfo.Component].(map[string]interface{})
+		componentMap := componentsMap[componentInfo.Name].(map[string]interface{})
 		versionMap := componentMap["version"].(map[int64]interface{})
 
 		versionMap[componentInfo.VersionCode] = componentInfo
 		componentMap["id"] = componentInfo.ID
-		componentMap["name"] = componentInfo.Component
+		componentMap["name"] = componentInfo.Name
 		componentMap["version"] = versionMap
 	}
 
 	for _, component := range componentList {
-		componentInfo := componentsMap[component.Component].(map[string]interface{})
+		componentInfo := componentsMap[component.Name].(map[string]interface{})
 
 		if isSign, ok := componentInfo["isSign"].(bool); ok && isSign {
 			continue
 		}
 
 		componentInfo["isSign"] = true
-		componentsMap[component.Component] = componentInfo
+		componentsMap[component.Name] = componentInfo
 
 		versionList := make([]map[string]interface{}, 0)
 		for _, componentVersion := range componentList {
-			if componentVersion.Component == componentInfo["name"].(string) {
+			if componentVersion.Name == componentInfo["name"].(string) {
 				versionMap := make(map[string]interface{})
 				versionMap["id"] = componentVersion.ID
 				versionMap["version"] = componentVersion.Version
@@ -125,12 +117,7 @@ func GetComponentListByNamespace(namespace string) ([]map[string]interface{}, er
 }
 
 // CreateNewComponent is create a new component
-func CreateNewComponent(namespace, componentName, componentVersion string) (string, error) {
-	createComponentChan <- true
-	defer func() {
-		<-createComponentChan
-	}()
-
+func CreateComponent(namespace, componentName, componentVersion string) (string, error) {
 	var count int64
 	err := new(models.Component).GetComponent().Where("namespace = ?", namespace).Where("component = ?", componentName).Order("-id").Count(&count).Error
 	if err != nil {
@@ -143,11 +130,11 @@ func CreateNewComponent(namespace, componentName, componentVersion string) (stri
 
 	componentInfo := new(models.Component)
 	componentInfo.Namespace = strings.TrimSpace(namespace)
-	componentInfo.Component = strings.TrimSpace(componentName)
+	componentInfo.Name = strings.TrimSpace(componentName)
 	componentInfo.Version = strings.TrimSpace(componentVersion)
 	componentInfo.VersionCode = 1
 
-	err = componentInfo.GetComponent().Save(componentInfo).Error
+	err = componentInfo.Create()
 	if err != nil {
 		return "", errors.New("error when save component info:" + err.Error())
 	}
@@ -165,7 +152,7 @@ func GetComponentInfo(namespace, componentName string, componentId int64) (map[s
 		return nil, errors.New("error when get component info from db:" + err.Error())
 	}
 
-	if componentInfo.Component != componentName {
+	if componentInfo.Name != componentName {
 		return nil, errors.New("component's name is not equal to target component")
 	}
 
@@ -302,7 +289,7 @@ func UpdateComponentInfo(componentInfo models.Component) error {
 // CreateNewComponentVersion is copy current component info to a new component with diff version name
 func CreateNewComponentVersion(componentInfo models.Component, versionName string) error {
 	var count int64
-	err := new(models.Component).GetComponent().Where("namespace = ?", componentInfo.Namespace).Where("component = ?", componentInfo.Component).Where("version = ?", versionName).Count(&count).Error
+	err := new(models.Component).GetComponent().Where("namespace = ?", componentInfo.Namespace).Where("component = ?", componentInfo.Name).Where("version = ?", versionName).Count(&count).Error
 	if err != nil {
 		return errors.New("error when get component version info:" + err.Error())
 	}
@@ -313,7 +300,7 @@ func CreateNewComponentVersion(componentInfo models.Component, versionName strin
 
 	// get current least component's version
 	leastComponent := new(models.Component)
-	err = leastComponent.GetComponent().Where("namespace = ? ", componentInfo.Namespace).Where("component = ?", componentInfo.Component).Order("-id").First(&leastComponent).Error
+	err = leastComponent.GetComponent().Where("namespace = ? ", componentInfo.Namespace).Where("component = ?", componentInfo.Name).Order("-id").First(&leastComponent).Error
 	if err != nil {
 		return errors.New("error when get least component info :" + err.Error())
 	}
@@ -322,7 +309,7 @@ func CreateNewComponentVersion(componentInfo models.Component, versionName strin
 	newComponentInfo.Namespace = componentInfo.Namespace
 	newComponentInfo.Version = strings.TrimSpace(versionName)
 	newComponentInfo.VersionCode = leastComponent.VersionCode + 1
-	newComponentInfo.Component = componentInfo.Component
+	newComponentInfo.Name = componentInfo.Name
 	newComponentInfo.Type = componentInfo.Type
 	newComponentInfo.Title = componentInfo.Title
 	newComponentInfo.Gravatar = componentInfo.Gravatar
@@ -1044,7 +1031,7 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 			}
 		}
 		container["env"] = envList
-		container["imagePullPolicy"] = "Always"
+		container["imagePullPolicy"] = "IfNotPresent"
 
 		ports := make([]map[string]interface{}, 0)
 		serviceAddrInfo := strings.Split(serviceAddr, ":")
