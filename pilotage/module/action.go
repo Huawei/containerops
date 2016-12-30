@@ -28,7 +28,6 @@ const (
 
 var (
 	actionlogAuthChan         chan bool
-	actionlogListenChan       chan bool
 	actionlogSetGlobalVarChan chan bool
 )
 
@@ -47,7 +46,6 @@ type Relation struct {
 
 func init() {
 	actionlogAuthChan = make(chan bool, 1)
-	actionlogListenChan = make(chan bool, 1)
 	actionlogSetGlobalVarChan = make(chan bool, 1)
 }
 
@@ -294,17 +292,13 @@ func CreateNewActions(db *gorm.DB, workflowInfo *models.Workflow, stageInfo *mod
 	return actionIdMap, nil
 }
 
-func GetActionLog(actionLogId int64) (*ActionLog, error) {
-	action := new(ActionLog)
-	actionLog := new(models.ActionLog)
-	err := actionLog.GetActionLog().Where("id = ?", actionLogId).First(actionLog).Error
+func GetActionLog(id int64) (*ActionLog, error) {
+	actionLog, err := models.SelectActionLogFromID(id)
 	if err != nil {
 		log.Error("[actionLog's GetActionLog]:error when get action log info from db:", err.Error())
 		return nil, err
 	}
-
-	action.ActionLog = actionLog
-	return action, nil
+	return &ActionLog{actionLog}, nil
 }
 
 func GetActionLogByName(namespace, repository, workflowName string, sequence int64, stageName, actionName string) (*ActionLog, error) {
@@ -681,9 +675,6 @@ func (actionLog *ActionLog) GetOutputData() (map[string]interface{}, error) {
 }
 
 func (actionLog *ActionLog) Listen() error {
-	actionlogListenChan <- true
-	defer func() { <-actionlogListenChan }()
-
 	err := actionLog.GetActionLog().Where("id = ?", actionLog.ID).First(actionLog).Error
 	if err != nil {
 		log.Error("[actionLog's Listen]:error when get action info from db:", actionLog, " ===>error is:", err.Error())
@@ -702,37 +693,40 @@ func (actionLog *ActionLog) Listen() error {
 		return errors.New("can't listen target action,change action's state failed")
 	}
 
-	canStartChan := make(chan models.ActionLog, 1)
+	//canStartChan := make(chan models.ActionLog, 1)
 	go func() {
-		aLog := *actionLog.ActionLog
+		var aLog *models.ActionLog
+		var err error
 		for true {
-			time.Sleep(1 * time.Second)
-
-			err := aLog.GetActionLog().Where("id = ?", aLog.ID).First(&aLog).Error
+			aLog, err = models.SelectActionLogFromID(actionLog.ID)
+			//err := aLog.GetActionLog().Where("id = ?", aLog.ID).First(&aLog).Error
 			if err != nil {
 				log.Error("[actionLog's Listen]:error when get actionLog's info:", aLog, " ===>error is:", err.Error())
-				canStartChan <- *new(models.ActionLog)
-				break
+				actionLog.Stop(StageStopReasonRunFailed, models.ActionLogStateRunFailed)
+				return
 			}
 			if aLog.Requires == "" || aLog.Requires == "[]" {
-				canStartChan <- aLog
 				break
 			}
+			time.Sleep(1 * time.Second)
 		}
+
+		Log := &ActionLog{aLog}
+		Log.Start()
 	}()
 
-	go func() {
-		aLog := <-canStartChan
-
-		Log := new(ActionLog)
-		Log.ActionLog = &aLog
-		if aLog.ID == 0 {
-			log.Error("[actionLog's Listen]:actionLog can't start", aLog)
-			Log.Stop(StageStopReasonRunFailed, models.ActionLogStateRunFailed)
-			return
-		}
-		go Log.Start()
-	}()
+	//go func() {
+	//	aLog := <-canStartChan
+	//
+	//	Log := new(ActionLog)
+	//	Log.ActionLog = &aLog
+	//	if aLog.ID == 0 {
+	//		log.Error("[actionLog's Listen]:actionLog can't start", aLog)
+	//		Log.Stop(StageStopReasonRunFailed, models.ActionLogStateRunFailed)
+	//		return
+	//	}
+	//	go Log.Start()
+	//}()
 
 	return nil
 }
@@ -1751,4 +1745,69 @@ func changeMapInfoWithGlobalVar(workflow, sequence int64, sourceMap map[string]i
 	}
 
 	return result, nil
+}
+
+func NewMockAction(component *models.Component) (*ActionLog, error) {
+	var actionLog *ActionLog
+	actionLog.Namespace = component.Namespace
+	actionLog.Repository = ""
+	actionLog.Workflow = 0
+	actionLog.FromWorkflow = 0
+	actionLog.Sequence = 0
+	actionLog.Stage = 0
+	actionLog.FromStage = 0
+	actionLog.FromAction = 0
+	actionLog.RunState = models.ActionLogStateCanListen
+	actionLog.Component = component.ID
+	actionLog.Service = 0
+	actionLog.Action = ""
+	actionLog.Title = component.Title
+	actionLog.Description = component.Description
+	actionLog.Event = 0
+	manifest := `{"platform":{"platformHost":"http://10.21.101.227:8080","platformType":"KUBERNETES"}`
+	actionLog.Manifest = manifest
+	actionLog.Environment = component.Environment
+	//TODO: add runtime k8s-apiserver
+	actionLog.Kubernetes = component.Kubernetes
+	actionLog.Swarm = ""
+	actionLog.Input = component.Input
+	actionLog.Output = ""
+	imageInfo := strings.Split(component.Endpoint, ":")
+	if len(imageInfo) < 2 {
+		actionLog.ImageName = imageInfo[0]
+		actionLog.ImageTag = ""
+	} else {
+		actionLog.ImageName = imageInfo[0]
+		actionLog.ImageTag = imageInfo[1]
+	}
+
+	actionLog.Timeout = strconv.Itoa(component.Timeout)
+	actionLog.Requires = ""
+	actionLog.AuthList = ""
+
+	err := setSystemEvent(nil, actionLog)
+	if err != nil {
+		log.Error("[action's GenerateNewLog]:when save action log to db:", err.Error())
+		return actionLog, err
+	}
+
+	return actionLog, nil
+}
+
+func handler(input, envs string) {
+	id := 1
+	component, err := models.SelectComponentFromID(id)
+	if err != nil {
+		log.Errorln(err)
+		return
+	}
+	component.Input = input
+	component.Environment = envs
+	actionLog, err := NewMockAction(component)
+	if err != nil {
+		log.Errorln(err)
+		return
+	}
+	actionLog.Start()
+	//TODO: return logs, events and inouts
 }
