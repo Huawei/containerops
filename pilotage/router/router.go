@@ -27,6 +27,7 @@ import (
 func SetRouters(m *macaron.Macaron) {
 	m.Group("/v2", func() {
 		m.Get("/", handler.IndexV1Handler)
+		m.Post("/event", handler.PostActionEventV1Handler)
 
 		m.Group("/:namespace", func() {
 
@@ -86,7 +87,7 @@ func SetRouters(m *macaron.Macaron) {
 
 						m.Group("/runtime", func() {
 							m.Post("/event/:workflow/register", handler.PostActionRegisterV1Handler)
-							m.Post("/event/:workflow/:event", handler.PostActionEventV1Handler)
+							//m.Post("/event/:workflow/:event", handler.PostActionEventV1Handler)
 
 							m.Post("/var/:workflow", handler.PostActionSetVarV1Handler)
 
