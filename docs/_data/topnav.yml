@@ -29,7 +29,7 @@ topnav_dropdowns:
         - title: Service
           url: /integrating-service.html
         - title: Pipeline
-          url: /design-pipeline.html
+          url: /design-workflow.html
         - title: Community
           url: /github-community.html
         - title: Download
