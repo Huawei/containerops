@@ -292,17 +292,13 @@ func CreateNewActions(db *gorm.DB, workflowInfo *models.Workflow, stageInfo *mod
 	return actionIdMap, nil
 }
 
-func GetActionLog(actionLogId int64) (*ActionLog, error) {
-	action := new(ActionLog)
-	actionLog := new(models.ActionLog)
-	err := actionLog.GetActionLog().Where("id = ?", actionLogId).First(actionLog).Error
+func GetActionLog(id int64) (*ActionLog, error) {
+	actionLog, err := models.SelectActionLogFromID(id)
 	if err != nil {
 		log.Error("[actionLog's GetActionLog]:error when get action log info from db:", err.Error())
 		return nil, err
 	}
-
-	action.ActionLog = actionLog
-	return action, nil
+	return &ActionLog{actionLog}, nil
 }
 
 func GetActionLogByName(namespace, repository, workflowName string, sequence int64, stageName, actionName string) (*ActionLog, error) {
@@ -1789,7 +1785,7 @@ func NewMockAction(component *models.Component) (*ActionLog, error) {
 	actionLog.Requires = ""
 	actionLog.AuthList = ""
 
-	err := setSystemEvent(db, actionLog)
+	err := setSystemEvent(nil, actionLog)
 	if err != nil {
 		log.Error("[action's GenerateNewLog]:when save action log to db:", err.Error())
 		return actionLog, err
