@@ -35,7 +35,7 @@ import (
 const (
 	// K8SCOMPONENT means component will run in k8s
 	K8SCOMPONENT = "KUBERNETES"
-	// K8SCOMPONENT means component will run in swarm
+	// SWARMCOMPONENT means component will run in swarm
 	SWARMCOMPONENT = "SWARM"
 )
 
@@ -383,28 +383,28 @@ func NewComponent(actionLog *ActionLog) (component, error) {
 	}
 }
 
-func (kube *kubeComponent) Start() error {
-	exist, err := kube.IsNamespaceExist()
+func (c *kubeComponent) Start() error {
+	exist, err := c.IsNamespaceExist()
 	if err != nil {
 		log.Errorln("[kubeComponent Start]: query namespace info error, ", err)
 		return err
 	}
 
 	if !exist {
-		err = kube.CreateNamespace()
+		err = c.CreateNamespace()
 		if err != nil {
 			log.Errorln("[kubeComponent Start]: create namespace error, ", err)
 			return err
 		}
 	}
 
-	serviceAddr, err := kube.StartService()
+	serviceAddr, err := c.StartService()
 	if err != nil {
 		log.Errorln("[kubeComponent Start]:start service error, ", err)
 		return err
 	}
 
-	err = kube.StartRC(serviceAddr)
+	err = c.StartRC(serviceAddr)
 	if err != nil {
 		log.Errorln("[kubeComponent Start]:start RC error, ", err)
 		return err
@@ -901,7 +901,7 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 		if kube.componentInfo.ImageTag != "" {
 			imageName += ":" + kube.componentInfo.ImageTag
 		} else {
-			imageName += ":leatest"
+			imageName += ":latest"
 		}
 
 		containerInfo["image"] = imageName
@@ -1031,7 +1031,7 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 			}
 		}
 		container["env"] = envList
-		container["imagePullPolicy"] = "IfNotPresent"
+		container["imagePullPolicy"] = "Always"
 
 		ports := make([]map[string]interface{}, 0)
 		serviceAddrInfo := strings.Split(serviceAddr, ":")
@@ -1061,8 +1061,7 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 }
 
 func (kube *kubeComponent) GetServiceInfo() (map[string]interface{}, error) {
-	// first set service's name
-	serviceName := "ser-" + kube.runID
+	serviceName := "co-svc-" + kube.runID
 	if len(serviceName) > 253 {
 		serviceName = serviceName[len(serviceName)-253:]
 	}
@@ -1133,7 +1132,6 @@ func (kube *kubeComponent) Update() {
 }
 
 func (kube *kubeComponent) GetPodInfo() (map[string]interface{}, error) {
-	// first get pod's lable
 	podName := "pod-" + kube.runID
 
 	podLable := "WORKFLOW_DEFAULT_POD_LABLE%3D" + podName

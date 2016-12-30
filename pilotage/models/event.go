@@ -51,7 +51,7 @@ const (
 //And the system events will be initlization with pilotage system.
 type EventDefinition struct {
 	ID         int64      `json:"id" gorm:"primary_key"`                   //
-	Event      string     `json:"event" sql:"not null;type:varchar(255)"`  //Event name for query.
+	//Event      string     `json:"event" sql:"not null;type:varchar(255)"`  //Event name for query.
 	Title      string     `json:"title" sql:"null;type:varchar(255)"`      //Event name for display.
 	Namespace  string     `json:"namespace" sql:"null;type:varchar(255)"`  //Event name for display.
 	Repository string     `json:"repository" sql:"null;type:varchar(255)"` //Event name for display.
@@ -78,7 +78,7 @@ func (e *EventDefinition) GetEventDefinition() *gorm.DB {
 
 //Event is execute events in the system.
 type Event struct {
-	ID            int64      `json:"id" gorm:"primary_key"`
+	BaseIDField
 	Definition    int64      `json:"definition" sql:"not null;default:0"`     //EventDefinition's ID.
 	Title         string     `json:"title" sql:"not null;type:varchar(255)"`  //Event Title
 	Header        string     `json:"header" sql:"not null;type:text"`         //HTTP HEADER Information.
