@@ -45,7 +45,6 @@ var (
 
 	workflowlogAuthChan             chan bool
 	workflowlogListenChan           chan bool
-	workflowlogSequenceGenerateChan chan bool
 )
 
 func init() {
@@ -53,7 +52,6 @@ func init() {
 	createWorkflowChan = make(chan bool, 1)
 	workflowlogAuthChan = make(chan bool, 1)
 	workflowlogListenChan = make(chan bool, 1)
-	workflowlogSequenceGenerateChan = make(chan bool, 1)
 }
 
 type Workflow struct {
@@ -1408,7 +1406,6 @@ func getEventName(sourceType string, reqHeader http.Header) string {
 }
 
 func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*WorkflowLog, error) {
-	workflowlogSequenceGenerateChan <- true
 	result := new(WorkflowLog)
 	stageList := make([]models.Stage, 0)
 
@@ -1416,7 +1413,6 @@ func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*Workf
 	workflowSequence.Workflow = workflowInfo.ID
 	err := workflowSequence.GetWorkflowSequence().Save(workflowSequence).Error
 	if err != nil {
-		<-workflowlogSequenceGenerateChan
 		log.Error("[workflow's GenerateNewLog]:error when save workflow sequence info to db", workflowSequence, "===>error is :", err.Error())
 		return nil, err
 	}
@@ -1424,7 +1420,6 @@ func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*Workf
 	var count int64
 	err = workflowSequence.GetWorkflowSequence().Where("id < ?", workflowSequence.ID).Where("workflow = ?", workflowInfo.ID).Count(&count).Error
 	if err != nil && !strings.Contains(err.Error(), "record not found") {
-		<-workflowlogSequenceGenerateChan
 		log.Error("[workflow's GenerateNewLog]:error when get workflow sequence info to db:", err.Error())
 		return nil, err
 	}
@@ -1432,14 +1427,12 @@ func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*Workf
 	workflowSequence.Sequence = count + 1
 	err = workflowSequence.GetWorkflowSequence().Save(workflowSequence).Error
 	if err != nil {
-		<-workflowlogSequenceGenerateChan
 		log.Error("[workflow's GenerateNewLog]:error when save workflow sequence info to db", workflowSequence, "===>error is :", err.Error())
 		return nil, err
 	}
 
 	err = new(models.Stage).GetStage().Where("workflow = ?", workflowInfo.ID).Find(&stageList).Error
 	if err != nil {
-		<-workflowlogSequenceGenerateChan
 		log.Error("[workflow's GenerateNewLog]:error when get stage list by workflow info", workflowInfo, "===>error is :", err.Error())
 		return nil, err
 	}
@@ -1469,7 +1462,6 @@ func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*Workf
 
 	err = db.Save(workflowLog).Error
 	if err != nil {
-		<-workflowlogSequenceGenerateChan
 		log.Error("[workflow's GenerateNewLog]:when save workflow log to db:", workflowLog, "===>error is :", err.Error())
 		rollbackErr := db.Rollback().Error
 		if rollbackErr != nil {
@@ -1485,7 +1477,6 @@ func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*Workf
 		stage.Stage = &stageInfo
 		preStageLogId, err = stage.GenerateNewLog(db, workflowLog, preStageLogId)
 		if err != nil {
-			<-workflowlogSequenceGenerateChan
 			log.Error("[workflow's GenerateNewLog]:when generate stage log:", err.Error())
 			return nil, err
 		}
@@ -1499,7 +1490,6 @@ func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*Workf
 		tempVar.WorkflowVar = &varInfo
 		err := tempVar.GenerateNewLog(db, workflowLog)
 		if err != nil {
-			<-workflowlogSequenceGenerateChan
 			log.Error("[workflow's GenerateNewLog]:when generate var log:", err.Error())
 			return nil, err
 		}
@@ -1507,12 +1497,10 @@ func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*Workf
 
 	err = db.Commit().Error
 	if err != nil {
-		<-workflowlogSequenceGenerateChan
 		log.Error("[workflow's GenerateNewLog]:when commit to db:", err.Error())
 		return nil, errors.New("error when save workflow info to db:" + err.Error())
 	}
 	result.WorkflowLog = workflowLog
-	<-workflowlogSequenceGenerateChan
 	return result, nil
 }
 
