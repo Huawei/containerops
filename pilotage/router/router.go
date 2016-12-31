@@ -27,23 +27,21 @@ import (
 func SetRouters(m *macaron.Macaron) {
 	m.Group("/v2", func() {
 		m.Get("/", handler.IndexV1Handler)
+
 		m.Post("/event", handler.PostActionEventV1Handler)
 
+		m.Group("/components", func() {
+			m.Get("/", handler.ListComponents)
+
+			m.Post("/", handler.CreateComponent)
+			m.Get("/:component_id", handler.GetComponent)
+			m.Put("/:component_id", handler.UpdateComponent)
+			m.Delete("/:component_id", handler.DeleteComponent)
+
+			m.Post("/:component_id/debug", handler.DebugComponent)
+		})
+
 		m.Group("/:namespace", func() {
-
-			m.Group("/component", func() {
-				m.Get("/list", handler.GetComponentListV1Handler)
-				m.Post("/", handler.PostComponentV1Handler)
-
-				m.Get("/:component", handler.GetComponentV1Handler)
-				m.Put("/:component", handler.PutComponentV1Handler)
-				m.Delete("/:component", handler.DeleteComponentv1Handler)
-
-				m.Post("/:component/event", handler.PostEventV1Handler)
-				m.Get("/:component/event/:event", handler.GetEventV1Handler)
-				m.Put("/:component/event/:event", handler.PutEventV1Handler)
-				m.Delete("/:component/event/:event", handler.DeleteEventV1Handler)
-			})
 
 			m.Group("/service", func() {
 				m.Get("/list", handler.GetServiceDefinitionListV1Handler)
