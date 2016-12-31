@@ -140,6 +140,10 @@ func CreateComponent(data []byte) (uint64, error) {
 	if component.ImageName == "" {
 		return 0, errors.New("should specify component image name")
 	}
+	if component.Timeout < 0 {
+		log.Warnln("CreateComponent timeout should ge zero")
+		component.Timeout = 0
+	}
 	var envs []env
 	if err := json.Unmarshal([]byte(component.Environment), envs); err != nil {
 		return 0, errors.New("can't unmarshal environment data" + err.Error())
@@ -200,6 +204,10 @@ func UpdateComponent(id uint64, data []byte) error {
 	}
 	if component.ImageName == "" {
 		return errors.New("should specify component image name")
+	}
+	if component.Timeout < 0 {
+		log.Warnln("UpdateComponent timeout should ge zero")
+		component.Timeout = 0
 	}
 	var envs []env
 	if err := json.Unmarshal([]byte(component.Environment), envs); err != nil {
