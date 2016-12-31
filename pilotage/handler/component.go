@@ -24,10 +24,10 @@ import (
 	"github.com/Huawei/containerops/pilotage/module"
 
 	"gopkg.in/macaron.v1"
+	"github.com/prometheus/common/log"
 )
 
-// GetComponentListV1Handler is get all component list
-func GetComponentListV1Handler(ctx *macaron.Context) (int, []byte) {
+func ListComponents(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
 	namespace := ctx.Params(":namespace")
@@ -49,41 +49,38 @@ func GetComponentListV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-//PostComponentV1Handler is create a new component
-func PostComponentV1Handler(ctx *macaron.Context) (int, []byte) {
-	result, _ := json.Marshal(map[string]string{"message": ""})
-
-	body := new(struct {
-		Name    string `json:"name"`
-		Version string `json:"version"`
-	})
-
-	namespace := ctx.Params(":namespace")
-	reqBody, err := ctx.Req.Body().Bytes()
+func CreateComponent(ctx *macaron.Context) (int, []byte) {
+	var httpStatus int64
+	var resp CreateComponentResp
+	body, err := ctx.Req.Body().Bytes()
 	if err != nil {
-		result, _ = json.Marshal(map[string]string{"errMsg": "error when get request body:" + err.Error()})
-		return http.StatusBadRequest, result
+		httpStatus = http.StatusBadRequest
+		resp.OK = false
+		resp.ErrorCode = 1
+		resp.Message = "Get requrest body error: " + err.Error()
+	}
+	id, err := module.CreateComponent(body)
+	if err != nil {
+		httpStatus = http.StatusBadRequest
+		resp.OK = false
+		resp.ErrorCode = 1
+		resp.Message = "Create Component error: " + err.Error()
+	} else {
+		httpStatus = http.StatusOK
+		resp.id = id
+		resp.OK = true
+		resp.Message = "Component Created"
 	}
 
-	err = json.Unmarshal(reqBody, &body)
+	result, err := json.Marshal(resp)
 	if err != nil {
-		result, _ = json.Marshal(map[string]string{"errMsg": "error when unmarshal request body:" + err.Error()})
-		return http.StatusBadRequest, result
+		log.Errorln("Create Component marshal data error: " + err.Error())
 	}
-
-	resultStr, err := module.CreateComponent(namespace, body.Name, body.Version)
-	if err != nil {
-		result, _ = json.Marshal(map[string]string{"errMsg": "error when create workflow:" + err.Error()})
-		return http.StatusBadRequest, result
-	}
-
-	result, _ = json.Marshal(map[string]string{"message": resultStr})
-
-	return http.StatusOK, result
+	return httpStatus, result
 }
 
 //GetComponentV1Handler is get a specified component info by component id
-func GetComponentV1Handler(ctx *macaron.Context) (int, []byte) {
+func GetComponent(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
 	namespace := ctx.Params(":namespace")
@@ -111,7 +108,7 @@ func GetComponentV1Handler(ctx *macaron.Context) (int, []byte) {
 }
 
 //PutComponentV1Handler is update a component info or create a new component's version
-func PutComponentV1Handler(ctx *macaron.Context) (int, []byte) {
+func UpdateComponent(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
 	body := new(struct {
@@ -179,7 +176,11 @@ func PutComponentV1Handler(ctx *macaron.Context) (int, []byte) {
 }
 
 //DeleteComponentv1Handler is
-func DeleteComponentv1Handler(ctx *macaron.Context) (int, []byte) {
+func DeleteComponent(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 	return http.StatusOK, result
+}
+
+func DebugComponent(ctx *macaron.Context) (int, []byte) {
+	return nil, nil
 }

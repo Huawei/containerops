@@ -116,30 +116,34 @@ func GetComponentListByNamespace(namespace string) ([]map[string]interface{}, er
 	return resultMap, nil
 }
 
-// CreateNewComponent is create a new component
-func CreateComponent(namespace, componentName, componentVersion string) (string, error) {
-	var count int64
-	err := new(models.Component).GetComponent().Where("namespace = ?", namespace).Where("component = ?", componentName).Order("-id").Count(&count).Error
+func CreateComponent(data string) (uint64, error) {
+	var component *models.Component
+	err := json.Unmarshal([]byte(data), component)
 	if err != nil {
-		return "", errors.New("error when query component data in database:" + err.Error())
+		log.Errorln("CreateComponent unmarshal data error: ", err.Error())
+		return 0, errors.New("unmarshal data error: " + err.Error())
+	}
+	if component.ID != 0 {
+		return 0, fmt.Errorf("specify a component id: %d", component.ID)
+	}
+	condition := &models.Component{
+		Name: component.Name,
+		Version: component.Version,
+	}
+	if result, err := condition.SelectComponent(); err != nil {
+		log.Errorln("CreateComponent query component error: ", err.Error())
+		return 0, errors.New("query component error: " + err.Error())
+	} else {
+		if result != nil {
+			return 0, errors.New("component exists, id is: " + result.ID)
+		}
 	}
 
-	if count > 0 {
-		return "", errors.New("component name is exist!")
+	if err = component.Create(); err != nil {
+		log.Errorln("CreateComponent query component error: ", err.Error())
+		return 0, errors.New("query component error: " + err.Error())
 	}
-
-	componentInfo := new(models.Component)
-	componentInfo.Namespace = strings.TrimSpace(namespace)
-	componentInfo.Name = strings.TrimSpace(componentName)
-	componentInfo.Version = strings.TrimSpace(componentVersion)
-	componentInfo.VersionCode = 1
-
-	err = componentInfo.Create()
-	if err != nil {
-		return "", errors.New("error when save component info:" + err.Error())
-	}
-
-	return "create new component success", nil
+	return component.ID, nil
 }
 
 // GetComponentInfo is get component info by given namespace and componentname and componentId
@@ -279,7 +283,7 @@ func UpdateComponentInfo(componentInfo models.Component) error {
 			}
 
 			kuberSetting, _ := json.Marshal(configMap)
-			componentInfo.Kubernetes = string(kuberSetting)
+			componentInfo.KubeSetting = string(kuberSetting)
 		}
 	}
 
@@ -321,7 +325,7 @@ func CreateNewComponentVersion(componentInfo models.Component, versionName strin
 	newComponentInfo.VolumeLocation = componentInfo.VolumeLocation
 	newComponentInfo.VolumeData = componentInfo.VolumeData
 	newComponentInfo.Makefile = componentInfo.Makefile
-	newComponentInfo.Kubernetes = componentInfo.Kubernetes
+	newComponentInfo.KubeSetting = componentInfo.KubeSetting
 	newComponentInfo.Swarm = componentInfo.Swarm
 	newComponentInfo.Input = componentInfo.Input
 	newComponentInfo.Output = componentInfo.Output
