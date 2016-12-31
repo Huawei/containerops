@@ -46,6 +46,11 @@ type component interface {
 	SendData(receiveDataUri string, data []byte) ([]*http.Response, error)
 }
 
+type env struct {
+	Key string `json:"key"`
+	Value string `json:"value"`
+}
+
 type kubeComponent struct {
 	runID         string
 	apiServerUri  string
@@ -77,7 +82,7 @@ func GetComponentListByNamespace(namespace string) ([]map[string]interface{}, er
 		componentMap := componentsMap[componentInfo.Name].(map[string]interface{})
 		versionMap := componentMap["version"].(map[int64]interface{})
 
-		versionMap[componentInfo.VersionCode] = componentInfo
+		//versionMap[componentInfo.VersionCode] = componentInfo
 		componentMap["id"] = componentInfo.ID
 		componentMap["name"] = componentInfo.Name
 		componentMap["version"] = versionMap
@@ -99,7 +104,7 @@ func GetComponentListByNamespace(namespace string) ([]map[string]interface{}, er
 				versionMap := make(map[string]interface{})
 				versionMap["id"] = componentVersion.ID
 				versionMap["version"] = componentVersion.Version
-				versionMap["versionCode"] = componentVersion.VersionCode
+				//versionMap["versionCode"] = componentVersion.VersionCode
 
 				versionList = append(versionList, versionMap)
 			}
@@ -116,15 +121,35 @@ func GetComponentListByNamespace(namespace string) ([]map[string]interface{}, er
 	return resultMap, nil
 }
 
-func CreateComponent(data string) (uint64, error) {
+func CreateComponent(data []byte) (uint64, error) {
 	var component *models.Component
-	err := json.Unmarshal([]byte(data), component)
+	err := json.Unmarshal(data, component)
 	if err != nil {
 		log.Errorln("CreateComponent unmarshal data error: ", err.Error())
 		return 0, errors.New("unmarshal data error: " + err.Error())
 	}
 	if component.ID != 0 {
-		return 0, fmt.Errorf("specify a component id: %d", component.ID)
+		return 0, fmt.Errorf("specify component id: %d", component.ID)
+	}
+	if component.Name == "" {
+		return 0, errors.New("should specify component name")
+	}
+	if component.Version == "" {
+		return 0, errors.New("should specify component version")
+	}
+	if component.ImageName == "" {
+		return 0, errors.New("should specify component image name")
+	}
+	var envs []env
+	if err := json.Unmarshal([]byte(component.Environment), envs); err != nil {
+		return 0, errors.New("can't unmarshal environment data" + err.Error())
+	}
+	var v map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(component.Input), &v); err != nil {
+		return 0, errors.New("can't unmarshal input data" + err.Error())
+	}
+	if err := json.Unmarshal([]byte(component.Output), &v); err != nil {
+		return 0, errors.New("can't unmarshal output data" + err.Error())
 	}
 	condition := &models.Component{
 		Name: component.Name,
@@ -133,10 +158,8 @@ func CreateComponent(data string) (uint64, error) {
 	if result, err := condition.SelectComponent(); err != nil {
 		log.Errorln("CreateComponent query component error: ", err.Error())
 		return 0, errors.New("query component error: " + err.Error())
-	} else {
-		if result != nil {
-			return 0, errors.New("component exists, id is: " + result.ID)
-		}
+	} else if result != nil{
+		return 0, errors.New("component exists, id is: " + result.ID)
 	}
 
 	if err = component.Create(); err != nil {
@@ -146,193 +169,109 @@ func CreateComponent(data string) (uint64, error) {
 	return component.ID, nil
 }
 
-// GetComponentInfo is get component info by given namespace and componentname and componentId
-func GetComponentInfo(namespace, componentName string, componentId int64) (map[string]interface{}, error) {
-	resultMap := make(map[string]interface{})
-	componentInfo := new(models.Component)
+func GetComponentByID(id uint64) (*models.Component, error) {
+	if id == 0 {
+		return "", errors.New("should specify component id")
+	}
 
-	err := componentInfo.GetComponent().Where("id = ?", componentId).First(&componentInfo).Error
+	var condition *models.Component
+	condition.ID = id
+	component, err := condition.SelectComponent()
 	if err != nil {
-		return nil, errors.New("error when get component info from db:" + err.Error())
+		log.Errorln("GetComponent query component error: ", err.Error())
+		return 0, errors.New("query component error: " + err.Error())
 	}
-
-	if componentInfo.Name != componentName {
-		return nil, errors.New("component's name is not equal to target component")
+	if component == nil {
+		return 0, errors.New("component does not exist")
 	}
-
-	// get component define json first, if has a define json,return it
-	if componentInfo.Manifest != "" {
-		defineMap := make(map[string]interface{})
-		json.Unmarshal([]byte(componentInfo.Manifest), &defineMap)
-		if defineInfo, ok := defineMap["define"]; ok {
-			if defineInfoMap, ok := defineInfo.(map[string]interface{}); ok {
-				return defineInfoMap, nil
-			}
-		}
-	}
-
-	resultMap["setupData"] = make(map[string]interface{})
-	resultMap["inputJson"] = make(map[string]interface{})
-	resultMap["outputJson"] = make(map[string]interface{})
-
-	return resultMap, nil
+	return component, nil
 }
 
-// UpdateComponentInfo is update a component define by give info
-func UpdateComponentInfo(componentInfo models.Component) error {
-	manifestMap := make(map[string]interface{})
-	err := json.Unmarshal([]byte(componentInfo.Manifest), &manifestMap)
+func UpdateComponent(id uint64, data []byte) error {
+	var component *models.Component
+	err := json.Unmarshal(data, component)
 	if err != nil {
-		return errors.New("error when unmarshal component's define info:" + err.Error())
+		log.Errorln("UpdateComponent unmarshal data error: ", err.Error())
+		return errors.New("unmarshal data error: " + err.Error())
 	}
 
-	defineMap, ok := manifestMap["define"].(map[string]interface{})
-	if !ok {
-		return errors.New("component define is not a json:" + err.Error())
+	if id != component.ID {
+		return errors.New("component id in path not equals to the id in body")
+	}
+	if component.ImageName == "" {
+		return errors.New("should specify component image name")
+	}
+	var envs []env
+	if err := json.Unmarshal([]byte(component.Environment), envs); err != nil {
+		return 0, errors.New("can't unmarshal environment data" + err.Error())
+	}
+	var v map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(component.Input), &v); err != nil {
+		return 0, errors.New("can't unmarshal input data" + err.Error())
+	}
+	if err := json.Unmarshal([]byte(component.Output), &v); err != nil {
+		return 0, errors.New("can't unmarshal output data" + err.Error())
 	}
 
-	if inputMap, ok := defineMap["inputJson"].(map[string]interface{}); ok {
-		inputDescribe, err := describeJSON(inputMap, "")
-		if err != nil {
-			return errors.New("error in component output json define:" + err.Error())
-		}
-
-		inputDescBytes, _ := json.Marshal(inputDescribe)
-		componentInfo.Input = string(inputDescBytes)
+	var condition *models.Component
+	condition.ID = id
+	old, err := condition.SelectComponent()
+	if err != nil {
+		log.Errorln("UpdateComponent query component error: ", err.Error())
+		return errors.New("query component error: " + err.Error())
+	}
+	if old == nil {
+		return errors.New("component does not exist")
 	}
 
-	if outputMap, ok := defineMap["outputJson"].(map[string]interface{}); ok {
-		outputDescribe, err := describeJSON(outputMap, "")
-		if err != nil {
-			return errors.New("error in component output json define:" + err.Error())
-		}
-
-		outputDescBytes, _ := json.Marshal(outputDescribe)
-		componentInfo.Output = string(outputDescBytes)
+	if component.Name != old.Name {
+		return errors.New("component name can't be changed")
 	}
-
-	setupDataMap, ok := defineMap["setupData"].(map[string]interface{})
-	if !ok {
-		return errors.New("error in component setup data: setup data is not a json")
+	if component.Version != old.Version {
+		return errors.New("component version can't be changed")
 	}
-
-	envMap := make(map[string]interface{})
-	if envDefind, ok := defineMap["env"].([]interface{}); ok {
-		for _, env := range envDefind {
-			if tempEnvMap, ok := env.(map[string]interface{}); ok {
-				envMap[tempEnvMap["key"].(string)] = tempEnvMap["value"].(string)
-			}
-		}
-
-		envByte, _ := json.Marshal(envMap)
-		componentInfo.Environment = string(envByte)
+	component.ID = old.ID
+	if err := component.Save(); err != nil {
+		log.Errorln("UpdateComponent save component error: ", err.Error())
+		return errors.New("save component error: " + err.Error())
 	}
-
-	if componentSetupDetail, ok := setupDataMap["action"].(map[string]interface{}); ok {
-		if imageInfo, ok := componentSetupDetail["image"].(map[string]interface{}); ok {
-			imageName := ""
-			if name, ok := imageInfo["name"].(string); ok {
-				imageName = name + ":"
-				if tag, ok := imageInfo["tag"].(string); ok {
-					imageName += tag
-				} else {
-					imageName += "latest"
-				}
-			}
-
-			componentInfo.Endpoint = imageName
-		}
-
-		if env, ok := componentSetupDetail["env"].(string); ok {
-			componentInfo.Environment = env
-		}
-
-		if timeout, ok := componentSetupDetail["timeout"].(string); ok {
-			timeoutInt := int64(0)
-			if timeout != "" {
-				timeoutInt, err = strconv.ParseInt(timeout, 10, 64)
-				if err != nil {
-					return errors.New("component's timeout is not a string")
-				}
-			}
-			componentInfo.Timeout = timeoutInt
-		}
-
-		// unmarshal k8s info
-		if useAdvanced, ok := componentSetupDetail["useAdvanced"].(bool); ok {
-			configMap := make(map[string]interface{})
-			podConfigKey := "pod"
-			serviceConfigKey := "service"
-			if useAdvanced {
-				podConfigKey = "pod_advanced"
-				serviceConfigKey = "service_advanced"
-			}
-
-			podConfig, ok := setupDataMap[podConfigKey].(map[string]interface{})
-			if !ok {
-				configMap["podConfig"] = make(map[string]interface{})
-			} else {
-				configMap["podConfig"] = podConfig
-			}
-
-			serviceConfig, ok := setupDataMap[serviceConfigKey].(map[string]interface{})
-			if !ok {
-				configMap["serviceConfig"] = make(map[string]interface{})
-			} else {
-				configMap["serviceConfig"] = serviceConfig
-			}
-
-			kuberSetting, _ := json.Marshal(configMap)
-			componentInfo.KubeSetting = string(kuberSetting)
-		}
-	}
-
-	return componentInfo.GetComponent().Save(&componentInfo).Error
+	return nil
 }
 
-// CreateNewComponentVersion is copy current component info to a new component with diff version name
-func CreateNewComponentVersion(componentInfo models.Component, versionName string) error {
-	var count int64
-	err := new(models.Component).GetComponent().Where("namespace = ?", componentInfo.Namespace).Where("component = ?", componentInfo.Name).Where("version = ?", versionName).Count(&count).Error
-	if err != nil {
-		return errors.New("error when get component version info:" + err.Error())
-	}
-
-	if count > 0 {
-		return errors.New("version already exist!")
-	}
-
-	// get current least component's version
-	leastComponent := new(models.Component)
-	err = leastComponent.GetComponent().Where("namespace = ? ", componentInfo.Namespace).Where("component = ?", componentInfo.Name).Order("-id").First(&leastComponent).Error
-	if err != nil {
-		return errors.New("error when get least component info :" + err.Error())
-	}
-
-	newComponentInfo := new(models.Component)
-	newComponentInfo.Namespace = componentInfo.Namespace
-	newComponentInfo.Version = strings.TrimSpace(versionName)
-	newComponentInfo.VersionCode = leastComponent.VersionCode + 1
-	newComponentInfo.Name = componentInfo.Name
-	newComponentInfo.Type = componentInfo.Type
-	newComponentInfo.Title = componentInfo.Title
-	newComponentInfo.Gravatar = componentInfo.Gravatar
-	newComponentInfo.Description = componentInfo.Description
-	newComponentInfo.Endpoint = componentInfo.Endpoint
-	newComponentInfo.Source = componentInfo.Source
-	newComponentInfo.Environment = componentInfo.Environment
-	newComponentInfo.Tag = componentInfo.Tag
-	newComponentInfo.VolumeLocation = componentInfo.VolumeLocation
-	newComponentInfo.VolumeData = componentInfo.VolumeData
-	newComponentInfo.Makefile = componentInfo.Makefile
-	newComponentInfo.KubeSetting = componentInfo.KubeSetting
-	newComponentInfo.Swarm = componentInfo.Swarm
-	newComponentInfo.Input = componentInfo.Input
-	newComponentInfo.Output = componentInfo.Output
-	newComponentInfo.Manifest = componentInfo.Manifest
-
-	return newComponentInfo.GetComponent().Save(newComponentInfo).Error
-}
+//// CreateNewComponentVersion is copy current component info to a new component with diff version name
+//func CreateNewComponentVersion(componentInfo models.Component, versionName string) error {
+//	var count int64
+//	err := new(models.Component).GetComponent().Where("namespace = ?", componentInfo.Namespace).Where("component = ?", componentInfo.Name).Where("version = ?", versionName).Count(&count).Error
+//	if err != nil {
+//		return errors.New("error when get component version info:" + err.Error())
+//	}
+//
+//	if count > 0 {
+//		return errors.New("version already exist!")
+//	}
+//
+//	// get current least component's version
+//	leastComponent := new(models.Component)
+//	err = leastComponent.GetComponent().Where("namespace = ? ", componentInfo.Namespace).Where("component = ?", componentInfo.Name).Order("-id").First(&leastComponent).Error
+//	if err != nil {
+//		return errors.New("error when get least component info :" + err.Error())
+//	}
+//
+//	newComponentInfo := new(models.Component)
+//	newComponentInfo.Version = strings.TrimSpace(versionName)
+//	newComponentInfo.Name = componentInfo.Name
+//	newComponentInfo.Type = componentInfo.Type
+//	newComponentInfo.Endpoint = componentInfo.Endpoint
+//	newComponentInfo.Source = componentInfo.Source
+//	newComponentInfo.Environment = componentInfo.Environment
+//	newComponentInfo.Tag = componentInfo.Tag
+//	newComponentInfo.KubeSetting = componentInfo.KubeSetting
+//	newComponentInfo.Input = componentInfo.Input
+//	newComponentInfo.Output = componentInfo.Output
+//	newComponentInfo.Manifest = componentInfo.Manifest
+//
+//	return newComponentInfo.GetComponent().Save(newComponentInfo).Error
+//}
 
 func NewComponent(actionLog *ActionLog) (component, error) {
 	platformSetting, err := actionLog.GetActionPlatformInfo()

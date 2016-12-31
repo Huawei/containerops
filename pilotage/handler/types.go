@@ -1,12 +1,22 @@
 package handler
 
+import "github.com/Huawei/containerops/pilotage/models"
+
+type errCode int64
+const (
+	componentErrCode errCode = 1 << (4 + iota)
+	workflowErrCode
+	stageErrCode
+	actionErrCode
+)
+
 type CommonResp struct {
 	OK        bool   `json:"ok"`
 	ErrorCode uint32 `json:"error_code,omitempty"`
 	Message   string `json:"message",omitempty`
 }
 
-type CreateComponentResp struct {
-	id uint64 `json:"id"`
-	CommonResp
+type ComponentResp struct {
+	models.Component `json:"component,omitempty"`
+	CommonResp       `json:"common"`
 }
