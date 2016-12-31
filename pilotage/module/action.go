@@ -1772,14 +1772,8 @@ func NewMockAction(component *models.Component) (*ActionLog, error) {
 	actionLog.Swarm = ""
 	actionLog.Input = component.Input
 	actionLog.Output = ""
-	imageInfo := strings.Split(component.Endpoint, ":")
-	if len(imageInfo) < 2 {
-		actionLog.ImageName = imageInfo[0]
-		actionLog.ImageTag = ""
-	} else {
-		actionLog.ImageName = imageInfo[0]
-		actionLog.ImageTag = imageInfo[1]
-	}
+	actionLog.ImageName = component.ImageName
+	actionLog.ImageTag = component.ImageTag
 
 	actionLog.Timeout = strconv.Itoa(component.Timeout)
 	actionLog.Requires = ""

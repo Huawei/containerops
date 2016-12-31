@@ -36,7 +36,7 @@ type Component struct {
 	Version     string `json:"version" sql:"not null;type:varchar(30);unique_index:uix_component_1"`   // component version for display
 	Type        int64  `json:"type" sql:"not null;default:0"`                                      //Container type: docker or rkt.
 	ImageName   string `json:"image_name" sql:"not null;varchar(100);index:idx_component_1"`
-	ImagaTag    string `json:"imaga_tag" sql:"varchar(30)";index:idx_component_1`
+	ImageTag    string `json:"image_tag" sql:"varchar(30)";index:idx_component_1`
 	Timeout     int64  `json:"timeout"`                           //
 	KubeSetting string `json:"kubernetes" sql:"null;type:text"`   //Kubernetes execute script.
 	Input       string `json:"input" sql:"null;type:text"`        //component input
@@ -62,4 +62,12 @@ func (component *Component) Create() error {
 func (condition *Component) SelectComponent() (component *Component, err error) {
 	err = db.Where(condition).First(component).Error
 	return
+}
+
+func (component *Component) Save() error {
+	return db.Save(component).Error
+}
+
+func (component *Component) Delete() error {
+	return db.Unscoped().Delete(component).Error
 }
