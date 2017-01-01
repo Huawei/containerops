@@ -41,13 +41,13 @@ type WorkflowVarLog struct {
 type eventType string
 
 const (
-	COMPONENT_START  eventType = ""
-	TASK_START       eventType = ""
-	TASK_STATUS      eventType = ""
-	TASK_RESULT      eventType = ""
-	TASK_STOP        eventType = ""
-	COMPONENT_RESULT eventType = ""
-	COMPONENT_STOP   eventType = ""
+	COMPONENT_START  eventType = "CO_COMPONENT_START"
+	TASK_START       eventType = "CO_TASK_START"
+	TASK_STATUS      eventType = "CO_TASK_STATUS"
+	TASK_RESULT      eventType = "CO_TASK_RESULT"
+	TASK_STOP        eventType = "CO_TASK_STOP"
+	COMPONENT_RESULT eventType = "CO_COMPONENT_RESULT"
+	COMPONENT_STOP   eventType = "CO_COMPONENT_STOP"
 )
 
 var eventTypes = []eventType{COMPONENT_START, TASK_START, TASK_STATUS, TASK_RESULT,
@@ -65,10 +65,9 @@ var eventTypes = []eventType{COMPONENT_START, TASK_START, TASK_STATUS, TASK_RESU
 var projectAddr = ""
 
 func init() {
+	projectAddr = configure.GetString("projectaddr")
 	if configure.GetString("projectaddr") == "" {
 		projectAddr = "http://localhost"
-	} else {
-		projectAddr = configure.GetString("projectaddr")
 	}
 	projectAddr = strings.TrimSuffix(projectAddr, "/")
 }
@@ -83,21 +82,21 @@ func setSystemEvent(db *gorm.DB, actionLog *models.ActionLog) error {
 		}
 	}
 
-	workflowLog := new(models.WorkflowLog)
-	err := db.Model(&models.WorkflowLog{}).Where("id = ?", actionLog.Workflow).First(workflowLog).Error
-	if err != nil {
-		log.Error("[setSystemEvent]:error when get workflowlog info from db:", err.Error())
-		rollbackErr := db.Rollback().Error
-		if rollbackErr != nil {
-			log.Error("[setSystemEvent]:when rollback in get workflowlog's info:", rollbackErr.Error())
-			return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
-		}
-		return err
-	}
+	//workflowLog := new(models.WorkflowLog)
+	//err := db.Model(&models.WorkflowLog{}).Where("id = ?", actionLog.Workflow).First(workflowLog).Error
+	//if err != nil {
+	//	log.Error("[setSystemEvent]:error when get workflowlog info from db:", err.Error())
+	//	rollbackErr := db.Rollback().Error
+	//	if rollbackErr != nil {
+	//		log.Error("[setSystemEvent]:when rollback in get workflowlog's info:", rollbackErr.Error())
+	//		return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
+	//	}
+	//	return err
+	//}
 
 	for _, eventType := range eventTypes {
 		tempEvent := new(models.EventDefinition)
-		tempEvent.Title = eventType
+		tempEvent.Title = string(eventType)
 		tempEvent.Namespace = actionLog.Namespace
 		tempEvent.Repository = actionLog.Repository
 		tempEvent.Workflow = actionLog.Workflow
@@ -106,11 +105,10 @@ func setSystemEvent(db *gorm.DB, actionLog *models.ActionLog) error {
 		tempEvent.Character = models.CharacterComponentEvent
 		tempEvent.Type = models.TypeSystemEvent
 		tempEvent.Source = models.SourceInnerEvent
-		tempEvent.Definition = projectAddr + "/v2/" + actionLog.Namespace + "/" +
-			actionLog.Repository + "/workflow/v1/runtime/event/" +
-			workflowLog.Workflow + "/" + eventType
+		tempEvent.Definition = projectAddr + "/v2/events"
 
-		err := db.Save(tempEvent).Error
+		err:= tempEvent.Save()
+		//err := db.Save(tempEvent).Error
 		if err != nil {
 			log.Error("[setSystemEvent]:error when save event definition to db:", err.Error())
 			rollbackErr := db.Rollback().Error

@@ -35,12 +35,6 @@ const (
 	CharacterServiceEvent
 	//CharacterComponentEvent is Event use for component.
 	CharacterComponentEvent
-
-	EVENT_COMPONENT_START = "CO_COMPONENT_START"
-	EVENT_TASK_START      = "CO_TASK_START"
-	EVENT_TASK_STATUS     = "CO_TASK_STATUS"
-	EVENT_TASK_RESULT     = "CO_TASK_RESULT"
-	EVENT_COMPONENT_STOP  = "CO_COMPONENT_STOP"
 )
 
 const (
@@ -50,7 +44,7 @@ const (
 //EventDefinition is the event type, source and definition in the customized DevOps workflow processing.
 //And the system events will be initlization with pilotage system.
 type EventDefinition struct {
-	ID         int64      `json:"id" gorm:"primary_key"`                   //
+	BaseIDField
 	//Event      string     `json:"event" sql:"not null;type:varchar(255)"`  //Event name for query.
 	Title      string     `json:"title" sql:"null;type:varchar(255)"`      //Event name for display.
 	Namespace  string     `json:"namespace" sql:"null;type:varchar(255)"`  //Event name for display.
@@ -62,14 +56,16 @@ type EventDefinition struct {
 	Type       int64      `json:"type" sql:"not null;default:0"`           //TypeSystemEvent or TypeUserEvent.
 	Source     int64      `json:"source" sql:"not null;default:0"`         //SourceInnerEvent or SourceOutsideEvent.
 	Definition string     `json:"type" sql:"null;type:text"`               //Event Definition.
-	CreatedAt  time.Time  `json:"created" sql:""`                          //
-	UpdatedAt  time.Time  `json:"updated" sql:""`                          //
-	DeletedAt  *time.Time `json:"deleted" sql:"index"`                     //
+	BaseModel2
 }
 
 //TableName is return the table name of Event in MySQL database.
 func (e *EventDefinition) TableName() string {
 	return "event_definition"
+}
+
+func (e *EventDefinition) Save() error {
+	return db.Save(e).Error
 }
 
 func (e *EventDefinition) GetEventDefinition() *gorm.DB {

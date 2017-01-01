@@ -25,7 +25,7 @@ type Action struct {
 	ImageTag    string     `json:"imageTag"`                                    //
 	Timeout     string     `json:"timeout"`                                     //
 	Requires    string     `json:"requires" sql:"type:longtext"`                // workflow run requires auth
-	BaseModel
+	BaseModel1
 }
 
 //TableName is return the name of Action in MySQL database.
@@ -68,7 +68,7 @@ type ActionLog struct {
 	Timeout      string     `json:"timeout"`                                     //
 	Requires     string     `json:"requires" sql:"type:longtext"`                // workflow run requires auth
 	AuthList     string     `json:"authList" sql:"type:longtext"`                //
-	BaseLogModel
+	BaseModel2
 }
 
 func (log *ActionLog) TableName() string {
