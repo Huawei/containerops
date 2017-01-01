@@ -927,7 +927,7 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 		return err
 	}
 
-	if eventKey == models.EVENT_TASK_STATUS {
+	if eventKey == TASK_STATUS {
 		resultReqBody, ok := reqBody["INFO"].(map[string]interface{})
 		if !ok {
 			log.Error("[actionLog's RecordEvent]:error when get request's info body, want a json obj, got:", reqBody["INFO"])
@@ -964,7 +964,7 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 		actionLog.Stop(stopReason, int64(stopStatus))
 	}
 
-	if eventKey == models.EVENT_COMPONENT_STOP {
+	if eventKey == COMPONENT_STOP {
 		c.Stop()
 	}
 
@@ -1749,7 +1749,7 @@ func changeMapInfoWithGlobalVar(workflow, sequence int64, sourceMap map[string]i
 
 func NewMockAction(component *models.Component) (*ActionLog, error) {
 	var actionLog *ActionLog
-	actionLog.Namespace = component.Namespace
+	actionLog.Namespace = ""
 	actionLog.Repository = ""
 	actionLog.Workflow = 0
 	actionLog.FromWorkflow = 0
@@ -1761,25 +1761,19 @@ func NewMockAction(component *models.Component) (*ActionLog, error) {
 	actionLog.Component = component.ID
 	actionLog.Service = 0
 	actionLog.Action = ""
-	actionLog.Title = component.Title
-	actionLog.Description = component.Description
+	actionLog.Title = ""
+	actionLog.Description = ""
 	actionLog.Event = 0
 	manifest := `{"platform":{"platformHost":"http://10.21.101.227:8080","platformType":"KUBERNETES"}`
 	actionLog.Manifest = manifest
 	actionLog.Environment = component.Environment
 	//TODO: add runtime k8s-apiserver
-	actionLog.Kubernetes = component.Kubernetes
+	actionLog.Kubernetes = component.KubeSetting
 	actionLog.Swarm = ""
 	actionLog.Input = component.Input
 	actionLog.Output = ""
-	imageInfo := strings.Split(component.Endpoint, ":")
-	if len(imageInfo) < 2 {
-		actionLog.ImageName = imageInfo[0]
-		actionLog.ImageTag = ""
-	} else {
-		actionLog.ImageName = imageInfo[0]
-		actionLog.ImageTag = imageInfo[1]
-	}
+	actionLog.ImageName = component.ImageName
+	actionLog.ImageTag = component.ImageTag
 
 	actionLog.Timeout = strconv.Itoa(component.Timeout)
 	actionLog.Requires = ""
@@ -1794,20 +1788,22 @@ func NewMockAction(component *models.Component) (*ActionLog, error) {
 	return actionLog, nil
 }
 
-func handler(input, envs string) {
-	id := 1
-	component, err := models.SelectComponentFromID(id)
-	if err != nil {
-		log.Errorln(err)
-		return
-	}
-	component.Input = input
-	component.Environment = envs
-	actionLog, err := NewMockAction(component)
-	if err != nil {
-		log.Errorln(err)
-		return
-	}
-	actionLog.Start()
-	//TODO: return logs, events and inouts
-}
+//func handler(input, envs string) {
+//	id := 1
+//	condition := &models.Component{}
+//	condition.ID = id
+//	component, err := condition.SelectComponent()
+//	if err != nil {
+//		log.Errorln(err)
+//		return
+//	}
+//	component.Input = input
+//	component.Environment = envs
+//	actionLog, err := NewMockAction(component)
+//	if err != nil {
+//		log.Errorln(err)
+//		return
+//	}
+//	actionLog.Start()
+//	//TODO: return logs, events and inouts
+//}

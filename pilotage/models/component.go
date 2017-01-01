@@ -17,8 +17,6 @@ limitations under the License.
 package models
 
 import (
-	"time"
-
 	"github.com/jinzhu/gorm"
 )
 
@@ -34,28 +32,18 @@ const (
 //Component is customized container(docker or rkt) for executing DevOps tasks.
 type Component struct {
 	BaseIDField
-	Namespace   string     `json:"namespace" sql:"not null;type:varchar(255)"` //User or organization.
-	Version     string     `json:"version" sql:"null;type:text"`               // component version for display
-	VersionCode int64      `json:"versionCode" sql:"null;type:bigint"`         // component version code system set
-	Name        string     `json:"name" sql:"not null;type:varchar(255)"`      //Component name for query.
-	Type        int64      `json:"type" sql:"not null;default:0"`              //Container type: docker or rkt.
-	Title       string     `json:"title" sql:"null;type:varchar(255)"`         //Component name for display.
-	Gravatar    string     `json:"gravatar" sql:"null;type:text"`              //Logo.
-	Description string     `json:"description" sql:"null;type:text"`           //Description with markdown style.
-	Endpoint       string     `json:"endpoint" sql:"null;type:text"`           //Contaienr location like: `dockyard.sh/genedna/cloudnativeday:1.0`.
-	Source         string     `json:"source" sql:"not null;type:text"`         //Component source location like: `git@github.com/containerops/components`.
-	Environment    string     `json:"environment" sql:"null;type:text"`        //Environment parameters.
-	Tag            string     `json:"tag" sql:"null;type:varchar(255)"`        //Tag for version.
-	VolumeLocation string     `json:"volume_location" sql:"null;type:text"`    //Volume path in the container.
-	VolumeData     string     `json:"volume_data" sql:"null;type:text"`        //Volume data source.
-	Makefile       string     `json:"makefile" sql:"null;type:text"`           //Like Dockerfile or acbuild script.
-	Kubernetes     string     `json:"kubernetes" sql:"null;type:text"`         //Kubernetes execute script.
-	Swarm          string     `json:"swarm" sql:"null;type:text"`              //Docker Swarm execute script.
-	Input          string     `json:"input" sql:"null;type:text"`              //component input
-	Output         string     `json:"output" sql:"null;type:text"`             //component output
-	Timeout        int64      `json:"timeout"`                                 //
-	Manifest       string     `json:"manifest" sql:"null;type:longtext"`       //
-	BaseModel
+	Name        string `json:"name" sql:"not null;type:varchar(100);unique_index:uix_component_1"` //Component name for query.
+	Version     string `json:"version" sql:"not null;type:varchar(30);unique_index:uix_component_1"`   // component version for display
+	Type        int64  `json:"type" sql:"not null;default:0"`                                      //Container type: docker or rkt.
+	ImageName   string `json:"image_name" sql:"not null;varchar(100);index:idx_component_1"`
+	ImageTag    string `json:"image_tag" sql:"varchar(30)";index:idx_component_1`
+	Timeout     int64  `json:"timeout"`                           //
+	KubeSetting string `json:"kubernetes" sql:"null;type:text"`   //Kubernetes execute script.
+	Input       string `json:"input" sql:"null;type:text"`        //component input
+	Output      string `json:"output" sql:"null;type:text"`       //component output
+	Environment string `json:"environment" sql:"null;type:text"`  //Environment parameters.
+	Manifest    string `json:"manifest" sql:"null;type:longtext"` //
+	BaseModel2
 }
 
 //TableName is return the table name of Component in MySQL database.
@@ -67,13 +55,19 @@ func (c *Component) GetComponent() *gorm.DB {
 	return db.Model(&Component{})
 }
 
-func (c *Component) Create() error {
-	return db.Create(c).Error
+func (component *Component) Create() error {
+	return db.Create(component).Error
 }
 
-func SelectComponentFromID(id uint64) (component *Component, err error) {
-	var condition *Component
-	condition.ID = id
+func (condition *Component) SelectComponent() (component *Component, err error) {
 	err = db.Where(condition).First(component).Error
 	return
+}
+
+func (component *Component) Save() error {
+	return db.Save(component).Error
+}
+
+func (component *Component) Delete() error {
+	return db.Delete(component).Error
 }
