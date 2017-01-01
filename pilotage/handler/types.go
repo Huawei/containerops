@@ -3,6 +3,7 @@ package handler
 import "github.com/Huawei/containerops/pilotage/models"
 
 type errCode int64
+
 const (
 	componentErrCode errCode = 1 << (4 + iota)
 	workflowErrCode
@@ -19,4 +20,10 @@ type CommonResp struct {
 type ComponentResp struct {
 	models.Component `json:"component,omitempty"`
 	CommonResp       `json:"common"`
+}
+
+type DebugComponentReq struct {
+	Kubernetes  string `json:"kubernetes"`
+	Input       string `json:"input"`
+	Environment string `json:"environment"`
 }

@@ -18,13 +18,11 @@ package handler
 
 import (
 	"encoding/json"
-	"net/http"
-
 	"github.com/Huawei/containerops/pilotage/models"
 	"github.com/Huawei/containerops/pilotage/module"
-
+	log "github.com/Sirupsen/logrus"
 	"gopkg.in/macaron.v1"
-	"github.com/prometheus/common/log"
+	"net/http"
 	"strconv"
 )
 
@@ -50,8 +48,7 @@ func ListComponents(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-func CreateComponent(ctx *macaron.Context) (int, []byte) {
-	var httpStatus int64
+func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	var resp ComponentResp
 	body, err := ctx.Req.Body().Bytes()
 	if err != nil {
@@ -59,12 +56,41 @@ func CreateComponent(ctx *macaron.Context) (int, []byte) {
 		resp.OK = false
 		resp.ErrorCode = componentErrCode + 1
 		resp.Message = "Get requrest body error: " + err.Error()
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("Create component marshal data error: " + err.Error())
+		}
+		return
 	}
-	if id, err := module.CreateComponent(body); err != nil {
+
+	var component *models.Component
+	err = json.Unmarshal(body, component)
+	if err != nil {
+		log.Errorln("CreateComponent unmarshal data error: ", err.Error())
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
 		resp.ErrorCode = componentErrCode + 2
+		resp.Message = "unmarshal data error: " + err.Error()
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("Create component marshal data error: " + err.Error())
+		}
+		return
+	}
+
+	if id, err := module.CreateComponent(component); err != nil {
+		httpStatus = http.StatusBadRequest
+		resp.OK = false
+		resp.ErrorCode = componentErrCode + 3
 		resp.Message = "Create component error: " + err.Error()
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("Create component marshal data error: " + err.Error())
+		}
+		return
 	} else {
 		httpStatus = http.StatusOK
 		resp.ID = id
@@ -72,15 +98,14 @@ func CreateComponent(ctx *macaron.Context) (int, []byte) {
 		resp.Message = "Component Created"
 	}
 
-	result, err := json.Marshal(resp)
+	result, err = json.Marshal(resp)
 	if err != nil {
 		log.Errorln("Create component marshal data error: " + err.Error())
 	}
-	return httpStatus, result
+	return
 }
 
-func GetComponent(ctx *macaron.Context) (int, []byte) {
-	var httpStatus int64
+func GetComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	var resp ComponentResp
 	componentID := ctx.Params(":component_id")
 	id, err := strconv.Atoi(componentID)
@@ -89,26 +114,37 @@ func GetComponent(ctx *macaron.Context) (int, []byte) {
 		resp.OK = false
 		resp.ErrorCode = componentErrCode + 3
 		resp.Message = "Parse component id error: " + err.Error()
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("Get component marshal data error: " + err.Error())
+		}
+		return
 	}
 	if component, err := module.GetComponentByID(id); err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
 		resp.ErrorCode = componentErrCode + 4
 		resp.Message = "get component by id error: " + err.Error()
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("Get component marshal data error: " + err.Error())
+		}
+		return
 	} else {
 		httpStatus = http.StatusOK
 		resp.OK = true
 		resp.Component = component
 	}
-	result, err := json.Marshal(resp)
+	result, err = json.Marshal(resp)
 	if err != nil {
 		log.Errorln("Get component marshal data error: " + err.Error())
 	}
-	return httpStatus, result
+	return
 }
 
-func UpdateComponent(ctx *macaron.Context) (int, []byte) {
-	var httpStatus int64
+func UpdateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	var resp ComponentResp
 	body, err := ctx.Req.Body().Bytes()
 	if err != nil {
@@ -116,6 +152,28 @@ func UpdateComponent(ctx *macaron.Context) (int, []byte) {
 		resp.OK = false
 		resp.ErrorCode = componentErrCode + 5
 		resp.Message = "Get requrest body error: " + err.Error()
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("Update component marshal data error: " + err.Error())
+		}
+		return
+	}
+
+	var component *models.Component
+	err = json.Unmarshal(body, component)
+	if err != nil {
+		log.Errorln("UpdateComponent unmarshal data error: ", err.Error())
+		httpStatus = http.StatusBadRequest
+		resp.OK = false
+		resp.ErrorCode = componentErrCode + 2
+		resp.Message = "unmarshal data error: " + err.Error()
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("Update component marshal data error: " + err.Error())
+		}
+		return
 	}
 
 	componentID := ctx.Params(":component_id")
@@ -125,81 +183,171 @@ func UpdateComponent(ctx *macaron.Context) (int, []byte) {
 		resp.OK = false
 		resp.ErrorCode = componentErrCode + 6
 		resp.Message = "Parse component id error: " + err.Error()
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("Update component marshal data error: " + err.Error())
+		}
+		return
 	}
 
-	if err := module.UpdateComponent(id, body); err != nil {
+	if err := module.UpdateComponent(id, component); err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
 		resp.ErrorCode = componentErrCode + 7
 		resp.Message = "update component error: " + err.Error()
-	} else {
-		httpStatus = http.StatusOK
-		resp.OK = true
-	}
 
-	result, err := json.Marshal(resp)
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("Update component marshal data error: " + err.Error())
+		}
+		return
+	}
+	httpStatus = http.StatusOK
+	resp.OK = true
+
+	result, err = json.Marshal(resp)
 	if err != nil {
 		log.Errorln("Update component marshal data error: " + err.Error())
 	}
-	return httpStatus, result
-	//
-	//err = json.Unmarshal(reqBody, &body)
-	//if err != nil {
-	//	result, _ = json.Marshal(map[string]string{"errMsg": "error when unmarshal request body:" + err.Error()})
-	//	return http.StatusBadRequest, result
-	//}
-	//
-	//componentInfo := new(models.Component)
-	//err = componentInfo.GetComponent().Where("id = ?", body.Id).Find(&componentInfo).Error
-	//if err != nil {
-	//	result, _ = json.Marshal(map[string]string{"errMsg": "error when get component info from db:" + err.Error()})
-	//	return http.StatusBadRequest, result
-	//}
-	//
-	//if componentInfo.ID == 0 {
-	//	result, _ = json.Marshal(map[string]string{"errMsg": "component is not exist"})
-	//	return http.StatusBadRequest, result
-	//}
-	//
-	//defineMap := make(map[string]interface{})
-	//if componentInfo.Manifest != "" {
-	//	err = json.Unmarshal([]byte(componentInfo.Manifest), &defineMap)
-	//	if err != nil {
-	//		result, _ = json.Marshal(map[string]string{"errMsg": "error when save component info:" + err.Error()})
-	//		return http.StatusBadRequest, result
-	//	}
-	//}
-	//
-	//defineMap["define"] = body.Define
-	//defineByte, err := json.Marshal(defineMap)
-	//if err != nil {
-	//	result, _ = json.Marshal(map[string]string{"errMsg": "error when save component info:" + err.Error()})
-	//	return http.StatusBadRequest, result
-	//}
-	//
-	//componentInfo.Manifest = string(defineByte)
-	//if componentInfo.Version == body.Version {
-	//	// err = componentInfo.GetComponent().Save(componentInfo).Error
-	//	err = module.UpdateComponent(*componentInfo)
-	//} else {
-	//	err = module.CreateNewComponentVersion(*componentInfo, body.Version)
-	//}
-	//
-	//if err != nil {
-	//	result, _ = json.Marshal(map[string]string{"errMsg": "error when save component info:" + err.Error()})
-	//	return http.StatusBadRequest, result
-	//}
-	//
-	//result, _ = json.Marshal(map[string]string{"message": "success"})
-	//
-	//return http.StatusOK, result
+	return
 }
 
-func DeleteComponent(ctx *macaron.Context) (int, []byte) {
-	result, _ := json.Marshal(map[string]string{"message": ""})
-	return http.StatusOK, result
+func DeleteComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
+	var resp ComponentResp
+
+	componentID := ctx.Params(":component_id")
+	id, err := strconv.Atoi(componentID)
+	if err != nil {
+		httpStatus = http.StatusBadRequest
+		resp.OK = false
+		resp.ErrorCode = componentErrCode + 8
+		resp.Message = "Parse component id error: " + err.Error()
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("Delete component marshal data error: " + err.Error())
+		}
+		return
+	}
+
+	if err := module.DeleteComponent(id); err != nil {
+		httpStatus = http.StatusBadRequest
+		resp.OK = false
+		resp.ErrorCode = componentErrCode + 9
+		resp.Message = "delete component error: " + err.Error()
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("Delete component marshal data error: " + err.Error())
+		}
+		return
+	}
+
+	httpStatus = http.StatusOK
+	resp.OK = true
+
+	result, err = json.Marshal(resp)
+	if err != nil {
+		log.Errorln("Delete component marshal data error: " + err.Error())
+	}
+	return
 }
 
-func DebugComponent(ctx *macaron.Context) (int, []byte) {
-	return nil, nil
+func DebugComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
+	var resp ComponentResp
+	body, err := ctx.Req.Body().Bytes()
+	if err != nil {
+		httpStatus = http.StatusBadRequest
+		resp.OK = false
+		resp.ErrorCode = componentErrCode + 5
+		resp.Message = "Get requrest body error: " + err.Error()
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("Debug component marshal data error: " + err.Error())
+		}
+		return
+	}
+
+	componentID := ctx.Params(":component_id")
+	id, err := strconv.Atoi(componentID)
+	if err != nil {
+		httpStatus = http.StatusBadRequest
+		resp.OK = false
+		resp.ErrorCode = componentErrCode + 10
+		resp.Message = "Parse component id error: " + err.Error()
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("Debug component marshal data error: " + err.Error())
+		}
+		return
+	}
+
+	var req *DebugComponentReq
+	err = json.Unmarshal(body, req)
+	if err != nil {
+		log.Errorln("DebugComponent unmarshal data error: ", err.Error())
+		httpStatus = http.StatusBadRequest
+		resp.OK = false
+		resp.ErrorCode = componentErrCode + 5
+		resp.Message = "unmarshal data error: " + err.Error()
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("Debug component marshal data error: " + err.Error())
+		}
+		return
+	}
+
+	if req.Kubernetes == "" {
+		httpStatus = http.StatusBadRequest
+		resp.OK = false
+		resp.ErrorCode = componentErrCode + 5
+		resp.Message = "should specify kubernetes api server"
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("Debug component marshal data error: " + err.Error())
+		}
+		return
+	}
+
+	component, err := module.GetComponentByID(id)
+	if err != nil {
+		httpStatus = http.StatusBadRequest
+		resp.OK = false
+		resp.ErrorCode = componentErrCode + 4
+		resp.Message = "get component by id error: " + err.Error()
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("Debug component marshal data error: " + err.Error())
+		}
+		return
+	}
+
+	if err := module.DebugComponent(component, req.Kubernetes, req.Input, req.Environment); err != nil {
+		httpStatus = http.StatusBadRequest
+		resp.OK = false
+		resp.ErrorCode = componentErrCode + 9
+		resp.Message = "debug component error: " + err.Error()
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("Debug component marshal data error: " + err.Error())
+		}
+		return
+	}
+
+	//TODO: return logs, events and inouts
+
+	httpStatus = http.StatusOK
+	resp.OK = true
+	result, err = json.Marshal(resp)
+	if err != nil {
+		log.Errorln("Debug component marshal data error: " + err.Error())
+	}
+	return
 }

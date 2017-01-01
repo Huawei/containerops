@@ -56,7 +56,7 @@ type EventDefinition struct {
 	Type       int64      `json:"type" sql:"not null;default:0"`           //TypeSystemEvent or TypeUserEvent.
 	Source     int64      `json:"source" sql:"not null;default:0"`         //SourceInnerEvent or SourceOutsideEvent.
 	Definition string     `json:"type" sql:"null;type:text"`               //Event Definition.
-	BaseLogModel
+	BaseModel2
 }
 
 //TableName is return the table name of Event in MySQL database.

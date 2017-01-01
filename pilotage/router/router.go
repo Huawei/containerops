@@ -17,10 +17,9 @@ limitations under the License.
 package router
 
 import (
+	"github.com/Huawei/containerops/pilotage/handler"
 	"github.com/go-macaron/binding"
 	"gopkg.in/macaron.v1"
-
-	"github.com/Huawei/containerops/pilotage/handler"
 )
 
 //SetRouters is pilotage router's definition fucntion.
@@ -28,7 +27,10 @@ func SetRouters(m *macaron.Macaron) {
 	m.Group("/v2", func() {
 		m.Get("/", handler.IndexV1Handler)
 
-		m.Post("/event", handler.PostActionEventV1Handler)
+		m.Group("/events", func() {
+			m.Post("/", handler.PostActionEventV1Handler)
+
+		})
 
 		m.Group("/components", func() {
 			m.Get("/", handler.ListComponents)
