@@ -121,15 +121,9 @@ func GetComponentListByNamespace(namespace string) ([]map[string]interface{}, er
 	return resultMap, nil
 }
 
-func CreateComponent(data []byte) (uint64, error) {
-	var component *models.Component
-	err := json.Unmarshal(data, component)
-	if err != nil {
-		log.Errorln("CreateComponent unmarshal data error: ", err.Error())
-		return 0, errors.New("unmarshal data error: " + err.Error())
-	}
+func CreateComponent(component *models.Component) (uint64, error) {
 	if component.ID != 0 {
-		return 0, fmt.Errorf("specify component id: %d", component.ID)
+		return 0, fmt.Errorf("should not specify component id: %d", component.ID)
 	}
 	if component.Name == "" {
 		return 0, errors.New("should specify component name")
@@ -166,7 +160,7 @@ func CreateComponent(data []byte) (uint64, error) {
 		return 0, errors.New("component exists, id is: " + result.ID)
 	}
 
-	if err = component.Create(); err != nil {
+	if err := component.Create(); err != nil {
 		log.Errorln("CreateComponent query component error: ", err.Error())
 		return 0, errors.New("query component error: " + err.Error())
 	}
@@ -191,14 +185,7 @@ func GetComponentByID(id uint64) (*models.Component, error) {
 	return component, nil
 }
 
-func UpdateComponent(id uint64, data []byte) error {
-	var component *models.Component
-	err := json.Unmarshal(data, component)
-	if err != nil {
-		log.Errorln("UpdateComponent unmarshal data error: ", err.Error())
-		return errors.New("unmarshal data error: " + err.Error())
-	}
-
+func UpdateComponent(id uint64, component *models.Component) error {
 	if id != component.ID {
 		return errors.New("component id in path not equals to the id in body")
 	}
@@ -243,6 +230,45 @@ func UpdateComponent(id uint64, data []byte) error {
 		log.Errorln("UpdateComponent save component error: ", err.Error())
 		return errors.New("save component error: " + err.Error())
 	}
+	return nil
+}
+
+func DeleteComponent(id uint64) error {
+	if id == 0 {
+		return errors.New("should specify component id")
+	}
+
+	var condition *models.Component
+	condition.ID = id
+	component, err := condition.SelectComponent()
+	if err != nil {
+		log.Errorln("DeleteComponent query component error: ", err.Error())
+		return errors.New("query component error: " + err.Error())
+	}
+	if component == nil {
+		return errors.New("component does not exist")
+	}
+	if err := component.Delete(); err != nil {
+		log.Errorln("DeleteComponent delete component error: ", err.Error())
+		return errors.New("delete component error: " + err.Error())
+	}
+	return nil
+}
+
+func DebugComponent(component *models.Component, kubernetes, input, environment string) error {
+	component.Input = input
+	var envs []env
+	if err := json.Unmarshal([]byte(environment), envs); err != nil {
+		return errors.New("can't unmarshal environment data" + err.Error())
+	}
+
+	component.Environment = environment
+	actionLog, err := NewMockAction(component)
+	if err != nil {
+		log.Errorln("DebugComponent mock action error: ", err.Error())
+		return errors.New("mock action error: " + err.Error())
+	}
+	actionLog.Start()
 	return nil
 }
 

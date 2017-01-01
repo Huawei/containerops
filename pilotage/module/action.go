@@ -1788,22 +1788,22 @@ func NewMockAction(component *models.Component) (*ActionLog, error) {
 	return actionLog, nil
 }
 
-func handler(input, envs string) {
-	id := 1
-	condition := &models.Component{}
-	condition.ID = id
-	component, err := condition.SelectComponent()
-	if err != nil {
-		log.Errorln(err)
-		return
-	}
-	component.Input = input
-	component.Environment = envs
-	actionLog, err := NewMockAction(component)
-	if err != nil {
-		log.Errorln(err)
-		return
-	}
-	actionLog.Start()
-	//TODO: return logs, events and inouts
-}
+//func handler(input, envs string) {
+//	id := 1
+//	condition := &models.Component{}
+//	condition.ID = id
+//	component, err := condition.SelectComponent()
+//	if err != nil {
+//		log.Errorln(err)
+//		return
+//	}
+//	component.Input = input
+//	component.Environment = envs
+//	actionLog, err := NewMockAction(component)
+//	if err != nil {
+//		log.Errorln(err)
+//		return
+//	}
+//	actionLog.Start()
+//	//TODO: return logs, events and inouts
+//}

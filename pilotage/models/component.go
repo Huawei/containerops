@@ -43,7 +43,7 @@ type Component struct {
 	Output      string `json:"output" sql:"null;type:text"`       //component output
 	Environment string `json:"environment" sql:"null;type:text"`  //Environment parameters.
 	Manifest    string `json:"manifest" sql:"null;type:longtext"` //
-	BaseModel
+	BaseModel2
 }
 
 //TableName is return the table name of Component in MySQL database.
@@ -69,5 +69,5 @@ func (component *Component) Save() error {
 }
 
 func (component *Component) Delete() error {
-	return db.Unscoped().Delete(component).Error
+	return db.Delete(component).Error
 }

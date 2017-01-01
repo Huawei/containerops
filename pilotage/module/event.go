@@ -105,7 +105,7 @@ func setSystemEvent(db *gorm.DB, actionLog *models.ActionLog) error {
 		tempEvent.Character = models.CharacterComponentEvent
 		tempEvent.Type = models.TypeSystemEvent
 		tempEvent.Source = models.SourceInnerEvent
-		tempEvent.Definition = projectAddr + "/v2/event"
+		tempEvent.Definition = projectAddr + "/v2/events"
 
 		err:= tempEvent.Save()
 		//err := db.Save(tempEvent).Error
