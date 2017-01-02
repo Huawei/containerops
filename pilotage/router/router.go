@@ -43,6 +43,10 @@ func SetRouters(m *macaron.Macaron) {
 			m.Post("/:component_id/debug", handler.DebugComponent)
 		})
 
+		m.Group("/images", func() {
+			m.Post("/build", handler.BuildImage)
+		})
+
 		m.Group("/:namespace", func() {
 
 			m.Group("/service", func() {
