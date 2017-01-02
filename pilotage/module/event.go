@@ -38,19 +38,19 @@ type WorkflowVarLog struct {
 	*models.WorkflowVarLog
 }
 
-type eventType string
+type EventType string
 
 const (
-	COMPONENT_START  eventType = "CO_COMPONENT_START"
-	TASK_START       eventType = "CO_TASK_START"
-	TASK_STATUS      eventType = "CO_TASK_STATUS"
-	TASK_RESULT      eventType = "CO_TASK_RESULT"
-	TASK_STOP        eventType = "CO_TASK_STOP"
-	COMPONENT_RESULT eventType = "CO_COMPONENT_RESULT"
-	COMPONENT_STOP   eventType = "CO_COMPONENT_STOP"
+	COMPONENT_START EventType = "CO_COMPONENT_START"
+	TASK_START EventType = "CO_TASK_START"
+	TASK_STATUS EventType = "CO_TASK_STATUS"
+	TASK_RESULT EventType = "CO_TASK_RESULT"
+	TASK_STOP EventType = "CO_TASK_STOP"
+	COMPONENT_RESULT EventType = "CO_COMPONENT_RESULT"
+	COMPONENT_STOP EventType = "CO_COMPONENT_STOP"
 )
 
-var eventTypes = []eventType{COMPONENT_START, TASK_START, TASK_STATUS, TASK_RESULT,
+var eventTypes = []EventType{COMPONENT_START, TASK_START, TASK_STATUS, TASK_RESULT,
 	TASK_STOP, COMPONENT_RESULT, COMPONENT_STOP}
 
 //var eventList = map[string]string{

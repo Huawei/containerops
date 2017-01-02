@@ -27,3 +27,8 @@ type DebugComponentReq struct {
 	Input       string `json:"input"`
 	Environment string `json:"environment"`
 }
+
+type DebugComponentResp struct {
+	LogID      uint64 `json:"log_id"`
+	CommonResp `json:"common"`
+}
