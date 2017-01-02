@@ -179,9 +179,9 @@ func GetComponentByID(id uint64) (*models.Component, error) {
 		log.Errorln("GetComponent query component error: ", err.Error())
 		return 0, errors.New("query component error: " + err.Error())
 	}
-	if component == nil {
-		return 0, errors.New("component does not exist")
-	}
+	//if component == nil {
+	//	return 0, errors.New("component does not exist")
+	//}
 	return component, nil
 }
 
@@ -255,57 +255,22 @@ func DeleteComponent(id uint64) error {
 	return nil
 }
 
-func DebugComponent(component *models.Component, kubernetes, input, environment string) error {
+func DebugComponent(component *models.Component, kubernetes, input, environment string) (uint64, error) {
 	component.Input = input
 	var envs []env
 	if err := json.Unmarshal([]byte(environment), envs); err != nil {
-		return errors.New("can't unmarshal environment data" + err.Error())
+		return 0, errors.New("can't unmarshal environment data" + err.Error())
 	}
 
 	component.Environment = environment
 	actionLog, err := NewMockAction(component)
 	if err != nil {
 		log.Errorln("DebugComponent mock action error: ", err.Error())
-		return errors.New("mock action error: " + err.Error())
+		return 0, errors.New("mock action error: " + err.Error())
 	}
-	actionLog.Start()
-	return nil
+	go actionLog.Start()
+	return actionLog.ID, nil
 }
-
-//// CreateNewComponentVersion is copy current component info to a new component with diff version name
-//func CreateNewComponentVersion(componentInfo models.Component, versionName string) error {
-//	var count int64
-//	err := new(models.Component).GetComponent().Where("namespace = ?", componentInfo.Namespace).Where("component = ?", componentInfo.Name).Where("version = ?", versionName).Count(&count).Error
-//	if err != nil {
-//		return errors.New("error when get component version info:" + err.Error())
-//	}
-//
-//	if count > 0 {
-//		return errors.New("version already exist!")
-//	}
-//
-//	// get current least component's version
-//	leastComponent := new(models.Component)
-//	err = leastComponent.GetComponent().Where("namespace = ? ", componentInfo.Namespace).Where("component = ?", componentInfo.Name).Order("-id").First(&leastComponent).Error
-//	if err != nil {
-//		return errors.New("error when get least component info :" + err.Error())
-//	}
-//
-//	newComponentInfo := new(models.Component)
-//	newComponentInfo.Version = strings.TrimSpace(versionName)
-//	newComponentInfo.Name = componentInfo.Name
-//	newComponentInfo.Type = componentInfo.Type
-//	newComponentInfo.Endpoint = componentInfo.Endpoint
-//	newComponentInfo.Source = componentInfo.Source
-//	newComponentInfo.Environment = componentInfo.Environment
-//	newComponentInfo.Tag = componentInfo.Tag
-//	newComponentInfo.KubeSetting = componentInfo.KubeSetting
-//	newComponentInfo.Input = componentInfo.Input
-//	newComponentInfo.Output = componentInfo.Output
-//	newComponentInfo.Manifest = componentInfo.Manifest
-//
-//	return newComponentInfo.GetComponent().Save(newComponentInfo).Error
-//}
 
 func NewComponent(actionLog *ActionLog) (component, error) {
 	platformSetting, err := actionLog.GetActionPlatformInfo()

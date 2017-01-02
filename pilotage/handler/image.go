@@ -13,21 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package models
 
-import "time"
+package handler
 
-type BaseIDField struct {
-	ID int64 `json:"id;omitempty" gorm:"primary_key;AUTO_INCREMENT"`
-}
+import "gopkg.in/macaron.v1"
 
-type BaseModel1 struct {
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	DeletedAt *time.Time `json:"deleted_at"`
-}
-
-type BaseModel2 struct {
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+func BuildImage(ctx *macaron.Context) (httpStatus int, result []byte) {
+	return
 }

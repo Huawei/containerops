@@ -878,11 +878,12 @@ func (actionLog *ActionLog) Start() {
 }
 
 func (actionLog *ActionLog) Stop(reason string, runState int64) {
-	err := actionLog.GetActionLog().Where("id = ?", actionLog.ID).First(actionLog).Error
+	logModel, err := models.SelectActionLogFromID(actionLog.ID)
 	if err != nil {
 		log.Error("[actionLog's Stop]:error when get actionLog's info from db:", err.Error())
 		return
 	}
+	actionLog.ActionLog = logModel
 
 	if actionLog.RunState == models.ActionLogStateRunFailed || actionLog.RunState == models.ActionLogStateRunSuccess {
 		return
@@ -890,7 +891,7 @@ func (actionLog *ActionLog) Stop(reason string, runState int64) {
 
 	actionLog.RunState = runState
 	actionLog.FailReason = reason
-	err = actionLog.GetActionLog().Save(actionLog).Error
+	err = actionLog.Save()
 	if err != nil {
 		log.Error("[actionLog's Stop]:error when change action state:", actionLog, " ===>error is:", err.Error())
 		return
@@ -1779,31 +1780,12 @@ func NewMockAction(component *models.Component) (*ActionLog, error) {
 	actionLog.Requires = ""
 	actionLog.AuthList = ""
 
-	err := setSystemEvent(nil, actionLog)
-	if err != nil {
+	if err := setSystemEvent(nil, actionLog); err != nil {
 		log.Error("[action's GenerateNewLog]:when save action log to db:", err.Error())
 		return actionLog, err
 	}
-
+	if err := actionLog.Save(); err != nil {
+		return actionLog, err
+	}
 	return actionLog, nil
 }
-
-//func handler(input, envs string) {
-//	id := 1
-//	condition := &models.Component{}
-//	condition.ID = id
-//	component, err := condition.SelectComponent()
-//	if err != nil {
-//		log.Errorln(err)
-//		return
-//	}
-//	component.Input = input
-//	component.Environment = envs
-//	actionLog, err := NewMockAction(component)
-//	if err != nil {
-//		log.Errorln(err)
-//		return
-//	}
-//	actionLog.Start()
-//	//TODO: return logs, events and inouts
-//}
