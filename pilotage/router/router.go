@@ -29,7 +29,6 @@ func SetRouters(m *macaron.Macaron) {
 
 		m.Group("/events", func() {
 			m.Post("/", handler.PostActionEventV1Handler)
-
 		})
 
 		m.Group("/components", func() {
@@ -40,7 +39,8 @@ func SetRouters(m *macaron.Macaron) {
 			m.Put("/:component_id", handler.UpdateComponent)
 			m.Delete("/:component_id", handler.DeleteComponent)
 
-			m.Post("/:component_id/debug", handler.DebugComponent)
+			m.Post("/debug/:component_id", handler.DebugComponent)
+			m.Get("/debug/:log_id", handler.DebugComponentLog)
 		})
 
 		m.Group("/images", func() {

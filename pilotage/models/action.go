@@ -94,9 +94,13 @@ func (log *ActionLog) GetActionLog() *gorm.DB {
 	return db.Model(&ActionLog{})
 }
 
-func SelectActionLogFromID(id uint64) (actionLog *ActionLog, err error) {
+func SelectActionLogFromID(id int64) (actionLog *ActionLog, err error) {
 	var condition ActionLog
 	condition.ID = id
 	err = db.Where(&condition).First(actionLog).Error
 	return
+}
+
+func (log *ActionLog) Save() error {
+	return db.Save(log).Error
 }

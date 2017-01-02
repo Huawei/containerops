@@ -68,7 +68,7 @@ func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	err = json.Unmarshal(body, component)
 	if err != nil {
 		log.Errorln("CreateComponent unmarshal data error: ", err.Error())
-		httpStatus = http.StatusBadRequest
+		httpStatus = http.StatusMethodNotAllowed
 		resp.OK = false
 		resp.ErrorCode = componentErrCode + 2
 		resp.Message = "unmarshal data error: " + err.Error()
@@ -92,7 +92,7 @@ func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 		}
 		return
 	} else {
-		httpStatus = http.StatusOK
+		httpStatus = http.StatusCreated
 		resp.ID = id
 		resp.OK = true
 		resp.Message = "Component Created"
@@ -121,7 +121,8 @@ func GetComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 		}
 		return
 	}
-	if component, err := module.GetComponentByID(id); err != nil {
+	component, err := module.GetComponentByID(id)
+	if err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
 		resp.ErrorCode = componentErrCode + 4
@@ -132,11 +133,24 @@ func GetComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 			log.Errorln("Get component marshal data error: " + err.Error())
 		}
 		return
-	} else {
-		httpStatus = http.StatusOK
-		resp.OK = true
-		resp.Component = component
 	}
+	if component == nil {
+		httpStatus = http.StatusNotFound
+		resp.OK = false
+		resp.ErrorCode = componentErrCode + 4
+		resp.Message = "component not found"
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("Get component marshal data error: " + err.Error())
+		}
+		return
+	}
+
+	httpStatus = http.StatusOK
+	resp.OK = true
+	resp.Component = component
+
 	result, err = json.Marshal(resp)
 	if err != nil {
 		log.Errorln("Get component marshal data error: " + err.Error())
@@ -255,7 +269,7 @@ func DeleteComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 }
 
 func DebugComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
-	var resp ComponentResp
+	var resp DebugComponentResp
 	body, err := ctx.Req.Body().Bytes()
 	if err != nil {
 		httpStatus = http.StatusBadRequest
@@ -328,7 +342,8 @@ func DebugComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 		return
 	}
 
-	if err := module.DebugComponent(component, req.Kubernetes, req.Input, req.Environment); err != nil {
+	logID, err := module.DebugComponent(component, req.Kubernetes, req.Input, req.Environment)
+	if err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
 		resp.ErrorCode = componentErrCode + 9
@@ -345,9 +360,16 @@ func DebugComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 
 	httpStatus = http.StatusOK
 	resp.OK = true
+	resp.LogID = logID
 	result, err = json.Marshal(resp)
 	if err != nil {
 		log.Errorln("Debug component marshal data error: " + err.Error())
 	}
+	return
+}
+
+func DebugComponentLog(receiver <-chan string, sender chan<- string,
+			done <-chan bool, disconnect chan<- int,
+			errChan <-chan error) {
 	return
 }
