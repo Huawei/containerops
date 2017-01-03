@@ -37,7 +37,7 @@ type Component struct {
 	Type        int64  `json:"type" sql:"not null;default:0"`                                      //Container type: docker or rkt.
 	ImageName   string `json:"image_name" sql:"not null;varchar(100);index:idx_component_1"`
 	ImageTag    string `json:"image_tag" sql:"varchar(30)";index:idx_component_1`
-	Timeout     int64  `json:"timeout"`                           //
+	Timeout     int    `json:"timeout"`                           //
 	KubeSetting string `json:"kubernetes" sql:"null;type:text"`   //Kubernetes execute script.
 	Input       string `json:"input" sql:"null;type:text"`        //component input
 	Output      string `json:"output" sql:"null;type:text"`       //component output

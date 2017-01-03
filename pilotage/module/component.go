@@ -121,7 +121,7 @@ func GetComponentListByNamespace(namespace string) ([]map[string]interface{}, er
 	return resultMap, nil
 }
 
-func CreateComponent(component *models.Component) (uint64, error) {
+func CreateComponent(component *models.Component) (int64, error) {
 	if component.ID != 0 {
 		return 0, fmt.Errorf("should not specify component id: %d", component.ID)
 	}
@@ -157,7 +157,7 @@ func CreateComponent(component *models.Component) (uint64, error) {
 		log.Errorln("CreateComponent query component error: ", err.Error())
 		return 0, errors.New("query component error: " + err.Error())
 	} else if result != nil{
-		return 0, errors.New("component exists, id is: " + result.ID)
+		return 0, fmt.Errorf("component exists, id is: %d", result.ID)
 	}
 
 	if err := component.Create(); err != nil {
@@ -167,9 +167,9 @@ func CreateComponent(component *models.Component) (uint64, error) {
 	return component.ID, nil
 }
 
-func GetComponentByID(id uint64) (*models.Component, error) {
-	if id == 0 {
-		return "", errors.New("should specify component id")
+func GetComponentByID(id int64) (*models.Component, error) {
+	if id <= 0 {
+		return nil, errors.New("should specify component id")
 	}
 
 	var condition *models.Component
@@ -177,15 +177,15 @@ func GetComponentByID(id uint64) (*models.Component, error) {
 	component, err := condition.SelectComponent()
 	if err != nil {
 		log.Errorln("GetComponent query component error: ", err.Error())
-		return 0, errors.New("query component error: " + err.Error())
+		return nil, errors.New("query component error: " + err.Error())
 	}
 	//if component == nil {
-	//	return 0, errors.New("component does not exist")
+	//	return nil, errors.New("component does not exist")
 	//}
 	return component, nil
 }
 
-func UpdateComponent(id uint64, component *models.Component) error {
+func UpdateComponent(id int64, component *models.Component) error {
 	if id != component.ID {
 		return errors.New("component id in path not equals to the id in body")
 	}
@@ -198,14 +198,14 @@ func UpdateComponent(id uint64, component *models.Component) error {
 	}
 	var envs []env
 	if err := json.Unmarshal([]byte(component.Environment), envs); err != nil {
-		return 0, errors.New("can't unmarshal environment data" + err.Error())
+		return errors.New("can't unmarshal environment data" + err.Error())
 	}
 	var v map[string]json.RawMessage
 	if err := json.Unmarshal([]byte(component.Input), &v); err != nil {
-		return 0, errors.New("can't unmarshal input data" + err.Error())
+		return errors.New("can't unmarshal input data" + err.Error())
 	}
 	if err := json.Unmarshal([]byte(component.Output), &v); err != nil {
-		return 0, errors.New("can't unmarshal output data" + err.Error())
+		return errors.New("can't unmarshal output data" + err.Error())
 	}
 
 	var condition *models.Component
@@ -233,7 +233,7 @@ func UpdateComponent(id uint64, component *models.Component) error {
 	return nil
 }
 
-func DeleteComponent(id uint64) error {
+func DeleteComponent(id int64) error {
 	if id == 0 {
 		return errors.New("should specify component id")
 	}
@@ -255,7 +255,7 @@ func DeleteComponent(id uint64) error {
 	return nil
 }
 
-func DebugComponent(component *models.Component, kubernetes, input, environment string) (uint64, error) {
+func DebugComponent(component *models.Component, kubernetes, input, environment string) (int64, error) {
 	component.Input = input
 	var envs []env
 	if err := json.Unmarshal([]byte(environment), envs); err != nil {

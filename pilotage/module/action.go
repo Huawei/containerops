@@ -928,7 +928,7 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 		return err
 	}
 
-	if eventKey == TASK_STATUS {
+	if EventType(eventKey) == TASK_STATUS {
 		resultReqBody, ok := reqBody["INFO"].(map[string]interface{})
 		if !ok {
 			log.Error("[actionLog's RecordEvent]:error when get request's info body, want a json obj, got:", reqBody["INFO"])
@@ -965,7 +965,7 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 		actionLog.Stop(stopReason, int64(stopStatus))
 	}
 
-	if eventKey == COMPONENT_STOP {
+	if EventType(eventKey) == COMPONENT_STOP {
 		c.Stop()
 	}
 
@@ -1780,7 +1780,7 @@ func NewMockAction(component *models.Component) (*ActionLog, error) {
 	actionLog.Requires = ""
 	actionLog.AuthList = ""
 
-	if err := setSystemEvent(nil, actionLog); err != nil {
+	if err := setSystemEvent(nil, actionLog.ActionLog); err != nil {
 		log.Error("[action's GenerateNewLog]:when save action log to db:", err.Error())
 		return actionLog, err
 	}
