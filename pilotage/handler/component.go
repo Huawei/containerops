@@ -108,7 +108,7 @@ func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 func GetComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	var resp ComponentResp
 	componentID := ctx.Params(":component_id")
-	id, err := strconv.Atoi(componentID)
+	id, err := strconv.ParseInt(componentID, 10, 64)
 	if err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
@@ -191,7 +191,7 @@ func UpdateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	}
 
 	componentID := ctx.Params(":component_id")
-	id, err := strconv.Atoi(componentID)
+	id, err := strconv.ParseInt(componentID, 10, 64)
 	if err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
@@ -231,7 +231,7 @@ func DeleteComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	var resp ComponentResp
 
 	componentID := ctx.Params(":component_id")
-	id, err := strconv.Atoi(componentID)
+	id, err := strconv.ParseInt(componentID, 10, 64)
 	if err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
@@ -285,7 +285,7 @@ func DebugComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	}
 
 	componentID := ctx.Params(":component_id")
-	id, err := strconv.Atoi(componentID)
+	id, err := strconv.ParseInt(componentID, 10, 64)
 	if err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
