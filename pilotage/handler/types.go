@@ -12,14 +12,14 @@ const (
 )
 
 type CommonResp struct {
-	OK        bool   `json:"ok"`
-	ErrorCode uint32 `json:"error_code,omitempty"`
-	Message   string `json:"message",omitempty`
+	OK        bool    `json:"ok"`
+	ErrorCode errCode `json:"error_code,omitempty"`
+	Message   string  `json:"message",omitempty`
 }
 
 type ComponentResp struct {
-	models.Component `json:"component,omitempty"`
-	CommonResp       `json:"common"`
+	*models.Component `json:"component,omitempty"`
+	CommonResp        `json:"common"`
 }
 
 type DebugComponentReq struct {
@@ -29,6 +29,15 @@ type DebugComponentReq struct {
 }
 
 type DebugComponentResp struct {
-	LogID      uint64 `json:"log_id"`
+	LogID      int64 `json:"log_id"`
 	CommonResp `json:"common"`
+}
+
+type DebugComponentMessage struct {
+	Kubernetes  string `json:"kubernetes"`
+	Input       string `json:"input"`
+	Environment string `json:"environment"`
+	Output      string `json:"output"`
+	Event       string `json:"event"`
+	CommonResp  `json:"common"`
 }

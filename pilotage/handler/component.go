@@ -24,7 +24,25 @@ import (
 	"gopkg.in/macaron.v1"
 	"net/http"
 	"strconv"
+	"time"
+	"github.com/gorilla/websocket"
+	"github.com/golang/groupcache/lru"
 )
+
+var cache *lru.Cache
+
+func init() {
+	cache = lru.New(50)
+	cache.OnEvicted = func(key lru.Key, value interface{}) {
+		log.Warnf("Component message channel key %v evicted\n", key)
+		channel, ok := value.(chan string)
+		if !ok {
+			log.Warn("Can't convert cache value %T to message channel", value)
+			return
+		}
+		close(channel)
+	}
+}
 
 func ListComponents(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
@@ -108,7 +126,7 @@ func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 func GetComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	var resp ComponentResp
 	componentID := ctx.Params(":component_id")
-	id, err := strconv.Atoi(componentID)
+	id, err := strconv.ParseInt(componentID, 10, 64)
 	if err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
@@ -191,7 +209,7 @@ func UpdateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	}
 
 	componentID := ctx.Params(":component_id")
-	id, err := strconv.Atoi(componentID)
+	id, err := strconv.ParseInt(componentID, 10, 64)
 	if err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
@@ -231,7 +249,7 @@ func DeleteComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	var resp ComponentResp
 
 	componentID := ctx.Params(":component_id")
-	id, err := strconv.Atoi(componentID)
+	id, err := strconv.ParseInt(componentID, 10, 64)
 	if err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
@@ -285,7 +303,7 @@ func DebugComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	}
 
 	componentID := ctx.Params(":component_id")
-	id, err := strconv.Atoi(componentID)
+	id, err := strconv.ParseInt(componentID, 10, 64)
 	if err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
@@ -356,8 +374,6 @@ func DebugComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 		return
 	}
 
-	//TODO: return logs, events and inouts
-
 	httpStatus = http.StatusOK
 	resp.OK = true
 	resp.LogID = logID
@@ -368,8 +384,82 @@ func DebugComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	return
 }
 
-func DebugComponentLog(receiver <-chan string, sender chan<- string,
-			done <-chan bool, disconnect chan<- int,
+func DebugComponentLog(ctx *macaron.Context,
+			receiver <-chan *DebugComponentMessage,
+			sender chan<- *DebugComponentMessage,
+			done <-chan bool,
+			disconnect chan<- int,
 			errChan <-chan error) {
+	var resp *DebugComponentMessage
+	id, err := strconv.ParseInt(ctx.Params(":component_id"), 10, 64)
+	if err != nil {
+		resp.OK = false
+		resp.ErrorCode = componentErrCode + 10
+		resp.Message = "Parse component id error: " + err.Error()
+		sender <- resp
+		disconnect <- websocket.CloseUnsupportedData
+		return
+	}
+	component, err := module.GetComponentByID(id)
+	if err != nil {
+		resp.OK = false
+		resp.ErrorCode = componentErrCode + 4
+		resp.Message = "get component by id error: " + err.Error()
+
+		sender <- resp
+		disconnect <- websocket.CloseUnsupportedData
+		return
+	}
+	eventChan := make(chan string)
+	debug := false
+	ticker := time.Tick(time.Duration(component.Timeout + 30) * time.Second)
+	for {
+		select {
+		case event, ok := <-eventChan:
+			if !ok {
+				return
+			}
+			resp.OK = true
+			resp.Event = event
+			sender <- resp
+			//TODO: if component stop event received, close socket
+		case msg := <-receiver:
+			if !debug {
+				if msg.Kubernetes == "" {
+					resp.OK = false
+					resp.ErrorCode = componentErrCode + 5
+					resp.Message = "should specify kubernetes api server"
+
+					sender <- resp
+					disconnect <- websocket.CloseUnsupportedData
+					return
+				}
+				id, err := module.DebugComponent(component, msg.Kubernetes, msg.Input, msg.Environment)
+				if err != nil {
+					resp.OK = false
+					resp.ErrorCode = componentErrCode + 9
+					resp.Message = "debug component error: " + err.Error()
+
+					sender <- resp
+					disconnect <- websocket.CloseInternalServerErr
+					return
+				}
+				cache.Add(id, eventChan)
+				resp.OK = true
+				resp.Input = msg.Input
+				sender <- resp
+				debug = true
+			}
+
+		case <-done:
+			log.Debug("DebugComponent socket closed by client")
+			return
+		case <- ticker:
+			log.Debug("DebugComponent socket closed by server")
+			disconnect <- websocket.CloseNormalClosure
+		case err := <-errChan:
+			log.Errorf("Debug Component socket error: %s\n", err)
+		}
+	}
 	return
 }
