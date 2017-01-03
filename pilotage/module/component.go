@@ -186,9 +186,10 @@ func GetComponentByID(id int64) (*models.Component, error) {
 }
 
 func UpdateComponent(id int64, component *models.Component) error {
-	if id != component.ID {
-		return errors.New("component id in path not equals to the id in body")
-	}
+	component.ID = id
+	//if id != component.ID {
+	//	return errors.New("component id in path not equals to the id in body")
+	//}
 	if component.ImageName == "" {
 		return errors.New("should specify component image name")
 	}
@@ -259,7 +260,7 @@ func DebugComponent(component *models.Component, kubernetes, input, environment 
 	component.Input = input
 	var envs []env
 	if err := json.Unmarshal([]byte(environment), envs); err != nil {
-		return 0, errors.New("can't unmarshal environment data" + err.Error())
+		return 0, errors.New("can't unmarshal environment data: " + err.Error())
 	}
 
 	component.Environment = environment

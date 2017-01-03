@@ -26,6 +26,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"gopkg.in/macaron.v1"
+	"time"
 )
 
 //PostActionV1Handler is
@@ -222,6 +223,22 @@ func PostActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
 		result, _ := json.Marshal(map[string]string{"message": "error when get target action"})
 		return http.StatusBadRequest, result
 	}
+
+	go func(){
+		value, ok := cache.Get(actionLogId)
+		if !ok {
+			log.Warnf("Component message channel key %d not exist\n", actionLogId)
+			return
+		}
+
+		c, ok := value.(chan string)
+		if !ok {
+			log.Errorf("Can't convert type %T to message channel", value)
+			return
+		}
+
+		c <- time.Now().Format("2006-01-02 15:04:05") + " -> " + string(bodyByte)
+	}()
 
 	err = actionLog.RecordEvent(eventId, eventKey, reqBody, ctx.Req.Header)
 	if err != nil {
