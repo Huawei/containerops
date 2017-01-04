@@ -73,7 +73,7 @@ func (image *dockerImage) Build(directory string) (string, error) {
 	return buf.String(), nil
 }
 
-func (image *dockerImage) PushToRegistry(registry, username, password string) (string, error) {
+func (image *dockerImage) PushToRegistry(registry, username, password, email string) (string, error) {
 	imageName := image.imageName()
 	repo := fmt.Sprintf("%s/%s", registry, image.Name)
 	err := image.Client.TagImage(imageName, docker.TagImageOptions{
@@ -95,6 +95,7 @@ func (image *dockerImage) PushToRegistry(registry, username, password string) (s
 	authConf := docker.AuthConfiguration{
 		Username: username,
 		Password: password,
+		Email:    email,
 	}
 	log.Debugf("push docker image[%s][%s] to registry[%s]\n", registry, repo, image.Tag)
 	if err := image.Client.PushImage(opts, authConf); err != nil {
