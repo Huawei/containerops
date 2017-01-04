@@ -257,8 +257,8 @@ func (o *Outcome) GetOutcome() *gorm.DB {
 	return db.Model(&Outcome{})
 }
 
-func (o *Outcome) GetXXX() (result *Outcome, err error) {
-	err = db.Where(o).First(result).Error
+func (condition *Outcome) SelectOutcome() (outcome *Outcome, err error) {
+	err = db.Where(condition).First(outcome).Error
 	return
 }
 
