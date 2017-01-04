@@ -23,7 +23,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/golang/groupcache/lru"
 	"github.com/gorilla/websocket"
-	"github.com/sosozhuang/gocomponent/sockets"
+	"github.com/go-macaron/sockets"
 	"gopkg.in/macaron.v1"
 	"net/http"
 	"strconv"
