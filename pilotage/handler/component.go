@@ -74,7 +74,7 @@ func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	if err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
-		resp.ErrorCode = componentErrCode + 1
+		resp.ErrorCode = ComponentError + ComponentReqBodyError
 		resp.Message = "Get requrest body error: " + err.Error()
 
 		result, err = json.Marshal(resp)
@@ -90,7 +90,7 @@ func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 		log.Errorln("CreateComponent unmarshal data error: ", err.Error())
 		httpStatus = http.StatusMethodNotAllowed
 		resp.OK = false
-		resp.ErrorCode = componentErrCode + 2
+		resp.ErrorCode = ComponentError + ComponentUnmarshalError
 		resp.Message = "unmarshal data error: " + err.Error()
 
 		result, err = json.Marshal(resp)
@@ -103,7 +103,7 @@ func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	if id, err := module.CreateComponent(component); err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
-		resp.ErrorCode = componentErrCode + 3
+		resp.ErrorCode = ComponentError + ComponentCreateError
 		resp.Message = "Create component error: " + err.Error()
 
 		result, err = json.Marshal(resp)
@@ -132,7 +132,7 @@ func GetComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	if err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
-		resp.ErrorCode = componentErrCode + 3
+		resp.ErrorCode = ComponentError + ComponentParseIDError
 		resp.Message = "Parse component id error: " + err.Error()
 
 		result, err = json.Marshal(resp)
@@ -145,7 +145,7 @@ func GetComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	if err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
-		resp.ErrorCode = componentErrCode + 4
+		resp.ErrorCode = ComponentError + ComponentGetError
 		resp.Message = "get component by id error: " + err.Error()
 
 		result, err = json.Marshal(resp)
@@ -157,7 +157,7 @@ func GetComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	if component == nil {
 		httpStatus = http.StatusNotFound
 		resp.OK = false
-		resp.ErrorCode = componentErrCode + 4
+		resp.ErrorCode = ComponentError + ComponentGetError
 		resp.Message = "component not found"
 
 		result, err = json.Marshal(resp)
@@ -184,7 +184,7 @@ func UpdateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	if err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
-		resp.ErrorCode = componentErrCode + 5
+		resp.ErrorCode = ComponentError + ComponentReqBodyError
 		resp.Message = "Get requrest body error: " + err.Error()
 
 		result, err = json.Marshal(resp)
@@ -200,7 +200,7 @@ func UpdateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 		log.Errorln("UpdateComponent unmarshal data error: ", err.Error())
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
-		resp.ErrorCode = componentErrCode + 2
+		resp.ErrorCode = ComponentError + ComponentUnmarshalError
 		resp.Message = "unmarshal data error: " + err.Error()
 
 		result, err = json.Marshal(resp)
@@ -215,7 +215,7 @@ func UpdateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	if err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
-		resp.ErrorCode = componentErrCode + 6
+		resp.ErrorCode = ComponentError + ComponentParseIDError
 		resp.Message = "Parse component id error: " + err.Error()
 
 		result, err = json.Marshal(resp)
@@ -228,7 +228,7 @@ func UpdateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	if err := module.UpdateComponent(id, component); err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
-		resp.ErrorCode = componentErrCode + 7
+		resp.ErrorCode = ComponentError + ComponentUpdateError
 		resp.Message = "update component error: " + err.Error()
 
 		result, err = json.Marshal(resp)
@@ -255,7 +255,7 @@ func DeleteComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	if err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
-		resp.ErrorCode = componentErrCode + 8
+		resp.ErrorCode = ComponentError + ComponentParseIDError
 		resp.Message = "Parse component id error: " + err.Error()
 
 		result, err = json.Marshal(resp)
@@ -268,7 +268,7 @@ func DeleteComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	if err := module.DeleteComponent(id); err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
-		resp.ErrorCode = componentErrCode + 9
+		resp.ErrorCode = ComponentError + ComponentDeleteError
 		resp.Message = "delete component error: " + err.Error()
 
 		result, err = json.Marshal(resp)
@@ -402,7 +402,7 @@ func DebugComponentLog(ctx *macaron.Context,
 		sender <- &DebugComponentMessage{
 			CommonResp: CommonResp{
 				OK: false,
-				ErrorCode: componentErrCode + 10,
+				ErrorCode: ComponentError + ComponentParseIDError,
 				Message: "Parse component id error: " + err.Error(),
 			},
 		}
@@ -414,7 +414,7 @@ func DebugComponentLog(ctx *macaron.Context,
 		sender <- &DebugComponentMessage{
 			CommonResp: CommonResp{
 				OK: false,
-				ErrorCode: componentErrCode + 4,
+				ErrorCode: ComponentError + ComponentGetError,
 				Message: "get component by id error: " + err.Error(),
 			},
 		}
@@ -462,7 +462,7 @@ func DebugComponentLog(ctx *macaron.Context,
 				sender <- &DebugComponentMessage{
 					CommonResp: CommonResp{
 						OK: false,
-						ErrorCode: componentErrCode + 5,
+						ErrorCode: ComponentError + ComponentDebugError,
 						Message: "should specify kubernetes api server",
 					},
 				}
@@ -475,7 +475,7 @@ func DebugComponentLog(ctx *macaron.Context,
 					Input: msg.Input,
 					CommonResp: CommonResp{
 						OK: false,
-						ErrorCode: componentErrCode + 9,
+						ErrorCode: ComponentError + ComponentDebugError,
 						Message: "debug component error: " + err.Error(),
 					},
 				}

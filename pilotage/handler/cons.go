@@ -15,6 +15,23 @@ limitations under the License.
 */
 package handler
 
-const (
+type errCode uint64
 
+const (
+	ComponentError  errCode = 00010000
+	workflowErrCode errCode = 00100000
+	stageErrCode    errCode = 01000000
+	actionErrCode   errCode = 10000000
+)
+
+const (
+	_                       = iota
+	ComponentReqBodyError   //errCode = 0001
+	ComponentUnmarshalError //errCode = 0002
+	ComponentCreateError    //errCode = 0003
+	ComponentParseIDError   //errCode = 0004
+	ComponentGetError       //errCode = 0005
+	ComponentUpdateError    //errCode = 0006
+	ComponentDeleteError    //errCode = 0007
+	ComponentDebugError     //errCode = 0008
 )

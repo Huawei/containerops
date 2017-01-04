@@ -5,15 +5,6 @@ import (
 	"github.com/Huawei/containerops/pilotage/module"
 )
 
-type errCode uint64
-
-const (
-	componentErrCode errCode = 00010000
-	workflowErrCode  errCode = 00100000
-	stageErrCode     errCode = 01000000
-	actionErrCode    errCode = 10000000
-)
-
 type CommonResp struct {
 	OK        bool    `json:"ok"`
 	ErrorCode errCode `json:"error_code,omitempty"`
