@@ -53,15 +53,6 @@ const (
 var eventTypes = []EventType{COMPONENT_START, TASK_START, TASK_STATUS, TASK_RESULT,
 	TASK_STOP, COMPONENT_RESULT, COMPONENT_STOP}
 
-//var eventList = map[string]string{
-//	"CO_COMPONENT_START": "CO_COMPONENT_START",
-//	"CO_COMPONENT_STOP":  "CO_COMPONENT_STOP",
-//	"CO_TASK_START":      "CO_TASK_START",
-//	"CO_TASK_RESULT":     "CO_TASK_RESULT",
-//	"CO_TASK_STATUS":     "CO_TASK_STATUS",
-//	"CO_REGISTER_URL":    "register",
-//}
-
 var projectAddr = ""
 
 func init() {
@@ -95,19 +86,19 @@ func setSystemEvent(db *gorm.DB, actionLog *models.ActionLog) error {
 	//}
 
 	for _, eventType := range eventTypes {
-		tempEvent := new(models.EventDefinition)
-		tempEvent.Title = string(eventType)
-		tempEvent.Namespace = actionLog.Namespace
-		tempEvent.Repository = actionLog.Repository
-		tempEvent.Workflow = actionLog.Workflow
-		tempEvent.Stage = actionLog.Stage
-		tempEvent.Action = actionLog.ID
-		tempEvent.Character = models.CharacterComponentEvent
-		tempEvent.Type = models.TypeSystemEvent
-		tempEvent.Source = models.SourceInnerEvent
-		tempEvent.Definition = projectAddr + "/v2/events"
+		event := new(models.EventDefinition)
+		event.Title = string(eventType)
+		event.Namespace = actionLog.Namespace
+		event.Repository = actionLog.Repository
+		event.Workflow = actionLog.Workflow
+		event.Stage = actionLog.Stage
+		event.Action = actionLog.ID
+		event.Character = models.CharacterComponentEvent
+		event.Type = models.TypeSystemEvent
+		event.Source = models.SourceInnerEvent
+		event.Definition = projectAddr + "/v2/events"
 
-		err:= tempEvent.Save()
+		err:= event.Save()
 		//err := db.Save(tempEvent).Error
 		if err != nil {
 			log.Error("[setSystemEvent]:error when save event definition to db:", err.Error())

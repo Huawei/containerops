@@ -20,10 +20,9 @@ import (
 	"github.com/Huawei/containerops/pilotage/handler"
 	"github.com/go-macaron/binding"
 	"gopkg.in/macaron.v1"
-	"github.com/sosozhuang/gocomponent/sockets"
 )
 
-//SetRouters is pilotage router's definition fucntion.
+//SetRouters is pilotage router's definition function.
 func SetRouters(m *macaron.Macaron) {
 	m.Group("/v2", func() {
 		m.Get("/", handler.IndexV1Handler)
@@ -40,8 +39,7 @@ func SetRouters(m *macaron.Macaron) {
 			m.Put("/:component_id", handler.UpdateComponent)
 			m.Delete("/:component_id", handler.DeleteComponent)
 
-			//m.Post("/:component_id/debug", handler.DebugComponent)
-			m.Get("/:component_id/debug", sockets.JSON(handler.DebugComponentMessage{}), handler.DebugComponentLog)
+			m.Get("/:component_id/debug", handler.DebugComponentJson(), handler.DebugComponentLog)
 		})
 
 		m.Group("/images", func() {

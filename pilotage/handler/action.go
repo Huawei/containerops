@@ -231,13 +231,16 @@ func PostActionEventV1Handler(ctx *macaron.Context) (int, []byte) {
 			return
 		}
 
-		c, ok := value.(chan string)
+		c, ok := value.(chan DebugEvent)
 		if !ok {
 			log.Errorf("Can't convert type %T to message channel", value)
 			return
 		}
 
-		c <- time.Now().Format("2006-01-02 15:04:05") + " -> " + string(bodyByte)
+		c <- DebugEvent{
+			Type: module.EventType(eventKey),
+			Content: time.Now().Format("2006-01-02 15:04:05") + " -> " + string(bodyByte),
+		}
 	}()
 
 	err = actionLog.RecordEvent(eventId, eventKey, reqBody, ctx.Req.Header)
