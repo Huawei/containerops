@@ -1,9 +1,8 @@
-component src
-==============
+## Component Src
 
-build image
+### How to build image
 
-push
+### How to push
 
-test
+### How test
 

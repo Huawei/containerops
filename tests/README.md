@@ -1,11 +1,14 @@
-##Quick start
-<br>
-####Clone codes
+## Quick start
+
+#### Clone codes
+
 ```
-git clone
+git clone https://github.com/Huawei/containerops.git  $GOPATH/src/github.com/Huawei/containerops
+cd $GOPATH/src/github.com/Huawei/containerops/pilotage
 ```
-<br>	
-####Install robot framework(GUI,API TEST)
+	
+#### Install Robot framework (GUI,API TEST) depend on Linux (Ubuntu 14.04+)
+
 ```
 install python2.7
 install pip
@@ -19,18 +22,21 @@ pip install -U robotframework-requests
 install pywin32
 install AutoItLibrary
 ```
-<br>
-####install multi-mechanize(performance test)
+
+#### install multi-mechanize (performance test) depend on Linux (Ubuntu 14.04+)
+
 ```
 pip install multi-mechanize mechanize numpy matplotlib
 ```
-<br>
-####run gui/api test
+
+#### run gui/api test
+
 ```
 pybot [testproject]
 ```
-<br>
-####run performance test
+
+#### run performance test
+
 ```
 multimech-run [testproject]
 ```
