@@ -21,21 +21,23 @@ import (
 	"github.com/Huawei/containerops/pilotage/models"
 	"github.com/Huawei/containerops/pilotage/module"
 	log "github.com/Sirupsen/logrus"
+	"github.com/golang/groupcache/lru"
+	"github.com/gorilla/websocket"
+	"github.com/go-macaron/sockets"
 	"gopkg.in/macaron.v1"
 	"net/http"
 	"strconv"
 	"time"
-	"github.com/gorilla/websocket"
-	"github.com/golang/groupcache/lru"
 )
 
 var cache *lru.Cache
 
 func init() {
+	//TODO: may want to configure max entries number
 	cache = lru.New(50)
 	cache.OnEvicted = func(key lru.Key, value interface{}) {
 		log.Warnf("Component message channel key %v evicted\n", key)
-		channel, ok := value.(chan string)
+		channel, ok := value.(chan DebugEvent)
 		if !ok {
 			log.Warn("Can't convert cache value %T to message channel", value)
 			return
@@ -286,180 +288,217 @@ func DeleteComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	return
 }
 
-func DebugComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
-	var resp DebugComponentResp
-	body, err := ctx.Req.Body().Bytes()
-	if err != nil {
-		httpStatus = http.StatusBadRequest
-		resp.OK = false
-		resp.ErrorCode = componentErrCode + 5
-		resp.Message = "Get requrest body error: " + err.Error()
+//func DebugComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
+//	var resp DebugComponentResp
+//	body, err := ctx.Req.Body().Bytes()
+//	if err != nil {
+//		httpStatus = http.StatusBadRequest
+//		resp.OK = false
+//		resp.ErrorCode = componentErrCode + 5
+//		resp.Message = "Get requrest body error: " + err.Error()
+//
+//		result, err = json.Marshal(resp)
+//		if err != nil {
+//			log.Errorln("Debug component marshal data error: " + err.Error())
+//		}
+//		return
+//	}
+//
+//	componentID := ctx.Params(":component_id")
+//	id, err := strconv.ParseInt(componentID, 10, 64)
+//	if err != nil {
+//		httpStatus = http.StatusBadRequest
+//		resp.OK = false
+//		resp.ErrorCode = componentErrCode + 10
+//		resp.Message = "Parse component id error: " + err.Error()
+//
+//		result, err = json.Marshal(resp)
+//		if err != nil {
+//			log.Errorln("Debug component marshal data error: " + err.Error())
+//		}
+//		return
+//	}
+//
+//	var req *DebugComponentReq
+//	err = json.Unmarshal(body, req)
+//	if err != nil {
+//		log.Errorln("DebugComponent unmarshal data error: ", err.Error())
+//		httpStatus = http.StatusBadRequest
+//		resp.OK = false
+//		resp.ErrorCode = componentErrCode + 5
+//		resp.Message = "unmarshal data error: " + err.Error()
+//
+//		result, err = json.Marshal(resp)
+//		if err != nil {
+//			log.Errorln("Debug component marshal data error: " + err.Error())
+//		}
+//		return
+//	}
+//
+//	if req.Kubernetes == "" {
+//		httpStatus = http.StatusBadRequest
+//		resp.OK = false
+//		resp.ErrorCode = componentErrCode + 5
+//		resp.Message = "should specify kubernetes api server"
+//
+//		result, err = json.Marshal(resp)
+//		if err != nil {
+//			log.Errorln("Debug component marshal data error: " + err.Error())
+//		}
+//		return
+//	}
+//
+//	component, err := module.GetComponentByID(id)
+//	if err != nil {
+//		httpStatus = http.StatusBadRequest
+//		resp.OK = false
+//		resp.ErrorCode = componentErrCode + 4
+//		resp.Message = "get component by id error: " + err.Error()
+//
+//		result, err = json.Marshal(resp)
+//		if err != nil {
+//			log.Errorln("Debug component marshal data error: " + err.Error())
+//		}
+//		return
+//	}
+//
+//	logID, err := module.DebugComponent(component, req.Kubernetes, req.Input, req.Environment)
+//	if err != nil {
+//		httpStatus = http.StatusBadRequest
+//		resp.OK = false
+//		resp.ErrorCode = componentErrCode + 9
+//		resp.Message = "debug component error: " + err.Error()
+//
+//		result, err = json.Marshal(resp)
+//		if err != nil {
+//			log.Errorln("Debug component marshal data error: " + err.Error())
+//		}
+//		return
+//	}
+//
+//	httpStatus = http.StatusOK
+//	resp.OK = true
+//	resp.LogID = logID
+//	result, err = json.Marshal(resp)
+//	if err != nil {
+//		log.Errorln("Debug component marshal data error: " + err.Error())
+//	}
+//	return
+//}
 
-		result, err = json.Marshal(resp)
-		if err != nil {
-			log.Errorln("Debug component marshal data error: " + err.Error())
-		}
-		return
-	}
-
-	componentID := ctx.Params(":component_id")
-	id, err := strconv.ParseInt(componentID, 10, 64)
-	if err != nil {
-		httpStatus = http.StatusBadRequest
-		resp.OK = false
-		resp.ErrorCode = componentErrCode + 10
-		resp.Message = "Parse component id error: " + err.Error()
-
-		result, err = json.Marshal(resp)
-		if err != nil {
-			log.Errorln("Debug component marshal data error: " + err.Error())
-		}
-		return
-	}
-
-	var req *DebugComponentReq
-	err = json.Unmarshal(body, req)
-	if err != nil {
-		log.Errorln("DebugComponent unmarshal data error: ", err.Error())
-		httpStatus = http.StatusBadRequest
-		resp.OK = false
-		resp.ErrorCode = componentErrCode + 5
-		resp.Message = "unmarshal data error: " + err.Error()
-
-		result, err = json.Marshal(resp)
-		if err != nil {
-			log.Errorln("Debug component marshal data error: " + err.Error())
-		}
-		return
-	}
-
-	if req.Kubernetes == "" {
-		httpStatus = http.StatusBadRequest
-		resp.OK = false
-		resp.ErrorCode = componentErrCode + 5
-		resp.Message = "should specify kubernetes api server"
-
-		result, err = json.Marshal(resp)
-		if err != nil {
-			log.Errorln("Debug component marshal data error: " + err.Error())
-		}
-		return
-	}
-
-	component, err := module.GetComponentByID(id)
-	if err != nil {
-		httpStatus = http.StatusBadRequest
-		resp.OK = false
-		resp.ErrorCode = componentErrCode + 4
-		resp.Message = "get component by id error: " + err.Error()
-
-		result, err = json.Marshal(resp)
-		if err != nil {
-			log.Errorln("Debug component marshal data error: " + err.Error())
-		}
-		return
-	}
-
-	logID, err := module.DebugComponent(component, req.Kubernetes, req.Input, req.Environment)
-	if err != nil {
-		httpStatus = http.StatusBadRequest
-		resp.OK = false
-		resp.ErrorCode = componentErrCode + 9
-		resp.Message = "debug component error: " + err.Error()
-
-		result, err = json.Marshal(resp)
-		if err != nil {
-			log.Errorln("Debug component marshal data error: " + err.Error())
-		}
-		return
-	}
-
-	httpStatus = http.StatusOK
-	resp.OK = true
-	resp.LogID = logID
-	result, err = json.Marshal(resp)
-	if err != nil {
-		log.Errorln("Debug component marshal data error: " + err.Error())
-	}
-	return
+func DebugComponentJson() macaron.Handler {
+	//TODO: add socket options
+	return sockets.JSON(DebugComponentMessage{})
 }
 
 func DebugComponentLog(ctx *macaron.Context,
-			receiver <-chan *DebugComponentMessage,
-			sender chan<- *DebugComponentMessage,
-			done <-chan bool,
-			disconnect chan<- int,
-			errChan <-chan error) {
-	var resp *DebugComponentMessage
+	receiver <-chan *DebugComponentMessage,
+	sender chan<- *DebugComponentMessage,
+	done <-chan bool,
+	disconnect chan<- int,
+	errChan <-chan error) {
 	id, err := strconv.ParseInt(ctx.Params(":component_id"), 10, 64)
 	if err != nil {
-		resp.OK = false
-		resp.ErrorCode = componentErrCode + 10
-		resp.Message = "Parse component id error: " + err.Error()
-		sender <- resp
+		sender <- &DebugComponentMessage{
+			CommonResp: CommonResp{
+				OK: false,
+				ErrorCode: componentErrCode + 10,
+				Message: "Parse component id error: " + err.Error(),
+			},
+		}
 		disconnect <- websocket.CloseUnsupportedData
 		return
 	}
 	component, err := module.GetComponentByID(id)
 	if err != nil {
-		resp.OK = false
-		resp.ErrorCode = componentErrCode + 4
-		resp.Message = "get component by id error: " + err.Error()
-
-		sender <- resp
+		sender <- &DebugComponentMessage{
+			CommonResp: CommonResp{
+				OK: false,
+				ErrorCode: componentErrCode + 4,
+				Message: "get component by id error: " + err.Error(),
+			},
+		}
 		disconnect <- websocket.CloseUnsupportedData
 		return
 	}
-	eventChan := make(chan string)
-	debug := false
-	ticker := time.Tick(time.Duration(component.Timeout + 30) * time.Second)
+
+	var actionLog *module.ActionLog
+	eventChan := make(chan DebugEvent)
+	ticker := time.Tick(time.Duration(component.Timeout+30) * time.Second)
 	for {
 		select {
 		case event, ok := <-eventChan:
 			if !ok {
+				break
+			}
+			sender <- &DebugComponentMessage{
+				DebugID: actionLog.ID,
+				Event: event,
+				CommonResp: CommonResp{
+					OK: true,
+				},
+			}
+			if event.Type == module.COMPONENT_STOP {
+				if output, err := actionLog.GetOutcome(); err != nil {
+					log.Errorf("DebugComponent get output data error: %s\n", err)
+				} else {
+					sender <- &DebugComponentMessage{
+						DebugID: actionLog.ID,
+						Output: output,
+						CommonResp: CommonResp{
+							OK: true,
+						},
+					}
+				}
+				disconnect <- websocket.CloseNormalClosure
 				return
 			}
-			resp.OK = true
-			resp.Event = event
-			sender <- resp
-			//TODO: if component stop event received, close socket
 		case msg := <-receiver:
-			if !debug {
-				if msg.Kubernetes == "" {
-					resp.OK = false
-					resp.ErrorCode = componentErrCode + 5
-					resp.Message = "should specify kubernetes api server"
-
-					sender <- resp
-					disconnect <- websocket.CloseUnsupportedData
-					return
+			if msg.DebugID > 0 {
+				cache.Remove(msg.DebugID)
+				eventChan = make(chan DebugEvent)
+			}
+			if msg.Kubernetes == "" {
+				sender <- &DebugComponentMessage{
+					CommonResp: CommonResp{
+						OK: false,
+						ErrorCode: componentErrCode + 5,
+						Message: "should specify kubernetes api server",
+					},
 				}
-				id, err := module.DebugComponent(component, msg.Kubernetes, msg.Input, msg.Environment)
-				if err != nil {
-					resp.OK = false
-					resp.ErrorCode = componentErrCode + 9
-					resp.Message = "debug component error: " + err.Error()
-
-					sender <- resp
-					disconnect <- websocket.CloseInternalServerErr
-					return
+				disconnect <- websocket.CloseUnsupportedData
+				return
+			}
+			actionLog, err = module.DebugComponent(component, msg.Kubernetes, msg.Input, msg.Environment)
+			if err != nil {
+				sender <- &DebugComponentMessage{
+					Input: msg.Input,
+					CommonResp: CommonResp{
+						OK: false,
+						ErrorCode: componentErrCode + 9,
+						Message: "debug component error: " + err.Error(),
+					},
 				}
-				cache.Add(id, eventChan)
-				resp.OK = true
-				resp.Input = msg.Input
-				sender <- resp
-				debug = true
+				disconnect <- websocket.CloseInternalServerErr
+				return
+			}
+			cache.Add(actionLog.ID, eventChan)
+			sender <- &DebugComponentMessage{
+				DebugID: actionLog.ID,
+				Input: msg.Input,
+				CommonResp: CommonResp{
+					OK: true,
+				},
 			}
 
 		case <-done:
 			log.Debug("DebugComponent socket closed by client")
 			return
-		case <- ticker:
+		case <-ticker:
 			log.Debug("DebugComponent socket closed by server")
 			disconnect <- websocket.CloseNormalClosure
 		case err := <-errChan:
 			log.Errorf("Debug Component socket error: %s\n", err)
 		}
 	}
-	return
 }
