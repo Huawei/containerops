@@ -25,17 +25,6 @@ type ComponentResp struct {
 	CommonResp        `json:"common"`
 }
 
-type DebugComponentReq struct {
-	Kubernetes  string `json:"kubernetes"`
-	Input       string `json:"input"`
-	Environment string `json:"environment"`
-}
-
-type DebugComponentResp struct {
-	LogID      int64 `json:"log_id"`
-	CommonResp `json:"common"`
-}
-
 type DebugEvent struct {
 	Type    module.EventType `json:"type"`
 	Content string           `json:"content"`
