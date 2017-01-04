@@ -656,6 +656,20 @@ func (actionLog *ActionLog) GetInputData() (map[string]interface{}, error) {
 	return inputMap, nil
 }
 
+func (actionLog *ActionLog) GetOutput() (string, error) {
+	outcome := &models.Outcome{
+		Workflow: actionLog.Workflow,
+		Sequence: actionLog.Sequence,
+		Stage: actionLog.Stage,
+		Action: actionLog.ID,
+	}
+	result, err := outcome.GetXXX()
+	if err != nil {
+		return "", err
+	}
+	return result.Output, nil
+}
+
 func (actionLog *ActionLog) GetOutputData() (map[string]interface{}, error) {
 	outputMap := make(map[string]interface{})
 
