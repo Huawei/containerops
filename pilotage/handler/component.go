@@ -439,7 +439,7 @@ func DebugComponentLog(ctx *macaron.Context,
 				},
 			}
 			if event.Type == module.COMPONENT_STOP {
-				if output, err := actionLog.GetOutput(); err != nil {
+				if output, err := actionLog.GetOutcome(); err != nil {
 					log.Errorf("DebugComponent get output data error: %s\n", err)
 				} else {
 					sender <- &DebugComponentMessage{
