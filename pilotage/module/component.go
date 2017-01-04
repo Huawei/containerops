@@ -256,21 +256,21 @@ func DeleteComponent(id int64) error {
 	return nil
 }
 
-func DebugComponent(component *models.Component, kubernetes, input, environment string) (int64, error) {
+func DebugComponent(component *models.Component, kubernetes, input, environment string) (*ActionLog, error) {
 	component.Input = input
 	var envs []env
 	if err := json.Unmarshal([]byte(environment), envs); err != nil {
-		return 0, errors.New("can't unmarshal environment data: " + err.Error())
+		return nil, errors.New("can't unmarshal environment data: " + err.Error())
 	}
 
 	component.Environment = environment
 	actionLog, err := NewMockAction(component)
 	if err != nil {
 		log.Errorln("DebugComponent mock action error: ", err.Error())
-		return 0, errors.New("mock action error: " + err.Error())
+		return nil, errors.New("mock action error: " + err.Error())
 	}
 	go actionLog.Start()
-	return actionLog.ID, nil
+	return actionLog, nil
 }
 
 func NewComponent(actionLog *ActionLog) (component, error) {

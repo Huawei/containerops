@@ -1,14 +1,17 @@
 package handler
 
-import "github.com/Huawei/containerops/pilotage/models"
+import (
+	"github.com/Huawei/containerops/pilotage/models"
+	"github.com/Huawei/containerops/pilotage/module"
+)
 
-type errCode int64
+type errCode uint64
 
 const (
-	componentErrCode errCode = 1 << (4 + iota)
-	workflowErrCode
-	stageErrCode
-	actionErrCode
+	componentErrCode errCode = 00010000
+	workflowErrCode  errCode = 00100000
+	stageErrCode     errCode = 01000000
+	actionErrCode    errCode = 10000000
 )
 
 type CommonResp struct {
@@ -33,11 +36,17 @@ type DebugComponentResp struct {
 	CommonResp `json:"common"`
 }
 
+type DebugEvent struct {
+	Type    module.EventType `json:"type"`
+	Content string           `json:"content"`
+}
+
 type DebugComponentMessage struct {
-	Kubernetes  string `json:"kubernetes"`
-	Input       string `json:"input"`
-	Environment string `json:"environment"`
-	Output      string `json:"output"`
-	Event       string `json:"event"`
+	DebugID     int64      `json:"debug_id"`
+	Kubernetes  string     `json:"kubernetes,omitempty"`
+	Input       string     `json:"input,omitempty"`
+	Environment string     `json:"environment,omitempty"`
+	Output      string     `json:"output,omitempty"`
+	Event       DebugEvent `json:"event,omitempty"`
 	CommonResp  `json:"common"`
 }

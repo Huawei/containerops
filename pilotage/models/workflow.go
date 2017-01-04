@@ -257,6 +257,11 @@ func (o *Outcome) GetOutcome() *gorm.DB {
 	return db.Model(&Outcome{})
 }
 
+func (condition *Outcome) SelectOutcome() (outcome *Outcome, err error) {
+	err = db.Where(condition).First(outcome).Error
+	return
+}
+
 // workflowSequence is a table describe workflow's run sequence
 type WorkflowSequence struct {
 	ID        int64      `json:"id" gorm:"primary_key"`             //
