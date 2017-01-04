@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"github.com/Huawei/containerops/pilotage/models"
 	"github.com/Huawei/containerops/pilotage/module"
 )
@@ -14,6 +15,32 @@ type CommonResp struct {
 type ComponentResp struct {
 	*models.Component `json:"component,omitempty"`
 	CommonResp        `json:"common"`
+}
+
+type Env struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
+type ComponentSetup struct {
+	ImageName   string           `json:"image_name"`
+	ImageTag    string           `json:"image_tag"`
+	Timeout     int              `json:"timeout"`
+	Type        string           `json:"type"`
+	DataFrom    string           `json:"data_from"`
+	UseAdvanced bool             `json:"use_advanced"`
+	Pod         *json.RawMessage `json:"pod"`
+	Service     *json.RawMessage `json:"service"`
+}
+
+type ComponentReq struct {
+	ID      int64                  `json:"id"`
+	Name    string                 `json:"name"`
+	Version string                 `json:"version"`
+	Input   map[string]interface{} `json:"input"`
+	Output  map[string]interface{} `json:"output"`
+	Env     []Env                  `json:"env"`
+	Setup   ComponentSetup         `json:"setup"`
 }
 
 type DebugEvent struct {
