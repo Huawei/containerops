@@ -40,8 +40,8 @@ type ActionLog struct {
 }
 
 type Relation struct {
-	From string
-	To   string
+	From string `json:"from"`
+	To   string `json:"to"`
 }
 
 func init() {
@@ -1036,7 +1036,7 @@ func (actionLog *ActionLog) SendDataToAction(targetUrl string) {
 			return
 		}
 
-		dataMap, err = actionLog.merageFromActionsOutputData(relationInfo)
+		dataMap, err = actionLog.mergeFromActionsOutputData(relationInfo)
 		if err != nil {
 			log.Error("[actionLog's SendDataToAction]:error when get data map from action: " + err.Error())
 		}
@@ -1113,7 +1113,7 @@ func (actionLog *ActionLog) SendDataToAction(targetUrl string) {
 	}
 }
 
-func (actionLog *ActionLog) merageFromActionsOutputData(relationInfo []interface{}) (map[string]interface{}, error) {
+func (actionLog *ActionLog) mergeFromActionsOutputData(relationInfo []interface{}) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 	for _, relation := range relationInfo {
 		relationMap, ok := relation.(map[string]interface{})
@@ -1765,11 +1765,18 @@ func changeMapInfoWithGlobalVar(workflow, sequence int64, sourceMap map[string]i
 	return result, nil
 }
 
-func NewMockAction(component *models.Component, kubernetes string) (*ActionLog, error) {
+type MockRelaction struct {
+	FromAction int64 `json:"fromAction"`
+	ToAction int64 `json:"toAction"`
+	NestedRelation [][]Relation `json:"relation"`
+}
+
+func NewMockAction(component *models.Component, kubernetes string, input map[string]interface{}) (*ActionLog, error) {
 	actionLog := &ActionLog{}
 	actionLog.Namespace = ""
 	actionLog.Repository = ""
 	actionLog.Workflow = 0
+	//TODO: mock a unique workflow id
 	actionLog.FromWorkflow = 0
 	actionLog.Sequence = 0
 	actionLog.Stage = 0
@@ -1782,10 +1789,23 @@ func NewMockAction(component *models.Component, kubernetes string) (*ActionLog, 
 	actionLog.Title = ""
 	actionLog.Description = ""
 	actionLog.Event = 0
-	manifest := make(map[string]string)
+	manifest := make(map[string]interface{})
 	//manifest := `{"platform":{"platformHost":"http://10.21.101.227:8080","platformType":"KUBERNETES"}`
 	manifest["platform"] = kubernetes
 	manifest["platformType"] = "KUBERNETES"
+	var relation MockRelaction
+	relation.FromAction = -1
+	relation.ToAction = 0
+	rs := make([]Relation, 0)
+	for key, _ := range input {
+		r := Relation{
+			From: "." + key,
+			To: "." + key,
+		}
+		rs = append(rs, r)
+	}
+	relation.NestedRelation = append(relation.NestedRelation, rs)
+	manifest["relation"] = relation
 	data, err := json.Marshal(manifest)
 	if err != nil {
 		return nil, err
@@ -1805,7 +1825,11 @@ func NewMockAction(component *models.Component, kubernetes string) (*ActionLog, 
 	}
 	actionLog.Kubernetes = string(data)
 	actionLog.Swarm = ""
-	actionLog.Input = component.Input
+	data, err = json.Marshal(input)
+	if err != nil {
+		return nil, err
+	}
+	actionLog.Input = string(data)
 	var outputMap map[string]interface{}
 	err = json.Unmarshal([]byte(component.Output), &outputMap)
 	if err != nil {
@@ -1833,6 +1857,22 @@ func NewMockAction(component *models.Component, kubernetes string) (*ActionLog, 
 	}
 	if err := actionLog.Save(); err != nil {
 		return actionLog, err
+	}
+
+	var outcome models.Outcome
+	outcome.Workflow = actionLog.Workflow
+	outcome.RealWorkflow = actionLog.FromWorkflow
+	outcome.Stage = 0
+	outcome.RealStage = 0
+	outcome.Action = 0
+	outcome.RealAction = relation.FromAction
+	outcome.Event = 0
+	outcome.Sequence = 0
+	outcome.Status = true
+	outcome.Result = ""
+	outcome.Output = component.Input
+	if err := outcome.Save(); err != nil {
+		return nil, err
 	}
 	return actionLog, nil
 }
