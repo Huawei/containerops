@@ -234,7 +234,7 @@ func DeleteComponent(id int64) error {
 func DebugComponent(component *models.Component, kubernetes string, input map[string]interface{}, env string) (*ActionLog, error) {
 	//component.Input = input
 	component.Environment = env
-	actionLog, err := NewMockAction(component, kubernetes)
+	actionLog, err := NewMockAction(component, kubernetes, input)
 	if err != nil {
 		log.Errorln("DebugComponent mock action error: ", err.Error())
 		return nil, errors.New("mock action error: " + err.Error())
@@ -841,7 +841,7 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 			return nil, errors.New("error when parse relations")
 		}
 
-		dataMap, err = actionLog.merageFromActionsOutputData(relationInfo)
+		dataMap, err = actionLog.mergeFromActionsOutputData(relationInfo)
 		if err != nil {
 			log.Error("[kubeComponent's GetPodDefine]:error when get data map from action: " + err.Error())
 		}
