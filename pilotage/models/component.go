@@ -21,10 +21,11 @@ import (
 )
 
 type ComponentType string
+
 const (
 	ComponentTypeKubernetes ComponentType = "Kubernetes"
-	ComponentTypeMesos ComponentType = "Mesos"
-	ComponentTypeSwarm ComponentType = "Swarm"
+	ComponentTypeMesos      ComponentType = "Mesos"
+	ComponentTypeSwarm      ComponentType = "Swarm"
 )
 
 var ComponentTypes = []ComponentType{ComponentTypeKubernetes, ComponentTypeMesos, ComponentTypeSwarm}
@@ -33,17 +34,17 @@ var ComponentTypes = []ComponentType{ComponentTypeKubernetes, ComponentTypeMesos
 type Component struct {
 	BaseIDField
 	Name        string `sql:"not null;type:varchar(100);unique_index:uix_component_1"` //Component name for query.
-	Version     string `sql:"not null;type:varchar(30);unique_index:uix_component_1"`   // component version for display
-	Type        int8  `sql:"not null;default:0"`                                      //Container type: docker or rkt.
+	Version     string `sql:"not null;type:varchar(30);unique_index:uix_component_1"`  // component version for display
+	Type        int    `sql:"not null;default:0"`                                      //Container type: docker or rkt.
 	ImageName   string `sql:"not null;varchar(100);index:idx_component_1"`
 	ImageTag    string `sql:"varchar(30)";index:idx_component_1`
-	Timeout     int    ``                           //
+	Timeout     int    `` //
 	DataFrom    string
 	UseAdvanced bool   `sql:"not null;default:false"`
-	KubeSetting string `sql:"null;type:text"`   //Kubernetes execute script.
-	Input       string `sql:"null;type:text"`        //component input
-	Output      string `sql:"null;type:text"`       //component output
-	Environment string `sql:"null;type:text"`  //Environment parameters.
+	KubeSetting string `sql:"null;type:text"` //Kubernetes execute script.
+	Input       string `sql:"null;type:text"` //component input
+	Output      string `sql:"null;type:text"` //component output
+	Environment string `sql:"null;type:text"` //Environment parameters.
 	//Manifest    string `json:"manifest" sql:"null;type:longtext"` //
 	BaseModel2
 }

@@ -231,10 +231,10 @@ func DeleteComponent(id int64) error {
 	return nil
 }
 
-func DebugComponent(component *models.Component, kubernetes, input, env string) (*ActionLog, error) {
-	component.Input = input
+func DebugComponent(component *models.Component, kubernetes string, input map[string]interface{}, env string) (*ActionLog, error) {
+	//component.Input = input
 	component.Environment = env
-	actionLog, err := NewMockAction(component)
+	actionLog, err := NewMockAction(component, kubernetes)
 	if err != nil {
 		log.Errorln("DebugComponent mock action error: ", err.Error())
 		return nil, errors.New("mock action error: " + err.Error())

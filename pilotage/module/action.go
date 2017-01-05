@@ -1765,7 +1765,7 @@ func changeMapInfoWithGlobalVar(workflow, sequence int64, sourceMap map[string]i
 	return result, nil
 }
 
-func NewMockAction(component *models.Component) (*ActionLog, error) {
+func NewMockAction(component *models.Component, kubernetes string) (*ActionLog, error) {
 	actionLog := &ActionLog{}
 	actionLog.Namespace = ""
 	actionLog.Repository = ""
@@ -1784,7 +1784,7 @@ func NewMockAction(component *models.Component) (*ActionLog, error) {
 	actionLog.Event = 0
 	manifest := make(map[string]string)
 	//manifest := `{"platform":{"platformHost":"http://10.21.101.227:8080","platformType":"KUBERNETES"}`
-	manifest["platform"] = ""
+	manifest["platform"] = kubernetes
 	manifest["platformType"] = "KUBERNETES"
 	data, err := json.Marshal(manifest)
 	if err != nil {
@@ -1792,13 +1792,13 @@ func NewMockAction(component *models.Component) (*ActionLog, error) {
 	}
 	actionLog.Manifest = string(data)
 	actionLog.Environment = component.Environment
-	var m map[string]interface{}
-	if err := json.Unmarshal([]byte(component.KubeSetting), &m); err != nil {
+	var settingMap map[string]interface{}
+	if err := json.Unmarshal([]byte(component.KubeSetting), &settingMap); err != nil {
 		return nil, err
 	}
 	setting := make(map[string]interface{})
-	setting["podConfig"] = m["pod"]
-	setting["serviceConfig"] = m["service"]
+	setting["podConfig"] = settingMap["pod"]
+	setting["serviceConfig"] = settingMap["service"]
 	data, err = json.Marshal(setting)
 	if err != nil {
 		return nil, err
@@ -1806,7 +1806,12 @@ func NewMockAction(component *models.Component) (*ActionLog, error) {
 	actionLog.Kubernetes = string(data)
 	actionLog.Swarm = ""
 	actionLog.Input = component.Input
-	output, err := describeJSON(component.Output, "")
+	var outputMap map[string]interface{}
+	err = json.Unmarshal([]byte(component.Output), &outputMap)
+	if err != nil {
+		return nil, err
+	}
+	output, err := describeJSON(outputMap, "")
 	if err != nil {
 		return nil, err
 	}
@@ -1814,7 +1819,7 @@ func NewMockAction(component *models.Component) (*ActionLog, error) {
 	if err != nil {
 		return nil, err
 	}
-	actionLog.Output = data
+	actionLog.Output = string(data)
 	actionLog.ImageName = component.ImageName
 	actionLog.ImageTag = component.ImageTag
 
