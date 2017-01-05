@@ -30,6 +30,7 @@ import (
 	"github.com/Huawei/containerops/pilotage/models"
 	"github.com/Huawei/containerops/pilotage/utils"
 	log "github.com/Sirupsen/logrus"
+	"github.com/jinzhu/gorm"
 )
 
 const (
@@ -44,11 +45,6 @@ type component interface {
 	Update()
 	Stop() error
 	SendData(receiveDataUri string, data []byte) ([]*http.Response, error)
-}
-
-type env struct {
-	Key string `json:"key"`
-	Value string `json:"value"`
 }
 
 type kubeComponent struct {
@@ -138,17 +134,7 @@ func CreateComponent(component *models.Component) (int64, error) {
 		log.Warnln("CreateComponent timeout should ge zero")
 		component.Timeout = 0
 	}
-	var envs []env
-	if err := json.Unmarshal([]byte(component.Environment), envs); err != nil {
-		return 0, errors.New("can't unmarshal environment data" + err.Error())
-	}
-	var v map[string]json.RawMessage
-	if err := json.Unmarshal([]byte(component.Input), &v); err != nil {
-		return 0, errors.New("can't unmarshal input data" + err.Error())
-	}
-	if err := json.Unmarshal([]byte(component.Output), &v); err != nil {
-		return 0, errors.New("can't unmarshal output data" + err.Error())
-	}
+
 	condition := &models.Component{
 		Name: component.Name,
 		Version: component.Version,
@@ -172,10 +158,10 @@ func GetComponentByID(id int64) (*models.Component, error) {
 		return nil, errors.New("should specify component id")
 	}
 
-	var condition *models.Component
+	condition := &models.Component{}
 	condition.ID = id
 	component, err := condition.SelectComponent()
-	if err != nil {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		log.Errorln("GetComponent query component error: ", err.Error())
 		return nil, errors.New("query component error: " + err.Error())
 	}
@@ -197,19 +183,8 @@ func UpdateComponent(id int64, component *models.Component) error {
 		log.Warnln("UpdateComponent timeout should ge zero")
 		component.Timeout = 0
 	}
-	var envs []env
-	if err := json.Unmarshal([]byte(component.Environment), envs); err != nil {
-		return errors.New("can't unmarshal environment data" + err.Error())
-	}
-	var v map[string]json.RawMessage
-	if err := json.Unmarshal([]byte(component.Input), &v); err != nil {
-		return errors.New("can't unmarshal input data" + err.Error())
-	}
-	if err := json.Unmarshal([]byte(component.Output), &v); err != nil {
-		return errors.New("can't unmarshal output data" + err.Error())
-	}
 
-	var condition *models.Component
+	condition := &models.Component{}
 	condition.ID = id
 	old, err := condition.SelectComponent()
 	if err != nil {
@@ -239,7 +214,7 @@ func DeleteComponent(id int64) error {
 		return errors.New("should specify component id")
 	}
 
-	var condition *models.Component
+	condition := &models.Component{}
 	condition.ID = id
 	component, err := condition.SelectComponent()
 	if err != nil {
@@ -256,14 +231,9 @@ func DeleteComponent(id int64) error {
 	return nil
 }
 
-func DebugComponent(component *models.Component, kubernetes, input, environment string) (*ActionLog, error) {
+func DebugComponent(component *models.Component, kubernetes, input, env string) (*ActionLog, error) {
 	component.Input = input
-	var envs []env
-	if err := json.Unmarshal([]byte(environment), envs); err != nil {
-		return nil, errors.New("can't unmarshal environment data: " + err.Error())
-	}
-
-	component.Environment = environment
+	component.Environment = env
 	actionLog, err := NewMockAction(component)
 	if err != nil {
 		log.Errorln("DebugComponent mock action error: ", err.Error())

@@ -21,9 +21,9 @@ import (
 	"github.com/Huawei/containerops/pilotage/models"
 	"github.com/Huawei/containerops/pilotage/module"
 	log "github.com/Sirupsen/logrus"
+	"github.com/go-macaron/sockets"
 	"github.com/golang/groupcache/lru"
 	"github.com/gorilla/websocket"
-	"github.com/go-macaron/sockets"
 	"gopkg.in/macaron.v1"
 	"net/http"
 	"strconv"
@@ -84,8 +84,8 @@ func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 		return
 	}
 
-	var component *models.Component
-	err = json.Unmarshal(body, component)
+	var req ComponentReq
+	err = json.Unmarshal(body, &req)
 	if err != nil {
 		log.Errorln("CreateComponent unmarshal data error: ", err.Error())
 		httpStatus = http.StatusMethodNotAllowed
@@ -100,7 +100,42 @@ func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 		return
 	}
 
-	if id, err := module.CreateComponent(component); err != nil {
+	var component models.Component
+	component.Name = req.Name
+	component.Version = req.Version
+	component.Type = 0
+	for index, value := range models.ComponentTypes {
+		if string(value) == req.Type {
+			component.Type = index
+			break
+		}
+	}
+	component.ImageName = req.ImageName
+	component.ImageTag = req.ImageTag
+	component.Timeout = req.Timeout
+	component.DataFrom = req.DataFrom
+	component.UseAdvanced = req.UseAdvanced
+	m := make(map[string]*json.RawMessage)
+	m["pod"] = req.Pod
+	m["service"] = req.Service
+	component.KubeSetting, err = json.Marshal(m)
+	if err != nil {
+		log.Errorln("Create component marshal KubeSetting data error: " + err.Error())
+	}
+	component.Input, err = json.Marshal(req.Input)
+	if err != nil {
+		log.Errorln("Create component marshal Input data error: " + err.Error())
+	}
+	component.Output, err = json.Marshal(req.Output)
+	if err != nil {
+		log.Errorln("Create component marshal Output data error: " + err.Error())
+	}
+	component.Environment, err = json.Marshal(req.Env)
+	if err != nil {
+		log.Errorln("Create component marshal Env data error: " + err.Error())
+	}
+
+	if id, err := module.CreateComponent(&component); err != nil {
 		httpStatus = http.StatusBadRequest
 		resp.OK = false
 		resp.ErrorCode = ComponentError + ComponentCreateError
@@ -169,7 +204,31 @@ func GetComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 
 	httpStatus = http.StatusOK
 	resp.OK = true
-	resp.Component = component
+
+	resp.ID = component.ID
+	resp.Version = component.Version
+	resp.ImageName = component.ImageName
+	resp.ImageTag = component.ImageTag
+	resp.Timeout = component.Timeout
+	resp.Type = string(models.ComponentTypes[component.Type])
+	resp.DataFrom = component.DataFrom
+	resp.UseAdvanced = component.UseAdvanced
+	if err := json.Unmarshal([]byte(component.Environment), &resp.Env); err != nil {
+		log.Errorln("Get component unmarshal Environment data error: " + err.Error())
+	}
+	if err := json.Unmarshal([]byte(component.Input), &resp.Input); err != nil {
+		log.Errorln("Get component unmarshal Input data error: " + err.Error())
+	}
+	if err := json.Unmarshal([]byte(component.Output), &resp.Output); err != nil {
+		log.Errorln("Get component unmarshal Input data error: " + err.Error())
+	}
+
+	var setting map[string]*json.RawMessage
+	if json.Unmarshal([]byte(component.KubeSetting), &setting); err != nil {
+		log.Errorln("Get component unmarshal KubeSetting data error: " + err.Error())
+	}
+	resp.Pod = setting["pod"]
+	resp.Service = setting["service"]
 
 	result, err = json.Marshal(resp)
 	if err != nil {
@@ -194,8 +253,8 @@ func UpdateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 		return
 	}
 
-	var component *models.Component
-	err = json.Unmarshal(body, component)
+	var req ComponentReq
+	err = json.Unmarshal(body, &req)
 	if err != nil {
 		log.Errorln("UpdateComponent unmarshal data error: ", err.Error())
 		httpStatus = http.StatusBadRequest
@@ -223,6 +282,42 @@ func UpdateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 			log.Errorln("Update component marshal data error: " + err.Error())
 		}
 		return
+	}
+
+	var component models.Component
+	component.ID = id
+	component.Name = req.Name
+	component.Version = req.Version
+	component.Type = 0
+	for index, value := range models.ComponentTypes {
+		if string(value) == req.Type {
+			component.Type = index
+			break
+		}
+	}
+	component.ImageName = req.ImageName
+	component.ImageTag = req.ImageTag
+	component.Timeout = req.Timeout
+	component.DataFrom = req.DataFrom
+	component.UseAdvanced = req.UseAdvanced
+	m := make(map[string]*json.RawMessage)
+	m["pod"] = req.Pod
+	m["service"] = req.Service
+	component.KubeSetting, err = json.Marshal(m)
+	if err != nil {
+		log.Errorln("Create component marshal KubeSetting data error: " + err.Error())
+	}
+	component.Input, err = json.Marshal(req.Input)
+	if err != nil {
+		log.Errorln("Create component marshal Input data error: " + err.Error())
+	}
+	component.Output, err = json.Marshal(req.Output)
+	if err != nil {
+		log.Errorln("Create component marshal Output data error: " + err.Error())
+	}
+	component.Environment, err = json.Marshal(req.Env)
+	if err != nil {
+		log.Errorln("Create component marshal Env data error: " + err.Error())
 	}
 
 	if err := module.UpdateComponent(id, component); err != nil {
@@ -401,9 +496,9 @@ func DebugComponentLog(ctx *macaron.Context,
 	if err != nil {
 		sender <- &DebugComponentMessage{
 			CommonResp: CommonResp{
-				OK: false,
+				OK:        false,
 				ErrorCode: ComponentError + ComponentParseIDError,
-				Message: "Parse component id error: " + err.Error(),
+				Message:   "Parse component id error: " + err.Error(),
 			},
 		}
 		disconnect <- websocket.CloseUnsupportedData
@@ -413,18 +508,18 @@ func DebugComponentLog(ctx *macaron.Context,
 	if err != nil {
 		sender <- &DebugComponentMessage{
 			CommonResp: CommonResp{
-				OK: false,
+				OK:        false,
 				ErrorCode: ComponentError + ComponentGetError,
-				Message: "get component by id error: " + err.Error(),
+				Message:   "get component by id error: " + err.Error(),
 			},
 		}
 		disconnect <- websocket.CloseUnsupportedData
 		return
 	}
 
-	var actionLog *module.ActionLog
+	actionLog := module.ActionLog{}
 	eventChan := make(chan DebugEvent)
-	ticker := time.Tick(time.Duration(component.Timeout+30) * time.Second)
+	ticker := time.Tick(time.Duration(component.Timeout + 30) * time.Second)
 	for {
 		select {
 		case event, ok := <-eventChan:
@@ -433,7 +528,7 @@ func DebugComponentLog(ctx *macaron.Context,
 			}
 			sender <- &DebugComponentMessage{
 				DebugID: actionLog.ID,
-				Event: event,
+				Event:   event,
 				CommonResp: CommonResp{
 					OK: true,
 				},
@@ -444,7 +539,7 @@ func DebugComponentLog(ctx *macaron.Context,
 				} else {
 					sender <- &DebugComponentMessage{
 						DebugID: actionLog.ID,
-						Output: output,
+						Output:  output,
 						CommonResp: CommonResp{
 							OK: true,
 						},
@@ -461,22 +556,37 @@ func DebugComponentLog(ctx *macaron.Context,
 			if msg.Kubernetes == "" {
 				sender <- &DebugComponentMessage{
 					CommonResp: CommonResp{
-						OK: false,
+						OK:        false,
 						ErrorCode: ComponentError + ComponentDebugError,
-						Message: "should specify kubernetes api server",
+						Message:   "should specify kubernetes api server",
 					},
 				}
 				disconnect <- websocket.CloseUnsupportedData
 				return
 			}
-			actionLog, err = module.DebugComponent(component, msg.Kubernetes, msg.Input, msg.Environment)
+			m := make(map[string]string)
+			for _, item := range msg.Env {
+				m[item.Key] = item.Value
+			}
+			env, err := json.Marshal(m)
 			if err != nil {
 				sender <- &DebugComponentMessage{
-					Input: msg.Input,
 					CommonResp: CommonResp{
-						OK: false,
+						OK:        false,
+						ErrorCode: ComponentError + ComponentmarshalError,
+						Message:   "debug component error: " + err.Error(),
+					},
+				}
+				disconnect <- websocket.CloseInternalServerErr
+				return
+			}
+			actionLog, err = module.DebugComponent(component, msg.Kubernetes, msg.Input, string(env))
+			if err != nil {
+				sender <- &DebugComponentMessage{
+					CommonResp: CommonResp{
+						OK:        false,
 						ErrorCode: ComponentError + ComponentDebugError,
-						Message: "debug component error: " + err.Error(),
+						Message:   "debug component error: " + err.Error(),
 					},
 				}
 				disconnect <- websocket.CloseInternalServerErr
@@ -485,7 +595,7 @@ func DebugComponentLog(ctx *macaron.Context,
 			cache.Add(actionLog.ID, eventChan)
 			sender <- &DebugComponentMessage{
 				DebugID: actionLog.ID,
-				Input: msg.Input,
+				Input:   msg.Input,
 				CommonResp: CommonResp{
 					OK: true,
 				},

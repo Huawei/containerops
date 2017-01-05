@@ -1766,7 +1766,7 @@ func changeMapInfoWithGlobalVar(workflow, sequence int64, sourceMap map[string]i
 }
 
 func NewMockAction(component *models.Component) (*ActionLog, error) {
-	var actionLog *ActionLog
+	actionLog := &ActionLog{}
 	actionLog.Namespace = ""
 	actionLog.Repository = ""
 	actionLog.Workflow = 0
@@ -1782,14 +1782,39 @@ func NewMockAction(component *models.Component) (*ActionLog, error) {
 	actionLog.Title = ""
 	actionLog.Description = ""
 	actionLog.Event = 0
-	manifest := `{"platform":{"platformHost":"http://10.21.101.227:8080","platformType":"KUBERNETES"}`
-	actionLog.Manifest = manifest
+	manifest := make(map[string]string)
+	//manifest := `{"platform":{"platformHost":"http://10.21.101.227:8080","platformType":"KUBERNETES"}`
+	manifest["platform"] = ""
+	manifest["platformType"] = "KUBERNETES"
+	data, err := json.Marshal(manifest)
+	if err != nil {
+		return nil, err
+	}
+	actionLog.Manifest = string(data)
 	actionLog.Environment = component.Environment
-	//TODO: add runtime k8s-apiserver
-	actionLog.Kubernetes = component.KubeSetting
+	var m map[string]interface{}
+	if err := json.Unmarshal([]byte(component.KubeSetting), &m); err != nil {
+		return nil, err
+	}
+	setting := make(map[string]interface{})
+	setting["podConfig"] = m["pod"]
+	setting["serviceConfig"] = m["service"]
+	data, err = json.Marshal(setting)
+	if err != nil {
+		return nil, err
+	}
+	actionLog.Kubernetes = string(data)
 	actionLog.Swarm = ""
 	actionLog.Input = component.Input
-	actionLog.Output = ""
+	output, err := describeJSON(component.Output, "")
+	if err != nil {
+		return nil, err
+	}
+	data, err = json.Marshal(output)
+	if err != nil {
+		return nil, err
+	}
+	actionLog.Output = data
 	actionLog.ImageName = component.ImageName
 	actionLog.ImageTag = component.ImageTag
 
