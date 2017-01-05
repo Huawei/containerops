@@ -1864,7 +1864,7 @@ func NewMockAction(component *models.Component, kubernetes string, input map[str
 	outcome.RealWorkflow = actionLog.FromWorkflow
 	outcome.Stage = 0
 	outcome.RealStage = 0
-	outcome.Action = 0
+	outcome.Action = actionLog.ID
 	outcome.RealAction = relation.FromAction
 	outcome.Event = 0
 	outcome.Sequence = 0
