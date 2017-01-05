@@ -57,65 +57,84 @@ type kubeComponent struct {
 	componentInfo models.ActionLog
 }
 
-// GetComponentListByNamespace is get component list by given namespace
-func GetComponentListByNamespace(namespace string) ([]map[string]interface{}, error) {
-	resultMap := make([]map[string]interface{}, 0)
-	componentList := make([]models.Component, 0)
-	componentsMap := make(map[string]interface{})
+func GetComponents(name, version string, fuzzy bool, pageNum, versionNum, offset int) ([]*models.Component, error) {
+	condition := &models.Component{}
+	if name != "" && version != "" {
+		condition.Name = name
+		condition.Version = version
+		if fuzzy {
 
-	err := new(models.Component).GetComponent().Where("namespace = ?", namespace).Order("-id").Find(&componentList).Error
-	if err != nil {
-		return nil, errors.New("error when get component infos by namespace:" + namespace + ",error:" + err.Error())
-	}
-
-	for _, componentInfo := range componentList {
-		if _, ok := componentsMap[componentInfo.Name]; !ok {
-			tempMap := make(map[string]interface{})
-			tempMap["version"] = make(map[int64]interface{})
-			componentsMap[componentInfo.Name] = tempMap
+		} else {
+			return condition.SelectComponents(offset)
 		}
-
-		componentMap := componentsMap[componentInfo.Name].(map[string]interface{})
-		versionMap := componentMap["version"].(map[int64]interface{})
-
-		//versionMap[componentInfo.VersionCode] = componentInfo
-		componentMap["id"] = componentInfo.ID
-		componentMap["name"] = componentInfo.Name
-		componentMap["version"] = versionMap
 	}
+	if name == "" {
 
-	for _, component := range componentList {
-		componentInfo := componentsMap[component.Name].(map[string]interface{})
-
-		if isSign, ok := componentInfo["isSign"].(bool); ok && isSign {
-			continue
-		}
-
-		componentInfo["isSign"] = true
-		componentsMap[component.Name] = componentInfo
-
-		versionList := make([]map[string]interface{}, 0)
-		for _, componentVersion := range componentList {
-			if componentVersion.Name == componentInfo["name"].(string) {
-				versionMap := make(map[string]interface{})
-				versionMap["id"] = componentVersion.ID
-				versionMap["version"] = componentVersion.Version
-				//versionMap["versionCode"] = componentVersion.VersionCode
-
-				versionList = append(versionList, versionMap)
-			}
-		}
-
-		tempResult := make(map[string]interface{})
-		tempResult["id"] = componentInfo["id"]
-		tempResult["name"] = componentInfo["name"]
-		tempResult["version"] = versionList
-
-		resultMap = append(resultMap, tempResult)
 	}
+	if version == "" {
 
-	return resultMap, nil
+	}
+	return nil, nil
 }
+
+//func GetComponentListByNamespace(namespace string) ([]map[string]interface{}, error) {
+//	resultMap := make([]map[string]interface{}, 0)
+//	componentList := make([]models.Component, 0)
+//	componentsMap := make(map[string]interface{})
+//
+//	err := new(models.Component).GetComponent().Where("namespace = ?", namespace).Order("-id").Find(&componentList).Error
+//	if err != nil {
+//		return nil, errors.New("error when get component infos by namespace:" + namespace + ",error:" + err.Error())
+//	}
+//
+//	for _, componentInfo := range componentList {
+//		if _, ok := componentsMap[componentInfo.Name]; !ok {
+//			tempMap := make(map[string]interface{})
+//			tempMap["version"] = make(map[int64]interface{})
+//			componentsMap[componentInfo.Name] = tempMap
+//		}
+//
+//		componentMap := componentsMap[componentInfo.Name].(map[string]interface{})
+//		versionMap := componentMap["version"].(map[int64]interface{})
+//
+//		//versionMap[componentInfo.VersionCode] = componentInfo
+//		componentMap["id"] = componentInfo.ID
+//		componentMap["name"] = componentInfo.Name
+//		componentMap["version"] = versionMap
+//	}
+//
+//	for _, component := range componentList {
+//		componentInfo := componentsMap[component.Name].(map[string]interface{})
+//
+//		if isSign, ok := componentInfo["isSign"].(bool); ok && isSign {
+//			continue
+//		}
+//
+//		componentInfo["isSign"] = true
+//		componentsMap[component.Name] = componentInfo
+//
+//		versionList := make([]map[string]interface{}, 0)
+//		for _, componentVersion := range componentList {
+//			if componentVersion.Name == componentInfo["name"].(string) {
+//				versionMap := make(map[string]interface{})
+//				versionMap["id"] = componentVersion.ID
+//				versionMap["version"] = componentVersion.Version
+//				//versionMap["versionCode"] = componentVersion.VersionCode
+//
+//				versionList = append(versionList, versionMap)
+//			}
+//		}
+//
+//		tempResult := make(map[string]interface{})
+//		tempResult["id"] = componentInfo["id"]
+//		tempResult["name"] = componentInfo["name"]
+//		tempResult["version"] = versionList
+//
+//		resultMap = append(resultMap, tempResult)
+//	}
+//
+//	return resultMap, nil
+//}
 
 func CreateComponent(component *models.Component) (int64, error) {
 	if component.ID != 0 {

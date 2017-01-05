@@ -69,6 +69,13 @@ func (condition *Component) SelectComponent() (component *Component, err error) 
 	return
 }
 
+func (condition *Component) SelectComponents(offset int) (components []Component, err error) {
+	err = db.Offset(offset).Where(condition).
+		Order("name").Order("version").
+		Find(&components).Error
+	return
+}
+
 func (component *Component) Save() error {
 	return db.Save(component).Error
 }
