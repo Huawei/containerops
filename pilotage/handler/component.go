@@ -39,33 +39,105 @@ func init() {
 		log.Warnf("Component message channel key %v evicted\n", key)
 		channel, ok := value.(chan DebugEvent)
 		if !ok {
-			log.Warn("Can't convert cache value %T to message channel", value)
+			log.Warnf("Can't convert cache value %T to message channel\n", value)
 			return
 		}
 		close(channel)
 	}
 }
 
-func ListComponents(ctx *macaron.Context) (int, []byte) {
-	result, _ := json.Marshal(map[string]string{"message": ""})
-
-	namespace := ctx.Params(":namespace")
-
-	if namespace == "" {
-		result, _ = json.Marshal(map[string]string{"errMsg": "namespace can't be empty"})
-		return http.StatusBadRequest, result
-	}
-
-	componentList, err := module.GetComponentListByNamespace(namespace)
-
+func ListComponents(ctx *macaron.Context) (httpStatus int, result []byte) {
+	var resp ListComponentsResp
+	name := ctx.QueryTrim("name")
+	version := ctx.QueryTrim("version")
+	fuzzy, err := strconv.ParseBool(ctx.QueryTrim("fuzzy"))
 	if err != nil {
-		result, _ = json.Marshal(map[string]string{"errMsg": "error when get component list:" + err.Error()})
-		return http.StatusBadRequest, result
+		httpStatus = http.StatusBadRequest
+		resp.OK = false
+		resp.ErrorCode = ComponentError + ComponentReqBodyError
+		resp.Message = "Parse query param fuzzy error: " + err.Error()
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("List components marshal data error: " + err.Error())
+		}
+		return
+	}
+	pageNum := ctx.QueryInt("page_num")
+	if pageNum <= 0 {
+		pageNum = 5
+	}
+	versionNum := ctx.QueryInt("version_num")
+	if versionNum <= 0 {
+		versionNum = 5
+	}
+	offset := ctx.QueryInt("offset")
+	if offset < 0 {
+		offset = 0
 	}
 
-	result, _ = json.Marshal(map[string]interface{}{"list": componentList})
+	components, err := module.GetComponents(name, version, fuzzy, pageNum, versionNum, offset)
+	if err != nil {
+		httpStatus = http.StatusBadRequest
+		resp.OK = false
+		resp.ErrorCode = ComponentError + ComponentListError
+		resp.Message = "List components error: " + err.Error()
 
-	return http.StatusOK, result
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("List components marshal data error: " + err.Error())
+		}
+		return
+	}
+
+	if len(components) == 0 {
+		httpStatus = http.StatusNotFound
+		resp.OK = false
+		resp.ErrorCode = ComponentError + ComponentListError
+		resp.Message = "components not found"
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("List components marshal data error: " + err.Error())
+		}
+		return
+	}
+
+	for _, component := range components {
+		resp.Components = append(resp.Components, ComponentItem{
+			ID: component.ID,
+			Name: component.Name,
+			Version: component.Version,
+		})
+	}
+
+	httpStatus = http.StatusCreated
+	resp.OK = true
+
+	result, err = json.Marshal(resp)
+	if err != nil {
+	log.Errorln("List components marshal data error: " + err.Error())
+	}
+	return
+	//result, _ := json.Marshal(map[string]string{"message": ""})
+	//
+	//namespace := ctx.Params(":namespace")
+	//
+	//if namespace == "" {
+	//	result, _ = json.Marshal(map[string]string{"errMsg": "namespace can't be empty"})
+	//	return http.StatusBadRequest, result
+	//}
+	//
+	//componentList, err := module.GetComponentListByNamespace(namespace)
+	//
+	//if err != nil {
+	//	result, _ = json.Marshal(map[string]string{"errMsg": "error when get component list:" + err.Error()})
+	//	return http.StatusBadRequest, result
+	//}
+	//
+	//result, _ = json.Marshal(map[string]interface{}{"list": componentList})
+	//
+	//return http.StatusOK, result
 }
 
 func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {

@@ -35,4 +35,5 @@ const (
 	ComponentDeleteError    //errCode = 0007
 	ComponentDebugError     //errCode = 0008
 	ComponentmarshalError
+	ComponentListError
 )
