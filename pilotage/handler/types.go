@@ -16,6 +16,17 @@ type ComponentResp struct {
 	CommonResp   `json:"common"`
 }
 
+type ComponentItem struct {
+	ID         int64  `json:"id"`
+	Name       string `json:"name"`
+	Version    string `json:"version"`
+}
+
+type ListComponentsResp struct {
+	Components []ComponentItem `json:"components"`
+	CommonResp `json:"common"`
+}
+
 type Env struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
@@ -40,9 +51,6 @@ type ComponentReq struct {
 	Output         map[string]interface{} `json:"output"`
 	Env            []Env                  `json:"env"`
 	ComponentSetup `json:"setup"`
-}
-
-type ListComponentsReq struct {
 }
 
 type DebugEvent struct {
