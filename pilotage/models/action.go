@@ -95,9 +95,11 @@ func (log *ActionLog) GetActionLog() *gorm.DB {
 }
 
 func SelectActionLogFromID(id int64) (actionLog *ActionLog, err error) {
+	var result ActionLog
 	var condition ActionLog
 	condition.ID = id
-	err = db.Where(&condition).First(actionLog).Error
+	err = db.Where(&condition).First(&result).Error
+	actionLog = &result
 	return
 }
 

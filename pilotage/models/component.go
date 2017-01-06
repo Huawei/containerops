@@ -20,29 +20,32 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+type ComponentType string
+
 const (
-	//ComponentTypeDocker means the component is Docker container.
-	ComponentTypeDocker = iota
-	//ComponentTypeRkt means the component is rkt container.
-	ComponentTypeRkt
-	//ComponentTypeOCI reserved for OCI format container.
-	ComponentTypeOCI
+	ComponentTypeKubernetes ComponentType = "Kubernetes"
+	ComponentTypeMesos      ComponentType = "Mesos"
+	ComponentTypeSwarm      ComponentType = "Swarm"
 )
+
+var ComponentTypes = []ComponentType{ComponentTypeKubernetes, ComponentTypeMesos, ComponentTypeSwarm}
 
 //Component is customized container(docker or rkt) for executing DevOps tasks.
 type Component struct {
 	BaseIDField
-	Name        string `json:"name" sql:"not null;type:varchar(100);unique_index:uix_component_1"` //Component name for query.
-	Version     string `json:"version" sql:"not null;type:varchar(30);unique_index:uix_component_1"`   // component version for display
-	Type        int64  `json:"type" sql:"not null;default:0"`                                      //Container type: docker or rkt.
-	ImageName   string `json:"image_name" sql:"not null;varchar(100);index:idx_component_1"`
-	ImageTag    string `json:"image_tag" sql:"varchar(30)";index:idx_component_1`
-	Timeout     int    `json:"timeout"`                           //
-	KubeSetting string `json:"kubernetes" sql:"null;type:text"`   //Kubernetes execute script.
-	Input       string `json:"input" sql:"null;type:text"`        //component input
-	Output      string `json:"output" sql:"null;type:text"`       //component output
-	Environment string `json:"environment" sql:"null;type:text"`  //Environment parameters.
-	Manifest    string `json:"manifest" sql:"null;type:longtext"` //
+	Name        string `sql:"not null;type:varchar(100);unique_index:uix_component_1"` //Component name for query.
+	Version     string `sql:"not null;type:varchar(30);unique_index:uix_component_1"`  // component version for display
+	Type        int    `sql:"not null;default:0"`                                      //Container type: docker or rkt.
+	ImageName   string `sql:"not null;varchar(100);index:idx_component_1"`
+	ImageTag    string `sql:"varchar(30)";index:idx_component_1`
+	Timeout     int    `` //
+	DataFrom    string
+	UseAdvanced bool   `sql:"not null;default:false"`
+	KubeSetting string `sql:"null;type:text"` //Kubernetes execute script.
+	Input       string `sql:"null;type:text"` //component input
+	Output      string `sql:"null;type:text"` //component output
+	Environment string `sql:"null;type:text"` //Environment parameters.
+	//Manifest    string `json:"manifest" sql:"null;type:longtext"` //
 	BaseModel2
 }
 
@@ -60,7 +63,9 @@ func (component *Component) Create() error {
 }
 
 func (condition *Component) SelectComponent() (component *Component, err error) {
-	err = db.Where(condition).First(component).Error
+	var result Component
+	err = db.Where(condition).First(&result).Error
+	component = &result
 	return
 }
 

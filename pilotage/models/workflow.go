@@ -258,8 +258,14 @@ func (o *Outcome) GetOutcome() *gorm.DB {
 }
 
 func (condition *Outcome) SelectOutcome() (outcome *Outcome, err error) {
-	err = db.Where(condition).First(outcome).Error
+	var result Outcome
+	err = db.Where(condition).First(&result).Error
+	outcome = &result
 	return
+}
+
+func (o *Outcome) Save() error {
+	return db.Save(o).Error
 }
 
 // workflowSequence is a table describe workflow's run sequence
