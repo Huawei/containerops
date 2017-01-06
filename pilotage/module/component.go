@@ -57,24 +57,15 @@ type kubeComponent struct {
 	componentInfo models.ActionLog
 }
 
-func GetComponents(name, version string, fuzzy bool, pageNum, versionNum, offset int) ([]*models.Component, error) {
-	condition := &models.Component{}
-	if name != "" && version != "" {
-		condition.Name = name
-		condition.Version = version
-		if fuzzy {
-
-		} else {
-			return condition.SelectComponents(offset)
-		}
+func GetComponents(name, version string, fuzzy bool, pageNum, versionNum, offset int) ([]models.Component, error) {
+	if name == "" && fuzzy == true {
+		fuzzy = false
 	}
-	if name == "" {
-
+	components, err := models.SelectComponents(name, version, fuzzy, pageNum, versionNum, offset)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, errors.New("get components error: " + err.Error())
 	}
-	if version == "" {
-
-	}
-	return nil, nil
+	return components, nil
 }
 
 //func GetComponentListByNamespace(namespace string) ([]map[string]interface{}, error) {

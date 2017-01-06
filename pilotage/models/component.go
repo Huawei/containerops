@@ -69,10 +69,43 @@ func (condition *Component) SelectComponent() (component *Component, err error) 
 	return
 }
 
-func (condition *Component) SelectComponents(offset int) (components []Component, err error) {
-	err = db.Offset(offset).Where(condition).
-		Order("name").Order("version").
-		Find(&components).Error
+func SelectComponents(name, version string, fuzzy bool, pageNum, versionNum, offset int) (components []Component, err error) {
+	var offsetCond, cond string
+	values := make([]interface{}, 0)
+	if name != "" {
+		if fuzzy {
+			cond = " where name like ?"
+		} else {
+			cond = " where name = ?"
+		}
+		values = append(values, name)
+	}
+	if version != "" {
+		if cond == "" {
+			cond = " where version = ?"
+		} else {
+			cond = cond + " version = ?"
+		}
+		values = append(values, version)
+	}
+	var max int
+	if name != "" && !fuzzy {
+		offsetCond = " where version_num > ? and version_num < ?"
+		max = offset + versionNum
+	} else {
+		offsetCond = " where page_num > ? and page_num < ?"
+		max = offset + pageNum
+	}
+	values = append(values, max)
+
+	components = make([]Component, 0)
+	err = db.Raw("select id, name, version," +
+		"(case when @name != name then @page_num := @page_num + 1 else @page_num end) as page_num," +
+		"(case when @name != name then @version_num := 1 else @version_num := @version_num + 1 end) as version_num " +
+		"from (select id, name, version from component " +
+		cond +
+		"order by name, version)" +
+		offsetCond, values...).Find(&components).Error
 	return
 }
 
