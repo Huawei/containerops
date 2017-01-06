@@ -75,10 +75,11 @@ func SelectComponents(name, version string, fuzzy bool, pageNum, versionNum, off
 	if name != "" {
 		if fuzzy {
 			cond = " where name like ?"
+			values = append(values, name + "%")
 		} else {
 			cond = " where name = ?"
+			values = append(values, name)
 		}
-		values = append(values, name)
 	}
 	if version != "" {
 		if cond == "" {
@@ -92,11 +93,12 @@ func SelectComponents(name, version string, fuzzy bool, pageNum, versionNum, off
 	if name != "" && !fuzzy {
 		offsetCond = " where version_num > ? and version_num < ?"
 		max = offset + versionNum
+		values = append(values, offset, max)
 	} else {
-		offsetCond = " where page_num > ? and page_num < ?"
+		offsetCond = " where page_num > ? and page_num < ? and version_num < ?"
 		max = offset + pageNum
+		values = append(values, offset, max, versionNum)
 	}
-	values = append(values, max)
 
 	components = make([]Component, 0)
 	err = db.Raw("select id, name, version," +
