@@ -90,6 +90,19 @@ func ListComponents(ctx *macaron.Context) (httpStatus int, result []byte) {
 		return
 	}
 
+	if len(components) == 0 {
+		httpStatus = http.StatusNotFound
+		resp.OK = false
+		resp.ErrorCode = ComponentError + ComponentListError
+		resp.Message = "components not found"
+
+		result, err = json.Marshal(resp)
+		if err != nil {
+			log.Errorln("List components marshal data error: " + err.Error())
+		}
+		return
+	}
+
 	for _, component := range components {
 		resp.Components = append(resp.Components, ComponentItem{
 			ID: component.ID,
