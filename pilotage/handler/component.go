@@ -48,20 +48,27 @@ func init() {
 
 func ListComponents(ctx *macaron.Context) (httpStatus int, result []byte) {
 	var resp ListComponentsResp
+	var fuzzy bool
 	name := ctx.QueryTrim("name")
 	version := ctx.QueryTrim("version")
-	fuzzy, err := strconv.ParseBool(ctx.QueryTrim("fuzzy"))
-	if err != nil {
-		httpStatus = http.StatusBadRequest
-		resp.OK = false
-		resp.ErrorCode = ComponentError + ComponentReqBodyError
-		resp.Message = "Parse query param fuzzy error: " + err.Error()
-
-		result, err = json.Marshal(resp)
+	f := ctx.QueryTrim("fuzzy")
+	if f == "" {
+		fuzzy = false
+	} else {
+		var err error
+		fuzzy, err = strconv.ParseBool(f)
 		if err != nil {
-			log.Errorln("List components marshal data error: " + err.Error())
+			httpStatus = http.StatusBadRequest
+			resp.OK = false
+			resp.ErrorCode = ComponentError + ComponentReqBodyError
+			resp.Message = "Parse query param fuzzy error: " + err.Error()
+
+			result, err = json.Marshal(resp)
+			if err != nil {
+				log.Errorln("List components marshal data error: " + err.Error())
+			}
+			return
 		}
-		return
 	}
 	pageNum := ctx.QueryInt("page_num")
 	if pageNum <= 0 {
@@ -116,7 +123,7 @@ func ListComponents(ctx *macaron.Context) (httpStatus int, result []byte) {
 
 	result, err = json.Marshal(resp)
 	if err != nil {
-	log.Errorln("List components marshal data error: " + err.Error())
+		log.Errorln("List components marshal data error: " + err.Error())
 	}
 	return
 	//result, _ := json.Marshal(map[string]string{"message": ""})
@@ -238,7 +245,7 @@ func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 
 func GetComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	var resp ComponentResp
-	componentID := ctx.Params(":component_id")
+	componentID := ctx.Params(":component")
 	id, err := strconv.ParseInt(componentID, 10, 64)
 	if err != nil {
 		httpStatus = http.StatusBadRequest
@@ -345,7 +352,7 @@ func UpdateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 		return
 	}
 
-	componentID := ctx.Params(":component_id")
+	componentID := ctx.Params(":component")
 	id, err := strconv.ParseInt(componentID, 10, 64)
 	if err != nil {
 		httpStatus = http.StatusBadRequest
@@ -425,7 +432,7 @@ func UpdateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 func DeleteComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	var resp ComponentResp
 
-	componentID := ctx.Params(":component_id")
+	componentID := ctx.Params(":component")
 	id, err := strconv.ParseInt(componentID, 10, 64)
 	if err != nil {
 		httpStatus = http.StatusBadRequest
@@ -572,7 +579,7 @@ func DebugComponentLog(ctx *macaron.Context,
 	done <-chan bool,
 	disconnect chan<- int,
 	errChan <-chan error) {
-	id, err := strconv.ParseInt(ctx.Params(":component_id"), 10, 64)
+	id, err := strconv.ParseInt(ctx.Params(":component"), 10, 64)
 	if err != nil {
 		sender <- &DebugComponentMessage{
 			CommonResp: CommonResp{

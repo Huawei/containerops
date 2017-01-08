@@ -175,9 +175,9 @@ func GetComponentByID(id int64) (*models.Component, error) {
 		log.Errorln("GetComponent query component error: ", err.Error())
 		return nil, errors.New("query component error: " + err.Error())
 	}
-	//if component == nil {
-	//	return nil, errors.New("component does not exist")
-	//}
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
 	return component, nil
 }
 
