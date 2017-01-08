@@ -18,6 +18,7 @@ package models
 
 import (
 	"github.com/jinzhu/gorm"
+	log "github.com/Sirupsen/logrus"
 )
 
 type ComponentType string
@@ -38,7 +39,7 @@ type Component struct {
 	Type        int    `sql:"not null;default:0"`                                      //Container type: docker or rkt.
 	ImageName   string `sql:"not null;varchar(100);index:idx_component_1"`
 	ImageTag    string `sql:"varchar(30)";index:idx_component_1`
-	Timeout     int    `` //
+	Timeout     int    `sql:"default 0"` //
 	DataFrom    string
 	UseAdvanced bool   `sql:"not null;default:false"`
 	KubeSetting string `sql:"null;type:text"` //Kubernetes execute script.
@@ -91,23 +92,26 @@ func SelectComponents(name, version string, fuzzy bool, pageNum, versionNum, off
 	}
 	var max int
 	if name != "" && !fuzzy {
-		offsetCond = " where version_num > ? and version_num < ?"
+		offsetCond = " where @version_num > ? and @version_num < ?"
 		max = offset + versionNum
 		values = append(values, offset, max)
 	} else {
-		offsetCond = " where page_num > ? and page_num < ? and version_num < ?"
+		offsetCond = " where @page_num > ? and @page_num < ? and @version_num < ?"
 		max = offset + pageNum
 		values = append(values, offset, max, versionNum)
 	}
 
 	components = make([]Component, 0)
-	err = db.Raw("select id, name, version," +
-		"(case when @name != name then @page_num := @page_num + 1 else @page_num end) as page_num," +
-		"(case when @name != name then @version_num := 1 else @version_num := @version_num + 1 end) as version_num " +
+	raw := "select id, name, version, " +
+		"(case when @name != name then @page_num := @page_num + 1 else @page_num end) as page_num, " +
+		"(case when @name != name then @version_num := 1 else @version_num := @version_num + 1 end) as version_num, " +
+		"@name := name " +
 		"from (select id, name, version from component " +
 		cond +
-		"order by name, version)" +
-		offsetCond, values...).Find(&components).Error
+		"order by name, version) t" +
+		offsetCond
+	log.Debugf("SelectComponents raw sql: %s\n", raw)
+	err = db.Raw(raw, values...).Find(&components).Error
 	return
 }
 

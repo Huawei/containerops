@@ -35,11 +35,11 @@ func SetRouters(m *macaron.Macaron) {
 			m.Get("/", handler.ListComponents)
 
 			m.Post("/", handler.CreateComponent)
-			m.Get("/:component_id", handler.GetComponent)
-			m.Put("/:component_id", handler.UpdateComponent)
-			m.Delete("/:component_id", handler.DeleteComponent)
+			m.Get("/:component", handler.GetComponent)
+			m.Put("/:component", handler.UpdateComponent)
+			m.Delete("/:component", handler.DeleteComponent)
 
-			m.Get("/:component_id/debug", handler.DebugComponentJson(), handler.DebugComponentLog)
+			m.Get("/:component/debug", handler.DebugComponentJson(), handler.DebugComponentLog)
 		})
 
 		m.Group("/images", func() {

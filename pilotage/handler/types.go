@@ -23,7 +23,7 @@ type ComponentItem struct {
 }
 
 type ListComponentsResp struct {
-	Components []ComponentItem `json:"components"`
+	Components []ComponentItem `json:"components,omitempty"`
 	CommonResp `json:"common"`
 }
 
