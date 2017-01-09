@@ -12,7 +12,7 @@ type CommonResp struct {
 }
 
 type ComponentResp struct {
-	ComponentReq `json:"component,omitempty"`
+	*ComponentReq `json:"component,omitempty"`
 	CommonResp   `json:"common"`
 }
 

@@ -288,6 +288,7 @@ func GetComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	httpStatus = http.StatusOK
 	resp.OK = true
 
+	resp.ComponentReq = &ComponentReq{}
 	resp.ID = component.ID
 	resp.Version = component.Version
 	resp.ImageName = component.ImageName
@@ -470,104 +471,6 @@ func DeleteComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	return
 }
 
-//func DebugComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
-//	var resp DebugComponentResp
-//	body, err := ctx.Req.Body().Bytes()
-//	if err != nil {
-//		httpStatus = http.StatusBadRequest
-//		resp.OK = false
-//		resp.ErrorCode = componentErrCode + 5
-//		resp.Message = "Get requrest body error: " + err.Error()
-//
-//		result, err = json.Marshal(resp)
-//		if err != nil {
-//			log.Errorln("Debug component marshal data error: " + err.Error())
-//		}
-//		return
-//	}
-//
-//	componentID := ctx.Params(":component_id")
-//	id, err := strconv.ParseInt(componentID, 10, 64)
-//	if err != nil {
-//		httpStatus = http.StatusBadRequest
-//		resp.OK = false
-//		resp.ErrorCode = componentErrCode + 10
-//		resp.Message = "Parse component id error: " + err.Error()
-//
-//		result, err = json.Marshal(resp)
-//		if err != nil {
-//			log.Errorln("Debug component marshal data error: " + err.Error())
-//		}
-//		return
-//	}
-//
-//	var req *DebugComponentReq
-//	err = json.Unmarshal(body, req)
-//	if err != nil {
-//		log.Errorln("DebugComponent unmarshal data error: ", err.Error())
-//		httpStatus = http.StatusBadRequest
-//		resp.OK = false
-//		resp.ErrorCode = componentErrCode + 5
-//		resp.Message = "unmarshal data error: " + err.Error()
-//
-//		result, err = json.Marshal(resp)
-//		if err != nil {
-//			log.Errorln("Debug component marshal data error: " + err.Error())
-//		}
-//		return
-//	}
-//
-//	if req.Kubernetes == "" {
-//		httpStatus = http.StatusBadRequest
-//		resp.OK = false
-//		resp.ErrorCode = componentErrCode + 5
-//		resp.Message = "should specify kubernetes api server"
-//
-//		result, err = json.Marshal(resp)
-//		if err != nil {
-//			log.Errorln("Debug component marshal data error: " + err.Error())
-//		}
-//		return
-//	}
-//
-//	component, err := module.GetComponentByID(id)
-//	if err != nil {
-//		httpStatus = http.StatusBadRequest
-//		resp.OK = false
-//		resp.ErrorCode = componentErrCode + 4
-//		resp.Message = "get component by id error: " + err.Error()
-//
-//		result, err = json.Marshal(resp)
-//		if err != nil {
-//			log.Errorln("Debug component marshal data error: " + err.Error())
-//		}
-//		return
-//	}
-//
-//	logID, err := module.DebugComponent(component, req.Kubernetes, req.Input, req.Environment)
-//	if err != nil {
-//		httpStatus = http.StatusBadRequest
-//		resp.OK = false
-//		resp.ErrorCode = componentErrCode + 9
-//		resp.Message = "debug component error: " + err.Error()
-//
-//		result, err = json.Marshal(resp)
-//		if err != nil {
-//			log.Errorln("Debug component marshal data error: " + err.Error())
-//		}
-//		return
-//	}
-//
-//	httpStatus = http.StatusOK
-//	resp.OK = true
-//	resp.LogID = logID
-//	result, err = json.Marshal(resp)
-//	if err != nil {
-//		log.Errorln("Debug component marshal data error: " + err.Error())
-//	}
-//	return
-//}
-
 func DebugComponentJson() macaron.Handler {
 	//TODO: add socket options
 	return sockets.JSON(DebugComponentMessage{})
@@ -598,6 +501,17 @@ func DebugComponentLog(ctx *macaron.Context,
 				OK:        false,
 				ErrorCode: ComponentError + ComponentGetError,
 				Message:   "get component by id error: " + err.Error(),
+			},
+		}
+		disconnect <- websocket.CloseUnsupportedData
+		return
+	}
+	if component == nil {
+		sender <- &DebugComponentMessage{
+			CommonResp: CommonResp{
+				OK:        false,
+				ErrorCode: ComponentError + ComponentGetError,
+				Message:   "component not found",
 			},
 		}
 		disconnect <- websocket.CloseUnsupportedData
