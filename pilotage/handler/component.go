@@ -215,7 +215,7 @@ func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 		resp.ComponentReq = &ComponentReq{}
 		resp.ID = id
 		resp.OK = true
-		resp.Message = "Component Created"
+		resp.Message = "Component created"
 	}
 
 	result, err = json.Marshal(resp)
@@ -405,6 +405,7 @@ func UpdateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	}
 	httpStatus = http.StatusOK
 	resp.OK = true
+	resp.Message = "Component updated"
 
 	result, err = json.Marshal(resp)
 	if err != nil {
@@ -446,6 +447,7 @@ func DeleteComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 
 	httpStatus = http.StatusOK
 	resp.OK = true
+	resp.Message = "Component deleted"
 
 	result, err = json.Marshal(resp)
 	if err != nil {

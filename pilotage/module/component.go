@@ -212,6 +212,7 @@ func UpdateComponent(id int64, component *models.Component) error {
 		return errors.New("component version can't be changed")
 	}
 	component.ID = old.ID
+	component.CreatedAt = old.CreatedAt
 	if err := component.Save(); err != nil {
 		log.Errorln("UpdateComponent save component error: ", err.Error())
 		return errors.New("save component error: " + err.Error())
