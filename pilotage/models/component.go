@@ -103,7 +103,7 @@ func SelectComponents(name, version string, fuzzy bool, pageNum, versionNum, off
 
 	components = make([]Component, 0)
 	tx := db.Begin()
-	defer  tx.Rollback()
+	defer tx.Rollback()
 	err = db.Exec("set @page_num = 0").Error
 	if err != nil {
 		return

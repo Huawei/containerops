@@ -232,14 +232,14 @@ func (s *StageLog) GetStageLog() *gorm.DB {
 //When StageID point to the StageTypeEnd , the Action ID is -1.
 type Outcome struct {
 	ID           int64      `json:"id" gorm:"primary_key"`                 //
-	Workflow     int64      `json:"workflow" sql:"not null;default:0"`     //WorkflowLog id
+	Workflow     int64      `json:"workflow" sql:"not null;default:0;index:idx_outcome_1"`     //WorkflowLog id
+	Sequence     int64      `json:"sequence" sql:"not null;default:0;index:idx_outcome_1"`     //workflow run sequence
+	Stage        int64      `json:"stage" sql:"not null;default:0;index:idx_outcome_1"`        //stageLog id
+	Action       int64      `json:"action" sql:"not null;default:0;index:idx_outcome_1"`       //actionLog id
 	RealWorkflow int64      `json:"realWorkflow" sql:"not null;default:0"` //Workflow id
-	Stage        int64      `json:"stage" sql:"not null;default:0"`        //stageLog id
 	RealStage    int64      `json:"realStage" sql:"not null;default:0"`    //stage id
-	Action       int64      `json:"action" sql:"not null;default:0"`       //actionLog id
 	RealAction   int64      `json:"realAction" sql:"not null;default:0"`   //
 	Event        int64      `json:"event" sql:"null;default:0"`            //event id
-	Sequence     int64      `json:"sequence" sql:"not null;default:0"`     //workflow run sequence
 	Status       bool       `json:"status" sql:"null;varchar(255)"`        //
 	Result       string     `json:"result" sql:"null;type:longtext"`       //
 	Output       string     `json:"output" sql:"null;type:longtext"`       //

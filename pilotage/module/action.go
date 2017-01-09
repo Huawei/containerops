@@ -932,10 +932,10 @@ func (actionLog *ActionLog) Stop(reason string, runState int64) {
 	}
 }
 
-func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody map[string]interface{}, headerInfo http.Header) error {
+func (actionLog *ActionLog) RecordEvent(eventID int64, eventType EventType, info EventReqInfo, body []byte, headerInfo http.Header) error {
 	c, err := NewComponent(actionLog)
 	if err != nil {
-		recordErr := RecordOutcom(actionLog.Workflow, actionLog.FromWorkflow, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, eventId, false, "component init error:"+err.Error(), "")
+		recordErr := RecordOutcom(actionLog.Workflow, actionLog.FromWorkflow, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, eventID, false, "component init error:"+err.Error(), "")
 		if recordErr != nil {
 			log.Error("[actionLog's RecordEvent]:error when record outcome info:", recordErr.Error())
 			return recordErr
@@ -945,29 +945,29 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 		return err
 	}
 
-	if EventType(eventKey) == TASK_STATUS {
-		resultReqBody, ok := reqBody["INFO"].(map[string]interface{})
-		if !ok {
-			log.Error("[actionLog's RecordEvent]:error when get request's info body, want a json obj, got:", reqBody["INFO"])
-			return errors.New("request body's info is not a json obj")
-		}
+	if eventType == TASK_STATUS {
+		//resultReqBody, ok := reqBody["INFO"].(map[string]interface{})
+		//if !ok {
+		//	log.Error("[actionLog's RecordEvent]:error when get request's info body, want a json obj, got:", reqBody["INFO"])
+		//	return errors.New("request body's info is not a json obj")
+		//}
+		//
+		//status, ok := resultReqBody["status"].(bool)
+		//if !ok {
+		//	status = false
+		//}
+		//
+		//result, ok := resultReqBody["result"].(string)
+		//if !ok {
+		//	result = ""
+		//}
+		//
+		//outputStr, ok := resultReqBody["output"].(string)
+		//if !ok {
+		//	outputStr = ""
+		//}
 
-		status, ok := resultReqBody["status"].(bool)
-		if !ok {
-			status = false
-		}
-
-		result, ok := resultReqBody["result"].(string)
-		if !ok {
-			result = ""
-		}
-
-		outputStr, ok := resultReqBody["output"].(string)
-		if !ok {
-			outputStr = ""
-		}
-
-		recordErr := RecordOutcom(actionLog.Workflow, actionLog.FromWorkflow, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, eventId, status, result, outputStr)
+		recordErr := RecordOutcom(actionLog.Workflow, actionLog.FromWorkflow, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, eventID, info.Status, info.Result, info.Output)
 		if recordErr != nil {
 			log.Error("[actionLog's RecordEvent]:error when record outcome info:", recordErr.Error())
 			return recordErr
@@ -975,14 +975,14 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 
 		stopStatus := models.ActionLogStateRunFailed
 		stopReason := ActionStopReasonRunFailed
-		if status {
+		if info.Status {
 			stopStatus = models.ActionLogStateRunSuccess
 			stopReason = ActionStopReasonRunSuccess
 		}
 		actionLog.Stop(stopReason, int64(stopStatus))
 	}
 
-	if EventType(eventKey) == COMPONENT_STOP {
+	if eventType == COMPONENT_STOP {
 		c.Stop()
 	}
 
@@ -993,7 +993,7 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 	headerBytes, _ := json.Marshal(headerMap)
 
 	eventDefine := new(models.EventDefinition)
-	err = eventDefine.GetEventDefinition().Where("id = ?", eventId).First(&eventDefine).Error
+	err = eventDefine.GetEventDefinition().Where("id = ?", eventID).First(&eventDefine).Error
 	if err != nil {
 		log.Error("[actionLog's RecordEvent]:error when get eventDefine from db:", err.Error())
 		return err
@@ -1007,10 +1007,9 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 		authStr = strings.Join(auths, ";")
 	}
 
-	bodyBytes, _ := json.Marshal(reqBody)
+	//bodyBytes, _ := json.Marshal(reqBody)
 
-	// log evnet
-	err = RecordEventInfo(eventId, actionLog.Sequence, string(headerBytes), string(bodyBytes), authStr)
+	err = RecordEventInfo(eventID, actionLog.Sequence, string(headerBytes), string(body), authStr)
 	if err != nil {
 		log.Error("[actionLog's RecordEvent]:error when save event to db:", err.Error())
 		return err
@@ -1861,13 +1860,13 @@ func NewMockAction(component *models.Component, kubernetes string, input map[str
 
 	var outcome models.Outcome
 	outcome.Workflow = actionLog.Workflow
-	outcome.RealWorkflow = actionLog.FromWorkflow
-	outcome.Stage = 0
-	outcome.RealStage = 0
+	outcome.Sequence = 0
+	outcome.Stage = actionLog.Stage
 	outcome.Action = actionLog.ID
+	outcome.RealWorkflow = actionLog.FromWorkflow
+	outcome.RealStage = actionLog.FromStage
 	outcome.RealAction = relation.FromAction
 	outcome.Event = 0
-	outcome.Sequence = 0
 	outcome.Status = true
 	outcome.Result = ""
 	outcome.Output = component.Input
