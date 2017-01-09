@@ -66,6 +66,10 @@ type WorkflowLog struct {
 func GetWorkflows(namespace, repository, name, nameFuzzy, version, versionFuzzy string, offset, pageNum, versionNum int64) ([]map[string]interface{}, error) {
 	result := make([]map[string]interface{}, 0)
 
+	if strings.TrimSpace(namespace) == "" || strings.TrimSpace(repository) == "" {
+		return result, errors.New("namespace or repository can't be empty")
+	}
+
 	workflowNames, err := getWorkflowNames(namespace, repository, name, nameFuzzy, offset, pageNum)
 	if err != nil {
 		log.Error("[workflow's GetWorkflows]:error when get workflow's names:", err.Error())
@@ -92,6 +96,10 @@ func GetWorkflows(namespace, repository, name, nameFuzzy, version, versionFuzzy 
 			latestInstance, err := getWorkflowLatestInstance(workflow.ID)
 			if err == nil && latestInstance.ID != int64(0) {
 				tempMap["latestRunState"] = latestInstance.RunState
+				tempMap["latestRunTime"] = latestInstance.CreatedAt.Format("2006-01-02 15:04:05")
+			} else {
+				tempMap["latestRunState"] = -1
+				tempMap["latestRunTime"] = ""
 			}
 
 			result = append(result, tempMap)

@@ -112,7 +112,7 @@ func SetRouters(m *macaron.Macaron) {
 						})
 
 						m.Group("/workflows", func() {
-							m.Get("/", handler.ListWorkflowsV1Handler)
+							m.Get("/", handler.ListWorkflowsV1)
 							m.Post("/", func() {})
 
 							m.Get("/:workflowID", func() {})

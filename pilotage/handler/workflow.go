@@ -817,8 +817,8 @@ func PutWorkflowStateV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-// ListWorkflowsV1Handler is get workflow's list
-func ListWorkflowsV1Handler(ctx *macaron.Context) (int, []byte) {
+// ListWorkflowsV1 is get workflow's list
+func ListWorkflowsV1(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
 	namespace := ctx.ParamsEscape(":namespace")
@@ -833,7 +833,7 @@ func ListWorkflowsV1Handler(ctx *macaron.Context) (int, []byte) {
 	pageNum := ctx.QueryInt64("page_num")
 	versionNum := ctx.QueryInt64("version_num")
 
-	if namespace == "" || repository == "" {
+	if strings.TrimSpace(namespace) == "" || strings.TrimSpace(repository) == "" {
 		result, _ = json.Marshal(map[string]string{"errMsg": "namespace or repository can't be empty"})
 		return http.StatusBadRequest, result
 	}
