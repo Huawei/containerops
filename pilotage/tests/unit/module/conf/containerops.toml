@@ -1,0 +1,24 @@
+appname = "pilotage"
+usage = "DevOps Workflow Engine "
+version = "0.0.1"
+author = "Meaglith Ma"
+email = "genedna@gmail.com "
+
+# include runtime.conf
+runmode = "dev"
+
+listenmode = "http"
+projectaddr = "http://test-1.containerops.sh"
+httpscertfile = "cert/containerops/containerops.sh.crt"
+httpskeyfile = "cert/containerops/containerops.sh.key"
+
+[log]
+filepath = "log/backend.log"
+level = "info"
+
+[database]
+driver = "mysql"
+uri = "mysql"
+
+[auth]
+checker = ["strChecker", "tokenChecker"]
