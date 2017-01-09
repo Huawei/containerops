@@ -75,42 +75,57 @@ func SelectComponents(name, version string, fuzzy bool, pageNum, versionNum, off
 	values := make([]interface{}, 0)
 	if name != "" {
 		if fuzzy {
-			cond = " where name like ?"
+			cond = " where name like ? "
 			values = append(values, name + "%")
 		} else {
-			cond = " where name = ?"
+			cond = " where name = ? "
 			values = append(values, name)
 		}
 	}
 	if version != "" {
 		if cond == "" {
-			cond = " where version = ?"
+			cond = " where version = ? "
 		} else {
-			cond = cond + " version = ?"
+			cond = cond + " version = ? "
 		}
 		values = append(values, version)
 	}
 	var max int
 	if name != "" && !fuzzy {
-		offsetCond = " where @version_num > ? and @version_num < ?"
+		offsetCond = " where version_num > ? and version_num < ?"
 		max = offset + versionNum
 		values = append(values, offset, max)
 	} else {
-		offsetCond = " where @page_num > ? and @page_num < ? and @version_num < ?"
+		offsetCond = " where page_num > ? and page_num < ? and version_num < ?"
 		max = offset + pageNum
 		values = append(values, offset, max, versionNum)
 	}
 
 	components = make([]Component, 0)
-	raw := "select id, name, version, " +
+	tx := db.Begin()
+	defer  tx.Rollback()
+	err = db.Exec("set @page_num = 0").Error
+	if err != nil {
+		return
+	}
+	err = db.Exec("set @version_num = 0").Error
+	if err != nil {
+		return
+	}
+	err = db.Exec("set @name = ''").Error
+	if err != nil {
+		return
+	}
+	raw := "select id, name, version " +
+		"from (select id, name, version, " +
 		"(case when @name != name then @page_num := @page_num + 1 else @page_num end) as page_num, " +
 		"(case when @name != name then @version_num := 1 else @version_num := @version_num + 1 end) as version_num, " +
 		"@name := name " +
-		"from (select id, name, version from component " +
+		"from component " +
 		cond +
 		"order by name, version) t" +
 		offsetCond
-	log.Debugf("SelectComponents raw sql: %s\n", raw)
+	log.Debugf("SelectComponents raw sql string: %s\n", raw)
 	err = db.Raw(raw, values...).Find(&components).Error
 	return
 }
