@@ -149,10 +149,10 @@ func CreateComponent(component *models.Component) (int64, error) {
 		Name: component.Name,
 		Version: component.Version,
 	}
-	if result, err := condition.SelectComponent(); err != nil {
+	if result, err := condition.SelectComponent(); err != nil && err != gorm.ErrRecordNotFound {
 		log.Errorln("CreateComponent query component error: ", err.Error())
 		return 0, errors.New("query component error: " + err.Error())
-	} else if result != nil{
+	} else if result.ID > 0 {
 		return 0, fmt.Errorf("component exists, id is: %d", result.ID)
 	}
 

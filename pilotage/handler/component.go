@@ -126,25 +126,6 @@ func ListComponents(ctx *macaron.Context) (httpStatus int, result []byte) {
 		log.Errorln("List components marshal data error: " + err.Error())
 	}
 	return
-	//result, _ := json.Marshal(map[string]string{"message": ""})
-	//
-	//namespace := ctx.Params(":namespace")
-	//
-	//if namespace == "" {
-	//	result, _ = json.Marshal(map[string]string{"errMsg": "namespace can't be empty"})
-	//	return http.StatusBadRequest, result
-	//}
-	//
-	//componentList, err := module.GetComponentListByNamespace(namespace)
-	//
-	//if err != nil {
-	//	result, _ = json.Marshal(map[string]string{"errMsg": "error when get component list:" + err.Error()})
-	//	return http.StatusBadRequest, result
-	//}
-	//
-	//result, _ = json.Marshal(map[string]interface{}{"list": componentList})
-	//
-	//return http.StatusOK, result
 }
 
 func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
@@ -231,6 +212,7 @@ func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 		return
 	} else {
 		httpStatus = http.StatusCreated
+		resp.ComponentReq = &ComponentReq{}
 		resp.ID = id
 		resp.OK = true
 		resp.Message = "Component Created"
@@ -290,6 +272,7 @@ func GetComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 
 	resp.ComponentReq = &ComponentReq{}
 	resp.ID = component.ID
+	resp.Name = component.Name
 	resp.Version = component.Version
 	resp.ImageName = component.ImageName
 	resp.ImageTag = component.ImageTag
