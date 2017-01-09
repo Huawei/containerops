@@ -38,6 +38,12 @@ type WorkflowVarLog struct {
 	*models.WorkflowVarLog
 }
 
+type EventReqInfo struct {
+	Status bool   `json:"status"`
+	Result string `json:"result"`
+	Output string `json:"output"`
+}
+
 type EventType string
 
 const (

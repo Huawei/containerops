@@ -19,9 +19,10 @@ type errCode uint64
 
 const (
 	ComponentError  errCode = 00010000
-	workflowErrCode errCode = 00100000
-	stageErrCode    errCode = 01000000
-	actionErrCode   errCode = 10000000
+	EventError      errCode = 00020000
+	WorkflowErrCode errCode = 00100000
+	StageErrCode    errCode = 01000000
+	ActionErrCode   errCode = 10000000
 )
 
 const (
@@ -36,4 +37,12 @@ const (
 	ComponentDebugError     //errCode = 0008
 	ComponentmarshalError
 	ComponentListError
+)
+
+const (
+	_                   = iota
+	EventReqBodyError   //errCode = 0001
+	EventUnmarshalError //errCode = 0002
+	EventIllegalDataError
+	EventGetActionError
 )
