@@ -92,11 +92,11 @@ func SelectComponents(name, version string, fuzzy bool, pageNum, versionNum, off
 	}
 	var max int
 	if name != "" && !fuzzy {
-		offsetCond = " where version_num > ? and version_num < ?"
+		offsetCond = " where version_num > ? and version_num <= ?"
 		max = offset + versionNum
 		values = append(values, offset, max)
 	} else {
-		offsetCond = " where page_num > ? and page_num < ? and version_num < ?"
+		offsetCond = " where page_num > ? and page_num <= ? and version_num <= ?"
 		max = offset + pageNum
 		values = append(values, offset, max, versionNum)
 	}
