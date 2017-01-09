@@ -149,10 +149,10 @@ func CreateComponent(component *models.Component) (int64, error) {
 		Name: component.Name,
 		Version: component.Version,
 	}
-	if result, err := condition.SelectComponent(); err != nil {
+	if result, err := condition.SelectComponent(); err != nil && err != gorm.ErrRecordNotFound {
 		log.Errorln("CreateComponent query component error: ", err.Error())
 		return 0, errors.New("query component error: " + err.Error())
-	} else if result != nil{
+	} else if result.ID > 0 {
 		return 0, fmt.Errorf("component exists, id is: %d", result.ID)
 	}
 
@@ -175,9 +175,9 @@ func GetComponentByID(id int64) (*models.Component, error) {
 		log.Errorln("GetComponent query component error: ", err.Error())
 		return nil, errors.New("query component error: " + err.Error())
 	}
-	//if component == nil {
-	//	return nil, errors.New("component does not exist")
-	//}
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
 	return component, nil
 }
 
@@ -212,6 +212,7 @@ func UpdateComponent(id int64, component *models.Component) error {
 		return errors.New("component version can't be changed")
 	}
 	component.ID = old.ID
+	component.CreatedAt = old.CreatedAt
 	if err := component.Save(); err != nil {
 		log.Errorln("UpdateComponent save component error: ", err.Error())
 		return errors.New("save component error: " + err.Error())
@@ -340,7 +341,7 @@ func (kube *kubeComponent) Stop() error {
 	client := &http.Client{}
 
 	// delete service
-	serviceName := "ser-" + kube.runID
+	serviceName := "co-svc-" + kube.runID
 	if len(serviceName) > 253 {
 		serviceName = serviceName[len(serviceName)-253:]
 	}

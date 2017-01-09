@@ -12,18 +12,18 @@ type CommonResp struct {
 }
 
 type ComponentResp struct {
-	ComponentReq `json:"component,omitempty"`
-	CommonResp   `json:"common"`
+	*ComponentReq `json:"component,omitempty"`
+	CommonResp    `json:"common"`
 }
 
 type ComponentItem struct {
-	ID         int64  `json:"id"`
-	Name       string `json:"name"`
-	Version    string `json:"version"`
+	ID      int64  `json:"id"`
+	Name    string `json:"name"`
+	Version string `json:"version"`
 }
 
 type ListComponentsResp struct {
-	Components []ComponentItem `json:"components"`
+	Components []ComponentItem `json:"components,omitempty"`
 	CommonResp `json:"common"`
 }
 
@@ -66,4 +66,17 @@ type DebugComponentMessage struct {
 	Output     map[string]interface{} `json:"output"`
 	Event      DebugEvent             `json:"event"`
 	CommonResp `json:"common"`
+}
+
+//type EventReqInfo struct {
+//	Status bool   `json:"status"`
+//	Result string `json:"result"`
+//	Output string `json:"output"`
+//}
+
+type EventReq struct {
+	EventID   int64            `json:"event_id"`
+	EventType module.EventType `json:"event_type"`
+	RunID     string           `json:"run_id"`
+	Info      module.EventReqInfo     `json:"info"`
 }
