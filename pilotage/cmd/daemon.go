@@ -32,6 +32,7 @@ import (
 	"github.com/Huawei/containerops/pilotage/utils"
 	"github.com/Huawei/containerops/pilotage/web"
 	"github.com/containerops/configure"
+	"strings"
 )
 
 var address string
@@ -86,6 +87,22 @@ func init() {
 // startDeamon() start Pilotage's REST API daemon.
 func startDeamon(cmd *cobra.Command, args []string) {
 	log.SetOutput(os.Stdout)
+	switch strings.ToLower(configure.GetString("logger.level")) {
+	case "panic":
+		log.SetLevel(log.PanicLevel)
+	case "fatal":
+		log.SetLevel(log.FatalLevel)
+	case "error":
+		log.SetLevel(log.ErrorLevel)
+	case "warn":
+		log.SetLevel(log.WarnLevel)
+	case "info":
+		log.SetLevel(log.InfoLevel)
+	case "debug":
+		log.SetLevel(log.DebugLevel)
+	default:
+		log.SetLevel(log.WarnLevel)
+	}
 
 	// first open database conn
 	models.OpenDatabase()

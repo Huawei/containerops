@@ -48,20 +48,27 @@ func init() {
 
 func ListComponents(ctx *macaron.Context) (httpStatus int, result []byte) {
 	var resp ListComponentsResp
+	var fuzzy bool
 	name := ctx.QueryTrim("name")
 	version := ctx.QueryTrim("version")
-	fuzzy, err := strconv.ParseBool(ctx.QueryTrim("fuzzy"))
-	if err != nil {
-		httpStatus = http.StatusBadRequest
-		resp.OK = false
-		resp.ErrorCode = ComponentError + ComponentReqBodyError
-		resp.Message = "Parse query param fuzzy error: " + err.Error()
-
-		result, err = json.Marshal(resp)
+	f := ctx.QueryTrim("fuzzy")
+	if f == "" {
+		fuzzy = false
+	} else {
+		var err error
+		fuzzy, err = strconv.ParseBool(f)
 		if err != nil {
-			log.Errorln("List components marshal data error: " + err.Error())
+			httpStatus = http.StatusBadRequest
+			resp.OK = false
+			resp.ErrorCode = ComponentError + ComponentReqBodyError
+			resp.Message = "Parse query param fuzzy error: " + err.Error()
+
+			result, err = json.Marshal(resp)
+			if err != nil {
+				log.Errorln("List components marshal data error: " + err.Error())
+			}
+			return
 		}
-		return
 	}
 	pageNum := ctx.QueryInt("page_num")
 	if pageNum <= 0 {
@@ -116,28 +123,9 @@ func ListComponents(ctx *macaron.Context) (httpStatus int, result []byte) {
 
 	result, err = json.Marshal(resp)
 	if err != nil {
-	log.Errorln("List components marshal data error: " + err.Error())
+		log.Errorln("List components marshal data error: " + err.Error())
 	}
 	return
-	//result, _ := json.Marshal(map[string]string{"message": ""})
-	//
-	//namespace := ctx.Params(":namespace")
-	//
-	//if namespace == "" {
-	//	result, _ = json.Marshal(map[string]string{"errMsg": "namespace can't be empty"})
-	//	return http.StatusBadRequest, result
-	//}
-	//
-	//componentList, err := module.GetComponentListByNamespace(namespace)
-	//
-	//if err != nil {
-	//	result, _ = json.Marshal(map[string]string{"errMsg": "error when get component list:" + err.Error()})
-	//	return http.StatusBadRequest, result
-	//}
-	//
-	//result, _ = json.Marshal(map[string]interface{}{"list": componentList})
-	//
-	//return http.StatusOK, result
 }
 
 func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
@@ -224,9 +212,10 @@ func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 		return
 	} else {
 		httpStatus = http.StatusCreated
+		resp.ComponentReq = &ComponentReq{}
 		resp.ID = id
 		resp.OK = true
-		resp.Message = "Component Created"
+		resp.Message = "Component created"
 	}
 
 	result, err = json.Marshal(resp)
@@ -238,7 +227,7 @@ func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 
 func GetComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	var resp ComponentResp
-	componentID := ctx.Params(":component_id")
+	componentID := ctx.Params(":component")
 	id, err := strconv.ParseInt(componentID, 10, 64)
 	if err != nil {
 		httpStatus = http.StatusBadRequest
@@ -281,7 +270,9 @@ func GetComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	httpStatus = http.StatusOK
 	resp.OK = true
 
+	resp.ComponentReq = &ComponentReq{}
 	resp.ID = component.ID
+	resp.Name = component.Name
 	resp.Version = component.Version
 	resp.ImageName = component.ImageName
 	resp.ImageTag = component.ImageTag
@@ -345,7 +336,7 @@ func UpdateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 		return
 	}
 
-	componentID := ctx.Params(":component_id")
+	componentID := ctx.Params(":component")
 	id, err := strconv.ParseInt(componentID, 10, 64)
 	if err != nil {
 		httpStatus = http.StatusBadRequest
@@ -414,6 +405,7 @@ func UpdateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	}
 	httpStatus = http.StatusOK
 	resp.OK = true
+	resp.Message = "Component updated"
 
 	result, err = json.Marshal(resp)
 	if err != nil {
@@ -425,7 +417,7 @@ func UpdateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 func DeleteComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	var resp ComponentResp
 
-	componentID := ctx.Params(":component_id")
+	componentID := ctx.Params(":component")
 	id, err := strconv.ParseInt(componentID, 10, 64)
 	if err != nil {
 		httpStatus = http.StatusBadRequest
@@ -455,6 +447,7 @@ func DeleteComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 
 	httpStatus = http.StatusOK
 	resp.OK = true
+	resp.Message = "Component deleted"
 
 	result, err = json.Marshal(resp)
 	if err != nil {
@@ -462,104 +455,6 @@ func DeleteComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	}
 	return
 }
-
-//func DebugComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
-//	var resp DebugComponentResp
-//	body, err := ctx.Req.Body().Bytes()
-//	if err != nil {
-//		httpStatus = http.StatusBadRequest
-//		resp.OK = false
-//		resp.ErrorCode = componentErrCode + 5
-//		resp.Message = "Get requrest body error: " + err.Error()
-//
-//		result, err = json.Marshal(resp)
-//		if err != nil {
-//			log.Errorln("Debug component marshal data error: " + err.Error())
-//		}
-//		return
-//	}
-//
-//	componentID := ctx.Params(":component_id")
-//	id, err := strconv.ParseInt(componentID, 10, 64)
-//	if err != nil {
-//		httpStatus = http.StatusBadRequest
-//		resp.OK = false
-//		resp.ErrorCode = componentErrCode + 10
-//		resp.Message = "Parse component id error: " + err.Error()
-//
-//		result, err = json.Marshal(resp)
-//		if err != nil {
-//			log.Errorln("Debug component marshal data error: " + err.Error())
-//		}
-//		return
-//	}
-//
-//	var req *DebugComponentReq
-//	err = json.Unmarshal(body, req)
-//	if err != nil {
-//		log.Errorln("DebugComponent unmarshal data error: ", err.Error())
-//		httpStatus = http.StatusBadRequest
-//		resp.OK = false
-//		resp.ErrorCode = componentErrCode + 5
-//		resp.Message = "unmarshal data error: " + err.Error()
-//
-//		result, err = json.Marshal(resp)
-//		if err != nil {
-//			log.Errorln("Debug component marshal data error: " + err.Error())
-//		}
-//		return
-//	}
-//
-//	if req.Kubernetes == "" {
-//		httpStatus = http.StatusBadRequest
-//		resp.OK = false
-//		resp.ErrorCode = componentErrCode + 5
-//		resp.Message = "should specify kubernetes api server"
-//
-//		result, err = json.Marshal(resp)
-//		if err != nil {
-//			log.Errorln("Debug component marshal data error: " + err.Error())
-//		}
-//		return
-//	}
-//
-//	component, err := module.GetComponentByID(id)
-//	if err != nil {
-//		httpStatus = http.StatusBadRequest
-//		resp.OK = false
-//		resp.ErrorCode = componentErrCode + 4
-//		resp.Message = "get component by id error: " + err.Error()
-//
-//		result, err = json.Marshal(resp)
-//		if err != nil {
-//			log.Errorln("Debug component marshal data error: " + err.Error())
-//		}
-//		return
-//	}
-//
-//	logID, err := module.DebugComponent(component, req.Kubernetes, req.Input, req.Environment)
-//	if err != nil {
-//		httpStatus = http.StatusBadRequest
-//		resp.OK = false
-//		resp.ErrorCode = componentErrCode + 9
-//		resp.Message = "debug component error: " + err.Error()
-//
-//		result, err = json.Marshal(resp)
-//		if err != nil {
-//			log.Errorln("Debug component marshal data error: " + err.Error())
-//		}
-//		return
-//	}
-//
-//	httpStatus = http.StatusOK
-//	resp.OK = true
-//	resp.LogID = logID
-//	result, err = json.Marshal(resp)
-//	if err != nil {
-//		log.Errorln("Debug component marshal data error: " + err.Error())
-//	}
-//	return
-//}
 
 func DebugComponentJson() macaron.Handler {
 	//TODO: add socket options
@@ -572,7 +467,7 @@ func DebugComponentLog(ctx *macaron.Context,
 	done <-chan bool,
 	disconnect chan<- int,
 	errChan <-chan error) {
-	id, err := strconv.ParseInt(ctx.Params(":component_id"), 10, 64)
+	id, err := strconv.ParseInt(ctx.Params(":component"), 10, 64)
 	if err != nil {
 		sender <- &DebugComponentMessage{
 			CommonResp: CommonResp{
@@ -591,6 +486,17 @@ func DebugComponentLog(ctx *macaron.Context,
 				OK:        false,
 				ErrorCode: ComponentError + ComponentGetError,
 				Message:   "get component by id error: " + err.Error(),
+			},
+		}
+		disconnect <- websocket.CloseUnsupportedData
+		return
+	}
+	if component == nil {
+		sender <- &DebugComponentMessage{
+			CommonResp: CommonResp{
+				OK:        false,
+				ErrorCode: ComponentError + ComponentGetError,
+				Message:   "component not found",
 			},
 		}
 		disconnect <- websocket.CloseUnsupportedData
@@ -685,10 +591,10 @@ func DebugComponentLog(ctx *macaron.Context,
 			}
 
 		case <-done:
-			log.Debug("DebugComponent socket closed by client")
+			log.Debugln("DebugComponent socket closed by client")
 			return
 		case <-ticker:
-			log.Debug("DebugComponent socket closed by server")
+			log.Debugln("DebugComponent socket closed by server")
 			disconnect <- websocket.CloseNormalClosure
 		case err := <-errChan:
 			log.Errorf("Debug Component socket error: %s\n", err)

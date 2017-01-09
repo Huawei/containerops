@@ -18,6 +18,7 @@ package models
 
 import (
 	"github.com/jinzhu/gorm"
+	log "github.com/Sirupsen/logrus"
 )
 
 type ComponentType string
@@ -38,7 +39,7 @@ type Component struct {
 	Type        int    `sql:"not null;default:0"`                                      //Container type: docker or rkt.
 	ImageName   string `sql:"not null;varchar(100);index:idx_component_1"`
 	ImageTag    string `sql:"varchar(30)";index:idx_component_1`
-	Timeout     int    `` //
+	Timeout     int    `sql:"default 0"` //
 	DataFrom    string
 	UseAdvanced bool   `sql:"not null;default:false"`
 	KubeSetting string `sql:"null;type:text"` //Kubernetes execute script.
@@ -74,40 +75,58 @@ func SelectComponents(name, version string, fuzzy bool, pageNum, versionNum, off
 	values := make([]interface{}, 0)
 	if name != "" {
 		if fuzzy {
-			cond = " where name like ?"
+			cond = " where name like ? "
 			values = append(values, name + "%")
 		} else {
-			cond = " where name = ?"
+			cond = " where name = ? "
 			values = append(values, name)
 		}
 	}
 	if version != "" {
 		if cond == "" {
-			cond = " where version = ?"
+			cond = " where version = ? "
 		} else {
-			cond = cond + " version = ?"
+			cond = cond + " version = ? "
 		}
 		values = append(values, version)
 	}
 	var max int
 	if name != "" && !fuzzy {
-		offsetCond = " where version_num > ? and version_num < ?"
+		offsetCond = " where version_num > ? and version_num <= ?"
 		max = offset + versionNum
 		values = append(values, offset, max)
 	} else {
-		offsetCond = " where page_num > ? and page_num < ? and version_num < ?"
+		offsetCond = " where page_num > ? and page_num <= ? and version_num <= ?"
 		max = offset + pageNum
 		values = append(values, offset, max, versionNum)
 	}
 
 	components = make([]Component, 0)
-	err = db.Raw("select id, name, version," +
-		"(case when @name != name then @page_num := @page_num + 1 else @page_num end) as page_num," +
-		"(case when @name != name then @version_num := 1 else @version_num := @version_num + 1 end) as version_num " +
-		"from (select id, name, version from component " +
+	tx := db.Begin()
+	defer tx.Rollback()
+	err = db.Exec("set @page_num = 0").Error
+	if err != nil {
+		return
+	}
+	err = db.Exec("set @version_num = 0").Error
+	if err != nil {
+		return
+	}
+	err = db.Exec("set @name = ''").Error
+	if err != nil {
+		return
+	}
+	raw := "select id, name, version " +
+		"from (select id, name, version, " +
+		"(case when @name != name then @page_num := @page_num + 1 else @page_num end) as page_num, " +
+		"(case when @name != name then @version_num := 1 else @version_num := @version_num + 1 end) as version_num, " +
+		"@name := name " +
+		"from component " +
 		cond +
-		"order by name, version)" +
-		offsetCond, values...).Find(&components).Error
+		"order by name, version) t" +
+		offsetCond
+	log.Debugf("SelectComponents raw sql string: %s\n", raw)
+	err = db.Raw(raw, values...).Find(&components).Error
 	return
 }
 
