@@ -341,7 +341,7 @@ func (kube *kubeComponent) Stop() error {
 	client := &http.Client{}
 
 	// delete service
-	serviceName := "ser-" + kube.runID
+	serviceName := "co-svc-" + kube.runID
 	if len(serviceName) > 253 {
 		serviceName = serviceName[len(serviceName)-253:]
 	}

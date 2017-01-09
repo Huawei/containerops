@@ -591,10 +591,10 @@ func DebugComponentLog(ctx *macaron.Context,
 			}
 
 		case <-done:
-			log.Debug("DebugComponent socket closed by client")
+			log.Debugln("DebugComponent socket closed by client")
 			return
 		case <-ticker:
-			log.Debug("DebugComponent socket closed by server")
+			log.Debugln("DebugComponent socket closed by server")
 			disconnect <- websocket.CloseNormalClosure
 		case err := <-errChan:
 			log.Errorf("Debug Component socket error: %s\n", err)
