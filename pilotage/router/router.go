@@ -18,6 +18,7 @@ package router
 
 import (
 	"github.com/Huawei/containerops/pilotage/handler"
+	"github.com/Huawei/containerops/pilotage/middleware"
 	"github.com/go-macaron/binding"
 	"gopkg.in/macaron.v1"
 )
@@ -109,7 +110,33 @@ func SetRouters(m *macaron.Macaron) {
 							m.Get("/:workflow/:version/:sequence/stage/:stage/action/:action/console/log", handler.GetActionConsoleLogV1Handler)
 							m.Get("/:workflow/:version/:sequence/:relation", handler.GetSequenceLineHistoryV1Handler)
 						})
-					})
+
+						m.Group("/workflows", func() {
+							m.Get("/", handler.ListWorkflowsV1)
+							m.Post("/", func() {})
+
+							m.Get("/:workflowID", func() {})
+							m.Put("/:workflowID", func() {})
+							m.Delete("/:workflowID", func() {})
+						})
+
+						m.Group("/event", func() {
+							m.Post("/", func() {})
+						})
+
+						m.Group("/webhook", func() {
+							m.Post("/:workflowID", func() {})
+						})
+
+						m.Group("/histories", func() {
+							m.Get("/", func() {})
+
+							m.Get("/workflows/:workflowID", func() {})
+							m.Get("/workflows/:workflowID/sequenceID", func() {})
+							m.Get("/stages/:stageID", func() {})
+							m.Get("/actions/:actionID", func() {})
+						})
+					}, middleware.PreChecker)
 				})
 			})
 		})
