@@ -514,7 +514,7 @@ func DebugComponentLog(ctx *macaron.Context,
 			}
 			sender <- &DebugComponentMessage{
 				DebugID: actionLog.ID,
-				Event:   event,
+				Event:   &event,
 				CommonResp: CommonResp{
 					OK: true,
 				},
