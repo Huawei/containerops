@@ -61,18 +61,12 @@ type DebugEvent struct {
 type DebugComponentMessage struct {
 	DebugID    int64                  `json:"debug_id"`
 	Kubernetes string                 `json:"kubernetes,omitempty"`
-	Input      map[string]interface{} `json:"input"`
+	Input      map[string]interface{} `json:"input,omitempty"`
 	Env        []Env                  `json:"env,omitempty"`
-	Output     map[string]interface{} `json:"output"`
-	Event      DebugEvent             `json:"event"`
+	Output     map[string]interface{} `json:"output,omitempty"`
+	Event      *DebugEvent             `json:"event,omitempty"`
 	CommonResp `json:"common"`
 }
-
-//type EventReqInfo struct {
-//	Status bool   `json:"status"`
-//	Result string `json:"result"`
-//	Output string `json:"output"`
-//}
 
 type EventReq struct {
 	EventID   int64            `json:"event_id"`

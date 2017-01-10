@@ -154,18 +154,18 @@ func startDeamon(cmd *cobra.Command, args []string) {
 	switch listenMode {
 	case "http":
 		listenaddr := fmt.Sprintf("%s:%d", address, port)
-		fmt.Println("pilotage is listen:", listenaddr)
+		log.Debugln("pilotage is listening:", listenaddr)
 		if err := http.ListenAndServe(listenaddr, m); err != nil {
-			fmt.Printf("Start Pilotage http service error: %v\n", err.Error())
+			log.Errorf("Start Pilotage http service error: %v\n", err.Error())
+			return
 		}
-		break
 	case "https":
 		listenaddr := fmt.Sprintf("%s:443", address)
 		server := &http.Server{Addr: listenaddr, TLSConfig: &tls.Config{MinVersion: tls.VersionTLS10}, Handler: m}
 		if err := server.ListenAndServeTLS(configure.GetString("httpscertfile"), configure.GetString("httpskeyfile")); err != nil {
-			fmt.Printf("Start Pilotage https service error: %v\n", err.Error())
+			log.Errorf("Start Pilotage https service error: %v\n", err.Error())
+			return
 		}
-		break
 	case "unix":
 		listenaddr := fmt.Sprintf("%s", address)
 		if utils.IsFileExist(listenaddr) {
@@ -173,15 +173,14 @@ func startDeamon(cmd *cobra.Command, args []string) {
 		}
 
 		if listener, err := net.Listen("unix", listenaddr); err != nil {
-			fmt.Printf("Start Pilotage unix socket error: %v\n", err.Error())
-
+			log.Errorf("Start Pilotage unix socket error: %v\n", err.Error())
 		} else {
 			server := &http.Server{Handler: m}
 			if err := server.Serve(listener); err != nil {
-				fmt.Printf("Start Pilotage unix socket error: %v\n", err.Error())
+				log.Errorf("Start Pilotage unix socket error: %v\n", err.Error())
+				return
 			}
 		}
-		break
 	default:
 		break
 	}
