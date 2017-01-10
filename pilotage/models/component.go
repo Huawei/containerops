@@ -18,31 +18,35 @@ package models
 
 import (
 	"github.com/jinzhu/gorm"
+	log "github.com/Sirupsen/logrus"
 )
 
+type ComponentType string
+
 const (
-	//ComponentTypeDocker means the component is Docker container.
-	ComponentTypeDocker = iota
-	//ComponentTypeRkt means the component is rkt container.
-	ComponentTypeRkt
-	//ComponentTypeOCI reserved for OCI format container.
-	ComponentTypeOCI
+	ComponentTypeKubernetes ComponentType = "Kubernetes"
+	ComponentTypeMesos      ComponentType = "Mesos"
+	ComponentTypeSwarm      ComponentType = "Swarm"
 )
+
+var ComponentTypes = []ComponentType{ComponentTypeKubernetes, ComponentTypeMesos, ComponentTypeSwarm}
 
 //Component is customized container(docker or rkt) for executing DevOps tasks.
 type Component struct {
 	BaseIDField
-	Name        string `json:"name" sql:"not null;type:varchar(100);unique_index:uix_component_1"` //Component name for query.
-	Version     string `json:"version" sql:"not null;type:varchar(30);unique_index:uix_component_1"`   // component version for display
-	Type        int64  `json:"type" sql:"not null;default:0"`                                      //Container type: docker or rkt.
-	ImageName   string `json:"image_name" sql:"not null;varchar(100);index:idx_component_1"`
-	ImageTag    string `json:"image_tag" sql:"varchar(30)";index:idx_component_1`
-	Timeout     int    `json:"timeout"`                           //
-	KubeSetting string `json:"kubernetes" sql:"null;type:text"`   //Kubernetes execute script.
-	Input       string `json:"input" sql:"null;type:text"`        //component input
-	Output      string `json:"output" sql:"null;type:text"`       //component output
-	Environment string `json:"environment" sql:"null;type:text"`  //Environment parameters.
-	Manifest    string `json:"manifest" sql:"null;type:longtext"` //
+	Name        string `sql:"not null;type:varchar(100);unique_index:uix_component_1"` //Component name for query.
+	Version     string `sql:"not null;type:varchar(30);unique_index:uix_component_1"`  // component version for display
+	Type        int    `sql:"not null;default:0"`                                      //Container type: docker or rkt.
+	ImageName   string `sql:"not null;varchar(100);index:idx_component_1"`
+	ImageTag    string `sql:"varchar(30)";index:idx_component_1`
+	Timeout     int    `sql:"default 0"` //
+	DataFrom    string
+	UseAdvanced bool   `sql:"not null;default:false"`
+	KubeSetting string `sql:"null;type:text"` //Kubernetes execute script.
+	Input       string `sql:"null;type:text"` //component input
+	Output      string `sql:"null;type:text"` //component output
+	Environment string `sql:"null;type:text"` //Environment parameters.
+	//Manifest    string `json:"manifest" sql:"null;type:longtext"` //
 	BaseModel2
 }
 
@@ -60,7 +64,69 @@ func (component *Component) Create() error {
 }
 
 func (condition *Component) SelectComponent() (component *Component, err error) {
-	err = db.Where(condition).First(component).Error
+	var result Component
+	err = db.Where(condition).First(&result).Error
+	component = &result
+	return
+}
+
+func SelectComponents(name, version string, fuzzy bool, pageNum, versionNum, offset int) (components []Component, err error) {
+	var offsetCond, cond string
+	values := make([]interface{}, 0)
+	if name != "" {
+		if fuzzy {
+			cond = " where name like ? "
+			values = append(values, name + "%")
+		} else {
+			cond = " where name = ? "
+			values = append(values, name)
+		}
+	}
+	if version != "" {
+		if cond == "" {
+			cond = " where version = ? "
+		} else {
+			cond = cond + " version = ? "
+		}
+		values = append(values, version)
+	}
+	var max int
+	if name != "" && !fuzzy {
+		offsetCond = " where version_num > ? and version_num <= ?"
+		max = offset + versionNum
+		values = append(values, offset, max)
+	} else {
+		offsetCond = " where page_num > ? and page_num <= ? and version_num <= ?"
+		max = offset + pageNum
+		values = append(values, offset, max, versionNum)
+	}
+
+	components = make([]Component, 0)
+	tx := db.Begin()
+	defer tx.Rollback()
+	err = db.Exec("set @page_num = 0").Error
+	if err != nil {
+		return
+	}
+	err = db.Exec("set @version_num = 0").Error
+	if err != nil {
+		return
+	}
+	err = db.Exec("set @name = ''").Error
+	if err != nil {
+		return
+	}
+	raw := "select id, name, version " +
+		"from (select id, name, version, " +
+		"(case when @name != name then @page_num := @page_num + 1 else @page_num end) as page_num, " +
+		"(case when @name != name then @version_num := 1 else @version_num := @version_num + 1 end) as version_num, " +
+		"@name := name " +
+		"from component " +
+		cond +
+		"order by name, version) t" +
+		offsetCond
+	log.Debugf("SelectComponents raw sql string: %s\n", raw)
+	err = db.Raw(raw, values...).Find(&components).Error
 	return
 }
 

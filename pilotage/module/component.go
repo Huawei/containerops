@@ -30,6 +30,7 @@ import (
 	"github.com/Huawei/containerops/pilotage/models"
 	"github.com/Huawei/containerops/pilotage/utils"
 	log "github.com/Sirupsen/logrus"
+	"github.com/jinzhu/gorm"
 )
 
 const (
@@ -43,83 +44,88 @@ type component interface {
 	Start() error
 	Update()
 	Stop() error
-	SendData(receiveDataUri string, data []byte) ([]*http.Response, error)
-}
-
-type env struct {
-	Key string `json:"key"`
-	Value string `json:"value"`
+	//SendData(receiveDataUri string, data []byte) ([]*http.Response, error)
 }
 
 type kubeComponent struct {
 	runID         string
 	apiServerUri  string
 	namespace     string
-	nodeIP        string
+	//nodeIP        string
 	podConfig     map[string]interface{}
 	serviceConfig map[string]interface{}
 	componentInfo models.ActionLog
 }
 
-// GetComponentListByNamespace is get component list by given namespace
-func GetComponentListByNamespace(namespace string) ([]map[string]interface{}, error) {
-	resultMap := make([]map[string]interface{}, 0)
-	componentList := make([]models.Component, 0)
-	componentsMap := make(map[string]interface{})
-
-	err := new(models.Component).GetComponent().Where("namespace = ?", namespace).Order("-id").Find(&componentList).Error
-	if err != nil {
-		return nil, errors.New("error when get component infos by namespace:" + namespace + ",error:" + err.Error())
+func GetComponents(name, version string, fuzzy bool, pageNum, versionNum, offset int) ([]models.Component, error) {
+	if name == "" && fuzzy == true {
+		fuzzy = false
 	}
-
-	for _, componentInfo := range componentList {
-		if _, ok := componentsMap[componentInfo.Name]; !ok {
-			tempMap := make(map[string]interface{})
-			tempMap["version"] = make(map[int64]interface{})
-			componentsMap[componentInfo.Name] = tempMap
-		}
-
-		componentMap := componentsMap[componentInfo.Name].(map[string]interface{})
-		versionMap := componentMap["version"].(map[int64]interface{})
-
-		//versionMap[componentInfo.VersionCode] = componentInfo
-		componentMap["id"] = componentInfo.ID
-		componentMap["name"] = componentInfo.Name
-		componentMap["version"] = versionMap
+	components, err := models.SelectComponents(name, version, fuzzy, pageNum, versionNum, offset)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, errors.New("get components error: " + err.Error())
 	}
-
-	for _, component := range componentList {
-		componentInfo := componentsMap[component.Name].(map[string]interface{})
-
-		if isSign, ok := componentInfo["isSign"].(bool); ok && isSign {
-			continue
-		}
-
-		componentInfo["isSign"] = true
-		componentsMap[component.Name] = componentInfo
-
-		versionList := make([]map[string]interface{}, 0)
-		for _, componentVersion := range componentList {
-			if componentVersion.Name == componentInfo["name"].(string) {
-				versionMap := make(map[string]interface{})
-				versionMap["id"] = componentVersion.ID
-				versionMap["version"] = componentVersion.Version
-				//versionMap["versionCode"] = componentVersion.VersionCode
-
-				versionList = append(versionList, versionMap)
-			}
-		}
-
-		tempResult := make(map[string]interface{})
-		tempResult["id"] = componentInfo["id"]
-		tempResult["name"] = componentInfo["name"]
-		tempResult["version"] = versionList
-
-		resultMap = append(resultMap, tempResult)
-	}
-
-	return resultMap, nil
+	return components, nil
 }
+
+//func GetComponentListByNamespace(namespace string) ([]map[string]interface{}, error) {
+//	resultMap := make([]map[string]interface{}, 0)
+//	componentList := make([]models.Component, 0)
+//	componentsMap := make(map[string]interface{})
+//
+//	err := new(models.Component).GetComponent().Where("namespace = ?", namespace).Order("-id").Find(&componentList).Error
+//	if err != nil {
+//		return nil, errors.New("error when get component infos by namespace:" + namespace + ",error:" + err.Error())
+//	}
+//
+//	for _, componentInfo := range componentList {
+//		if _, ok := componentsMap[componentInfo.Name]; !ok {
+//			tempMap := make(map[string]interface{})
+//			tempMap["version"] = make(map[int64]interface{})
+//			componentsMap[componentInfo.Name] = tempMap
+//		}
+//
+//		componentMap := componentsMap[componentInfo.Name].(map[string]interface{})
+//		versionMap := componentMap["version"].(map[int64]interface{})
+//
+//		//versionMap[componentInfo.VersionCode] = componentInfo
+//		componentMap["id"] = componentInfo.ID
+//		componentMap["name"] = componentInfo.Name
+//		componentMap["version"] = versionMap
+//	}
+//
+//	for _, component := range componentList {
+//		componentInfo := componentsMap[component.Name].(map[string]interface{})
+//
+//		if isSign, ok := componentInfo["isSign"].(bool); ok && isSign {
+//			continue
+//		}
+//
+//		componentInfo["isSign"] = true
+//		componentsMap[component.Name] = componentInfo
+//
+//		versionList := make([]map[string]interface{}, 0)
+//		for _, componentVersion := range componentList {
+//			if componentVersion.Name == componentInfo["name"].(string) {
+//				versionMap := make(map[string]interface{})
+//				versionMap["id"] = componentVersion.ID
+//				versionMap["version"] = componentVersion.Version
+//				//versionMap["versionCode"] = componentVersion.VersionCode
+//
+//				versionList = append(versionList, versionMap)
+//			}
+//		}
+//
+//		tempResult := make(map[string]interface{})
+//		tempResult["id"] = componentInfo["id"]
+//		tempResult["name"] = componentInfo["name"]
+//		tempResult["version"] = versionList
+//
+//		resultMap = append(resultMap, tempResult)
+//	}
+//
+//	return resultMap, nil
+//}
 
 func CreateComponent(component *models.Component) (int64, error) {
 	if component.ID != 0 {
@@ -138,25 +144,15 @@ func CreateComponent(component *models.Component) (int64, error) {
 		log.Warnln("CreateComponent timeout should ge zero")
 		component.Timeout = 0
 	}
-	var envs []env
-	if err := json.Unmarshal([]byte(component.Environment), envs); err != nil {
-		return 0, errors.New("can't unmarshal environment data" + err.Error())
-	}
-	var v map[string]json.RawMessage
-	if err := json.Unmarshal([]byte(component.Input), &v); err != nil {
-		return 0, errors.New("can't unmarshal input data" + err.Error())
-	}
-	if err := json.Unmarshal([]byte(component.Output), &v); err != nil {
-		return 0, errors.New("can't unmarshal output data" + err.Error())
-	}
+
 	condition := &models.Component{
 		Name: component.Name,
 		Version: component.Version,
 	}
-	if result, err := condition.SelectComponent(); err != nil {
+	if result, err := condition.SelectComponent(); err != nil && err != gorm.ErrRecordNotFound {
 		log.Errorln("CreateComponent query component error: ", err.Error())
 		return 0, errors.New("query component error: " + err.Error())
-	} else if result != nil{
+	} else if result.ID > 0 {
 		return 0, fmt.Errorf("component exists, id is: %d", result.ID)
 	}
 
@@ -172,16 +168,16 @@ func GetComponentByID(id int64) (*models.Component, error) {
 		return nil, errors.New("should specify component id")
 	}
 
-	var condition *models.Component
+	condition := &models.Component{}
 	condition.ID = id
 	component, err := condition.SelectComponent()
-	if err != nil {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		log.Errorln("GetComponent query component error: ", err.Error())
 		return nil, errors.New("query component error: " + err.Error())
 	}
-	//if component == nil {
-	//	return nil, errors.New("component does not exist")
-	//}
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
 	return component, nil
 }
 
@@ -197,19 +193,8 @@ func UpdateComponent(id int64, component *models.Component) error {
 		log.Warnln("UpdateComponent timeout should ge zero")
 		component.Timeout = 0
 	}
-	var envs []env
-	if err := json.Unmarshal([]byte(component.Environment), envs); err != nil {
-		return errors.New("can't unmarshal environment data" + err.Error())
-	}
-	var v map[string]json.RawMessage
-	if err := json.Unmarshal([]byte(component.Input), &v); err != nil {
-		return errors.New("can't unmarshal input data" + err.Error())
-	}
-	if err := json.Unmarshal([]byte(component.Output), &v); err != nil {
-		return errors.New("can't unmarshal output data" + err.Error())
-	}
 
-	var condition *models.Component
+	condition := &models.Component{}
 	condition.ID = id
 	old, err := condition.SelectComponent()
 	if err != nil {
@@ -227,6 +212,7 @@ func UpdateComponent(id int64, component *models.Component) error {
 		return errors.New("component version can't be changed")
 	}
 	component.ID = old.ID
+	component.CreatedAt = old.CreatedAt
 	if err := component.Save(); err != nil {
 		log.Errorln("UpdateComponent save component error: ", err.Error())
 		return errors.New("save component error: " + err.Error())
@@ -239,7 +225,7 @@ func DeleteComponent(id int64) error {
 		return errors.New("should specify component id")
 	}
 
-	var condition *models.Component
+	condition := &models.Component{}
 	condition.ID = id
 	component, err := condition.SelectComponent()
 	if err != nil {
@@ -256,15 +242,10 @@ func DeleteComponent(id int64) error {
 	return nil
 }
 
-func DebugComponent(component *models.Component, kubernetes, input, environment string) (*ActionLog, error) {
-	component.Input = input
-	var envs []env
-	if err := json.Unmarshal([]byte(environment), envs); err != nil {
-		return nil, errors.New("can't unmarshal environment data: " + err.Error())
-	}
-
-	component.Environment = environment
-	actionLog, err := NewMockAction(component)
+func DebugComponent(component *models.Component, kubernetes string, input map[string]interface{}, env string) (*ActionLog, error) {
+	//component.Input = input
+	component.Environment = env
+	actionLog, err := NewMockAction(component, kubernetes, input)
 	if err != nil {
 		log.Errorln("DebugComponent mock action error: ", err.Error())
 		return nil, errors.New("mock action error: " + err.Error())
@@ -276,7 +257,7 @@ func DebugComponent(component *models.Component, kubernetes, input, environment 
 func NewComponent(actionLog *ActionLog) (component, error) {
 	platformSetting, err := actionLog.GetActionPlatformInfo()
 	if err != nil {
-		log.Errorln("[component's InitComponent]:error when get given actionLog's platformSetting:", actionLog, " ===>error is:", err.Error())
+		log.Errorln("[component's InitComponent]:error when get given actionLog's platformSetting:", *actionLog, " ===>error is:", err.Error())
 		return nil, err
 	}
 
@@ -287,16 +268,16 @@ func NewComponent(actionLog *ActionLog) (component, error) {
 		ComponentConfigMap := make(map[string]interface{}, 0)
 		err := json.Unmarshal([]byte(actionLog.Kubernetes), &ComponentConfigMap)
 		if err != nil {
-			log.Errorln("[component's InitComponent]:error when get action's kubernetes setting:", actionLog, " ===>error is:", err.Error())
+			log.Errorln("[component's InitComponent]:error when get action's kubernetes setting:", *actionLog, " ===>error is:", err.Error())
 			return k8sComp, errors.New("get action's kube config error:" + err.Error())
 		}
 
-		nodeIP, ok := ComponentConfigMap["nodeIP"].(string)
-		if !ok {
-			log.Errorln("[component's InitComponent]:error when get component's nodeIP:",
-				ComponentConfigMap)
-			return nil, errors.New("get action's kube config error,kube's nodeIP is not set")
-		}
+		//nodeIP, ok := ComponentConfigMap["nodeIP"].(string)
+		//if !ok {
+		//	log.Errorln("[component's InitComponent]:error when get component's nodeIP:",
+		//		ComponentConfigMap)
+		//	return nil, errors.New("get action's kube config error,kube's nodeIP is not set")
+		//}
 
 		podConfig, ok := ComponentConfigMap["podConfig"].(map[string]interface{})
 		if !ok {
@@ -313,7 +294,7 @@ func NewComponent(actionLog *ActionLog) (component, error) {
 		k8sComp.runID = fmt.Sprintf("%d-%d-%d", actionLog.Workflow, actionLog.Stage, actionLog.ID)
 		k8sComp.apiServerUri = platformSetting["platformHost"]
 		k8sComp.namespace = actionLog.Namespace
-		k8sComp.nodeIP = nodeIP
+		//k8sComp.nodeIP = nodeIP
 		k8sComp.podConfig = podConfig
 		k8sComp.serviceConfig = serviceConfig
 		k8sComp.componentInfo = *actionLog.ActionLog
@@ -360,7 +341,7 @@ func (kube *kubeComponent) Stop() error {
 	client := &http.Client{}
 
 	// delete service
-	serviceName := "ser-" + kube.runID
+	serviceName := "co-svc-" + kube.runID
 	if len(serviceName) > 253 {
 		serviceName = serviceName[len(serviceName)-253:]
 	}
@@ -462,33 +443,33 @@ func (kube *kubeComponent) Stop() error {
 	return nil
 }
 
-func (kube *kubeComponent) SendData(receiveDataUri string, reqBody []byte) (respList []*http.Response, err error) {
-	var resp *http.Response
-	kubeReqUrl := ""
-
-	if strings.HasPrefix(kube.nodeIP, "http://") || strings.HasPrefix(kube.nodeIP, "https://") {
-		kubeReqUrl = kube.nodeIP + receiveDataUri
-	} else {
-		kubeReqUrl = "http://" + kube.nodeIP + receiveDataUri
-	}
-
-	log.Info("[kubeComponent's SendData]:send data:", string(reqBody), " to:", kubeReqUrl)
-
-	sendSuccess := false
-
-	for count := 0; count < 10 && !sendSuccess; count++ {
-		resp, err = http.Post(kubeReqUrl, "application/json", bytes.NewReader(reqBody))
-		if err == nil && resp != nil && resp.StatusCode == http.StatusOK {
-			sendSuccess = true
-		}
-		log.Info("[kubeComponent's SendData]:send data:", string(reqBody), " to:", kubeReqUrl, " count:", count, "\n resp:", resp, " err:", err)
-
-		time.Sleep(1 * time.Second)
-	}
-
-	respList = append(respList, resp)
-	return respList, err
-}
+//func (kube *kubeComponent) SendData(receiveDataUri string, reqBody []byte) (respList []*http.Response, err error) {
+//	var resp *http.Response
+//	kubeReqUrl := ""
+//
+//	if strings.HasPrefix(kube.nodeIP, "http://") || strings.HasPrefix(kube.nodeIP, "https://") {
+//		kubeReqUrl = kube.nodeIP + receiveDataUri
+//	} else {
+//		kubeReqUrl = "http://" + kube.nodeIP + receiveDataUri
+//	}
+//
+//	log.Info("[kubeComponent's SendData]:send data:", string(reqBody), " to:", kubeReqUrl)
+//
+//	sendSuccess := false
+//
+//	for count := 0; count < 10 && !sendSuccess; count++ {
+//		resp, err = http.Post(kubeReqUrl, "application/json", bytes.NewReader(reqBody))
+//		if err == nil && resp != nil && resp.StatusCode == http.StatusOK {
+//			sendSuccess = true
+//		}
+//		log.Info("[kubeComponent's SendData]:send data:", string(reqBody), " to:", kubeReqUrl, " count:", count, "\n resp:", resp, " err:", err)
+//
+//		time.Sleep(1 * time.Second)
+//	}
+//
+//	respList = append(respList, resp)
+//	return respList, err
+//}
 
 func (kube *kubeComponent) StartService() (string, error) {
 	reqMap := kube.serviceConfig
@@ -871,7 +852,7 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 			return nil, errors.New("error when parse relations")
 		}
 
-		dataMap, err = actionLog.merageFromActionsOutputData(relationInfo)
+		dataMap, err = actionLog.mergeFromActionsOutputData(relationInfo)
 		if err != nil {
 			log.Error("[kubeComponent's GetPodDefine]:error when get data map from action: " + err.Error())
 		}

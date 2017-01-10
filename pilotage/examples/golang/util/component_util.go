@@ -97,10 +97,10 @@ func NotifyEvent(eventName string, status bool, result, output string) error {
 	}
 
 	reqBody := make(map[string]interface{})
-	reqBody["EVENT"] = eventName
-	reqBody["EVENT_ID"] = eventIDMap[eventName]
-	reqBody["RUN_ID"] = eventINFOMap[CO_RUN_ID]
-	reqBody["INFO"] = map[string]interface{}{"status": status, "result": result, "output": output}
+	reqBody["event"] = eventName
+	reqBody["event_id"] = eventIDMap[eventName]
+	reqBody["run_id"] = eventINFOMap[CO_RUN_ID]
+	reqBody["info"] = map[string]interface{}{"status": status, "result": result, "output": output}
 
 	reqBodyBytes, _ := json.Marshal(reqBody)
 
@@ -168,7 +168,7 @@ func HoldProj() {
 func ChangeGlobalVar(varName, value string) error {
 	reqBody := make(map[string]interface{})
 
-	reqBody["RUN_ID"] = eventINFOMap[CO_RUN_ID]
+	reqBody["run_id"] = eventINFOMap[CO_RUN_ID]
 	reqBody["varMap"] = map[string]interface{}{"KEY": varName, "VALUE": value}
 
 	reqBodyBytes, _ := json.Marshal(reqBody)
@@ -192,7 +192,7 @@ func LinkStart(workflowName, workflowVersion, eventName, eventType string, start
 
 	startJsonBytes, _ := json.Marshal(startJson)
 
-	reqBody["RUN_ID"] = eventINFOMap[CO_RUN_ID]
+	reqBody["run_id"] = eventINFOMap[CO_RUN_ID]
 	reqBody["linkInfoMap"] = map[string]interface{}{
 		"token":           eventINFOMap[CO_LINKSTART_TOKEN],
 		"workflowName":    workflowName,
