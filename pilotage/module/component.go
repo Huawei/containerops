@@ -44,14 +44,14 @@ type component interface {
 	Start() error
 	Update()
 	Stop() error
-	SendData(receiveDataUri string, data []byte) ([]*http.Response, error)
+	//SendData(receiveDataUri string, data []byte) ([]*http.Response, error)
 }
 
 type kubeComponent struct {
 	runID         string
 	apiServerUri  string
 	namespace     string
-	nodeIP        string
+	//nodeIP        string
 	podConfig     map[string]interface{}
 	serviceConfig map[string]interface{}
 	componentInfo models.ActionLog
@@ -257,7 +257,7 @@ func DebugComponent(component *models.Component, kubernetes string, input map[st
 func NewComponent(actionLog *ActionLog) (component, error) {
 	platformSetting, err := actionLog.GetActionPlatformInfo()
 	if err != nil {
-		log.Errorln("[component's InitComponent]:error when get given actionLog's platformSetting:", actionLog, " ===>error is:", err.Error())
+		log.Errorln("[component's InitComponent]:error when get given actionLog's platformSetting:", *actionLog, " ===>error is:", err.Error())
 		return nil, err
 	}
 
@@ -268,16 +268,16 @@ func NewComponent(actionLog *ActionLog) (component, error) {
 		ComponentConfigMap := make(map[string]interface{}, 0)
 		err := json.Unmarshal([]byte(actionLog.Kubernetes), &ComponentConfigMap)
 		if err != nil {
-			log.Errorln("[component's InitComponent]:error when get action's kubernetes setting:", actionLog, " ===>error is:", err.Error())
+			log.Errorln("[component's InitComponent]:error when get action's kubernetes setting:", *actionLog, " ===>error is:", err.Error())
 			return k8sComp, errors.New("get action's kube config error:" + err.Error())
 		}
 
-		nodeIP, ok := ComponentConfigMap["nodeIP"].(string)
-		if !ok {
-			log.Errorln("[component's InitComponent]:error when get component's nodeIP:",
-				ComponentConfigMap)
-			return nil, errors.New("get action's kube config error,kube's nodeIP is not set")
-		}
+		//nodeIP, ok := ComponentConfigMap["nodeIP"].(string)
+		//if !ok {
+		//	log.Errorln("[component's InitComponent]:error when get component's nodeIP:",
+		//		ComponentConfigMap)
+		//	return nil, errors.New("get action's kube config error,kube's nodeIP is not set")
+		//}
 
 		podConfig, ok := ComponentConfigMap["podConfig"].(map[string]interface{})
 		if !ok {
@@ -294,7 +294,7 @@ func NewComponent(actionLog *ActionLog) (component, error) {
 		k8sComp.runID = fmt.Sprintf("%d-%d-%d", actionLog.Workflow, actionLog.Stage, actionLog.ID)
 		k8sComp.apiServerUri = platformSetting["platformHost"]
 		k8sComp.namespace = actionLog.Namespace
-		k8sComp.nodeIP = nodeIP
+		//k8sComp.nodeIP = nodeIP
 		k8sComp.podConfig = podConfig
 		k8sComp.serviceConfig = serviceConfig
 		k8sComp.componentInfo = *actionLog.ActionLog
@@ -443,33 +443,33 @@ func (kube *kubeComponent) Stop() error {
 	return nil
 }
 
-func (kube *kubeComponent) SendData(receiveDataUri string, reqBody []byte) (respList []*http.Response, err error) {
-	var resp *http.Response
-	kubeReqUrl := ""
-
-	if strings.HasPrefix(kube.nodeIP, "http://") || strings.HasPrefix(kube.nodeIP, "https://") {
-		kubeReqUrl = kube.nodeIP + receiveDataUri
-	} else {
-		kubeReqUrl = "http://" + kube.nodeIP + receiveDataUri
-	}
-
-	log.Info("[kubeComponent's SendData]:send data:", string(reqBody), " to:", kubeReqUrl)
-
-	sendSuccess := false
-
-	for count := 0; count < 10 && !sendSuccess; count++ {
-		resp, err = http.Post(kubeReqUrl, "application/json", bytes.NewReader(reqBody))
-		if err == nil && resp != nil && resp.StatusCode == http.StatusOK {
-			sendSuccess = true
-		}
-		log.Info("[kubeComponent's SendData]:send data:", string(reqBody), " to:", kubeReqUrl, " count:", count, "\n resp:", resp, " err:", err)
-
-		time.Sleep(1 * time.Second)
-	}
-
-	respList = append(respList, resp)
-	return respList, err
-}
+//func (kube *kubeComponent) SendData(receiveDataUri string, reqBody []byte) (respList []*http.Response, err error) {
+//	var resp *http.Response
+//	kubeReqUrl := ""
+//
+//	if strings.HasPrefix(kube.nodeIP, "http://") || strings.HasPrefix(kube.nodeIP, "https://") {
+//		kubeReqUrl = kube.nodeIP + receiveDataUri
+//	} else {
+//		kubeReqUrl = "http://" + kube.nodeIP + receiveDataUri
+//	}
+//
+//	log.Info("[kubeComponent's SendData]:send data:", string(reqBody), " to:", kubeReqUrl)
+//
+//	sendSuccess := false
+//
+//	for count := 0; count < 10 && !sendSuccess; count++ {
+//		resp, err = http.Post(kubeReqUrl, "application/json", bytes.NewReader(reqBody))
+//		if err == nil && resp != nil && resp.StatusCode == http.StatusOK {
+//			sendSuccess = true
+//		}
+//		log.Info("[kubeComponent's SendData]:send data:", string(reqBody), " to:", kubeReqUrl, " count:", count, "\n resp:", resp, " err:", err)
+//
+//		time.Sleep(1 * time.Second)
+//	}
+//
+//	respList = append(respList, resp)
+//	return respList, err
+//}
 
 func (kube *kubeComponent) StartService() (string, error) {
 	reqMap := kube.serviceConfig

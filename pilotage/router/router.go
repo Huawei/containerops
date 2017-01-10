@@ -41,6 +41,14 @@ func SetRouters(m *macaron.Macaron) {
 			m.Delete("/:component", handler.DeleteComponent)
 
 			m.Get("/:component/debug", handler.DebugComponentJson(), handler.DebugComponentLog)
+			//m.Get("/ws/debug",
+			//	sockets.JSON(handler.DebugComponentMessage{}),
+			//	func(
+			//	receiver <-chan *handler.DebugComponentMessage,
+			//	sender chan<- *handler.DebugComponentMessage,
+			//	done <-chan bool,
+			//	disconnect chan<- int,
+			//	errChan <-chan error) {})
 		})
 
 		m.Group("/images", func() {
