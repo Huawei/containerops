@@ -33,6 +33,7 @@ import (
 	"github.com/Huawei/containerops/pilotage/web"
 	"github.com/containerops/configure"
 	"strings"
+	"path"
 )
 
 var address string
@@ -84,10 +85,44 @@ func init() {
 	daemonCmd.AddCommand(monitorDeamonCmd)
 }
 
+func getLogFile(name string, append bool) *os.File {
+	var f *os.File
+	fileInfo, err := os.Stat(name)
+	if err == nil {
+		if fileInfo.IsDir() {
+			name = name + string(os.PathSeparator) + "workflow.log"
+			return getLogFile(name, append)
+		} else {
+			var flag int
+			if append {
+				flag = os.O_RDWR|os.O_APPEND
+			} else {
+				flag = os.O_RDWR|os.O_TRUNC
+			}
+			f, err = os.OpenFile(name, flag, 0)
+		}
+	} else if os.IsNotExist(err) {
+		d := path.Dir(name)
+		_, err = os.Stat(d)
+		if os.IsNotExist(err) {
+			os.MkdirAll(d, 0755)
+		}
+		f, err = os.Create(name)
+	}
+	if err != nil {
+		f = os.Stdout
+		fmt.Println(err)
+	}
+	return f
+}
+
 // startDeamon() start Pilotage's REST API daemon.
 func startDeamon(cmd *cobra.Command, args []string) {
-	log.SetOutput(os.Stdout)
-	switch strings.ToLower(configure.GetString("logger.level")) {
+	logFile := getLogFile(strings.TrimSpace(configure.GetString("log.file")),
+			configure.GetBool("log.append"))
+	log.SetOutput(logFile)
+	defer logFile.Close()
+	switch strings.ToLower(configure.GetString("log.level")) {
 	case "panic":
 		log.SetLevel(log.PanicLevel)
 	case "fatal":
