@@ -40,8 +40,8 @@ type ActionLog struct {
 }
 
 type Relation struct {
-	From string
-	To   string
+	From string `json:"from"`
+	To   string `json:"to"`
 }
 
 func init() {
@@ -932,10 +932,10 @@ func (actionLog *ActionLog) Stop(reason string, runState int64) {
 	}
 }
 
-func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody map[string]interface{}, headerInfo http.Header) error {
+func (actionLog *ActionLog) RecordEvent(eventID int64, eventType EventType, info EventReqInfo, body []byte, headerInfo http.Header) error {
 	c, err := NewComponent(actionLog)
 	if err != nil {
-		recordErr := RecordOutcom(actionLog.Workflow, actionLog.FromWorkflow, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, eventId, false, "component init error:"+err.Error(), "")
+		recordErr := RecordOutcom(actionLog.Workflow, actionLog.FromWorkflow, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, eventID, false, "component init error:"+err.Error(), "")
 		if recordErr != nil {
 			log.Error("[actionLog's RecordEvent]:error when record outcome info:", recordErr.Error())
 			return recordErr
@@ -945,29 +945,29 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 		return err
 	}
 
-	if EventType(eventKey) == TASK_STATUS {
-		resultReqBody, ok := reqBody["INFO"].(map[string]interface{})
-		if !ok {
-			log.Error("[actionLog's RecordEvent]:error when get request's info body, want a json obj, got:", reqBody["INFO"])
-			return errors.New("request body's info is not a json obj")
-		}
+	if eventType == TASK_STATUS {
+		//resultReqBody, ok := reqBody["INFO"].(map[string]interface{})
+		//if !ok {
+		//	log.Error("[actionLog's RecordEvent]:error when get request's info body, want a json obj, got:", reqBody["INFO"])
+		//	return errors.New("request body's info is not a json obj")
+		//}
+		//
+		//status, ok := resultReqBody["status"].(bool)
+		//if !ok {
+		//	status = false
+		//}
+		//
+		//result, ok := resultReqBody["result"].(string)
+		//if !ok {
+		//	result = ""
+		//}
+		//
+		//outputStr, ok := resultReqBody["output"].(string)
+		//if !ok {
+		//	outputStr = ""
+		//}
 
-		status, ok := resultReqBody["status"].(bool)
-		if !ok {
-			status = false
-		}
-
-		result, ok := resultReqBody["result"].(string)
-		if !ok {
-			result = ""
-		}
-
-		outputStr, ok := resultReqBody["output"].(string)
-		if !ok {
-			outputStr = ""
-		}
-
-		recordErr := RecordOutcom(actionLog.Workflow, actionLog.FromWorkflow, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, eventId, status, result, outputStr)
+		recordErr := RecordOutcom(actionLog.Workflow, actionLog.FromWorkflow, actionLog.Stage, actionLog.FromStage, actionLog.ID, actionLog.FromAction, actionLog.Sequence, eventID, info.Status, info.Result, info.Output)
 		if recordErr != nil {
 			log.Error("[actionLog's RecordEvent]:error when record outcome info:", recordErr.Error())
 			return recordErr
@@ -975,14 +975,14 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 
 		stopStatus := models.ActionLogStateRunFailed
 		stopReason := ActionStopReasonRunFailed
-		if status {
+		if info.Status {
 			stopStatus = models.ActionLogStateRunSuccess
 			stopReason = ActionStopReasonRunSuccess
 		}
 		actionLog.Stop(stopReason, int64(stopStatus))
 	}
 
-	if EventType(eventKey) == COMPONENT_STOP {
+	if eventType == COMPONENT_STOP {
 		c.Stop()
 	}
 
@@ -993,7 +993,7 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 	headerBytes, _ := json.Marshal(headerMap)
 
 	eventDefine := new(models.EventDefinition)
-	err = eventDefine.GetEventDefinition().Where("id = ?", eventId).First(&eventDefine).Error
+	err = eventDefine.GetEventDefinition().Where("id = ?", eventID).First(&eventDefine).Error
 	if err != nil {
 		log.Error("[actionLog's RecordEvent]:error when get eventDefine from db:", err.Error())
 		return err
@@ -1007,10 +1007,9 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 		authStr = strings.Join(auths, ";")
 	}
 
-	bodyBytes, _ := json.Marshal(reqBody)
+	//bodyBytes, _ := json.Marshal(reqBody)
 
-	// log evnet
-	err = RecordEventInfo(eventId, actionLog.Sequence, string(headerBytes), string(bodyBytes), authStr)
+	err = RecordEventInfo(eventID, actionLog.Sequence, string(headerBytes), string(body), authStr)
 	if err != nil {
 		log.Error("[actionLog's RecordEvent]:error when save event to db:", err.Error())
 		return err
@@ -1019,101 +1018,101 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 	return nil
 }
 
-func (actionLog *ActionLog) SendDataToAction(targetUrl string) {
-	manifestMap := make(map[string]interface{})
-	err := json.Unmarshal([]byte(actionLog.Manifest), &manifestMap)
-	if err != nil {
-		log.Error("[actionLog's SendDataToAction]:error when get action manifest info:" + err.Error())
-		return
-	}
+//func (actionLog *ActionLog) SendDataToAction(targetUrl string) {
+//	manifestMap := make(map[string]interface{})
+//	err := json.Unmarshal([]byte(actionLog.Manifest), &manifestMap)
+//	if err != nil {
+//		log.Error("[actionLog's SendDataToAction]:error when get action manifest info:" + err.Error())
+//		return
+//	}
+//
+//	dataMap := make(map[string]interface{})
+//	relations, ok := manifestMap["relation"]
+//	if ok {
+//		relationInfo, ok := relations.([]interface{})
+//		if !ok {
+//			log.Error("[actionLog's SendDataToAction]:error when parse relations,want an array,got:", relations)
+//			return
+//		}
+//
+//		dataMap, err = actionLog.mergeFromActionsOutputData(relationInfo)
+//		if err != nil {
+//			log.Error("[actionLog's SendDataToAction]:error when get data map from action: " + err.Error())
+//		}
+//	}
+//
+//	log.Info("[actionLog's SendDataToAction]:action", actionLog, " got data:", dataMap)
+//
+//	var dataByte []byte
+//
+//	if len(dataMap) == 0 {
+//		dataByte = make([]byte, 0)
+//	} else {
+//		dataByte, err = json.Marshal(dataMap)
+//		if err != nil {
+//			log.Error("[actionLog's SendDataToAction]:error when marshal dataMap:", dataMap, " ===>error is:", err.Error())
+//			return
+//		}
+//	}
+//
+//	character := int(0)
+//	// send data to component or service
+//	resps := make([]*http.Response, 0)
+//	if actionLog.Component != 0 {
+//		character = models.CharacterComponentEvent
+//		resps, err = actionLog.sendDataToComponent(targetUrl, dataByte)
+//	} else {
+//		character = models.CharacterServiceEvent
+//		resps, err = actionLog.sendDataToService(dataByte)
+//	}
+//
+//	resultStr := ""
+//	status := false
+//	payload := make(map[string]interface{})
+//	if err != nil {
+//		resultStr = err.Error()
+//		status = false
+//		go actionLog.Stop(ActionStopReasonSendDataFailed, models.ActionLogStateRunFailed)
+//	} else {
+//		respMap := make(map[int64]string, len(resps))
+//		for count, resp := range resps {
+//			if resp != nil {
+//				respBody, _ := ioutil.ReadAll(resp.Body)
+//				respStr := string(respBody)
+//
+//				respMap[int64(count)] = respStr
+//			}
+//		}
+//
+//		result, _ := json.Marshal(respMap)
+//		resultStr = string(result)
+//		status = true
+//	}
+//
+//	payload["EVENT"] = "SEND_DATA"
+//	payload["EVENTID"] = "SEND_DATA"
+//	payload["INFO"] = map[string]interface{}{"output": string(dataByte), "result": resultStr, "status": status}
+//	payload["RUN_ID"] = strconv.FormatInt(actionLog.Workflow, 10) + "-" + strconv.FormatInt(actionLog.Stage, 10) + "-" + strconv.FormatInt(actionLog.ID, 10)
+//
+//	payloadInfo, marshalErr := json.Marshal(payload)
+//	if marshalErr != nil {
+//		go actionLog.Stop(ActionStopReasonSendDataFailed, models.ActionLogStateRunFailed)
+//		log.Error("[actionLog's SendDataToAction]:error when marshal payload info:" + marshalErr.Error())
+//	}
+//
+//	if err != nil {
+//		go actionLog.Stop(ActionStopReasonSendDataFailed, models.ActionLogStateRunFailed)
+//		log.Error("[actionLog's SendDataToAction]:error when send data to action:" + err.Error())
+//	}
+//
+//	err = RecordEventInfo(models.EventDefineIDSendDataToAction, actionLog.Sequence, "", string(payloadInfo), "", "SEND_DATA", strconv.FormatInt(int64(character), 10), actionLog.Namespace, actionLog.Repository, strconv.FormatInt(actionLog.Workflow, 10), strconv.FormatInt(actionLog.Stage, 10), strconv.FormatInt(actionLog.ID, 10))
+//	if err != nil {
+//		go actionLog.Stop(ActionStopReasonSendDataFailed, models.ActionLogStateRunFailed)
+//		log.Error("[actionLog's SendDataToAction]:error when save send data info :" + err.Error())
+//	}
+//}
 
-	dataMap := make(map[string]interface{})
-	relations, ok := manifestMap["relation"]
-	if ok {
-		relationInfo, ok := relations.([]interface{})
-		if !ok {
-			log.Error("[actionLog's SendDataToAction]:error when parse relations,want an array,got:", relations)
-			return
-		}
-
-		dataMap, err = actionLog.merageFromActionsOutputData(relationInfo)
-		if err != nil {
-			log.Error("[actionLog's SendDataToAction]:error when get data map from action: " + err.Error())
-		}
-	}
-
-	log.Info("[actionLog's SendDataToAction]:action", actionLog, " got data:", dataMap)
-
-	var dataByte []byte
-
-	if len(dataMap) == 0 {
-		dataByte = make([]byte, 0)
-	} else {
-		dataByte, err = json.Marshal(dataMap)
-		if err != nil {
-			log.Error("[actionLog's SendDataToAction]:error when marshal dataMap:", dataMap, " ===>error is:", err.Error())
-			return
-		}
-	}
-
-	character := int(0)
-	// send data to component or service
-	resps := make([]*http.Response, 0)
-	if actionLog.Component != 0 {
-		character = models.CharacterComponentEvent
-		resps, err = actionLog.sendDataToComponent(targetUrl, dataByte)
-	} else {
-		character = models.CharacterServiceEvent
-		resps, err = actionLog.sendDataToService(dataByte)
-	}
-
-	resultStr := ""
-	status := false
-	payload := make(map[string]interface{})
-	if err != nil {
-		resultStr = err.Error()
-		status = false
-		go actionLog.Stop(ActionStopReasonSendDataFailed, models.ActionLogStateRunFailed)
-	} else {
-		respMap := make(map[int64]string, len(resps))
-		for count, resp := range resps {
-			if resp != nil {
-				respBody, _ := ioutil.ReadAll(resp.Body)
-				respStr := string(respBody)
-
-				respMap[int64(count)] = respStr
-			}
-		}
-
-		result, _ := json.Marshal(respMap)
-		resultStr = string(result)
-		status = true
-	}
-
-	payload["EVENT"] = "SEND_DATA"
-	payload["EVENTID"] = "SEND_DATA"
-	payload["INFO"] = map[string]interface{}{"output": string(dataByte), "result": resultStr, "status": status}
-	payload["RUN_ID"] = strconv.FormatInt(actionLog.Workflow, 10) + "-" + strconv.FormatInt(actionLog.Stage, 10) + "-" + strconv.FormatInt(actionLog.ID, 10)
-
-	payloadInfo, marshalErr := json.Marshal(payload)
-	if marshalErr != nil {
-		go actionLog.Stop(ActionStopReasonSendDataFailed, models.ActionLogStateRunFailed)
-		log.Error("[actionLog's SendDataToAction]:error when marshal payload info:" + marshalErr.Error())
-	}
-
-	if err != nil {
-		go actionLog.Stop(ActionStopReasonSendDataFailed, models.ActionLogStateRunFailed)
-		log.Error("[actionLog's SendDataToAction]:error when send data to action:" + err.Error())
-	}
-
-	err = RecordEventInfo(models.EventDefineIDSendDataToAction, actionLog.Sequence, "", string(payloadInfo), "", "SEND_DATA", strconv.FormatInt(int64(character), 10), actionLog.Namespace, actionLog.Repository, strconv.FormatInt(actionLog.Workflow, 10), strconv.FormatInt(actionLog.Stage, 10), strconv.FormatInt(actionLog.ID, 10))
-	if err != nil {
-		go actionLog.Stop(ActionStopReasonSendDataFailed, models.ActionLogStateRunFailed)
-		log.Error("[actionLog's SendDataToAction]:error when save send data info :" + err.Error())
-	}
-}
-
-func (actionLog *ActionLog) merageFromActionsOutputData(relationInfo []interface{}) (map[string]interface{}, error) {
+func (actionLog *ActionLog) mergeFromActionsOutputData(relationInfo []interface{}) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 	for _, relation := range relationInfo {
 		relationMap, ok := relation.(map[string]interface{})
@@ -1216,16 +1215,16 @@ func (actionLog *ActionLog) merageFromActionsOutputData(relationInfo []interface
 	return result, nil
 }
 
-func (actionLog *ActionLog) sendDataToComponent(targetUrl string, data []byte) ([]*http.Response, error) {
-	c, err := NewComponent(actionLog)
-	if err != nil {
-		log.Error("[actionLog's sendDataToComponent]:error when init component info:", err.Error())
-		return nil, errors.New("error when init component info:" + err.Error())
-	}
-
-	log.Info("start send data to component...")
-	return c.SendData(targetUrl, data)
-}
+//func (actionLog *ActionLog) sendDataToComponent(targetUrl string, data []byte) ([]*http.Response, error) {
+//	c, err := NewComponent(actionLog)
+//	if err != nil {
+//		log.Error("[actionLog's sendDataToComponent]:error when init component info:", err.Error())
+//		return nil, errors.New("error when init component info:" + err.Error())
+//	}
+//
+//	log.Info("start send data to component...")
+//	return c.SendData(targetUrl, data)
+//}
 
 func (actionLog *ActionLog) sendDataToService(data []byte) ([]*http.Response, error) {
 	return nil, nil
@@ -1520,25 +1519,25 @@ func (actionLog *ActionLog) changeGlobalVar() error {
 	kubeSettingMap := make(map[string]interface{})
 	json.Unmarshal([]byte(actionLog.Kubernetes), &kubeSettingMap)
 
-	nodeIPStr, ok := kubeSettingMap["nodeIP"].(string)
-	if !ok {
-		log.Error("[actionLog's changeGlobalVar]:error when get kube's nodeip, want a string, got:", kubeSettingMap["nodeIP"])
-		return errors.New("error when get kube's nodeip")
-	}
-
-	if strings.HasPrefix(nodeIPStr, "@") && strings.HasSuffix(nodeIPStr, "@") {
-		varKey := nodeIPStr[1 : len(nodeIPStr)-1]
-
-		varValue, err := getWorkflowVarLogInfo(actionLog.Workflow, actionLog.Sequence, varKey)
-		if err != nil {
-			log.Error("[actionLog's changeGlobalVar]:action:", actionLog.Action, " use nodeIP both start and end with '@',but not a global value")
-			return errors.New("nodeIP is not a addressable address")
-		} else {
-			nodeIPStr = varValue
-		}
-
-		kubeSettingMap["nodeIP"] = nodeIPStr
-	}
+	//nodeIPStr, ok := kubeSettingMap["nodeIP"].(string)
+	//if !ok {
+	//	log.Error("[actionLog's changeGlobalVar]:error when get kube's nodeip, want a string, got:", kubeSettingMap["nodeIP"])
+	//	return errors.New("error when get kube's nodeip")
+	//}
+	//
+	//if strings.HasPrefix(nodeIPStr, "@") && strings.HasSuffix(nodeIPStr, "@") {
+	//	varKey := nodeIPStr[1 : len(nodeIPStr)-1]
+	//
+	//	varValue, err := getWorkflowVarLogInfo(actionLog.Workflow, actionLog.Sequence, varKey)
+	//	if err != nil {
+	//		log.Error("[actionLog's changeGlobalVar]:action:", actionLog.Action, " use nodeIP both start and end with '@',but not a global value")
+	//		return errors.New("nodeIP is not a addressable address")
+	//	} else {
+	//		nodeIPStr = varValue
+	//	}
+	//
+	//	kubeSettingMap["nodeIP"] = nodeIPStr
+	//}
 
 	if useAdvanced, ok := kubeSettingMap["useAdvanced"].(bool); !ok || !useAdvanced {
 		podConfigMap, ok := kubeSettingMap["podConfig"].(map[string]interface{})
@@ -1765,11 +1764,23 @@ func changeMapInfoWithGlobalVar(workflow, sequence int64, sourceMap map[string]i
 	return result, nil
 }
 
-func NewMockAction(component *models.Component) (*ActionLog, error) {
-	var actionLog *ActionLog
+type MockRelaction struct {
+	FromAction int64 `json:"fromAction"`
+	ToAction int64 `json:"toAction"`
+	NestedRelation [][]Relation `json:"relation"`
+}
+
+type PlatForm struct {
+	Host string `json:"platformHost"`
+	Type string `json:"platformType"`
+}
+
+func NewMockAction(component *models.Component, kubernetes string, input map[string]interface{}) (*ActionLog, error) {
+	actionLog := &ActionLog{new(models.ActionLog)}
 	actionLog.Namespace = ""
 	actionLog.Repository = ""
 	actionLog.Workflow = 0
+	//TODO: mock a unique workflow id
 	actionLog.FromWorkflow = 0
 	actionLog.Sequence = 0
 	actionLog.Stage = 0
@@ -1782,14 +1793,65 @@ func NewMockAction(component *models.Component) (*ActionLog, error) {
 	actionLog.Title = ""
 	actionLog.Description = ""
 	actionLog.Event = 0
-	manifest := `{"platform":{"platformHost":"http://10.21.101.227:8080","platformType":"KUBERNETES"}`
-	actionLog.Manifest = manifest
+	manifest := make(map[string]interface{})
+	//manifest := `{"platform":{"platformHost":"http://10.21.101.227:8080","platformType":"KUBERNETES"}`
+	//data, err := json.Marshal(PlatForm{kubernetes, "KUBERNETES"})
+	//if err != nil {
+	//	return nil, err
+	//}
+	manifest["platform"] = PlatForm{kubernetes, "KUBERNETES"}
+	//manifest["platformType"] = "KUBERNETES"
+	var relation MockRelaction
+	relation.FromAction = -1
+	relation.ToAction = 0
+	rs := make([]Relation, 0)
+	for key, _ := range input {
+		r := Relation{
+			From: "." + key,
+			To: "." + key,
+		}
+		rs = append(rs, r)
+	}
+	relation.NestedRelation = append(relation.NestedRelation, rs)
+	manifest["relation"] = relation
+	data, err := json.Marshal(manifest)
+	if err != nil {
+		return nil, err
+	}
+	actionLog.Manifest = string(data)
 	actionLog.Environment = component.Environment
-	//TODO: add runtime k8s-apiserver
-	actionLog.Kubernetes = component.KubeSetting
+	var settingMap map[string]interface{}
+	if err := json.Unmarshal([]byte(component.KubeSetting), &settingMap); err != nil {
+		return nil, err
+	}
+	setting := make(map[string]interface{})
+	setting["podConfig"] = settingMap["pod"]
+	setting["serviceConfig"] = settingMap["service"]
+	data, err = json.Marshal(setting)
+	if err != nil {
+		return nil, err
+	}
+	actionLog.Kubernetes = string(data)
 	actionLog.Swarm = ""
-	actionLog.Input = component.Input
-	actionLog.Output = ""
+	data, err = json.Marshal(input)
+	if err != nil {
+		return nil, err
+	}
+	actionLog.Input = string(data)
+	var outputMap map[string]interface{}
+	err = json.Unmarshal([]byte(component.Output), &outputMap)
+	if err != nil {
+		return nil, err
+	}
+	output, err := describeJSON(outputMap, "")
+	if err != nil {
+		return nil, err
+	}
+	data, err = json.Marshal(output)
+	if err != nil {
+		return nil, err
+	}
+	actionLog.Output = string(data)
 	actionLog.ImageName = component.ImageName
 	actionLog.ImageTag = component.ImageTag
 
@@ -1803,6 +1865,22 @@ func NewMockAction(component *models.Component) (*ActionLog, error) {
 	}
 	if err := actionLog.Save(); err != nil {
 		return actionLog, err
+	}
+
+	var outcome models.Outcome
+	outcome.Workflow = actionLog.Workflow
+	outcome.Sequence = 0
+	outcome.Stage = actionLog.Stage
+	outcome.Action = actionLog.ID
+	outcome.RealWorkflow = actionLog.FromWorkflow
+	outcome.RealStage = actionLog.FromStage
+	outcome.RealAction = relation.FromAction
+	outcome.Event = 0
+	outcome.Status = true
+	outcome.Result = ""
+	outcome.Output = component.Input
+	if err := outcome.Save(); err != nil {
+		return nil, err
 	}
 	return actionLog, nil
 }
