@@ -86,6 +86,9 @@ func init() {
 }
 
 func getLogFile(name string, append bool) *os.File {
+	if name == "" {
+		return os.Stdout
+	}
 	var f *os.File
 	fileInfo, err := os.Stat(name)
 	if err == nil {
