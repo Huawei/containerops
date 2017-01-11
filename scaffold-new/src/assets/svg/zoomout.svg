@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="图层_1"
+   x="0px"
+   y="0px"
+   width="100px"
+   height="100px"
+   viewBox="0 0 100 100"
+   enable-background="new 0 0 100 100"
+   xml:space="preserve"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="zoomout.svg"><metadata
+     id="metadata4162"><rdf:RDF><cc:Work
+         rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title /></cc:Work></rdf:RDF></metadata><defs
+     id="defs4160"><style
+       type="text/css"
+       id="style3344"><![CDATA[
+@font-face { font-family: ifont; src: url("http://at.alicdn.com/t/font_1442373896_4754455.eot?#iefix") format("embedded-opentype"), url("http://at.alicdn.com/t/font_1442373896_4754455.woff") format("woff"), url("http://at.alicdn.com/t/font_1442373896_4754455.ttf") format("truetype"), url("http://at.alicdn.com/t/font_1442373896_4754455.svg#ifont") format("svg"); }
+
+]]></style><style
+       id="style4207"
+       type="text/css" /><pattern
+       y="0"
+       x="0"
+       height="6"
+       width="6"
+       patternUnits="userSpaceOnUse"
+       id="EMFhbasepattern" /></defs><sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1366"
+     inkscape:window-height="706"
+     id="namedview4158"
+     showgrid="false"
+     inkscape:zoom="2.36"
+     inkscape:cx="-44.915254"
+     inkscape:cy="50"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="图层_1" /><path
+     fill="#5BA8B9"
+     d="M100,94c0,3.313-2.688,6-6,6H6c-3.313,0-6-2.688-6-6V6c0-3.313,2.687-6,6-6h88c3.313,0,6,2.687,6,6V94z"
+     id="path4150"
+     style="fill:#5d8fc2;fill-opacity:1" /><g
+     id="g4279"
+     transform="translate(-0.96798612,1.3951367)"><g
+       transform="matrix(0.07042094,0,0,0.07042094,15.154666,13.824569)"
+       id="g4218"><path
+         style="fill:#ffffff"
+         inkscape:connector-curvature="0"
+         d="m 426.24,425.088 -117.696,0 a 49.216,49.216 0 1 0 0,98.368 l 333.76,0 a 49.184,49.184 0 1 0 0,-98.368 l -117.632,0"
+         p-id="3253"
+         id="path4209" /></g><path
+       style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       d="m 84.730697,76.588796 -9.973188,-9.97319 c 4.349152,-5.549051 6.973705,-12.522757 6.973705,-20.096354 0,-18.146793 -14.772371,-32.91916 -32.844072,-32.91916 -18.146789,0 -32.919156,14.772367 -32.919156,32.91916 0,18.071697 14.772367,32.844064 32.919156,32.844064 7.573601,0 14.547306,-2.62455 20.096354,-6.9737 l 9.973192,9.97319 c 1.57473,1.64972 4.199279,1.64972 5.774009,0.075 1.649719,-1.64972 1.649719,-4.19928 0,-5.849 z M 22.266856,46.519252 c 0,-14.697383 11.922907,-26.620289 26.620286,-26.620289 14.622295,0 26.620236,11.922906 26.620236,26.620289 0,14.622291 -11.997941,26.620234 -26.620236,26.620234 -14.697379,0 -26.620286,-11.997943 -26.620286,-26.620234 z"
+       id="path4249"
+       inkscape:connector-curvature="0" /></g></svg>
