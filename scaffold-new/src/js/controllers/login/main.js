@@ -1,49 +1,32 @@
-define(['login','services/login/main'], function (app) {
-    'use strict';
-     app.controllerProvider.register('LoginController', ['$scope','$uibModal','$window','$cookies','LoginService','ResponseService',function ($scope,$uibModal,$window,$cookies,LoginService,ResponseService) {
-    	  $scope.user = {"email":"","password":""};
-        $scope.newuser = {"newuser":"","email":"","password":""};
-    	  $scope.login = function(){
-           LoginService.doLogin($scope.user).then(function(data){
-                if(data.code == 200){
-                    var expireDate = new Date();
-                    expireDate.setDate(expireDate.getDate() + 2);
-                    // Setting a cookie
-                
-                    $cookies.put('email',$scope.user.email,{'expires': expireDate});
-                    $window.location = "index.html";    
-                }else{
-                  var error = {
-                    msg : data.msg,
-                    code : data.code
-                  }
-                  ResponseService.errorResponse(error);  
-                }
-                           
-             },
-              function(error){
-				         ResponseService.errorResponse(error);		    
-			       })
-    	  };
+login.controller('LoginController', ['$scope', '$rootScope','loginService', 'notifyService',
+  function($scope,$rootScope,loginService,notifyService) {
 
-        $scope.signup = function(){
-           LoginService.doSignup($scope.newuser).then(function(data){
-                if(data.code == 200){
-                  alert("Sign up successfully, please login.")
-                    $window.location = "/";    
-                }else{
-                  var error = {
-                    msg : data.msg,
-                    code : data.code
-                  }
-                  ResponseService.errorResponse(error);  
-                }
-                           
-             },
-              function(error){
-                 ResponseService.errorResponse(error);        
-             })
-        };
+  	$scope.login = function() {
+		try{
+			//fake, to be deleted
+			var self = this;
+			if(_.isUndefined(localStorage["users"])){
+				notifyService.notify("No such user, please sign up first.","info");
+			}else{
+				var users = JSON.parse(localStorage["users"]);
+				var targetuser = _.find(users,function(item){
+					return item.username == self.user.username && item.password == self.user.password;
+				});
+				if(_.isUndefined(targetuser)){
+					notifyService.notify("No such user or password is incorrect.","info");
+				}else{
+					notifyService.notify("Welcome. " + self.user.username , "success");
+					sessionStorage["currentUser"] = self.user.username;
+					// $scope.changeNav('index');
+				}
+			}
+			//fake end
+		}catch(e){
+			notifyService.notify("Failed to Sign in.", "error");
+		}
+	}
 
-     }]);
-});
+	$scope.changeNav = function(val){
+
+	}
+}]);

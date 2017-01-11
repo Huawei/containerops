@@ -6,10 +6,10 @@ login.config(function($routeProvider, $locationProvider) {
 			templateUrl: 'templates/user/login.html',
 			controller: 'LoginController'
 		})
-		.when('/signup', {
-			templateUrl: 'templates/user/register.html',
-			controller: 'RegisterController'
-		})
+		// .when('/signup', {
+		// 	templateUrl: 'templates/user/register.html',
+		// 	controller: 'RegisterController'
+		// })
 		.otherwise({
 			redirectTo: '/'
 		});

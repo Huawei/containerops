@@ -28,10 +28,20 @@ limitations under the License.
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-    <script type="text/javascript" src="node_modules/angular/angular.min.js" ></script>
-    <script type="text/javascript" src="node_modules/angular-route/angular-route.min.js" ></script>
-    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js" ></script>
+    <!-- should be replaced by gulp -->
+    <link rel="stylesheet" href="../bower_components/messenger/build/css/messenger.css" />
+    <link rel="stylesheet" href="../bower_components/messenger/build/css/messenger-spinner.css" />
+    <link rel="stylesheet" href="../bower_components/messenger/build/css/messenger-theme-future.css" />
+
+    <script type="text/javascript" src="../node_modules/angular/angular.min.js" ></script>
+    <script type="text/javascript" src="../node_modules/angular-route/angular-route.min.js" ></script>
+    <script type="text/javascript" src="../bower_components/jquery/dist/jquery.min.js" ></script>
+    <script type="text/javascript" src="../bower_components/messenger/build/js/messenger.min.js" ></script>
+
     <script type="text/javascript" src="js/router/login.js" ></script>
+    <script type="text/javascript" src="js/controllers/login/main.js" ></script>
+    <script type="text/javascript" src="js/services/login/main.js" ></script>
+    <script type="text/javascript" src="js/services/common/notify.js" ></script>
 </head>
 <body class="nav-static" ng-app="login">
 	<div ng-view></div>
