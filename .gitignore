@@ -5,12 +5,18 @@ scaffold/dist
 scaffold/dev
 scaffold/tmp
 scaffold/css/
+scaffold-new/dist
+scaffold-new/dev
+scaffold-new/tmp
+scaffold-new/css/
 tenant/dist
 tenant/css
 
 # dependencies
 scaffold/node_modules
 scaffold/bower_components
+scaffold-new/node_modules
+scaffold-new/bower_components
 tenant/node_modules 
 
 # IDEs and editors
