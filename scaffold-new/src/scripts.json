@@ -1,0 +1,16 @@
+{
+
+    "index_scripts" : [       
+      "node_modules/angular/angular.min.js",
+      "node_modules/angular-route/angular-route.min.js",
+      "bower_components/jquery/dist/jquery.min.js",
+      "bower_components/messenger/build/js/messenger.min.js",
+
+      "src/js/router/login.js",
+      "src/js/controllers/login/main.js",
+      "src/js/controllers/register/main.js",
+      "src/js/services/login/main.js",
+      "src/js/services/register/main.js",
+      "src/js/services/common/notify.js"
+    ]
+}
