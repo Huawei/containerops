@@ -1,4 +1,4 @@
-# ContainerOps - DevOps Orchestration
+## ContainerOps - DevOps Orchestration
 
 ### Why DevOps orchestration?
 
@@ -44,9 +44,25 @@ The ContainerOps define any task on stage named action. The action links the com
 
 3. Plugins accomplish everything you care about in Jenkins, and the plugin has dependencies on the environment. The ContainerOps use container-encapsulated components instead of plugins, and all dependencies have been self-contained in the component. The resources of running a component are handled by the ContainerOps engine through Kubernetes.
 
+### Architecture of project
 
+The ContainerOps is a DevOps orchestration platform, and its architecture is micro services. All the codes in one repository, each service has an own folder and maintainer.
 
-## Certificate of Origin
+* **component** - Some components maintained by ContainerOps team.
+* **pilotage** - The DevOps orchestration engine service.
+* **scaffold** - The DevOps orchestration engine UI.
+* **joints** - The DevOps orchestration engine UI of AngularJS version one. 
+* **tenant** - The UI of containerops.sh.
+* **crew** - It's the RABC service.
+* **dockyard** - It's artifact & container repository.
+* **assembling** - It's the aritfact & container build service.
+* **scaler** - The component manage service.
+* **nucleus** - The third service manage service.
+* **singular** - The deployment operations tools.
+* **logarithm** - The log service.
+* **dashboard** - The dashboard UI.
+
+### Certificate of Origin
 
 By contributing to this project you agree to the Developer Certificate of
 Origin (DCO). This document was created by the Linux Kernel community and is a
