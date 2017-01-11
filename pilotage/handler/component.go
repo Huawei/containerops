@@ -172,13 +172,17 @@ func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	}
 	component.ImageName = req.ImageName
 	component.ImageTag = req.ImageTag
+	data, err := json.Marshal(req.ImageSetting)
+	if err != nil {
+		log.Errorln("Create component marshal ImageSetting data error: " + err.Error())
+	}
+	component.ImageSetting = string(data)
 	component.Timeout = req.Timeout
-	component.DataFrom = req.DataFrom
 	component.UseAdvanced = req.UseAdvanced
 	m := make(map[string]*json.RawMessage)
 	m["pod"] = req.Pod
 	m["service"] = req.Service
-	data, err := json.Marshal(m)
+	data, err = json.Marshal(m)
 	if err != nil {
 		log.Errorln("Create component marshal KubeSetting data error: " + err.Error())
 	}
@@ -212,8 +216,7 @@ func CreateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 		return
 	} else {
 		httpStatus = http.StatusCreated
-		resp.ComponentReq = &ComponentReq{}
-		resp.ID = id
+		resp.ComponentReq = &ComponentReq{ID:id}
 		resp.OK = true
 		resp.Message = "Component created"
 	}
@@ -276,9 +279,11 @@ func GetComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	resp.Version = component.Version
 	resp.ImageName = component.ImageName
 	resp.ImageTag = component.ImageTag
+	if err := json.Unmarshal([]byte(component.ImageSetting), &resp.ImageSetting); err != nil {
+		log.Errorln("Get component unmarshal ImageSetting data error: " + err.Error())
+	}
 	resp.Timeout = component.Timeout
 	resp.Type = string(models.ComponentTypes[component.Type])
-	resp.DataFrom = component.DataFrom
 	resp.UseAdvanced = component.UseAdvanced
 	if err := json.Unmarshal([]byte(component.Environment), &resp.Env); err != nil {
 		log.Errorln("Get component unmarshal Environment data error: " + err.Error())
@@ -364,13 +369,17 @@ func UpdateComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 	}
 	component.ImageName = req.ImageName
 	component.ImageTag = req.ImageTag
+	data, err := json.Marshal(req.ImageSetting)
+	if err != nil {
+		log.Errorln("Create component marshal ImageSetting data error: " + err.Error())
+	}
+	component.ImageSetting = string(data)
 	component.Timeout = req.Timeout
-	component.DataFrom = req.DataFrom
 	component.UseAdvanced = req.UseAdvanced
 	m := make(map[string]*json.RawMessage)
 	m["pod"] = req.Pod
 	m["service"] = req.Service
-	data, err := json.Marshal(m)
+	data, err = json.Marshal(m)
 	if err != nil {
 		log.Errorln("Create component marshal KubeSetting data error: " + err.Error())
 	}
@@ -457,8 +466,11 @@ func DeleteComponent(ctx *macaron.Context) (httpStatus int, result []byte) {
 }
 
 func DebugComponentJson() macaron.Handler {
-	//TODO: add socket options
-	return sockets.JSON(DebugComponentMessage{})
+	options := sockets.Options{
+		SkipLogging: false,
+		MaxMessageSize: 655360,
+	}
+	return sockets.JSON(DebugComponentMessage{}, &options)
 }
 
 func DebugComponentLog(ctx *macaron.Context,
@@ -476,7 +488,6 @@ func DebugComponentLog(ctx *macaron.Context,
 				Message:   "Parse component id error: " + err.Error(),
 			},
 		}
-		disconnect <- websocket.CloseUnsupportedData
 		return
 	}
 	component, err := module.GetComponentByID(id)
@@ -488,7 +499,6 @@ func DebugComponentLog(ctx *macaron.Context,
 				Message:   "get component by id error: " + err.Error(),
 			},
 		}
-		disconnect <- websocket.CloseUnsupportedData
 		return
 	}
 	if component == nil {
@@ -499,7 +509,6 @@ func DebugComponentLog(ctx *macaron.Context,
 				Message:   "component not found",
 			},
 		}
-		disconnect <- websocket.CloseUnsupportedData
 		return
 	}
 
@@ -534,7 +543,6 @@ func DebugComponentLog(ctx *macaron.Context,
 						}
 					}
 				}
-				disconnect <- websocket.CloseNormalClosure
 				return
 			}
 		case msg := <-receiver:
@@ -550,7 +558,6 @@ func DebugComponentLog(ctx *macaron.Context,
 						Message:   "should specify kubernetes api server",
 					},
 				}
-				disconnect <- websocket.CloseUnsupportedData
 				return
 			}
 			envMap := make(map[string]string)
@@ -566,7 +573,6 @@ func DebugComponentLog(ctx *macaron.Context,
 						Message:   "debug component error: " + err.Error(),
 					},
 				}
-				disconnect <- websocket.CloseInternalServerErr
 				return
 			}
 			actionLog, err = module.DebugComponent(component, msg.Kubernetes, msg.Input, string(env))
@@ -578,7 +584,6 @@ func DebugComponentLog(ctx *macaron.Context,
 						Message:   "debug component error: " + err.Error(),
 					},
 				}
-				disconnect <- websocket.CloseInternalServerErr
 				return
 			}
 			cache.Add(actionLog.ID, eventChan)
@@ -595,7 +600,32 @@ func DebugComponentLog(ctx *macaron.Context,
 			return
 		case <-ticker:
 			log.Debugln("DebugComponent socket closed by server")
+			resultLog, err := models.SelectActionLogFromID(actionLog.ID)
+			if err != nil {
+				log.Errorf("get action log by id error: " + err.Error())
+			} else {
+				switch resultLog.RunState {
+				case models.ActionLogStateRunSuccess:
+					sender <- &DebugComponentMessage{
+						DebugID: actionLog.ID,
+						CommonResp: CommonResp{
+							OK: true,
+							Message: "component debug finished",
+						},
+					}
+				case models.ActionLogStateRunFailed:
+					sender <- &DebugComponentMessage{
+						DebugID: actionLog.ID,
+						CommonResp: CommonResp{
+							OK: false,
+							Message: resultLog.FailReason,
+						},
+					}
+				}
+				time.Sleep(time.Second)
+			}
 			disconnect <- websocket.CloseNormalClosure
+			return
 		case err := <-errChan:
 			log.Errorf("Debug Component socket error: %s\n", err)
 		}

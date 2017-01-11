@@ -7,7 +7,7 @@ import (
 
 type CommonResp struct {
 	OK        bool    `json:"ok"`
-	ErrorCode errCode `json:"error_code,omitempty"`
+	ErrorCode ErrCode `json:"error_code,omitempty"`
 	Message   string  `json:"message",omitempty`
 }
 
@@ -32,15 +32,28 @@ type Env struct {
 	Value string `json:"value"`
 }
 
+type ImageSetting struct {
+	From            ImageInfo `json:"from"`
+	Build           ImageInfo `json:"build"`
+	ComponentStart  string `json:"component_start"`
+	ComponentResult string `json:"component_result"`
+	ComponentStop   string `json:"component_stop"`
+}
+
+type ImageInfo struct {
+	ImageName string `json:"image_name"`
+	ImageTag  string `json:"image_tag"`
+}
+
 type ComponentSetup struct {
-	ImageName   string           `json:"image_name"`
-	ImageTag    string           `json:"image_tag"`
-	Timeout     int              `json:"timeout"`
-	Type        string           `json:"type"`
-	DataFrom    string           `json:"data_from"`
-	UseAdvanced bool             `json:"use_advanced"`
-	Pod         *json.RawMessage `json:"pod"`
-	Service     *json.RawMessage `json:"service"`
+	ImageName    string `json:"image_name"`
+	ImageTag     string `json:"image_tag"`
+	ImageSetting `json:"image_setting"`
+	Timeout      int              `json:"timeout"`
+	Type         string           `json:"type"`
+	UseAdvanced  bool             `json:"use_advanced"`
+	Pod          *json.RawMessage `json:"pod"`
+	Service      *json.RawMessage `json:"service"`
 }
 
 type ComponentReq struct {
@@ -64,13 +77,13 @@ type DebugComponentMessage struct {
 	Input      map[string]interface{} `json:"input,omitempty"`
 	Env        []Env                  `json:"env,omitempty"`
 	Output     map[string]interface{} `json:"output,omitempty"`
-	Event      *DebugEvent             `json:"event,omitempty"`
+	Event      *DebugEvent            `json:"event,omitempty"`
 	CommonResp `json:"common"`
 }
 
 type EventReq struct {
-	EventID   int64            `json:"event_id"`
-	EventType module.EventType `json:"event_type"`
-	RunID     string           `json:"run_id"`
-	Info      module.EventReqInfo     `json:"info"`
+	EventID   int64               `json:"event_id"`
+	EventType module.EventType    `json:"event_type"`
+	RunID     string              `json:"run_id"`
+	Info      module.EventReqInfo `json:"info"`
 }

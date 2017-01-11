@@ -17,8 +17,9 @@ limitations under the License.
 package models
 
 import (
-	"github.com/jinzhu/gorm"
 	log "github.com/Sirupsen/logrus"
+	"github.com/jinzhu/gorm"
+	"time"
 )
 
 type ComponentType string
@@ -31,23 +32,23 @@ const (
 
 var ComponentTypes = []ComponentType{ComponentTypeKubernetes, ComponentTypeMesos, ComponentTypeSwarm}
 
-//Component is customized container(docker or rkt) for executing DevOps tasks.
 type Component struct {
-	BaseIDField
-	Name        string `sql:"not null;type:varchar(100);unique_index:uix_component_1"` //Component name for query.
-	Version     string `sql:"not null;type:varchar(30);unique_index:uix_component_1"`  // component version for display
-	Type        int    `sql:"not null;default:0"`                                      //Container type: docker or rkt.
-	ImageName   string `sql:"not null;varchar(100);index:idx_component_1"`
-	ImageTag    string `sql:"varchar(30)";index:idx_component_1`
-	Timeout     int    `sql:"default 0"` //
-	DataFrom    string
-	UseAdvanced bool   `sql:"not null;default:false"`
-	KubeSetting string `sql:"null;type:text"` //Kubernetes execute script.
-	Input       string `sql:"null;type:text"` //component input
-	Output      string `sql:"null;type:text"` //component output
-	Environment string `sql:"null;type:text"` //Environment parameters.
-	//Manifest    string `json:"manifest" sql:"null;type:longtext"` //
-	BaseModel2
+	ID           int64  `gorm:"primary_key;AUTO_INCREMENT"`
+	Name         string `sql:"not null;type:varchar(100);index:idx_component_1"`
+	Version      string `sql:"not null;type:varchar(30);index:idx_component_1"`
+	Type         int    `sql:"not null;default:0"` //0-kubernetes 1-mesos 2-swarm
+	ImageName    string `sql:"not null;varchar(100);index:idx_component_2"`
+	ImageTag     string `sql:"null;varchar(30)";index:idx_component_2`
+	ImageSetting string `sql:"null;type:text"`
+	Timeout      int    `sql:"default:0"`
+	UseAdvanced  bool   `sql:"not null;default:false"`
+	KubeSetting  string `sql:"null;type:text"`
+	Input        string `sql:"null;type:text"`
+	Output       string `sql:"null;type:text"`
+	Environment  string `sql:"null;type:text"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	DeletedAt    *time.Time
 }
 
 //TableName is return the table name of Component in MySQL database.
@@ -76,7 +77,7 @@ func SelectComponents(name, version string, fuzzy bool, pageNum, versionNum, off
 	if name != "" {
 		if fuzzy {
 			cond = " where name like ? "
-			values = append(values, name + "%")
+			values = append(values, name+"%")
 		} else {
 			cond = " where name = ? "
 			values = append(values, name)
