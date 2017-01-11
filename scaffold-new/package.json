@@ -1,0 +1,50 @@
+{
+  "name": "scaffold",
+  "version": "0.0.1",
+  "description": "UI Of Scaffold",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com:roboWong/d3js01.git"
+  },
+  "author": "fivestarsky",
+  "license": "MIT",
+  "homepage": "https://github.com/roboWong/d3js01#readme",
+  "dependencies": {
+    "angular": "1.4.2",
+    "angular-route" : "1.4.2",
+    "angular-ui-router" : "0.2.15",
+    "bootstrap-sass": "^3.3.7",
+    "d3": "^3.5.17",
+    "font-awesome": "^4.6.3",
+    "node-uuid": "^1.4.7",
+    "jsoneditor": "5.5.8",
+    "underscore": "1.8.3",
+    "select2": "4.0.3",
+    "js-yaml": "3.6.1",
+    "clipboard": "1.5.15",
+    "jquery-autocomplete": "1.2.1",
+    "ace-builds" : "1.2.5"
+  },
+  "devDependencies": {
+    "babel-preset-es2015": "^6.14.0",
+    "bower": "^1.7.9",
+    "browser-sync": "^2.17.1",
+    "browserify": "^13.1.0",
+    "del": "^2.2.2",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-concat": "^2.6.0",
+    "gulp-imagemin": "^3.0.3",
+    "gulp-rename": "^1.2.2",
+    "gulp-replace": "^0.5.4",
+    "gulp-sass": "^2.3.2",
+    "gulp-uglify": "^2.0.0",
+    "gulp-util": "^3.0.7",
+    "minimist": "^1.2.0",
+    "require-dir": "^0.3.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}
