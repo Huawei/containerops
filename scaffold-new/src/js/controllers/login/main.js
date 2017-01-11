@@ -1,23 +1,27 @@
-login.controller('LoginController', ['$scope', '$rootScope','loginService', 'notifyService',
-  function($scope,$rootScope,loginService,notifyService) {
+login.controller('LoginController', ['$scope', '$location', '$rootScope','loginService', 'notifyService',
+  function($scope,$location,$rootScope,loginService,notifyService) {
+
+  	$scope.user = {
+		username: '',
+		password: ''
+	}
 
   	$scope.login = function() {
 		try{
 			//fake, to be deleted
-			var self = this;
 			if(_.isUndefined(localStorage["users"])){
 				notifyService.notify("No such user, please sign up first.","info");
 			}else{
 				var users = JSON.parse(localStorage["users"]);
 				var targetuser = _.find(users,function(item){
-					return item.username == self.user.username && item.password == self.user.password;
+					return item.username == $scope.user.username && item.password == $scope.user.password;
 				});
 				if(_.isUndefined(targetuser)){
 					notifyService.notify("No such user or password is incorrect.","info");
 				}else{
-					notifyService.notify("Welcome. " + self.user.username , "success");
-					sessionStorage["currentUser"] = self.user.username;
-					// $scope.changeNav('index');
+					notifyService.notify("Welcome. " + $scope.user.username , "success");
+					sessionStorage["currentUser"] = $scope.user.username;
+					// changeNav('index');
 				}
 			}
 			//fake end
@@ -26,7 +30,7 @@ login.controller('LoginController', ['$scope', '$rootScope','loginService', 'not
 		}
 	}
 
-	$scope.changeNav = function(val){
-
+	var changeNav = function(val){
+		$location.path("index");
 	}
 }]);
