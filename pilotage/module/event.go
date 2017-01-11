@@ -38,33 +38,22 @@ type WorkflowVarLog struct {
 	*models.WorkflowVarLog
 }
 
-type EventReqInfo struct {
-	Status bool   `json:"status"`
-	Result string `json:"result"`
-	Output string `json:"output"`
+var eventList = map[string]string{
+	"CO_COMPONENT_START": "CO_COMPONENT_START",
+	"CO_COMPONENT_STOP":  "CO_COMPONENT_STOP",
+	"CO_TASK_START":      "CO_TASK_START",
+	"CO_TASK_RESULT":     "CO_TASK_RESULT",
+	"CO_TASK_STATUS":     "CO_TASK_STATUS",
+	"CO_REGISTER_URL":    "register",
 }
-
-type EventType string
-
-const (
-	COMPONENT_START EventType = "CO_COMPONENT_START"
-	TASK_START EventType = "CO_TASK_START"
-	TASK_STATUS EventType = "CO_TASK_STATUS"
-	TASK_RESULT EventType = "CO_TASK_RESULT"
-	TASK_STOP EventType = "CO_TASK_STOP"
-	COMPONENT_RESULT EventType = "CO_COMPONENT_RESULT"
-	COMPONENT_STOP EventType = "CO_COMPONENT_STOP"
-)
-
-var eventTypes = []EventType{COMPONENT_START, TASK_START, TASK_STATUS, TASK_RESULT,
-	TASK_STOP, COMPONENT_RESULT, COMPONENT_STOP}
 
 var projectAddr = ""
 
 func init() {
-	projectAddr = configure.GetString("projectaddr")
 	if configure.GetString("projectaddr") == "" {
 		projectAddr = "http://localhost"
+	} else {
+		projectAddr = configure.GetString("projectaddr")
 	}
 	projectAddr = strings.TrimSuffix(projectAddr, "/")
 }
@@ -79,33 +68,33 @@ func setSystemEvent(db *gorm.DB, actionLog *models.ActionLog) error {
 		}
 	}
 
-	//workflowLog := new(models.WorkflowLog)
-	//err := db.Model(&models.WorkflowLog{}).Where("id = ?", actionLog.Workflow).First(workflowLog).Error
-	//if err != nil {
-	//	log.Error("[setSystemEvent]:error when get workflowlog info from db:", err.Error())
-	//	rollbackErr := db.Rollback().Error
-	//	if rollbackErr != nil {
-	//		log.Error("[setSystemEvent]:when rollback in get workflowlog's info:", rollbackErr.Error())
-	//		return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
-	//	}
-	//	return err
-	//}
+	workflowLog := new(models.WorkflowLog)
+	err := db.Model(&models.WorkflowLog{}).Where("id = ?", actionLog.Workflow).First(workflowLog).Error
+	if err != nil {
+		log.Error("[setSystemEvent]:error when get workflowlog info from db:", err.Error())
+		rollbackErr := db.Rollback().Error
+		if rollbackErr != nil {
+			log.Error("[setSystemEvent]:when rollback in get workflowlog's info:", rollbackErr.Error())
+			return errors.New("errors occur:\nerror1:" + err.Error() + "\nerror2:" + rollbackErr.Error())
+		}
+		return err
+	}
 
-	for _, eventType := range eventTypes {
-		event := new(models.EventDefinition)
-		event.Title = string(eventType)
-		event.Namespace = actionLog.Namespace
-		event.Repository = actionLog.Repository
-		event.Workflow = actionLog.Workflow
-		event.Stage = actionLog.Stage
-		event.Action = actionLog.ID
-		event.Character = models.CharacterComponentEvent
-		event.Type = models.TypeSystemEvent
-		event.Source = models.SourceInnerEvent
-		event.Definition = projectAddr + "/v2/events"
+	for key, value := range eventList {
+		tempEvent := new(models.EventDefinition)
+		tempEvent.Event = key
+		tempEvent.Title = key
+		tempEvent.Namespace = actionLog.Namespace
+		tempEvent.Repository = actionLog.Repository
+		tempEvent.Workflow = actionLog.Workflow
+		tempEvent.Stage = actionLog.Stage
+		tempEvent.Action = actionLog.ID
+		tempEvent.Character = models.CharacterComponentEvent
+		tempEvent.Type = models.TypeSystemEvent
+		tempEvent.Source = models.SourceInnerEvent
+		tempEvent.Definition = projectAddr + "/v2/" + actionLog.Namespace + "/" + actionLog.Repository + "/workflow/v1/runtime/event/" + workflowLog.Workflow + "/" + value
 
-		err:= event.Save()
-		//err := db.Save(tempEvent).Error
+		err := db.Save(tempEvent).Error
 		if err != nil {
 			log.Error("[setSystemEvent]:error when save event definition to db:", err.Error())
 			rollbackErr := db.Rollback().Error
