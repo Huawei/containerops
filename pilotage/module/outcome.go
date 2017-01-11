@@ -24,21 +24,21 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func RecordOutcom(workflowID, fromWorkflowID, stageID, fromStageID, actionID, fromActionID, sequence, evnetId int64, status bool, result, output string) error {
+func RecordOutcom(workflowId, fromPiipelineId, stageId, fromStageId, actionId, fromActionId, sequence, evnetId int64, status bool, result, output string) error {
 	outcome := new(models.Outcome)
-	outcome.Workflow = workflowID
+	outcome.Workflow = workflowId
+	outcome.RealWorkflow = fromPiipelineId
+	outcome.Stage = stageId
+	outcome.RealStage = fromStageId
+	outcome.Action = actionId
+	outcome.RealAction = fromActionId
 	outcome.Sequence = sequence
-	outcome.Stage = stageID
-	outcome.Action = actionID
-	outcome.RealWorkflow = fromWorkflowID
-	outcome.RealStage = fromStageID
-	outcome.RealAction = fromActionID
 	outcome.Event = evnetId
 	outcome.Status = status
 	outcome.Result = result
 	outcome.Output = output
 
-	err := outcome.Save()
+	err := outcome.GetOutcome().Save(outcome).Error
 	if err != nil {
 		log.Error("[outcome's RecordOutcome]:error when save outcome info:", fmt.Sprintf("%#v", outcome), " ===>error is:", err.Error())
 		return err
