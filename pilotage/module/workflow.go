@@ -43,8 +43,9 @@ var (
 	startWorkflowChan  chan bool
 	createWorkflowChan chan bool
 
-	workflowlogAuthChan   chan bool
-	workflowlogListenChan chan bool
+	workflowlogAuthChan             chan bool
+	workflowlogListenChan           chan bool
+	workflowlogSequenceGenerateChan chan bool
 )
 
 func init() {
@@ -52,6 +53,7 @@ func init() {
 	createWorkflowChan = make(chan bool, 1)
 	workflowlogAuthChan = make(chan bool, 1)
 	workflowlogListenChan = make(chan bool, 1)
+	workflowlogSequenceGenerateChan = make(chan bool, 1)
 }
 
 type Workflow struct {
@@ -60,118 +62,6 @@ type Workflow struct {
 
 type WorkflowLog struct {
 	*models.WorkflowLog
-}
-
-// GetWorkflows is get workflow list by given info
-func GetWorkflows(namespace, repository, name, nameFuzzy, version, versionFuzzy string, offset, pageNum, versionNum int64) ([]map[string]interface{}, error) {
-	result := make([]map[string]interface{}, 0)
-
-	if strings.TrimSpace(namespace) == "" || strings.TrimSpace(repository) == "" {
-		return result, errors.New("namespace or repository can't be empty")
-	}
-
-	workflowNames, err := getWorkflowNames(namespace, repository, name, nameFuzzy, offset, pageNum)
-	if err != nil {
-		log.Error("[workflow's GetWorkflows]:error when get workflow's names:", err.Error())
-		return result, errors.New("error when get list from db")
-	}
-
-	if nameFuzzy == "true" || nameFuzzy == "fuzzy" {
-		offset = 0
-	}
-
-	for _, name := range workflowNames {
-		versions, err := getVersions(namespace, repository, name, "", version, versionFuzzy, offset, versionNum)
-		if err != nil {
-			log.Error("[workflow's GetWorkflows]:error when get workflow(", name, ")'s version:", err.Error())
-			return nil, errors.New("error when get list from db")
-		}
-
-		for _, workflow := range versions {
-			tempMap := make(map[string]interface{})
-			tempMap["id"] = workflow.ID
-			tempMap["name"] = workflow.Workflow
-			tempMap["version"] = workflow.Version
-
-			latestInstance, err := getWorkflowLatestInstance(workflow.ID)
-			if err == nil && latestInstance.ID != int64(0) {
-				tempMap["latestRunState"] = latestInstance.RunState
-				tempMap["latestRunTime"] = latestInstance.CreatedAt.Format("2006-01-02 15:04:05")
-			} else {
-				tempMap["latestRunState"] = -1
-				tempMap["latestRunTime"] = ""
-			}
-
-			result = append(result, tempMap)
-		}
-	}
-
-	return result, nil
-}
-
-// getWorkflowNames is get workflow distinct name by given info
-func getWorkflowNames(namespace, repository, name, fuzzy string, offset, pageNum int64) (result []string, err error) {
-	names := make([]struct{ Workflow string }, 0)
-	if pageNum == int64(0) {
-		pageNum = 10
-	}
-
-	filter := " = "
-	if fuzzy == "fuzzy" || fuzzy == "true" {
-		filter = " like "
-		name = "%" + name + "%"
-	}
-
-	sortsql := "SELECT * FROM " + new(models.Workflow).TableName() + " WHERE deleted_at IS NULL ORDER BY updated_at DESC"
-	sql := "SELECT workflow FROM (" + sortsql + ") i WHERE i.workflow " + filter + " ? GROUP BY i.workflow LIMIT ? "
-
-	if fuzzy == "fuzzy" || fuzzy == "true" {
-		sql += " OFFSET ? "
-		err = models.GetDB().Raw(sql, name, pageNum, offset).Scan(&names).Error
-	} else {
-		err = models.GetDB().Raw(sql, name, pageNum).Scan(&names).Error
-	}
-
-	for _, v := range names {
-		result = append(result, v.Workflow)
-	}
-
-	return
-}
-
-// getVersions is get workflow's version list by given info
-func getVersions(namespace, repository, name, nameFuzzy, version, versionFuzzy string, offset, versionNum int64) (result []models.Workflow, err error) {
-	if versionNum == int64(0) {
-		versionNum = 3
-	}
-
-	nameFilter := " = "
-	if nameFuzzy == "fuzzy" || nameFuzzy == "true" {
-		nameFilter = " like "
-		name = "%" + name + "%"
-	}
-
-	versionFilter := "="
-	if versionFuzzy == "fuzzy" || versionFuzzy == "true" {
-		versionFilter = "like"
-		version = "%" + version + "%"
-	}
-
-	sql := "SELECT * FROM " + new(models.Workflow).TableName() + " WHERE deleted_at IS NULL AND workflow " + nameFilter + " ? AND version " + versionFilter + " ? LIMIT ? "
-	if nameFuzzy != "fuzzy" && nameFuzzy != "true" {
-		sql += " OFFSET ? "
-		err = models.GetDB().Raw(sql, name, version, versionNum, offset).Scan(&result).Error
-	} else {
-		err = models.GetDB().Raw(sql, name, version, versionNum).Scan(&result).Error
-	}
-
-	return
-}
-
-// getWorkflowLatestInstance is get workflow's latest run instance by workflow id
-func getWorkflowLatestInstance(workflowID int64) (instance models.WorkflowLog, err error) {
-	err = instance.GetWorkflowLog().Where("from_workflow = ?", workflowID).Order("updated_at desc").First(&instance).Error
-	return
 }
 
 // CreateNewWorkflow is create a new workflow with given data
@@ -1518,6 +1408,7 @@ func getEventName(sourceType string, reqHeader http.Header) string {
 }
 
 func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*WorkflowLog, error) {
+	workflowlogSequenceGenerateChan <- true
 	result := new(WorkflowLog)
 	stageList := make([]models.Stage, 0)
 
@@ -1525,6 +1416,7 @@ func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*Workf
 	workflowSequence.Workflow = workflowInfo.ID
 	err := workflowSequence.GetWorkflowSequence().Save(workflowSequence).Error
 	if err != nil {
+		<-workflowlogSequenceGenerateChan
 		log.Error("[workflow's GenerateNewLog]:error when save workflow sequence info to db", workflowSequence, "===>error is :", err.Error())
 		return nil, err
 	}
@@ -1532,6 +1424,7 @@ func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*Workf
 	var count int64
 	err = workflowSequence.GetWorkflowSequence().Where("id < ?", workflowSequence.ID).Where("workflow = ?", workflowInfo.ID).Count(&count).Error
 	if err != nil && !strings.Contains(err.Error(), "record not found") {
+		<-workflowlogSequenceGenerateChan
 		log.Error("[workflow's GenerateNewLog]:error when get workflow sequence info to db:", err.Error())
 		return nil, err
 	}
@@ -1539,12 +1432,14 @@ func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*Workf
 	workflowSequence.Sequence = count + 1
 	err = workflowSequence.GetWorkflowSequence().Save(workflowSequence).Error
 	if err != nil {
+		<-workflowlogSequenceGenerateChan
 		log.Error("[workflow's GenerateNewLog]:error when save workflow sequence info to db", workflowSequence, "===>error is :", err.Error())
 		return nil, err
 	}
 
 	err = new(models.Stage).GetStage().Where("workflow = ?", workflowInfo.ID).Find(&stageList).Error
 	if err != nil {
+		<-workflowlogSequenceGenerateChan
 		log.Error("[workflow's GenerateNewLog]:error when get stage list by workflow info", workflowInfo, "===>error is :", err.Error())
 		return nil, err
 	}
@@ -1574,6 +1469,7 @@ func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*Workf
 
 	err = db.Save(workflowLog).Error
 	if err != nil {
+		<-workflowlogSequenceGenerateChan
 		log.Error("[workflow's GenerateNewLog]:when save workflow log to db:", workflowLog, "===>error is :", err.Error())
 		rollbackErr := db.Rollback().Error
 		if rollbackErr != nil {
@@ -1589,6 +1485,7 @@ func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*Workf
 		stage.Stage = &stageInfo
 		preStageLogId, err = stage.GenerateNewLog(db, workflowLog, preStageLogId)
 		if err != nil {
+			<-workflowlogSequenceGenerateChan
 			log.Error("[workflow's GenerateNewLog]:when generate stage log:", err.Error())
 			return nil, err
 		}
@@ -1602,6 +1499,7 @@ func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*Workf
 		tempVar.WorkflowVar = &varInfo
 		err := tempVar.GenerateNewLog(db, workflowLog)
 		if err != nil {
+			<-workflowlogSequenceGenerateChan
 			log.Error("[workflow's GenerateNewLog]:when generate var log:", err.Error())
 			return nil, err
 		}
@@ -1609,10 +1507,12 @@ func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*Workf
 
 	err = db.Commit().Error
 	if err != nil {
+		<-workflowlogSequenceGenerateChan
 		log.Error("[workflow's GenerateNewLog]:when commit to db:", err.Error())
 		return nil, errors.New("error when save workflow info to db:" + err.Error())
 	}
 	result.WorkflowLog = workflowLog
+	<-workflowlogSequenceGenerateChan
 	return result, nil
 }
 

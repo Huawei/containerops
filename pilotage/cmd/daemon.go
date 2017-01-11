@@ -32,8 +32,6 @@ import (
 	"github.com/Huawei/containerops/pilotage/utils"
 	"github.com/Huawei/containerops/pilotage/web"
 	"github.com/containerops/configure"
-	"strings"
-	"path"
 )
 
 var address string
@@ -85,62 +83,9 @@ func init() {
 	daemonCmd.AddCommand(monitorDeamonCmd)
 }
 
-func getLogFile(name string, append bool) *os.File {
-	if name == "" {
-		return os.Stdout
-	}
-	var f *os.File
-	fileInfo, err := os.Stat(name)
-	if err == nil {
-		if fileInfo.IsDir() {
-			name = name + string(os.PathSeparator) + "workflow.log"
-			return getLogFile(name, append)
-		} else {
-			var flag int
-			if append {
-				flag = os.O_RDWR|os.O_APPEND
-			} else {
-				flag = os.O_RDWR|os.O_TRUNC
-			}
-			f, err = os.OpenFile(name, flag, 0)
-		}
-	} else if os.IsNotExist(err) {
-		d := path.Dir(name)
-		_, err = os.Stat(d)
-		if os.IsNotExist(err) {
-			os.MkdirAll(d, 0755)
-		}
-		f, err = os.Create(name)
-	}
-	if err != nil {
-		f = os.Stdout
-		fmt.Println(err)
-	}
-	return f
-}
-
 // startDeamon() start Pilotage's REST API daemon.
 func startDeamon(cmd *cobra.Command, args []string) {
-	logFile := getLogFile(strings.TrimSpace(configure.GetString("log.file")),
-			configure.GetBool("log.append"))
-	log.SetOutput(logFile)
-	defer logFile.Close()
-	switch strings.ToLower(configure.GetString("log.level")) {
-	case "panic":
-		log.SetLevel(log.PanicLevel)
-	case "fatal":
-		log.SetLevel(log.FatalLevel)
-	case "error":
-		log.SetLevel(log.ErrorLevel)
-	case "warn":
-		log.SetLevel(log.WarnLevel)
-	case "info":
-		log.SetLevel(log.InfoLevel)
-	case "debug":
-		log.SetLevel(log.DebugLevel)
-	default:
-		log.SetLevel(log.WarnLevel)
-	}
+	log.SetOutput(os.Stdout)
 
 	// first open database conn
 	models.OpenDatabase()
@@ -157,18 +102,18 @@ func startDeamon(cmd *cobra.Command, args []string) {
 	switch listenMode {
 	case "http":
 		listenaddr := fmt.Sprintf("%s:%d", address, port)
-		log.Debugln("pilotage is listening:", listenaddr)
+		fmt.Println("pilotage is listen:", listenaddr)
 		if err := http.ListenAndServe(listenaddr, m); err != nil {
-			log.Errorf("Start Pilotage http service error: %v\n", err.Error())
-			return
+			fmt.Printf("Start Pilotage http service error: %v\n", err.Error())
 		}
+		break
 	case "https":
 		listenaddr := fmt.Sprintf("%s:443", address)
 		server := &http.Server{Addr: listenaddr, TLSConfig: &tls.Config{MinVersion: tls.VersionTLS10}, Handler: m}
 		if err := server.ListenAndServeTLS(configure.GetString("httpscertfile"), configure.GetString("httpskeyfile")); err != nil {
-			log.Errorf("Start Pilotage https service error: %v\n", err.Error())
-			return
+			fmt.Printf("Start Pilotage https service error: %v\n", err.Error())
 		}
+		break
 	case "unix":
 		listenaddr := fmt.Sprintf("%s", address)
 		if utils.IsFileExist(listenaddr) {
@@ -176,14 +121,15 @@ func startDeamon(cmd *cobra.Command, args []string) {
 		}
 
 		if listener, err := net.Listen("unix", listenaddr); err != nil {
-			log.Errorf("Start Pilotage unix socket error: %v\n", err.Error())
+			fmt.Printf("Start Pilotage unix socket error: %v\n", err.Error())
+
 		} else {
 			server := &http.Server{Handler: m}
 			if err := server.Serve(listener); err != nil {
-				log.Errorf("Start Pilotage unix socket error: %v\n", err.Error())
-				return
+				fmt.Printf("Start Pilotage unix socket error: %v\n", err.Error())
 			}
 		}
+		break
 	default:
 		break
 	}
