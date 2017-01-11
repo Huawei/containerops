@@ -816,34 +816,3 @@ func PutWorkflowStateV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ = json.Marshal(map[string]string{"message": "success"})
 	return http.StatusOK, result
 }
-
-// ListWorkflowsV1 is get workflow's list
-func ListWorkflowsV1(ctx *macaron.Context) (int, []byte) {
-	result, _ := json.Marshal(map[string]string{"message": ""})
-
-	namespace := ctx.ParamsEscape(":namespace")
-	repository := ctx.ParamsEscape(":repository")
-
-	name := ctx.QueryEscape("name")
-	nameFuzzy := ctx.QueryEscape("name_fuzzy")
-	version := ctx.QueryEscape("version")
-	versionFuzzy := ctx.QueryEscape("version_fuzzy")
-
-	offset := ctx.QueryInt64("offset")
-	pageNum := ctx.QueryInt64("page_num")
-	versionNum := ctx.QueryInt64("version_num")
-
-	if strings.TrimSpace(namespace) == "" || strings.TrimSpace(repository) == "" {
-		result, _ = json.Marshal(map[string]string{"errMsg": "namespace or repository can't be empty"})
-		return http.StatusBadRequest, result
-	}
-
-	workflows, err := module.GetWorkflows(namespace, repository, name, nameFuzzy, version, versionFuzzy, offset, pageNum, versionNum)
-	if err != nil {
-		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
-		return http.StatusBadRequest, result
-	}
-
-	result, _ = json.Marshal(workflows)
-	return http.StatusOK, result
-}
