@@ -75,7 +75,6 @@ func GetActionHistoryInfoV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	// resultMap, err := module.GetActionHistoryInfo(actionLogId)
 	resultMap, err := actionLogInfo.GetActionHistoryInfo()
 	if err != nil {
 		result, _ = json.Marshal(map[string]string{"errMsg": err.Error()})
