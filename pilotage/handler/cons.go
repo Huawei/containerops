@@ -15,14 +15,14 @@ limitations under the License.
 */
 package handler
 
-type errCode uint64
+type ErrCode uint64
 
 const (
-	ComponentError  errCode = 00010000
-	EventError      errCode = 00020000
-	WorkflowErrCode errCode = 00100000
-	StageErrCode    errCode = 01000000
-	ActionErrCode   errCode = 10000000
+	ComponentError  ErrCode = 00010000
+	EventError      ErrCode = 00020000
+	WorkflowErrCode ErrCode = 00100000
+	StageErrCode    ErrCode = 01000000
+	ActionErrCode   ErrCode = 10000000
 )
 
 const (

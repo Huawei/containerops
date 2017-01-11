@@ -310,27 +310,27 @@ func NewComponent(actionLog *ActionLog) (component, error) {
 func (c *kubeComponent) Start() error {
 	exist, err := c.IsNamespaceExist()
 	if err != nil {
-		log.Errorln("[kubeComponent Start]: query namespace info error, ", err)
+		log.Errorln("[kubeComponent Start]: query namespace info error:", err)
 		return err
 	}
 
 	if !exist {
 		err = c.CreateNamespace()
 		if err != nil {
-			log.Errorln("[kubeComponent Start]: create namespace error, ", err)
+			log.Errorln("[kubeComponent Start]: create namespace error:", err)
 			return err
 		}
 	}
 
 	serviceAddr, err := c.StartService()
 	if err != nil {
-		log.Errorln("[kubeComponent Start]:start service error, ", err)
+		log.Errorln("[kubeComponent Start]:start service error:", err)
 		return err
 	}
 
 	err = c.StartRC(serviceAddr)
 	if err != nil {
-		log.Errorln("[kubeComponent Start]:start RC error, ", err)
+		log.Errorln("[kubeComponent Start]:start RC error:", err)
 		return err
 	}
 
@@ -377,7 +377,7 @@ func (kube *kubeComponent) Stop() error {
 		return err
 	}
 
-	rcName := "rc-" + kube.runID
+	rcName := "co-rc-" + kube.runID
 	if len(rcName) > 253 {
 		rcName = rcName[len(rcName)-253:]
 	}
@@ -531,7 +531,7 @@ func (kube *kubeComponent) StartService() (string, error) {
 		selectorMap = make(map[string]interface{})
 	}
 
-	selectorMap["WORKFLOW_DEFAULT_POD_LABLE"] = "pod-" + kube.runID
+	selectorMap["WORKFLOW_DEFAULT_POD_LABLE"] = "co-pod-" + kube.runID
 
 	specMap["selector"] = selectorMap
 
@@ -696,7 +696,7 @@ func (kube *kubeComponent) IsNamespaceExist() (bool, error) {
 	log.Debugf("[kubeComponent IsNamespaceExist]: send request to %s\n", kubeReqUrl)
 	resp, err := http.Get(kubeReqUrl)
 	if err != nil {
-		log.Errorf("[kubeComponent IsNamespaceExist]: send request to %s error: %s\n", kubeReqUrl, err)
+		log.Debugf("[kubeComponent IsNamespaceExist]: send request to %s error: %s\n", kubeReqUrl, err)
 		return false, fmt.Errorf("get k8s namespace error: %s", err)
 	}
 
@@ -732,7 +732,7 @@ func (kube *kubeComponent) CreateNamespace() error {
 
 	resp, err := http.Post(kubeReqUrl, "application/json", bytes.NewReader(reqBody))
 	if err != nil {
-		log.Errorf("[kubeComponent CreateNamespace]: send request to %s with body %s error: %s\n", kubeReqUrl, reqBody, err)
+		log.Debugf("[kubeComponent CreateNamespace]: send request to %s with body %s error: %s\n", kubeReqUrl, reqBody, err)
 		return fmt.Errorf("create k8s namespace error: %s", err)
 	}
 
@@ -779,7 +779,7 @@ func (kube *kubeComponent) GetPodDefine(serviceAddr string) (map[string]interfac
 		}
 	}
 
-	podName := "pod-" + kube.runID
+	podName := "co-pod-" + kube.runID
 
 	labelsMap["WORKFLOW_DEFAULT_POD_LABLE"] = podName
 	metaInfoMap["labels"] = labelsMap
@@ -1056,7 +1056,7 @@ func (kube *kubeComponent) Update() {
 }
 
 func (kube *kubeComponent) GetPodInfo() (map[string]interface{}, error) {
-	podName := "pod-" + kube.runID
+	podName := "co-pod-" + kube.runID
 
 	podLable := "WORKFLOW_DEFAULT_POD_LABLE%3D" + podName
 

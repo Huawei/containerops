@@ -704,7 +704,7 @@ func (actionLog *ActionLog) Listen() error {
 	}
 
 	actionLog.RunState = models.ActionLogStateWaitToStart
-	err = actionLog.GetActionLog().Save(actionLog).Error
+	err = actionLog.Save()
 	if err != nil {
 		log.Error("[actionLog's Listen]:error when change actionLog's run state to wait to start:", actionLog, " ===>error is:", err.Error())
 		return errors.New("can't listen target action,change action's state failed")
@@ -1241,8 +1241,9 @@ func (actionLog *ActionLog) WaitActionDone() {
 	actionRunResultChan := make(chan bool, 1)
 	go func() {
 		for !canStop {
-			actionLogInfo := new(models.ActionLog)
-			err := actionLogInfo.GetActionLog().Where("id = ?", actionLog.ID).First(actionLogInfo).Error
+			//actionLogInfo := new(models.ActionLog)
+			actionLogInfo, err := models.SelectActionLogFromID(actionLog.ID)
+			//err := actionLogInfo.GetActionLog().Where("id = ?", actionLog.ID).First(actionLogInfo).Error
 			if err != nil {
 				log.Error("[actionLog's WaitActionDone]:error when get actionLog's info from db:", err.Error())
 				actionRunResultChan <- false
@@ -1777,7 +1778,7 @@ type PlatForm struct {
 
 func NewMockAction(component *models.Component, kubernetes string, input map[string]interface{}) (*ActionLog, error) {
 	actionLog := &ActionLog{new(models.ActionLog)}
-	actionLog.Namespace = ""
+	actionLog.Namespace = "debug"
 	actionLog.Repository = ""
 	actionLog.Workflow = 0
 	//TODO: mock a unique workflow id
