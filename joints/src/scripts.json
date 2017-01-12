@@ -1,16 +1,33 @@
 {
 
-    "index_scripts" : [       
-      "node_modules/angular/angular.min.js",
-      "node_modules/angular-route/angular-route.min.js",
+    "scripts" : [       
+      "node_modules/angular/angular.js",
+      "node_modules/angular-route/angular-route.js",
+      "node_modules/angular-ui-router/build/angular-ui-router.js",
       "bower_components/jquery/dist/jquery.min.js",
+      "bower_components/jquery-pjax/jquery.pjax.js",
+      "bower_components/tether/dist/js/tether.js",
+      "bower_components/bootstrap/js/dist/util.js",
+      "bower_components/bootstrap/js/dist/collapse.js",
+      "bower_components/bootstrap/js/dist/tooltip.js",
+      "bower_components/bootstrap/js/dist/tab.js",
+      "bower_components/bootstrap/js/dist/dropdown.js",
+      "bower_components/slimScroll/jquery.slimscroll.js",
+      "bower_components/widgster/widgster.js",
+      "bower_components/parsleyjs/dist/parsley.min.js",
       "bower_components/messenger/build/js/messenger.min.js",
+      "bower_components/messenger/build/js/messenger-theme-future",
+      "node_modules/d3/d3.min.js",
+      "node_modules/node-uuid/uuid.js",
+      "node_modules/jsoneditor/dist/jsoneditor.min.js",
+      "node_modules/underscore/underscore-min.js",
+      "node_modules/select2/dist/js/select2.min.js",
+      "node_modules/js-yaml/dist/js-yaml.min.js",
+      "node_modules/clipboard/dist/clipboard.min.js",
+      "node_modules/jquery-autocomplete/jquery.autocomplete.js",
+      "node_modules/ace-builds/src-noconflict/ace.js",
+      "node_modules/ace-builds/src-noconflict/theme-terminal.js",
 
-      "src/js/router/login.js",
-      "src/js/controllers/login/main.js",
-      "src/js/controllers/register/main.js",
-      "src/js/services/login/main.js",
-      "src/js/services/register/main.js",
-      "src/js/services/common/notify.js"
+      "src/js/**/*.js"
     ]
 }

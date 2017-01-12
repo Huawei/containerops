@@ -1,0 +1,30 @@
+<nav id="sidebar" class="sidebar" role="navigation">
+    <!-- need this .js class to initiate slimscroll -->
+    <div class="js-sidebar-content">
+        <i class="nav-control sidebar-close fa fa-chevron-circle-left"></i>
+        <header class="logo hidden-sm-down"></header>
+        
+        <!-- main notification links are placed inside of .sidebar-nav -->
+        <ul class="sidebar-nav">
+            <li class="{{nav.ngclass}}" ng-repeat="nav in navigators" ng-click="chooseNav(nav.name)">
+                <a href="#{{nav.href}}">
+                    <span class="icon">
+                        <i class="{{nav.icon}}"></i>
+                    </span>
+                    {{nav.name}}
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<span class="glyphicon glyphicon-remove-circle workflow-open-env" id="close_pp_env"></span>
+<div class="env-setting-closed" id="env-setting">
+</div>
+<div class="content-wrap">
+    <!-- main page content. the place to put widgets in. usually consists of .row > .col-md-* > .widget.  -->
+    <main class="content" name="main" ui-view></main>
+    <div class="loading hide">
+       <img src="assets/images/loading.gif" width="60" height="60">
+    </div>
+</div>
