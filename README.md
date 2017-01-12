@@ -49,24 +49,24 @@ The ContainerOps define any task on stage named action. The action links the com
 The ContainerOps is a DevOps orchestration platform, and its architecture is micro services. All the codes in one repository, each service has an own folder and maintainer.
 
 * **component** - Some components maintained by ContainerOps team.
-* **pilotage** - The DevOps orchestration engine service.
-* **scaffold** - The DevOps orchestration engine UI.
-* **joints** - The DevOps orchestration engine UI of AngularJS version one. 
+* **pilotage** - The orchestration engine service.
+* **scaffold** - The orchestration engine UI.
+* **joints** - The orchestration engine UI of AngularJS version 1. 
 * **tenant** - The UI of containerops.sh.
-* **crew** - It's the RABC service.
-* **dockyard** - It's artifact & container repository.
-* **assembling** - It's the aritfact & container build service.
-* **scaler** - The component manage service.
-* **nucleus** - The third service manage service.
-* **singular** - The deployment operations tools.
-* **logarithm** - The log service.
+* **crew** - It's a RABC service.
+* **dockyard** - It's a artifact & container repository.
+* **assembling** - It's a aritfact & container build service.
+* **scaler** - The third service manage service.
+* **nucleus** - The component manage service.
+* **singular** - The deployment and operations tools.
+* **logarithm** - The log service collect from platform.
 * **dashboard** - The dashboard UI.
 
 ### How to try?
 
 ### Contribute
 
-If you interest the ContainerOps and want to get involved in developing it. Getting start with this reading: 
+If you interest the ContainerOps and want to get involved in developing. Getting start with this reading: 
 
 * The [contributor guidelines](CONTRIBUTING.md)
 
