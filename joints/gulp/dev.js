@@ -114,8 +114,8 @@ gulp.task('dev:json', function() {
  */
 gulp.task('dev:scripts', ['dev:babel'], function(done) {
     let config = JSON.parse(fs.readFileSync("src/scripts.json", 'utf8'));
-    let src = config.scripts.concat(['dev/src/main.js']);
-    return gulp.src(src)
+    // let src = config.scripts.concat(['dev/src/main.js']);
+    return gulp.src(config.scripts)
         .pipe(concat('main.js'))
         .pipe(gulp.dest('dev/src'))
         .on('error', gutil.log);
