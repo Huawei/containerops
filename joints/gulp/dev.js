@@ -89,12 +89,12 @@ gulp.task('dev:fonts', function() {
 /**
  *  This will copy host json to dev dist folder
  */
-// gulp.task('dev:json', function() {
-//     return gulp.src('src/host.json')
-//         // .pipe(uglify())
-//         .pipe(gulp.dest('dev/src'))
-//         .on('error', gutil.log);
-// })
+gulp.task('dev:json', function() {
+    return gulp.src('src/host.json')
+        // .pipe(uglify())
+        .pipe(gulp.dest('dev/src'))
+        .on('error', gutil.log);
+})
 
 /**
  *  This will browserify scripts
@@ -114,9 +114,9 @@ gulp.task('dev:fonts', function() {
  */
 gulp.task('dev:scripts', ['dev:babel'], function(done) {
     let config = JSON.parse(fs.readFileSync("src/scripts.json", 'utf8'));
-    let src = config.index_scripts.concat(['dev/src/index_main.js']);
+    let src = config.scripts.concat(['dev/src/main.js']);
     return gulp.src(src)
-        .pipe(concat('index_main.js'))
+        .pipe(concat('main.js'))
         .pipe(gulp.dest('dev/src'))
         .on('error', gutil.log);
 });
@@ -145,7 +145,7 @@ gulp.task('dev:css-replace', ['dev:styles', 'dev:html'], function() {
 gulp.task('dev:script-replace', ['dev:scripts', 'dev:html'], function() {
     var randomCopy = "?copy=" + Math.random();
     return gulp.src('dev/src/index.html')
-        .pipe(replace(/<script\/>/g, '<script src="index_main.js'+randomCopy+'"></script>'))
+        .pipe(replace(/<script\/>/g, '<script src="main.js'+randomCopy+'"></script>'))
         .pipe(gulp.dest('dev/src'))
         .on('error', gutil.log);
 });
@@ -192,9 +192,9 @@ gulp.task('dev:copy', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-replace',
 
 gulp.task('dev', ['dev:clean'], function() {
     if (args.dist) {
-        gulp.start('dev:html', 'dev:images', 'dev:fonts', 'dev:css-replace', 'dev:script-replace', 'dev:copy');
+        gulp.start('dev:html', 'dev:images', 'dev:fonts', 'dev:json', 'dev:css-replace', 'dev:script-replace', 'dev:copy');
     } else {
-        gulp.start('dev:html', 'dev:images', 'dev:fonts', 'dev:watch', 'dev:css-replace', 'dev:script-replace', 'dev:browser-sync');
+        gulp.start('dev:html', 'dev:images', 'dev:fonts', 'dev:json', 'dev:watch', 'dev:css-replace', 'dev:script-replace', 'dev:browser-sync');
     }
 
 });
