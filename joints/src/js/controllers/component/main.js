@@ -1,5 +1,5 @@
 devops.controller('ComponentController', ['$scope','$location','componentService', 'notifyService', 'loading',
-  function($scope,$location,componentService,notifyService,loading) {  
+  function($scope,$location,componentService,notifyService,loading) {   
 
   $scope.getComponents = function(){
     var promise = componentService.getComponents();
