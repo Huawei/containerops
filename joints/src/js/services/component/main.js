@@ -16,13 +16,14 @@ limitations under the License.
 
 function componentService(componentApiService){
 
-	function getComponents(){
+	function getComponents(filterName,filterVersion,fuzzy,pageNum,versionNum,offset){
 		var params = {
-			filterName : "",
-			filterVersion : "",
-			pageNum : 10,
-			versionNum : 3,
-			offset : 0
+			"filterName" : filterName,
+			"filterVersion" : filterVersion,
+			"fuzzy" : fuzzy,
+			"pageNum" : pageNum,
+			"versionNum" : versionNum,
+			"offset" : offset
 		}
 		return componentApiService.ajaxCall("list",params);
 	}
