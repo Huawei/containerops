@@ -14,4 +14,4 @@ function notifyService(){
 	}
 }
    
-login.factory('notifyService', [notifyService]);
+devops.factory('notifyService', [notifyService]);
