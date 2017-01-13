@@ -1,7 +1,7 @@
 {
 	"host" : {
 		"workflow" : "https://containerops.sh",
-		"component" : "https://containerops.sh",
+		"component" : "http://do-2.opshub.sh:8086",
 		"history" : "https://containerops.sh"
 	}
 }
