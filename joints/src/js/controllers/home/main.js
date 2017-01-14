@@ -41,7 +41,7 @@ devops.controller('HomeController', ['$scope','$location',function($scope,$locat
   		var path = $location.path();
   		_.each($scope.navigators,function(item){
   			if(path != ""){
-  				if(item.href == path){
+  				if(path.indexOf(item.href) == 0){
             item.ngclass = "active";
           }else{
             item.ngclass = "";
