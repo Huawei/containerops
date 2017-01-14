@@ -33,9 +33,19 @@ function apiService(notifyService, loading){
 		pendingPromise.push(promise);
 	}
 	
+	function failToCall(error){
+		loading.hide();
+		if (!_.isUndefined(error) && error.common) {
+			notifyService.notify(error.common.error_code + " : " + error.common.message,"error");
+		}else{
+			notifyService.notify("Server is unreachable","error");
+		}
+	}
+
 	return {
 		"beforeApiInvocation" : beforeApiInvocation,
-		"addPromise" : addPromise
+		"addPromise" : addPromise,
+		"failToCall" : failToCall
 	}
 }
    
