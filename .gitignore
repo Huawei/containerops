@@ -9,15 +9,17 @@ joints/dist
 joints/dev
 joints/tmp
 joints/css/
-tenant/dist
-tenant/css
+tenant/*/dist
+tenant/*/css
+tenant/*/dev
 
 # dependencies
 scaffold/node_modules
 scaffold/bower_components
 joints/node_modules
 joints/bower_components
-tenant/node_modules 
+tenant/*/node_modules 
+tenant/*/bower_components 
 
 # IDEs and editors
 .idea
