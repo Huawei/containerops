@@ -1,80 +1,81 @@
 devops.controller('ComponentController', ['$scope','$location','componentService', 'notifyService', 'loading', 'more',
-  function($scope,$location,componentService,notifyService,loading,more) {   
+  'apiService', 'utilService',
+  function($scope,$location,componentService,notifyService,loading,more,apiService,utilService) {   
 
     $scope.filter = {
         "name" : "",
-        "filter" : ""
+        "version" : ""
+    }
+
+    $scope.pageNum = 10;
+    $scope.versionNum = 3;
+    $scope.components = [];
+
+    function getOffset(type,name){
+      if(type == "component"){
+        return $scope.components.length;
+      }else{
+        return _.find($scope.components,function(component){
+          return component.name == name;
+        }).versions.length;
+      }
+    }
+
+    function showMoreComponent(){
+      var promise = componentService.getComponents($scope.filter.name, $scope.filter.version, true, $scope.pageNum, $scope.versionNum, getOffset("component"));
+      promise.done(function(data){
+          loading.hide();
+          appendComponents(data.components);
+      });
+      promise.fail(function(xhr,status,error){
+          apiService.failToCall(xhr.responseJSON);
+      }); 
+    }
+
+    function appendComponents(data){
+      var components = utilService.componentDataTransfer(data);
+      $scope.components = $scope.components.concat(components);
+      $scope.$apply();
+    }
+
+    $scope.showMoreVersion = function(componentName){
+      var promise = componentService.getComponents(componentName, "", false, $scope.pageNum, $scope.versionNum, getOffset("version",componentName));
+      promise.done(function(data){
+          loading.hide();
+          appendVersions(data.components,componentName);
+      });
+      promise.fail(function(xhr,status,error){
+          apiService.failToCall(xhr.responseJSON);
+      }); 
+    }
+
+    function appendVersions(data,componentName){
+      var target = _.find($scope.components,function(component){
+        return component.name == componentName;
+      });
+      _.each(data,function(item){
+        var version = {
+          "id" : item.id,
+          "version" : item.version
+        }
+        target.versions.push(version);
+      })
+      $scope.$apply();
     }
 
     $scope.getComponents = function(){
-      var promise = componentService.getComponents("","",true,10,3,0);
+      var promise = componentService.getComponents($scope.filter.name, $scope.filter.version, true, $scope.pageNum, $scope.versionNum, getOffset("component"));
       promise.done(function(data){
           loading.hide();
-          $scope.components = data.list;
+          $scope.components = utilService.componentDataTransfer(data.components);
+          more.show(function(){
+            showMoreComponent();
+          });
       });
       promise.fail(function(xhr,status,error){
-          loading.hide();
-          if (!_.isUndefined(xhr.responseJSON) && xhr.responseJSON.common) {
-              notifyService.notify(xhr.responseJSON.common.error_code + " : " + xhr.responseJSON.common.message,"error");
-          }else if(xhr.statusText != "abort"){
-              notifyService.notify("Server is unreachable","error");
-          }
+          apiService.failToCall(xhr.responseJSON);
       }); 
     }
 
     $scope.getComponents();
-
-    more.show(function(){
-      alert("bottom!!");
-    });
-
-    $scope.components = [
-        {
-          "name" : "component1",
-          "versions" : [
-            {
-              "id" : 1,
-              "version" : "v1.0"
-            },
-            {
-              "id" : 2,
-              "version" : "v2.0"
-            },
-            {
-              "id" : 3,
-              "version" : "v3.0"
-            }
-          ]
-        },
-        {
-          "name" : "component2",
-          "versions" : [
-            {
-              "id" : 4,
-              "version" : "v1.0"
-            },
-            {
-              "id" : 5,
-              "version" : "v2.0"
-            }
-          ]
-        },
-        {
-          "name" : "component3",
-          "versions" : [
-            {
-              "id" : 6,
-              "version" : "1.0"
-            },
-            {
-              "id" : 7,
-              "version" : "2.0"
-            },
-            {
-              "id" : 8,
-              "version" : "2.0"
-            }
-          ]
-        }
-    ]
 }]);
