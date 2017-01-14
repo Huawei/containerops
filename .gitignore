@@ -11,6 +11,7 @@ joints/tmp
 joints/css/
 tenant/dist
 tenant/css
+tenant/*/dev
 
 # dependencies
 scaffold/node_modules
