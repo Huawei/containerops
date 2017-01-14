@@ -1,0 +1,435 @@
+<!-- 
+    Copyright 2014 Huawei Technologies Co., Ltd. All rights reserved.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+        http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License. 
+-->
+<div class="h5 row">
+	<div class="col-md-4">
+		<h4>Create Component</h4>
+	</div>
+	<div class="col-md-8" style="margin-top:-0.6em">
+		<div style="float:right" class="btn-toolbar row">
+			<button id="newComponentBtn" type="button" class="btn btn-primary">
+				<i class="glyphicon glyphicon-floppy-disk" style="font-size:16px"></i>
+				<span style="margin:0 5px">Save</span>
+			</button>
+			<button id="cancelNewComponentBtn" type="button" class="btn btn-inverse">
+				<i class="fa fa-reply" style="font-size:16px"></i>
+				<span style="margin:0 5px">Cancel</span>
+			</button>
+		</div>
+	</div>         
+</div> 
+<div class="row" id="componentCreater">
+    <div class="col-lg-12">
+        <section class="widget col-lg-5">
+            <div class="widget-body">
+                 <div class="row mb-lg col-md-12">
+                 	<form id="component-name-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
+                 		<fieldset>
+                 			<div class="row">
+                 				<div class="col-md-12">
+                 					<div>
+                 						<label for="normal-field" class="col-sm-3 control-label">Name</label>
+                 						<div class="col-sm-9">
+                 							<input type="text" id="c-name" class="form-control" placeholder="Component Name" ng-model="component.name" pattern="^[a-zA-Z0-9.~_-]*$" required>
+                 						</div>
+                 					</div>
+                 				</div>
+                 			</div>
+                 		</fieldset>
+                 	</form>
+                 </div> 
+            </div>
+        </section>
+        <section class="widget col-lg-5 col-md-offset-2">
+            <div class="widget-body">
+                 <div class="row mb-lg col-md-12">
+                 	<form id="component-version-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
+                 		<fieldset>
+                 			<div class="row">
+                 				<div class="col-md-12">
+                 					<div>
+                 						<label for="hint-field" class="col-sm-3 control-label">Version</label>
+                 						<div class="col-sm-9">
+                 							<input type="text" id="c-version" class="form-control" placeholder="Component Version Name" ng-model="component.version" pattern="^[a-zA-Z0-9.~_-]*$" required>
+                 						</div>
+                 					</div>
+                 				</div>
+                 			</div>
+                 		</fieldset>
+                 	</form>
+                 </div> 
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-12">
+    	<section class="widget">
+    		<div class="widget-body">
+    			<fieldset>
+       				<div class="row mb-lg treeview col-md-12">
+    					<div class="col-lg-12">
+    						<div class="clearfix">
+    							<div class="col-md-3 component-tab component-tab-active" ng-click="showRuntimeConfig($event)">
+    								<div class="tab-text">Runtime Config</div>
+    								<div class="tab-unfinished"></div>
+    							</div>
+    							<div class="col-md-3 component-tab" ng-click="showEditShell($event)">
+    								<div class="tab-text">Edit Shell</div>
+    								<div class="tab-unfinished"></div>
+    							</div>
+    							<div class="col-md-3 component-tab" ng-click="showBuildImage($event)">
+    								<div class="tab-text">Build Image</div>
+    								<div class="tab-unfinished"></div>
+    							</div>
+    							<div class="col-md-3 component-tab" ng-click="showDebug($event)">
+    								<div class="tab-text">Debug</div>
+    							</div>
+    						</div>
+    						<div style="margin-top:20px">
+	    						<div class="tabbable tabs-left mb-lg">
+	    							<ul class="nav nav-tabs">
+	    								<li class="nav-item">
+	                            			<a class="nav-link active" data-toggle="tab" ng-click="runtimeTab = 1;">Base Config</a>
+	                            		</li>
+	                            		<li class="nav-item">
+	                            			<a class="nav-link" data-toggle="tab" ng-click="runtimeTab = 2;">Design</a>
+	                            		</li>
+	                            		<li class="nav-item">
+	                            			<a class="nav-link" data-toggle="tab" ng-click="runtimeTab = 2;">Env Setting</a>
+	                            		</li>
+	    							</ul>
+	    							<div class="tab-content">
+	    								<div class="my-tab-pane" ng-if="runtimeTab == 1">
+	                                        <form id="component-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
+	                                            <fieldset>
+	                                                <div class="row">
+	                                                    <div class="col-md-6">
+	                                                        <div class="form-group">
+	                                                            <label for="hint-field" class="col-sm-4 control-label">
+	                                                                Timeout
+	                                                            </label>
+	                                                            <div class="col-sm-7 input-group">
+	                                                                <input type="number" id="action-timeout" class="form-control" ng-model="component.timeout"> 
+	                                                                <span class="input-group-addon">(S)</span>
+	                                                            </div>
+	                                                        </div>
+	                                                    </div> 
+	                                                </div>
+	                                            </fieldset>
+	                                            <fieldset class="row widget component-image" style="padding:15px 0px">
+	                                                <div class="type-header" style="margin-top:-10px">
+	                                                    <div class="type-label" style="width:200px">Component Image</div>
+	                                                    <div class="type-setting">
+	                                                        <div class="widget-controls">
+	                                                            <a data-widgster="fullscreen" title="Create Image" href="#" data-original-title="Full Screen" style="display: inline;"><i class="fa fa-copy" style="margin-right:5px"></i>Create Image</a>
+	                                                            <a data-widgster="restore" title="Cancel" href="#" style="display: none;" data-original-title="Restore"><i class="fa fa-remove" style="margin-right:5px"></i>Cancel</a>
+	                                                        </div>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="row image-input-div" style="padding-top:15px;border:2px solid #f0f0f0;border-top:none;margin:0px"> 
+	                                                    <div class="col-md-6">
+	                                                        <div class="form-group">
+	                                                            <label for="normal-field" class="col-sm-4 control-label">
+	                                                                Repository Name
+	                                                            </label>
+	                                                            <div class="col-sm-7">
+	                                                                <input type="text" id="k8s-pod-image-name" name="k8s-pod-image-name" class="form-control" required>
+	                                                            </div>
+	                                                        </div>
+	                                                    </div>
+	                                                    <div class="col-md-6">
+	                                                        <div class="form-group">
+	                                                            <label for="normal-field" class="col-sm-4 control-label">
+	                                                                Image Tag
+	                                                            </label>
+	                                                            <div class="col-sm-7">
+	                                                                <input type="text" id="k8s-pod-image-tag" name="k8s-pod-image-tag" class="form-control" required>
+	                                                            </div>
+	                                                        </div>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="image-design-div hide"></div>
+	                                            </fieldset>
+	                                        </form>
+	                                        <div class="row type-header">
+	                                            <div class="type-label">Kubernetes</div>
+	                                            <div class="type-setting">
+	                                                <input type="radio" id="setting-way-base" name="k8s-setting-way" ng-value="false" ng-model="component.use_advanced" ng-change="baseOrAdvanced()"> 
+	                                                <span style="margin-left:5px">Base Setting</span>
+	                                                <input type="radio" id="setting-way-advanced" name="k8s-setting-way" style="margin-left:30px" ng-value="true" ng-model="component.use_advanced" ng-change="baseOrAdvanced()">
+	                                                <span style="margin-left:5px">Advanced Setting</span>
+	                                            </div>
+	                                        </div>
+	                                        <form id="base-setting-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate" ng-if="!component.use_advanced">
+	                                            <fieldset>  
+	                                                <div id="basesetting">
+	                                                    <div class="row resource-setting-div" ng-repeat="item in component.pod.spec.containers">
+	                                                        <div class="row">
+	                                                            <div class="col-md-6">
+	                                                                <div class="form-group">
+	                                                                    <label for="normal-field" class="col-sm-4 control-label">
+	                                                                        CPU Limits
+	                                                                    </label>
+	                                                                    <div class="col-sm-7">
+	                                                                        <input type="number" step="0.01" id="k8s-cpu-limits" ng-model="item.resources.limits.cpu" class="form-control" required>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                            <div class="col-md-6">
+	                                                                <div class="form-group">
+	                                                                    <label for="normal-field" class="col-sm-4 control-label">
+	                                                                        CPU Requests
+	                                                                    </label>
+	                                                                    <div class="col-sm-7">
+	                                                                        <input type="number" step="0.01" id="k8s-cpu-requests" ng-model="item.resources.requests.cpu" class="form-control" required>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </div>
+	                                                        <div class="row"> 
+	                                                            <div class="col-md-6">
+	                                                                <div class="form-group">
+	                                                                    <label for="normal-field" class="col-sm-4 control-label">
+	                                                                        Memory Limits
+	                                                                    </label>
+	                                                                    <div class="col-sm-7 input-group">
+	                                                                        <input type="number" step="0.01" id="k8s-memory-limits" ng-model="item.resources.limits.memory" class="form-control" required>
+	                                                                        <span class="input-group-addon">(Mi)</span>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                            <div class="col-md-6">
+	                                                                <div class="form-group">
+	                                                                    <label for="normal-field" class="col-sm-4 control-label">
+	                                                                        Memory Requests
+	                                                                    </label>
+	                                                                    <div class="col-sm-7 input-group">
+	                                                                        <input type="number" step="0.01" id="k8s-memory-requests" ng-model="item.resources.requests.memory" class="form-control" required>
+	                                                                        <span class="input-group-addon">(Mi)</span>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </div>
+	                                                        <div class="row"> 
+	                                                            <div class="col-md-6">
+	                                                                <div class="form-group">
+	                                                                    <label for="normal-field" class="col-sm-4 control-label">
+	                                                                        Service Type
+	                                                                    </label>
+	                                                                    <div class="col-sm-7 input-group">
+	                                                                        <select id="service-type-select" style="width:100%" ng-model="component.service.spec.type">
+	                                                                            <option value="ClusterIP">Cluster IP</option>
+	                                                                            <option value="NodePort">Node Port</option>
+	                                                                        </select>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                        </div>
+	                                                    </div>
+	                                                    <div id="ports-setting" class="row port-setting-div">
+	                                                    	<div class="port-row" ng-repeat="item in component.service.spec.ports">
+	                                                    		<div class="port-div">
+	                                                    			<label for="normal-field" class="col-sm-4 control-label">
+	                                                    				Port
+	                                                    			</label>
+	                                                    			<div class="col-sm-7">
+	                                                    				<input type="number" name="k8s-service-port" class="form-control" required min="0" max="65535" ng-model="item.port">
+	                                                    			</div>
+	                                                    		</div>
+	                                                    		<div class="port-div">
+	                                                    			<label for="normal-field" class="col-sm-4 control-label">
+	                                                    				Target Port
+	                                                    			</label>
+	                                                    			<div class="col-sm-7">
+	                                                    				<input type="number" name="k8s-service-target-port" class="form-control" required min="0" max="65535" ng-model="item.targetPort">
+	                                                    			</div>
+	                                                    		</div>
+	                                                    		<div class="port-div">
+	                                                    			<label for="normal-field" class="col-sm-4 control-label">
+	                                                    				Node Port
+	                                                    			</label>
+	                                                    			<div class="col-sm-7">
+	                                                    				<input type="number" name="k8s-service-node-port" class="form-control" required min="0" max="65535" ng-model="item.nodePort">
+	                                                    			</div>
+	                                                    		</div>
+	                                                    		<div class="port-remove-div rm-port">
+											                            <span class="glyphicon glyphicon-remove"></span>
+											                    </div>
+	                                                    	</div>
+	                                                    </div>
+	                                                </div>
+	                                            </fieldset>
+	                                        </form>
+	                                        <form id="advanced-setting-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate" ng-if="component.use_advanced">
+	                                            <fieldset id="advancedsetting" class="row advanced-setting-div">
+	                                                <div class="advanced-content">
+	                                                    <div class="col-md-6 panel">
+	                                                        <div class="panel-heading clearfix">
+	                                                            <span class="panel-title">Service</span>
+	                                                            <!-- <span class="panel-subtitle">Service setting (Json / Yaml)</span> -->
+	                                                        </div>
+	                                                        <div class="panel-body" style="min-height:500px;padding:0">
+	                                                            <textarea class="advanced-service-textarea" id="serviceCodeEditor" required></textarea>
+	                                                        </div>
+	                                                    </div>
+	                                                    <div class="col-md-6 panel">
+	                                                        <div class="panel-heading clearfix">
+	                                                            <span class="panel-title">Pod</span>
+	                                                            <!-- <span class="panel-subtitle">Pod setting (Json / Yaml)</span> -->
+	                                                        </div>
+	                                                        <div class="panel-body" style="min-height:500px;padding:0">
+	                                                            <textarea class="advanced-pod-textarea" id="podCodeEditor" required></textarea>
+	                                                        </div>
+	                                                    </div>
+	                                                </div>
+	                                            </fieldset>
+	                                        </form>
+	                                    </div>
+	                                    <div class="my-tab-pane" ng-if="runtimeTab == 2">
+	                                        <div id="designMode">
+	                                            <div class="action-way-div row">
+	                                                <span class="action-design-select"></span>
+	                                                <span class="action-json" title="switch to json mode"></span>
+	                                            </div>
+	                                            <div class="row">
+	                                                <div class="col-md-6 import-div">
+	                                                    <div class="panel">
+	                                                        <div class="panel-heading input-panel-heading">
+	                                                            <i class="glyphicon glyphicon-cloud-upload inputicon"></i>
+	                                                            <span class="panel-title">Input Tree</span>
+	                                                            <span class="panel-subtitle">The action default input json data</span> 
+	                                                        </div>
+	                                                        <div class="panel-body input-panel-body" style="min-height:500px">
+	                                                            <div id="inputTreeStart" class="tree-add-button">
+	                                                                <div id="inputStartBtn" class="btn-div">
+	                                                                    <span class="glyphicon glyphicon-plus nohover"></span>
+	                                                                    <div class="desc">
+	                                                                        <label class="desc-label">Add New Value</label>
+	                                                                        <div class="desc-btn">
+	                                                                            <span class="glyphicon glyphicon-plus"></span>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                            <div id="inputTreeDiv" class="json-editor"></div>
+	                                                        </div>
+	                                                    </div>
+	                                                </div>
+	                                                <div class="col-md-6 import-div">
+	                                                    <div class="panel">
+	                                                        <div class="panel-heading clearfix">
+	                                                            <i class="glyphicon glyphicon-cloud-download outputicon"></i>
+	                                                            <span class="panel-title">Output Tree</span>
+	                                                            <span class="panel-subtitle">The action default output json data</span> 
+	                                                        </div>
+	                                                        <div class="panel-body" style="min-height:500px">
+	                                                            <div id="outputTreeStart" class="tree-add-button">
+	                                                                <div id="outputStartBtn" class="btn-div">
+	                                                                    <span class="glyphicon glyphicon-plus nohover"></span>
+	                                                                    <div class="desc">
+	                                                                        <label class="desc-label">Add New Value</label>
+	                                                                        <div class="desc-btn">
+	                                                                            <span class="glyphicon glyphicon-plus"></span>
+	                                                                        </div>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                            <div id="outputTreeDiv" class="json-editor"></div>
+	                                                        </div>
+	                                                    </div>
+	                                                </div>
+	                                            </div>
+	                                            <div class="tree-icon-desc-row">
+	                                                <div class="tree-icon-desc-item">
+	                                                    <div class="tree-icon icon-s"></div>
+	                                                    <div class="tree-icon-label">String</div>
+	                                                </div>
+	                                                <div class="tree-icon-desc-item">
+	                                                    <div class="tree-icon icon-o"></div>
+	                                                    <div class="tree-icon-label">Object</div>
+	                                                </div>
+	                                                <div class="tree-icon-desc-item">
+	                                                    <div class="tree-icon icon-n"></div>
+	                                                    <div class="tree-icon-label">Number</div>
+	                                                </div>
+	                                                <div class="tree-icon-desc-item">
+	                                                    <div class="tree-icon icon-a"></div>
+	                                                    <div class="tree-icon-label">Array</div>
+	                                                </div>
+	                                                <div class="tree-icon-desc-item">
+	                                                    <div class="tree-icon icon-b"></div>
+	                                                    <div class="tree-icon-label">Boolean</div>
+	                                                </div>
+	                                                <div class="tree-icon-desc-item">
+	                                                    <div class="tree-icon icon-none"></div>
+	                                                    <div class="tree-icon-label">Null</div>
+	                                                </div>
+	                                                <div class="tree-icon-desc-item">
+	                                                    <div class="tree-icon icon-add"></div>
+	                                                    <div class="tree-icon-label">Add New Value</div>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                        <div id="jsonMode">
+	                                            <div class="action-way-div row">
+	                                                <span class="action-design" title="switch to design mode"></span>
+	                                                <span class="action-json-select"></span>
+	                                            </div>
+	                                            <div class="col-md-6 import-div">
+	                                                <div class="panel">
+	                                                    <div class="panel-heading input-panel-heading">
+	                                                        <i class="input-from-edit-icon"></i>
+	                                                        <span class="panel-title">Input From Edit</span>
+	                                                        <span class="panel-subtitle">The action default input json data</span> 
+	                                                    </div>
+	                                                    <div class="panel-body input-panel-body">
+	                                                        <div id="inputCodeEditor" class="codeEditor"></div>
+	                                                        <div class="col-md-4 col-md-offset-4 row editor-transfer">
+	                                                            <span id="inputFromJson" class="col-md-4 code-to-tree"></span>
+	                                                            <span id="inputToJson" class="col-md-4 tree-to-code"></span>
+	                                                        </div>
+	                                                        <div id="inputTreeEditor" class="treeEditor"></div>
+	                                                    </div>
+	                                                </div>
+	                                            </div>
+	                                            <div class="col-md-6 import-div">
+	                                                <div class="panel">
+	                                                    <div class="panel-heading clearfix">
+	                                                        <i class="output-from-edit-icon"></i>
+	                                                        <span class="panel-title">Output From Edit</span>
+	                                                        <span class="panel-subtitle">The action default output json data</span> 
+	                                                    </div>
+	                                                    <div class="panel-body">
+	                                                        <div id="outputCodeEditor" class="codeEditor"></div>
+	                                                        <div class="col-md-4 col-md-offset-4 row editor-transfer">
+	                                                            <span id="outputFromJson" class="col-md-4 code-to-tree"></span>
+	                                                            <span id="outputToJson" class="col-md-4 tree-to-code"></span>
+	                                                        </div>
+	                                                        <div id="outputTreeEditor" class="treeEditor"></div>
+	                                                    </div>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                    <div class="my-tab-pane" ng-if="runtimeTab == 3">
+	                                         <div class="col-lg-12 form-horizontal" id="component-envs">
+	                                        </div>
+	                                    </div>
+	    							</div>
+	    						</div>
+	    					</div>
+    					</div>
+    				</div>
+    			</fieldset>  
+    		</div>
+    	</section>
+    </div>
+</div>
