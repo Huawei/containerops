@@ -34,4 +34,14 @@ devops.run(['$rootScope', '$state', '$stateParams',
             }
           }
         })
+        .state('component.create', {
+          parent: 'home',
+          url: '/component/create',
+          views: {
+            'main': {
+              templateUrl: 'templates/component/create.html',
+              controller: 'CreateComponentController'
+            }
+          }
+        })
 }]);

@@ -27,9 +27,73 @@ function componentService(componentApiService){
 		}
 		return componentApiService.ajaxCall("list",params);
 	}
+
+	var component = {
+		"name": "",
+		"version": "",
+		"type": "Kubernetes",
+		"input": {},
+		"output": {},
+		"env": [],
+		"image_name": "",
+		"image_tag": "",
+		"image_setting": {
+			"build": {
+				"name": "",
+				"tag": ""
+			},
+			"from": {
+				"name": "",
+				"tag": ""
+			},
+			"events": {
+				"component_start": "",
+				"component_result": "",
+				"component_stop": ""
+			},
+			"push": {
+				"registry": "",
+				"username": "",
+				"password": ""
+			}
+		},
+		"timeout": 0,
+		"use_advanced": false,
+		"pod": {},
+		"service": {}
+	}
 	
+	var base_service = {
+		"spec": {
+			"type":"NodePort",
+			"ports": [
+			{
+				"port": 0,
+				"targetPort" : 0,
+				"nodePort" : 0
+			}
+			]
+		}
+	}
+
+	var base_pod = {
+		"spec": {
+			"containers": [
+			{
+				"resources": {
+					"limits":{"cpu": 0.2, "memory": 1024},
+					"requests":{"cpu": 0.1, "memory": 128}
+				}
+			}
+			]
+		}
+	}
+
 	return {
-		"getComponents" : getComponents
+		"getComponents" : getComponents,
+		"component" : component,
+		"base_service" : base_service,
+		"base_pod" : base_pod
 	}
 }
    
