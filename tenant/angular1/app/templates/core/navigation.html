@@ -1,0 +1,28 @@
+<nav id="sidebar" class="sidebar" role="navigation">
+    <!-- need this .js class to initiate slimscroll -->
+    <div class="js-sidebar-content">
+        <header class="logo hidden-sm-down"></header>
+        <!-- main notification links are placed inside of .sidebar-nav -->
+        <ul class="sidebar-nav">
+            <li ng-class="{active:sidebar.active, open:!sidebar.collapsed}" ng-repeat="sidebar in sidebars" >
+                <a ng-class="{collapsed:sidebar.collapsed}" ng-click="toggle(sidebar.name)" href="">
+                    <span class="icon">
+                        <i class="{{sidebar.icon}}"></i>
+                    </span> {{sidebar.name}}
+                    <i class="toggle fa fa-angle-down"></i>
+                </a>
+                <ul ng-class="{collapse:true, in:!sidebar.collapsed}">
+                    <li ng-repeat="child in sidebar.children" ui-sref-active="active" ng-click="toggleParentStatus(sidebar.name)"><a ui-sref="{{child.href}}">{{child.name}}</a></li>
+                </ul>
+            </li>
+            
+        </ul>
+    </div>
+</nav>
+<div class="content-wrap">
+    <!-- main page content. the place to put widgets in. usually consists of .row > .col-md-* > .widget.  -->
+    <main class="content" name="main" ui-view></main>
+    <!--  <div class="loading hide">
+       <img src="assets/images/loading.gif" width="60" height="60">
+    </div> -->
+</div>
