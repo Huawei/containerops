@@ -149,3 +149,48 @@ limitations under the License. */
 .advanced-content{
   background-color:#eaeaea;
 }
+
+// component tab
+.component-tab{
+  height: 40px;
+  border-bottom: 1px solid #eaeaea;
+  cursor:pointer;
+  display: flex;
+  align-items: center;
+
+  .tab-text{
+    width:90%;
+    text-align: center;
+  }
+
+  &:hover{
+    font-size:120%;
+  }
+
+  .tab-finished{
+    border-radius: 50%;
+    width:10px;
+    height:10px;
+    background-color:#64bd63;
+  }
+
+  .tab-unfinished{
+    border-radius: 50%;
+    width:10px;
+    height:10px;
+    background-color:#dd5826;
+  }
+}
+
+.component-tab-active{
+  border-bottom: 2px solid #5d8fc2;
+}
+
+// runtime config
+.nav-link{
+  cursor:pointer;
+}
+
+.my-tab-pane{
+  padding: 40px;
+}

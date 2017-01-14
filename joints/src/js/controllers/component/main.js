@@ -63,6 +63,10 @@ devops.controller('ComponentController', ['$scope','$location','componentService
       $scope.$apply();
     }
 
+    $scope.showNewComponent = function(){
+      $location.path("/component/create");
+    }
+
     $scope.getComponents = function(){
       var promise = componentService.getComponents($scope.filter.name, $scope.filter.version, true, $scope.pageNum, $scope.versionNum, getOffset("component"));
       promise.done(function(data){
