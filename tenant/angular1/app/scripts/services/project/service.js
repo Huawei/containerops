@@ -15,26 +15,22 @@ limitations under the License.
  */
 
 function projectService($http,$q){
-
-	function getProjectList(params,callback){
-	 	// var deferred = $q.defer();
-    $http.get('./projectList.json').then(function(data) {
-    	callback(data)
-      // deferred.resolve({
-      //   data: data.body
-      // });
-    },function(){
-    	console.log('error')
-    })
-    // ,function(data){
-    // 	console.log(111)
-    // })
-    // return deferred.promise;
-	}
-
-	return {
-		getProjectList: getProjectList
-	}
+  return {
+    getList: function(params){
+      var deferred = $q.defer();
+      var url = "/projects";
+      var request = {
+          "url": url,
+          "method": "GET"
+      }
+      $http(request).then(function(data) {
+          deferred.resolve(data);
+      }, function(error) {
+          deferred.reject(error);
+      });
+      return deferred.promise;
+    }
+  }
 }
    
 auth.factory('projectService', ['$http','$q',projectService]);
