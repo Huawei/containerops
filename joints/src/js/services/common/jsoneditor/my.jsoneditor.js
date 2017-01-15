@@ -21,8 +21,6 @@
 
 function jsonEditor(jsonEditorMenu){
 
-    var from;
-
     var items = [];
 
     items.push({
@@ -113,12 +111,11 @@ function jsonEditor(jsonEditorMenu){
     });
 
 
-    function init (container,json, options,caller) {
-        from = caller;
+    function init (container,json, options) {
         options = options || {};
         // Make sure functions or other non-JSON data types are stripped down.
         json = parse(stringify(json));
-        
+
         var K = function() {};
         var onchange = options.change || K;
         var onpropertyclick = options.propertyclick || K;
@@ -220,16 +217,6 @@ function jsonEditor(jsonEditorMenu){
         
         item.find(">.property").val("").change();
         item.remove();
-        
-        // if(from == "component"){
-        //     componentIO.initTreeEdit();
-        // }
-        // else if(from == "action"){
-        //     actionIO.initTreeEdit();
-        // }else if(from == "start"){
-        //     startIO.initTreeEdit();
-        // }
-        
     }
 
     function addExpander(item) {

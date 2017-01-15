@@ -2,25 +2,8 @@ devops.controller('CreateComponentController', ['$scope','$location', 'component
   function($scope,$location,componentService,componentIO) {   
 
     // tabs control
-    $scope.showEditShell = function(event){
-      selectTab(event);
-    }
-
-    $scope.showBuildImage = function(event){
-      selectTab(event);
-    }
-
-    $scope.showRuntimeConfig = function(event){
-      selectTab(event);
-    }
-
-    $scope.showDebug = function(event){
-      selectTab(event);
-    }
-
-    function selectTab(event){
-      $(".component-tab").removeClass("component-tab-active");
-      $(event.currentTarget).addClass("component-tab-active");
+    $scope.selectTab = function(index){
+      $scope.tab = index;
     }
 
     // runtime tab all functions below
@@ -29,7 +12,7 @@ devops.controller('CreateComponentController', ['$scope','$location', 'component
       if($scope.runtimeTab == 2){
         setTimeout(function(){
           componentIO.init($scope.component);
-        },1000)
+        },500)
       }
     }
 
@@ -37,6 +20,24 @@ devops.controller('CreateComponentController', ['$scope','$location', 'component
       if($scope.component.use_advanced){
         $scope.component.service = {};
         $scope.component.pod = {};
+
+        setTimeout(function(){
+          $("#serviceCodeEditor").val(JSON.stringify($scope.component.service,null,2));
+          $("#serviceCodeEditor").on("blur",function(){
+              var result = toJsonYaml("service");
+              if(result){
+                  $scope.component.service = result;
+              }    
+          });
+
+          $("#podCodeEditor").val(JSON.stringify($scope.component.pod,null,2));
+          $("#podCodeEditor").on("blur",function(){
+              var result = toJsonYaml("pod");
+              if(result){
+                  $scope.component.pod = result;
+              }    
+          });
+        },500);
       }else{
         $scope.component.service = $.extend(true,{},componentService.base_service);
         $scope.component.pod = $.extend(true,{},componentService.base_pod);
@@ -92,9 +93,49 @@ devops.controller('CreateComponentController', ['$scope','$location', 'component
       }
     }
 
+    $scope.addEnv = function(){
+       $scope.component.env.push($.extend(true,{},componentService.env));
+    }
+
+    $scope.removeEnv = function(index){
+      $scope.component.env.splice(index,1);
+    }
+
+    function toJsonYaml(type){
+        var value,result;
+        if(type == "service"){
+            value = $("#serviceCodeEditor").val();
+        }else if(type == "pod"){
+            value = $("#podCodeEditor").val();
+        }
+
+        try{
+            result = JSON.parse(value);
+        }catch(e){
+           try{
+            result = jsyaml.safeLoad(value);
+           }catch(e){
+            notifyService.notify("Your advanced " + type + " setting is not a legal json or yaml.","error");
+            result = false;
+           }
+        }
+        if(!result){
+           notifyService.notify("Your advanced " + type + " setting is not a legal json or yaml.","error");
+        }
+        return result;
+    }
+
+    // save component
+    $scope.saveComponent = function(){
+      console.log($scope.component)
+    }
+
     // init component create page
     function init(){
       $scope.component = $.extend(true,{},componentService.component);
+
+      // for top tabs control
+      $scope.tab = 1;
 
       // for runtime config tabs control
       $scope.runtimeTab = 1;
@@ -103,7 +144,7 @@ devops.controller('CreateComponentController', ['$scope','$location', 'component
       $scope.toCreateImage = false;
 
       // determine which editor to use for input output json
-      $scope.jsonMode = false; 
+      $scope.jsonMode = false;
 
       $scope.baseOrAdvanced();
     }
