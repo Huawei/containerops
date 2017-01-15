@@ -3,7 +3,7 @@
     "scripts" : [       
       "node_modules/angular/angular.js",
       "node_modules/angular-ui-router/release/angular-ui-router.js",
-
+      "node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js",
       "node_modules/underscore/underscore-min.js",
       "node_modules/select2/dist/js/select2.min.js",
        
