@@ -44,6 +44,16 @@ auth.run(['$rootScope', '$state', '$stateParams',
             }
           }
         })
+        .state('project.edit', {
+          parent: 'core',
+          url: '/projectEdit',
+          views: {
+            'main': {
+              templateUrl: 'templates/project/edit.html',
+              controller: 'ProjectEditController'
+            }
+          }
+        })
         .state('application', {
           parent: 'core',
           url: '/application',
