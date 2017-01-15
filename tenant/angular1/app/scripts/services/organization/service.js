@@ -5,7 +5,7 @@ auth.factory('OrganizationService', ['$http', '$q',  function($http, $q) {
             var url = "/organization";
             var request = {
                 "url": url,
-                // "dataType": "json",
+                "dataType": "json",
                 "method": "GET"
             }
             $http(request).then(function(data) {
@@ -15,33 +15,18 @@ auth.factory('OrganizationService', ['$http', '$q',  function($http, $q) {
             });
             return deferred.promise;
         },
-        getCluster: function(id) {
+        save: function(data) {
             var deferred = $q.defer();
-            var url = "/cluster/" + id;
-            var request = {
-                "url": url,
-                "dataType": "json",
-                "method": "GET"
-            }
-            $http(request).success(function(data) {
-                deferred.resolve(data);
-            }).error(function(error) {
-                deferred.reject(error);
-            });
-            return deferred.promise;
-        },
-        createCluster: function(data) {
-            var deferred = $q.defer();
-            var url = "/cluster";
+            var url = "/organization";
             var request = {
                 "url": url,
                 "dataType": "json",
                 "method": "POST",
                 "data": angular.toJson(data)
             }
-            $http(request).success(function(data) {
+            $http(request).then(function(data) {
                 deferred.resolve(data);
-            }).error(function(error) {
+            }, function(error) {
                 deferred.reject(error);
             });
             return deferred.promise;
