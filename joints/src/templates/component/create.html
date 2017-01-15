@@ -29,7 +29,7 @@
 </div> 
 <div class="row" id="componentCreater">
     <div class="col-lg-12">
-        <section class="widget col-lg-5">
+        <section class="widget" style="width:47%;float:left">
             <div class="widget-body">
                  <div class="row mb-lg col-md-12">
                  	<form id="component-name-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
@@ -49,7 +49,7 @@
                  </div> 
             </div>
         </section>
-        <section class="widget col-lg-5 col-md-offset-2">
+        <section class="widget" style="width:47%;float:right">
             <div class="widget-body">
                  <div class="row mb-lg col-md-12">
                  	<form id="component-version-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
@@ -460,13 +460,24 @@
 	    						</div>
 	    					</div>
 	    					<div style="margin-top:20px" ng-if="tab == 2">
-	    						Edit Shell
+	    						<div class="col-md-12">
+	    							<div class="col-md-4">
+	    								<div class="event-selection {{selectedEvent == 1 ? 'event-selected' : ''}}" ng-click="selectEvent(1)">Component Start</div>
+	    							</div>
+	    							<div class="col-md-4">
+	    								<div class="event-selection {{selectedEvent == 2 ? 'event-selected' : ''}}" ng-click="selectEvent(2)">Component Result</div>
+	    							</div>
+	    							<div class="col-md-4">
+	    								<div class="event-selection {{selectedEvent == 3 ? 'event-selected' : ''}}" ng-click="selectEvent(3)">Component Stop</div>
+	    							</div>
+	    						</div>
+	    						<div id="scriptEditor"></div>
 	    					</div>
 	    					<div style="margin-top:20px" ng-if="tab == 3">
 	    						Build Image
 	    					</div>
 	    					<div style="margin-top:20px" ng-if="tab == 4">
-	    						Debug
+	    						Debug	
 	    					</div>
     					</div>
     				</div>
