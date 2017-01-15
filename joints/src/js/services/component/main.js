@@ -37,26 +37,7 @@ function componentService(componentApiService){
 		"env": [],
 		"image_name": "",
 		"image_tag": "",
-		"image_setting": {
-			"build": {
-				"name": "",
-				"tag": ""
-			},
-			"from": {
-				"name": "",
-				"tag": ""
-			},
-			"events": {
-				"component_start": "",
-				"component_result": "",
-				"component_stop": ""
-			},
-			"push": {
-				"registry": "",
-				"username": "",
-				"password": ""
-			}
-		},
+		"image_setting": {},
 		"timeout": 0,
 		"use_advanced": false,
 		"pod": {},
@@ -66,13 +47,7 @@ function componentService(componentApiService){
 	var base_service = {
 		"spec": {
 			"type":"NodePort",
-			"ports": [
-			{
-				"port": 0,
-				"targetPort" : 0,
-				"nodePort" : 0
-			}
-			]
+			"ports": []
 		}
 	}
 
@@ -89,11 +64,46 @@ function componentService(componentApiService){
 		}
 	}
 
+	var nodeport = {
+		"port": 0,
+		"targetPort" : 0,
+		"nodePort" : 0
+	}
+
+	var clusterip = {
+		"port": 0,
+		"targetPort" : 0
+	}
+
+	var imagesetting = {
+		"build": {
+			"name": "",
+			"tag": ""
+		},
+		"from": {
+			"name": "",
+			"tag": ""
+		},
+		"events": {
+			"component_start": "",
+			"component_result": "",
+			"component_stop": ""
+		},
+		"push": {
+			"registry": "",
+			"username": "",
+			"password": ""
+		}
+	}
+
 	return {
 		"getComponents" : getComponents,
 		"component" : component,
 		"base_service" : base_service,
-		"base_pod" : base_pod
+		"base_pod" : base_pod,
+		"nodeport" : nodeport,
+		"clusterip" : clusterip,
+		"imagesetting" : imagesetting
 	}
 }
    
