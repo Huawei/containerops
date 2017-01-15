@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-function projectService($http,$q){
+function moduleService($http,$q){
   return {
     getList: function(params){
       var deferred = $q.defer();
@@ -47,4 +47,4 @@ function projectService($http,$q){
   }
 }
    
-auth.factory('projectService', ['$http','$q',projectService]);
+auth.factory('moduleService', ['$http','$q',moduleService]);

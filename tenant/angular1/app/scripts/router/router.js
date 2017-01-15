@@ -94,4 +94,14 @@ auth.run(['$rootScope', '$state', '$stateParams',
             }
           }
         })
+        .state('module.create', {
+          parent: 'core',
+          url: '/module/create',
+          views: {
+            'main': {
+              templateUrl: 'templates/module/create.html',
+              controller: 'ModuleCreateController'
+            }
+          }
+        })
 }]);

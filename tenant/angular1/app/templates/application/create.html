@@ -7,21 +7,21 @@
     <form role="form">
       <div class="form-group">
         <label for="name">name</label>
-        <input type="text" class="form-control" id="name" placeholder="project name">
+        <input type="text" class="form-control" id="name" placeholder="" ng-model="baseInfo.name">
       </div>
       <div class="form-group">
         <label for="desc">description</label>
-        <input type="text" class="form-control" id="desc" placeholder="description">
+        <input type="text" class="form-control" id="desc" placeholder="" ng-model="baseInfo.desc">
       </div>
       <div class="radio">
         <label class="mar-rt-twenty">
-          <input type="radio" name="visiblity"> public
+          <input type="radio" name="visiblity" ng-model="baseInfo.visible" value="public"> public
         </label>
         <label>
-          <input type="radio" name="visiblity"> private
+          <input type="radio" name="visiblity" ng-model="baseInfo.visible" value="private"> private
         </label>
       </div>
-      <button class="btn btn-info">save</button>
+      <button class="btn btn-info" ng-click="saveBaseInfo()">save</button>
     </form>
   </div>
   <div id="tab2" class="tab-pane">
