@@ -4,6 +4,12 @@ devops.controller('CreateComponentController', ['$scope','$location', 'component
     // tabs control
     $scope.selectTab = function(index){
       $scope.tab = index;
+      if(index == 2){
+        setTimeout(function(){
+          initScriptEditor();
+          showEventScript();
+        },500);
+      }
     }
 
     // runtime tab all functions below
@@ -125,6 +131,49 @@ devops.controller('CreateComponentController', ['$scope','$location', 'component
         return result;
     }
 
+    // shell edit page functions
+    $scope.selectEvent = function(index){
+      $scope.selectedEvent = index;
+      showEventScript();
+    }
+
+    function initScriptEditor(){
+      $scope.scriptEditor = ace.edit("scriptEditor");
+      $scope.scriptEditor.setTheme("ace/theme/dawn");
+      $scope.scriptEditor.getSession().setMode("ace/mode/golang");
+      $scope.scriptEditor.on("blur",function(){
+        setEventScript();
+      })
+    }
+
+    function showEventScript(){
+      switch($scope.selectedEvent){
+        case 1: 
+            $scope.scriptEditor.setValue($scope.component.image_setting.events.component_start); 
+            break;
+        case 2: 
+            $scope.scriptEditor.setValue($scope.component.image_setting.events.component_result); 
+            break;
+        case 3: 
+            $scope.scriptEditor.setValue($scope.component.image_setting.events.component_stop); 
+            break;
+      }
+    }
+
+    function setEventScript(){
+      switch($scope.selectedEvent){
+        case 1: 
+            $scope.component.image_setting.events.component_start = $scope.scriptEditor.getValue(); 
+            break;
+        case 2: 
+            $scope.component.image_setting.events.component_result = $scope.scriptEditor.getValue(); 
+            break;
+        case 3: 
+            $scope.component.image_setting.events.component_stop = $scope.scriptEditor.getValue(); 
+            break;
+      }
+    }
+
     // save component
     $scope.saveComponent = function(){
       console.log($scope.component)
@@ -145,6 +194,9 @@ devops.controller('CreateComponentController', ['$scope','$location', 'component
 
       // determine which editor to use for input output json
       $scope.jsonMode = false;
+
+      // for event selection
+      $scope.selectedEvent = 1;
 
       $scope.baseOrAdvanced();
     }
