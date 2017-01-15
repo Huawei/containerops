@@ -1,4 +1,4 @@
-var auth = angular.module('Auth',['ui.router']);
+var auth = angular.module('Auth',['ui.router','ui.bootstrap']);
 
 auth.run(['$rootScope', '$state', '$stateParams',
     function ($rootScope, $state, $stateParams) {
@@ -21,6 +21,16 @@ auth.run(['$rootScope', '$state', '$stateParams',
             'main': {
               templateUrl: 'templates/organization/main.html',
               controller: 'OrganizationController'
+            }
+          }
+        })
+        .state('organization.create', {
+          parent: 'organization',
+          url: '/create',
+          views: {
+            'main@core': {
+              templateUrl: 'templates/organization/create.html',
+              controller: 'OrganizationCreateController'
             }
           }
         })
