@@ -56,12 +56,12 @@ function componentIO(notifyService, jsonEditor){
                     change:function(data){
                         componentIOData.input = data;
                     }
-                },"component");
+                });
             }catch(e){
                 notifyService.notify("Input Error in parsing json.","error");
             }
         }
-        
+
         if(_.isUndefined(componentIOData.output) || _.isEmpty(componentIOData.output)){
             $("#outputTreeStart").show();
             $("#outputTreeDiv").hide();
@@ -79,7 +79,7 @@ function componentIO(notifyService, jsonEditor){
                     change:function(data){
                         componentIOData.output = data;
                     }
-                },"component");
+                });
             }catch(e){
                 notifyService.notify("Output Error in parsing json.","error");
             }
@@ -175,11 +175,21 @@ function componentIO(notifyService, jsonEditor){
             } 
         }
     }
+
+    function getInputEmpty(){
+        return isInputEmpty;
+    }
+
+    function getOutputEmpty(){
+        return isOutputEmpty;
+    }
     
     return {
         "init" : init,
-        "initTreeEdit" : "initTreeEdit",
-        "initFromEdit" : "initFromEdit"
+        "initTreeEdit" : initTreeEdit,
+        "initFromEdit" : initFromEdit,
+        "getInputEmpty" : getInputEmpty,
+        "getOutputEmpty" : getOutputEmpty
     }
 }
    
