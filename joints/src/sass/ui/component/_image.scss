@@ -9,63 +9,42 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. */
 
-.component-event-block{
-  width:95%;
-  height:50px;
+.event-selection{
+  width:60%;
+  height:40px;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
   text-align:center;
   margin:auto;
-  background-color: #f0b518;
-  border-color: #f0b518;
+  background-color: #999;
+  border-color: #999;
   color: white;
-  font-size:20px;
-  padding-top: 12px;
+  font-size:12px;
+  padding-top: 10px;
   cursor:pointer;
-  opacity: 0.6;
   font-weight: 700;
   clear: both;
   margin-top:20px;
 
   &:hover{
-    opacity: 1;
+    background-color: #f0b518;
+    border-color: #f0b518;
   }
 }
 
-// .tasks-div{
-//   border: 2px solid #f0f0f0;
-//   padding: 20px;
-// }
-
-.task-row{
-    background-color: #f3f3f3;
-    width:92%;
-    height: 70px;
-    float: left;
-    clear: both;
-    margin:10px 4%;
+.event-selected{
+    background-color: #f0b518;
+    border-color: #f0b518;
 }
 
-.task-event-block{
-  width:12%;
-  height:50px;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  text-align:center;
-  margin: 10px 2.5% 10px 2.5%;
-  float: left;
-  background-color: #f0b518;
-  border-color: #f0b518;
-  color: white;
-  font-size:12px;
-  padding-top: 15px;
-  cursor:pointer;
-  opacity: 0.6;
-  font-weight: 700;
+#scriptEditor{
+  width:100%;
+  height:400px;
+  margin-top:20px;
+  float:left;
+}
 
-  &:hover{
-    opacity: 1;
-  }
+.ace_print-margin{
+  background : none !important;
 }
