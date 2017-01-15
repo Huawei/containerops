@@ -96,6 +96,11 @@ function componentService(componentApiService){
 		}
 	}
 
+	var env = {
+		"key" : "",
+		"value" : ""
+	}
+
 	return {
 		"getComponents" : getComponents,
 		"component" : component,
@@ -103,7 +108,8 @@ function componentService(componentApiService){
 		"base_pod" : base_pod,
 		"nodeport" : nodeport,
 		"clusterip" : clusterip,
-		"imagesetting" : imagesetting
+		"imagesetting" : imagesetting,
+		"env" : env
 	}
 }
    
