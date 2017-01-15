@@ -16,7 +16,7 @@
 	</div>
 	<div class="col-md-8" style="margin-top:-0.6em">
 		<div style="float:right" class="btn-toolbar row">
-			<button id="newComponentBtn" type="button" class="btn btn-primary">
+			<button id="newComponentBtn" type="button" class="btn btn-primary" ng-click="saveComponent()">
 				<i class="glyphicon glyphicon-floppy-disk" style="font-size:16px"></i>
 				<span style="margin:0 5px">Save</span>
 			</button>
@@ -77,23 +77,23 @@
        				<div class="row mb-lg treeview col-md-12">
     					<div class="col-lg-12">
     						<div class="clearfix">
-    							<div class="col-md-3 component-tab component-tab-active" ng-click="showRuntimeConfig($event)">
+    							<div class="col-md-3 component-tab {{tab == 1 ? 'component-tab-active' : ''}}" ng-click="selectTab(1)">
     								<div class="tab-text">Runtime Config</div>
     								<div class="tab-unfinished"></div>
     							</div>
-    							<div class="col-md-3 component-tab" ng-click="showEditShell($event)" ng-if="toCreateImage">
+    							<div class="col-md-3 component-tab {{tab == 2 ? 'component-tab-active' : ''}}" ng-click="selectTab(2)" ng-if="toCreateImage">
     								<div class="tab-text">Edit Shell</div>
     								<div class="tab-unfinished"></div>
     							</div>
-    							<div class="col-md-3 component-tab" ng-click="showBuildImage($event)" ng-if="toCreateImage">
+    							<div class="col-md-3 component-tab {{tab == 3 ? 'component-tab-active' : ''}}" ng-click="selectTab(3)" ng-if="toCreateImage">
     								<div class="tab-text">Build Image</div>
     								<div class="tab-unfinished"></div>
     							</div>
-    							<div class="col-md-3 component-tab" ng-click="showDebug($event)">
+    							<div class="col-md-3 component-tab {{tab == 4 ? 'component-tab-active' : ''}}" ng-click="selectTab(4)">
     								<div class="tab-text">Debug</div>
     							</div>
     						</div>
-    						<div style="margin-top:20px">
+    						<div style="margin-top:20px" ng-if="tab == 1">
 	    						<div class="tabbable tabs-left mb-lg">
 	    							<ul class="nav nav-tabs">
 	    								<li class="nav-item">
@@ -145,7 +145,7 @@
 	                                                                Repository Name
 	                                                            </label>
 	                                                            <div class="col-sm-7">
-	                                                                <input type="text" id="k8s-pod-image-name" name="k8s-pod-image-name" class="form-control" required>
+	                                                                <input type="text" id="k8s-pod-image-name" class="form-control" ng-model="component.image_name" required>
 	                                                            </div>
 	                                                        </div>
 	                                                    </div>
@@ -155,7 +155,7 @@
 	                                                                Image Tag
 	                                                            </label>
 	                                                            <div class="col-sm-7">
-	                                                                <input type="text" id="k8s-pod-image-tag" name="k8s-pod-image-tag" class="form-control" required>
+	                                                                <input type="text" id="k8s-pod-image-tag" class="form-control" ng-model="component.image_tag" required>
 	                                                            </div>
 	                                                        </div>
 	                                                    </div>
@@ -174,7 +174,7 @@
 	                                        <form id="base-setting-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate" ng-if="!component.use_advanced">
 	                                            <fieldset>  
 	                                                <div id="basesetting">
-	                                                    <div class="row resource-setting-div" ng-repeat="item in component.pod.spec.containers">
+	                                                    <div class="row resource-setting-div" ng-repeat="item in component.pod.spec.containers track by $index">
 	                                                        <div class="row">
 	                                                            <div class="col-md-6">
 	                                                                <div class="form-group">
@@ -239,7 +239,7 @@
 	                                                        </div>
 	                                                    </div>
 	                                                    <div id="ports-setting" class="row port-setting-div">
-	                                                    	<div class="port-row" ng-repeat="item in component.service.spec.ports">
+	                                                    	<div class="port-row" ng-repeat="item in component.service.spec.ports track by $index">
 	                                                    		<div class="port-div {{item.nodePort != undefined ?'':'port-div-more'}}">
 	                                                    			<label for="normal-field" class="col-sm-5 control-label">
 	                                                    				Port
@@ -429,10 +429,44 @@
 	                                    </div>
 	                                    <div class="my-tab-pane" ng-if="runtimeTab == 3">
 	                                         <div class="col-lg-12 form-horizontal" id="component-envs">
+	                                         	<div class="port-row" ng-repeat="item in component.env track by $index">
+	                                         		<div class="port-div port-div-more">
+	                                         			<label for="normal-field" class="col-sm-5 control-label">
+	                                         				Key
+	                                         			</label>
+	                                         			<div class="col-sm-7">
+	                                         				<input type="text" class="form-control c-env-key" ng-model="item.key" ng-change="item.key = item.key.toUpperCase()" required>
+	                                         			</div>
+	                                         		</div>
+	                                         		<div class="port-div port-div-more">
+	                                         			<label for="normal-field" class="col-sm-5 control-label">
+	                                         				Value
+	                                         			</label>
+	                                         			<div class="col-sm-7">
+	                                         				<input type="text" class="form-control c-env-key" ng-model="item.value" required>
+	                                         			</div>
+	                                         		</div>
+	                                         		<div class="port-remove-div c-rm-kv" ng-click="removeEnv($index)">
+	                                         			<span class="glyphicon glyphicon-remove"></span>
+	                                         		</div>
+	                                         	</div>
+	                                         	<button type="button" class="btn btn-success c-new-kv" ng-click="addEnv()">
+	                                         		<i class="glyphicon glyphicon-plus" style="top:1px"></i>
+	                                         		<span style="margin-left:5px">Add Env</span>
+	                                         	</button>
 	                                        </div>
 	                                    </div>
 	    							</div>
 	    						</div>
+	    					</div>
+	    					<div style="margin-top:20px" ng-if="tab == 2">
+	    						Edit Shell
+	    					</div>
+	    					<div style="margin-top:20px" ng-if="tab == 3">
+	    						Build Image
+	    					</div>
+	    					<div style="margin-top:20px" ng-if="tab == 4">
+	    						Debug
 	    					</div>
     					</div>
     				</div>
