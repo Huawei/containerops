@@ -5,7 +5,7 @@
       "node_modules/angular-ui-router/release/angular-ui-router.js",
       "node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js",
       "node_modules/underscore/underscore-min.js",
-      "node_modules/select2/dist/js/select2.min.js",
+      
        
       "bower_components/jquery/dist/jquery.min.js",
       "bower_components/jquery-pjax/jquery.pjax.js",
@@ -21,6 +21,12 @@
       "bower_components/messenger/build/js/messenger.min.js",
       "bower_components/messenger/build/js/messenger-theme-future",
 
-      "app/scripts/**/*.js"
+      "node_modules/select2/dist/js/select2.min.js",
+
+      "app/scripts/router/**/*.js",
+      "app/scripts/controllers/**/*.js",
+      "app/scripts/services/**/*.js",
+      "app/scripts/directives/**/*.js"
+
     ]
 }
