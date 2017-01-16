@@ -66,9 +66,9 @@ auth.controller('ApplicationController', ['$scope', '$location', '$state', 'appl
 
 	$scope.saveBaseInfo = function(){
 		console.log($scope.baseInfo)
-		var baseInfo = $scope.baseInfo;
-		if(baseInfo.name){
-			applicationService.saveBaseInfo(baseInfo)
+		var params = $scope.baseInfo;
+		if(params.name){
+			applicationService.saveBaseInfo(params)
 				.then(function(data){
 					console.log('保存成功')
 				},function(err){
