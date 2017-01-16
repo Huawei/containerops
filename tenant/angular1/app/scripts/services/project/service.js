@@ -32,7 +32,35 @@ function projectService($http,$q){
     },
     saveBaseInfo: function(params){
       var deferred = $q.defer();
-      var url = "/projects";
+      var url = "/save";
+      var request = {
+          "url": url,
+          "method": "GET"
+      }
+      $http(request).then(function(data) {
+          deferred.resolve(data);
+      }, function(error) {
+          deferred.reject(error);
+      });
+      return deferred.promise;
+    },
+    getOrgList: function(params){
+      var deferred = $q.defer();
+      var url = "/orgs";
+      var request = {
+          "url": url,
+          "method": "GET"
+      }
+      $http(request).then(function(data) {
+          deferred.resolve(data);
+      }, function(error) {
+          deferred.reject(error);
+      });
+      return deferred.promise;
+    },
+    getTeamList: function(params){
+      var deferred = $q.defer();
+      var url = "/orgs";
       var request = {
           "url": url,
           "method": "GET"

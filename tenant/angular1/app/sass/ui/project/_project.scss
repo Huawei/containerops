@@ -13,11 +13,156 @@ limitations under the License. */
   margin-right: 20px;
 }
 
-#projectList {
+.mar-bt-twenty {
+  margin-bottom: 20px;
+}
+
+.over-hidden {
+	overflow: hidden;
+}
+
+.bg-white {
+	background: #fff;
+}
+
+.bg-grey {
+  background: #d7d7d7;
+}
+
+.info-nav > li.active > a, 
+.info-nav > li.active > a:hover, 
+.info-nav > li.active > a:focus {
+	background: #64BD6D !important;
+}
+
+#projectInfo {
   .create {
     border-radius: 3px;
   }
+
   .list {
     margin-top: 20px;
   }
+
+  .limit {
+  	margin-bottom: 20px;
+  	text-align: center;
+  	.space {
+  		display: block;
+  		padding: 3px 0;
+  		width: 80px;
+  		text-align: center;
+  		margin-bottom: 3px;
+  		border: 1px solid #eaeaea;
+  		border-radius: 3px;
+  		background: #86c686;
+  		color: #fff;
+  		&:last-child {
+  			background: #c9e09d;
+  		}
+  		&:first-child {
+  			background: #58b558;
+  		}
+  	}
+  }
+
+  .item-team {
+  	margin-top: 10px;
+  	list-style: none;
+  	padding: 3px 10px;
+  	width: 80%;
+  	background: #e5e5e5;
+  	color: #fff;
+  	&:first-child {
+  		margin-top: 0;
+  	}
+  }
+
+  .bg-chosed {
+		background: #F2BE35;
+  }
+
+	.bg-nochosed {
+		background: #e5e5e5;
+	}
+
+  .filter-org {
+  	margin-bottom: 20px;
+  }
+
+  .org-info {
+  	margin-bottom: 40px;
+  	width: 80px
+  }
+
+  .org-name {
+  	display: inline-block;
+  	width: 100%;
+  	height: 28px;
+  	line-height: 28px;
+  	border-radius: 3px;
+  	border: 1px solid #eaeaea;
+  	text-align: center;
+  	position: relative;
+  }
+
+  .org-down {
+		position: absolute;
+		right: 5px;
+		top: 20px;
+	}
+
+  .all-orgizations {
+  	width: 100%;
+  	height: 80px
+  	overflow: scroll;
+  	text-align: center;
+  	padding: 0;
+		background: #eaeaea;
+  }
+  
+  .item-org {
+		padding: 5px 0;
+		border-bottom: 1px solid #d7d7d7;
+		list-style: none;
+		color: #aaa;
+		&:hover {
+			color: #fff;
+			background: #F2BE35;
+		}
+	}
+
+  .all-teams {
+  	padding: 10px;
+  	border-radius: 3px;
+  }
+
+	.item-role {
+		margin-bottom: 10px;
+		list-style: none;
+	}
+
+	.role-name, .role-team {
+		margin: 0;
+	}
+
+	.role-team {
+		margin-left: 10px;
+	}
+
+	.role-teams {
+		padding: 10px;
+	}
+
+	.save-setting {
+		background: #58b558;
+		text-align: center;
+		border-radius: 3px;
+		padding: 3px 0;
+		color: #fff;
+		margin-top: 40px;
+	}	
 }
+
+
+
