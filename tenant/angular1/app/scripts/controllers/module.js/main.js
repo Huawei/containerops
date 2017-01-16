@@ -57,9 +57,9 @@ auth.controller('ModuleController', ['$scope', '$location', '$state', 'moduleSer
 
 	$scope.saveBaseInfo = function(){
 		console.log($scope.baseInfo)
-		var baseInfo = $scope.baseInfo;
-		if(baseInfo.name){
-			moduleService.saveBaseInfo(baseInfo)
+		var params = $scope.baseInfo;
+		if(params.name){
+			moduleService.saveBaseInfo(params)
 				.then(function(data){
 					console.log('保存成功')
 				},function(err){
