@@ -101,6 +101,10 @@ function componentService(componentApiService){
 		"value" : ""
 	}
 
+	function addComponent(reqbody){
+		return componentApiService.ajaxCall("add",null,reqbody);
+	}
+
 	return {
 		"getComponents" : getComponents,
 		"component" : component,
@@ -109,7 +113,8 @@ function componentService(componentApiService){
 		"nodeport" : nodeport,
 		"clusterip" : clusterip,
 		"imagesetting" : imagesetting,
-		"env" : env
+		"env" : env,
+		"addComponent" : addComponent
 	}
 }
    
