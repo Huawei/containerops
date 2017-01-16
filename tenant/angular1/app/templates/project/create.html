@@ -1,3 +1,6 @@
+<h3 class="page-title">
+   Project - <strong> Create </strong> 
+</h3>
 <ul class="nav nav-tabs info-nav">
   <li ng-class="currentStep === 'baseInfo' ? 'active' : ''">
     <a href="javascript:void(0)" data-toggle="tab" ng-click="changeStep('baseInfo')">base info</a>
@@ -25,7 +28,7 @@
 		      <input type="radio" name="visiblity" ng-model="baseInfo.visible" value="private"> private
 		    </label>
 		  </div>
-		  <button class="btn btn-info" ng-click="saveBaseInfo()">save</button>
+		  <button class="btn btn-success" ng-click="saveBaseInfo()">save</button>
 		</form>
   </div>
   <div id="tab2" class="tab-pane" ng-class="currentStep === 'setting' ? 'active' : ''">
@@ -57,8 +60,7 @@
       </ul>
   	</div>
     <div class="row">
-      <div class="col-xs-offset-4 col-xs-4 save-setting">save</div>
+      <div class="col-xs-offset-4 col-xs-4 save-setting" ng-click="saveSetting()">save</div>
     </div>
-
   </div>
 </div>
