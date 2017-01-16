@@ -32,7 +32,7 @@ function componentApiService(notifyService, apiService){
 		},
 
 		add : {
-			"url" :	"",
+			"url" :	"/components",
 			"type" : "POST"
 		},
 
