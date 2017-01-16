@@ -20,7 +20,7 @@
 				<i class="glyphicon glyphicon-floppy-disk" style="font-size:16px"></i>
 				<span style="margin:0 5px">Save</span>
 			</button>
-			<button id="cancelNewComponentBtn" type="button" class="btn btn-inverse">
+			<button id="cancelNewComponentBtn" type="button" class="btn btn-inverse" ng-click="backToList()">
 				<i class="fa fa-reply" style="font-size:16px"></i>
 				<span style="margin:0 5px">Cancel</span>
 			</button>
@@ -37,7 +37,9 @@
                  			<div class="row">
                  				<div class="col-md-12">
                  					<div>
-                 						<label for="normal-field" class="col-sm-3 control-label">Name</label>
+                 						<label for="normal-field" class="col-sm-3 control-label">
+                 							<span class="required">*</span>Name
+                 						</label>
                  						<div class="col-sm-9">
                  							<input type="text" id="c-name" class="form-control" placeholder="Component Name" ng-model="component.name" pattern="^[a-zA-Z0-9.~_-]*$" required>
                  						</div>
@@ -57,7 +59,9 @@
                  			<div class="row">
                  				<div class="col-md-12">
                  					<div>
-                 						<label for="hint-field" class="col-sm-3 control-label">Version</label>
+                 						<label for="hint-field" class="col-sm-3 control-label">
+                 							<span class="required">*</span>Version
+                 						</label>
                  						<div class="col-sm-9">
                  							<input type="text" id="c-version" class="form-control" placeholder="Component Version Name" ng-model="component.version" pattern="^[a-zA-Z0-9.~_-]*$" required>
                  						</div>
@@ -79,21 +83,21 @@
     						<div class="clearfix">
     							<div class="col-md-3 component-tab {{tab == 1 ? 'component-tab-active' : ''}}" ng-click="selectTab(1)">
     								<div class="tab-text">Runtime Config</div>
-    								<div class="tab-unfinished"></div>
+    								<div class="{{tabStatus.runtime ? 'tab-finished' : 'tab-unfinished'}}"></div>
     							</div>
     							<div class="col-md-3 component-tab {{tab == 2 ? 'component-tab-active' : ''}}" ng-click="selectTab(2)" ng-if="toCreateImage">
     								<div class="tab-text">Edit Shell</div>
-    								<div class="tab-unfinished"></div>
+    								<div class="{{tabStatus.editshell ? 'tab-finished' : 'tab-unfinished'}}"></div>
     							</div>
     							<div class="col-md-3 component-tab {{tab == 3 ? 'component-tab-active' : ''}}" ng-click="selectTab(3)" ng-if="toCreateImage">
     								<div class="tab-text">Build Image</div>
-    								<div class="tab-unfinished"></div>
+    								<div class="{{tabStatus.buildimage ? 'tab-finished' : 'tab-unfinished'}}"></div>
     							</div>
-    							<div class="col-md-3 component-tab {{tab == 4 ? 'component-tab-active' : ''}}" ng-click="selectTab(4)">
+    							<div class="col-md-3 component-tab {{tab == 4 ? 'component-tab-active' : ''}}" ng-click="selectTab(4)" ng-if="isSave">
     								<div class="tab-text">Debug</div>
     							</div>
     						</div>
-    						<div style="margin-top:20px" ng-if="tab == 1">
+    						<div style="margin-top:20px" ng-show="tab == 1">
 	    						<div class="tabbable tabs-left mb-lg">
 	    							<ul class="nav nav-tabs">
 	    								<li class="nav-item">
@@ -107,7 +111,7 @@
 	                            		</li>
 	    							</ul>
 	    							<div class="tab-content">
-	    								<div class="my-tab-pane" ng-if="runtimeTab == 1">
+	    								<div class="my-tab-pane" ng-show="runtimeTab == 1">
 	                                        <form id="component-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
 	                                            <fieldset>
 	                                                <div class="row">
@@ -126,7 +130,8 @@
 	                                            </fieldset>
 	                                            <fieldset class="row widget component-image" style="padding:15px 0px">
 	                                                <div class="type-header" style="margin-top:-10px">
-	                                                    <div class="type-label" style="width:200px">Component Image</div>
+	                                                    <div class="type-label" style="width:200px" ng-if="!toCreateImage">Using Existing Image</div>
+	                                                    <div class="type-label" style="width:200px" ng-if="toCreateImage">Creating New Image</div>
 	                                                    <div class="type-setting">
 	                                                        <a title="Create Image" style="display: inline;cursor:pointer;" ng-click="createImage()" ng-if="!toCreateImage">
 	                                                        	<i class="fa fa-copy" style="margin-right:5px"></i>
@@ -142,7 +147,7 @@
 	                                                    <div class="col-md-6">
 	                                                        <div class="form-group">
 	                                                            <label for="normal-field" class="col-sm-4 control-label">
-	                                                                Repository Name
+	                                                            	<span class="required">*</span>Repository Name
 	                                                            </label>
 	                                                            <div class="col-sm-7">
 	                                                                <input type="text" id="k8s-pod-image-name" class="form-control" ng-model="component.image_name" required>
@@ -155,7 +160,7 @@
 	                                                                Image Tag
 	                                                            </label>
 	                                                            <div class="col-sm-7">
-	                                                                <input type="text" id="k8s-pod-image-tag" class="form-control" ng-model="component.image_tag" required>
+	                                                                <input type="text" id="k8s-pod-image-tag" class="form-control" ng-model="component.image_tag">
 	                                                            </div>
 	                                                        </div>
 	                                                    </div>
@@ -179,7 +184,7 @@
 	                                                            <div class="col-md-6">
 	                                                                <div class="form-group">
 	                                                                    <label for="normal-field" class="col-sm-4 control-label">
-	                                                                        CPU Limits
+	                                                                    	<span class="required">*</span>CPU Limits
 	                                                                    </label>
 	                                                                    <div class="col-sm-7">
 	                                                                        <input type="number" step="0.01" id="k8s-cpu-limits" ng-model="item.resources.limits.cpu" class="form-control" required>
@@ -189,7 +194,7 @@
 	                                                            <div class="col-md-6">
 	                                                                <div class="form-group">
 	                                                                    <label for="normal-field" class="col-sm-4 control-label">
-	                                                                        CPU Requests
+	                                                                    	<span class="required">*</span>CPU Requests
 	                                                                    </label>
 	                                                                    <div class="col-sm-7">
 	                                                                        <input type="number" step="0.01" id="k8s-cpu-requests" ng-model="item.resources.requests.cpu" class="form-control" required>
@@ -201,7 +206,7 @@
 	                                                            <div class="col-md-6">
 	                                                                <div class="form-group">
 	                                                                    <label for="normal-field" class="col-sm-4 control-label">
-	                                                                        Memory Limits
+	                                                                    	<span class="required">*</span>Memory Limits
 	                                                                    </label>
 	                                                                    <div class="col-sm-7 input-group">
 	                                                                        <input type="number" step="0.01" id="k8s-memory-limits" ng-model="item.resources.limits.memory" class="form-control" required>
@@ -212,7 +217,7 @@
 	                                                            <div class="col-md-6">
 	                                                                <div class="form-group">
 	                                                                    <label for="normal-field" class="col-sm-4 control-label">
-	                                                                        Memory Requests
+	                                                                    	<span class="required">*</span>Memory Requests
 	                                                                    </label>
 	                                                                    <div class="col-sm-7 input-group">
 	                                                                        <input type="number" step="0.01" id="k8s-memory-requests" ng-model="item.resources.requests.memory" class="form-control" required>
@@ -240,25 +245,25 @@
 	                                                    </div>
 	                                                    <div id="ports-setting" class="row port-setting-div">
 	                                                    	<div class="port-row" ng-repeat="item in component.service.spec.ports track by $index">
-	                                                    		<div class="port-div {{item.nodePort != undefined ?'':'port-div-more'}}">
+	                                                    		<div class="port-div {{serviceType != 'ClusterIP' ?'':'port-div-more'}}">
 	                                                    			<label for="normal-field" class="col-sm-5 control-label">
-	                                                    				Port
+	                                                    				<span class="required">*</span>Port
 	                                                    			</label>
 	                                                    			<div class="col-sm-7">
 	                                                    				<input type="number" name="k8s-service-port" class="form-control" required min="0" max="65535" ng-model="item.port">
 	                                                    			</div>
 	                                                    		</div>
-	                                                    		<div class="port-div {{item.nodePort != undefined ?'':'port-div-more'}}">
+	                                                    		<div class="port-div {{serviceType != 'ClusterIP' ?'':'port-div-more'}}">
 	                                                    			<label for="normal-field" class="col-sm-5 control-label">
-	                                                    				Target Port
+	                                                    				<span class="required">*</span>Target Port
 	                                                    			</label>
 	                                                    			<div class="col-sm-7">
 	                                                    				<input type="number" name="k8s-service-target-port" class="form-control" required min="0" max="65535" ng-model="item.targetPort">
 	                                                    			</div>
 	                                                    		</div>
-	                                                    		<div class="port-div" ng-if="item.nodePort != undefined">
+	                                                    		<div class="port-div" ng-if="serviceType != 'ClusterIP'">
 	                                                    			<label for="normal-field" class="col-sm-5 control-label">
-	                                                    				Node Port
+	                                                    				<span class="required">*</span>Node Port
 	                                                    			</label>
 	                                                    			<div class="col-sm-7">
 	                                                    				<input type="number" name="k8s-service-node-port" class="form-control" required min="0" max="65535" ng-model="item.nodePort">
@@ -281,7 +286,9 @@
 	                                                <div class="advanced-content">
 	                                                    <div class="col-md-6 panel">
 	                                                        <div class="panel-heading clearfix">
-	                                                            <span class="panel-title">Service</span>
+	                                                            <span class="panel-title">
+	                                                            	<span class="required">*</span>Service
+	                                                            </span>
 	                                                            <!-- <span class="panel-subtitle">Service setting (Json / Yaml)</span> -->
 	                                                        </div>
 	                                                        <div class="panel-body" style="min-height:500px;padding:0">
@@ -290,7 +297,9 @@
 	                                                    </div>
 	                                                    <div class="col-md-6 panel">
 	                                                        <div class="panel-heading clearfix">
-	                                                            <span class="panel-title">Pod</span>
+	                                                            <span class="panel-title">
+	                                                            	<span class="required">*</span>Pod
+	                                                            </span>
 	                                                            <!-- <span class="panel-subtitle">Pod setting (Json / Yaml)</span> -->
 	                                                        </div>
 	                                                        <div class="panel-body" style="min-height:500px;padding:0">
@@ -301,7 +310,7 @@
 	                                            </fieldset>
 	                                        </form>
 	                                    </div>
-	                                    <div class="my-tab-pane" ng-if="runtimeTab == 2">
+	                                    <div class="my-tab-pane" ng-show="runtimeTab == 2">
 	                                        <div id="designMode" ng-show="!jsonMode">
 	                                            <div class="action-way-div row">
 	                                                <span class="action-design-select"></span>
@@ -427,8 +436,8 @@
 	                                            </div>
 	                                        </div>
 	                                    </div>
-	                                    <div class="my-tab-pane" ng-if="runtimeTab == 3">
-	                                         <div class="col-lg-12 form-horizontal" id="component-envs">
+	                                    <div class="my-tab-pane" ng-show="runtimeTab == 3">
+	                                         <form class="col-lg-12 form-horizontal" id="component-envs">
 	                                         	<div class="port-row" ng-repeat="item in component.env track by $index">
 	                                         		<div class="port-div port-div-more">
 	                                         			<label for="normal-field" class="col-sm-5 control-label">
@@ -454,12 +463,12 @@
 	                                         		<i class="glyphicon glyphicon-plus" style="top:1px"></i>
 	                                         		<span style="margin-left:5px">Add Env</span>
 	                                         	</button>
-	                                        </div>
+	                                        </form>
 	                                    </div>
 	    							</div>
 	    						</div>
 	    					</div>
-	    					<div style="margin-top:20px" ng-if="tab == 2">
+	    					<div style="margin-top:20px" ng-show="tab == 2">
 	    						<div class="col-md-12">
 	    							<div class="col-md-4">
 	    								<div class="event-selection {{selectedEvent == 1 ? 'event-selected' : ''}}" ng-click="selectEvent(1)">Component Start</div>
@@ -473,10 +482,10 @@
 	    						</div>
 	    						<div id="scriptEditor"></div>
 	    					</div>
-	    					<div style="margin-top:20px" ng-if="tab == 3">
+	    					<div style="margin-top:20px" ng-show="tab == 3">
 	    						Build Image
 	    					</div>
-	    					<div style="margin-top:20px" ng-if="tab == 4">
+	    					<div style="margin-top:20px" ng-show="tab == 4">
 	    						Debug	
 	    					</div>
     					</div>

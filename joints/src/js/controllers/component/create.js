@@ -1,24 +1,27 @@
-devops.controller('CreateComponentController', ['$scope','$location', 'componentService', 'componentIO',
-  function($scope,$location,componentService,componentIO) {   
+devops.controller('CreateComponentController', ['$scope','$location', 'componentService', 'componentIO', 
+  'componentCheck', 'notifyService', 'apiService',
+  function($scope,$location,componentService,componentIO,componentCheck,notifyService,apiService) {   
 
     // tabs control
     $scope.selectTab = function(index){
       $scope.tab = index;
+
+      checkTabs();
       if(index == 2){
-        setTimeout(function(){
-          initScriptEditor();
-          showEventScript();
-        },500);
+        initScriptEditor();
+        showEventScript();
       }
+    }
+
+    function checkTabs(){
+      $scope.tabStatus.runtime = componentCheck.runtime();
     }
 
     // runtime tab all functions below
     $scope.changeRuntimeTab = function(index){
       $scope.runtimeTab = index;
       if($scope.runtimeTab == 2){
-        setTimeout(function(){
-          componentIO.init($scope.component);
-        },500)
+        componentIO.init($scope.component);
       }
     }
 
@@ -52,6 +55,7 @@ devops.controller('CreateComponentController', ['$scope','$location', 'component
         }else{
           $scope.component.service.spec.ports.push($.extend(true,{},componentService.clusterip));
         } 
+        $scope.serviceType = $scope.component.service.spec.type;
       }
     }
 
@@ -75,6 +79,7 @@ devops.controller('CreateComponentController', ['$scope','$location', 'component
         $scope.component.service.spec.ports = [];
         $scope.component.service.spec.ports.push($.extend(true,{},componentService.clusterip));
       }
+      $scope.serviceType = $scope.component.service.spec.type;
     }
 
     $scope.createImage = function(){
@@ -176,7 +181,22 @@ devops.controller('CreateComponentController', ['$scope','$location', 'component
 
     // save component
     $scope.saveComponent = function(){
-      console.log($scope.component)
+      var result = componentCheck.go($scope.toCreateImage);
+      if(result){
+        var promise = componentService.addComponent($scope.component);
+        promise.done(function(data){
+            loading.hide();
+            console.log(data);
+        });
+        promise.fail(function(xhr,status,error){
+            apiService.failToCall(xhr.responseJSON);
+        });
+      }
+    }
+
+    // back to list
+    $scope.backToList = function(){
+      $location.path("/component");
     }
 
     // init component create page
@@ -185,6 +205,11 @@ devops.controller('CreateComponentController', ['$scope','$location', 'component
 
       // for top tabs control
       $scope.tab = 1;
+      $scope.tabStatus = {
+        "runtime" : false,
+        "editshell" : false,
+        "buildimage" : false
+      }
 
       // for runtime config tabs control
       $scope.runtimeTab = 1;
@@ -198,7 +223,14 @@ devops.controller('CreateComponentController', ['$scope','$location', 'component
       // for event selection
       $scope.selectedEvent = 1;
 
+      // init service pod
       $scope.baseOrAdvanced();
+
+      // init check
+      componentCheck.init($scope.component);
+
+      // for debug display
+      $scope.isSave = false;
     }
 
     init();
