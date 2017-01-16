@@ -57,6 +57,7 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 }])
 .controller('ProjectCreateController', ['$scope', '$location','$state', 'projectService', function($scope, $location, $state, projectService) {
   $scope.currentStep = 'baseInfo';
+  $scope.baseInfoId = '';
   $scope.baseInfo = {
 		name: '',
 		desc: '',
@@ -73,6 +74,7 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 		if(params.name){
 			projectService.saveBaseInfo(params)
 				.then(function(data){
+					$scope.baseInfoId = data.id;
 					console.log('保存成功')
 				},function(err){
 					console.log('保存失败：',err)
@@ -81,6 +83,25 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 			console.log('请填写用户名')
 		}
 	};
+
+	$scope.saveSetting = function(){
+		if($scope.baseInfoId){
+			var params = $scope.baseInfo;
+			if(params.name){
+				projectService.saveSetting(params)
+					.then(function(data){
+						console.log('保存成功')
+					},function(err){
+						console.log('保存失败：',err)
+					})
+			}else{
+				console.log('请填写用户名')
+			}
+		}else{
+			console.log('请先创建一个project')
+		}
+	};
+
 
 	$scope.orgList = [];
 	$scope.teamList = [];
@@ -135,7 +156,7 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 
 	// get team list
 	$scope.getTeamList = function(params){
-		projectService.getOrgList(params)
+		projectService.getTeamList(params)
 			.then(function(data){
 				// $scope.teamList = data;
 				$scope.teamList = [
@@ -218,17 +239,37 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 	$scope.getOrgList({user:"small"});
 
 	$scope.getRole = function(val){
+		// console.log($scope.chooseTeams)
 		var role = ["Admin","Readonly","ReadWrite"][val];
 		var obj = {
 			"role": role,
 			"teams": $scope.chooseTeams
 		}
-		if($scope.chooseTeams.length>0){
-			$scope.roleTeams.push(obj)
-			$scope.chooseTeams = [];
-			$scope.clearChosedStatus($scope.teamList);
-		}
+
+		// if($scope.roleTeams.length>0){
+		// 	angular.forEach($scope.roleTeams,function(itemRole,i){
+		// 		if(itemRole.role === role){
+		// 			console.log(777)
+		// 			$scope.roleTeams.splice(i,1)
+		// 			$scope.roleTeams.push(obj)
+		// 			return
+		// 		}else{
+		// 			$scope.roleTeams.push(obj)
+		// 			return
+		// 		}
+		// 	})
+		// }else{
+		// 	$scope.roleTeams.push(obj)
+		// }
+		console.log(888)
+		$scope.roleTeams.push(obj)
+		$scope.chooseTeams = [];
+		$scope.clearChosedStatus($scope.teamList);
+
 	}
+
+
+
 
 }]);
 

@@ -44,6 +44,20 @@ function projectService($http,$q){
       });
       return deferred.promise;
     },
+    saveSetting: function(params){
+      var deferred = $q.defer();
+      var url = "/save";
+      var request = {
+          "url": url,
+          "method": "GET"
+      }
+      $http(request).then(function(data) {
+          deferred.resolve(data);
+      }, function(error) {
+          deferred.reject(error);
+      });
+      return deferred.promise;
+    },
     getOrgList: function(params){
       var deferred = $q.defer();
       var url = "/orgs";
