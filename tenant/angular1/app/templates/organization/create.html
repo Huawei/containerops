@@ -12,86 +12,74 @@
                     </button>
                 </legend>
                 <div class="row">
-                  <div class="col-md-3">Create Organization</div>
-                    <div class="col-md-9">
-                        <div data-bootstrap-wizard data-height="444" class="form-wizard">
-                            <uib-tabset type="pills">
-						    <uib-tab heading="Create Organization">
-						    	<form action='' method="POST" data-parsley-priority-enabled="false" novalidate="novalidate">
-                                        <fieldset>
-                                            <div class="form-group">
-                                                <!-- Username -->
-                                                <label for="username">Username</label>
-                                                <input type="text" id="username" name="username" placeholder="" class="form-control" required="required">
-                                                <span class="help-block">Username can contain any letters or numbers, without spaces</span>
-                                            </div>
-                                            <div class="form-group">
-                                                <!-- Email -->
-                                                <label for="email">Email</label>
-                                                <input type="email" id="email" name="email" placeholder="" class="form-control" data-parsley-trigger="change" required="required">
-                                                <span class="help-block">Please provide your E-mail</span>
-                                            </div>
-                                            <div class="form-group">
-                                                <!-- Password -->
-                                                <label for="address">Address</label>
-                                                <input type="text" id="address" name="address" placeholder="" class="form-control">
-                                                <span class="help-block">Please provide your address</span>
-                                            </div>
-                                        </fieldset>
-                                    </form>
-						    </uib-tab>
-						    <uib-tab heading="Small Button" classes="btn-sm"><form action='' method="POST" data-parsley-priority-enabled="false" novalidate="novalidate">
-                                        <fieldset>
-                                            <div class="form-group">
-                                                <!-- Username -->
-                                                <label for="username">Username</label>
-                                                <input type="text" id="username" name="username" placeholder="" class="form-control" required="required">
-                                                <span class="help-block">Username can contain any letters or numbers, without spaces</span>
-                                            </div>
-                                            <div class="form-group">
-                                                <!-- Email -->
-                                                <label for="email">Email</label>
-                                                <input type="email" id="email" name="email" placeholder="" class="form-control" data-parsley-trigger="change" required="required">
-                                                <span class="help-block">Please provide your E-mail</span>
-                                            </div>
-                                            <div class="form-group">
-                                                <!-- Password -->
-                                                <label for="address">Address</label>
-                                                <input type="text" id="address" name="address" placeholder="" class="form-control">
-                                                <span class="help-block">Please provide your address</span>
-                                            </div>
-                                        </fieldset>
-                                    </form></uib-tab>
-						  </uib-tabset>
-                            <!-- <div id="bar" class="progress progress-xs">
-                                <div class="progress-bar progress-bar-gray-light"></div>
-                            </div> -->
-                            <div class="tab-content">
-                             
-                                <div class="tab-pane bg-gray-lighter" id="tab4">
-                                    <h2>Thank you!</h2>
-                                    <p>Your submission has been received.</p>
+                    <div class="col-md-3">Create Organization</div>
+                    <div class="col-md-9" style="border-left:1px solid #e5e5e5;padding:0 30px;margin-bottom: 30px;">
+                        <!-- 
+                       <div class="row" style="line-height: 4; text-align: center;">
+                       	  <div class="col-md-4" style="background-color: #fafafa; border: 1px solid #e5e5e5;">
+                       	  	   Create Organization
+                       	  </div>
+                       	  <div class="col-md-4" style="background-color: #fafafa; border: 1px solid #e5e5e5;">
+                       	  	   Create Teams
+                       	  </div>
+                       	  <div class="col-md-4" style="background-color: #fafafa; border: 1px solid #e5e5e5;">
+                       	  	   Invite Members
+                       	  </div>
+                       </div> -->
+                        <form novalidate="novalidate" ng-show='step == "basicInfo" '>
+                            <fieldset>
+                                <div class="form-group">
+                                    <label>Name</label>
+                                    <input type="text" placeholder="" class="form-control" required="required" ng-model="org.name">
+                                    <span class="help-block">Name can contain any letters or numbers, without spaces</span>
                                 </div>
-                                <ul class="pager wizard">
-                                    <li class="previous">
-                                        <button class="btn btn-default btn-rounded pull-left">
-                                            <i class="fa fa-caret-left"></i> &nbsp; Previous
-                                        </button>
-                                    </li>
-                                    <li class="next">
-                                        <button class="btn btn-primary btn-rounded pull-right">
-                                            Next &nbsp; <i class="fa fa-caret-right"></i></button>
-                                    </li>
-                                    <li class="finish" style="display: none">
-                                        <button class="btn btn-success btn-rounded pull-right">
-                                            Finish &nbsp; <i class="glyphicon glyphicon-ok"></i>
-                                        </button>
-                                    </li>
-                                </ul>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea class="form-control" rows="3" ng-model="org.description"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <div class="radio radio-danger" style="display: inline-block;margin-right: 20px">
+                                        <label>
+                                            <input type="radio" name="org-type" value="public" ng-model="org.type"> Public
+                                        </label>
+                                    </div>
+                                    <div class="radio radio-danger" style="display: inline-block;">
+                                        <label>
+                                            <input type="radio" name="org-type" value="private" ng-model="org.type"> Private
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <!-- <div class="col-sm-offset-2 col-sm-10"> -->
+                                    <button class="btn btn-info" ng-click="save()">Create Organization</button>
+                                    <!-- </div> -->
+                                </div>
+                            </fieldset>
+                        </form>
+                        <div class="row" ng-show='step == "setupTeam"'>
+                            <div class="col-md-6">
+                                <section class="widget" style="padding-left:0;">
+                                    <header>
+						                <span class="label label-warning"><i class="fa fa-sitemap"></i></span>
+						                 &nbsp;Teams
+									    <button type="button" class="btn btn-success btn-sm pull-right" ng-click="createTeam()">
+					                        <i class="fa fa-plus"></i>
+					                        <span>Create Team</span>
+					                    </button>
+                                    </header>
+                                    <div class="widget-body">
+                                        <div class="list-group">
+                                            <a href="" class="list-group-item">
+                                                owner
+                                                <!-- <h5 class="no-margin">OwnerTeam</h5> -->
+                                                <!-- <small class="text-muted">owner</small> -->
+                                            </a>
+                                        </div>
+                                    </div>
+                                </section>
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </section>

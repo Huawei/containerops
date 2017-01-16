@@ -1,0 +1,47 @@
+<ul class="nav nav-tabs">
+  <li class="active"><a href="#tab1" data-toggle="tab">base info</a></li>             
+  <li><a href="#tab2" data-toggle="tab">setting</a></li>
+</ul>
+<div class="tab-content">
+  <div id="tab1" class="tab-pane active">
+		<form role="form">
+		  <div class="form-group">
+		    <label for="name">name</label>
+		    <input type="text" class="form-control" id="name" placeholder="" ng-model="baseInfo.name">
+		  </div>
+		  <div class="form-group">
+		    <label for="desc">description</label>
+		    <input type="text" class="form-control" id="desc" placeholder="" ng-model="baseInfo.desc">
+		  </div>
+		  <div class="radio">
+		    <label class="mar-rt-twenty">
+		      <input type="radio" name="visiblity" ng-model="baseInfo.visible" value="public"> public
+		    </label>
+		    <label>
+		      <input type="radio" name="visiblity" ng-model="baseInfo.visible" value="private"> private
+		    </label>
+		  </div>
+		  <button class="btn btn-info" ng-click="saveBaseInfo()">save</button>
+		</form>
+  </div>
+  <div id="tab2" class="tab-pane">
+  	<select name="org">
+  		<option value="">org1</option>
+  		<option value="">org2</option>
+  		<option value="">org3</option>
+  		<option value="">org4</option>
+  	</select>
+  	<div>
+  		<ul class="pull-left">
+  			<li>111</li>
+  			<li>222</li>
+  			<li>333</li>
+  			<li>444</li>
+  			<li>555</li>
+  		</ul>
+  		<div class="pull-right">
+  			...
+  		</div>
+  	</div>
+  </div>
+</div>
