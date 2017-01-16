@@ -44,6 +44,16 @@ auth.run(['$rootScope', '$state', '$stateParams',
             }
           }
         })
+        .state('team.create', {
+          parent: 'team',
+          url: '/create',
+          views: {
+            'main@core': {
+              templateUrl: 'templates/team/create.html',
+              controller: 'TeamCreateController'
+            }
+          }
+        })
         .state('project', {
           parent: 'core',
           url: '/project',
