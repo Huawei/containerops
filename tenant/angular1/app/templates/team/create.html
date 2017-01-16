@@ -50,11 +50,17 @@
                                 </section>
                             </div>
                         </div>
-                         <form novalidate="novalidate" ng-show='step == "basicInfo" '>
+                        <form novalidate="novalidate" ng-show='step == "basicInfo" '>
                             <fieldset>
                                 <div class="form-group">
+                                    <label>Select Organiztion</label>
+                                    <select class="select2 form-control" ng-model="selectedOrg.name" >
+                                        <option value="{{org.name}}" ng-repeat="org in orgs">{{ org.name }}</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
                                     <label>Name</label>
-                                    <input type="text" placeholder="" class="form-control" required="required" ng-model="team.name">
+                                    <input type="text" placeholder="" class="form-control" required="required" ng-model="team.name" autofocus>
                                     <span class="help-block">Name can contain any letters or numbers, without spaces</span>
                                 </div>
                                 <div class="form-group">
@@ -74,39 +80,33 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                 
                                     <button class="btn btn-info" ng-click="save()">Create Team</button>
-                                   
                                 </div>
                             </fieldset>
                         </form>
-                         <div class="form-group" ng-show='step == "inviteMember"'>
-                            <label for="bar">Invite Members to <span style="font-size:18px;color:#5dc4bf">{{team.name}}</span>:</label>
+                        <div class="form-group" ng-show='step == "inviteMember"'>
+                            <label for="bar">Invite members to team: &nbsp;<span style="font-size:20px;color:#5dc4bf"><em>{{team.name}}</em></span></label>
                             <div class="input-group">
-                              <input type="text" class="form-control" placeholder="Invite new member by username or email" ng-model="newMember">
-                              <div class="input-group-btn">
-                                <!-- <button type="button" class="btn btn-danger"><i class="fa fa-pencil"></i></button> -->
-                                <button type="button" class="btn btn-success" ng-click="addMember(team.name)"><i class="fa fa-plus"></i></button>
-                                <!-- <button type="button" class="btn btn-success"><i class="fa fa-refresh"></i></button> -->
-                              </div>
+                                <input type="text" class="form-control" placeholder="Invite new member by username or email" ng-model="newMember" ng-enter="addMember(team.name)">
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-success" ng-click="addMember(team.name)"><i class="fa fa-plus"></i></button>
+                                </div>
                             </div>
-                         </div>
-                          <div class="form-group row" ng-show='step == "inviteMember"'>
-                            <div class="col-md-6">
+                        </div>
+                        <div class="form-group row" ng-show='step == "inviteMember"'>
+                            <div class="col-md-12">
                                 <section class="widget" style="padding-left:0;">
                                     <header>
-                                        <span class="label label-warning"><i class="fa fa-user"></i></span>
-                                         &nbsp;Members
+                                        <span class="label label-warning"><i class="fa fa-user"></i></span> &nbsp;Members
                                     </header>
                                     <div class="widget-body">
                                         <ul class="list-group">
-                                          <li class="list-group-item" ng-repeat="member in members">{{member}}<i class="fa fa-remove pull-right" style="color:#ccc;cursor:pointer; "></i></li>
+                                            <li class="list-group-item" ng-repeat="member in members">{{member}}<i class="fa fa-remove pull-right" style="color:#ccc;cursor:pointer; "></i></li>
                                         </ul>
                                     </div>
                                 </section>
                             </div>
                         </div>
-                     
                     </div>
                 </div>
             </div>
