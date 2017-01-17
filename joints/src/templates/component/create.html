@@ -483,7 +483,135 @@
 	    						<div id="scriptEditor"></div>
 	    					</div>
 	    					<div style="margin-top:20px" ng-show="tab == 3">
-	    						Build Image
+	    						<form id="base-image-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
+	    							<fieldset class="row" style="padding:15px 0px">
+	    								<div class="type-header" style="margin-top:-10px">
+	    									<div class="type-label" style="width:200px">Base Image</div>
+	    									<div class="type-setting">
+	    										<input type="radio" id="type-url" name="base-image-type" value="url" ng-model="component.image_setting.from.type" ng-change="changeBaseImageType()"> 
+	    										<span style="margin-left:5px">Docker Image URL</span>
+	    										<input type="radio" id="type-dockerfile" name="base-image-type" value="dockerfile" ng-model="component.image_setting.from.type" ng-change="changeBaseImageType()" style="margin-left:30px"> 
+	    										<span style="margin-left:5px">Docker File</span>
+	    										<input type="radio" id="type-name" name="base-image-type" value="name" ng-model="component.image_setting.from.type" ng-change="changeBaseImageType()" style="margin-left:30px"> 
+	    										<span style="margin-left:5px">Image Name/Tag</span>
+	    									</div>
+	    								</div>	
+	    								<div class="row image-input-div" ng-if="component.image_setting.from.type == 'name'"> 
+	    									<div class="col-md-6">
+	    										<div class="form-group">
+	    											<label for="normal-field" class="col-sm-4 control-label">
+	    												<span class="required">*</span>Image Name
+	    											</label>
+	    											<div class="col-sm-7">
+	    												<input type="text" id="base-image-name" class="form-control" ng-model="component.image_setting.from.name" required>
+	    											</div>
+	    										</div>
+	    									</div>
+	    									<div class="col-md-6">
+	    										<div class="form-group">
+	    											<label for="normal-field" class="col-sm-4 control-label">
+	    												Image Tag
+	    											</label>
+	    											<div class="col-sm-7">
+	    												<input type="text" id="base-image-tag" class="form-control" ng-model="component.image_setting.from.tag">
+	    											</div>
+	    										</div>
+	    									</div>
+	    								</div>
+	    								<div class="row image-input-div" ng-if="component.image_setting.from.type == 'url'"> 
+	    									<div class="col-md-12">
+	    										<div class="form-group">
+	    											<label for="normal-field" class="col-sm-2 control-label">
+	    												<span class="required">*</span>URL
+	    											</label>
+	    											<div class="col-sm-9">
+	    												<input type="text" id="base-image-url" class="form-control" ng-model="component.image_setting.from.url" required>
+	    											</div>
+	    										</div>
+	    									</div>
+	    								</div>
+	    								<div class="row image-input-div" ng-if="component.image_setting.from.type == 'dockerfile'"> 
+	    									<div class="col-md-12">
+	    										<div class="form-group">
+	    											<label for="normal-field" class="col-sm-2 control-label">
+	    												<span class="required">*</span>Docker File
+	    											</label>
+	    											<div class="col-sm-9">
+	    												<textarea id="base-image-file" class="form-control" ng-model="component.image_setting.from.dockerfile" required style="height:300px"></textarea>
+	    											</div>
+	    										</div>
+	    									</div>
+	    								</div>
+	    							</fieldset>
+	    						</form>
+	    						<form id="build-image-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">	
+	    							<fieldset class="row" style="padding:15px 0px">
+	    								<div class="type-header" style="margin-top:-10px">
+	    									<div class="type-label" style="width:200px">Build Image</div>
+	    								</div>
+	    								<div class="row image-input-div">
+	    									<div class="col-md-6">
+	    										<div class="form-group">
+	    											<label for="hint-field" class="col-sm-4 control-label">
+	    												<span class="required">*</span>Image Name
+	    											</label>
+	    											<div class="col-sm-7 input-group">
+	    												<input type="text" id="build-name" class="form-control" ng-model="component.image_setting.build.name" required> 
+	    											</div>
+	    										</div>
+	    									</div>
+	    									<div class="col-md-6">
+	    										<div class="form-group">
+	    											<label for="hint-field" class="col-sm-4 control-label">
+	    												Image Tag
+	    											</label>
+	    											<div class="col-sm-7 input-group">
+	    												<input type="text" id="build-tag" class="form-control" ng-model="component.image_setting.build.tag"> 
+	    											</div>
+	    										</div>
+	    									</div>
+	    								</div>
+	    							</fieldset>
+	    						</form>
+	    						<form id="push-image-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
+	    							<fieldset class="row" style="padding:15px 0px">
+	    								<div class="type-header" style="margin-top:-10px">
+	    									<div class="type-label" style="width:200px">Push Image</div>
+	    								</div>
+	    								<div class="row image-input-div">
+	    									<div class="col-md-12">
+	    										<div class="form-group">
+	    											<label for="hint-field" class="col-sm-2 control-label">
+	    												<span class="required">*</span>Registry
+	    											</label>
+	    											<div class="col-sm-9 input-group">
+	    												<input type="text" id="push-registry" class="form-control" ng-model="component.image_setting.push.registry" required> 
+	    											</div>
+	    										</div>
+	    									</div>
+	    									<div class="col-md-6">
+	    										<div class="form-group">
+	    											<label for="hint-field" class="col-sm-4 control-label">
+	    												User Name
+	    											</label>
+	    											<div class="col-sm-7 input-group">
+	    												<input type="text" id="push-username" class="form-control" ng-model="component.image_setting.push.username"> 
+	    											</div>
+	    										</div>
+	    									</div>
+	    									<div class="col-md-6">
+	    										<div class="form-group">
+	    											<label for="hint-field" class="col-sm-4 control-label">
+	    												Password
+	    											</label>
+	    											<div class="col-sm-7 input-group">
+	    												<input type="password" id="push-password" class="form-control" ng-model="component.image_setting.push.password"> 
+	    											</div>
+	    										</div>
+	    									</div>
+	    								</div>
+	    							</fieldset>
+	    						</form>
 	    					</div>
 	    					<div style="margin-top:20px" ng-show="tab == 4">
 	    						Debug	

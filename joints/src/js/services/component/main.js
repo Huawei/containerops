@@ -81,8 +81,8 @@ function componentService(componentApiService){
 			"tag": ""
 		},
 		"from": {
-			"name": "",
-			"tag": ""
+			"type": "url",
+			"url": ""
 		},
 		"events": {
 			"component_start": "",
