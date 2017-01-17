@@ -45,7 +45,7 @@ scaffold/libpeerconnection.log
 scaffold/npm-debug.log
 scaffold/testem.log
 scaffold//typings
-tenant/npm-debug.log
+tenant/*、npm-debug.log
 
 # e2e
 scaffold/e2e/*.js
