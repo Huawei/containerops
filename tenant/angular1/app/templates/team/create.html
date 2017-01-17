@@ -12,17 +12,17 @@
                     </button>
                 </legend>
                 <div class="row">
-                    <div class="col-md-3">Create Team</div>
-                    <div class="col-md-5" style="border-left:1px solid #e5e5e5;padding:0 30px;margin-bottom: 30px;">
+                    <div class="col-md-2">Create Team</div>
+                    <div class="col-md-7" style="border-left:1px solid #e5e5e5;padding:0 30px;margin-bottom: 30px;">
                         <div class="row">
-                            <div class="col-lg-6 col-md-6 col-xs-12 ">
+                            <div class="col-lg-6 col-md-6 col-xs-12 " ng-click="gotoCreate()" style="cursor: pointer; padding-right:30px;">
                                 <section class="widget step-actived" style="padding: 3px 10px;">
                                     <div class="widget-body clearfix">
                                         <div class="row flex-nowrap">
                                             <div class="col-xs-3">
                                                 <span class="widget-icon">
-                                      <i class="fa fa-users"></i>
-                                    </span>
+                                                  <i class="fa fa-users"></i>
+                                                </span>
                                             </div>
                                             <div class="col-xs-9">
                                                 <h6 class="no-margin">Step 1</h6>
@@ -32,7 +32,7 @@
                                     </div>
                                 </section>
                             </div>
-                            <div class="col-lg-6 col-md-6 col-xs-12 ">
+                            <div class="col-lg-6 col-md-6 col-xs-12 " style="padding-left:30px;">
                                 <section ng-class="{widget:true, 'step-todo':step=='basicInfo','step-actived':step=='inviteMember'}" style="padding: 3px 10px;">
                                     <div class="widget-body clearfix">
                                         <div class="row flex-nowrap">
@@ -101,9 +101,11 @@
                                     </header>
                                     <div class="widget-body">
                                         <ul class="list-group">
-                                            <li class="list-group-item" ng-repeat="member in members">{{member}}<i class="fa fa-remove pull-right" style="color:#ccc;cursor:pointer; "></i></li>
+                                            <li class="list-group-item" ng-repeat="member in members track by $index">{{member}}
+                                              <i class="fa fa-remove pull-right" style="color:#ccc;cursor:pointer;" ng-click="removeMember(member)"></i>
+                                            </li>
                                         </ul>
-                                    </div>
+
                                 </section>
                             </div>
                         </div>
