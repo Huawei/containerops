@@ -26,10 +26,11 @@
                         <i class="fa fa-plus"></i>
                         <span>Create</span>
                     </button>
-                    <div class="pull-right" >
+                    <div class="pull-right" style="font-size:14px;">
                         <!-- <span >Select Organization</span> -->
                         <!-- <div > -->
-                            <select class="select2 form-control input-sm" ng-model="selectedOrg.name" style="width: 180px;height: 30px;">
+                                    <!-- <label>Select Organiztion</label> -->
+                            <select class="select2 form-control input-sm" ng-model="selectedOrg.name" style="width:200px;">
                                 <option value="{{org.name}}" ng-repeat="org in orgs">{{ org.name }}</option>
                             </select>
                         <!-- </div> -->
