@@ -31,7 +31,15 @@ auth.controller('TeamController', ['$scope', '$location','$state', 'TeamService'
 
 }])
 .controller('TeamCreateController', ['$scope', '$location','$state', 'TeamService','OrganizationService',function($scope, $location,$state,TeamService,OrganizationService) {
-  $scope.team = {name:"",description:"",type:"public"};
+     OrganizationService.get().then(function(data){
+        $scope.orgs = [{"name":"org1","desc":"desc1"}];
+        $scope.selectedOrg = $scope.orgs.length > 0 ? $scope.orgs[0] : {"name":"","desc":""};
+     },
+     function(errMsg) {
+        $scope.orgs = [{"name":"org1","desc":"desc1"}];
+        $scope.selectedOrg = $scope.orgs.length > 0 ? $scope.orgs[0] : {"name":"","desc":""};
+     })
+     $scope.team = {name:"",description:"",type:"public"};
      $scope.step = "basicInfo";
      $scope.members = [];
      $scope.back = function(){
