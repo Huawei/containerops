@@ -16,33 +16,33 @@ auth.controller('ApplicationController', ['$scope', '$location', '$state', 'appl
 				$scope.applicationList = [
 					{
 						"id":100,
-						"name":"p1",
-						"desc":"p1",
+						"name":"a1",
+						"desc":"a1",
 						"applicationNum":5,
 						"moduleNum":8
 					},
 					{
 						"id":101,
-						"name":"p2",
-						"desc":"p2",
+						"name":"a2",
+						"desc":"a2",
 						"applicationNum":7,
 						"moduleNum":10
 					}
 				]
 			}, function(err){
-				console.log('获取application list err:',err);
+				console.log('get list err:',err);
 				$scope.applicationList = [
 					{
 						"id":100,
-						"name":"p1",
-						"desc":"p1",
+						"name":"a1",
+						"desc":"a1",
 						"applicationNum":5,
 						"moduleNum":8
 					},
 					{
 						"id":101,
-						"name":"p2",
-						"desc":"p2",
+						"name":"a2",
+						"desc":"a2",
 						"applicationNum":7,
 						"moduleNum":10
 					}
@@ -51,7 +51,7 @@ auth.controller('ApplicationController', ['$scope', '$location', '$state', 'appl
 	};
 
 	$scope.edit = function(item){
-		$state.go('project.edit',{id:item.id,name:item.name})
+		$state.go('application.edit',{id:item.id,name:item.name})
 	};
 
 	$scope.getList($scope.params);
@@ -72,7 +72,7 @@ auth.controller('ApplicationController', ['$scope', '$location', '$state', 'appl
 	$scope.chooseTeams = [];
 	$scope.roleTeams = [];
 	$scope.isShowOrgs = false;
-	$scope.currentOrg = {
+	$scope.currentProject = {
 		name: '',
 		id: ''
 	};
@@ -91,12 +91,12 @@ auth.controller('ApplicationController', ['$scope', '$location', '$state', 'appl
 			applicationService.saveBaseInfo(params)
 				.then(function(data){
 					$scope.baseInfo.id = data.id;
-					console.log('保存成功')
+					console.log('success')
 				},function(err){
-					console.log('保存失败：',err)
+					console.log('failed:',err)
 				})
 		}else{
-			console.log('请填写用户名')
+			console.log('please input name')
 		}
 	}
 
@@ -106,15 +106,15 @@ auth.controller('ApplicationController', ['$scope', '$location', '$state', 'appl
 			if(params.name){
 				applicationService.saveSetting(params)
 					.then(function(data){
-						console.log('保存成功')
+						console.log('success')
 					},function(err){
-						console.log('保存失败：',err)
+						console.log('failed：',err)
 					})
 			}else{
-				console.log('请填写用户名')
+				console.log('please input name')
 			}
 		}else{
-			console.log('请先创建一个application')
+			console.log('please create application')
 		}
 	};
 
@@ -126,20 +126,20 @@ auth.controller('ApplicationController', ['$scope', '$location', '$state', 'appl
 				$scope.projectList = [
 					{
 						"id":100,
-						"name":"org1"
+						"name":"p1"
 					},
 					{
 						"id":101,
-						"name":"org2"
+						"name":"p2"
 					},
 					{
 						"id":102,
-						"name":"org3"
+						"name":"p3"
 					}
 				]
-				$scope.currentOrg = $scope.projectList[0];
+				$scope.currentProject = $scope.projectList[0];
 			},function(err){
-				console.log('获取组织列表失败:',err);
+				console.log('get list err:',err);
 				$scope.projectList = [
 					{
 						"id":100,
@@ -154,7 +154,7 @@ auth.controller('ApplicationController', ['$scope', '$location', '$state', 'appl
 						"name":"project3"
 					}
 				]
-				$scope.currentOrg = $scope.projectList[0];
+				$scope.currentProject = $scope.projectList[0];
 			})
 	};
 
@@ -181,7 +181,7 @@ auth.controller('ApplicationController', ['$scope', '$location', '$state', 'appl
 					}
 				]
 			},function(err){
-				console.log('获取team list失败:',err);
+				console.log('get list err:',err);
 				$scope.teamList = [
 					{
 						"id":100,
@@ -202,11 +202,11 @@ auth.controller('ApplicationController', ['$scope', '$location', '$state', 'appl
 			})
 	};
 
-	// get current org to filter team list
-	$scope.getCurrentOrg = function(item){
-		$scope.currentOrg = item;
+	// get current project to filter team list
+	$scope.getCurrentProject = function(item){
+		$scope.currentProject = item;
 		$scope.chooseTeams = [];
-		$scope.getTeamList($scope.currentOrg);
+		$scope.getTeamList($scope.currentProject);
 		$scope.isShow('isShowOrgs',false);
 	}
 
@@ -284,7 +284,7 @@ auth.controller('ApplicationController', ['$scope', '$location', '$state', 'appl
 					};
 
 				},function(err){
-					console.log('获取信息失败：',err)
+					console.log('get info err',err)
 					$scope.baseInfo = {
 						name: 'tom',
 						desc: 'this is test',

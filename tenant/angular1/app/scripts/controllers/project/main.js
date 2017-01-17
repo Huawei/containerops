@@ -30,7 +30,7 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 					}
 				]
 			}, function(err){
-				console.log('获取project list err:',err);
+				console.log('get list err:',err);
 				$scope.projectList = [
 					{
 						"id":100,
@@ -90,12 +90,12 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 			projectService.saveBaseInfo(params)
 				.then(function(data){
 					$scope.baseInfo.id = data.id;
-					console.log('保存成功')
+					console.log('success')
 				},function(err){
-					console.log('保存失败：',err)
+					console.log('failed',err)
 				})
 		}else{
-			console.log('请填写用户名')
+			console.log('please input name')
 		}
 	};
 
@@ -105,15 +105,15 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 			if(params.name){
 				projectService.saveSetting(params)
 					.then(function(data){
-						console.log('保存成功')
+						console.log('success')
 					},function(err){
-						console.log('保存失败：',err)
+						console.log('failed',err)
 					})
 			}else{
 				console.log('请填写用户名')
 			}
 		}else{
-			console.log('请先创建一个project')
+			console.log('please create project')
 		}
 	};
 
@@ -138,7 +138,7 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 				]
 				$scope.currentOrg = $scope.orgList[0];
 			},function(err){
-				console.log('获取组织列表失败:',err);
+				console.log('get list err:',err);
 				$scope.orgList = [
 					{
 						"id":100,
@@ -180,7 +180,7 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 					}
 				]
 			},function(err){
-				console.log('获取team list失败:',err);
+				console.log('get list err:',err);
 				$scope.teamList = [
 					{
 						"id":100,
@@ -283,7 +283,7 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 					};
 
 				},function(err){
-					console.log('获取信息失败：',err)
+					console.log('get info err',err)
 					$scope.baseInfo = {
 						name: 'tom',
 						desc: 'this is test',

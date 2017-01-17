@@ -34,9 +34,9 @@
   <div id="tab2" class="tab-pane" ng-class="currentStep === 'setting' ? 'active' : ''">
     <div class="row">
       <div class="org-info">
-        <span class="org-name" ng-click="isShowOrgs = !isShowOrgs">{{currentOrg.name}}<i class="fa fa-angle-down org-down"></i></span>
+        <span class="org-name" ng-click="isShowOrgs = !isShowOrgs">{{currentProject.name}}<i class="fa fa-angle-down org-down"></i></span>
         <ul class="all-orgizations" ng-if="isShowOrgs">
-          <li class="item-org" ng-repeat="item in projectList" ng-click="getCurrentOrg(item)">{{item.name}}</li>
+          <li class="item-org" ng-repeat="item in projectList" ng-click="getCurrentProject(item)">{{item.name}}</li>
         </ul>
       </div>
     </div>
