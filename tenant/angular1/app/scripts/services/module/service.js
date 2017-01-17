@@ -43,6 +43,76 @@ function moduleService($http,$q){
           deferred.reject(error);
       });
       return deferred.promise;
+    },
+    saveBaseInfo: function(params){
+      var deferred = $q.defer();
+      var url = "/projects";
+      var request = {
+          "url": url,
+          "method": "GET"
+      }
+      $http(request).then(function(data) {
+          deferred.resolve(data);
+      }, function(error) {
+          deferred.reject(error);
+      });
+      return deferred.promise;
+    },
+    saveSetting: function(params){
+      var deferred = $q.defer();
+      var url = "/save";
+      var request = {
+          "url": url,
+          "method": "GET"
+      }
+      $http(request).then(function(data) {
+          deferred.resolve(data);
+      }, function(error) {
+          deferred.reject(error);
+      });
+      return deferred.promise;
+    },
+    getApplicationList: function(params){
+      var deferred = $q.defer();
+      var url = "/orgs";
+      var request = {
+          "url": url,
+          "method": "GET"
+      }
+      $http(request).then(function(data) {
+          deferred.resolve(data);
+      }, function(error) {
+          deferred.reject(error);
+      });
+      return deferred.promise;
+    },
+    getTeamList: function(params){
+      var deferred = $q.defer();
+      var url = "/orgs";
+      var request = {
+          "url": url,
+          "method": "GET"
+      }
+      $http(request).then(function(data) {
+          deferred.resolve(data);
+      }, function(error) {
+          deferred.reject(error);
+      });
+      return deferred.promise;
+    },
+    getEditInfo: function(params){
+      var deferred = $q.defer();
+      var url = "/orgs";
+      var request = {
+          "url": url,
+          "method": "GET"
+      }
+      $http(request).then(function(data) {
+          deferred.resolve(data);
+      }, function(error) {
+          deferred.reject(error);
+      });
+      return deferred.promise;
     }
   }
 }

@@ -107,7 +107,7 @@ auth.run(['$rootScope', '$state', '$stateParams',
         })
         .state('application.edit', {
           parent: 'core',
-          url: '/project/edit',
+          url: '/application/edit',
           params: {name:null, id:null},
           views: {
             'main': {
@@ -129,6 +129,17 @@ auth.run(['$rootScope', '$state', '$stateParams',
         .state('module.create', {
           parent: 'core',
           url: '/module/create',
+          views: {
+            'main': {
+              templateUrl: 'templates/module/create.html',
+              controller: 'ModuleCreateController'
+            }
+          }
+        })
+        .state('module.edit', {
+          parent: 'core',
+          url: '/module/edit',
+          params: {name:null, id:null},
           views: {
             'main': {
               templateUrl: 'templates/module/create.html',
