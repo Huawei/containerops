@@ -65,21 +65,21 @@ auth.run(['$rootScope', '$state', '$stateParams',
           }
         })
         .state('project.create', {
-          parent: 'core',
-          url: '/project/create',
+          parent: 'project',
+          url: '/create',
           views: {
-            'main': {
+            'main@core': {
               templateUrl: 'templates/project/create.html',
               controller: 'ProjectCreateController'
             }
           }
         })
         .state('project.edit', {
-          parent: 'core',
-          url: '/project/edit',
+          parent: 'project',
+          url: '/edit',
           params: {name:null, id:null},
           views: {
-            'main': {
+            'main@core': {
               templateUrl: 'templates/project/create.html',
               controller: 'ProjectCreateController'
             }
@@ -96,21 +96,21 @@ auth.run(['$rootScope', '$state', '$stateParams',
           }
         })
         .state('application.create', {
-          parent: 'core',
-          url: '/application/create',
+          parent: 'application',
+          url: '/create',
           views: {
-            'main': {
+            'main@core': {
               templateUrl: 'templates/application/create.html',
               controller: 'ApplicationCreateController'
             }
           }
         })
         .state('application.edit', {
-          parent: 'core',
-          url: '/application/edit',
+          parent: 'application',
+          url: '/edit',
           params: {name:null, id:null},
           views: {
-            'main': {
+            'main@core': {
               templateUrl: 'templates/application/create.html',
               controller: 'ApplicationCreateController'
             }
@@ -127,21 +127,21 @@ auth.run(['$rootScope', '$state', '$stateParams',
           }
         })
         .state('module.create', {
-          parent: 'core',
-          url: '/module/create',
+          parent: 'module',
+          url: '/create',
           views: {
-            'main': {
+            'main@core': {
               templateUrl: 'templates/module/create.html',
               controller: 'ModuleCreateController'
             }
           }
         })
         .state('module.edit', {
-          parent: 'core',
-          url: '/module/edit',
+          parent: 'module',
+          url: '/edit',
           params: {name:null, id:null},
           views: {
-            'main': {
+            'main@core': {
               templateUrl: 'templates/module/create.html',
               controller: 'ModuleCreateController'
             }
