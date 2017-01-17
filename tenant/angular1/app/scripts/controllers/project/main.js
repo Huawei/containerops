@@ -1,15 +1,13 @@
 auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectService', function($scope, $location, $state, projectService) {
-	
 	$scope.projectList = [];
-
-	$scope.create = function(){
-  	$state.go("project.create");
-  }
-
 	$scope.params = {
 		startNum: $scope.projectList.length,
 		endNum: $scope.projectList.length+10
-	}
+	};
+
+	$scope.create = function(){
+  	$state.go("project.create");
+  };
 
 	$scope.getList = function(params){
 		projectService.getList(params)
@@ -52,29 +50,46 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 			})	
 	};
 
+	$scope.edit = function(item){
+		$state.go('project.edit',{id:item.id,name:item.name})
+	};
+
 	$scope.getList($scope.params);
 
 }])
-.controller('ProjectCreateController', ['$scope', '$location','$state', 'projectService', function($scope, $location, $state, projectService) {
+.controller('ProjectCreateController', ['$scope', '$location','$state', '$stateParams', 'projectService', function($scope, $location, $state, $stateParams, projectService) {
   $scope.currentStep = 'baseInfo';
-  $scope.baseInfoId = '';
+  $scope.action = 'Create';
   $scope.baseInfo = {
 		name: '',
 		desc: '',
-		visible: 'public'
+		visible: 'public',
+		id: '-1'
+	};
+	$scope.orgList = [];
+	$scope.teamList = [];
+	$scope.chooseTeams = [];
+	$scope.roleTeams = [];
+	$scope.isShowOrgs = false;
+	$scope.currentOrg = {
+		name: '',
+		id: ''
 	};
 
 	$scope.changeStep = function(val){
 		$scope.currentStep = val;
-	}
+	};
 
 	$scope.saveBaseInfo = function(){
-		console.log($scope.baseInfo)
-		var params = $scope.baseInfo;
+		var params = {
+			name: $scope.baseInfo.name,
+			desc: $scope.baseInfo.desc,
+			id: $scope.baseInfo.id
+		};
 		if(params.name){
 			projectService.saveBaseInfo(params)
 				.then(function(data){
-					$scope.baseInfoId = data.id;
+					$scope.baseInfo.id = data.id;
 					console.log('保存成功')
 				},function(err){
 					console.log('保存失败：',err)
@@ -85,8 +100,8 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 	};
 
 	$scope.saveSetting = function(){
-		if($scope.baseInfoId){
-			var params = $scope.baseInfo;
+		if($scope.baseInfo.id!=='-1'){
+			var params = $scope.chooseTeams; 
 			if(params.name){
 				projectService.saveSetting(params)
 					.then(function(data){
@@ -101,18 +116,6 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 			console.log('请先创建一个project')
 		}
 	};
-
-
-	$scope.orgList = [];
-	$scope.teamList = [];
-	$scope.chooseTeams = [];
-	$scope.roleTeams = [];
-	$scope.isShowOrgs = false;
-	$scope.currentOrg = {
-		name: '',
-		id: ''
-	};
-
 
 	// get org list
 	$scope.getOrgList = function(params){
@@ -233,10 +236,6 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 	$scope.isShow = function(key,val){
 		$scope[key] = val;
 	}
-	
-
-
-	$scope.getOrgList({user:"small"});
 
 	$scope.getRole = function(val){
 		// console.log($scope.chooseTeams)
@@ -261,14 +260,41 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 		// }else{
 		// 	$scope.roleTeams.push(obj)
 		// }
-		console.log(888)
 		$scope.roleTeams.push(obj)
 		$scope.chooseTeams = [];
 		$scope.clearChosedStatus($scope.teamList);
+	};
 
-	}
+	$scope.getEditInfo = function(){
+		var id = $stateParams.id;
+		if($stateParams.id){
+			$scope.action = 'Edit';
+  		$scope.baseInfo.id = $stateParams.id;
+		}
+		if(id){
+			projectService.getEditInfo(id)
+				.then(function(data){
+					// $scope.baseInfo = data;
 
+					$scope.baseInfo = {
+						name: 'tom',
+						desc: 'this is test',
+						visible: 'public'
+					};
 
+				},function(err){
+					console.log('获取信息失败：',err)
+					$scope.baseInfo = {
+						name: 'tom',
+						desc: 'this is test',
+						visible: 'public'
+					};
+				})
+		}
+	};
+
+	$scope.getOrgList({user:"small"});
+	$scope.getEditInfo();
 
 
 }]);
