@@ -26,6 +26,11 @@
                         <i class="fa fa-plus"></i>
                         <span>Create</span>
                     </button>
+                    <div class="pull-right" style="font-size:14px;">
+                        <select class="select2 form-control input-sm" ng-model="filterItem" style="width:200px;">
+                            <option value="{{item.id}}" ng-repeat="item in applicationList" ng-click="resetFilter(item)">{{ item.name }}</option>
+                        </select>
+                    </div>
                 </legend>
                 <div>
                     <table class="table table-striped">

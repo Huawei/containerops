@@ -88,6 +88,7 @@ auth.run(['$rootScope', '$state', '$stateParams',
         .state('application', {
           parent: 'core',
           url: '/application',
+          params: {name:null, id:null},
           views: {
             'main': {
               templateUrl: 'templates/application/main.html',
@@ -119,6 +120,7 @@ auth.run(['$rootScope', '$state', '$stateParams',
         .state('module', {
           parent: 'core',
           url: '/module',
+          params: {name:null, id:null},
           views: {
             'main': {
               templateUrl: 'templates/module/main.html',
