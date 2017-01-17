@@ -44,6 +44,12 @@ function componentCheck(notifyService){
 	}
 	
 	var image_setting = {
+		"build" : function(){
+			return $('#build-image-form').parsley().validate();
+		},
+		"from" : function(){
+			return $('#base-image-form').parsley().validate();
+		},
 		"events" : {
 			"component_start" : function(){
 				return _.isEmpty(componentData.image_setting.events.component_start);
@@ -54,6 +60,9 @@ function componentCheck(notifyService){
 			"component_stop" : function(){
 				return _.isEmpty(componentData.image_setting.events.component_stop);
 			}
+		},
+		"push" : function(){
+			return $('#push-image-form').parsley().validate();
 		}
 	}
 
@@ -98,6 +107,21 @@ function componentCheck(notifyService){
 				notifyService.notify("Script of component stop event is required.","error");
 				return check_result;
 			}
+			if(!image_setting.from()){
+				check_result = false;
+				notifyService.notify("Base image is not complete.","error");
+				return check_result;
+			}
+			if(!image_setting.build()){
+				check_result = false;
+				notifyService.notify("Build image is not complete.","error");
+				return check_result;
+			}
+			if(!image_setting.push()){
+				check_result = false;
+				notifyService.notify("Push image is not complete.","error");
+				return check_result;
+			}
 		}
 
 		if(!componentData.use_advanced){
@@ -121,40 +145,57 @@ function componentCheck(notifyService){
 				return check_result;
 			}
 		}
-		
+
 		return check_result;
 	}
 
-	function runtime(isnewimage){
-		var result = true;
+	var tabcheck = {
+		"runtime" : function(isnewimage){
+			var result = true;
 
-		if(!isnewimage && !existingimage()){
-			result = false;
+			if(!isnewimage && !existingimage()){
+				result = false;
+			}
+
+			if(!componentData.use_advanced){
+				if(!basesetting()){
+					result = false;
+				}
+			}else{
+				if(!advancedsetting()){
+					result = false;
+				}
+			}
+
+			if(componentData.env.length>0){
+				if(!env()){
+					result = false;
+				}
+			} 
+
+			return result;
+		},
+		"editshell" : function(){
+			var result = true;
+			if(image_setting.events.component_start()){
+				result = false;
+			}else if(image_setting.events.component_result()){
+				result = false;
+			}else if(image_setting.events.component_stop()){
+				result = false;
+			}
+			return result;
+		},
+		"buildimage" : function(){
+			var result = image_setting.from() && image_setting.build() && image_setting.push();
+			return result;
 		}
-
-		if(!componentData.use_advanced){
-			if(!basesetting()){
-				result = false;
-			}
-		}else{
-			if(!advancedsetting()){
-				result = false;
-			}
-		}
-
-		if(componentData.env.length>0){
-			if(!env()){
-				result = false;
-			}
-		} 
-
-		return result;
 	}
-
+	
 	return {
 		"init" : init,
 		"go" : go,
-		"runtime" : runtime
+		"tabcheck" : tabcheck
 	}
 }
    

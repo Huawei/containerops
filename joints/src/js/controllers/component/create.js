@@ -1,6 +1,6 @@
 devops.controller('CreateComponentController', ['$scope','$location', 'componentService', 'componentIO', 
-  'componentCheck', 'notifyService', 'apiService',
-  function($scope,$location,componentService,componentIO,componentCheck,notifyService,apiService) {   
+  'componentCheck', 'notifyService', 'apiService', 'loading',
+  function($scope,$location,componentService,componentIO,componentCheck,notifyService,apiService,loading) {   
 
     // tabs control
     $scope.selectTab = function(index){
@@ -14,7 +14,11 @@ devops.controller('CreateComponentController', ['$scope','$location', 'component
     }
 
     function checkTabs(){
-      $scope.tabStatus.runtime = componentCheck.runtime();
+      $scope.tabStatus.runtime = componentCheck.tabcheck.runtime($scope.toCreateImage);
+      if($scope.toCreateImage){
+        $scope.tabStatus.editshell = componentCheck.tabcheck.editshell();
+        $scope.tabStatus.buildimage = componentCheck.tabcheck.buildimage();
+      }
     }
 
     // runtime tab all functions below
@@ -176,6 +180,26 @@ devops.controller('CreateComponentController', ['$scope','$location', 'component
         case 3: 
             $scope.component.image_setting.events.component_stop = $scope.scriptEditor.getValue(); 
             break;
+      }
+    }
+
+    // build push page functions
+    $scope.changeBaseImageType = function(){
+      if($scope.component.image_setting.from.type == "url"){
+        delete $scope.component.image_setting.from.name;
+        delete $scope.component.image_setting.from.tag;
+        delete $scope.component.image_setting.from.dockerfile;
+        $scope.component.image_setting.from["url"] = "";
+      }else if($scope.component.image_setting.from.type == "dockerfile"){
+        delete $scope.component.image_setting.from.name;
+        delete $scope.component.image_setting.from.tag;
+        delete $scope.component.image_setting.from.url;
+        $scope.component.image_setting.from["dockerfile"] = "";
+      }else if($scope.component.image_setting.from.type == "name"){
+        delete $scope.component.image_setting.from.url;
+        delete $scope.component.image_setting.from.dockerfile;
+        $scope.component.image_setting.from["name"] = "";
+        $scope.component.image_setting.from["tag"] = "";
       }
     }
 

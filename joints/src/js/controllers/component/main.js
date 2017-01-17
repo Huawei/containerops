@@ -75,6 +75,7 @@ devops.controller('ComponentController', ['$scope','$location','componentService
           more.show(function(){
             showMoreComponent();
           });
+          $scope.$apply();
       });
       promise.fail(function(xhr,status,error){
           apiService.failToCall(xhr.responseJSON);
