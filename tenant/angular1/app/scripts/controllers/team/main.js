@@ -48,13 +48,14 @@ auth.controller('TeamController', ['$scope', '$location','$state', 'TeamService'
      $scope.save = function(){
          TeamService.save($scope.team).then(function(data){
             console.log("create success")
+            $scope.team = {};
          },
          function(errMsg){
          	console.log("create error")
          	$scope.team.id = 1;
          	$scope.step = "inviteMember";
          })
-     }
+     };
      $scope.addMember = function(){
         
          TeamService.addMember($scope.team.id, $scope.newMember).then(function(data){
@@ -69,6 +70,23 @@ auth.controller('TeamController', ['$scope', '$location','$state', 'TeamService'
               $scope.members.push($scope.newMember);
               $scope.newMember="";
          })
+     };
+     $scope.removeMember = function(member){
+        TeamService.removeMember($scope.team.id, member).then(function(data){
+             TeamService.getMembers($scope.team.id).then(function(data){
+                $scope.members = _.without($scope.members, member);
+             },
+             function(errMsg){
+                $scope.members = _.without($scope.members, member);
+             })
+         },
+         function(errMsg){
+              $scope.members = _.without($scope.members, member);
+         })
+     };
+     $scope.gotoCreate = function(){
+        $scope.step="basicInfo";
+         $scope.team = {name:"",description:"",type:"public"};
      }
 
 }])
