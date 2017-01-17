@@ -74,6 +74,17 @@ auth.run(['$rootScope', '$state', '$stateParams',
             }
           }
         })
+        .state('project.edit', {
+          parent: 'core',
+          url: '/project/edit',
+          params: {name:null, id:null},
+          views: {
+            'main': {
+              templateUrl: 'templates/project/create.html',
+              controller: 'ProjectCreateController'
+            }
+          }
+        })
         .state('application', {
           parent: 'core',
           url: '/application',
@@ -87,6 +98,17 @@ auth.run(['$rootScope', '$state', '$stateParams',
         .state('application.create', {
           parent: 'core',
           url: '/application/create',
+          views: {
+            'main': {
+              templateUrl: 'templates/application/create.html',
+              controller: 'ApplicationCreateController'
+            }
+          }
+        })
+        .state('application.edit', {
+          parent: 'core',
+          url: '/project/edit',
+          params: {name:null, id:null},
           views: {
             'main': {
               templateUrl: 'templates/application/create.html',

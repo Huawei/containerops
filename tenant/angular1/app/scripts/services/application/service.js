@@ -85,6 +85,20 @@ function applicationService($http,$q){
           deferred.reject(error);
       });
       return deferred.promise;
+    },
+    getEditInfo: function(params){
+      var deferred = $q.defer();
+      var url = "/orgs";
+      var request = {
+          "url": url,
+          "method": "GET"
+      }
+      $http(request).then(function(data) {
+          deferred.resolve(data);
+      }, function(error) {
+          deferred.reject(error);
+      });
+      return deferred.promise;
     }
   }
 }
