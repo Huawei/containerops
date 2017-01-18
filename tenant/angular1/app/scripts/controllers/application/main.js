@@ -154,6 +154,10 @@ auth.controller('ApplicationController', ['$scope', '$location', '$state', '$sta
 		id: ''
 	};
 
+	$scope.back = function(){
+		$state.go('application')
+	};
+
 	$scope.changeStep = function(val){
 		$scope.currentStep = val;
 	}
@@ -168,8 +172,10 @@ auth.controller('ApplicationController', ['$scope', '$location', '$state', '$sta
 			applicationService.saveBaseInfo(params)
 				.then(function(data){
 					$scope.baseInfo.id = data.id;
+					$scope.changeStep('setting');
 					console.log('success')
 				},function(err){
+					$scope.changeStep('setting');
 					console.log('failed:',err)
 				})
 		}else{
@@ -180,7 +186,7 @@ auth.controller('ApplicationController', ['$scope', '$location', '$state', '$sta
 	$scope.saveSetting = function(){
 		if($scope.baseInfo.id!=='-1'){
 			var params = $scope.chooseTeams;
-			if(params.name){
+			if(params.length>0){
 				applicationService.saveSetting(params)
 					.then(function(data){
 						console.log('success')
@@ -188,7 +194,7 @@ auth.controller('ApplicationController', ['$scope', '$location', '$state', '$sta
 						console.log('failed：',err)
 					})
 			}else{
-				console.log('please input name')
+				console.log('please set the permissions')
 			}
 		}else{
 			console.log('please create application')
