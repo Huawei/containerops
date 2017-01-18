@@ -80,6 +80,10 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 		id: ''
 	};
 
+	$scope.back = function(){
+		$state.go('project')
+	};
+
 	$scope.changeStep = function(val){
 		$scope.currentStep = val;
 	};
@@ -94,19 +98,21 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 			projectService.saveBaseInfo(params)
 				.then(function(data){
 					$scope.baseInfo.id = data.id;
+					$scope.changeStep('setting');
 					console.log('success')
 				},function(err){
+					$scope.changeStep('setting');
 					console.log('failed',err)
 				})
 		}else{
 			console.log('please input name')
-		}
+		};
 	};
 
 	$scope.saveSetting = function(){
 		if($scope.baseInfo.id!=='-1'){
 			var params = $scope.chooseTeams; 
-			if(params.name){
+			if(params.length>0){
 				projectService.saveSetting(params)
 					.then(function(data){
 						console.log('success')
@@ -114,7 +120,7 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 						console.log('failed',err)
 					})
 			}else{
-				console.log('请填写用户名')
+				console.log('please set the permissions')
 			}
 		}else{
 			console.log('please create project')
