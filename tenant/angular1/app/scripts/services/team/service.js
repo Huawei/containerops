@@ -31,9 +31,9 @@ auth.factory('TeamService', ['$http', '$q',  function($http, $q) {
             });
             return deferred.promise;
         },
-        addMember: function(teamid, user){
+        saveMember: function(teamid, user){
             var deferred = $q.defer();
-            var url = "/team/"+teamid+"/addMember";
+            var url = "/team/"+teamid+"/saveMember";
             var request = {
                 "url": url,
                 "dataType": "json",
