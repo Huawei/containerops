@@ -22,12 +22,12 @@ function componentApiService(notifyService, apiService){
 		rootUrl : "/v2",
 
 		list : {
-			"url" :	"/components?name={filterName}&version={filterVersion}&page_num={pageNum}&version_num={versionNum}&offset={offset}",
+			"url" :	"/components?name={filterName}&version={filterVersion}&fuzzy={fuzzy}&page_num={pageNum}&version_num={versionNum}&offset={offset}",
 			"type" : "GET"
 		},
 
 		detail : {
-			"url" :	"/{componentName}?id={componentID}",
+			"url" :	"/components/{componentID}",
 			"type" : "GET"
 		},
 
@@ -36,8 +36,8 @@ function componentApiService(notifyService, apiService){
 			"type" : "POST"
 		},
 
-		save : {
-			"url" :	"/{componentName}",
+		update : {
+			"url" :	"/components/{componentID}",
 			"type" : "PUT"
 		}
 	}

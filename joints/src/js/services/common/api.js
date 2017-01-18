@@ -42,10 +42,18 @@ function apiService(notifyService, loading){
 		}
 	}
 
+	function successToCall(msg){
+		loading.hide();
+		if (!_.isUndefined(msg) && msg.common) {
+			notifyService.notify(error.common.message,"success");
+		}
+	}
+
 	return {
 		"beforeApiInvocation" : beforeApiInvocation,
 		"addPromise" : addPromise,
-		"failToCall" : failToCall
+		"failToCall" : failToCall,
+		"successToCall" : successToCall
 	}
 }
    
