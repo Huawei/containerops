@@ -1,16 +1,16 @@
 auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectService', function($scope, $location, $state, projectService) {
 	$scope.projectList = [];
-	$scope.params = {
-		startNum: $scope.projectList.length,
-		endNum: $scope.projectList.length+10
-	};
+	// $scope.params = {
+	// 	startNum: $scope.projectList.length,
+	// 	endNum: $scope.projectList.length+10
+	// };
 
 	$scope.create = function(){
-  	$state.go("project.create");
-  };
+	  	$state.go("project.create");
+	};
 
-	$scope.getList = function(params){
-		projectService.getList(params)
+	$scope.getList = function(){
+		projectService.getList()
 			.then(function(data){
 				// $scope.projectList = data;
 				$scope.projectList = [
@@ -54,7 +54,11 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 		$state.go('project.edit',{id:item.id,name:item.name})
 	};
 
-	$scope.getList($scope.params);
+	$scope.showChildren = function(item){
+		$state.go('application',{id:item.id, name:item.name});
+	}
+
+	$scope.getList();
 
 }])
 .controller('ProjectCreateController', ['$scope', '$location','$state', '$stateParams', 'projectService', function($scope, $location, $state, $stateParams, projectService) {

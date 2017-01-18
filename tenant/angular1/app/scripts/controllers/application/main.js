@@ -1,9 +1,15 @@
-auth.controller('ApplicationController', ['$scope', '$location', '$state', 'applicationService', function($scope, $location, $state, applicationService) {
+auth.controller('ApplicationController', ['$scope', '$location', '$state', '$stateParams', 'applicationService', 'projectService', function($scope, $location, $state, $stateParams, applicationService, projectService) {
 	$scope.applicationList = [];
-	$scope.params = {
-		startNum: $scope.applicationList.length,
-		endNum: $scope.applicationList.length+10
-	};
+	$scope.projectList = [];
+	// $scope.params = {
+	// 	startNum: $scope.applicationList.length,
+	// 	endNum: $scope.applicationList.length+10
+	// };
+	// filtered project
+	$scope.filterItem = {
+		id: '',
+		name: ''
+	}; 
 
 	$scope.create = function(){
 	  $state.go("application.create");
@@ -54,8 +60,79 @@ auth.controller('ApplicationController', ['$scope', '$location', '$state', 'appl
 		$state.go('application.edit',{id:item.id,name:item.name})
 	};
 
-	$scope.getList($scope.params);
+	$scope.resetFilter = function(item){
+		$scope.filterItem = {
+			id: item.id,
+			name: item.name
+		};
+		$scope.getList({id: item.id});
+	};
 
+	$scope.getProjectList = function(){
+		projectService.getList()
+			.then(function(data){
+				// $scope.projectList = data;
+				$scope.projectList = [
+					{
+						"id":100,
+						"name":"p1",
+						"desc":"p1",
+						"applicationNum":5,
+						"moduleNum":8
+					},
+					{
+						"id":101,
+						"name":"p2",
+						"desc":"p2",
+						"applicationNum":7,
+						"moduleNum":10
+					}
+				];
+				$scope.isStateParams();
+
+			}, function(err){
+				console.log('get list err:',err);
+				$scope.projectList = [
+					{
+						"id":100,
+						"name":"p1",
+						"desc":"p1",
+						"applicationNum":5,
+						"moduleNum":8
+					},
+					{
+						"id":101,
+						"name":"p2",
+						"desc":"p2",
+						"applicationNum":7,
+						"moduleNum":10
+					}
+				];
+				$scope.isStateParams();
+			});
+	};
+
+	$scope.isStateParams = function(){
+		var item = {
+			id: $stateParams.id,
+			name: $stateParams.name
+		};
+		if(!item.id){
+			$scope.resetFilter($scope.projectList[0])  
+		}else{
+			$scope.resetFilter(item)
+		};
+	};
+
+	$scope.showChildren = function(item){
+		$state.go('module',{id:item.id, name:item.name});
+	};
+
+	$scope.init = function(){
+		$scope.getProjectList();
+	};
+
+	$scope.init();
 }])
 
 .controller('ApplicationCreateController', ['$scope', '$location','$state', '$stateParams', 'applicationService', function($scope, $location, $state, $stateParams, applicationService) {
