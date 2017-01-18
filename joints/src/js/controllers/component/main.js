@@ -2,15 +2,6 @@ devops.controller('ComponentController', ['$scope','$location','componentService
   'apiService', 'utilService',
   function($scope,$location,componentService,notifyService,loading,more,apiService,utilService) {   
 
-    $scope.filter = {
-        "name" : "",
-        "version" : ""
-    }
-
-    $scope.pageNum = 10;
-    $scope.versionNum = 3;
-    $scope.components = [];
-
     function getOffset(type,name){
       if(type == "component"){
         return $scope.components.length;
@@ -75,12 +66,32 @@ devops.controller('ComponentController', ['$scope','$location','componentService
           more.show(function(){
             showMoreComponent();
           });
+          $scope.dataReady = true;
           $scope.$apply();
       });
       promise.fail(function(xhr,status,error){
+          $scope.dataReady = true;
           apiService.failToCall(xhr.responseJSON);
       }); 
     }
 
-    $scope.getComponents();
+    $scope.showComponentDetail = function(id){
+      $location.path("/component/" + id);
+    }
+
+    function init(){
+      $scope.filter = {
+        "name" : "",
+        "version" : ""
+      }
+
+      $scope.pageNum = 10;
+      $scope.versionNum = 3;
+      $scope.components = [];
+      $scope.dataReady = false;
+
+      $scope.getComponents();
+    }
+
+    init();
 }]);
