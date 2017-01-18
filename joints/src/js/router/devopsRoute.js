@@ -44,4 +44,14 @@ devops.run(['$rootScope', '$state', '$stateParams',
             }
           }
         })
+        .state('component.detail', {
+          parent: 'home',
+          url: '/component/:id',
+          views: {
+            'main': {
+              templateUrl: 'templates/component/detail.html',
+              controller: 'ComponentDetailController'
+            }
+          }
+        })
 }]);
