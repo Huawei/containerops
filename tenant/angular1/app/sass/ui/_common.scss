@@ -24,3 +24,10 @@ legend{
 	@extend .bg-gray;
 	@extend .text-gray;
 }
+input.ng-invalid.ng-touched {
+    border: 1px solid #dd5826;
+}
+.form-error{
+  color:#dd5826;
+  font-size: 12px;
+}
