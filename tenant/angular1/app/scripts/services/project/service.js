@@ -16,7 +16,7 @@ limitations under the License.
 
 function projectService($http,$q){
   return {
-    getList: function(params){
+    getList: function(){
       var deferred = $q.defer();
       var url = "/projects";
       var request = {
