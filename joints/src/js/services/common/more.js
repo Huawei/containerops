@@ -1,13 +1,15 @@
-function more(){
+function more($location){
 	return {
 		show : function(next) {
 			 $(window).scroll(function() {
-			   if($(window).scrollTop() + $(window).height() == $(document).height()) {
-			      next();
-			   }
+			 	if($location.path() == "/component"){
+			 		if($(window).scrollTop() + $(window).height() == $(document).height()) {
+			 			next();
+			 		}
+			 	}
 			});
 		}	
 	}
 }
    
-devops.factory('more', [more]);
+devops.factory('more', ['$location', more]);

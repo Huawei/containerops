@@ -20,11 +20,19 @@ function componentCheck(notifyService){
 	
 	// runtime config
 	function name(){
-		return $('#component-name-form').parsley().validate();
+		if($('#component-name-form').length>0){
+			return $('#component-name-form').parsley().validate();
+		}else{
+			return true;
+		}	
 	}
 
 	function version(){
-		return $('#component-version-form').parsley().validate();
+		if($('#component-version-form').length>0){
+			return $('#component-version-form').parsley().validate();
+		}else{
+			return true;
+		}
 	}
 
 	function existingimage(){

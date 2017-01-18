@@ -1,24 +1,31 @@
-devops.controller('CreateComponentController', ['$scope','$location', 'componentService', 'componentIO', 
+devops.controller('ComponentDetailController', ['$scope','$stateParams', '$location', 'componentService', 'componentIO', 
   'componentCheck', 'notifyService', 'apiService', 'loading',
-  function($scope,$location,componentService,componentIO,componentCheck,notifyService,apiService,loading) {   
+  function($scope,$stateParams,$location,componentService,componentIO,componentCheck,notifyService,apiService,loading) {   
 
     // tabs control
     $scope.selectTab = function(index){
-      $scope.tab = index;
-
-      checkTabs();
+      var result = checkTabs();
       if(index == 2){
         initScriptEditor();
         showEventScript();
       }
+      // else if(index == 4 && !result){
+      //   return;
+      // }
+
+      $scope.tab = index;
     }
 
     function checkTabs(){
+      // var result = true;
       $scope.tabStatus.runtime = componentCheck.tabcheck.runtime($scope.toCreateImage);
+      // result = result && $scope.tabStatus.runtime;
       if($scope.toCreateImage){
         $scope.tabStatus.editshell = componentCheck.tabcheck.editshell();
         $scope.tabStatus.buildimage = componentCheck.tabcheck.buildimage();
+        // result = result && $scope.tabStatus.editshell && $scope.tabStatus.buildimage;
       }
+      // return result;
     }
 
     // runtime tab all functions below
@@ -215,7 +222,7 @@ devops.controller('CreateComponentController', ['$scope','$location', 'component
     $scope.saveComponent = function(){
       var result = componentCheck.go($scope.toCreateImage);
       if(result){
-        var promise = componentService.addComponent($scope.component);
+        var promise = componentService.updateComponent($scope.component);
         promise.done(function(data){
             apiService.successToCall(data);
             $location.path("/component/" + data.component.id);
@@ -231,39 +238,52 @@ devops.controller('CreateComponentController', ['$scope','$location', 'component
       $location.path("/component");
     }
 
-    // init component create page
-    function init(){
-      $scope.component = $.extend(true,{},componentService.metadata.component);
+    // get data
+  	function getComponent(id){
+  		var promise = componentService.getComponent(id);
+  		promise.done(function(data){
+  			loading.hide();
+  			$scope.component = data.component;
 
-      // for top tabs control
-      $scope.tab = 1;
-      $scope.tabStatus = {
-        "runtime" : false,
-        "editshell" : false,
-        "buildimage" : false
-      }
+        // determine if to create image
+        $scope.toCreateImage = _.isEmpty($scope.component.image_name);
 
-      // for runtime config tabs control
-      $scope.runtimeTab = 1;
+  			// for top tabs control
+  			$scope.tab = 1;
+  			$scope.tabStatus = {
+  				"runtime" : true,
+  				"editshell" : $scope.toCreateImage,
+  				"buildimage" : $scope.toCreateImage
+  			}
 
-      // determine if to create image
-      $scope.toCreateImage = false;
+		    // for runtime config tabs control
+		    $scope.runtimeTab = 1;
 
-      // determine which editor to use for input output json
-      $scope.jsonMode = false;
+		    // determine which editor to use for input output json
+		    $scope.jsonMode = false;
 
-      // for event selection
-      $scope.selectedEvent = 1;
+		    // for event selection
+		    $scope.selectedEvent = 1;
 
-      // init service pod
-      $scope.baseOrAdvanced();
+		    // init service pod
+		    $scope.serviceType = $scope.component.service.spec.type;
 
-      // init check
-      componentCheck.init($scope.component);
+		    // init check
+		    componentCheck.init($scope.component);
 
-      // for debug display
-      $scope.isSave = false;
-    }
+		    $scope.dataReady = true;
+		    $scope.$apply();
+  		});
+  		promise.fail(function(xhr,status,error){
+  			apiService.failToCall(xhr.responseJSON);
+  		}); 
+  	}
 
+  	// init component detail page
+  	function init(){
+  		$scope.dataReady = false;
+  		getComponent($stateParams.id);
+  	}
+    
     init();
 }]);

@@ -28,93 +28,99 @@ function componentService(componentApiService){
 		return componentApiService.ajaxCall("list",params);
 	}
 
-	var component = {
-		"name": "",
-		"version": "",
-		"type": "Kubernetes",
-		"input": {},
-		"output": {},
-		"env": [],
-		"image_name": "",
-		"image_tag": "",
-		"image_setting": {},
-		"timeout": 0,
-		"use_advanced": false,
-		"pod": {},
-		"service": {}
-	}
-	
-	var base_service = {
-		"spec": {
-			"type":"NodePort",
-			"ports": []
-		}
-	}
-
-	var base_pod = {
-		"spec": {
-			"containers": [
-			{
-				"resources": {
-					"limits":{"cpu": 0.2, "memory": 1024},
-					"requests":{"cpu": 0.1, "memory": 128}
-				}
-			}
-			]
-		}
-	}
-
-	var nodeport = {
-		"port": 0,
-		"targetPort" : 0,
-		"nodePort" : 0
-	}
-
-	var clusterip = {
-		"port": 0,
-		"targetPort" : 0
-	}
-
-	var imagesetting = {
-		"build": {
+	var metadata = {
+		"component" : {
 			"name": "",
-			"tag": ""
+			"version": "",
+			"type": "Kubernetes",
+			"input": {},
+			"output": {},
+			"env": [],
+			"image_name": "",
+			"image_tag": "",
+			"image_setting": {},
+			"timeout": 0,
+			"use_advanced": false,
+			"pod": {},
+			"service": {}
 		},
-		"from": {
-			"type": "url",
-			"url": ""
+		"base_service" : {
+			"spec": {
+				"type":"NodePort",
+				"ports": []
+			}
 		},
-		"events": {
-			"component_start": "",
-			"component_result": "",
-			"component_stop": ""
+		"base_pod" : {
+			"spec": {
+				"containers": [
+				{
+					"resources": {
+						"limits":{"cpu": 0.2, "memory": 1024},
+						"requests":{"cpu": 0.1, "memory": 128}
+					}
+				}
+				]
+			}
 		},
-		"push": {
-			"registry": "",
-			"username": "",
-			"password": ""
+		"nodeport" : {
+			"port": 0,
+			"targetPort" : 0,
+			"nodePort" : 0
+		},
+		"clusterip" : {
+			"port": 0,
+			"targetPort" : 0
+		},
+		"imagesetting" : {
+			"build": {
+				"name": "",
+				"tag": ""
+			},
+			"from": {
+				"type": "url",
+				"url": ""
+			},
+			"events": {
+				"component_start": "",
+				"component_result": "",
+				"component_stop": ""
+			},
+			"push": {
+				"registry": "",
+				"username": "",
+				"password": ""
+			}
+		},
+		"env" : {
+			"key" : "",
+			"value" : ""
 		}
-	}
-
-	var env = {
-		"key" : "",
-		"value" : ""
 	}
 
 	function addComponent(reqbody){
 		return componentApiService.ajaxCall("add",null,reqbody);
 	}
 
+	function getComponent(componentID){
+		var params = {
+			"componentID" : componentID
+		}
+		return componentApiService.ajaxCall("detail",params);
+	}
+
+	function updateComponent(reqbody){
+		var params = {
+			"componentID" : reqbody.id
+		}
+		return componentApiService.ajaxCall("update",params,reqbody);
+	}
+
 	return {
 		"getComponents" : getComponents,
-		"component" : component,
-		"base_service" : base_service,
-		"base_pod" : base_pod,
-		"nodeport" : nodeport,
-		"clusterip" : clusterip,
-		"imagesetting" : imagesetting,
-		"env" : env,
-		"addComponent" : addComponent
+		"metadata" : metadata,
+		"addComponent" : addComponent,
+		"getComponent" : getComponent,
+		"updateComponent" : updateComponent
 	}
 }
    
