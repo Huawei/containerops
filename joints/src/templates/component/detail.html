@@ -28,10 +28,10 @@
 				<ul class="dropdown-menu">
 					<li><a class="dropdown-item savecomponent" ng-click="saveComponent()">Save</a></li>
 					<li class="dropdown-divider"></li>
-					<li><a class="dropdown-item newcomponentversion">Save As New Version</a></li>
+					<li><a class="dropdown-item newcomponentversion" ng-click="saveNewVersion()">Save As New Version</a></li>
 				</ul>
 			</div>
-			<button type="button" class="btn btn-success newcomponentindesigner">
+			<button type="button" class="btn btn-success newcomponentindesigner" ng-click="showNewComponent()">
 				<i class="glyphicon glyphicon-plus" style="font-size:16px"></i>
 				<span style="margin-left:5px">New Component</span>
 			</button>
@@ -588,3 +588,33 @@
     	</section>
     </div>
 </div>
+<div class="popup" ng-if="toSaveNewVersion">
+	<div class="popup-body">
+		<section class="widget" style="height:100%">
+            <div class="widget-body">
+            	<legend>
+                    <strong>New Version</strong>
+                    <i class="fa fa-remove close-popup" ng-click="cancelSaveNewVersion()"></i>
+                </legend>
+                <div class="col-md-12 popup-content">
+                 	<form id="component-version-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
+                 		<fieldset>
+                 			<div class="row">
+                 				<div class="col-md-8 col-md-offset-2">
+                 					<input type="text" id="c-version" class="form-control" placeholder="Component New Version Name" pattern="^[a-zA-Z0-9.~_-]*$" required>
+                 				</div>
+                 			</div>
+                 		</fieldset>
+                 	</form>
+                 </div> 
+                 <div class="popup-btn">
+	                 <button type="button" class="btn btn-primary" ng-click="doSaveNewVersion()">
+						<i class="fa fa-check" style="font-size:16px"></i>
+						<span style="margin-left:5px">OK</span>
+					</button>
+				</div>
+            </div>
+        </section>
+	</div>
+</div>
+<div class="popup-backdrop" ng-if="toSaveNewVersion"></div>
