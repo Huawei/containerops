@@ -136,6 +136,8 @@ auth.controller('ModuleController', ['$scope', '$location', '$state', '$statePar
 	$scope.teamList = [];
 	$scope.chooseTeams = [];
 	$scope.roleTeams = [];
+	$scope.roleHash = [];
+	$scope.teamHash = [];
 	$scope.isShowOrgs = false;
 	$scope.currentApp = {
 		name: '',
@@ -173,7 +175,7 @@ auth.controller('ModuleController', ['$scope', '$location', '$state', '$statePar
 
 	$scope.saveSetting = function(){
 		if($scope.baseInfo.id!=='-1'){
-			var params = $scope.chooseTeams;
+			var params = $scope.roleTeams;
 			if(params.length>0){
 				moduleService.saveSetting(params)
 					.then(function(data){
@@ -208,7 +210,7 @@ auth.controller('ModuleController', ['$scope', '$location', '$state', '$statePar
 						"name":"a3"
 					}
 				]
-				$scope.currentApp = $scope.applicationList[0];
+				$scope.getCurrentApp($scope.applicationList[0]);
 			},function(err){
 				console.log('get list err:',err);
 				$scope.applicationList = [
@@ -225,7 +227,7 @@ auth.controller('ModuleController', ['$scope', '$location', '$state', '$statePar
 						"name":"a3"
 					}
 				]
-				$scope.currentApp = $scope.applicationList[0];
+				$scope.getCurrentApp($scope.applicationList[0]);
 			})
 	};
 
@@ -273,13 +275,18 @@ auth.controller('ModuleController', ['$scope', '$location', '$state', '$statePar
 			})
 	};
 
-	// get current application to filter team list
+	// get current application to filter list
 	$scope.getCurrentApp = function(item){
-		$scope.currentApp = item;
-		$scope.chooseTeams = [];
-		$scope.getTeamList($scope.currentApp);
+		if($scope.currentApp.id !== item.id){
+			$scope.currentApp = item;
+			$scope.roleTeams = [];
+			$scope.chooseTeams = [];
+			$scope.roleHash = [];
+			$scope.teamHash = [];
+			$scope.getTeamList($scope.currentApp);
+		}
 		$scope.isShow('isShowOrgs',false);
-	}
+	};
 
 	$scope.choseTeam = function(item){
 		angular.forEach($scope.teamList,function(obj,i){
@@ -288,7 +295,74 @@ auth.controller('ModuleController', ['$scope', '$location', '$state', '$statePar
 			}
 		})
 		$scope.getChosedTeams($scope.teamList)
-	}
+	};
+
+	$scope.getRole = function(val){
+		var role = ["Admin","Readonly","ReadWrite"][val];
+		var index = $scope.roleHash.indexOf(role);
+		var chooseTeams = [];
+		var teamsName = [];
+		angular.copy($scope.chooseTeams,chooseTeams);
+		angular.forEach(chooseTeams,function(obj,i){
+			obj.role = role;
+			teamsName.push(obj.name);
+		})
+
+		if(index!==-1){
+			angular.forEach(chooseTeams,function(obj,i){
+				angular.forEach($scope.teamHash,function(tbj,t){
+					var teamIndex = tbj.indexOf(obj.name);
+					if(index === t){
+						if(teamIndex === -1){
+							tbj.push(obj.name)
+						}
+					}else{
+						if(teamIndex !== -1){
+							tbj.splice(teamIndex,1)
+						}
+					}
+					
+				})
+			})
+		}else{
+			angular.forEach(chooseTeams,function(obj,i){
+				angular.forEach($scope.teamHash,function(tbj,t){
+					var teamIndex = tbj.indexOf(obj.name);
+					if(teamIndex !== -1){
+						tbj.splice(teamIndex,1)
+					}
+				})
+			})
+			$scope.roleHash.push(role);
+			$scope.teamHash.push(teamsName)
+		}
+		$scope.getRoleTeams($scope.roleHash,$scope.teamHash);
+		$scope.clearChosedStatus($scope.teamList);
+	};
+
+	$scope.getRoleTeams = function(roleHash,teamHash){
+		$scope.roleTeams = [];
+		angular.forEach(roleHash,function(role,i){
+
+			var roleTeams = {
+				role: role,
+				teams: []
+			}
+
+			angular.forEach(teamHash[i],function(teamName,tn){
+				angular.forEach($scope.teamList,function(obj,tl){
+					if(teamName === obj.name){
+						roleTeams.teams.push(obj)
+					}
+				})
+			})
+
+			if(roleTeams.teams.length>0){
+				$scope.roleTeams.push(roleTeams)
+			}
+			
+		})
+	};
 
 	$scope.getChosedTeams = function(originData){
 		$scope.chooseTeams = []
@@ -297,44 +371,17 @@ auth.controller('ModuleController', ['$scope', '$location', '$state', '$statePar
 				$scope.chooseTeams.push(obj)
 			}
 		})
-	}
+	};
 
 	$scope.clearChosedStatus = function(originData){
+		$scope.chooseTeams = [];
 		angular.forEach(originData,function(obj,i){
 			obj.isChosed = false
 		})
-	}
+	};
 
 	$scope.isShow = function(key,val){
 		$scope[key] = val;
-	}
-
-	$scope.getRole = function(val){
-		// console.log($scope.chooseTeams)
-		var role = ["Admin","Readonly","ReadWrite"][val];
-		var obj = {
-			"role": role,
-			"teams": $scope.chooseTeams
-		}
-
-		// if($scope.roleTeams.length>0){
-		// 	angular.forEach($scope.roleTeams,function(itemRole,i){
-		// 		if(itemRole.role === role){
-		// 			console.log(777)
-		// 			$scope.roleTeams.splice(i,1)
-		// 			$scope.roleTeams.push(obj)
-		// 			return
-		// 		}else{
-		// 			$scope.roleTeams.push(obj)
-		// 			return
-		// 		}
-		// 	})
-		// }else{
-		// 	$scope.roleTeams.push(obj)
-		// }
-		$scope.roleTeams.push(obj)
-		$scope.chooseTeams = [];
-		$scope.clearChosedStatus($scope.teamList);
 	};
 
 	$scope.getEditInfo = function(){
