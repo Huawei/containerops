@@ -294,3 +294,58 @@ button.close {
   color:red;
   margin-right:3px;
 }
+
+// popup
+.popup{
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index : 1050;
+  display : block;
+  outline : 0;
+  opacity: 1;
+}
+
+.popup-backdrop{
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index : 1040;
+  display : block;
+  outline : 0;
+  opacity: 0.5;
+  background-color:#000;
+}
+
+.popup-body{
+  margin : 100px auto;
+  opacity: 1;
+  width:500px;
+  height:210px;
+}
+
+.close-popup{
+  font-size:16px;
+  float:right;
+  margin-top:8px;
+  cursor:pointer;
+  &:hover{
+    font-size: 18px;
+  }
+}
+
+.popup-content{
+  border-bottom:1px solid #787878;
+  padding-bottom:20px;
+}
+
+.popup-btn{
+  padding:10px;
+  float:left;
+  width:100%;
+  text-align: right;
+}

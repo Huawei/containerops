@@ -238,6 +238,45 @@ devops.controller('ComponentDetailController', ['$scope','$stateParams', '$locat
       $location.path("/component");
     }
 
+    // save new version
+    $scope.saveNewVersion = function(){
+      var result = componentCheck.go($scope.toCreateImage);
+      if(result){
+        $scope.toSaveNewVersion = true;
+      }
+    }
+
+    $scope.doSaveNewVersion = function(){
+      if(componentCheck.version()){
+        var tempcopy = $scope.component.version;
+        $scope.component.version = $("#c-version").val();
+        delete $scope.component.id;
+
+        var promise = componentService.addComponent($scope.component);
+        promise.done(function(data){
+          $scope.toSaveNewVersion = false;
+          $scope.$apply();
+          apiService.successToCall(data);
+          $location.path("/component/" + data.component.id);
+        });
+        promise.fail(function(xhr,status,error){
+          $scope.toSaveNewVersion = false;
+          $scope.component.version = tempcopy;
+          $scope.$apply();
+          apiService.failToCall(xhr.responseJSON);
+        });
+      }
+    }
+
+    $scope.cancelSaveNewVersion = function(){
+      $scope.toSaveNewVersion = false;
+    }
+
+    // show new component
+    $scope.showNewComponent = function(){
+      $location.path("/component/create");
+    }
+    
     // get data
   	function getComponent(id){
   		var promise = componentService.getComponent(id);
@@ -282,6 +321,8 @@ devops.controller('ComponentDetailController', ['$scope','$stateParams', '$locat
   	// init component detail page
   	function init(){
   		$scope.dataReady = false;
+      $scope.toSaveNewVersion = false;
+
   		getComponent($stateParams.id);
   	}
     

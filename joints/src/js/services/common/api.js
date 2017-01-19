@@ -45,7 +45,7 @@ function apiService(notifyService, loading){
 	function successToCall(msg){
 		loading.hide();
 		if (!_.isUndefined(msg) && msg.common) {
-			notifyService.notify(error.common.message,"success");
+			notifyService.notify(msg.common.message,"success");
 		}
 	}
 
