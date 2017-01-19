@@ -21,7 +21,7 @@
                                       <div class="row flex-nowrap">
                                           <div class="col-xs-3">
                                               <span class="widget-icon">
-                                                <i class="fa fa-user"></i>
+                                                <i class="fa fa-edit"></i>
                                               </span>
                                           </div>
                                           <div class="col-xs-9">
@@ -38,7 +38,7 @@
                                       <div class="row flex-nowrap">
                                           <div class="col-xs-3">
                                               <span class="widget-icon">
-                                                <i class="fa fa-user"></i>
+                                                <i class="fa fa-gear"></i>
                                               </span>
                                           </div>
                                           <div class="col-xs-9">
@@ -79,7 +79,7 @@
                           </fieldset>
                       </form>
                       <div class="form-group" ng-show="currentStep === 'setting'" id="projectInfo">
-                        <div class="row">
+                        <div class="row marg-no">
                           <div class="org-info">
                             <span class="org-name" ng-click="isShowOrgs = !isShowOrgs">{{currentApp.name}}<i class="fa fa-angle-down org-down"></i></span>
                             <ul class="all-orgizations" ng-if="isShowOrgs">
@@ -87,24 +87,26 @@
                             </ul>
                           </div>
                         </div>
-                        <div class="row">
+                        <div class="row marg-no">
                           <ul class="col-xs-3 all-teams" ng-class="teamList.length>0? 'bg-grey': ''">
                             <li class="item-team" ng-repeat="item in teamList" ng-class="item.isChosed?'bg-chosed':'bg-nochosed'" ng-click="choseTeam(item)">{{item.name}}</li>
                           </ul>
-                          <div class="col-xs-3 col-xs-offset-1 limit">
+                          <div class="col-xs-1"><i class="fa fa-link"></i></div>
+                          <div class="col-xs-3 limit">
                             <span class="space" ng-click="getRole(0)">Admin</span>
                             <span class="space" ng-click="getRole(1)">Readonly</span>
                             <span class="space" ng-click="getRole(2)">ReadWrite</span>
                           </div>
-                          <ul class="col-xs-3 col-xs-offset-1 role-teams" ng-class="roleTeams.length>0? 'bg-grey': ''">
+                          <div class="col-xs-2"><i class="fa fa-long-arrow-right"></i></div>
+                          <ul class="col-xs-3 role-teams bg-grey">
                             <li class="item-role" ng-repeat="item in roleTeams">
                               <h5 class="role-name">{{item.role}}</h5>
                               <p class="role-team" ng-repeat="team in item.teams">{{team.name}}</p>
                             </li>
                           </ul>
                         </div>
-                        <div class="row">
-                          <div class="col-xs-offset-4 col-xs-4 save-setting" ng-click="saveSetting()">Save Permissions</div>
+                        <div class="form-group">
+                          <button class="btn btn-info" ng-click="saveSetting()">Save Permissions</button>
                         </div>
                       </div>
                   </div>
