@@ -10,7 +10,7 @@
     See the License for the specific language governing permissions and
     limitations under the License. 
 -->
-<div class="row content" ng-if="dataReady && components.length == 0" style="margin-top:100px">
+<div class="row content" ng-if="dataReady && nodata" style="margin-top:100px">
     <div class="row col-md-12" style="font-size:20px">
         <div class="col-md-3"></div>
         <div class="col-md-6" style="text-align:center">
@@ -26,7 +26,7 @@
         <div class="col-md-3"></div>
     </div>
 </div>
-<div class="row" ng-if="dataReady && components.length > 0">
+<div class="row" ng-if="dataReady && !nodata">
     <div class="col-lg-12">
         <legend style="border-bottom:none">
             <strong>Component</strong> List
@@ -54,7 +54,7 @@
                             <div class="col-md-4">Operation</div>
                         </div>
                         <div class="row list-body">
-                            <div class="row" ng-repeat="component in components track by $index">
+                            <div class="row" ng-repeat="component in components">
                                 <div class="list-row">
                                     <div class="col-md-4">
                                         <span>{{component.name}}</span>
@@ -77,6 +77,11 @@
                                         <i class="fa fa-refresh" style="font-size:16px"></i>
                                         <span style="margin-left:5px">show more</span>
                                     </button>
+                                </div>
+                            </div>
+                            <div class="list-row" ng-show="components.length == 0">
+                                <div class="col-md-12" style="text-align:center;padding-top:10px">
+                                    <span>No Data Found.</span>
                                 </div>
                             </div>
                         </div>
