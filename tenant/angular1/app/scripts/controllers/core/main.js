@@ -34,10 +34,6 @@ auth.controller('CoreController', ['$scope', '$location', function($scope, $loca
         }
     ]
 
-
-
-
-
     $scope.chooseNav = function(name) {
         _.each($scope.navigators, function(item) {
             if (item.name != name) {

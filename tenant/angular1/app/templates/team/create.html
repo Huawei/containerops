@@ -60,7 +60,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Name</label>
-                                    <input type="text" name="nameInput" placeholder="" class="form-control" ng-model="team.name"  ng-pattern="/^[A-Za-z0-9\-]+$/" ng-maxlength="50" required autofocus>
+                                    <input type="text" name="nameInput" placeholder="" class="form-control" ng-model="team.name"  ng-pattern="/^[A-Za-z0-9\-]+$/" ng-maxlength="25" required autofocus>
                                    <!--  <span class="help-block">Name can contain any letters or numbers, without spaces</span> -->
                                     <span class="form-error" ng-show="TeamCreateForm.$submitted || TeamCreateForm.nameInput.$touched">
                                         <span ng-if="TeamCreateForm.nameInput.$error.required">Name is required</span>
@@ -91,7 +91,7 @@
                         </form>
                         <form novalidate="novalidate" ng-show='step == "inviteMember"' name="InviteMemberForm">
                             <div class="form-group">
-                                <label for="bar">Invite members to team: &nbsp;<span style="font-size:20px;color:#5dc4bf"><em>{{team.name}}</em></span></label>
+                                <label for="bar">Invite members to team: &nbsp;<span style="font-size:20px;color:#5dc4bf">{{team.name}}</span></label>
                                 <div class="input-group">
                                     <input type="text" name="memberInput" class="form-control" placeholder="Invite new member by username or email" ng-model="newMember" ng-enter="saveMember(team.name)" >
                                     <div class="input-group-btn">
