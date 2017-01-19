@@ -201,6 +201,7 @@ function componentCheck(notifyService){
 	}
 	
 	return {
+		"version" : version,
 		"init" : init,
 		"go" : go,
 		"tabcheck" : tabcheck

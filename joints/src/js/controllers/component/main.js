@@ -58,8 +58,8 @@ devops.controller('ComponentController', ['$scope','$location','componentService
       $location.path("/component/create");
     }
 
-    $scope.getComponents = function(){
-      var promise = componentService.getComponents($scope.filter.name, $scope.filter.version, true, $scope.pageNum, $scope.versionNum, getOffset("component"));
+    $scope.getComponents = function(type){
+      var promise = componentService.getComponents($scope.filter.name, $scope.filter.version, true, $scope.pageNum, $scope.versionNum, 0);
       promise.done(function(data){
           loading.hide();
           $scope.components = utilService.componentDataTransfer(data.components);
@@ -67,10 +67,15 @@ devops.controller('ComponentController', ['$scope','$location','componentService
             showMoreComponent();
           });
           $scope.dataReady = true;
+          if(type == "init" && $scope.components.length > 0){
+            $scope.nodata = false;
+          }
           $scope.$apply();
       });
       promise.fail(function(xhr,status,error){
           $scope.dataReady = true;
+          $scope.components = [];
+          $scope.$apply();
           apiService.failToCall(xhr.responseJSON);
       }); 
     }
@@ -87,10 +92,13 @@ devops.controller('ComponentController', ['$scope','$location','componentService
 
       $scope.pageNum = 10;
       $scope.versionNum = 3;
+
       $scope.components = [];
+      $scope.nodata = true;
+
       $scope.dataReady = false;
 
-      $scope.getComponents();
+      $scope.getComponents("init");
     }
 
     init();
