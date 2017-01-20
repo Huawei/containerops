@@ -2,7 +2,7 @@ auth.controller('CoreController', ['$scope', '$location', function($scope, $loca
 
     $scope.sidebars = [
         {
-            "name": "Orignization",
+            "name": "Organization",
             "href": "",
             "active": true,
             "icon": "fa fa-users",

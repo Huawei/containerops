@@ -1,8 +1,7 @@
-Messenger.options = { extraClasses: 'messenger-fixed messenger-theme-future messenger-on-top'};
-
-function notifyService(){
-	return {
-		notify : function(msg, type, showtime) {
+auth.factory('NotifyService', ['$window',  function($window) {
+    $window.Messenger.options = { extraClasses: 'messenger-fixed messenger-theme-future messenger-on-top'};
+    return {
+       notify : function(msg, type, showtime) {
 			 Messenger().post({
 		        "message": msg,
 		        "type": type,
@@ -11,7 +10,7 @@ function notifyService(){
 		        "hideAfter" : showtime ? showtime : 3
 		    });
 		}	
-	}
-}
-   
-auth.factory('notifyService', [notifyService]);
+       
+    }
+
+}]);
