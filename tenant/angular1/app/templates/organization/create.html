@@ -28,24 +28,42 @@
                        </div> -->
                         <div class="row">
                             <div class="col-lg-4 col-md-4 col-xs-12 " ng-click="gotoStep('basicInfo')" style="cursor: pointer; ">
-                                <section class="widget step-actived" style="padding: 3px 10px;">
+                                <section ng-class="{widget:true, 'step-todo':step == 'basicInfo', 'step-actived':step != 'basicInfo'}" style="padding: 3px 10px;">
                                     <div class="widget-body clearfix">
                                         <div class="row flex-nowrap">
                                             <div class="col-xs-3">
                                                 <span class="widget-icon">
-                                                  <i class="fa fa-users"></i>
+                                                  <i ng-class="{fa:true, 'fa-users':step == 'basicInfo', 'fa-check': step != 'basicInfo'}"></i>
                                                 </span>
                                             </div>
                                             <div class="col-xs-9">
-                                                <h6 class="no-margin">Step 1</h6>
-                                                <p class="h4 no-margin fw-normal">Create Organization</p>
+                                                <h4 style="line-height: 2.1">Create Organization</h4>
+                                                <!-- <p class="h4 no-margin fw-normal">Create Organization</p> -->
                                             </div>
                                         </div>
                                     </div>
                                 </section>
                             </div>
-                            <div class="col-lg-4 col-md-4 col-xs-12 " style="padding-left:30px;cursor: pointer;" ng-click="gotoStep('setupTeam')">
-                                <section ng-class="{widget:true, 'step-todo':step.name=='basicInfo','step-actived':step.name=='setupTeam'||step.name == 'inviteMember'}" style="padding: 3px 10px;">
+                            <div class="col-lg-4 col-md-4 col-xs-12 " style="padding-left:30px;cursor: pointer;" ng-click="gotoStep('setupTeam')" ng-show="step != 'basicInfo'">
+                                <!-- <section ng-class="{widget:true, 'step-todo':step.name=='basicInfo','step-actived':step.name=='setupTeam'||step.name == 'inviteMember'}" style="padding: 3px 10px;"> -->
+                                <section ng-class="{widget:true, 'step-todo':step == 'setupTeam', 'step-actived':step == 'inviteMember'}" style="padding: 3px 10px;">
+                                    <div class="widget-body clearfix">
+                                        <div class="row flex-nowrap">
+                                            <div class="col-xs-3">
+                                                <span class="widget-icon">
+                                                  <!-- <i class="fa fa-user"></i> -->
+                                                  <i ng-class="{fa:true, 'fa-user':step == 'setupTeam', 'fa-check': step == 'inviteMember'}"></i>
+                                                </span>
+                                            </div>
+                                            <div class="col-xs-9">
+                                                 <h4 style="line-height: 2.1">Setup Team</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-xs-12 " style="padding-left:30px;" ng-show="step == 'inviteMember'">
+                                <section ng-class="{widget:true, 'step-todo':step=='inviteMember'}" style="padding: 3px 10px;">
                                     <div class="widget-body clearfix">
                                         <div class="row flex-nowrap">
                                             <div class="col-xs-3">
@@ -54,49 +72,15 @@
                                     </span>
                                             </div>
                                             <div class="col-xs-9">
-                                                <h6 class="no-margin">Step 2</h6>
-                                                <p class="h4 no-margin fw-normal">Setup Team</p>
+                                                <h4 style="line-height: 2.1">Invite Members</h4>
                                             </div>
                                         </div>
                                     </div>
                                 </section>
                             </div>
-                            <div class="col-lg-4 col-md-4 col-xs-12 " style="padding-left:30px;">
-                                <section ng-class="{widget:true, 'step-todo':step.name=='basicInfo'||step.name=='setupTeam','step-actived':step.name=='inviteMember'}" style="padding: 3px 10px;">
-                                    <div class="widget-body clearfix">
-                                        <div class="row flex-nowrap">
-                                            <div class="col-xs-3">
-                                                <span class="widget-icon">
-                                      <i class="fa fa-user"></i>
-                                    </span>
-                                            </div>
-                                            <div class="col-xs-9">
-                                                <h6 class="no-margin">Step 3</h6>
-                                                <p class="h4 no-margin fw-normal">Invite Members</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </section>
-                            </div>
-                            <!--   <div class="col-lg-6 col-md-6 col-xs-12 " style="padding-left:30px;">
-                                <section ng-class="{widget:true, 'step-todo':step=='basicInfo','step-actived':step=='setupTeam'}" style="padding: 3px 10px;">
-                                    <div class="widget-body clearfix">
-                                        <div class="row flex-nowrap">
-                                            <div class="col-xs-3">
-                                                <span class="widget-icon">
-                                      <i class="fa fa-user"></i>
-                                    </span>
-                                            </div>
-                                            <div class="col-xs-9">
-                                                <h6 class="no-margin">Step 2</h6>
-                                                <p class="h4 no-margin fw-normal">Create Team</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </section>
-                            </div> -->
+                           
                         </div>
-                        <div class="col-lg-6 col-md-6 col-xs-12 " ng-show='step.name == "basicInfo"' style="padding-left:0;">
+                        <div class="col-lg-6 col-md-6 col-xs-12 " ng-show='step == "basicInfo"' style="padding-left:0;">
                             <form novalidate="novalidate" name="OrganizationCreateForm">
                                 <fieldset>
                                     <div class="form-group">
@@ -127,13 +111,15 @@
                                     </div>
                                     <div class="form-group">
                                         <!-- <div class="col-sm-offset-2 col-sm-10"> -->
-                                        <button class="btn btn-info" ng-click="save()">Create Organization</button>
+                                        <button class="btn btn-success btn-sm" ng-click="save()" style="margin-right: 10px;" ng-disabled="OrganizationCreateForm.$invalid || OrganizationCreateForm.$pending">Save</button> 
+                                        <button class="btn btn-success btn-sm" ng-click="save('setupTeam')" style="margin-right: 10px;" ng-disabled="OrganizationCreateForm.$invalid || OrganizationCreateForm.$pending">Save &amp; Create Team</button>
+                                        <button class="btn btn-warning btn-sm" ng-click="cancel()">Cancel</button>
                                         <!-- </div> -->
                                     </div>
                                 </fieldset>
                             </form>
                         </div>
-                        <div class="col-lg-6 col-md-6 col-xs-12 " ng-show='step.name == "setupTeam"' style="padding-left:0;">
+                        <div class="col-lg-6 col-md-6 col-xs-12 " ng-show='step == "setupTeam"' style="padding-left:0;">
                             <form novalidate="novalidate" name="TeamCreateForm">
                                 <fieldset>
                                     <div class="form-group">
@@ -167,12 +153,14 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <button class="btn btn-info" ng-click="saveTeam()" ng-disabled="TeamCreateForm.$invalid || TeamCreateForm.$pending">Create Team</button>
+                                        <button class="btn btn-success" ng-click="saveTeam()" ng-disabled="TeamCreateForm.$invalid || TeamCreateForm.$pending">Save Team</button>
+                                         <button class="btn btn-success" ng-click="saveTeam('inviteMember')" ng-disabled="TeamCreateForm.$invalid || TeamCreateForm.$pending">Save Team &amp; Invite Member</button>
+                                          <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
                                     </div>
                                 </fieldset>
                             </form>
                         </div>
-                        <div class="col-lg-6 col-md-6 col-xs-12 " ng-show='step.name == "inviteMember"' style="padding-left:0;">
+                        <div class="col-lg-6 col-md-6 col-xs-12 " ng-show='step == "inviteMember"' style="padding-left:0;">
                             <form novalidate="novalidate" name="InviteMemberForm">
                                 <div class="form-group">
                                     <label>Organiztion</label>

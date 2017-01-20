@@ -1,13 +1,17 @@
-auth.controller('TeamController', ['$scope', '$location', '$state', 'TeamService', 'OrganizationService', function($scope, $location, $state, TeamService, OrganizationService) {
+auth.controller('TeamController', ['$scope', '$location', '$state','$stateParams', 'TeamService', 'OrganizationService', function($scope, $location, $state, $stateParams, TeamService, OrganizationService) {
         $scope.selected = {orgId:""};
         $scope.init = function() {
             OrganizationService.get().then(function(data) {
-                $scope.orgs = [{ "name": "org1", "desc": "desc1","id":"1"},{ "name": "org2", "desc": "desc2","id":"2" }];
-                $scope.setSelectedOrg($scope.orgs[0].id);
-                $scope.get();
+                
             }, function(errMsg) {
-                $scope.orgs = [{ "name": "org1", "desc": "desc1","id":"1"},{ "name": "org2", "desc": "desc2","id":"2"}];
-                $scope.setSelectedOrg($scope.orgs[0].id);
+                $scope.orgs = [{ "name": "org1", "desc": "desc1","id":"1"},{ "name": "org2", "desc": "desc2","id":"2" }];
+                if($stateParams.orgId){
+	               console.log("aaa"+ $stateParams.orgId);
+	                $scope.setSelectedOrg($stateParams.orgId);
+	        	}else{
+	        		$scope.setSelectedOrg($scope.orgs[0].id);
+	        	}
+                
                 $scope.get();
             })
 
@@ -28,7 +32,12 @@ auth.controller('TeamController', ['$scope', '$location', '$state', 'TeamService
         $scope.setSelectedOrg = function(item){
             $scope.selected.orgId = item;
         }
-        $scope.init();
+      
+        $scope.$on("$stateChangeSuccess", function(){
+        	$scope.init();
+
+        })
+        // $scope.init();
 
     }])
     .controller('TeamCreateController', ['$scope', '$location', '$state', 'TeamService', 'OrganizationService', function($scope, $location, $state, TeamService, OrganizationService) {
