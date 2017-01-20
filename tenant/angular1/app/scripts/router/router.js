@@ -37,6 +37,7 @@ auth.run(['$rootScope', '$state', '$stateParams',
         .state('team', {
           parent: 'core',
           url: '/team',
+          params:{'orgId':''},
           views: {
             'main': {
               templateUrl: 'templates/team/main.html',

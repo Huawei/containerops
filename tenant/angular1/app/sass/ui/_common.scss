@@ -6,9 +6,13 @@ legend{
 }
 .bg-info {
   background-color: #5dc4bf; 
+  box-shadow: #fff 0px 0px 2px 2px;
+  border:1px solid #5dc4bf;
 }
 .bg-gray {
   background-color: #eee; 
+  box-shadow: #fff 0px 0px 3px 2px;
+  border:1px solid #ddd;
 }
 .text-white{
   color: #fff;
