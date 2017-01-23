@@ -28,6 +28,7 @@
       "node_modules/ace-builds/src-noconflict/ace.js",
       "node_modules/ace-builds/src-noconflict/theme-dawn.js",
       "node_modules/ace-builds/src-noconflict/mode-golang.js",
+      "node_modules/angular-websocket/dist/angular-websocket.min.js",
 
       "src/js/**/*.js"
     ]
