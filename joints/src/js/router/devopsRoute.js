@@ -1,4 +1,4 @@
-var devops = angular.module('DevOps',['ngRoute','ui.router']);
+var devops = angular.module('DevOps',['ngRoute','ui.router','ngWebSocket']);
 
 devops.run(['$rootScope', '$state', '$stateParams',
     function ($rootScope, $state, $stateParams) {

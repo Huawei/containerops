@@ -26,7 +26,8 @@
     "js-yaml": "3.6.1",
     "clipboard": "1.5.15",
     "jquery-autocomplete": "1.2.1",
-    "ace-builds" : "1.2.5"
+    "ace-builds" : "1.2.5",
+    "angular-websocket" : "2.0.1"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.14.0",
