@@ -4,28 +4,20 @@ devops.controller('ComponentDetailController', ['$scope','$stateParams', '$locat
 
     // tabs control
     $scope.selectTab = function(index){
-      var result = checkTabs();
+      checkTabs();
       if(index == 2){
         initScriptEditor();
         showEventScript();
       }
-      // else if(index == 4 && !result){
-      //   return;
-      // }
-
       $scope.tab = index;
     }
 
     function checkTabs(){
-      // var result = true;
       $scope.tabStatus.runtime = componentCheck.tabcheck.runtime($scope.toCreateImage);
-      // result = result && $scope.tabStatus.runtime;
       if($scope.toCreateImage){
         $scope.tabStatus.editshell = componentCheck.tabcheck.editshell();
         $scope.tabStatus.buildimage = componentCheck.tabcheck.buildimage();
-        // result = result && $scope.tabStatus.editshell && $scope.tabStatus.buildimage;
       }
-      // return result;
     }
 
     // runtime tab all functions below
@@ -225,7 +217,7 @@ devops.controller('ComponentDetailController', ['$scope','$stateParams', '$locat
         var promise = componentService.updateComponent($scope.component);
         promise.done(function(data){
             apiService.successToCall(data);
-            $location.path("/component/" + data.component.id);
+            initDebugEdit();
         });
         promise.fail(function(xhr,status,error){
             apiService.failToCall(xhr.responseJSON);
@@ -310,6 +302,9 @@ devops.controller('ComponentDetailController', ['$scope','$stateParams', '$locat
 		    // init check
 		    componentCheck.init($scope.component);
 
+        // for debug tab
+        initDebugEdit();
+
 		    $scope.dataReady = true;
 		    $scope.$apply();
   		});
@@ -318,10 +313,68 @@ devops.controller('ComponentDetailController', ['$scope','$stateParams', '$locat
   		}); 
   	}
 
+    // debug tab functions
+    function initDebugEdit(){
+        $scope.debugTab = 1;
+        $scope.debugLogTab = 1;
+        $scope.debugcomponent.input = $.extend(true,{},$scope.component.input);
+        _.each($scope.component.env,function(item){
+          $scope.debugcomponent.env.push($.extend(true,{},item));
+        })
+        $scope.hasDebugInput = !_.isEmpty($scope.debugcomponent.input);
+        if($scope.hasDebugInput){
+          initDebugInput();
+        }
+    }
+
+    function initDebugInput(){
+      if($scope.inputCodeEditorForDebug){
+        $scope.inputCodeEditorForDebug.destroy();
+      }
+      var codeOptions = {
+        "mode": "code",
+        "indentation": 2,
+        "onChange" : function(){
+          $scope.debugcomponent.input = $scope.inputCodeEditorForDebug.get();
+        }
+      };
+      var inputCodeContainer = $("#inputCodeEditorForDebug")[0];
+      $scope.inputCodeEditorForDebug = new JSONEditor(inputCodeContainer, codeOptions);
+      $scope.inputCodeEditorForDebug.set($scope.debugcomponent.input);
+    }
+
+    $scope.changeDebugTab = function(index){
+      $scope.debugTab = index;
+    }
+
+    $scope.changeDebugLogTab = function(index){
+      $scope.debugLogTab = index;
+    }
+
+    $scope.debug = function(){
+      if($("#component-debug-edit-form").parsley().validate()){
+        var dataStream = componentService.debugComponent($scope.component.id);
+        dataStream.onMessage(function(message){
+          apiService.successToCall(data);
+          console.log(message);
+        });
+        dataStream.onError(function(error){
+          apiService.failToCall(error);
+          console.log(error);
+        })
+        dataStream.send(JSON.stringify($scope.debugcomponent))
+      }
+    }
+
   	// init component detail page
   	function init(){
   		$scope.dataReady = false;
       $scope.toSaveNewVersion = false;
+      $scope.debugcomponent = {
+        "kube_master": "",
+        "input": {},
+        "env": []
+      }
 
   		getComponent($stateParams.id);
   	}

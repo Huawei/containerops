@@ -579,7 +579,170 @@
 	    						</form>
 	    					</div>
 	    					<div style="margin-top:20px" ng-show="tab == 4">
-	    						Debug	
+	    						<div class="tabbable tabs-left mb-lg">
+	    							<ul class="nav nav-tabs">
+	    								<li class="nav-item">
+	                            			<a class="nav-link active" data-toggle="tab" ng-click="changeDebugTab(1)">Debug Edit</a>
+	                            		</li>
+	                            		<li class="nav-item">
+	                            			<a class="nav-link" data-toggle="tab" ng-click="changeDebugTab(2)">Debug Log</a>
+	                            		</li>
+	    							</ul>
+	    							<div class="tab-content">
+	    								<div class="my-tab-pane" ng-show="debugTab == 1">
+	    									<form id="component-debug-edit-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
+		    									<div class="row">
+		    										<div class="col-md-9 form-group">
+		    											<label for="normal-field" class="col-sm-4 control-label">
+		    												<span class="required">*</span>Kubernetes Master
+		    											</label>
+		    											<div class="col-sm-8">
+		    												<input type="text" id="kube-master-name" class="form-control" ng-model="debugcomponent.kube_master" required>
+		    											</div>
+		    										</div>
+		    										<div class="col-md-3">
+		    											<button type="button" class="btn btn-primary" ng-click="debug()" style="float:right">
+															<i class="fa fa-bug" style="font-size:16px"></i>
+															<span style="margin-left:5px">Debug</span>
+														</button>
+		    										</div>
+		    									</div>
+		    									<div class="row">
+			    									<div class="col-md-6 import-div">
+			    										<div class="panel">
+			    											<div class="panel-heading input-panel-heading">
+			    												<i class="output-from-edit-icon"></i>
+			    												<span class="panel-title">Edit Env</span>
+			    											</div>
+			    											<div class="panel-body input-panel-body" style="min-height:500px">
+			    												<div class="row col-md-12" ng-repeat="item in debugcomponent.env track by $index">
+				                                                    <div class="form-group" style="height:40px;padding:5px">
+				                                                    	<label for="normal-field" class="col-sm-4 control-label" style="margin-top:5px">
+				                                                    		{{item.key}}
+				                                                    	</label>
+				                                                    	<div class="col-sm-8">
+				                                                    		<input type="text" class="form-control" ng-model="item.value">
+				                                                    	</div>
+				                                                    </div>
+				                                                </div>
+				                                                <div class="list-row" ng-show="debugcomponent.env.length == 0">
+									                                <div class="col-md-12" style="text-align:center;padding-top:10px">
+									                                    <span>No Env Found.</span>
+									                                </div>
+									                            </div>
+			    											</div>
+			    										</div>
+			    									</div>
+			    									<div class="col-md-6 import-div">
+			    										<div class="panel">
+			    											<div class="panel-heading clearfix">
+			    												<i class="input-from-edit-icon"></i>
+			    												<span class="panel-title">Edit Input</span>
+			    											</div>
+			    											<div class="panel-body" style="min-height:500px">
+			    												<div id="inputCodeEditorForDebug" class="codeEditor" ng-show="hasDebugInput" style="height:400px"></div>
+			    												<div class="list-row" ng-show="!hasDebugInput">
+									                                <div class="col-md-12" style="text-align:center;padding-top:10px">
+									                                    <span>No Input Found.</span>
+									                                </div>
+									                            </div>
+			    											</div>
+			    										</div>
+			    									</div>
+			    								</div>
+		    								</form>
+	                                    </div>
+	                                    <div class="my-tab-pane" ng-show="debugTab == 2">
+	                                        <div class="col-lg-12">
+	                                        	<div class="clearfix">
+	                                        		<ul class="nav nav-tabs pull-xs-left" id="debugLogTabs" role="tablist" style="background-color:#f7f7f7">
+	                                        			<li class="nav-item">
+	                                        				<a class="nav-link active" data-toggle="tab" ng-click="changeDebugLogTab(1)">
+	                                        					<span>Result Logs</span>
+	                                        					<i class="arrow arrow-left"></i>
+	                                        					<i class="arrow arrow-right"></i>
+	                                        				</a>
+	                                        			</li>
+	                                        			<li class="nav-item">
+	                                        				<a class="nav-link" data-toggle="tab" ng-click="changeDebugLogTab(2)">
+	                                        					<span>Event Status</span>
+	                                        					<i class="arrow arrow-left"></i>
+	                                        					<i class="arrow arrow-right"></i>
+	                                        				</a>
+	                                        			</li>
+	                                        			<li class="nav-item">
+	                                        				<a class="nav-link" data-toggle="tab" ng-click="changeDebugLogTab(3)">
+	                                        					<span>Action Stream Data</span>
+	                                        					<i class="arrow arrow-left"></i>
+	                                        					<i class="arrow arrow-right"></i>
+	                                        				</a>
+	                                        			</li>
+	                                        		</ul>
+	                                        	</div>
+	                                        	<div class="tab-content mb-lg">
+
+	                                        		<div class="my-tab-pane" ng-show="debugLogTab == 1">
+	                                        			<div class="showBox">
+	                                        				<table class="table table-striped" >
+	                                        					<thead>
+	                                        						<tr>
+	                                        							<th> </th>
+	                                        							<th> </th>
+	                                        						</tr>
+	                                        					</thead>
+	                                        					<tbody id="resultLog_list"></tbody>
+	                                        				</table>
+	                                        			</div>
+	                                        		</div>
+	                                        		<div class="my-tab-pane" ng-show="debugLogTab == 2">
+	                                        			<table id="logs-table" class="table ">
+	                                        				<thead>
+	                                        					<tr>
+	                                        						<th></th>
+	                                        						<th>Time</th>
+	                                        						<th>Event</th>
+	                                        						<th>EVENT_ID</th>
+	                                        						<th>RUN_ID</th>
+	                                        						<th>INFO_STATUS</th>
+	                                        						<th>DETAILS</th>
+	                                        					</tr>  
+	                                        				</thead>
+	                                        				<tbody id="logs-tr"></tbody>
+	                                        			</table>
+	                                        		</div>
+
+
+	                                        		<div class="my-tab-pane" ng-show="debugLogTab == 3">
+	                                        			<div class="row">
+	                                        				<div class="col-md-6 import-div">
+	                                        					<div class="panel">
+	                                        						<div class="panel-heading input-panel-heading">
+	                                        							<i class="glyphicon glyphicon-cloud-upload inputicon"></i>
+	                                        							<span class="panel-title">Show Input</span>
+	                                        						</div>
+	                                        						<div class="panel-body input-panel-body" style="min-height:500px;padding:10px">
+	                                        							<textarea class="advanced-service-textarea" id="action-input-stream" disabled></textarea>
+	                                        						</div>
+	                                        					</div>
+	                                        				</div>
+	                                        				<div class="col-md-6 import-div">
+	                                        					<div class="panel">
+	                                        						<div class="panel-heading clearfix">
+	                                        							<i class="glyphicon glyphicon-cloud-download outputicon"></i>
+	                                        							<span class="panel-title">Show Output</span>
+	                                        						</div>
+	                                        						<div class="panel-body" style="min-height:500px;padding:10px">
+	                                        							<textarea class="advanced-service-textarea" id="action-output-stream" disabled></textarea>
+	                                        						</div>
+	                                        					</div>
+	                                        				</div>
+	                                        			</div>
+	                                        		</div>
+	                                        	</div>
+	                                        </div>
+	                                    </div>
+	    							</div>
+	    						</div>	
 	    					</div>
     					</div>
     				</div>
