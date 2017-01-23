@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-function componentApiService(notifyService, apiService){
+function componentApiService($websocket,notifyService, apiService){
 
 	var apiUrlConf = {
 		host : "",
@@ -39,6 +39,11 @@ function componentApiService(notifyService, apiService){
 		update : {
 			"url" :	"/components/{componentID}",
 			"type" : "PUT"
+		},
+
+		debug : {
+			"url" :	"/components/{componentID}/debug",
+			"type" : "GET"
 		}
 	}
 
@@ -103,9 +108,18 @@ function componentApiService(notifyService, apiService){
 		return extensionUrl;
 	}
 	
+	function websocketCall(target, params){
+		// beforeApiInvocation(apiUrlConf[target].skipAbort);
+		var urlext = getUrlExt(target,params);
+		var url = apiUrlConf.host.replace(/http/g, "ws") + apiUrlConf.rootUrl + urlext;
+		var dataStream = $websocket(url);
+		return dataStream;
+	}
+
 	return {
-		"ajaxCall" : ajaxCall
+		"ajaxCall" : ajaxCall,
+		"websocketCall" : websocketCall
 	}
 }
    
-devops.factory('componentApiService', ['notifyService', 'apiService', componentApiService]);
+devops.factory('componentApiService', ['$websocket', 'notifyService', 'apiService', componentApiService]);

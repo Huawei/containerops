@@ -115,12 +115,20 @@ function componentService(componentApiService){
 		return componentApiService.ajaxCall("update",params,reqbody);
 	}
 
+	function debugComponent(componentID){
+		var params = {
+			"componentID" : componentID
+		}
+		return componentApiService.websocketCall("debug",params);
+	}
+
 	return {
 		"getComponents" : getComponents,
 		"metadata" : metadata,
 		"addComponent" : addComponent,
 		"getComponent" : getComponent,
-		"updateComponent" : updateComponent
+		"updateComponent" : updateComponent,
+		"debugComponent" : debugComponent
 	}
 }
    
