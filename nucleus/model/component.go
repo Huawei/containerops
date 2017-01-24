@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package model
 
 import (
 	"time"
@@ -41,8 +41,8 @@ const (
 //The Component name is the only
 type Component struct {
 	ID          int64      `gorm:"primary_key"`                                                //
-	Name        string     `sql:"not null;type:varchar(128);index:idx_component_name_version"` //Component's name, the grammer is "/[a-z0-9]{6,128}/".
-	Version     string     `sql:"not null;type:varchar(64);index:idx_component_name_version"`  //Component's version, the grammer is "/[\w][\w.-]{0,127}/".
+	Name        string     `sql:"not null;type:varchar(128);index:idx_component_name_version"` //Component's name, the grammar is "/[a-z0-9]{6,128}/".
+	Version     string     `sql:"not null;type:varchar(64);index:idx_component_name_version"`  //Component's version, the grammar is "/[\w][\w.-]{0,127}/".
 	Type        int        `sql:"not null;default:0"`                                          //Component type link to the [ComponentTypeDocker, ComponentTypeAppc, ComponentTypeOCI]
 	ImageName   string     `sql:"not null;type:varchar(256);index:idx_component_iamge_name"`   //Image name it must match the regular expression [a-z0-9]+(?:[._-][a-z0-9]+)* , and must be less than 256 characters. Specification at [Docker Registry V2 Sepcification](https://github.com/docker/distribution/blob/master/docs/spec/api.md#overview)
 	ImageTag    string     `sql:"type:varchar(255);index:idx_component_image_tag"`             //
