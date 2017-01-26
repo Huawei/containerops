@@ -30,32 +30,34 @@ import (
 //4. Rkt               - https://github.com/coreos/rkt
 const (
 	//ComponentTypeDocker is the docker image type
-	ComponentTypeDocker = iota
+	ComponentTypeDocker = "DOCKER"
 	//ComponentTypeAppc is the Appc image type used by Rkt.
-	ComponentTypeAppc
+	ComponentTypeAppc = "APPC"
 	//ComponentTypeOCI is the OCI image type
-	ComponentTypeOCI
+	ComponentTypeOCI = "OCI"
 )
 
 //The Component is a container image encapsulated DevOps program written in any programming language like Bush, Python or Ruby.
-//The Component name is the only
 type Component struct {
-	ID          int64      `gorm:"primary_key"`                                                //
-	Name        string     `sql:"not null;type:varchar(128);index:idx_component_name_version"` //Component's name, the grammar is "/[a-z0-9]{6,128}/".
-	Version     string     `sql:"not null;type:varchar(64);index:idx_component_name_version"`  //Component's version, the grammar is "/[\w][\w.-]{0,127}/".
-	Type        int        `sql:"not null;default:0"`                                          //Component type link to the [ComponentTypeDocker, ComponentTypeAppc, ComponentTypeOCI]
-	ImageName   string     `sql:"not null;type:varchar(256);index:idx_component_iamge_name"`   //Image name it must match the regular expression [a-z0-9]+(?:[._-][a-z0-9]+)* , and must be less than 256 characters. Specification at [Docker Registry V2 Sepcification](https://github.com/docker/distribution/blob/master/docs/spec/api.md#overview)
-	ImageTag    string     `sql:"type:varchar(255);index:idx_component_image_tag"`             //
-	Timeout     int        `sql:"default:0"`                                                   //
-	UseAdvanced bool       `sql:"not null;default:false"`                                      //
-	KubeSetting string     `sql:"null;type:text"`                                              //Kubernetes execute script.
-	Input       string     `sql:"null;type:text"`                                              //component input
-	Output      string     `sql:"null;type:text"`                                              //component output
-	Environment string     `sql:"null;type:text"`                                              //Environment parameters.
-	Manifest    string     `sql:"null;type:longtext"`                                          //
-	CreatedAt   time.Time  ``                                                                  //
-	UpdatedAt   time.Time  ``                                                                  //
-	DeletedAt   *time.Time ``                                                                  //
+	ID          int64      `json:"id" gorm:"primary_key"`                                                                    //
+	Namespace   string     `json:"namespace" gorm:"not null;type:varchar(128);unique_index:idx_component_namespace_version"` //Namespace is User or Organization name, the regex grammar is "/[a-z0-9]+(?:[-][a-z0-9]+){6,127}/". The User or Organization have 1:n relationships with components. If the component only creates, update or delete by the system administrator, we call it is a library. And the field value is "LIBRARY."
+	Name        string     `json:"name" gorm:"not null;type:varchar(128);unique_index:idx_component_namespace_version"`      //The Component name, the regex grammar is "/[a-z0-9]+(?:[-][a-z0-9]+){6,127}/".
+	Version     string     `json:"version" gorm:"null;type:varchar(128);unique_index:idx_component_namespace_version"`       //The Component version, the regex grammar is "/[\w][\w.-]{0,127}/". The version doesn't link tag of Docker or rkt.
+	Type        string     `json:"type" gorm:"not null;type:varchar(128)"`                                                   //The Component type link to the [ComponentTypeDocker, ComponentTypeAppc, ComponentTypeOCI]
+	Endpoint    string     `json:"endpoint" gorm:"null;type:text"`                                                           //The Component endpoint is the container URI like dockyard.sh/genedna/cloudnativeday:1.0.
+	Gravatar    string     `json:"gravatar" gorm:"null;type:text"`                                                           //The component also has a gravatar like a user or an organization. The system will crawl the registry/hub of the endpoint. If the crawling failure, the system will generate a gravataing picture. And user also could upload a picture take place the crawling or generate picture.
+	ImageName   string     `sql:"not null;type:varchar(256);index:idx_component_iamge_name"`                                 //Image name it must match the regular expression [a-z0-9]+(?:[._-][a-z0-9]+)* , and must be less than 256 characters. Specification at [Docker Registry V2 Sepcification](https://github.com/docker/distribution/blob/master/docs/spec/api.md#overview)
+	ImageTag    string     `sql:"null;type:varchar(255);index:idx_component_image_tag"`                                      //
+	Timeout     int        `sql:"not null;default:0"`                                                                        //
+	UseAdvanced bool       `sql:"not null;default:false"`                                                                    //
+	KubeSetting string     `sql:"null;type:text"`                                                                            //Kubernetes execute script.
+	Input       string     `sql:"null;type:text"`                                                                            //component input
+	Output      string     `sql:"null;type:text"`                                                                            //component output
+	Environment string     `sql:"null;type:text"`                                                                            //Environment parameters.
+	Manifest    string     `sql:"null;type:longtext"`                                                                        //
+	CreatedAt   time.Time  ``                                                                                                //
+	UpdatedAt   time.Time  ``                                                                                                //
+	DeletedAt   *time.Time ``                                                                                                //
 }
 
 //TableName is return the table name of Component in MySQL database.
