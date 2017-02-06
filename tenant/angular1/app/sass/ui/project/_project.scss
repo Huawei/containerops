@@ -30,7 +30,7 @@ limitations under the License. */
 }
 
 .bg-grey {
-  background: #d7d7d7;
+  background: #eee;
 }
 
 .info-nav > li > a {
@@ -57,13 +57,17 @@ limitations under the License. */
 
   .limit {
   	margin-bottom: 20px;
-  	text-align: center;
+    height: 100%;
+    background: #eee;
+    min-width: 80px;
+    padding: 30px 0;
+    text-align: center;
   	.space {
-  		display: block;
+  		display: inline-block;
   		padding: 3px 0;
   		width: 80px;
   		text-align: center;
-  		margin-bottom: 3px;
+  		margin-bottom: 10px;
   		border: 1px solid #eaeaea;
   		border-radius: 3px;
   		background: #86c686;
@@ -81,20 +85,23 @@ limitations under the License. */
   	margin-top: 10px;
   	list-style: none;
   	padding: 3px 10px;
+    display: inline-block;
+    text-align: left;
   	width: 80%;
   	background: #e5e5e5;
-  	color: #fff;
+  	color: #92806a;
   	&:first-child {
   		margin-top: 0;
   	}
   }
 
   .bg-chosed {
-		background: #F2BE35;
+		background: #a6937c;
+    color: #fff;
   }
 
 	.bg-nochosed {
-		background: #e5e5e5;
+		background: #bbae9e;
 	}
 
   .filter-org {
@@ -149,8 +156,16 @@ limitations under the License. */
 	}
 
   .all-teams {
-  	padding: 10px;
+  	padding: 20px 0;
   	border-radius: 3px;
+    text-align: center;
+    height: 100%;
+    overflow: auto;
+  }
+
+  .set-permissions {
+    height: 200px;
+    margin-bottom: 30px;
   }
 
 	.item-role {
@@ -162,13 +177,18 @@ limitations under the License. */
 		margin: 0;
 	}
 
+  .role-team {
+    color: #bbae9e;
+  }
+
 	.role-team {
 		margin-left: 10px;
 	}
 
 	.role-teams {
-		padding: 10px;
-    min-height: 80px;
+		padding: 20px;
+    height: 100%;
+    overflow: auto;
 	}
 
 	.save-setting {
@@ -180,8 +200,11 @@ limitations under the License. */
 		margin-top: 40px;
 	}	
 
-  .fa-link {
-    transform: rotate(-45deg);
+  .icon-link,
+  .icon-right {
+    margin-top: 80px;
+    width: 70%;
+    height: auto;
   }
 }
 

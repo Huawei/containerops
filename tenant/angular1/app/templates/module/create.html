@@ -13,7 +13,7 @@
               </legend>
               <div class="row">
                   <div class="col-md-2">Create Module</div>
-                  <div class="col-md-8" style="border-left:1px solid #e5e5e5;padding:0 30px;margin-bottom: 30px;">
+                  <div class="col-md-9" style="border-left:1px solid #e5e5e5;padding:0 30px;margin-bottom: 30px;">
                       <div class="row">
                           <div class="col-lg-6 col-md-6 col-xs-12 " style="padding-right:30px;" ng-click="changeStep('baseInfo')">
                               <section class="widget" ng-class="currentStep === 'baseInfo' ? 'step-actived' : 'step-todo'" style="padding: 3px 10px;">
@@ -87,18 +87,22 @@
                             </ul>
                           </div>
                         </div>
-                        <div class="row marg-no">
-                          <ul class="col-xs-3 all-teams" ng-class="teamList.length>0? 'bg-grey': ''">
+                        <div class="row marg-no set-permissions">
+                          <ul class="col-xs-4 all-teams" ng-class="teamList.length>0? 'bg-grey': ''">
                             <li class="item-team" ng-repeat="item in teamList" ng-class="item.isChosed?'bg-chosed':'bg-nochosed'" ng-click="choseTeam(item)">{{item.name}}</li>
                           </ul>
-                          <div class="col-xs-1"><i class="fa fa-link"></i></div>
-                          <div class="col-xs-3 limit">
+                          <div class="col-xs-1">
+                            <img src="../../assets/images/link.png" class="icon-link"/>
+                          </div>
+                          <div class="col-xs-2 limit">
                             <span class="space" ng-click="getRole(0)">Admin</span>
                             <span class="space" ng-click="getRole(1)">Readonly</span>
                             <span class="space" ng-click="getRole(2)">ReadWrite</span>
                           </div>
-                          <div class="col-xs-2"><i class="fa fa-long-arrow-right"></i></div>
-                          <ul class="col-xs-3 role-teams bg-grey">
+                          <div class="col-xs-1">
+                            <img src="../../assets/images/icon-return.png" class="icon-right"/>
+                          </div>
+                          <ul class="col-xs-4 role-teams bg-grey">
                             <li class="item-role" ng-repeat="item in roleTeams">
                               <h5 class="role-name">{{item.role}}</h5>
                               <p class="role-team" ng-repeat="team in item.teams">{{team.name}}</p>
