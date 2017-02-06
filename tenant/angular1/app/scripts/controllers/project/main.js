@@ -223,7 +223,7 @@ auth.controller('ProjectController', ['$scope', '$location', '$state', 'projectS
 			$scope.teamHash = [];
 			$scope.getTeamList($scope.currentOrg);
 		}
-		$scope.isShow('isShowOrgs',isShow);
+		$scope.isShow('isShowOrgs',false);
 	};
 
 	$scope.choseTeam = function(item){
