@@ -342,6 +342,20 @@ func CreateNewComponentVersion(componentInfo models.Component, versionName strin
 	return newComponentInfo.GetComponent().Save(newComponentInfo).Error
 }
 
+func DeleteComponentInfo(componentID int64) error {
+	if componentID == 0 {
+		return errors.New("component id can't be zero")
+	}
+
+	componentInfo := new(models.Component)
+	err := componentInfo.GetComponent().Where("id = ?", componentID).Error
+	if err != nil {
+		return err
+	}
+
+	return componentInfo.GetComponent().Delete(&componentInfo).Error
+}
+
 func InitComponetNew(actionLog *ActionLog) (component, error) {
 	platformSetting, err := actionLog.GetActionPlatformInfo()
 	if err != nil {

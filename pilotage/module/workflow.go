@@ -1071,6 +1071,10 @@ func (workflowInfo *Workflow) UpdateWorkflowInfo(define map[string]interface{}) 
 	return nil
 }
 
+func (workflowInfo *Workflow) DeleteWorkflow() error {
+	return workflowInfo.GetWorkflow().Delete(&workflowInfo).Error
+}
+
 func (workflow *Workflow) updateTimerTask(taskMap map[string]interface{}) error {
 	db := models.GetDB().Begin()
 	available, ok := taskMap["available"].(bool)
