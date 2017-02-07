@@ -706,7 +706,23 @@ func GetWorkflowVarV1Handler(ctx *macaron.Context) (int, []byte) {
 
 //DeleteWorkflowV1Handler is delete the workflow data.
 func DeleteWorkflowV1Handler(ctx *macaron.Context) (int, []byte) {
-	result, _ := json.Marshal(map[string]string{"message": ""})
+	result := []byte("")
+
+	workflowID := ctx.ParamsInt64(":workflow")
+
+	workflowInfo, err := module.GetWorkflow(workflowID)
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when get workflow info from db:" + err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	err = workflowInfo.DeleteWorkflow()
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when delete workflow info from db:" + err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	result, _ = json.Marshal(map[string]string{"message": "success"})
 	return http.StatusOK, result
 }
 
