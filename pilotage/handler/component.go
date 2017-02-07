@@ -180,6 +180,16 @@ func PutComponentV1Handler(ctx *macaron.Context) (int, []byte) {
 
 //DeleteComponentv1Handler is
 func DeleteComponentv1Handler(ctx *macaron.Context) (int, []byte) {
-	result, _ := json.Marshal(map[string]string{"message": ""})
+	result := []byte("")
+
+	componentID := ctx.ParamsInt64(":component")
+
+	err := module.DeleteComponentInfo(componentID)
+	if err != nil {
+		result, _ = json.Marshal(map[string]string{"errMsg": "error when delete component info from db:" + err.Error()})
+		return http.StatusBadRequest, result
+	}
+
+	result, _ = json.Marshal(map[string]string{"message": "success"})
 	return http.StatusOK, result
 }
