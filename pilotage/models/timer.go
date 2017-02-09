@@ -44,5 +44,5 @@ func (p *Timer) TableName() string {
 }
 
 func (p *Timer) GetTimer() *gorm.DB {
-	return db.Model(&Timer{})
+	return conn.Model(&Timer{})
 }
