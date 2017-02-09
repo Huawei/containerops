@@ -20,6 +20,26 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
+var (
+	checker Checker
+)
+
+type Checker interface {
+	permissionCheck(ctx *macaron.Context)
+}
+
+type DefaultChecker struct {
+}
+
+func (d *DefaultChecker) permissionCheck(ctx *macaron.Context) {
+}
+
+func init() {
+	if checker == nil {
+		checker = new(DefaultChecker)
+	}
+}
+
 func SetMiddlewares(m *macaron.Macaron) {
 	//Set static file directory,static file access without log output
 	m.Use(macaron.Static("external", macaron.StaticOptions{
@@ -40,4 +60,6 @@ func SetMiddlewares(m *macaron.Macaron) {
 			ctx.Resp.Flush()
 		}
 	})
+
+	m.Use(checker.permissionCheck)
 }
