@@ -64,7 +64,7 @@ func (s *Service) TableName() string {
 
 //Create is
 func (sd *ServiceDefinition) Create(service, title, gravatar, endpoints, environments, authorizations, configurations, descriptin string) (int64, error) {
-	tx := db.Begin()
+	tx := conn.Begin()
 
 	if err := tx.Debug().Where("service = ?", service).FirstOrCreate(&sd).Error; err != nil {
 		tx.Rollback()

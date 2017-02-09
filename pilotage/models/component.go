@@ -66,5 +66,5 @@ func (c *Component) TableName() string {
 }
 
 func (c *Component) GetComponent() *gorm.DB {
-	return db.Model(&Component{})
+	return conn.Model(&Component{})
 }

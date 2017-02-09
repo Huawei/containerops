@@ -39,5 +39,5 @@ func (p *UserSetting) TableName() string {
 }
 
 func (p *UserSetting) GetUserSetting() *gorm.DB {
-	return db.Model(&UserSetting{})
+	return conn.Model(&UserSetting{})
 }
