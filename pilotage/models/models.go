@@ -55,6 +55,7 @@ func Migrate() {
 	db.AutoMigrate(&EventDefinition{}, &Event{}, &EventJson{})
 	db.AutoMigrate(&UserSetting{})
 	db.AutoMigrate(&Timer{})
+	db.AutoMigrate(&Permission{})
 
 	InitEventJson(db)
 
