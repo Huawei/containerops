@@ -121,7 +121,7 @@ func (p *Workflow) TableName() string {
 }
 
 func (p *Workflow) GetWorkflow() *gorm.DB {
-	return db.Model(&Workflow{})
+	return conn.Model(&Workflow{})
 }
 
 //WorkflowLog is workflow run history log.
@@ -158,7 +158,7 @@ func (p *WorkflowLog) TableName() string {
 }
 
 func (p *WorkflowLog) GetWorkflowLog() *gorm.DB {
-	return db.Model(&WorkflowLog{})
+	return conn.Model(&WorkflowLog{})
 }
 
 //Stage is Workflow unit.
@@ -188,7 +188,7 @@ func (s *Stage) TableName() string {
 }
 
 func (s *Stage) GetStage() *gorm.DB {
-	return db.Model(&Stage{})
+	return conn.Model(&Stage{})
 }
 
 //StageLog is stage run log.
@@ -224,7 +224,7 @@ func (s *StageLog) TableName() string {
 }
 
 func (s *StageLog) GetStageLog() *gorm.DB {
-	return db.Model(&StageLog{})
+	return conn.Model(&StageLog{})
 }
 
 //Action is Stage unit.
@@ -261,7 +261,7 @@ func (a *Action) TableName() string {
 }
 
 func (a *Action) GetAction() *gorm.DB {
-	return db.Model(&Action{})
+	return conn.Model(&Action{})
 }
 
 //ActionLog is action run history.
@@ -306,7 +306,7 @@ func (a *ActionLog) TableName() string {
 }
 
 func (a *ActionLog) GetActionLog() *gorm.DB {
-	return db.Model(&ActionLog{})
+	return conn.Model(&ActionLog{})
 }
 
 //Outcome is Stage running results.
@@ -336,7 +336,7 @@ func (o *Outcome) TableName() string {
 }
 
 func (o *Outcome) GetOutcome() *gorm.DB {
-	return db.Model(&Outcome{})
+	return conn.Model(&Outcome{})
 }
 
 // workflowSequence is a table describe workflow's run sequence
@@ -355,5 +355,5 @@ func (p *WorkflowSequence) TableName() string {
 }
 
 func (p *WorkflowSequence) GetWorkflowSequence() *gorm.DB {
-	return db.Model(&WorkflowSequence{})
+	return conn.Model(&WorkflowSequence{})
 }
