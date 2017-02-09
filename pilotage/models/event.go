@@ -73,7 +73,7 @@ func (e *EventDefinition) TableName() string {
 }
 
 func (e *EventDefinition) GetEventDefinition() *gorm.DB {
-	return db.Model(&EventDefinition{})
+	return conn.Model(&EventDefinition{})
 }
 
 //Event is execute events in the system.
@@ -104,7 +104,7 @@ func (e *Event) TableName() string {
 }
 
 func (e *Event) GetEvent() *gorm.DB {
-	return db.Model(&Event{})
+	return conn.Model(&Event{})
 }
 
 // EventJson is all start stage support event info, like github push event etc.
@@ -121,7 +121,7 @@ func (e *EventJson) TableName() string {
 }
 
 func (e *EventJson) GetEventJson() *gorm.DB {
-	return db.Model(&EventJson{})
+	return conn.Model(&EventJson{})
 }
 
 type WorkflowVar struct {
@@ -140,7 +140,7 @@ func (r *WorkflowVar) TableName() string {
 }
 
 func (r *WorkflowVar) GetWorkflowVar() *gorm.DB {
-	return db.Model(&WorkflowVar{})
+	return conn.Model(&WorkflowVar{})
 }
 
 type WorkflowVarLog struct {
@@ -159,5 +159,5 @@ func (r *WorkflowVarLog) TableName() string {
 }
 
 func (r *WorkflowVarLog) GetWorkflowVarLog() *gorm.DB {
-	return db.Model(&WorkflowVarLog{})
+	return conn.Model(&WorkflowVarLog{})
 }

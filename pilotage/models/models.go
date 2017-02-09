@@ -27,52 +27,65 @@ import (
 )
 
 var (
-	db *gorm.DB
+	DB   Database
+	conn *gorm.DB
 )
 
-// OpenDatabase is
-func OpenDatabase() {
-	var err error
+type Database interface {
+	Open()
+	Migrate()
+}
 
-	if db, err = gorm.Open(configure.GetString("database.driver"), configure.GetString("database.uri")); err != nil {
-		log.Fatal("Initlization database connection error.")
-		os.Exit(1)
-	} else {
-		db.DB()
-		db.DB().Ping()
-		db.DB().SetMaxIdleConns(10)
-		db.DB().SetMaxOpenConns(100)
-		db.SingularTable(true)
+type defaultDB struct {
+}
+
+func init() {
+	if DB == nil {
+		DB = new(defaultDB)
 	}
 }
 
-//Migrate is
-func Migrate() {
-	OpenDatabase()
+func (d *defaultDB) Open() {
+	var err error
 
-	db.AutoMigrate(&ServiceDefinition{}, &Service{}, &Component{})
-	db.AutoMigrate(&Workflow{}, &WorkflowLog{}, &WorkflowSequence{}, &WorkflowVar{}, &WorkflowVarLog{}, &Stage{}, &StageLog{}, &Action{}, &ActionLog{}, &Outcome{})
-	db.AutoMigrate(&EventDefinition{}, &Event{}, &EventJson{})
-	db.AutoMigrate(&UserSetting{})
-	db.AutoMigrate(&Timer{})
-	db.AutoMigrate(&Permission{})
+	if conn, err = gorm.Open(configure.GetString("database.driver"), configure.GetString("database.uri")); err != nil {
+		log.Fatal("Initlization database connection error.")
+		os.Exit(1)
+	} else {
+		conn.DB()
+		conn.DB().Ping()
+		conn.DB().SetMaxIdleConns(10)
+		conn.DB().SetMaxOpenConns(100)
+		conn.SingularTable(true)
+	}
+}
 
-	InitEventJson(db)
+func (d *defaultDB) Migrate() {
+	d.Open()
+
+	conn.AutoMigrate(&ServiceDefinition{}, &Service{}, &Component{})
+	conn.AutoMigrate(&Workflow{}, &WorkflowLog{}, &WorkflowSequence{}, &WorkflowVar{}, &WorkflowVarLog{}, &Stage{}, &StageLog{}, &Action{}, &ActionLog{}, &Outcome{})
+	conn.AutoMigrate(&EventDefinition{}, &Event{}, &EventJson{})
+	conn.AutoMigrate(&UserSetting{})
+	conn.AutoMigrate(&Timer{})
+	conn.AutoMigrate(&Permission{})
+
+	initEventJson(conn)
 
 	log.Info("AutMigrate database structs.")
 }
 
 // GetDB is
 func GetDB() *gorm.DB {
-	if db != nil {
-		return db
+	if conn != nil {
+		return conn
 	}
 
-	OpenDatabase()
-	return db
+	DB.Open()
+	return conn
 }
 
-func InitEventJson(db *gorm.DB) {
+func initEventJson(db *gorm.DB) {
 
 	events := map[string][]string{
 		"github": []string{"Create", "Delete", "Deployment", "DeploymentStatus", "Fork", "Gollum", "IssueComment", "Issues", "Member", "PageBuild", "Public", "PullRequest", "PullRequestReview", "PullRequestReviewComment", "Push", "Release", "Repository", "Status", "TeamAdd", "Watch"},

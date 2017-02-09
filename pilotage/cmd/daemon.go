@@ -88,7 +88,7 @@ func startDeamon(cmd *cobra.Command, args []string) {
 	log.SetOutput(os.Stdout)
 
 	// first open database conn
-	models.OpenDatabase()
+	models.DB.Open()
 
 	// load all timer
 	module.InitTimerTask()

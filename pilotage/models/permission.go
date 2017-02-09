@@ -44,5 +44,5 @@ func (e *Permission) TableName() string {
 }
 
 func (e *Permission) GetPermission() *gorm.DB {
-	return db.Model(&Permission{})
+	return conn.Model(&Permission{})
 }
