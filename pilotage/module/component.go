@@ -348,7 +348,7 @@ func DeleteComponentInfo(componentID int64) error {
 	}
 
 	componentInfo := new(models.Component)
-	err := componentInfo.GetComponent().Where("id = ?", componentID).Error
+	err := componentInfo.GetComponent().Where("id = ?", componentID).First(componentInfo).Error
 	if err != nil {
 		return err
 	}
