@@ -25,10 +25,12 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+// UserSetting is
 type UserSetting struct {
 	*models.UserSetting
 }
 
+// GetUserSetting is
 func GetUserSetting(namespace, repository string) (*UserSetting, error) {
 	result := new(UserSetting)
 	setting := new(models.UserSetting)
@@ -43,6 +45,7 @@ func GetUserSetting(namespace, repository string) (*UserSetting, error) {
 	return result, nil
 }
 
+// SetUserSetting is
 func (setting *UserSetting) SetUserSetting(namespace, repository string, setMap map[string]interface{}) error {
 	userSetMap := make(map[string]interface{})
 	for key, value := range setMap {

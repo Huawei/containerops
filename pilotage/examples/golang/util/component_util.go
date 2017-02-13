@@ -14,28 +14,43 @@ import (
 )
 
 const (
-	CO_POD_NAME     = "CO_POD_NAME"
-	CO_RUN_ID       = "CO_RUN_ID"
-	CO_EVENT_LIST   = "CO_EVENT_LIST"
+	// CO_POD_NAME is
+	CO_POD_NAME = "CO_POD_NAME"
+	// CO_RUN_ID is
+	CO_RUN_ID = "CO_RUN_ID"
+	// CO_EVENT_LIST is
+	CO_EVENT_LIST = "CO_EVENT_LIST"
+	// CO_SERVICE_ADDR is
 	CO_SERVICE_ADDR = "CO_SERVICE_ADDR"
 
+	// CO_COMPONENT_START is
 	CO_COMPONENT_START = "CO_COMPONENT_START"
-	CO_COMPONENT_STOP  = "CO_COMPONENT_STOP"
+	// CO_COMPONENT_STOP is
+	CO_COMPONENT_STOP = "CO_COMPONENT_STOP"
 
+	// CO_ACTION_TIMEOUT is
 	CO_ACTION_TIMEOUT = "CO_ACTION_TIMEOUT"
 
-	CO_TASK_START  = "CO_TASK_START"
+	// CO_TASK_START is
+	CO_TASK_START = "CO_TASK_START"
+	// CO_TASK_RESULT is
 	CO_TASK_RESULT = "CO_TASK_RESULT"
+	// CO_TASK_STATUS is
 	CO_TASK_STATUS = "CO_TASK_STATUS"
 
+	// CO_REGISTER_URL is
 	CO_REGISTER_URL = "CO_register"
 
+	// CO_DATA is
 	CO_DATA = "CO_DATA"
 
+	// CO_SET_GLOBAL_VAR_URL is
 	CO_SET_GLOBAL_VAR_URL = "CO_SET_GLOBAL_VAR_URL"
 
+	// CO_LINKSTART_TOKEN is
 	CO_LINKSTART_TOKEN = "CO_LINKSTART_TOKEN"
-	CO_LINKSTART_URL   = "CO_LINKSTART_URL"
+	// CO_LINKSTART_URL is
+	CO_LINKSTART_URL = "CO_LINKSTART_URL"
 )
 
 var (
@@ -90,6 +105,7 @@ func init() {
 	log.Println("[component util]", "<===got event map:", eventINFOMap)
 }
 
+// NotifyEvent is
 func NotifyEvent(eventName string, status bool, result, output string) error {
 	if eventURLMap[eventName] == "" || eventIDMap[eventName] == int64(0) {
 		log.Println("[component util]", "===>error when notify event:", eventName, " because event info is illegal, got evnet id:", eventIDMap[eventName], " and event url:", eventURLMap[eventName])
@@ -114,30 +130,36 @@ func NotifyEvent(eventName string, status bool, result, output string) error {
 
 	respBody, _ := ioutil.ReadAll(resp.Body)
 
-	log.Println("[component util]", "===>component send event:", eventName, " got resp:\n", string(respBody), "\n")
+	log.Println("[component util]", "===>component send event:", eventName, " got resp:\n", string(respBody))
 	return nil
 }
 
+// ComponentStart is
 func ComponentStart(info string) error {
 	return NotifyEvent(CO_COMPONENT_START, true, info, "")
 }
 
+// ComponentStop is
 func ComponentStop(info string) error {
 	return NotifyEvent(CO_COMPONENT_STOP, true, info, "")
 }
 
+// TaskStart is
 func TaskStart(info string) error {
 	return NotifyEvent(CO_TASK_START, true, info, "")
 }
 
+// TaskResult is
 func TaskResult(info string) error {
 	return NotifyEvent(CO_TASK_RESULT, true, info, "")
 }
 
+// TaskStatus is
 func TaskStatus(status bool, info, output string) error {
 	return NotifyEvent(CO_TASK_STATUS, status, info, output)
 }
 
+// GetData is
 func GetData(port int64, forceRefresh bool, dataChan chan map[string]interface{}) error {
 	dataMap := make(map[string]interface{})
 	err := json.Unmarshal([]byte(eventINFOMap[CO_DATA]), &dataMap)
@@ -152,6 +174,7 @@ func GetData(port int64, forceRefresh bool, dataChan chan map[string]interface{}
 	return errors.New("error when get data")
 }
 
+// HoldProj is
 func HoldProj() {
 	timeout, err := strconv.Atoi(eventINFOMap[CO_ACTION_TIMEOUT])
 	if err != nil {
@@ -165,6 +188,7 @@ func HoldProj() {
 	}
 }
 
+// ChangeGlobalVar is
 func ChangeGlobalVar(varName, value string) error {
 	reqBody := make(map[string]interface{})
 
@@ -173,7 +197,7 @@ func ChangeGlobalVar(varName, value string) error {
 
 	reqBodyBytes, _ := json.Marshal(reqBody)
 
-	log.Println("[component util]", "===>component start change global var info, \nvar name:", varName, "\nvalue:", value, "\nreqBody:", reqBody, "\nto:", eventURLMap[CO_SET_GLOBAL_VAR_URL])
+	log.Println("[component util]", "===>component start change global var info, \nvar name:", varName, "\nvalue:", value, "\nreqBody:", reqBody, "\n to:", eventURLMap[CO_SET_GLOBAL_VAR_URL])
 	resp, err := http.Post(eventURLMap[CO_SET_GLOBAL_VAR_URL], "application/json", bytes.NewReader(reqBodyBytes))
 
 	if err != nil {
@@ -183,10 +207,11 @@ func ChangeGlobalVar(varName, value string) error {
 
 	respBody, _ := ioutil.ReadAll(resp.Body)
 
-	log.Println("[component util]", "===>component send event:", CO_SET_GLOBAL_VAR_URL, " got resp:\n", string(respBody), "\n")
+	log.Println("[component util]", "===>component send event:", CO_SET_GLOBAL_VAR_URL, " got resp:\n", string(respBody))
 	return nil
 }
 
+// LinkStart is
 func LinkStart(workflowName, workflowVersion, eventName, eventType string, startJson map[string]interface{}) error {
 	reqBody := make(map[string]interface{})
 
@@ -203,7 +228,7 @@ func LinkStart(workflowName, workflowVersion, eventName, eventType string, start
 
 	reqBodyBytes, _ := json.Marshal(reqBody)
 
-	log.Println("[component util]", "===>component start link start, \ntoken:", eventINFOMap[CO_LINKSTART_TOKEN], "\nworkflow:", workflowName, ":", workflowVersion, "\nstartjson:", startJson, "\nbody:", string(reqBodyBytes), "\nto:", eventURLMap[CO_LINKSTART_URL]+workflowName)
+	log.Println("[component util]", "===>component start link start, \ntoken:", eventINFOMap[CO_LINKSTART_TOKEN], "\nworkflow:", workflowName, ":", workflowVersion, "\nstartjson:", startJson, "\nbody:", string(reqBodyBytes), "\n to:", eventURLMap[CO_LINKSTART_URL]+workflowName)
 	resp, err := http.Post(eventURLMap[CO_LINKSTART_URL]+workflowName, "application/json", bytes.NewReader(reqBodyBytes))
 	if err != nil {
 		log.Println("[component util]", "===>component send event:", CO_LINKSTART_URL, " to:", eventURLMap[CO_LINKSTART_URL]+workflowName, " \t error, error is:", err.Error())
@@ -212,7 +237,7 @@ func LinkStart(workflowName, workflowVersion, eventName, eventType string, start
 
 	respBody, _ := ioutil.ReadAll(resp.Body)
 
-	log.Println("[component util]", "===>component send event:", CO_LINKSTART_URL, " got resp:\n", string(respBody), "\n")
+	log.Println("[component util]", "===>component send event:", CO_LINKSTART_URL, " got resp:\n", string(respBody))
 	return nil
 }
 

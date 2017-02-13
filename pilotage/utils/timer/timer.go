@@ -90,9 +90,10 @@ func NewWithLocation(location *time.Location) *Cron {
 	}
 }
 
-// A wrapper that turns a func() into a cron.Job
+// FuncJob is A wrapper that turns a func() into a cron.Job
 type FuncJob func()
 
+// Run is
 func (f FuncJob) Run() { f() }
 
 // AddFunc adds a func to the Cron to be run on the given schedule.
@@ -251,17 +252,27 @@ func (c *Cron) entrySnapshot() []*Entry {
 // fields should be included, while others enable features. If a field is not
 // included the parser will assume a default value. These options do not change
 // the order fields are parse in.
+
+// ParseOption is
 type ParseOption int
 
 const (
-	Second      ParseOption = 1 << iota // Seconds field, default 0
-	Minute                              // Minutes field, default 0
-	Hour                                // Hours field, default 0
-	Dom                                 // Day of month field, default *
-	Month                               // Month field, default *
-	Dow                                 // Day of week field, default *
-	DowOptional                         // Optional day of week field, default *
-	Descriptor                          // Allow descriptors such as @monthly, @weekly, etc.
+	// Second is Seconds field, default 0
+	Second ParseOption = 1 << iota
+	// Minute is Minutes field, default 0
+	Minute
+	// Hour is Hours field, default 0
+	Hour
+	// Dom is Day of month field, default *
+	Dom
+	// Month is Month field, default *
+	Month
+	// Dow is Day of week field, default *
+	Dow
+	// DowOptional is Optional day of week field, default *
+	DowOptional
+	// Descriptor is Allow descriptors such as @monthly, @weekly, etc.
+	Descriptor
 )
 
 var places = []ParseOption{
@@ -282,7 +293,7 @@ var defaults = []string{
 	"*",
 }
 
-// A custom Parser that can be configured.
+// Parser is A custom Parser that can be configured.
 type Parser struct {
 	options   ParseOption
 	optionals int
@@ -302,6 +313,8 @@ type Parser struct {
 //  subsParser := NewParser(Dom | Month | DowOptional)
 //  sched, err := specParser.Parse("15 */3")
 //
+
+// NewParser is
 func NewParser(options ParseOption) Parser {
 	optionals := 0
 	if options&DowOptional > 0 {

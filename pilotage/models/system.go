@@ -38,6 +38,7 @@ func (p *UserSetting) TableName() string {
 	return "user_setting"
 }
 
+// GetUserSetting is
 func (p *UserSetting) GetUserSetting() *gorm.DB {
 	return conn.Model(&UserSetting{})
 }

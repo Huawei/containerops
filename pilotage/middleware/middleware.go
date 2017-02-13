@@ -24,10 +24,12 @@ var (
 	checker Checker
 )
 
+// Checker is
 type Checker interface {
 	permissionCheck(ctx *macaron.Context)
 }
 
+// DefaultChecker is
 type DefaultChecker struct {
 }
 
@@ -40,6 +42,7 @@ func init() {
 	}
 }
 
+// SetMiddlewares is
 func SetMiddlewares(m *macaron.Macaron) {
 	//Set static file directory,static file access without log output
 	m.Use(macaron.Static("external", macaron.StaticOptions{

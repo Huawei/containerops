@@ -20,6 +20,7 @@ func init() {
 	updateTaskChan = make(chan bool, 1)
 }
 
+// InitTimerTask is
 func InitTimerTask() {
 	taskList := make([]models.Timer, 0)
 
@@ -60,6 +61,7 @@ func InitTimerTask() {
 	}
 }
 
+// UpdateWorkflowTimer is
 func UpdateWorkflowTimer(namespace, repository string, workflowID int64) {
 	index := getTimerMapIndex(namespace, repository, workflowID)
 
@@ -97,6 +99,7 @@ func UpdateWorkflowTimer(namespace, repository string, workflowID int64) {
 	}
 }
 
+// StartTask is
 func StartTask() {
 	now := time.Now().Format("2006-01-02 15:04:05")
 

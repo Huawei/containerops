@@ -17,11 +17,15 @@ var (
 	eventMap map[string]EventInfo
 	dataChan chan string
 
-	POD_NAME     string
-	RUN_ID       string
+	// POD_NAME is
+	POD_NAME string
+	// RUN_ID is
+	RUN_ID string
+	// SERVICE_ADDR is
 	SERVICE_ADDR string
 )
 
+// EventInfo is
 type EventInfo struct {
 	id  string
 	url string
@@ -135,7 +139,7 @@ func waitForData(serviceInfo []string) {
 	client := &http.Client{}
 	req, _ := http.NewRequest("PUT", registerUrl, nil)
 
-	resp, err := client.Do(req)
+	client.Do(req)
 
 	http.HandleFunc("/receivedata", receiveDataHandler)
 	http.ListenAndServe(":"+serviceInfo[2], nil)

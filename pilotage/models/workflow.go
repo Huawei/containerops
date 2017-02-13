@@ -80,11 +80,16 @@ const (
 const (
 	//When StageID point to the StageTypeStart , the Action ID is 0.
 	//When StageID point to the StageTypeEnd , the Action ID is -1.
-	OutcomeTypeStageStartActionID = 0
-	OutcomeTypeStageEndActionID   = -1
 
+	// OutcomeTypeStageStartActionID is
+	OutcomeTypeStageStartActionID = 0
+	// OutcomeTypeStageEndActionID is
+	OutcomeTypeStageEndActionID = -1
+
+	// OutcomeTypeStageStartEventID is
 	OutcomeTypeStageStartEventID = 0
-	OutcomeTypeStageEndEventID   = -1
+	// OutcomeTypeStageEndEventID is
+	OutcomeTypeStageEndEventID = -1
 )
 
 var (
@@ -120,6 +125,7 @@ func (p *Workflow) TableName() string {
 	return "workflow"
 }
 
+// GetWorkflow is
 func (p *Workflow) GetWorkflow() *gorm.DB {
 	return conn.Model(&Workflow{})
 }
@@ -157,6 +163,7 @@ func (p *WorkflowLog) TableName() string {
 	return "workflow_log"
 }
 
+// GetWorkflowLog is
 func (p *WorkflowLog) GetWorkflowLog() *gorm.DB {
 	return conn.Model(&WorkflowLog{})
 }
@@ -187,6 +194,7 @@ func (s *Stage) TableName() string {
 	return "stage"
 }
 
+// GetStage is
 func (s *Stage) GetStage() *gorm.DB {
 	return conn.Model(&Stage{})
 }
@@ -223,6 +231,7 @@ func (s *StageLog) TableName() string {
 	return "stage_log"
 }
 
+// GetStageLog is
 func (s *StageLog) GetStageLog() *gorm.DB {
 	return conn.Model(&StageLog{})
 }
@@ -260,6 +269,7 @@ func (a *Action) TableName() string {
 	return "action"
 }
 
+// GetAction is
 func (a *Action) GetAction() *gorm.DB {
 	return conn.Model(&Action{})
 }
@@ -305,6 +315,7 @@ func (a *ActionLog) TableName() string {
 	return "action_log"
 }
 
+// GetActionLog is
 func (a *ActionLog) GetActionLog() *gorm.DB {
 	return conn.Model(&ActionLog{})
 }
@@ -335,11 +346,12 @@ func (o *Outcome) TableName() string {
 	return "outcome"
 }
 
+// GetOutcome is
 func (o *Outcome) GetOutcome() *gorm.DB {
 	return conn.Model(&Outcome{})
 }
 
-// workflowSequence is a table describe workflow's run sequence
+// WorkflowSequence is a table describe workflow's run sequence
 type WorkflowSequence struct {
 	ID        int64      `json:"id" gorm:"primary_key"`             //
 	Workflow  int64      `json:"workflow" sql:"not null;default:0"` // workflow name
@@ -354,6 +366,7 @@ func (p *WorkflowSequence) TableName() string {
 	return "workflow_sequence"
 }
 
+// GetWorkflowSequence is
 func (p *WorkflowSequence) GetWorkflowSequence() *gorm.DB {
 	return conn.Model(&WorkflowSequence{})
 }
