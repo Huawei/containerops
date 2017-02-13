@@ -19,18 +19,22 @@ package models
 import (
 	"os"
 
+	//
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 
 	"github.com/containerops/configure"
 )
 
 var (
+	// DB is
 	DB   Database
 	conn *gorm.DB
 )
 
+// Database is
 type Database interface {
 	Open()
 	Migrate()
@@ -70,7 +74,7 @@ func (d *defaultDB) Migrate() {
 	conn.AutoMigrate(&Timer{})
 	conn.AutoMigrate(&Permission{})
 
-	initEventJson(conn)
+	initEventJSON(conn)
 
 	log.Info("AutMigrate database structs.")
 }
@@ -85,11 +89,11 @@ func GetDB() *gorm.DB {
 	return conn
 }
 
-func initEventJson(db *gorm.DB) {
+func initEventJSON(db *gorm.DB) {
 
 	events := map[string][]string{
-		"github": []string{"Create", "Delete", "Deployment", "DeploymentStatus", "Fork", "Gollum", "IssueComment", "Issues", "Member", "PageBuild", "Public", "PullRequest", "PullRequestReview", "PullRequestReviewComment", "Push", "Release", "Repository", "Status", "TeamAdd", "Watch"},
-		"gitlab": []string{"Push Hook", "Tag Push Hook", "Issue Hook", "Note Hook", "Merge Request Hook"},
+		"github": {"Create", "Delete", "Deployment", "DeploymentStatus", "Fork", "Gollum", "IssueComment", "Issues", "Member", "PageBuild", "Public", "PullRequest", "PullRequestReview", "PullRequestReviewComment", "Push", "Release", "Repository", "Status", "TeamAdd", "Watch"},
+		"gitlab": {"Push Hook", "Tag Push Hook", "Issue Hook", "Note Hook", "Merge Request Hook"},
 	}
 
 	infos := map[string]string{

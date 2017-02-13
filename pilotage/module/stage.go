@@ -30,26 +30,36 @@ import (
 )
 
 const (
+	// StageStopReasonTimeout is
 	StageStopReasonTimeout = "TIME_OUT"
 
-	StageStopReasonRunSuccess     = "RUN_SUCCESS"
-	StageStopReasonRunFailed      = "STAGE_RUN_FAILED"
+	// StageStopReasonRunSuccess is
+	StageStopReasonRunSuccess = "RUN_SUCCESS"
+	// StageStopReasonRunFailed is
+	StageStopReasonRunFailed = "STAGE_RUN_FAILED"
+	// StageStopReasonPreStageFailed is
 	StageStopReasonPreStageFailed = "PRE_STAGE_RUN_FAILED"
 
-	StageStopScopeAll        = "all"
+	// StageStopScopeAll is
+	StageStopScopeAll = "all"
+	// StageStopScopeRecyclable is
 	StageStopScopeRecyclable = "recyclable"
 
+	// WorkflowStageTypeStart is
 	WorkflowStageTypeStart = "workflow-start"
-	WorkflowStageTypeRun   = "workflow-stage"
-	WorkflowStageTypeAdd   = "workflow-add-stage"
-	WorkflowStageTypeEnd   = "workflow-end"
+	// WorkflowStageTypeRun is
+	WorkflowStageTypeRun = "workflow-stage"
+	// WorkflowStageTypeAdd is
+	WorkflowStageTypeAdd = "workflow-add-stage"
+	// WorkflowStageTypeEnd is
+	WorkflowStageTypeEnd = "workflow-end"
 )
 
 var (
 	stagelogAuthChan   chan bool
 	stagelogListenChan chan bool
 	allEventMap        = map[string]map[string]string{
-		"github": map[string]string{
+		"github": {
 			"Create":                   "create",
 			"Delete":                   "delete",
 			"Deployment":               "deployment",
@@ -70,13 +80,15 @@ var (
 			"Status":     "status",
 			"TeamAdd":    "team_add",
 			"Watch":      "watch"},
-		"gitlab": map[string]string{}}
+		"gitlab": {}}
 )
 
+// Stage is
 type Stage struct {
 	*models.Stage
 }
 
+// StageLog is
 type StageLog struct {
 	*models.StageLog
 }
@@ -115,6 +127,7 @@ func getStageEnvList(stageLogId int64) ([]map[string]interface{}, error) {
 	return resultList, nil
 }
 
+// CreateNewStage is
 func CreateNewStage(db *gorm.DB, preStageId int64, workflowInfo *models.Workflow, defineMap, relationMap map[string]interface{}) (int64, string, map[string]int64, error) {
 	if db == nil {
 		db = models.GetDB().Begin()
@@ -341,6 +354,7 @@ func CreateNewStage(db *gorm.DB, preStageId int64, workflowInfo *models.Workflow
 	return stage.ID, idStr, actionIdMap, err
 }
 
+// GetStageLogByName is
 func GetStageLogByName(namespace, repository, workflowName string, sequence int64, stageName string) (*StageLog, error) {
 	stage := new(StageLog)
 	workflowLog := new(models.WorkflowLog)
@@ -367,6 +381,7 @@ func GetStageLogByName(namespace, repository, workflowName string, sequence int6
 	return stage, nil
 }
 
+// GenerateNewLog is
 func (stageInfo *Stage) GenerateNewLog(db *gorm.DB, workflowLog *models.WorkflowLog, preStageLogID int64) (int64, error) {
 	actionList := make([]models.Action, 0)
 
@@ -431,6 +446,7 @@ func (stageInfo *Stage) GenerateNewLog(db *gorm.DB, workflowLog *models.Workflow
 	return stageLog.ID, nil
 }
 
+// GetStageLogDefine is
 func (stageLog *StageLog) GetStageLogDefine() (map[string]interface{}, error) {
 	actionList := make([]models.ActionLog, 0)
 	err := new(models.ActionLog).GetActionLog().Where("stage = ?", stageLog.ID).Find(&actionList).Error
@@ -470,6 +486,7 @@ func (stageLog *StageLog) GetStageLogDefine() (map[string]interface{}, error) {
 	return stageInfoMap, nil
 }
 
+// Listen is
 func (stageLog *StageLog) Listen() error {
 	stagelogListenChan <- true
 	defer func() { <-stagelogListenChan }()
@@ -526,6 +543,7 @@ func (stageLog *StageLog) Listen() error {
 	return nil
 }
 
+// Auth is
 func (stageLog *StageLog) Auth(authMap map[string]interface{}) error {
 	stagelogAuthChan <- true
 	defer func() { <-stagelogAuthChan }()
@@ -633,6 +651,7 @@ func (stageLog *StageLog) Auth(authMap map[string]interface{}) error {
 	return nil
 }
 
+// Start is
 func (stageLog *StageLog) Start() {
 	err := stageLog.changeGlobalVar()
 	if err != nil {
@@ -744,6 +763,7 @@ func (stageLog *StageLog) Start() {
 	}
 }
 
+// Stop is
 func (stageLog *StageLog) Stop(scope, reason string, runState int64) {
 	err := stageLog.GetStageLog().Where("id = ?", stageLog.ID).First(stageLog).Error
 	if err != nil {
@@ -795,6 +815,7 @@ func (stageLog *StageLog) Stop(scope, reason string, runState int64) {
 	}
 }
 
+// WaitAllActionDone is
 func (stageLog *StageLog) WaitAllActionDone(nextStageCanStartChan chan bool) {
 	actionLogList := make([]models.ActionLog, 0)
 	err := new(models.ActionLog).GetActionLog().Where("workflow = ?", stageLog.Workflow).Where("sequence = ?", stageLog.Sequence).Where("stage = ?", stageLog.ID).Find(&actionLogList).Error
