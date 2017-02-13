@@ -24,13 +24,13 @@ const (
 	// AuthTypeWorkflowStartDone is auth that given by system when workflow start auth is all done
 	AuthTypeWorkflowStartDone = "WorkflowStartDone"
 
-	// AuthTypeWorkflowDefault is default auth type that workflow doesn't spec a target
+	// AuthTypeStageDefault is default auth type that workflow doesn't spec a target
 	AuthTypeStageDefault = "default"
 	// AuthTypePreStageDone is auth that given by system when pre stage run success
 	AuthTypePreStageDone = "PreStageDone"
-	// AuthTyptStageStartDon is auth that given by system when a stage get all auth it request
+	// AuthTyptStageStartDone is auth that given by system when a stage get all auth it request
 	AuthTyptStageStartDone = "StageStartDone"
 
-	// AuthAuthorizerDefault is default auth authorizer that workflow doesn't spec a authorizer
+	// AuthTokenDefault is default auth authorizer that workflow doesn't spec a authorizer
 	AuthTokenDefault = "default"
 )

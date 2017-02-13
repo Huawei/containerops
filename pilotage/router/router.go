@@ -23,7 +23,7 @@ import (
 	"github.com/Huawei/containerops/pilotage/handler"
 )
 
-//SetRouters is pilotage router's definition fucntion.
+//SetRouters is pilotage router's definition function.
 func SetRouters(m *macaron.Macaron) {
 	m.Group("/v2", func() {
 		m.Get("/", handler.IndexV1Handler)

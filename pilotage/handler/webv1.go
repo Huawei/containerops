@@ -23,7 +23,7 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
-//
+// IndexV1Handler is
 func IndexV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": "Pilotage Backend REST API Service"})
 	return http.StatusOK, result

@@ -40,6 +40,7 @@ func GetActionV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
+// GetActionHistoryInfoV1Handler is
 func GetActionHistoryInfoV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
@@ -98,6 +99,7 @@ func GetActionHistoryInfoV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
+// GetActionConsoleLogV1Handler is
 func GetActionConsoleLogV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
@@ -296,6 +298,7 @@ func PostActionRegisterV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
+// PostActionSetVarV1Handler is
 func PostActionSetVarV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
@@ -368,6 +371,7 @@ func PostActionSetVarV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
+// PostActionLinkStartV1Handler is
 func PostActionLinkStartV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": "ok"})
 
