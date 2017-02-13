@@ -23,9 +23,9 @@ import (
 )
 
 const (
-	//TypeSystemEvent is Event type, is definition and maintaince by the system.
+	//TypeSystemEvent is Event type, is definition and maintained by the system.
 	TypeSystemEvent = iota
-	//TypeUserEvent is Event Type. TypeUserEvent is definition by the user, and maintaince by the system.
+	//TypeUserEvent is Event Type. TypeUserEvent is definition by the user, and maintained by the system.
 	TypeUserEvent
 	//SourceInnerEvent is Event source type. It's cerate in the system.
 	SourceInnerEvent
@@ -36,14 +36,20 @@ const (
 	//CharacterComponentEvent is Event use for component.
 	CharacterComponentEvent
 
-	EVENT_COMPONENT_START = "CO_COMPONENT_START"
-	EVENT_TASK_START      = "CO_TASK_START"
-	EVENT_TASK_STATUS     = "CO_TASK_STATUS"
-	EVENT_TASK_RESULT     = "CO_TASK_RESULT"
-	EVENT_COMPONENT_STOP  = "CO_COMPONENT_STOP"
+	// EventComponetStart is
+	EventComponetStart = "CO_COMPONENT_START"
+	// EventTaskStart is
+	EventTaskStart = "CO_TASK_START"
+	// EventTaskStatus is
+	EventTaskStatus = "CO_TASK_STATUS"
+	// EventTaskResult is
+	EventTaskResult = "CO_TASK_RESULT"
+	// EventComponentStop is
+	EventComponentStop = "CO_COMPONENT_STOP"
 )
 
 const (
+	// EventDefineIDSendDataToAction is
 	EventDefineIDSendDataToAction = -1
 )
 
@@ -72,6 +78,7 @@ func (e *EventDefinition) TableName() string {
 	return "event_definition"
 }
 
+// GetEventDefinition is
 func (e *EventDefinition) GetEventDefinition() *gorm.DB {
 	return conn.Model(&EventDefinition{})
 }
@@ -103,6 +110,7 @@ func (e *Event) TableName() string {
 	return "event"
 }
 
+// GetEvent is
 func (e *Event) GetEvent() *gorm.DB {
 	return conn.Model(&Event{})
 }
@@ -120,10 +128,12 @@ func (e *EventJson) TableName() string {
 	return "event_json"
 }
 
+// GetEventJson is
 func (e *EventJson) GetEventJson() *gorm.DB {
 	return conn.Model(&EventJson{})
 }
 
+// WorkflowVar is
 type WorkflowVar struct {
 	ID        int64      `json:"id" gorm:"primary_key"`        //
 	Workflow  int64      `json:"workflow"`                     //
@@ -135,14 +145,17 @@ type WorkflowVar struct {
 	DeletedAt *time.Time `json:"deleted" sql:"index"`          //
 }
 
+// TableName is
 func (r *WorkflowVar) TableName() string {
 	return "workflow_var"
 }
 
+// GetWorkflowVar is
 func (r *WorkflowVar) GetWorkflowVar() *gorm.DB {
 	return conn.Model(&WorkflowVar{})
 }
 
+// WorkflowVarLog is
 type WorkflowVarLog struct {
 	ID           int64  `json:"id" gorm:"primary_key"`          //
 	Workflow     int64  `json:"workflow"`                       //
@@ -154,10 +167,12 @@ type WorkflowVarLog struct {
 	ChangeLog    string `json:"changelog" gorm:"type:longtext"` //
 }
 
+// TableName is
 func (r *WorkflowVarLog) TableName() string {
 	return "workflow_var_log"
 }
 
+// GetWorkflowVarLog is
 func (r *WorkflowVarLog) GetWorkflowVarLog() *gorm.DB {
 	return conn.Model(&WorkflowVarLog{})
 }

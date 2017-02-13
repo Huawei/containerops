@@ -24,6 +24,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+// RecordOutcom is
 func RecordOutcom(workflowId, fromPiipelineId, stageId, fromStageId, actionId, fromActionId, sequence, evnetId int64, status bool, result, output string) error {
 	outcome := new(models.Outcome)
 	outcome.Workflow = workflowId

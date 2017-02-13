@@ -23,11 +23,15 @@ import (
 )
 
 const (
-	RESOURCE_COMPONENT = "component"
-	RESOURCE_WORKFLOW  = "workflow"
-	RESOURCE_SETTING   = "setting"
+	// ResourceComponent is
+	ResourceComponent = "component"
+	// ResourceWorkflow is
+	ResourceWorkflow = "workflow"
+	// ResourceSetting is
+	ResourceSetting = "setting"
 )
 
+// Permission is
 type Permission struct {
 	ID        int64      `json:"id" gorm:"primary_key"` //
 	Role      string     `json:"-"`                     //
@@ -43,6 +47,7 @@ func (e *Permission) TableName() string {
 	return "permission"
 }
 
+// GetPermission is
 func (e *Permission) GetPermission() *gorm.DB {
 	return conn.Model(&Permission{})
 }

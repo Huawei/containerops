@@ -18,12 +18,16 @@ import (
 )
 
 const (
+	// ActionStopReasonTimeout is
 	ActionStopReasonTimeout = "TIME_OUT"
 
+	// ActionStopReasonSendDataFailed is
 	ActionStopReasonSendDataFailed = "SEND_DATA_FAILED"
 
+	// ActionStopReasonRunSuccess is
 	ActionStopReasonRunSuccess = "ACTION_RUN_SUCCESS"
-	ActionStopReasonRunFailed  = "ACTION_RUN_FAILED"
+	// ActionStopReasonRunFailed is
+	ActionStopReasonRunFailed = "ACTION_RUN_FAILED"
 )
 
 var (
@@ -32,14 +36,17 @@ var (
 	actionlogSetGlobalVarChan chan bool
 )
 
+// Action is
 type Action struct {
 	*models.Action
 }
 
+// ActionLog is
 type ActionLog struct {
 	*models.ActionLog
 }
 
+// Relation is
 type Relation struct {
 	From string
 	To   string
@@ -80,6 +87,7 @@ func getActionEnvList(actionLogId int64) ([]map[string]interface{}, error) {
 	return resultList, nil
 }
 
+// CreateNewActions is
 func CreateNewActions(db *gorm.DB, workflowInfo *models.Workflow, stageInfo *models.Stage, defineList []map[string]interface{}) (map[string]int64, error) {
 	if db == nil {
 		db = models.GetDB()
@@ -294,6 +302,7 @@ func CreateNewActions(db *gorm.DB, workflowInfo *models.Workflow, stageInfo *mod
 	return actionIdMap, nil
 }
 
+// GetActionLog is
 func GetActionLog(actionLogId int64) (*ActionLog, error) {
 	action := new(ActionLog)
 	actionLog := new(models.ActionLog)
@@ -307,6 +316,7 @@ func GetActionLog(actionLogId int64) (*ActionLog, error) {
 	return action, nil
 }
 
+// GetActionLogByName is
 func GetActionLogByName(namespace, repository, workflowName string, sequence int64, stageName, actionName string) (*ActionLog, error) {
 	action := new(ActionLog)
 	workflowLog := new(models.WorkflowLog)
@@ -339,6 +349,7 @@ func GetActionLogByName(namespace, repository, workflowName string, sequence int
 	return action, nil
 }
 
+// GenerateNewLog is
 func (actionInfo *Action) GenerateNewLog(db *gorm.DB, workflowLog *models.WorkflowLog, stageLog *models.StageLog) error {
 	if db == nil {
 		db = models.GetDB().Begin()
@@ -398,6 +409,7 @@ func (actionInfo *Action) GenerateNewLog(db *gorm.DB, workflowLog *models.Workfl
 	return nil
 }
 
+// GetActionLineInfo is
 func (actionLog *ActionLog) GetActionLineInfo() ([]map[string]interface{}, error) {
 	lineList := make([]map[string]interface{}, 0)
 
@@ -430,7 +442,7 @@ func (actionLog *ActionLog) GetActionLineInfo() ([]map[string]interface{}, error
 		fromRealActionID := int64(fromRealActionIDF)
 		fromActionInfoMap := make(map[string]string)
 		if fromRealActionID == int64(0) {
-			// if action's id == 0 ,this is a realtion from workflow's start stage
+			// if action's id == 0 ,this is a relation from workflow's start stage
 			startStage := new(models.StageLog)
 			err := startStage.GetStageLog().Where("namespace = ?", actionLog.Namespace).Where("repository = ?", actionLog.Repository).Where("workflow = ?", actionLog.Workflow).Where("type = ?", models.StageTypeStart).First(startStage).Error
 			if err != nil {
@@ -481,6 +493,7 @@ func (actionLog *ActionLog) GetActionLineInfo() ([]map[string]interface{}, error
 	return lineList, nil
 }
 
+// GetActionHistoryInfo is
 func (actionLog *ActionLog) GetActionHistoryInfo() (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 
@@ -519,6 +532,7 @@ func (actionLog *ActionLog) GetActionHistoryInfo() (map[string]interface{}, erro
 	return result, nil
 }
 
+// GetActionConsoleLog is
 func (actionLog *ActionLog) GetActionConsoleLog(key string, size int64) (map[string]interface{}, error) {
 	resultList := make([]map[string]interface{}, 0)
 	resultKey := ""
@@ -622,8 +636,8 @@ func (actionLog *ActionLog) GetActionConsoleLog(key string, size int64) (map[str
 			}
 		}
 
-		if scroll_id, ok := respMap["_scroll_id"].(string); ok && !isEnd {
-			resultKey = scroll_id
+		if scrollID, ok := respMap["_scroll_id"].(string); ok && !isEnd {
+			resultKey = scrollID
 		}
 	}
 
@@ -632,6 +646,7 @@ func (actionLog *ActionLog) GetActionConsoleLog(key string, size int64) (map[str
 	return result, nil
 }
 
+// GetInputData is
 func (actionLog *ActionLog) GetInputData() (map[string]interface{}, error) {
 	inputMap := make(map[string]interface{})
 
@@ -662,6 +677,7 @@ func (actionLog *ActionLog) GetInputData() (map[string]interface{}, error) {
 	return inputMap, nil
 }
 
+// GetOutputData is
 func (actionLog *ActionLog) GetOutputData() (map[string]interface{}, error) {
 	outputMap := make(map[string]interface{})
 
@@ -680,6 +696,7 @@ func (actionLog *ActionLog) GetOutputData() (map[string]interface{}, error) {
 	return outputMap, nil
 }
 
+// Listen is
 func (actionLog *ActionLog) Listen() error {
 	actionlogListenChan <- true
 	defer func() { <-actionlogListenChan }()
@@ -737,6 +754,7 @@ func (actionLog *ActionLog) Listen() error {
 	return nil
 }
 
+// Auth is
 func (actionLog *ActionLog) Auth(authMap map[string]interface{}) error {
 	actionlogAuthChan <- true
 	defer func() { <-actionlogAuthChan }()
@@ -844,6 +862,7 @@ func (actionLog *ActionLog) Auth(authMap map[string]interface{}) error {
 	return nil
 }
 
+// Start is
 func (actionLog *ActionLog) Start() {
 	err := actionLog.changeGlobalVar()
 	if err != nil {
@@ -883,6 +902,7 @@ func (actionLog *ActionLog) Start() {
 	}
 }
 
+// Stop is
 func (actionLog *ActionLog) Stop(reason string, runState int64) {
 	err := actionLog.GetActionLog().Where("id = ?", actionLog.ID).First(actionLog).Error
 	if err != nil {
@@ -920,6 +940,7 @@ func (actionLog *ActionLog) Stop(reason string, runState int64) {
 	}
 }
 
+// RecordEvent is
 func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody map[string]interface{}, headerInfo http.Header) error {
 	c, err := InitComponetNew(actionLog)
 	if err != nil {
@@ -933,7 +954,7 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 		return err
 	}
 
-	if eventKey == models.EVENT_TASK_STATUS {
+	if eventKey == models.EventTaskStatus {
 		resultReqBody, ok := reqBody["INFO"].(map[string]interface{})
 		if !ok {
 			log.Error("[actionLog's RecordEvent]:error when get request's info body, want a json obj, got:", reqBody["INFO"])
@@ -970,7 +991,7 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 		actionLog.Stop(stopReason, int64(stopStatus))
 	}
 
-	if eventKey == models.EVENT_COMPONENT_STOP {
+	if eventKey == models.EventComponentStop {
 		c.Stop()
 	}
 
@@ -1007,6 +1028,7 @@ func (actionLog *ActionLog) RecordEvent(eventId int64, eventKey string, reqBody 
 	return nil
 }
 
+// SendDataToAction is
 func (actionLog *ActionLog) SendDataToAction(targetUrl string) {
 	manifestMap := make(map[string]interface{})
 	err := json.Unmarshal([]byte(actionLog.Manifest), &manifestMap)
@@ -1219,6 +1241,7 @@ func (actionLog *ActionLog) sendDataToService(data []byte) ([]*http.Response, er
 	return nil, nil
 }
 
+// WaitActionDone is
 func (actionLog *ActionLog) WaitActionDone() {
 	timeout, err := strconv.ParseInt(actionLog.Timeout, 10, 64)
 	if err != nil || timeout < 0 {
@@ -1264,6 +1287,7 @@ func (actionLog *ActionLog) WaitActionDone() {
 	}
 }
 
+// GetActionPlatformInfo is
 func (actionLog *ActionLog) GetActionPlatformInfo() (map[string]string, error) {
 	manifestMap := make(map[string]interface{})
 	err := json.Unmarshal([]byte(actionLog.Manifest), &manifestMap)
@@ -1297,6 +1321,7 @@ func (actionLog *ActionLog) GetActionPlatformInfo() (map[string]string, error) {
 	return result, nil
 }
 
+// ChangeWorkflowRuntimeVar is
 func (actionLog *ActionLog) ChangeWorkflowRuntimeVar(runId string, varKey, varValue string) error {
 	actionlogSetGlobalVarChan <- true
 	defer func() {
@@ -1375,9 +1400,9 @@ func (actionLog *ActionLog) changeGlobalVar() error {
 		if err != nil {
 			log.Error("[actionLog's changeGlobalVar]:action:", actionLog.Action, " use ImageName both start and end with '@',but not a global value")
 			return errors.New("error action's image name is illegal")
-		} else {
-			actionLog.ImageName = varValue
 		}
+
+		actionLog.ImageName = varValue
 	}
 
 	// change action's imageTag
@@ -1388,9 +1413,9 @@ func (actionLog *ActionLog) changeGlobalVar() error {
 		if err != nil {
 			log.Error("[actionLog's changeGlobalVar]:action:", actionLog.Action, " use a name both start and end with '@',but not a global value")
 			return errors.New("error action's image tag is illegal")
-		} else {
-			actionLog.ImageTag = varValue
 		}
+
+		actionLog.ImageTag = varValue
 	}
 
 	// change action's timeout
@@ -1454,14 +1479,14 @@ func (actionLog *ActionLog) changeGlobalVar() error {
 			if err != nil {
 				log.Error("[actionLog's changeGlobalVar]:action:", host, " use a name both start and end with '@',but not a global value")
 				return errors.New("action's platform setting is illegal")
-			} else {
-				platformMap["platformHost"] = varValue
-				manifestMap["platform"] = platformMap
-
-				manifestBytes, _ := json.Marshal(manifestMap)
-
-				actionLog.Manifest = string(manifestBytes)
 			}
+
+			platformMap["platformHost"] = varValue
+			manifestMap["platform"] = platformMap
+
+			manifestBytes, _ := json.Marshal(manifestMap)
+
+			actionLog.Manifest = string(manifestBytes)
 		}
 	}
 
@@ -1471,38 +1496,38 @@ func (actionLog *ActionLog) changeGlobalVar() error {
 	if err != nil {
 		log.Error("[actionLog's changeGlobalVar]:action:", actionLog.Action, " error when unmarshal action's env info,want a json obj, got:", actionLog.Environment)
 		return errors.New("error in action's env define")
-	} else {
-		afterChangeEnvMap := make(map[string]string)
-		for key, value := range envMap {
-			if strings.HasPrefix(key, "@") && strings.HasSuffix(key, "@") {
-				varKey := key[1 : len(key)-1]
+	}
 
-				varValue, err := getWorkflowVarLogInfo(actionLog.Workflow, actionLog.Sequence, varKey)
-				if err != nil {
-					log.Error("[actionLog's changeGlobalVar]:action:", actionLog.Action, " use env key both start and end with '@',but not a global value")
-				} else {
-					key = varValue
-				}
+	afterChangeEnvMap := make(map[string]string)
+	for key, value := range envMap {
+		if strings.HasPrefix(key, "@") && strings.HasSuffix(key, "@") {
+			varKey := key[1 : len(key)-1]
+
+			varValue, err := getWorkflowVarLogInfo(actionLog.Workflow, actionLog.Sequence, varKey)
+			if err != nil {
+				log.Error("[actionLog's changeGlobalVar]:action:", actionLog.Action, " use env key both start and end with '@',but not a global value")
+			} else {
+				key = varValue
 			}
-
-			if strings.HasPrefix(value, "@") && strings.HasSuffix(value, "@") {
-				varKey := value[1 : len(value)-1]
-
-				varValue, err := getWorkflowVarLogInfo(actionLog.Workflow, actionLog.Sequence, varKey)
-				if err != nil {
-					log.Error("[actionLog's changeGlobalVar]:action:", actionLog.Action, " use env value both start and end with '@',but not a global value")
-				} else {
-					value = varValue
-				}
-			}
-
-			afterChangeEnvMap[key] = value
 		}
 
-		envBytes, _ := json.Marshal(afterChangeEnvMap)
+		if strings.HasPrefix(value, "@") && strings.HasSuffix(value, "@") {
+			varKey := value[1 : len(value)-1]
 
-		actionLog.Environment = string(envBytes)
+			varValue, err := getWorkflowVarLogInfo(actionLog.Workflow, actionLog.Sequence, varKey)
+			if err != nil {
+				log.Error("[actionLog's changeGlobalVar]:action:", actionLog.Action, " use env value both start and end with '@',but not a global value")
+			} else {
+				value = varValue
+			}
+		}
+
+		afterChangeEnvMap[key] = value
 	}
+
+	envBytes, _ := json.Marshal(afterChangeEnvMap)
+
+	actionLog.Environment = string(envBytes)
 
 	// change action's kube info
 	kubeSettingMap := make(map[string]interface{})
@@ -1521,9 +1546,9 @@ func (actionLog *ActionLog) changeGlobalVar() error {
 		if err != nil {
 			log.Error("[actionLog's changeGlobalVar]:action:", actionLog.Action, " use nodeIP both start and end with '@',but not a global value")
 			return errors.New("nodeIP is not a addressable address")
-		} else {
-			nodeIPStr = varValue
 		}
+
+		nodeIPStr = varValue
 
 		kubeSettingMap["nodeIP"] = nodeIPStr
 	}
@@ -1564,6 +1589,7 @@ func (actionLog *ActionLog) changeGlobalVar() error {
 	return nil
 }
 
+// LinkStartWorkflow is
 func (actionLog *ActionLog) LinkStartWorkflow(runId, token, workflowName, workflowVersion, eventName, eventType string, startJson map[string]interface{}) error {
 	expectToken := utils.MD5(actionLog.Action + runId)
 	if expectToken != token {
@@ -1669,7 +1695,6 @@ func changeMapInfoWithGlobalVar(workflow, sequence int64, sourceMap map[string]i
 				if err != nil {
 					log.Error("[actionLog's changeMapInfoWithGlobalVar]:map use value value both start and end with '@',but not a global value")
 				} else {
-					valueStr = varValue
 					afterReplace = varValue
 				}
 			} else {

@@ -43,6 +43,7 @@ func (p *Timer) TableName() string {
 	return "timer"
 }
 
+// GetTimer is
 func (p *Timer) GetTimer() *gorm.DB {
 	return conn.Model(&Timer{})
 }

@@ -50,6 +50,7 @@ func DeleteStageV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
+// GetStageHistoryInfoV1Handler is
 func GetStageHistoryInfoV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 

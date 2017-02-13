@@ -342,6 +342,7 @@ func CreateNewComponentVersion(componentInfo models.Component, versionName strin
 	return newComponentInfo.GetComponent().Save(newComponentInfo).Error
 }
 
+// DeleteComponentInfo is
 func DeleteComponentInfo(componentID int64) error {
 	if componentID == 0 {
 		return errors.New("component id can't be zero")
@@ -356,6 +357,7 @@ func DeleteComponentInfo(componentID int64) error {
 	return componentInfo.GetComponent().Delete(&componentInfo).Error
 }
 
+// InitComponetNew is
 func InitComponetNew(actionLog *ActionLog) (component, error) {
 	platformSetting, err := actionLog.GetActionPlatformInfo()
 	if err != nil {
@@ -761,9 +763,9 @@ func (kube *kubeComponent) StartService() (string, error) {
 	if !ok {
 		log.Error("[kubeComponent's StartService]:error when get service's clusterIP from resp:", respSpecMap)
 		return "", errors.New("error when read create service resp: clusterIP is illegal!")
-	} else {
-		clusterIp = cluIp
 	}
+
+	clusterIp = cluIp
 
 	// set ports info
 	respPorts := make([]map[string]interface{}, 0)
@@ -855,10 +857,10 @@ func (kube *kubeComponent) StartRC(serviceAddr string) error {
 		if err != nil {
 			log.Error("[kubeComponent's StartRC]:error when get resp body:", err.Error(), " error code:", resp.StatusCode)
 			return errors.New("error when get create rc resp body:" + err.Error() + "==== error code is :" + strconv.FormatInt(int64(resp.StatusCode), 10))
-		} else {
-			log.Error("[kubeComponent's StartRC]:error when create rc:", string(body), " ===>error code:", resp.StatusCode)
-			return errors.New("error when create rc(" + strconv.FormatInt(int64(resp.StatusCode), 10) + "):" + string(body))
 		}
+
+		log.Error("[kubeComponent's StartRC]:error when create rc:", string(body), " ===>error code:", resp.StatusCode)
+		return errors.New("error when create rc(" + strconv.FormatInt(int64(resp.StatusCode), 10) + "):" + string(body))
 	}
 
 	go kube.Update()
@@ -881,15 +883,15 @@ func (kube *kubeComponent) IsNamespaceExist() (bool, error) {
 		if err != nil {
 			log.Error("[kubeComponent's IsNamespaceExist]:error when get resp body:", err.Error())
 			return false, errors.New("error when get resp's err body:" + err.Error() + "==== error code is :" + strconv.FormatInt(int64(resp.StatusCode), 10))
-		} else {
-			if resp.StatusCode == 404 {
-				log.Info("[kubeComponent's IsNamespaceExist]:request namespace (", kube.namespace, ") doesn't exist")
-				return false, nil
-			}
-
-			log.Error("[kubeComponent's IsNamespaceExist]:get an unknow resp code(", resp.StatusCode, ") resp body:", string(body))
-			return false, errors.New("error when get namespace info: msg is :" + string(body))
 		}
+
+		if resp.StatusCode == 404 {
+			log.Info("[kubeComponent's IsNamespaceExist]:request namespace (", kube.namespace, ") doesn't exist")
+			return false, nil
+		}
+
+		log.Error("[kubeComponent's IsNamespaceExist]:get an unknow resp code(", resp.StatusCode, ") resp body:", string(body))
+		return false, errors.New("error when get namespace info: msg is :" + string(body))
 	}
 
 	return true, nil
@@ -915,10 +917,10 @@ func (kube *kubeComponent) CreateNamespace() error {
 		if err != nil {
 			log.Error("[kubeComponent's CreateNamespace]:error when get resp body:", err.Error())
 			return errors.New("error when get resp's err body:" + err.Error() + "==== error code is :" + strconv.FormatInt(int64(resp.StatusCode), 10))
-		} else {
-			log.Error("[kubeComponent's CreateNamespace]:get an error resp code(", resp.StatusCode, ") resp body:", string(body))
-			return errors.New("error when create namespace: msg is :" + string(body))
 		}
+
+		log.Error("[kubeComponent's CreateNamespace]:get an error resp code(", resp.StatusCode, ") resp body:", string(body))
+		return errors.New("error when create namespace: msg is :" + string(body))
 	}
 
 	return nil

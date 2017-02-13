@@ -32,11 +32,15 @@ import (
 )
 
 const (
+	// WorkflowStopReasonInstanceFull is
 	WorkflowStopReasonInstanceFull = "NO_ROOM_FOR_RUN_INSTANCE"
-	WorkflowStopReasonTimeout      = "TIME_OUT"
+	// WorkflowStopReasonTimeout is
+	WorkflowStopReasonTimeout = "TIME_OUT"
 
+	// WorkflowStopReasonRunSuccess is
 	WorkflowStopReasonRunSuccess = "WORKFLOW_RUN_SUCCESS"
-	WorkflowStopReasonRunFailed  = "WORKFLOW_RUN_FAILED"
+	// WorkflowStopReasonRunFailed is
+	WorkflowStopReasonRunFailed = "WORKFLOW_RUN_FAILED"
 )
 
 var (
@@ -56,10 +60,12 @@ func init() {
 	workflowlogSequenceGenerateChan = make(chan bool, 1)
 }
 
+// Workflow is
 type Workflow struct {
 	*models.Workflow
 }
 
+// WorkflowLog is
 type WorkflowLog struct {
 	*models.WorkflowLog
 }
@@ -96,6 +102,7 @@ func CreateNewWorkflow(namespace, repository, workflowName, workflowVersion stri
 	return "create new workflow success", nil
 }
 
+// GetWorkflowListByNamespaceAndRepository is
 func GetWorkflowListByNamespaceAndRepository(namespace, repository string) ([]map[string]interface{}, error) {
 	resultMap := make([]map[string]interface{}, 0)
 	workflowList := make([]models.Workflow, 0)
@@ -175,6 +182,7 @@ func GetWorkflowListByNamespaceAndRepository(namespace, repository string) ([]ma
 	return resultMap, nil
 }
 
+// GetWorkflowInfo is
 func GetWorkflowInfo(namespace, repository, workflowName string, workflowId int64) (map[string]interface{}, error) {
 	resultMap := make(map[string]interface{})
 	workflowInfo := new(models.Workflow)
@@ -250,6 +258,7 @@ func getDefaultStageListByWorkflow(workflowInfo models.Workflow) ([]map[string]i
 	return stageListMap, nil
 }
 
+// GetStageHistoryInfo is
 func GetStageHistoryInfo(stageLogId int64) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 	// get all actions that belong to current stage ,
@@ -302,6 +311,7 @@ func GetStageHistoryInfo(stageLogId int64) (map[string]interface{}, error) {
 	return result, nil
 }
 
+// Run is
 func Run(workflowId int64, authMap map[string]interface{}, startData string) (*WorkflowLog, error) {
 	workflowInfo := new(models.Workflow)
 	err := workflowInfo.GetWorkflow().Where("id = ?", workflowId).First(workflowInfo).Error
@@ -362,6 +372,7 @@ func Run(workflowId int64, authMap map[string]interface{}, startData string) (*W
 	return workflowLog, nil
 }
 
+// GetWorkflowList is
 func GetWorkflowList(namespace, repository string, page, prePageCount int64, filter, filtertype string) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 
@@ -400,6 +411,7 @@ func GetWorkflowList(namespace, repository string, page, prePageCount int64, fil
 	return result, nil
 }
 
+// GetWorkflowVersionList is
 func GetWorkflowVersionList(namespace, repository, workflow string, workflowID int64) ([]map[string]interface{}, error) {
 	result := make([]map[string]interface{}, 0)
 
@@ -421,6 +433,7 @@ func GetWorkflowVersionList(namespace, repository, workflow string, workflowID i
 	return result, nil
 }
 
+// GetWorkflowSequenceList is
 func GetWorkflowSequenceList(namespace, repository, workflow, version string, versionID, sum int64) ([]map[string]interface{}, error) {
 	result := make([]map[string]interface{}, 0)
 
@@ -467,6 +480,7 @@ func GetWorkflowSequenceList(namespace, repository, workflow, version string, ve
 	return result, nil
 }
 
+// GetActionLinkStartInfo is
 func GetActionLinkStartInfo(namespace, repository, workflow, version, action string, sequence, workflowID, actionID int64) ([]map[string]interface{}, error) {
 	result := make([]map[string]interface{}, 0)
 
@@ -578,6 +592,7 @@ func getSequenceActionInfo(namespace, repository string, workflow, sequence, sta
 	return result, nil
 }
 
+// GetWorkflow is
 func GetWorkflow(workflowId int64) (*Workflow, error) {
 	if workflowId == int64(0) {
 		return nil, errors.New("workflow's id is empty")
@@ -596,6 +611,7 @@ func GetWorkflow(workflowId int64) (*Workflow, error) {
 	return workflow, nil
 }
 
+// GetLatestRunableWorkflow is
 func GetLatestRunableWorkflow(namespace, repository, workflowName, version string) (*Workflow, error) {
 	if namespace == "" || repository == "" {
 		log.Error("[workflow's GetLatestRunableWorkflow]:given empty parms:namespace: ===>", namespace, "<===  repository:===>", repository, "<===")
@@ -625,6 +641,7 @@ func GetLatestRunableWorkflow(namespace, repository, workflowName, version strin
 	return workflow, nil
 }
 
+// GetWorkflowLog is
 func GetWorkflowLog(namespace, repository, workflowName, versionName string, sequence int64) (*WorkflowLog, error) {
 	var err error
 	workflowLogInfo := new(models.WorkflowLog)
@@ -677,6 +694,7 @@ func getWorkflowEnvList(workflowLogId int64) ([]map[string]interface{}, error) {
 	return resultList, nil
 }
 
+// GetWorkflowRunHistoryList is
 func GetWorkflowRunHistoryList(namespace, repository string) ([]map[string]interface{}, error) {
 	resultList := make([]map[string]interface{}, 0)
 	workflowLogIndexMap := make(map[string]int)
@@ -749,6 +767,7 @@ func GetWorkflowRunHistoryList(namespace, repository string) ([]map[string]inter
 	return resultList, nil
 }
 
+// CreateNewVersion is
 func (workflowInfo *Workflow) CreateNewVersion(define map[string]interface{}, versionName string) error {
 	var count int64
 	err := new(models.Workflow).GetWorkflow().Where("namespace = ?", workflowInfo.Namespace).Where("repository = ?", workflowInfo.Repository).Where("workflow = ?", workflowInfo.Workflow.Workflow).Where("version = ?", versionName).Count(&count).Error
@@ -787,6 +806,7 @@ func (workflowInfo *Workflow) CreateNewVersion(define map[string]interface{}, ve
 	return newInfo.UpdateWorkflowInfo(define)
 }
 
+// GetWorkflowToken is
 func (workflowInfo *Workflow) GetWorkflowToken() (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 
@@ -840,6 +860,7 @@ func (workflowInfo *Workflow) GetWorkflowToken() (map[string]interface{}, error)
 	return result, nil
 }
 
+// UpdateWorkflowInfo is
 func (workflowInfo *Workflow) UpdateWorkflowInfo(define map[string]interface{}) error {
 	db := models.GetDB().Begin()
 	err := db.Error
@@ -1071,18 +1092,19 @@ func (workflowInfo *Workflow) UpdateWorkflowInfo(define map[string]interface{}) 
 	return nil
 }
 
+// DeleteWorkflow is
 func (workflowInfo *Workflow) DeleteWorkflow() error {
 	return workflowInfo.GetWorkflow().Delete(&workflowInfo).Error
 }
 
-func (workflow *Workflow) updateTimerTask(taskMap map[string]interface{}) error {
+func (workflowInfo *Workflow) updateTimerTask(taskMap map[string]interface{}) error {
 	db := models.GetDB().Begin()
 	available, ok := taskMap["available"].(bool)
 	if !ok {
 		available = false
 	}
 
-	db.Model(&models.Timer{}).Where("namespace = ?", workflow.Namespace).Where("repository = ?", workflow.Repository).Where("workflow = ?", workflow.ID).Delete(&models.Timer{})
+	db.Model(&models.Timer{}).Where("namespace = ?", workflowInfo.Namespace).Where("repository = ?", workflowInfo.Repository).Where("workflow = ?", workflowInfo.ID).Delete(&models.Timer{})
 	if taskList, ok := taskMap["tasks"].([]interface{}); ok {
 		for _, task := range taskList {
 			if taskMap, ok := task.(map[string]interface{}); ok {
@@ -1117,9 +1139,9 @@ func (workflow *Workflow) updateTimerTask(taskMap map[string]interface{}) error 
 				startJsonBytes, _ := json.Marshal(startJson)
 
 				timer := new(models.Timer)
-				timer.Namespace = workflow.Namespace
-				timer.Repository = workflow.Repository
-				timer.Workflow = workflow.ID
+				timer.Namespace = workflowInfo.Namespace
+				timer.Repository = workflowInfo.Repository
+				timer.Workflow = workflowInfo.ID
 				timer.Available = available
 				timer.Cron = cron
 				timer.EventType = eventType
@@ -1131,18 +1153,18 @@ func (workflow *Workflow) updateTimerTask(taskMap map[string]interface{}) error 
 		}
 	}
 	db.Commit()
-	UpdateWorkflowTimer(workflow.Namespace, workflow.Repository, workflow.ID)
+	UpdateWorkflowTimer(workflowInfo.Namespace, workflowInfo.Repository, workflowInfo.ID)
 	return nil
 }
 
-func (workflow *Workflow) getWorkflowDefineInfo(workflowInfo *models.Workflow) (map[string]interface{}, []map[string]interface{}, map[string]interface{}, error) {
+func (workflowInfo *Workflow) getWorkflowDefineInfo(workflow *models.Workflow) (map[string]interface{}, []map[string]interface{}, map[string]interface{}, error) {
 	lineList := make([]map[string]interface{}, 0)
 	stageList := make([]map[string]interface{}, 0)
 
 	manifestMap := make(map[string]interface{})
-	err := json.Unmarshal([]byte(workflowInfo.Manifest), &manifestMap)
+	err := json.Unmarshal([]byte(workflow.Manifest), &manifestMap)
 	if err != nil {
-		log.Error("[workflow's getWorkflowDefineInfo]:error when unmarshal workflow's manifes info:", workflow.Manifest, " ===>error is:", err.Error())
+		log.Error("[workflow's getWorkflowDefineInfo]:error when unmarshal workflow's manifes info:", workflowInfo.Manifest, " ===>error is:", err.Error())
 		return nil, nil, nil, errors.New("error when unmarshal workflow manifes info:" + err.Error())
 	}
 
@@ -1209,7 +1231,7 @@ func (workflow *Workflow) getWorkflowDefineInfo(workflowInfo *models.Workflow) (
 					continue
 				}
 
-				lineOriginMap, ok := endPointMap[startDataId].(map[string]interface{})
+				lineOriginMap, _ := endPointMap[startDataId].(map[string]interface{})
 				for key, value := range lineMap {
 					lineOriginMap[key] = value
 				}
@@ -1267,6 +1289,7 @@ func (workflow *Workflow) getWorkflowDefineInfo(workflowInfo *models.Workflow) (
 	return realtionMap, stageList, setting, nil
 }
 
+// BeforeExecCheck is
 func (workflowInfo *Workflow) BeforeExecCheck(reqHeader http.Header, reqBody []byte) (bool, map[string]string, error) {
 	if workflowInfo.SourceInfo == "" {
 		return false, nil, errors.New("workflow's source info is empty")
@@ -1411,6 +1434,7 @@ func getEventName(sourceType string, reqHeader http.Header) string {
 	return eventName
 }
 
+// GenerateNewLog is
 func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*WorkflowLog, error) {
 	workflowlogSequenceGenerateChan <- true
 	result := new(WorkflowLog)
@@ -1520,6 +1544,7 @@ func (workflowInfo *Workflow) GenerateNewLog(eventMap map[string]string) (*Workf
 	return result, nil
 }
 
+// GetDefineInfo is
 func (workflowLog *WorkflowLog) GetDefineInfo() (map[string]interface{}, error) {
 	defineMap := make(map[string]interface{})
 	stageListMap := make([]map[string]interface{}, 0)
@@ -1579,6 +1604,7 @@ func (workflowLog *WorkflowLog) GetDefineInfo() (map[string]interface{}, error) 
 	return defineMap, nil
 }
 
+// GetStartStageData is
 func (workflowLog *WorkflowLog) GetStartStageData() (map[string]interface{}, error) {
 	dataMap := make(map[string]interface{})
 	outCome := new(models.Outcome)
@@ -1596,6 +1622,7 @@ func (workflowLog *WorkflowLog) GetStartStageData() (map[string]interface{}, err
 	return dataMap, nil
 }
 
+// Listen is
 func (workflowLog *WorkflowLog) Listen(startData string) error {
 	workflowlogListenChan <- true
 	defer func() { <-workflowlogListenChan }()
@@ -1651,6 +1678,7 @@ func (workflowLog *WorkflowLog) Listen(startData string) error {
 	return nil
 }
 
+// Auth is
 func (workflowLog *WorkflowLog) Auth(authMap map[string]interface{}) error {
 	workflowlogAuthChan <- true
 	defer func() { <-workflowlogAuthChan }()
@@ -1758,6 +1786,7 @@ func (workflowLog *WorkflowLog) Auth(authMap map[string]interface{}) error {
 	return nil
 }
 
+// Start is
 func (workflowLog *WorkflowLog) Start(startData string) {
 	// get current workflowlog's start stage
 	startStageLog := new(models.StageLog)
@@ -1799,6 +1828,7 @@ func (workflowLog *WorkflowLog) Start(startData string) {
 	}
 }
 
+// Stop is
 func (workflowLog *WorkflowLog) Stop(reason string, runState int64) {
 	err := workflowLog.GetWorkflowLog().Where("id = ?", workflowLog.ID).First(workflowLog).Error
 	if err != nil {

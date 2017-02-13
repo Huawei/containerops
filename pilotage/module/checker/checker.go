@@ -7,11 +7,13 @@ import (
 	"github.com/containerops/configure"
 )
 
+// Checker is
 type Checker interface {
 	Support(eventMap map[string]string) bool
 	Check(eventMap map[string]string, expectedToken string, reqHeader http.Header, reqBody []byte) (bool, error)
 }
 
+// GetWorkflowExecCheckerList is
 func GetWorkflowExecCheckerList() ([]Checker, error) {
 	checkers := make([]Checker, 0)
 	checkerNameList := configure.GetStringSlice("auth.checker")

@@ -30,10 +30,12 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// WorkflowVar is
 type WorkflowVar struct {
 	*models.WorkflowVar
 }
 
+// WorkflowVarLog is
 type WorkflowVarLog struct {
 	*models.WorkflowVarLog
 }
@@ -134,6 +136,7 @@ func getSystemEventList(actionID int64) ([]map[string]interface{}, error) {
 	return result, nil
 }
 
+// RecordEventInfo is
 func RecordEventInfo(eventDefineId, sequence int64, headerInfo, payload, authInfo string, eventDefineInfo ...string) error {
 	eventDefine := new(models.EventDefinition)
 	if eventDefineId < 0 {
@@ -204,6 +207,7 @@ func RecordEventInfo(eventDefineId, sequence int64, headerInfo, payload, authInf
 	return nil
 }
 
+// SetWorkflowVarInfo is
 func SetWorkflowVarInfo(id int64, varMap map[string]interface{}) error {
 	db := models.GetDB().Begin()
 	err := db.Error
@@ -252,6 +256,7 @@ func SetWorkflowVarInfo(id int64, varMap map[string]interface{}) error {
 	return nil
 }
 
+// GetWorkflowVarInfo is
 func GetWorkflowVarInfo(id int64) (map[string]string, error) {
 	resultMap := make(map[string]string)
 	varList := make([]models.WorkflowVar, 0)
@@ -269,6 +274,7 @@ func GetWorkflowVarInfo(id int64) (map[string]string, error) {
 	return resultMap, nil
 }
 
+// GenerateNewLog is
 func (workflowVar *WorkflowVar) GenerateNewLog(db *gorm.DB, workflowLog *models.WorkflowLog) error {
 	if db == nil {
 		db = models.GetDB()

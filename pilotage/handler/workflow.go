@@ -229,6 +229,7 @@ func GetWorkflowHistoriesV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
+// GetWorkflowVersionHistoriesV1Handler is
 func GetWorkflowVersionHistoriesV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
@@ -266,6 +267,7 @@ func GetWorkflowVersionHistoriesV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
+// GetWorkflowSequenceHistoriesV1Handler is
 func GetWorkflowSequenceHistoriesV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
@@ -315,6 +317,7 @@ func GetWorkflowSequenceHistoriesV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
+// GetWorkflowHistoryDefineV1Handler is
 func GetWorkflowHistoryDefineV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
@@ -356,6 +359,7 @@ func GetWorkflowHistoryDefineV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
+// GetSequenceLineHistoryV1Handler is
 func GetSequenceLineHistoryV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
@@ -450,6 +454,7 @@ func GetSequenceLineHistoryV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
+// GetActionLinkstartListV1Handler is
 func GetActionLinkstartListV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
@@ -624,7 +629,7 @@ func PutWorkflowEnvV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-// GetWorkflowEnvV1Handler
+// GetWorkflowEnvV1Handler is
 func GetWorkflowEnvV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
@@ -684,7 +689,7 @@ func PutWorkflowVarV1Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-// GetWorkflowVarV1Handler
+// GetWorkflowVarV1Handler is
 func GetWorkflowVarV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{"message": ""})
 
@@ -700,7 +705,7 @@ func GetWorkflowVarV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	result, err = json.Marshal(map[string]interface{}{"var": varMap})
+	result, _ = json.Marshal(map[string]interface{}{"var": varMap})
 	return http.StatusOK, result
 }
 
