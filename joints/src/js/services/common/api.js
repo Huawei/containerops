@@ -13,48 +13,45 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
+define(['services/module'], function(commonServiceModule) {
+    commonServiceModule.factory("apiService", ["notifyService", "loading", function(notifyService, loading) {
+        var pendingPromise;
+        // abort
+        function beforeApiInvocation(skipAbort) {
+            if (!skipAbort) {
+                _.each(pendingPromise, function(promise) {
+                    promise.abort();
+                });
+                pendingPromise = [];
+            }
+            loading.show();
+        }
 
-function apiService(notifyService, loading){
+        function addPromise(promise) {
+            pendingPromise.push(promise);
+        }
 
-	var pendingPromise;
+        function failToCall(error) {
+            loading.hide();
+            if (!_.isUndefined(error) && error.common) {
+                notifyService.notify(error.common.error_code + " : " + error.common.message, "error");
+            } else {
+                notifyService.notify("Server is unreachable", "error");
+            }
+        }
 
-	// abort
-	function beforeApiInvocation(skipAbort){
-		if(!skipAbort){
-			_.each(pendingPromise,function(promise){
-				promise.abort();
-			});			
-			pendingPromise = [];
-		}
-		loading.show();
-	}
+        function successToCall(msg) {
+            loading.hide();
+            if (!_.isUndefined(msg) && msg.common) {
+                notifyService.notify(msg.common.message, "success");
+            }
+        }
 
-	function addPromise(promise){
-		pendingPromise.push(promise);
-	}
-	
-	function failToCall(error){
-		loading.hide();
-		if (!_.isUndefined(error) && error.common) {
-			notifyService.notify(error.common.error_code + " : " + error.common.message,"error");
-		}else{
-			notifyService.notify("Server is unreachable","error");
-		}
-	}
-
-	function successToCall(msg){
-		loading.hide();
-		if (!_.isUndefined(msg) && msg.common) {
-			notifyService.notify(msg.common.message,"success");
-		}
-	}
-
-	return {
-		"beforeApiInvocation" : beforeApiInvocation,
-		"addPromise" : addPromise,
-		"failToCall" : failToCall,
-		"successToCall" : successToCall
-	}
-}
-   
-devops.factory('apiService', ['notifyService', 'loading', apiService]);
+        return {
+            "beforeApiInvocation": beforeApiInvocation,
+            "addPromise": addPromise,
+            "failToCall": failToCall,
+            "successToCall": successToCall
+        }
+    }])
+})
