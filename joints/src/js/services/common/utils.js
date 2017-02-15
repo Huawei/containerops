@@ -13,40 +13,36 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
+define(['services/module'], function(commonServiceModule) {
+    commonServiceModule.factory("utilService",  function() {
+        function componentDataTransfer(data) {
+            var components = [];
+            _.each(data, function(item) {
+                var target = _.find(components, function(component) {
+                    return component.name == item.name;
+                });
+                if (target) {
+                    var version = {
+                        "id": item.id,
+                        "version": item.version
+                    }
+                    target.versions.push(version);
+                } else {
+                    var component = {
+                        "name": item.name,
+                        "versions": [{
+                            "id": item.id,
+                            "version": item.version
+                        }]
+                    }
+                    components.push(component);
+                }
+            })
+            return components;
+        }
 
-function utilService(){
-
-	function componentDataTransfer(data){
-		var components = [];
-		_.each(data,function(item){
-			var target = _.find(components,function(component){
-				return component.name == item.name;
-			});
-			if(target){
-				var version = {
-					"id" : item.id,
-					"version" : item.version
-				}
-				target.versions.push(version);
-			}else{
-				var component = {
-					"name" : item.name,
-					"versions" : [
-						{
-							"id" : item.id,
-							"version" : item.version
-						}
-					]
-				}
-				components.push(component);
-			}
-		})
-		return components;
-	}
-
-	return {
-		"componentDataTransfer" : componentDataTransfer
-	}
-}
-   
-devops.factory('utilService', [utilService]);
+        return {
+            "componentDataTransfer": componentDataTransfer
+        }
+    })
+})

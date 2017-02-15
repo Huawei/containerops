@@ -13,123 +13,119 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
+define(['app','services/component/api'], function(app) {
+    app.provide.factory("componentService", ["componentApiService", function(componentApiService) {
+        function getComponents(filterName, filterVersion, fuzzy, pageNum, versionNum, offset) {
+            var params = {
+                "filterName": filterName,
+                "filterVersion": filterVersion,
+                "fuzzy": fuzzy,
+                "pageNum": pageNum,
+                "versionNum": versionNum,
+                "offset": offset
+            }
+            return componentApiService.ajaxCall("list", params);
+        }
 
-function componentService(componentApiService){
+        var metadata = {
+            "component": {
+                "name": "",
+                "version": "",
+                "type": "Kubernetes",
+                "input": {},
+                "output": {},
+                "env": [],
+                "image_name": "",
+                "image_tag": "",
+                "image_setting": {},
+                "timeout": 0,
+                "use_advanced": false,
+                "pod": {},
+                "service": {}
+            },
+            "base_service": {
+                "spec": {
+                    "type": "NodePort",
+                    "ports": []
+                }
+            },
+            "base_pod": {
+                "spec": {
+                    "containers": [{
+                        "resources": {
+                            "limits": { "cpu": 0.2, "memory": 1024 },
+                            "requests": { "cpu": 0.1, "memory": 128 }
+                        }
+                    }]
+                }
+            },
+            "nodeport": {
+                "port": 0,
+                "targetPort": 0,
+                "nodePort": 0
+            },
+            "clusterip": {
+                "port": 0,
+                "targetPort": 0
+            },
+            "imagesetting": {
+                "build": {
+                    "name": "",
+                    "tag": ""
+                },
+                "from": {
+                    "type": "url",
+                    "url": ""
+                },
+                "events": {
+                    "component_start": "",
+                    "component_result": "",
+                    "component_stop": ""
+                },
+                "push": {
+                    "registry": "",
+                    "username": "",
+                    "password": ""
+                }
+            },
+            "env": {
+                "key": "",
+                "value": ""
+            }
+        }
 
-	function getComponents(filterName,filterVersion,fuzzy,pageNum,versionNum,offset){
-		var params = {
-			"filterName" : filterName,
-			"filterVersion" : filterVersion,
-			"fuzzy" : fuzzy,
-			"pageNum" : pageNum,
-			"versionNum" : versionNum,
-			"offset" : offset
-		}
-		return componentApiService.ajaxCall("list",params);
-	}
+        function addComponent(reqbody) {
+            return componentApiService.ajaxCall("add", null, reqbody);
+        }
 
-	var metadata = {
-		"component" : {
-			"name": "",
-			"version": "",
-			"type": "Kubernetes",
-			"input": {},
-			"output": {},
-			"env": [],
-			"image_name": "",
-			"image_tag": "",
-			"image_setting": {},
-			"timeout": 0,
-			"use_advanced": false,
-			"pod": {},
-			"service": {}
-		},
-		"base_service" : {
-			"spec": {
-				"type":"NodePort",
-				"ports": []
-			}
-		},
-		"base_pod" : {
-			"spec": {
-				"containers": [
-				{
-					"resources": {
-						"limits":{"cpu": 0.2, "memory": 1024},
-						"requests":{"cpu": 0.1, "memory": 128}
-					}
-				}
-				]
-			}
-		},
-		"nodeport" : {
-			"port": 0,
-			"targetPort" : 0,
-			"nodePort" : 0
-		},
-		"clusterip" : {
-			"port": 0,
-			"targetPort" : 0
-		},
-		"imagesetting" : {
-			"build": {
-				"name": "",
-				"tag": ""
-			},
-			"from": {
-				"type": "url",
-				"url": ""
-			},
-			"events": {
-				"component_start": "",
-				"component_result": "",
-				"component_stop": ""
-			},
-			"push": {
-				"registry": "",
-				"username": "",
-				"password": ""
-			}
-		},
-		"env" : {
-			"key" : "",
-			"value" : ""
-		}
-	}
+        function getComponent(componentID) {
+            var params = {
+                "componentID": componentID
+            }
+            return componentApiService.ajaxCall("detail", params);
+        }
 
-	function addComponent(reqbody){
-		return componentApiService.ajaxCall("add",null,reqbody);
-	}
+        function updateComponent(reqbody) {
+            var params = {
+                "componentID": reqbody.id
+            }
+            return componentApiService.ajaxCall("update", params, reqbody);
+        }
 
-	function getComponent(componentID){
-		var params = {
-			"componentID" : componentID
-		}
-		return componentApiService.ajaxCall("detail",params);
-	}
+        function debugComponent(componentID) {
+            var params = {
+                "componentID": componentID
+            }
+            return componentApiService.websocketCall("debug", params);
+        }
 
-	function updateComponent(reqbody){
-		var params = {
-			"componentID" : reqbody.id
-		}
-		return componentApiService.ajaxCall("update",params,reqbody);
-	}
-
-	function debugComponent(componentID){
-		var params = {
-			"componentID" : componentID
-		}
-		return componentApiService.websocketCall("debug",params);
-	}
-
-	return {
-		"getComponents" : getComponents,
-		"metadata" : metadata,
-		"addComponent" : addComponent,
-		"getComponent" : getComponent,
-		"updateComponent" : updateComponent,
-		"debugComponent" : debugComponent
-	}
-}
-   
-devops.factory('componentService', ['componentApiService',componentService]);
+        return {
+            "getComponents": getComponents,
+            "metadata": metadata,
+            "addComponent": addComponent,
+            "getComponent": getComponent,
+            "updateComponent": updateComponent,
+            "debugComponent": debugComponent
+        }
+    }])
+})
