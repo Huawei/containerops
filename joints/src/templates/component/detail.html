@@ -66,13 +66,13 @@
 	    						<div class="tabbable tabs-left mb-lg">
 	    							<ul class="nav nav-tabs">
 	    								<li class="nav-item">
-	                            			<a class="nav-link active" data-toggle="tab" ng-click="changeRuntimeTab(1)">Base Config</a>
+	                            			<a class="nav-link {{runtimeTab == 1 ? 'active' : ''}}" data-toggle="tab" ng-click="changeRuntimeTab(1)">Base Config</a>
 	                            		</li>
 	                            		<li class="nav-item">
-	                            			<a class="nav-link" data-toggle="tab" ng-click="changeRuntimeTab(2)">Design</a>
+	                            			<a class="nav-link {{runtimeTab == 2 ? 'active' : ''}}" data-toggle="tab" ng-click="changeRuntimeTab(2)">Design</a>
 	                            		</li>
 	                            		<li class="nav-item">
-	                            			<a class="nav-link" data-toggle="tab" ng-click="changeRuntimeTab(3)">Env Setting</a>
+	                            			<a class="nav-link {{runtimeTab == 3 ? 'active' : ''}}" data-toggle="tab" ng-click="changeRuntimeTab(3)">Env Setting</a>
 	                            		</li>
 	    							</ul>
 	    							<div class="tab-content">
@@ -582,10 +582,10 @@
 	    						<div class="tabbable tabs-left mb-lg">
 	    							<ul class="nav nav-tabs">
 	    								<li class="nav-item">
-	                            			<a class="nav-link active" data-toggle="tab" ng-click="changeDebugTab(1)">Debug Edit</a>
+	                            			<a class="nav-link {{debugTab == 1 ? 'active' : ''}}" data-toggle="tab" ng-click="changeDebugTab(1)">Debug Edit</a>
 	                            		</li>
 	                            		<li class="nav-item">
-	                            			<a class="nav-link" data-toggle="tab" ng-click="changeDebugTab(2)">Debug Log</a>
+	                            			<a class="nav-link {{debugTab == 2 ? 'active' : ''}}" data-toggle="tab" ng-click="changeDebugTab(2)">Debug Log</a>
 	                            		</li>
 	    							</ul>
 	    							<div class="tab-content">
@@ -657,21 +657,21 @@
 	                                        	<div class="clearfix">
 	                                        		<ul class="nav nav-tabs pull-xs-left" id="debugLogTabs" role="tablist" style="background-color:#f7f7f7">
 	                                        			<li class="nav-item">
-	                                        				<a class="nav-link active" data-toggle="tab" ng-click="changeDebugLogTab(1)">
+	                                        				<a class="nav-link {{debugLogTab == 1 ? 'active' : ''}}" data-toggle="tab" ng-click="changeDebugLogTab(1)">
 	                                        					<span>Result Logs</span>
 	                                        					<i class="arrow arrow-left"></i>
 	                                        					<i class="arrow arrow-right"></i>
 	                                        				</a>
 	                                        			</li>
 	                                        			<li class="nav-item">
-	                                        				<a class="nav-link" data-toggle="tab" ng-click="changeDebugLogTab(2)">
+	                                        				<a class="nav-link {{debugLogTab == 2 ? 'active' : ''}}" data-toggle="tab" ng-click="changeDebugLogTab(2)">
 	                                        					<span>Event Status</span>
 	                                        					<i class="arrow arrow-left"></i>
 	                                        					<i class="arrow arrow-right"></i>
 	                                        				</a>
 	                                        			</li>
 	                                        			<li class="nav-item">
-	                                        				<a class="nav-link" data-toggle="tab" ng-click="changeDebugLogTab(3)">
+	                                        				<a class="nav-link {{debugLogTab == 3 ? 'active' : ''}}" data-toggle="tab" ng-click="changeDebugLogTab(3)">
 	                                        					<span>Action Stream Data</span>
 	                                        					<i class="arrow arrow-left"></i>
 	                                        					<i class="arrow arrow-right"></i>

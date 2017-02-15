@@ -101,13 +101,13 @@
 	    						<div class="tabbable tabs-left mb-lg">
 	    							<ul class="nav nav-tabs">
 	    								<li class="nav-item">
-	                            			<a class="nav-link active" data-toggle="tab" ng-click="changeRuntimeTab(1)">Base Config</a>
+	                            			<a class="nav-link {{runtimeTab == 1 ? 'active' : ''}}" data-toggle="tab" ng-click="changeRuntimeTab(1)">Base Config</a>
 	                            		</li>
 	                            		<li class="nav-item">
-	                            			<a class="nav-link" data-toggle="tab" ng-click="changeRuntimeTab(2)">Design</a>
+	                            			<a class="nav-link {{runtimeTab == 2 ? 'active' : ''}}" data-toggle="tab" ng-click="changeRuntimeTab(2)">Design</a>
 	                            		</li>
 	                            		<li class="nav-item">
-	                            			<a class="nav-link" data-toggle="tab" ng-click="changeRuntimeTab(3)">Env Setting</a>
+	                            			<a class="nav-link {{runtimeTab == 3 ? 'active' : ''}}" data-toggle="tab" ng-click="changeRuntimeTab(3)">Env Setting</a>
 	                            		</li>
 	    							</ul>
 	    							<div class="tab-content">
