@@ -2,12 +2,10 @@
 
 
 var gulp = require('gulp');
-var babel = require('gulp-babel');
 var del = require('del');
 var uglify = require('gulp-uglify');
 // const rename = require('gulp-rename');
 var concat = require('gulp-concat');
-var browserify = require('browserify');
 var source = require('vinyl-source-stream');
 var sass = require('gulp-sass');
 var imagemin = require('gulp-imagemin');
@@ -38,24 +36,8 @@ gulp.task('dev:styles', function() {
 });
 
 
-/**
- *  This will convert es6 to es5
- */
-// gulp.task('dev:babel', function() {
-//     return gulp.src('src/{app,vendor}/**/*.js', { base: "./src" })
-//         .pipe(babel({
-//             presets: ['es2015']
-//         }))
-//         // .pipe(uglify())
-//         .pipe(gulp.dest('dev/src'))
-//         .on('error', gutil.log);
-// })
-gulp.task('dev:babel', function() {
+gulp.task('dev:source-to-dist', function() {
     return gulp.src('src/js/**/*.js', { base: "./src" })
-        // .pipe(babel({
-        //     presets: ['es2015']
-        // }))
-        // .pipe(uglify())
         .pipe(gulp.dest('dev/src'))
         .on('error', gutil.log);
 })
@@ -96,38 +78,16 @@ gulp.task('dev:json', function() {
         .on('error', gutil.log);
 })
 
-/**
- *  This will browserify scripts
- */
-// gulp.task("dev:browserify", ['dev:babel'], function() {
-//     var b = browserify({
-//         entries: ["dev/src/app/index.js", "dev/src/app/theme/settings.js", "dev/src/app/theme/app.js","dev/src/app/history/paginate.js" ]
-//     });
-//     return b.bundle()
-//         .pipe(source("main.js"))
-//         .pipe(gulp.dest("dev/src"))
-//         .on('error', gutil.log);
-// });
 
 /**
  *  This will concat all scripts include configed in scripts.json to one file: main.js
  */
-gulp.task('dev:scripts', ['dev:babel'], function(done) {
+gulp.task('dev:3rd-to-dist', ['dev:source-to-dist'], function(done) {
     let config = JSON.parse(fs.readFileSync("src/scripts.json", 'utf8'));
-    // let src = config.scripts.concat(['dev/src/main.js']);
     return gulp.src(config.scripts)
-        .pipe(concat('main.js'))
-        .pipe(gulp.dest('dev/src'))
+        .pipe(gulp.dest('dev/src/js/libs'))
         .on('error', gutil.log);
 });
-// gulp.task('dev:main-scripts', ['dev:babel', 'dev:browserify'], function(done) {
-//     let config = JSON.parse(fs.readFileSync("src/scripts.json", 'utf8'));
-//     let src = config.index_scripts.concat(['dev/src/main.js']);
-//     return gulp.src(src)
-//         .pipe(concat('index_main.js'))
-//         .pipe(gulp.dest('dev/src'))
-//         .on('error', gutil.log);
-// });
 
 /**
  *  This will replace imported css in index.html
@@ -139,23 +99,13 @@ gulp.task('dev:css-replace', ['dev:styles', 'dev:html'], function() {
         .on('error', gutil.log);
 });
 
-/**
- *  This will replace imported script in index.html
- */
-gulp.task('dev:script-replace', ['dev:scripts', 'dev:html'], function() {
-    var randomCopy = "?copy=" + Math.random();
-    return gulp.src('dev/src/index.html')
-        .pipe(replace(/<script\/>/g, '<script src="main.js'+randomCopy+'"></script>'))
-        .pipe(gulp.dest('dev/src'))
-        .on('error', gutil.log);
-});
 
-gulp.task('dev:reload-js', ['dev:scripts'], function(done) {
+gulp.task('dev:reload-js', ['dev:3rd-to-dist'], function(done) {
     browserSync.reload();
     done();
 });
 
-gulp.task('dev:reload-html', ['dev:css-replace', 'dev:script-replace'], function() {
+gulp.task('dev:reload-html', ['dev:css-replace'], function() {
     browserSync.reload();
 });
 /**
@@ -173,7 +123,7 @@ gulp.task("dev:watch", function() {
 /**
  *  This will start a server with browser-sync plugin
  */
-gulp.task('dev:browser-sync', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-replace', 'dev:script-replace'], function() {
+gulp.task('dev:browser-sync', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-replace'], function() {
     browserSync.init({
         server: {
             baseDir: "dev/src"
@@ -182,7 +132,7 @@ gulp.task('dev:browser-sync', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-r
     })
 });
 
-gulp.task('dev:copy', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-replace', 'dev:script-replace'], function() {
+gulp.task('dev:copy', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-replace'], function() {
     if (args.dist) {
         return gulp.src('dev/**')
             .pipe(gulp.dest(args._[0]))
@@ -192,9 +142,11 @@ gulp.task('dev:copy', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-replace',
 
 gulp.task('dev', ['dev:clean'], function() {
     if (args.dist) {
-        gulp.start('dev:html', 'dev:images', 'dev:fonts', 'dev:json', 'dev:css-replace', 'dev:script-replace', 'dev:copy');
+        gulp.start('dev:html', 'dev:images', 'dev:fonts', 'dev:json', 'dev:css-replace', 'dev:copy');
     } else {
-        gulp.start('dev:html', 'dev:images', 'dev:fonts', 'dev:json', 'dev:watch', 'dev:css-replace', 'dev:script-replace', 'dev:browser-sync');
+        // gulp.start('dev:html', 'dev:images', 'dev:fonts', 'dev:json', 'dev:watch', 'dev:css-replace', 'dev:browser-sync');
+       gulp.start('dev:html', 'dev:images', 'dev:fonts', 'dev:json','dev:3rd-to-dist', 'dev:watch', 'dev:css-replace','dev:browser-sync');
+
     }
 
 });
