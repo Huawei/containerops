@@ -15,7 +15,6 @@
       "node_modules/js-yaml/dist/js-yaml.min.js",
       "node_modules/clipboard/dist/clipboard.min.js",
       "node_modules/jquery-autocomplete/jquery.autocomplete.js",
-      "node_modules/ace-builds/src-noconflict/ace.js",
       "node_modules/ace-builds/src-noconflict/theme-dawn.js",
       "node_modules/ace-builds/src-noconflict/mode-golang.js"
 
