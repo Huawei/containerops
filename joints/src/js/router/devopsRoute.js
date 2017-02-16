@@ -49,6 +49,25 @@ define(['app'], function(app) {
                         }
                     }
                 })
+                .state('workflow.create', {
+                    url: '/create',
+                    views: {
+                        'main@home': {
+                            templateUrl: 'templates/workflow/create.html',
+                            controller: 'WorkflowCreateController',
+                            resolve: {
+                                loadCtrl_workflow: ["$q", function($q) {
+                                    var deferred = $q.defer();
+                                    require(["controllers/workflow/create"], function() {
+                                        deferred.resolve();
+                                    });
+                                    return deferred.promise;
+                                }],
+                            }
+                        }
+                    }
+                })
+
                 .state('component', {
                     parent: 'home',
                     url: '/component',
@@ -69,10 +88,9 @@ define(['app'], function(app) {
                     }
                 })
                 .state('component.create', {
-                    parent: 'home',
-                    url: '/component/create',
+                    url: '/create',
                     views: {
-                        'main': {
+                        'main@home': {
                             templateUrl: 'templates/component/create.html',
                             controller: 'CreateComponentController',
                              resolve: {
@@ -88,10 +106,9 @@ define(['app'], function(app) {
                     }
                 })
                 .state('component.detail', {
-                    parent: 'home',
-                    url: '/component/:id',
+                    url: '/:id',
                     views: {
-                        'main': {
+                        'main@home': {
                             templateUrl: 'templates/component/detail.html',
                             controller: 'ComponentDetailController',
                              resolve: {
