@@ -17,10 +17,11 @@ limitations under the License. */
 @import "../../node_modules/select2/src/scss/core";
 @import "../../node_modules/jquery-autocomplete/jquery.autocomplete";
 
-@import "../../bower_components/bootstrap/scss/mixins/breakpoints";
-@import "../../bower_components/messenger/build/css/messenger";
-@import "../../bower_components/messenger/build/css/messenger-spinner";
-@import "../../bower_components/messenger/build/css/messenger-theme-future";
+@import "./vendor/breakpoints";
+
+@import "./vendor/messenger";
+@import "./vendor/messenger-spinner";
+@import "./vendor/messenger-theme-future";
 
 @import "./theme/bootstrap-override";
 
