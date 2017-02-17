@@ -28,26 +28,59 @@
 </div>
 <div class="row" ng-if="dataReady && !nodata">
     <div class="col-lg-12">
-        <legend style="border-bottom:none">
-            <strong>Component</strong> List
-            <button type="button" class="btn btn-success newcomponent" style="float:right" ng-click="showNewComponent()">
-                <i class="glyphicon glyphicon-plus" style="font-size:16px"></i>
-                <span style="margin-left:5px">Create</span>
-            </button>
-        </legend>
-        <section class="widget">
-            <div class="widget-body">
-                <div class="search-area">
-                    <div class="input-group" style="float:right;width:480px">
+        <div class="content-title">
+            <div class="col-md-2">Component List</div>
+            <div class="col-md-6">
+                <div class="input-group" style="float:right;width:480px">
                     <input ng-model="filter.name" placeholder="component name" class="filter-input">
                     <input ng-model="filter.version" placeholder="component version" class="filter-input">
                     <span class="input-group-addon" style="cursor:pointer;border:none" ng-click="getComponents()">
                         <i class="fa fa-search"></i>
                     </span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <button type="button" class="btn btn-teal newcomponent" style="float:right" ng-click="showNewComponent()">
+                    <i class="glyphicon glyphicon-plus" style="font-size:16px"></i>
+                    <span style="margin-left:5px">Create New One</span>
+                </button>
+            </div>
+        </div>
+        <section class="widget list-widget">
+            <div class="widget-body">
+                <div class="list-row">
+                    <div class="list-title col-md-3">Name</div>
+                    <div class="col-md-9">
+                        <div class="list-title col-md-8">Version</div>
+                        <div class="list-title col-md-4">Operation</div>
                     </div>
                 </div>
-                <div class="list-content">
-                    <div class="col-md-12">
+            </div>
+        </section>
+        <section class="widget list-widget" ng-repeat="component in components">
+            <div class="widget-body">
+                <div class="list-row">
+                    <div class="col-md-3">
+                        <span>{{component.name}}</span>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="row" ng-repeat="version in component.versions track by version.id">
+                            <div class="col-md-8 list-row-item">
+                                <span>{{version.version}}</span>
+                            </div>
+                            <div class="col-md-4 list-row-item">
+                                <button type="button" class="btn btn-cyan td-btn" ng-click="showComponentDetail(version.id)" style="padding:3px 5px">
+                                    <i class="fa fa-eye" style="font-size:16px"></i>
+                                    <span style="margin-left:5px">View</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <span class="version-more" ng-click="showMoreVersion(component.name)">More</span>
+        </section>
+        <!-- <div class="col-md-12">
                         <div class="row list-header">
                             <div class="col-md-4">Name</div>
                             <div class="col-md-4">Version</div>
@@ -85,9 +118,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+                    </div> -->
     </div>
 </div>

@@ -23,7 +23,7 @@ limitations under the License. */
   position: fixed;
   z-index: 0;
   left: 0;
-  top: 0;
+  top: 50px;
   bottom: 0;
   width: $sidebar-width;
   background-color: $sidebar-bg-color;
@@ -182,7 +182,7 @@ limitations under the License. */
 }
 
 .sidebar-nav{
-  padding: 10px 0;
+  padding: 0;
   font-size: 14px;
   @media (min-width: $screen-md-min) and (min-height: $screen-md-height), (max-width: $screen-xs-max){
     font-size: 16px;
@@ -216,7 +216,7 @@ limitations under the License. */
     position: relative;
     border-top: 1px solid $sidebar-item-border-color;
     padding-left: 50px;
-    line-height: 35px;
+    line-height: 50px;
 
     &:hover{
       background-color: $sidebar-item-hover-bg-color;
@@ -229,7 +229,7 @@ limitations under the License. */
     .icon{
       display: block;
       position: absolute;
-      top: 3px;
+      top: 11px;
       left: $sidebar-padding-horizontal;
       width: 28px;
       height: 28px;
@@ -289,7 +289,7 @@ limitations under the License. */
 
   > .active > a{
     color: $sidebar-item-active-color;
-    background-color: $sidebar-bg-color;
+    background-color: #EDECEC;
 
     .icon{
       border-radius: 50%;

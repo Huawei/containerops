@@ -37,7 +37,7 @@ limitations under the License. */
 
 // override content
 .content{
-  padding: 30px 40px 40px !important;
+  padding: 15px 40px 40px !important;
   position: relative;
 }
 
@@ -235,39 +235,48 @@ button.close {
 }
 
 // table list
-.list-content{ 
-  display: flex;
-}
-
-.list-header{
-  height:40px;
-  width:100%;
-  font-weight: 600;
-}
-
-.list-body{
-  border-top: 1px solid #787878;
-  padding:0 20px;
+.list-widget{
+  margin-bottom: 10px !important;
+  padding : 0 !important;
 }
 
 .list-row{
   display: flex;
   align-items: center;
+  text-align: center;
 }
 
-.list-row-more{
-  display: block;
-  height:60px;
-  padding: 13px 10px;
-  border-bottom: 1px solid #787878;
-}
-
-.sublist-row{
+.list-title{
+  font-weight: 600;
   padding: 15px 0;
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid #eaeaea;
 }
+
+.list-row-item{
+  border-bottom: 1px solid #eaeaea;
+  border-left: 1px solid #eaeaea;
+  padding: 15px 0;
+  height: 50px;
+}
+
+.version-more{
+  padding:1px;
+  background-color:#aaa;
+  font-size:12px;
+  margin-right:76%;
+  margin-top: -25px;
+  color:#fff;
+  float: right;
+  cursor: pointer;
+  opacity: 0.8;
+
+  &:hover{
+    opacity: 1;
+  }
+}
+
+// table list end
+
+
 
 .list-btn{
   cursor:pointer;
@@ -275,12 +284,6 @@ button.close {
     background-color:#5d8fc2;
     color:white;
   }
-}
-
-.search-area{
-  width:100%;
-  height:50px;
-  margin-top:15px;
 }
 
 .filter-input{
@@ -348,4 +351,43 @@ button.close {
   float:left;
   width:100%;
   text-align: right;
+}
+
+// header nav
+.header{
+  width:100%;
+  height:50px;
+  background-color:#2196F3
+}
+
+.content-title{
+  height:50px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+// custom btns
+.btn-teal {
+    color: #fff;
+    background-color: #009688;
+    border-color: #009688;
+    opacity: 0.8;
+
+    &:hover{
+      opacity: 1;
+      color: #fff;
+    }
+}
+
+.btn-cyan {
+    color: #fff;
+    background-color: #00BCD4;
+    border-color: #00BCD4;
+    opacity: 0.8;
+
+    &:hover{
+      opacity: 1;
+      color: #fff;
+    }
 }
