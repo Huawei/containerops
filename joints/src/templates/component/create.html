@@ -10,11 +10,9 @@
     See the License for the specific language governing permissions and
     limitations under the License. 
 -->
-<div class="h5 row">
-	<div class="col-md-4">
-		<h4>Create Component</h4>
-	</div>
-	<div class="col-md-8" style="margin-top:-0.6em">
+<div class="content-title">
+	<div class="col-md-4">Create Component</div>
+	<div class="col-md-8">
 		<div style="float:right" class="btn-toolbar row">
 			<button id="newComponentBtn" type="button" class="btn btn-primary" ng-click="saveComponent()">
 				<i class="glyphicon glyphicon-floppy-disk" style="font-size:16px"></i>
@@ -37,11 +35,11 @@
                  			<div class="row">
                  				<div class="col-md-12">
                  					<div>
-                 						<label for="normal-field" class="col-sm-3 control-label">
-                 							<span class="required">*</span>Name
+                 						<label for="hint-field" class="col-sm-1 control-label">
+                 							<i class="fa fa-user"></i>
                  						</label>
-                 						<div class="col-sm-9">
-                 							<input type="text" id="c-name" class="form-control" placeholder="Component Name" ng-model="component.name" pattern="^[a-zA-Z0-9.~_-]*$" required>
+                 						<div class="col-sm-11">
+                 							<input type="text" id="c-name" class="devops-input" placeholder="Component Name" ng-model="component.name" pattern="^[a-zA-Z0-9.~_-]*$" required>
                  						</div>
                  					</div>
                  				</div>
@@ -59,11 +57,11 @@
                  			<div class="row">
                  				<div class="col-md-12">
                  					<div>
-                 						<label for="hint-field" class="col-sm-3 control-label">
-                 							<span class="required">*</span>Version
+                 						<label for="hint-field" class="col-sm-1 control-label">
+                 							<i class="fa fa-user"></i>
                  						</label>
-                 						<div class="col-sm-9">
-                 							<input type="text" id="c-version" class="form-control" placeholder="Component Version Name" ng-model="component.version" pattern="^[a-zA-Z0-9.~_-]*$" required>
+                 						<div class="col-sm-11">
+                 							<input type="text" id="c-version" class="devops-input" placeholder="Component Version" ng-model="component.version" pattern="^[a-zA-Z0-9.~_-]*$" required>
                  						</div>
                  					</div>
                  				</div>
@@ -117,12 +115,12 @@
 	                                                <div class="row">
 	                                                    <div class="col-md-6">
 	                                                        <div class="form-group">
-	                                                            <label for="hint-field" class="col-sm-4 control-label">
-	                                                                Timeout
+	                                                            <label for="hint-field" class="col-sm-1 control-label">
+	                                                                <i class="fa fa-user"></i>
 	                                                            </label>
-	                                                            <div class="col-sm-7 input-group">
-	                                                                <input type="number" id="action-timeout" class="form-control" ng-model="component.timeout"> 
-	                                                                <span class="input-group-addon">(S)</span>
+	                                                            <div class="col-sm-11 input-group">
+	                                                                <input type="number" id="action-timeout" class="devops-input" placeholder="Component Timeout" ng-model="component.timeout"> 
+	                                                                <span class="input-group-addon unit">/  S</span>
 	                                                            </div>
 	                                                        </div>
 	                                                    </div> 
@@ -130,7 +128,7 @@
 	                                            </fieldset>
 	                                            <fieldset class="row widget component-image" style="padding:15px 0px">
 	                                                <div class="type-header" style="margin-top:-10px">
-	                                                    <div class="type-label" style="width:200px" ng-if="!toCreateImage">Using Existing Image</div>
+	                                                    <div class="type-label" style="width:200px" ng-if="!toCreateImage">Base Image</div>
 	                                                    <div class="type-label" style="width:200px" ng-if="toCreateImage">Creating New Image</div>
 	                                                    <div class="type-setting">
 	                                                        <a title="Create Image" style="display: inline;cursor:pointer;" ng-click="createImage()" ng-if="!toCreateImage">
@@ -146,21 +144,21 @@
 	                                                <div class="row image-input-div" ng-if="!toCreateImage"> 
 	                                                    <div class="col-md-6">
 	                                                        <div class="form-group">
-	                                                            <label for="normal-field" class="col-sm-4 control-label">
-	                                                            	<span class="required">*</span>Repository Name
+	                                                            <label for="normal-field" class="col-sm-1 control-label">
+	                                                            	<i class="fa fa-user"></i>
 	                                                            </label>
-	                                                            <div class="col-sm-7">
-	                                                                <input type="text" id="k8s-pod-image-name" class="form-control" ng-model="component.image_name" required>
+	                                                            <div class="col-sm-11">
+	                                                                <input type="text" id="k8s-pod-image-name" class="devops-input" placeholder="Repository Name" ng-model="component.image_name" required>
 	                                                            </div>
 	                                                        </div>
 	                                                    </div>
 	                                                    <div class="col-md-6">
 	                                                        <div class="form-group">
-	                                                            <label for="normal-field" class="col-sm-4 control-label">
-	                                                                Image Tag
+	                                                            <label for="normal-field" class="col-sm-1 control-label">
+	                                                                <i class="fa fa-user"></i>
 	                                                            </label>
-	                                                            <div class="col-sm-7">
-	                                                                <input type="text" id="k8s-pod-image-tag" class="form-control" ng-model="component.image_tag">
+	                                                            <div class="col-sm-11">
+	                                                                <input type="text" id="k8s-pod-image-tag" class="devops-input" placeholder="Image Tag" ng-model="component.image_tag">
 	                                                            </div>
 	                                                        </div>
 	                                                    </div>
@@ -183,21 +181,21 @@
 	                                                        <div class="row">
 	                                                            <div class="col-md-6">
 	                                                                <div class="form-group">
-	                                                                    <label for="normal-field" class="col-sm-4 control-label">
-	                                                                    	<span class="required">*</span>CPU Limits
+	                                                                    <label for="normal-field" class="col-sm-2 control-label">
+	                                                                    	<i class="fa fa-user"></i>
 	                                                                    </label>
-	                                                                    <div class="col-sm-7">
-	                                                                        <input type="number" step="0.01" id="k8s-cpu-limits" ng-model="item.resources.limits.cpu" class="form-control" required>
+	                                                                    <div class="col-sm-9">
+	                                                                        <input type="number" step="0.01" id="k8s-cpu-limits" placeholder="CPU Limits" title="CPU Limits" ng-model="item.resources.limits.cpu" class="devops-input" required>
 	                                                                    </div>
 	                                                                </div>
 	                                                            </div>
 	                                                            <div class="col-md-6">
 	                                                                <div class="form-group">
-	                                                                    <label for="normal-field" class="col-sm-4 control-label">
-	                                                                    	<span class="required">*</span>CPU Requests
+	                                                                    <label for="normal-field" class="col-sm-2 control-label">
+	                                                                    	<i class="fa fa-user"></i>
 	                                                                    </label>
-	                                                                    <div class="col-sm-7">
-	                                                                        <input type="number" step="0.01" id="k8s-cpu-requests" ng-model="item.resources.requests.cpu" class="form-control" required>
+	                                                                    <div class="col-sm-9">
+	                                                                        <input type="number" step="0.01" id="k8s-cpu-requests" placeholder="CPU Requests" title="CPU Requests" ng-model="item.resources.requests.cpu" class="devops-input" required>
 	                                                                    </div>
 	                                                                </div>
 	                                                            </div>
@@ -205,23 +203,23 @@
 	                                                        <div class="row"> 
 	                                                            <div class="col-md-6">
 	                                                                <div class="form-group">
-	                                                                    <label for="normal-field" class="col-sm-4 control-label">
-	                                                                    	<span class="required">*</span>Memory Limits
+	                                                                    <label for="normal-field" class="col-sm-2 control-label">
+	                                                                    	<i class="fa fa-user"></i>
 	                                                                    </label>
-	                                                                    <div class="col-sm-7 input-group">
-	                                                                        <input type="number" step="0.01" id="k8s-memory-limits" ng-model="item.resources.limits.memory" class="form-control" required>
-	                                                                        <span class="input-group-addon">(Mi)</span>
+	                                                                    <div class="col-sm-9 input-group">
+	                                                                        <input type="number" step="0.01" id="k8s-memory-limits" placeholder="Memory Limits" title="Memory Limits" ng-model="item.resources.limits.memory" class="devops-input" required>
+	                                                                        <span class="input-group-addon unit">/ Mi</span>
 	                                                                    </div>
 	                                                                </div>
 	                                                            </div>
 	                                                            <div class="col-md-6">
 	                                                                <div class="form-group">
-	                                                                    <label for="normal-field" class="col-sm-4 control-label">
-	                                                                    	<span class="required">*</span>Memory Requests
+	                                                                    <label for="normal-field" class="col-sm-2 control-label">
+	                                                                    	<i class="fa fa-user"></i>
 	                                                                    </label>
-	                                                                    <div class="col-sm-7 input-group">
-	                                                                        <input type="number" step="0.01" id="k8s-memory-requests" ng-model="item.resources.requests.memory" class="form-control" required>
-	                                                                        <span class="input-group-addon">(Mi)</span>
+	                                                                    <div class="col-sm-9 input-group">
+	                                                                        <input type="number" step="0.01" id="k8s-memory-requests" placeholder="Memory Requests" title="Memory Requests" ng-model="item.resources.requests.memory" class="devops-input" required>
+	                                                                        <span class="input-group-addon unit">/ Mi</span>
 	                                                                    </div>
 	                                                                </div>
 	                                                            </div>
@@ -250,7 +248,7 @@
 	                                                    				<span class="required">*</span>Port
 	                                                    			</label>
 	                                                    			<div class="col-sm-7">
-	                                                    				<input type="number" name="k8s-service-port" class="form-control" required min="0" max="65535" ng-model="item.port">
+	                                                    				<input type="number" name="k8s-service-port" class="devops-input" required min="0" max="65535" ng-model="item.port">
 	                                                    			</div>
 	                                                    		</div>
 	                                                    		<div class="port-div {{serviceType != 'ClusterIP' ?'':'port-div-more'}}">
@@ -258,7 +256,7 @@
 	                                                    				<span class="required">*</span>Target Port
 	                                                    			</label>
 	                                                    			<div class="col-sm-7">
-	                                                    				<input type="number" name="k8s-service-target-port" class="form-control" required min="0" max="65535" ng-model="item.targetPort">
+	                                                    				<input type="number" name="k8s-service-target-port" class="devops-input" required min="0" max="65535" ng-model="item.targetPort">
 	                                                    			</div>
 	                                                    		</div>
 	                                                    		<div class="port-div" ng-if="serviceType != 'ClusterIP'">
@@ -266,7 +264,7 @@
 	                                                    				<span class="required">*</span>Node Port
 	                                                    			</label>
 	                                                    			<div class="col-sm-7">
-	                                                    				<input type="number" name="k8s-service-node-port" class="form-control" required min="0" max="65535" ng-model="item.nodePort">
+	                                                    				<input type="number" name="k8s-service-node-port" class="devops-input" required min="0" max="65535" ng-model="item.nodePort">
 	                                                    			</div>
 	                                                    		</div>
 	                                                    		<div class="port-remove-div rm-port" ng-click="removePort($index)">
@@ -444,7 +442,7 @@
 	                                         				Key
 	                                         			</label>
 	                                         			<div class="col-sm-7">
-	                                         				<input type="text" class="form-control c-env-key" ng-model="item.key" ng-change="item.key = item.key.toUpperCase()" required>
+	                                         				<input type="text" class="devops-input c-env-key" ng-model="item.key" ng-change="item.key = item.key.toUpperCase()" required>
 	                                         			</div>
 	                                         		</div>
 	                                         		<div class="port-div port-div-more">
@@ -452,7 +450,7 @@
 	                                         				Value
 	                                         			</label>
 	                                         			<div class="col-sm-7">
-	                                         				<input type="text" class="form-control c-env-key" ng-model="item.value" required>
+	                                         				<input type="text" class="devops-input c-env-key" ng-model="item.value" required>
 	                                         			</div>
 	                                         		</div>
 	                                         		<div class="port-remove-div c-rm-kv" ng-click="removeEnv($index)">
@@ -503,7 +501,7 @@
 	    												<span class="required">*</span>Image Name
 	    											</label>
 	    											<div class="col-sm-7">
-	    												<input type="text" id="base-image-name" class="form-control" ng-model="component.image_setting.from.name" required>
+	    												<input type="text" id="base-image-name" class="devops-input" ng-model="component.image_setting.from.name" required>
 	    											</div>
 	    										</div>
 	    									</div>
@@ -513,7 +511,7 @@
 	    												Image Tag
 	    											</label>
 	    											<div class="col-sm-7">
-	    												<input type="text" id="base-image-tag" class="form-control" ng-model="component.image_setting.from.tag">
+	    												<input type="text" id="base-image-tag" class="devops-input" ng-model="component.image_setting.from.tag">
 	    											</div>
 	    										</div>
 	    									</div>
@@ -525,7 +523,7 @@
 	    												<span class="required">*</span>URL
 	    											</label>
 	    											<div class="col-sm-9">
-	    												<input type="text" id="base-image-url" class="form-control" ng-model="component.image_setting.from.url" required>
+	    												<input type="text" id="base-image-url" class="devops-input" ng-model="component.image_setting.from.url" required>
 	    											</div>
 	    										</div>
 	    									</div>
@@ -537,7 +535,7 @@
 	    												<span class="required">*</span>Docker File
 	    											</label>
 	    											<div class="col-sm-9">
-	    												<textarea id="base-image-file" class="form-control" ng-model="component.image_setting.from.dockerfile" required style="height:300px"></textarea>
+	    												<textarea id="base-image-file" class="devops-input" ng-model="component.image_setting.from.dockerfile" required style="height:300px"></textarea>
 	    											</div>
 	    										</div>
 	    									</div>
@@ -556,7 +554,7 @@
 	    												<span class="required">*</span>Image Name
 	    											</label>
 	    											<div class="col-sm-7 input-group">
-	    												<input type="text" id="build-name" class="form-control" ng-model="component.image_setting.build.name" required> 
+	    												<input type="text" id="build-name" class="devops-input" ng-model="component.image_setting.build.name" required> 
 	    											</div>
 	    										</div>
 	    									</div>
@@ -566,7 +564,7 @@
 	    												Image Tag
 	    											</label>
 	    											<div class="col-sm-7 input-group">
-	    												<input type="text" id="build-tag" class="form-control" ng-model="component.image_setting.build.tag"> 
+	    												<input type="text" id="build-tag" class="devops-input" ng-model="component.image_setting.build.tag"> 
 	    											</div>
 	    										</div>
 	    									</div>
@@ -585,7 +583,7 @@
 	    												<span class="required">*</span>Registry
 	    											</label>
 	    											<div class="col-sm-9 input-group">
-	    												<input type="text" id="push-registry" class="form-control" ng-model="component.image_setting.push.registry" required> 
+	    												<input type="text" id="push-registry" class="devops-input" ng-model="component.image_setting.push.registry" required> 
 	    											</div>
 	    										</div>
 	    									</div>
@@ -595,7 +593,7 @@
 	    												User Name
 	    											</label>
 	    											<div class="col-sm-7 input-group">
-	    												<input type="text" id="push-username" class="form-control" ng-model="component.image_setting.push.username"> 
+	    												<input type="text" id="push-username" class="devops-input" ng-model="component.image_setting.push.username"> 
 	    											</div>
 	    										</div>
 	    									</div>
@@ -605,7 +603,7 @@
 	    												Password
 	    											</label>
 	    											<div class="col-sm-7 input-group">
-	    												<input type="password" id="push-password" class="form-control" ng-model="component.image_setting.push.password"> 
+	    												<input type="password" id="push-password" class="devops-input" ng-model="component.image_setting.push.password"> 
 	    											</div>
 	    										</div>
 	    									</div>
