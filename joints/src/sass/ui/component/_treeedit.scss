@@ -11,7 +11,7 @@ limitations under the License. */
 
 .action-way-div{
   margin-bottom : 20px;
-  margin-top: 5px;
+  font-size:12px;
 }
 
 .action-design-select{
@@ -70,7 +70,24 @@ limitations under the License. */
 
 // panel body
 .input-panel-heading{
-  background-color:#f0f0f0 !important;
+  background-color:#fafafa !important;
+  text-align: center;
+  position:relative;
+  color: #03A9F4;
+
+  &:before {
+    content: "";
+    position: absolute;
+    left    : 4%;
+    bottom  : 0;
+    height  : 1px;
+    width   : 92%;
+    border-bottom:1px solid #03A9F4;
+  }
+
+  .panel-title{
+    font-weight: 100 !important;
+  }
 } 
 
 .input-panel-body{
@@ -263,4 +280,16 @@ limitations under the License. */
   height:20px;
 }
 
+// customize jsoneditor
+.jsoneditor-menu{
+  background-color: #aaa !important;
+  border-bottom:none !important;
+}
 
+.jsoneditor{
+  border: none !important;
+}
+
+.jsoneditor-tree{
+  background-color: #f0f0f0;
+}

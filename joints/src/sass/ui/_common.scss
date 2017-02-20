@@ -412,6 +412,25 @@ button.close {
   }
 }
 
+.devops-select{
+  display: block;
+  width: 100%;
+  height: 28px;
+  padding: 3px 5px;
+  font-size: 12px;
+  line-height: 1.42857;
+  color: #555555;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  background-color: #fff;
+
+  &:focus{
+    border:none;
+    border-bottom: 1px solid #2196F3;
+    outline: none;
+  }
+}
+
 .unit{
   background-color: #fff !important;
   border: none !important;
