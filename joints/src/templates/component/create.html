@@ -39,7 +39,7 @@
                  							<i class="fa fa-user"></i>
                  						</label>
                  						<div class="col-sm-11">
-                 							<input type="text" id="c-name" class="devops-input" placeholder="Component Name" ng-model="component.name" pattern="^[a-zA-Z0-9.~_-]*$" required>
+                 							<input type="text" id="c-name" class="devops-input" placeholder="Component Name" title="Component Name" ng-model="component.name" pattern="^[a-zA-Z0-9.~_-]*$" required>
                  						</div>
                  					</div>
                  				</div>
@@ -61,7 +61,7 @@
                  							<i class="fa fa-user"></i>
                  						</label>
                  						<div class="col-sm-11">
-                 							<input type="text" id="c-version" class="devops-input" placeholder="Component Version" ng-model="component.version" pattern="^[a-zA-Z0-9.~_-]*$" required>
+                 							<input type="text" id="c-version" class="devops-input" placeholder="Component Version" title="Component Version" ng-model="component.version" pattern="^[a-zA-Z0-9.~_-]*$" required>
                  						</div>
                  					</div>
                  				</div>
@@ -119,7 +119,7 @@
 	                                                                <i class="fa fa-user"></i>
 	                                                            </label>
 	                                                            <div class="col-sm-11 input-group">
-	                                                                <input type="number" id="action-timeout" class="devops-input" placeholder="Component Timeout" ng-model="component.timeout"> 
+	                                                                <input type="number" id="action-timeout" class="devops-input" placeholder="Component Timeout" title="Component Timeout" ng-model="component.timeout"> 
 	                                                                <span class="input-group-addon unit">/  S</span>
 	                                                            </div>
 	                                                        </div>
@@ -128,8 +128,7 @@
 	                                            </fieldset>
 	                                            <fieldset class="row widget component-image" style="padding:15px 0px">
 	                                                <div class="type-header" style="margin-top:-10px">
-	                                                    <div class="type-label" style="width:200px" ng-if="!toCreateImage">Base Image</div>
-	                                                    <div class="type-label" style="width:200px" ng-if="toCreateImage">Creating New Image</div>
+	                                                    <div class="type-label" style="width:200px">Base Image</div>
 	                                                    <div class="type-setting">
 	                                                        <a title="Create Image" style="display: inline;cursor:pointer;" ng-click="createImage()" ng-if="!toCreateImage">
 	                                                        	<i class="fa fa-copy" style="margin-right:5px"></i>
@@ -148,7 +147,7 @@
 	                                                            	<i class="fa fa-user"></i>
 	                                                            </label>
 	                                                            <div class="col-sm-11">
-	                                                                <input type="text" id="k8s-pod-image-name" class="devops-input" placeholder="Repository Name" ng-model="component.image_name" required>
+	                                                                <input type="text" id="k8s-pod-image-name" class="devops-input" placeholder="Repository Name" title="Repository Name" ng-model="component.image_name" required>
 	                                                            </div>
 	                                                        </div>
 	                                                    </div>
@@ -158,7 +157,7 @@
 	                                                                <i class="fa fa-user"></i>
 	                                                            </label>
 	                                                            <div class="col-sm-11">
-	                                                                <input type="text" id="k8s-pod-image-tag" class="devops-input" placeholder="Image Tag" ng-model="component.image_tag">
+	                                                                <input type="text" id="k8s-pod-image-tag" class="devops-input" placeholder="Image Tag" title="Image Tag" ng-model="component.image_tag">
 	                                                            </div>
 	                                                        </div>
 	                                                    </div>
@@ -224,57 +223,48 @@
 	                                                                </div>
 	                                                            </div>
 	                                                        </div>
-	                                                        <div class="row"> 
-	                                                            <div class="col-md-6">
-	                                                                <div class="form-group">
-	                                                                    <label for="normal-field" class="col-sm-4 control-label">
-	                                                                        Service Type
-	                                                                    </label>
-	                                                                    <div class="col-sm-8 input-group" style="margin-top:7px">
-	                                                                        <input type="radio" id="service-type-nodeport" name="service-type-select" value="NodePort" ng-model="component.service.spec.type" ng-change="changeServiceType()"> 
-							                                                <span style="margin-left:5px">Node Port</span>
-							                                                <input type="radio" id="service-type-clusterip" name="service-type-select" style="margin-left:30px" value="ClusterIP" ng-model="component.service.spec.type" ng-change="changeServiceType()">
-							                                                <span style="margin-left:5px">Cluster IP</span>
-	                                                                    </div>
-	                                                                    
-	                                                                </div>
-	                                                            </div>
-	                                                        </div>
 	                                                    </div>
 	                                                    <div id="ports-setting" class="row port-setting-div">
-	                                                    	<div class="port-row" ng-repeat="item in component.service.spec.ports track by $index">
-	                                                    		<div class="port-div {{serviceType != 'ClusterIP' ?'':'port-div-more'}}">
-	                                                    			<label for="normal-field" class="col-sm-5 control-label">
-	                                                    				<span class="required">*</span>Port
-	                                                    			</label>
-	                                                    			<div class="col-sm-7">
-	                                                    				<input type="number" name="k8s-service-port" class="devops-input" required min="0" max="65535" ng-model="item.port">
-	                                                    			</div>
-	                                                    		</div>
-	                                                    		<div class="port-div {{serviceType != 'ClusterIP' ?'':'port-div-more'}}">
-	                                                    			<label for="normal-field" class="col-sm-5 control-label">
-	                                                    				<span class="required">*</span>Target Port
-	                                                    			</label>
-	                                                    			<div class="col-sm-7">
-	                                                    				<input type="number" name="k8s-service-target-port" class="devops-input" required min="0" max="65535" ng-model="item.targetPort">
-	                                                    			</div>
-	                                                    		</div>
-	                                                    		<div class="port-div" ng-if="serviceType != 'ClusterIP'">
-	                                                    			<label for="normal-field" class="col-sm-5 control-label">
-	                                                    				<span class="required">*</span>Node Port
-	                                                    			</label>
-	                                                    			<div class="col-sm-7">
-	                                                    				<input type="number" name="k8s-service-node-port" class="devops-input" required min="0" max="65535" ng-model="item.nodePort">
-	                                                    			</div>
-	                                                    		</div>
-	                                                    		<div class="port-remove-div rm-port" ng-click="removePort($index)">
-											                            <span class="glyphicon glyphicon-remove"></span>
-											                    </div>
-	                                                    	</div>
-	                                                    	<button type="button" class="btn btn-success add-port" ng-click="addPort()">
-										                        <i class="glyphicon glyphicon-plus" style="top:1px"></i>
-										                        <span style="margin-left:5px">Add Port</span>
-										                    </button>
+	                                                    	<div class="row"> 
+	                                                            <div class="col-md-6">
+	                                                            	<div class="form-group">
+	                                                                    <label for="normal-field" class="col-sm-2 control-label">
+	                                                                    	<i class="fa fa-user"></i>
+	                                                                    </label>
+	                                                                    <div class="col-sm-9 input-group">
+	                                                                        <select id="service-type-select" class="devops-select" ng-model="component.service.spec.type" ng-change="changeServiceType()">
+								                                            	<option value="NodePort">Service Type - Node Port</option>
+								                                            	<option value="ClusterIP">Service Type - Cluster IP</option>
+								                                        	</select>
+	                                                                    </div>
+	                                                                </div>
+	                                                            </div>
+	                                                            <button type="button" class="btn btn-sm btn-teal" ng-click="addPort()">
+	                                                            	<i class="glyphicon glyphicon-plus" style="top:1px"></i>
+	                                                            </button>
+	                                                        </div>
+	                                                        <div class="row port-area">
+		                                                    	<div class="port-row" ng-repeat="item in component.service.spec.ports track by $index">
+		                                                    		<div class="port-div {{serviceType != 'ClusterIP' ?'':'port-div-more'}}">
+		                                                    			<div class="col-sm-12">
+		                                                    				<input type="number" name="k8s-service-port" class="devops-input" required min="0" max="65535" ng-model="item.port" placeholder="Port" title="Port">
+		                                                    			</div>
+		                                                    		</div>
+		                                                    		<div class="port-div {{serviceType != 'ClusterIP' ?'':'port-div-more'}}">
+		                                                    			<div class="col-sm-12">
+		                                                    				<input type="number" name="k8s-service-target-port" class="devops-input" required min="0" max="65535" ng-model="item.targetPort" placeholder="Target Port" title="Target Port">
+		                                                    			</div>
+		                                                    		</div>
+		                                                    		<div class="port-div" ng-if="serviceType != 'ClusterIP'">
+		                                                    			<div class="col-sm-12">
+		                                                    				<input type="number" name="k8s-service-node-port" class="devops-input" required min="0" max="65535" ng-model="item.nodePort" placeholder="Node Port" title="Node Port">
+		                                                    			</div>
+		                                                    		</div>
+		                                                    		<div class="port-remove-div rm-port" ng-click="removePort($index)">
+												                            <span class="glyphicon glyphicon-remove"></span>
+												                    </div>
+		                                                    	</div>
+		                                                    </div>
 	                                                    </div>
 	                                                </div>
 	                                            </fieldset>
@@ -309,18 +299,20 @@
 	                                        </form>
 	                                    </div>
 	                                    <div class="my-tab-pane" ng-show="runtimeTab == 2">
+	                                    	<div class="action-way-div row">
+	                                    		<div class="col-md-3 component-tab {{!jsonMode ? 'component-tab-active' : ''}}" ng-click="switchMode(false)">
+				    								<div class="tab-text">Design for View</div>
+				    							</div>
+				    							<div class="col-md-3 component-tab {{jsonMode ? 'component-tab-active' : ''}}" ng-click="switchMode(true)">
+				    								<div class="tab-text">Design for JSON</div>
+				    							</div>
+	                                    	</div>
 	                                        <div id="designMode" ng-show="!jsonMode">
-	                                            <div class="action-way-div row">
-	                                                <span class="action-design-select"></span>
-	                                                <span class="action-json" title="switch to json mode" ng-click="switchMode()"></span>
-	                                            </div>
 	                                            <div class="row">
 	                                                <div class="col-md-6 import-div">
 	                                                    <div class="panel">
 	                                                        <div class="panel-heading input-panel-heading">
-	                                                            <i class="glyphicon glyphicon-cloud-upload inputicon"></i>
 	                                                            <span class="panel-title">Input Tree</span>
-	                                                            <span class="panel-subtitle">The action default input json data</span> 
 	                                                        </div>
 	                                                        <div class="panel-body input-panel-body" style="min-height:500px">
 	                                                            <div id="inputTreeStart" class="tree-add-button">
@@ -340,10 +332,8 @@
 	                                                </div>
 	                                                <div class="col-md-6 import-div">
 	                                                    <div class="panel">
-	                                                        <div class="panel-heading clearfix">
-	                                                            <i class="glyphicon glyphicon-cloud-download outputicon"></i>
+	                                                        <div class="panel-heading input-panel-heading">
 	                                                            <span class="panel-title">Output Tree</span>
-	                                                            <span class="panel-subtitle">The action default output json data</span> 
 	                                                        </div>
 	                                                        <div class="panel-body" style="min-height:500px">
 	                                                            <div id="outputTreeStart" class="tree-add-button">
@@ -394,16 +384,10 @@
 	                                            </div>
 	                                        </div>
 	                                        <div id="jsonMode" ng-show="jsonMode">
-	                                            <div class="action-way-div row">
-	                                                <span class="action-design" title="switch to design mode" ng-click="switchMode()"></span>
-	                                                <span class="action-json-select"></span>
-	                                            </div>
 	                                            <div class="col-md-6 import-div">
 	                                                <div class="panel">
 	                                                    <div class="panel-heading input-panel-heading">
-	                                                        <i class="input-from-edit-icon"></i>
 	                                                        <span class="panel-title">Input From Edit</span>
-	                                                        <span class="panel-subtitle">The action default input json data</span> 
 	                                                    </div>
 	                                                    <div class="panel-body input-panel-body">
 	                                                        <div id="inputCodeEditor" class="codeEditor"></div>
@@ -417,10 +401,8 @@
 	                                            </div>
 	                                            <div class="col-md-6 import-div">
 	                                                <div class="panel">
-	                                                    <div class="panel-heading clearfix">
-	                                                        <i class="output-from-edit-icon"></i>
+	                                                    <div class="panel-heading input-panel-heading">
 	                                                        <span class="panel-title">Output From Edit</span>
-	                                                        <span class="panel-subtitle">The action default output json data</span> 
 	                                                    </div>
 	                                                    <div class="panel-body">
 	                                                        <div id="outputCodeEditor" class="codeEditor"></div>
@@ -436,31 +418,36 @@
 	                                    </div>
 	                                    <div class="my-tab-pane" ng-show="runtimeTab == 3">
 	                                         <form class="col-lg-12 form-horizontal" id="component-envs">
-	                                         	<div class="port-row" ng-repeat="item in component.env track by $index">
-	                                         		<div class="port-div port-div-more">
-	                                         			<label for="normal-field" class="col-sm-5 control-label">
-	                                         				Key
+	                                         	<div class="row"> 
+	                                         		<div class="form-group">
+	                                         			<label for="normal-field" class="col-sm-2 control-label">
+	                                         				<i class="fa fa-user"></i>
+	                                         				<span style="margin:10px">Add Env</span>
 	                                         			</label>
-	                                         			<div class="col-sm-7">
-	                                         				<input type="text" class="devops-input c-env-key" ng-model="item.key" ng-change="item.key = item.key.toUpperCase()" required>
+	                                         			<div class="col-sm-9 input-group">
+	                                         				<button type="button" class="btn btn-sm btn-teal" ng-click="addEnv()">
+				                                         		<i class="glyphicon glyphicon-plus" style="top:1px"></i>
+				                                         	</button>
 	                                         			</div>
-	                                         		</div>
-	                                         		<div class="port-div port-div-more">
-	                                         			<label for="normal-field" class="col-sm-5 control-label">
-	                                         				Value
-	                                         			</label>
-	                                         			<div class="col-sm-7">
-	                                         				<input type="text" class="devops-input c-env-key" ng-model="item.value" required>
-	                                         			</div>
-	                                         		</div>
-	                                         		<div class="port-remove-div c-rm-kv" ng-click="removeEnv($index)">
-	                                         			<span class="glyphicon glyphicon-remove"></span>
 	                                         		</div>
 	                                         	</div>
-	                                         	<button type="button" class="btn btn-success c-new-kv" ng-click="addEnv()">
-	                                         		<i class="glyphicon glyphicon-plus" style="top:1px"></i>
-	                                         		<span style="margin-left:5px">Add Env</span>
-	                                         	</button>
+	                                         	<div class="row port-area">
+	                                         		<div class="port-row" ng-repeat="item in component.env track by $index">
+		                                         		<div class="port-div port-div-more">
+		                                         			<div class="col-sm-12">
+		                                         				<input type="text" class="devops-input c-env-key" ng-model="item.key" ng-change="item.key = item.key.toUpperCase()" placeholder="Key" title="Key" required>
+		                                         			</div>
+		                                         		</div>
+		                                         		<div class="port-div port-div-more">
+		                                         			<div class="col-sm-12">
+		                                         				<input type="text" class="devops-input c-env-key" ng-model="item.value" placeholder="Value" title="Value" required>
+		                                         			</div>
+		                                         		</div>
+		                                         		<div class="port-remove-div c-rm-kv" ng-click="removeEnv($index)">
+		                                         			<span class="glyphicon glyphicon-remove"></span>
+		                                         		</div>
+		                                         	</div>
+	                                         	</div>
 	                                        </form>
 	                                    </div>
 	    							</div>
@@ -481,37 +468,65 @@
 	    						<div id="scriptEditor"></div>
 	    					</div>
 	    					<div style="margin-top:20px" ng-show="tab == 3">
-	    						<form id="base-image-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
+	    						<form id="build-image-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">	
 	    							<fieldset class="row" style="padding:15px 0px">
-	    								<div class="type-header" style="margin-top:-10px">
-	    									<div class="type-label" style="width:200px">Base Image</div>
-	    									<div class="type-setting">
-	    										<input type="radio" id="type-url" name="base-image-type" value="url" ng-model="component.image_setting.from.type" ng-change="changeBaseImageType()"> 
-	    										<span style="margin-left:5px">Docker Image URL</span>
-	    										<input type="radio" id="type-dockerfile" name="base-image-type" value="dockerfile" ng-model="component.image_setting.from.type" ng-change="changeBaseImageType()" style="margin-left:30px"> 
-	    										<span style="margin-left:5px">Docker File</span>
-	    										<input type="radio" id="type-name" name="base-image-type" value="name" ng-model="component.image_setting.from.type" ng-change="changeBaseImageType()" style="margin-left:30px"> 
-	    										<span style="margin-left:5px">Image Name/Tag</span>
-	    									</div>
-	    								</div>	
-	    								<div class="row image-input-div" ng-if="component.image_setting.from.type == 'name'"> 
+	    								<div class="row">
 	    									<div class="col-md-6">
 	    										<div class="form-group">
-	    											<label for="normal-field" class="col-sm-4 control-label">
-	    												<span class="required">*</span>Image Name
+	    											<label for="hint-field" class="col-sm-2 control-label">
+	    												<i class="fa fa-user"></i>
 	    											</label>
-	    											<div class="col-sm-7">
-	    												<input type="text" id="base-image-name" class="devops-input" ng-model="component.image_setting.from.name" required>
+	    											<div class="col-sm-9 input-group">
+	    												<input type="text" id="build-name" class="devops-input" ng-model="component.image_setting.build.name" placeholder="Build Image Name" title="Build Image Name" required> 
 	    											</div>
 	    										</div>
 	    									</div>
 	    									<div class="col-md-6">
 	    										<div class="form-group">
-	    											<label for="normal-field" class="col-sm-4 control-label">
-	    												Image Tag
+	    											<label for="hint-field" class="col-sm-2 control-label">
+	    												<i class="fa fa-user"></i>
 	    											</label>
-	    											<div class="col-sm-7">
-	    												<input type="text" id="base-image-tag" class="devops-input" ng-model="component.image_setting.from.tag">
+	    											<div class="col-sm-9 input-group">
+	    												<input type="text" id="build-tag" class="devops-input" ng-model="component.image_setting.build.tag" placeholder="Build Image Tag" title="Build Image Tag"> 
+	    											</div>
+	    										</div>
+	    									</div>
+	    								</div>
+	    							</fieldset>
+	    						</form>
+	    						<form id="base-image-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
+	    							<fieldset class="row" style="padding:15px 0px 15px 20px">
+	    								<div class="type-header" style="margin-top:-10px">
+	    									<div class="type-label" style="width:200px">Base Image</div>
+	    									<div class="type-setting">
+	    										<input type="radio" id="type-dockerfile" name="base-image-type" value="dockerfile" ng-model="component.image_setting.from.type" ng-change="changeBaseImageType()"> 
+	    										<span style="margin-left:5px">Dockerfile</span>
+
+	    										<input type="radio" id="type-url" name="base-image-type" value="url" ng-model="component.image_setting.from.type" ng-change="changeBaseImageType()" style="margin-left:30px"> 
+	    										<span style="margin-left:5px">Dockerfile URL</span>
+	    										
+	    										<input type="radio" id="type-name" name="base-image-type" value="name" ng-model="component.image_setting.from.type" ng-change="changeBaseImageType()" style="margin-left:30px"> 
+	    										<span style="margin-left:5px">Existing Image</span>
+	    									</div>
+	    								</div>	
+	    								<div class="row image-input-div" ng-if="component.image_setting.from.type == 'name'"> 
+	    									<div class="col-md-6">
+	    										<div class="form-group">
+	    											<label for="normal-field" class="col-sm-2 control-label">
+	    												<i class="fa fa-user"></i>
+	    											</label>
+	    											<div class="col-sm-9">
+	    												<input type="text" id="base-image-name" class="devops-input" ng-model="component.image_setting.from.name" placeholder="Base Image Name" title="Base Image Name" required>
+	    											</div>
+	    										</div>
+	    									</div>
+	    									<div class="col-md-6">
+	    										<div class="form-group">
+	    											<label for="normal-field" class="col-sm-2 control-label">
+	    												<i class="fa fa-user"></i>
+	    											</label>
+	    											<div class="col-sm-9">
+	    												<input type="text" id="base-image-tag" class="devops-input" ng-model="component.image_setting.from.tag" placeholder="Base Image Tag" title="Base Image Tag">
 	    											</div>
 	    										</div>
 	    									</div>
@@ -519,91 +534,55 @@
 	    								<div class="row image-input-div" ng-if="component.image_setting.from.type == 'url'"> 
 	    									<div class="col-md-12">
 	    										<div class="form-group">
-	    											<label for="normal-field" class="col-sm-2 control-label">
-	    												<span class="required">*</span>URL
+	    											<label for="normal-field" class="col-sm-1 control-label">
+	    												<i class="fa fa-user"></i>
 	    											</label>
-	    											<div class="col-sm-9">
-	    												<input type="text" id="base-image-url" class="devops-input" ng-model="component.image_setting.from.url" required>
+	    											<div class="col-sm-10">
+	    												<input type="text" id="base-image-url" class="devops-input" ng-model="component.image_setting.from.url" placeholder="Dockerfile URL" title="Dockerfile URL" required>
 	    											</div>
 	    										</div>
 	    									</div>
 	    								</div>
 	    								<div class="row image-input-div" ng-if="component.image_setting.from.type == 'dockerfile'"> 
 	    									<div class="col-md-12">
-	    										<div class="form-group">
-	    											<label for="normal-field" class="col-sm-2 control-label">
-	    												<span class="required">*</span>Docker File
-	    											</label>
-	    											<div class="col-sm-9">
-	    												<textarea id="base-image-file" class="devops-input" ng-model="component.image_setting.from.dockerfile" required style="height:300px"></textarea>
-	    											</div>
-	    										</div>
-	    									</div>
-	    								</div>
-	    							</fieldset>
-	    						</form>
-	    						<form id="build-image-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">	
-	    							<fieldset class="row" style="padding:15px 0px">
-	    								<div class="type-header" style="margin-top:-10px">
-	    									<div class="type-label" style="width:200px">Build Image</div>
-	    								</div>
-	    								<div class="row image-input-div">
-	    									<div class="col-md-6">
-	    										<div class="form-group">
-	    											<label for="hint-field" class="col-sm-4 control-label">
-	    												<span class="required">*</span>Image Name
-	    											</label>
-	    											<div class="col-sm-7 input-group">
-	    												<input type="text" id="build-name" class="devops-input" ng-model="component.image_setting.build.name" required> 
-	    											</div>
-	    										</div>
-	    									</div>
-	    									<div class="col-md-6">
-	    										<div class="form-group">
-	    											<label for="hint-field" class="col-sm-4 control-label">
-	    												Image Tag
-	    											</label>
-	    											<div class="col-sm-7 input-group">
-	    												<input type="text" id="build-tag" class="devops-input" ng-model="component.image_setting.build.tag"> 
-	    											</div>
-	    										</div>
+	    										<textarea id="base-image-file" class="form-control" ng-model="component.image_setting.from.dockerfile" required style="height:200px;resize:none;margin-bottom:20px" placeholder="Input your dockerfile"></textarea>
 	    									</div>
 	    								</div>
 	    							</fieldset>
 	    						</form>
 	    						<form id="push-image-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
-	    							<fieldset class="row" style="padding:15px 0px">
+	    							<fieldset class="row" style="padding:15px 0px 15px 20px">
 	    								<div class="type-header" style="margin-top:-10px">
-	    									<div class="type-label" style="width:200px">Push Image</div>
+	    									<div class="type-label" style="width:200px">Push</div>
 	    								</div>
 	    								<div class="row image-input-div">
-	    									<div class="col-md-12">
+	    									<div class="col-md-6">
 	    										<div class="form-group">
 	    											<label for="hint-field" class="col-sm-2 control-label">
-	    												<span class="required">*</span>Registry
+	    												<i class="fa fa-user"></i>
 	    											</label>
 	    											<div class="col-sm-9 input-group">
-	    												<input type="text" id="push-registry" class="devops-input" ng-model="component.image_setting.push.registry" required> 
+	    												<input type="text" id="push-username" class="devops-input" ng-model="component.image_setting.push.username" placeholder="User Name" title="User Name"> 
 	    											</div>
 	    										</div>
 	    									</div>
 	    									<div class="col-md-6">
 	    										<div class="form-group">
-	    											<label for="hint-field" class="col-sm-4 control-label">
-	    												User Name
+	    											<label for="hint-field" class="col-sm-2 control-label">
+	    												<i class="fa fa-user"></i>
 	    											</label>
-	    											<div class="col-sm-7 input-group">
-	    												<input type="text" id="push-username" class="devops-input" ng-model="component.image_setting.push.username"> 
+	    											<div class="col-sm-9 input-group">
+	    												<input type="password" id="push-password" class="devops-input" ng-model="component.image_setting.push.password" placeholder="Password" title="Password"> 
 	    											</div>
 	    										</div>
 	    									</div>
-	    									<div class="col-md-6">
+	    									<div class="col-md-12">
 	    										<div class="form-group">
-	    											<label for="hint-field" class="col-sm-4 control-label">
-	    												Password
+	    											<label for="hint-field" class="col-sm-1 control-label">
+	    												<i class="fa fa-user"></i>
 	    											</label>
-	    											<div class="col-sm-7 input-group">
-	    												<input type="password" id="push-password" class="devops-input" ng-model="component.image_setting.push.password"> 
+	    											<div class="col-sm-10 input-group">
+	    												<input type="text" id="push-registry" class="devops-input" ng-model="component.image_setting.push.registry" placeholder="Registry" title="Registry" required> 
 	    											</div>
 	    										</div>
 	    									</div>

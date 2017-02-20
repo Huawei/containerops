@@ -114,14 +114,14 @@ define(['app'], function(app) {
                     notifyService.notify("Script of component stop event is required.", "error");
                     return check_result;
                 }
-                if (!image_setting.from()) {
-                    check_result = false;
-                    notifyService.notify("Base image is not complete.", "error");
-                    return check_result;
-                }
                 if (!image_setting.build()) {
                     check_result = false;
                     notifyService.notify("Build image is not complete.", "error");
+                    return check_result;
+                }
+                if (!image_setting.from()) {
+                    check_result = false;
+                    notifyService.notify("Base image is not complete.", "error");
                     return check_result;
                 }
                 if (!image_setting.push()) {
@@ -194,7 +194,7 @@ define(['app'], function(app) {
                 return result;
             },
             "buildimage": function() {
-                var result = image_setting.from() && image_setting.build() && image_setting.push();
+                var result = image_setting.build() && image_setting.from() && image_setting.push();
                 return result;
             }
         }
