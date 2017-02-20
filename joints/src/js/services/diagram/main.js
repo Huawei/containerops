@@ -19,7 +19,7 @@ define(['app','services/diagram/api'], function(app) {
             {
                 "name":"stage0",
                 "id":"s0",
-                "type":"start-stage",
+                "type":"edit-stage",
                 "runMode":"serial", //serial串行，parallel并行
                 // "runResult":3,
                 "actions":[
@@ -183,6 +183,13 @@ define(['app','services/diagram/api'], function(app) {
             {
                 "name":"stage3",
                 "id":"s3",
+                "type":"add-stage",
+                "runMode":"",
+                "actions":[]
+            },
+            {
+                "name":"stage3",
+                "id":"s3",
                 "type":"end-stage",
                 "runMode":"",
                 "actions":[]
@@ -192,30 +199,41 @@ define(['app','services/diagram/api'], function(app) {
         function drawWorkflow(selector,dataset) {
             var baseSize = {
                 svgpad : 50,
-                stagePad : 140,
-                stageWidth : 30,
-                stageHeight : 30,
+                stagePad : 110,
+                stageWidth : 26,
+                stageHeight : 26,
                 actionPad : 15,
                 actionToTop : 0, 
                 componentWidth : 15,
                 componentHeight : 15,
-                componentPad : 4,
+                componentPad : 3,
                 gatherWidth : 40,
                 gatherHeight : 50,
                 rowActionNum : 4,
                 runModeWidth : 10,
                 addComponentWidth : 10,
-                arcPadBig : 10,
+                arcPadBig : 9,
                 arcPadSmall : 3,
                 addIconPad : 3,
-                lineWidth : 10,
+                lineWidth : 6,
+                addStageWidth: 16,
+                addStageHeight: 16,
                 stageLength : dataset.length
             }
             
-
             var currentDragIndex;
             var endPointIndex;
             var elementType = '';
+
+            var baseColor = {
+                stageBorder: '#d7d7d7',
+                stageOrigin: '#65baf7',
+                stageChosed: '#ff3333',
+                componentOrigin: '#43b594'
+            };
+
+            var chosedStageIndex = '';
+            var chosedActionIndex = '';
             // var drag = d3.behavior.drag()
             //     .on("drag", dragmove)
             //     .on('dragstart',function(d,i){
@@ -265,12 +283,34 @@ define(['app','services/diagram/api'], function(app) {
             //     console.log(currentDragIndex,endPointIndex)
             // }
 
+            var newStage = {
+                "name":"",
+                "id":"",
+                "type":"edit-stage",
+                "runMode":"",
+                "actions":[]
+            };
+
+            var newAction = {
+                "name":"action1",
+                "id":"s2-at1",
+                "type":"action",
+                "inputData":"",
+                "outputData":""
+            };
+
             var _this = baseSize;
+
+            d3.select(selector)
+                .selectAll('svg')
+                .remove();
+
             var svg = d3.select(selector)
                 .append('svg')
                 .attr('width','100%')
                 .attr('height','100%')
                 .attr('fill','#fff');
+
 
             var lines = svg.append('g')
                 .attr('id','lines');
@@ -279,7 +319,7 @@ define(['app','services/diagram/api'], function(app) {
                 .attr('class','stagelines')
 
             var itemStage = svg.selectAll('.item-stage')
-                .data(this.dataset)
+                .data(dataset)
                 .enter()
                 .append('g')
                 .attr('class','item-stage')
@@ -298,16 +338,64 @@ define(['app','services/diagram/api'], function(app) {
                 .attr('transform',function(d,i){
                     return 'translate('+(i*(_this.stageWidth+_this.stagePad)+_this.svgpad)+','+(_this.stageHeight*2)+')';
                 })
+                .on('click',chosedStage)
                 // .call(drag);
+
+            function chosedStage(d,i){
+                clearChosedStageIndex();
+                clearChosedStageColor();
+
+                if(d.type === 'add-stage'){
+                    var stage = angular.copy(newStage);
+                    var addstage = angular.copy(dataset[i]);
+                    var endstage = angular.copy(dataset[i+1]);
+                    dataset[i] = stage;
+                    dataset[i+1] = addstage;
+                    dataset[i+2] = endstage;
+                    // dataset.splice(dataset[i-1],0,stage)
+                    drawWorkflow(selector,dataset); 
+                };
+
+                if(d.type === 'edit-stage'){
+                    d3.select(this).select('circle').attr('fill','#e43937');
+                    chosedStageIndex = i;
+                };
+            };
+
+            function clearChosedStageColor(){
+                d3.selectAll('circle')
+                    .attr('fill',function(d){
+                        if(d.type === 'end-stage' || d.type === 'add-stage'){
+                            return '#fff';
+                        }
+                        return baseColor.stageOrigin;
+                    })
+            };
+
+            function clearChosedStageIndex(){
+                chosedStageIndex = '';
+            };
+
+            function addComponent(){
+                var currentElement = d3.select(this);
+                var chosedStageIndex = currentElement.attr('data-stageIndex');
+                var chosedActionIndex = currentElement.attr('data-actionIndex');
+                var action = angular.copy(newAction);
+                dataset[chosedStageIndex]['actions'][chosedActionIndex]['components'].push(action);
+                drawWorkflow(selector,dataset); 
+            };
 
             // add stage circle
             itemStage.append('circle')
                 .attr('cx',_this.stageWidth/2)
                 .attr('cy',_this.stageHeight/2)
                 .attr('r',_this.stageHeight/2)
-                .attr('stroke','#d7d7d7')
+                .attr('stroke',baseColor.stageOrigin)
                 .attr('fill',function(d){
-                    return d.type === 'end-stage' ? '#fff' : '#d7d7d7';
+                    if(d.type === 'end-stage' || d.type === 'add-stage'){
+                        return '#fff';
+                    }
+                    return baseColor.stageOrigin;
                 })
                 .attr('class','stage-pic')
                 .attr('data-name',function(d){
@@ -324,6 +412,19 @@ define(['app','services/diagram/api'], function(app) {
                     d.translateY = _this.stageHeight*2;
                 });
 
+
+            // add add-stage icon
+            itemStage.each(function(d){
+                if(d.type === 'add-stage'){
+                    d3.select(this).append('svg:image')
+                        .attr('width',_this.addStageWidth)
+                        .attr('height',_this.addStageHeight)
+                        .attr('href','assets/images/add-stage.jpg')
+                        .attr('x',(_this.stageWidth/2 - _this.addStageWidth / 2))
+                        .attr('y',(_this.stageHeight/2 - _this.addStageHeight / 2));
+                }
+            })
+
             // add stage line & actions & components
             d3.selectAll('.item-stage')
                 .each(function(d,i){
@@ -337,7 +438,7 @@ define(['app','services/diagram/api'], function(app) {
                                 return 'M'+(x+_this.stageWidth)+' '+y+'L'+(x - _this.stagePad)+' '+y;
                             })
                             .attr('fill','none')
-                            .attr('stroke','#d7d7d7')
+                            .attr('stroke',baseColor.stageBorder)
                             .attr('stroke-width','2');
                     };
 
@@ -357,7 +458,7 @@ define(['app','services/diagram/api'], function(app) {
                             return ai;
                         })
                         .attr('data-runMode',d.runMode)
-                        .attr('transform',function(a,ai){ // action的y轴起点
+                        .attr('translateY',function(a,ai){
                             var y = currentActionY;
                             var padding = _this.componentPad * 3;
                             var componentRows = Math.ceil(a.components.length/_this.rowActionNum);
@@ -365,8 +466,11 @@ define(['app','services/diagram/api'], function(app) {
 
                             y = i%2===0 ? y + _this.actionToTop : y; 
 
-                            return 'translate(0,'+y+')';
-
+                            return y;
+                        })
+                        .attr('transform',function(a,ai){ // action的y轴起点
+                            var translateY = d3.select(this).attr('translateY');
+                            return 'translate(0,'+translateY+')';
                         });
 
                     // add components
@@ -421,17 +525,16 @@ define(['app','services/diagram/api'], function(app) {
                                 return c.y;
                             })
                             .attr('fill',function(a,r){
-                                return '#d7d7d7';
+                                return baseColor.componentOrigin;
                             });
 
                         // action borders
                         perAction.append('path')
                             .attr('class','gatherLine')
                             .attr('fill','none')
-                            .attr('stroke','#d7d7d7')
+                            .attr('stroke',baseColor.stageBorder)
                             .attr('stroke-width','1')
                             .attr('d',function(){
-
                                 var length = a.components.length;
                                 var x = a.components[0].x;
                                 var padding = _this.componentPad * 3;
@@ -441,17 +544,20 @@ define(['app','services/diagram/api'], function(app) {
                                 var y1 = a.components[length-1].y + _this.componentHeight + padding;
                                 var x2 = x0 + (x1 - x0) / 2; //每个stage的中心点
                                 var y2 = i%2===0 ? y0 - _this.stageHeight/2 - _this.actionPad - _this.actionToTop : y0 - _this.stageHeight/2 - _this.actionPad; //弧线控制点
-                                var x3 = x2 + _this.stageWidth/2 + _this.stagePad/2; //弧线在stage-line的中点
-                                var x4 = x2 - _this.stageWidth/2 - _this.stagePad/2; //弧线在stage-line的中点
+                                var x3 = x2 + _this.stageWidth/2 + _this.stagePad/2; //stage-line arc center point
+                                var x4 = x2 - _this.stageWidth/2 - _this.stagePad/2; //stage-line arc center point
 
                                 var x5 = x1 + _this.lineWidth;
                                 var x6 = x5 + _this.arcPadBig;
                                 var x7 = x0 - _this.lineWidth;
                                 var x8 = x7 - _this.arcPadBig;
-                                var x9 = x0 + (x1 - x0)/2; //action x轴中点
-                                var y3 = y0 + (y1 - y0)/2; //action y轴中点
+                                var x9 = x0 + (x1 - x0)/2; //action center x point
+                                var y3 = y0 + (y1 - y0)/2; //action center y point
 
                                 var y4 = y3 - _this.arcPadBig;
+
+                                var translateY = perAction.attr('translateY');
+                                var y5 = y0 - translateY + _this.stageHeight/2 + _this.arcPadBig; // stage-line center y point
 
                                 var lineToRight = 'L'+x5+' '+y3;
                                 var lineToLeft = 'L'+x7+' '+y3;
@@ -478,6 +584,7 @@ define(['app','services/diagram/api'], function(app) {
 
                                 var commonArcToRight = 'L'+x6+' '+(y2 + _this.arcPadBig)+'Q'+x6+' '+y2+' '+(x6 + _this.arcPadBig)+' '+y2+'L'+x3+' '+y2;
                                 var commonArcToLeft = 'L'+x8+' '+(y2 + _this.arcPadBig)+'Q'+x8+' '+y2+' '+(x8 - _this.arcPadBig)+' '+y2+'L'+x4+' '+y2;
+                                
 
                                 if(i===0){
                                     
@@ -490,7 +597,7 @@ define(['app','services/diagram/api'], function(app) {
                                     if(ai === 0){
                                         return bottom + lineToLeft + arcToLeft + commonArcToLeft + top + lineToRight + arcToRight + commonArcToRight;
                                     }
-                                    return bottom + lineToLeft + arcToLeft +'L'+x8+' '+(y2 - _this.actionPad - _this.arcPadBig*2) + top + lineToRight + arcToRight + 'L'+x6+' '+(y2 - _this.actionPad - _this.arcPadBig*2);
+                                    return bottom + lineToLeft + arcToLeft +'L'+x8+' '+ y5 + top + lineToRight + arcToRight + 'L'+x6+' '+y5;
                                 }
                                 
                             });
@@ -567,10 +674,14 @@ define(['app','services/diagram/api'], function(app) {
                                     var y0 = a.components[0].y - padding;
                                     return y0 - _this.addComponentWidth/2 + _this.addIconPad;
                                 })
+                                .on('click',addComponent)
 
                     });
                 })
+
         }; 
+
+
 
         return {
             "dataset": dataset,
