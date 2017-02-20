@@ -74,7 +74,7 @@ define(['app','services/component/api'], function(app) {
                     "tag": ""
                 },
                 "from": {
-                    "type": "url",
+                    "type": "dockerfile",
                     "url": ""
                 },
                 "events": {
