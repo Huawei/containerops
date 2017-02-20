@@ -100,8 +100,8 @@ define(["app","services/component/main","services/component/io","services/compon
                 $scope.component.image_setting = {};
             }
 
-            $scope.switchMode = function() {
-                $scope.jsonMode = !$scope.jsonMode;
+            $scope.switchMode = function(value) {
+                $scope.jsonMode = value;
                 if ($scope.jsonMode) {
                     componentIO.initFromEdit("input");
                     componentIO.initFromEdit("output");

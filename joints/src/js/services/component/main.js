@@ -60,13 +60,13 @@ define(['app','services/component/api'], function(app) {
                 }
             },
             "nodeport": {
-                "port": 0,
-                "targetPort": 0,
-                "nodePort": 0
+                "port": "",
+                "targetPort": "",
+                "nodePort": ""
             },
             "clusterip": {
-                "port": 0,
-                "targetPort": 0
+                "port": "",
+                "targetPort": ""
             },
             "imagesetting": {
                 "build": {
@@ -74,7 +74,7 @@ define(['app','services/component/api'], function(app) {
                     "tag": ""
                 },
                 "from": {
-                    "type": "url",
+                    "type": "dockerfile",
                     "url": ""
                 },
                 "events": {
