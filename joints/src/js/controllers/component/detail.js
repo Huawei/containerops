@@ -99,8 +99,8 @@ define(["app","services/component/main","services/component/io","services/compon
                 $scope.component.image_setting = {};
             }
 
-            $scope.switchMode = function() {
-                $scope.jsonMode = !$scope.jsonMode;
+            $scope.switchMode = function(value) {
+                $scope.jsonMode = value;
                 if ($scope.jsonMode) {
                     componentIO.initFromEdit("input");
                     componentIO.initFromEdit("output");
@@ -318,6 +318,7 @@ define(["app","services/component/main","services/component/io","services/compon
                 $scope.debugTab = 1;
                 $scope.debugLogTab = 1;
                 $scope.debugcomponent.input = $.extend(true, {}, $scope.component.input);
+                $scope.debugcomponent.env = [];
                 _.each($scope.component.env, function(item) {
                     $scope.debugcomponent.env.push($.extend(true, {}, item));
                 })
