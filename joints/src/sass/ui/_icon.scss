@@ -1,0 +1,160 @@
+/* Copyright 2014 Huawei Technologies Co., Ltd. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License. */
+
+.icon{
+  background-repeat: no-repeat;
+  background-size: contain;
+  width:15px;
+  height:15px;
+  display: inline-block;
+}
+
+// component
+.icon-delete{
+  background-image:url(/assets/svg/component/icon-delete.svg);
+}
+
+.icon-baseImage-respository-name{
+  background-image:url(/assets/svg/component/icon-baseImage-respository-name.svg);
+}
+
+.icon-baseImage-tag{
+  background-image:url(/assets/svg/component/icon-baseImage-tag.svg);
+}
+
+.icon-build-tag{
+  background-image:url(/assets/svg/component/icon-build-tag.svg);
+}
+
+.icon-buildImage-name{
+  background-image:url(/assets/svg/component/icon-buildImage-name.svg);
+}
+
+.icon-compoentVersion{
+  background-image:url(/assets/svg/component/icon-compoentVersion.svg);
+}
+
+.icon-componentName{
+  background-image:url(/assets/svg/component/icon-componentName.svg);
+}
+
+.icon-cpu{
+  background-image:url(/assets/svg/component/icon-cpu.svg);
+}
+
+.icon-debug{
+  background-image:url(/assets/svg/component/icon-debug.svg);
+}
+
+.icon-dockerfile{
+  background-image:url(/assets/svg/component/icon-dockerfile.svg);
+}
+
+.icon-edit{
+  background-image:url(/assets/svg/component/icon-edit.svg);
+}
+
+.icon-editEnv{
+  background-image:url(/assets/svg/component/icon-editEnv.svg);
+}
+
+.icon-memory{
+  background-image:url(/assets/svg/component/icon-memory.svg);
+}
+
+.icon-password{
+  background-image:url(/assets/svg/component/icon-password.svg);
+}
+
+.icon-search{
+  background-image:url(/assets/svg/component/icon-search.svg);
+}
+
+.icon-serviceType{
+  background-image:url(/assets/svg/component/icon-serviceType.svg);
+}
+
+.icon-userName{
+  background-image:url(/assets/svg/component/icon-userName.svg);
+}
+
+// workflow
+.icon-action-parallel{
+  background-image:url(/assets/svg/workflow/icon-action-parallel.svg);
+}
+
+.icon-action-serial{
+  background-image:url(/assets/svg/workflow/icon-action-serial.svg);
+}
+
+.icon-action-works{
+  background-image:url(/assets/svg/workflow/icon-action-works.svg);
+}
+
+.icon-add-action-active{
+  background-image:url(/assets/svg/workflow/icon-add-action-active.svg);
+}
+
+.icon-add-action{
+  background-image:url(/assets/svg/workflow/icon-add-action.svg);
+}
+
+.icon-add-stage{
+  background-image:url(/assets/svg/workflow/icon-add-stage.svg);
+}
+
+.icon-create-action-name{
+  background-image:url(/assets/svg/workflow/icon-create-action-name.svg);
+}
+
+.icon-create-action{
+  background-image:url(/assets/svg/workflow/icon-create-action.svg);
+}
+
+.icon-create-stage-name{
+  background-image:url(/assets/svg/workflow/icon-create-stage-name.svg);
+}
+
+.icon-create-stage{
+  background-image:url(/assets/svg/workflow/icon-create-stage.svg);
+}
+
+.icon-more-component{
+  background-image:url(/assets/svg/workflow/icon-more-component.svg);
+}
+
+.icon-stage-empty{
+  background-image:url(/assets/svg/workflow/icon-stage-empty.svg);
+}
+
+.icon-stage-prallel{
+  background-image:url(/assets/svg/workflow/icon-stage-prallel.svg);
+}
+
+.icon-stage-serial{
+  background-image:url(/assets/svg/workflow/icon-stage-serial.svg);
+}
+
+.icon-stage{
+  background-image:url(/assets/svg/workflow/icon-stage.svg);
+}
+
+.icon-timeout{
+  background-image:url(/assets/svg/workflow/icon-timeout.svg);
+}
+
+.icon-workflow-active{
+  background-image:url(/assets/svg/workflow/icon-workflow-active.svg);
+}
+
+.icon-workflow{
+  background-image:url(/assets/svg/workflow/icon-workflow.svg);
+}
