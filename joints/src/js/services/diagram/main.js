@@ -315,7 +315,17 @@ define(['app','services/diagram/api'], function(app) {
 
             var _this = baseSize;
 
+            var zoom = d3.behavior.zoom()
+                .scaleExtent([0.5, 2])
+                .on("zoom", zoomed);
+
+            function zoomed() {
+                d3.select(this).attr("transform", 
+                    "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+            }
+
             function chosedStage(d,i){
+                event.stopPropagation();
                 clearChosedStageIndex();
                 clearChosedStageColor();
 
@@ -360,6 +370,7 @@ define(['app','services/diagram/api'], function(app) {
             };
 
             function addElement(currentElement,type){
+                event.stopPropagation();
                 var chosedStageIndex = currentElement.attr('data-stageIndex');
                 if(type === 'component'){
                     var chosedActionIndex = currentElement.attr('data-actionIndex');
@@ -374,25 +385,33 @@ define(['app','services/diagram/api'], function(app) {
                 drawWorkflow(selector,dataset); 
             }; 
 
+            function componentSetting(){
+                event.stopPropagation();
+            };
+
 
             d3.select(selector)
                 .selectAll('svg')
                 .remove();
 
-            var svg = d3.select(selector)
+            var allGroups = d3.select(selector)
                 .append('svg')
                 .attr('width','100%')
                 .attr('height','100%')
-                .attr('fill','#fff');
+                .attr('fill','#fff')
+                .append('g')
+                .attr('transform','translate(0,0)')
+                .call(zoom)
+                .on('dblclick.zoom', null);
 
 
-            var lines = svg.append('g')
+            var lines = allGroups.append('g')
                 .attr('id','lines');
                 
             var stagelines = lines.append('g')
                 .attr('class','stagelines')
 
-            var itemStage = svg.selectAll('.item-stage')
+            var itemStage = allGroups.selectAll('.item-stage')
                 .data(dataset)
                 .enter()
                 .append('g')
@@ -582,7 +601,8 @@ define(['app','services/diagram/api'], function(app) {
                             })
                             .attr('fill',function(a,r){
                                 return baseColor.componentOrigin;
-                            });
+                            })
+                            .on('click',componentSetting);
 
                         // action borders
                         perAction.append('path')
