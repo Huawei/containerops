@@ -216,8 +216,8 @@ define(['app','services/diagram/api'], function(app) {
                 arcPadSmall : 3,
                 addIconPad : 3,
                 lineWidth : 6,
-                addStageWidth: 16,
-                addStageHeight: 16,
+                addStageWidth: 20,
+                addStageHeight: 20,
                 addActionWidth: 25,
                 addActionHeight: 25,
                 stageLength : dataset.length
@@ -447,7 +447,7 @@ define(['app','services/diagram/api'], function(app) {
                     d3.select(this).append('svg:image')
                         .attr('width',_this.addStageWidth)
                         .attr('height',_this.addStageHeight)
-                        .attr('href','assets/images/add-stage.jpg')
+                        .attr('href','assets/images/icon-add-stage.svg')
                         .attr('x',(_this.stageWidth/2 - _this.addStageWidth / 2))
                         .attr('y',(_this.stageHeight/2 - _this.addStageHeight / 2));
                 }
@@ -512,7 +512,7 @@ define(['app','services/diagram/api'], function(app) {
                             .attr('class','add-action-img')
                             .attr('width',_this.addActionWidth)
                             .attr('height',_this.addActionHeight)
-                            .attr('href','assets/images/add-action.jpg')
+                            .attr('href','assets/images/icon-add-action-old.png')
                             .attr('data-stageIndex',function(){
                                 return i;
                             })
@@ -664,7 +664,7 @@ define(['app','services/diagram/api'], function(app) {
                                 .attr('height',_this.runModeWidth)
                                 .attr('class','run-mode')
                                 .attr('href',function(d,i){
-                                    return 'assets/images/parallel.jpg'
+                                    return 'assets/images/icon-action-parallel.svg'
                                 })
                                 .attr('x',function(){
                                     var x = a.components[0].x;
@@ -685,7 +685,7 @@ define(['app','services/diagram/api'], function(app) {
                                 .attr('height',_this.runModeWidth)
                                 .attr('class','run-mode')
                                 .attr('href',function(d,i){
-                                    return 'assets/images/serial.jpg'
+                                    return 'assets/images/icon-action-serial.svg'
                                 })
                                 .attr('x',function(){
                                     var length = a.components.length;
@@ -709,7 +709,7 @@ define(['app','services/diagram/api'], function(app) {
                             .attr('height',_this.addComponentWidth)
                             .attr('class','add-component')
                             .attr('href',function(d,i){
-                                return 'assets/images/addComponent.jpg'
+                                return 'assets/images/icon-add-action.svg'
                             })
                             .attr('data-stageIndex',function(){
                                 return i;
