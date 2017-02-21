@@ -218,6 +218,8 @@ define(['app','services/diagram/api'], function(app) {
                 lineWidth : 6,
                 addStageWidth: 16,
                 addStageHeight: 16,
+                addActionWidth: 25,
+                addActionHeight: 25,
                 stageLength : dataset.length
             }
             
@@ -291,7 +293,7 @@ define(['app','services/diagram/api'], function(app) {
                 "actions":[]
             };
 
-            var newAction = {
+            var newComponent = {
                 "name":"action1",
                 "id":"s2-at1",
                 "type":"action",
@@ -299,7 +301,78 @@ define(['app','services/diagram/api'], function(app) {
                 "outputData":""
             };
 
+            var newAction = {
+                "components":[
+                    {
+                        "name":"action0",
+                        "id":"s2-at0",
+                        "type":"action",
+                        "inputData":"",
+                        "outputData":""
+                    }
+                ]
+            };
+
             var _this = baseSize;
+
+            function chosedStage(d,i){
+                clearChosedStageIndex();
+                clearChosedStageColor();
+
+                if(d.type === 'add-stage'){
+                    var stage = angular.copy(newStage);
+                    var addstage = angular.copy(dataset[i]);
+                    var endstage = angular.copy(dataset[i+1]);
+                    dataset[i] = stage;
+                    dataset[i+1] = addstage;
+                    dataset[i+2] = endstage;
+                    // dataset.splice(dataset[i-1],0,stage)
+                    drawWorkflow(selector,dataset); 
+                };
+
+                if(d.type === 'edit-stage'){
+                    d3.select(this).select('circle').attr('fill','#e43937');
+                    chosedStageIndex = i;
+                };
+            };
+
+            function clearChosedStageColor(){
+                d3.selectAll('circle')
+                    .attr('fill',function(d){
+                        if(d.type === 'end-stage' || d.type === 'add-stage'){
+                            return '#fff';
+                        }
+                        return baseColor.stageOrigin;
+                    })
+            };
+
+            function clearChosedStageIndex(){
+                chosedStageIndex = '';
+            };
+
+            function addComponent(){
+                addElement(d3.select(this),'component');
+            };
+
+            function addAction(){
+                addElement(d3.select(this),'action');
+            };
+
+            function addElement(currentElement,type){
+                var chosedStageIndex = currentElement.attr('data-stageIndex');
+                if(type === 'component'){
+                    var chosedActionIndex = currentElement.attr('data-actionIndex');
+                    var component = angular.copy(newComponent);
+                    dataset[chosedStageIndex]['actions'][chosedActionIndex]['components'].push(component);
+
+                }else{
+                    var action = angular.copy(newAction);
+                    dataset[chosedStageIndex]['actions'].push(action);
+                };
+
+                drawWorkflow(selector,dataset); 
+            }; 
+
 
             d3.select(selector)
                 .selectAll('svg')
@@ -341,50 +414,6 @@ define(['app','services/diagram/api'], function(app) {
                 .on('click',chosedStage)
                 // .call(drag);
 
-            function chosedStage(d,i){
-                clearChosedStageIndex();
-                clearChosedStageColor();
-
-                if(d.type === 'add-stage'){
-                    var stage = angular.copy(newStage);
-                    var addstage = angular.copy(dataset[i]);
-                    var endstage = angular.copy(dataset[i+1]);
-                    dataset[i] = stage;
-                    dataset[i+1] = addstage;
-                    dataset[i+2] = endstage;
-                    // dataset.splice(dataset[i-1],0,stage)
-                    drawWorkflow(selector,dataset); 
-                };
-
-                if(d.type === 'edit-stage'){
-                    d3.select(this).select('circle').attr('fill','#e43937');
-                    chosedStageIndex = i;
-                };
-            };
-
-            function clearChosedStageColor(){
-                d3.selectAll('circle')
-                    .attr('fill',function(d){
-                        if(d.type === 'end-stage' || d.type === 'add-stage'){
-                            return '#fff';
-                        }
-                        return baseColor.stageOrigin;
-                    })
-            };
-
-            function clearChosedStageIndex(){
-                chosedStageIndex = '';
-            };
-
-            function addComponent(){
-                var currentElement = d3.select(this);
-                var chosedStageIndex = currentElement.attr('data-stageIndex');
-                var chosedActionIndex = currentElement.attr('data-actionIndex');
-                var action = angular.copy(newAction);
-                dataset[chosedStageIndex]['actions'][chosedActionIndex]['components'].push(action);
-                drawWorkflow(selector,dataset); 
-            };
-
             // add stage circle
             itemStage.append('circle')
                 .attr('cx',_this.stageWidth/2)
@@ -412,7 +441,6 @@ define(['app','services/diagram/api'], function(app) {
                     d.translateY = _this.stageHeight*2;
                 });
 
-
             // add add-stage icon
             itemStage.each(function(d){
                 if(d.type === 'add-stage'){
@@ -423,7 +451,7 @@ define(['app','services/diagram/api'], function(app) {
                         .attr('x',(_this.stageWidth/2 - _this.addStageWidth / 2))
                         .attr('y',(_this.stageHeight/2 - _this.addStageHeight / 2));
                 }
-            })
+            });
 
             // add stage line & actions & components
             d3.selectAll('.item-stage')
@@ -445,7 +473,8 @@ define(['app','services/diagram/api'], function(app) {
                     // add actions
                     // action start y point
                     var currentActionY = _this.stageHeight+_this.actionPad;
-                    var itemAction = d3.select(this)
+                    var stageElement = d3.select(this);
+                    var itemAction = stageElement
                         .selectAll('.item-action')
                         .data(d.actions)
                         .enter()
@@ -472,6 +501,31 @@ define(['app','services/diagram/api'], function(app) {
                             var translateY = d3.select(this).attr('translateY');
                             return 'translate(0,'+translateY+')';
                         });
+
+                    // action-add icon
+                    if(d.type === 'edit-stage'){
+                        var addActionGroup = stageElement.append('g')
+                            .attr('class','add-action')
+                            .attr('transform','translate(0,'+currentActionY+')');
+
+                        addActionGroup.append('svg:image')
+                            .attr('class','add-action-img')
+                            .attr('width',_this.addActionWidth)
+                            .attr('height',_this.addActionHeight)
+                            .attr('href','assets/images/add-action.jpg')
+                            .attr('data-stageIndex',function(){
+                                return i;
+                            })
+                            .on('click',addAction);
+
+                        addActionGroup.append('path')
+                            .attr('stroke',baseColor.stageBorder)
+                            .attr('d',function(){
+                                var centerPoint = 0 + _this.addActionWidth/2;
+                                return 'M'+centerPoint+' '+0+ 'L'+centerPoint+' '+(0 - _this.actionPad);
+                            });
+                    };
+                    
 
                     // add components
                     itemAction.each(function(a,ai){
@@ -651,33 +705,35 @@ define(['app','services/diagram/api'], function(app) {
 
                         // component add icon 
                         perAction.append('svg:image')
-                                .attr('width',_this.addComponentWidth)
-                                .attr('height',_this.addComponentWidth)
-                                .attr('class','add-component')
-                                .attr('href',function(d,i){
-                                    return 'assets/images/addComponent.jpg'
-                                })
-                                .attr('data-stageIndex',function(){
-                                    return i;
-                                })
-                                .attr('data-actionIndex',function(){
-                                    return ai;
-                                })
-                                .attr('x',function(){
-                                    var x = a.components[0].x;
-                                    var padding = _this.componentPad * 3;
-                                    var x1 = x + _this.rowActionNum * (_this.componentWidth + _this.componentPad) - _this.componentPad + padding;
-                                    return x1 - _this.addComponentWidth/2;
-                                })
-                                .attr('y',function(){
-                                    var padding = _this.componentPad * 3;
-                                    var y0 = a.components[0].y - padding;
-                                    return y0 - _this.addComponentWidth/2 + _this.addIconPad;
-                                })
-                                .on('click',addComponent)
+                            .attr('width',_this.addComponentWidth)
+                            .attr('height',_this.addComponentWidth)
+                            .attr('class','add-component')
+                            .attr('href',function(d,i){
+                                return 'assets/images/addComponent.jpg'
+                            })
+                            .attr('data-stageIndex',function(){
+                                return i;
+                            })
+                            .attr('data-actionIndex',function(){
+                                return ai;
+                            })
+                            .attr('x',function(){
+                                var x = a.components[0].x;
+                                var padding = _this.componentPad * 3;
+                                var x1 = x + _this.rowActionNum * (_this.componentWidth + _this.componentPad) - _this.componentPad + padding;
+                                return x1 - _this.addComponentWidth/2;
+                            })
+                            .attr('y',function(){
+                                var padding = _this.componentPad * 3;
+                                var y0 = a.components[0].y - padding;
+                                return y0 - _this.addComponentWidth/2 + _this.addIconPad;
+                            })
+                            .on('click',addComponent);
 
                     });
                 })
+
+            
 
         }; 
 
