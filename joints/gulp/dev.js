@@ -56,7 +56,7 @@ gulp.task('dev:html', function() {
  *  This will copy assets to dev dist folder
  */
 gulp.task('dev:images', function() {
-    return gulp.src('src/assets/{images,svg}/*', { base: './src/assets' })
+    return gulp.src('src/assets/{images,svg}/**/*', { base: './src/assets' })
         .pipe(imagemin())
         .pipe(gulp.dest('dev/src/assets'))
         .on('error', gutil.log);
