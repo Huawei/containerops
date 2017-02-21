@@ -67,7 +67,24 @@ define(['app'], function(app) {
                         }
                     }
                 })
-
+                .state('workflow.create.stage', {
+                    url: '/stage/:id',
+                    views: {
+                        'element': {
+                            templateUrl: 'templates/workflow/stageDetail.html',
+                            controller: 'WorkflowElementController',
+                            resolve: {
+                                loadCtrl_workflow: ["$q", function($q) {
+                                    var deferred = $q.defer();
+                                    require(["controllers/workflow/element"], function() {
+                                        deferred.resolve();
+                                    });
+                                    return deferred.promise;
+                                }],
+                            }
+                        }
+                    }
+                })
                 .state('component', {
                     parent: 'home',
                     url: '/component',

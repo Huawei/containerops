@@ -4,16 +4,15 @@
 var gulp = require('gulp');
 var del = require('del');
 var uglify = require('gulp-uglify');
-// const rename = require('gulp-rename');
 var concat = require('gulp-concat');
 var source = require('vinyl-source-stream');
 var sass = require('gulp-sass');
 var imagemin = require('gulp-imagemin');
 var gutil = require('gulp-util');
-var replace = require('gulp-replace');
 var browserSync = require('browser-sync').create();
 var minimist = require('minimist');
 var fs = require("fs");
+var inject = require("gulp-inject");
 
 
 var args = minimist(process.argv.slice(2), {
@@ -89,23 +88,19 @@ gulp.task('dev:3rd-to-dist', ['dev:source-to-dist'], function(done) {
         .on('error', gutil.log);
 });
 
-/**
- *  This will replace imported css in index.html
- */
-gulp.task('dev:css-replace', ['dev:styles', 'dev:html'], function() {
+gulp.task('dev:css-inject', ['dev:styles', 'dev:html'], function() {
     return gulp.src('dev/src/index.html')
-        .pipe(replace(/<link rel="stylesheet">/g, '<link rel="stylesheet" href="sass/application.css" >'))
+        .pipe(inject(gulp.src('dev/src/sass/application.css', {read: false}), {relative: true}))
         .pipe(gulp.dest('dev/src'))
         .on('error', gutil.log);
 });
-
 
 gulp.task('dev:reload-js', ['dev:3rd-to-dist'], function(done) {
     browserSync.reload();
     done();
 });
 
-gulp.task('dev:reload-html', ['dev:css-replace'], function() {
+gulp.task('dev:reload-html', ['dev:css-inject'], function() {
     browserSync.reload();
 });
 /**
@@ -123,7 +118,7 @@ gulp.task("dev:watch", function() {
 /**
  *  This will start a server with browser-sync plugin
  */
-gulp.task('dev:browser-sync', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-replace'], function() {
+gulp.task('dev:browser-sync', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-inject'], function() {
     browserSync.init({
         server: {
             baseDir: "dev/src"
@@ -132,7 +127,7 @@ gulp.task('dev:browser-sync', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-r
     })
 });
 
-gulp.task('dev:copy', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-replace'], function() {
+gulp.task('dev:copy', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-inject'], function() {
     if (args.dist) {
         return gulp.src('dev/**')
             .pipe(gulp.dest(args._[0]))
@@ -142,10 +137,10 @@ gulp.task('dev:copy', ['dev:html', 'dev:images', 'dev:fonts', 'dev:css-replace']
 
 gulp.task('dev', ['dev:clean'], function() {
     if (args.dist) {
-        gulp.start('dev:html', 'dev:images', 'dev:fonts', 'dev:json', 'dev:css-replace', 'dev:copy');
+        gulp.start('dev:html', 'dev:images', 'dev:fonts', 'dev:json', 'dev:css-inject', 'dev:copy');
     } else {
         // gulp.start('dev:html', 'dev:images', 'dev:fonts', 'dev:json', 'dev:watch', 'dev:css-replace', 'dev:browser-sync');
-       gulp.start('dev:html', 'dev:images', 'dev:fonts', 'dev:json','dev:3rd-to-dist', 'dev:watch', 'dev:css-replace','dev:browser-sync');
+       gulp.start('dev:html', 'dev:images', 'dev:fonts', 'dev:json','dev:3rd-to-dist', 'dev:watch', 'dev:css-inject','dev:browser-sync');
 
     }
 

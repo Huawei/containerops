@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 define(['app','services/diagram/api'], function(app) {
-    app.provide.factory("diagramService", ["diagramApiService", function(diagramApiService) {
+    app.provide.factory("diagramService", ["diagramApiService","$state", function(diagramApiService,$state) {
         var dataset = [
             {
                 "name":"stage0",
@@ -333,6 +333,7 @@ define(['app','services/diagram/api'], function(app) {
                 if(d.type === 'edit-stage'){
                     d3.select(this).select('circle').attr('fill','#e43937');
                     chosedStageIndex = i;
+                    $state.go("workflow.create.stage",{"id": d.id});
                 };
             };
 
@@ -440,6 +441,7 @@ define(['app','services/diagram/api'], function(app) {
                     d.translateX = i*(_this.stageWidth+_this.stagePad)+_this.svgpad;
                     d.translateY = _this.stageHeight*2;
                 });
+               
 
             // add add-stage icon
             itemStage.each(function(d){
