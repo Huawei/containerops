@@ -656,7 +656,7 @@ define(['app','services/diagram/api'], function(app) {
                                 }
 
                                 var bordRightTop = 'L'+x1+' '+y3;
-                                var top = bordLeftTop + bordTop + bordRightTop; 
+                                var top = bordLeftTop + bordTop + bordRightTop;
 
                                 var commonArcToRight = 'L'+x6+' '+(y2 + _this.arcPadBig)+'Q'+x6+' '+y2+' '+(x6 + _this.arcPadBig)+' '+y2+'L'+x3+' '+y2;
                                 var commonArcToLeft = 'L'+x8+' '+(y2 + _this.arcPadBig)+'Q'+x8+' '+y2+' '+(x8 - _this.arcPadBig)+' '+y2+'L'+x4+' '+y2;
@@ -666,7 +666,7 @@ define(['app','services/diagram/api'], function(app) {
                                     if(ai === 0){
                                         return bottom + top + lineToRight + arcToRight + commonArcToRight;
                                     }
-                                    return bottom + top + lineToRight + arcToRight + 'L'+x6+' '+(y2 - _this.actionPad - _this.arcPadBig);
+                                    return bottom + top + lineToRight + arcToRight + 'L'+x6+' '+y5;
                                 }else{
 
                                     if(ai === 0){
@@ -690,7 +690,7 @@ define(['app','services/diagram/api'], function(app) {
                             y0 = a.components[0].y - padding;
                             y1 = a.components[length-1].y + _this.componentHeight + padding;
                         };
-                        
+
                         var x0 = x - padding;
                         var x1 = x + _this.rowActionNum * (_this.componentWidth + _this.componentPad) - _this.componentPad + padding;
 
