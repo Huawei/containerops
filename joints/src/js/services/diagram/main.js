@@ -289,7 +289,7 @@ define(['app','services/diagram/api'], function(app) {
                 "name":"",
                 "id":"",
                 "type":"edit-stage",
-                "runMode":"",
+                "runMode":"parallel",
                 "actions":[]
             };
 
@@ -302,15 +302,7 @@ define(['app','services/diagram/api'], function(app) {
             };
 
             var newAction = {
-                "components":[
-                    {
-                        "name":"action0",
-                        "id":"s2-at0",
-                        "type":"action",
-                        "inputData":"",
-                        "outputData":""
-                    }
-                ]
+                "components":[]
             };
 
             var _this = baseSize;
@@ -511,7 +503,7 @@ define(['app','services/diagram/api'], function(app) {
                         .attr('translateY',function(a,ai){
                             var y = currentActionY;
                             var padding = _this.componentPad * 3;
-                            var componentRows = Math.ceil(a.components.length/_this.rowActionNum);
+                            var componentRows = a.components.length>0 ? Math.ceil(a.components.length/_this.rowActionNum): 1;
                             currentActionY += componentRows*(_this.componentHeight+_this.componentPad) - _this.componentPad + padding * 2 + _this.actionPad;
 
                             y = i%2===0 ? y + _this.actionToTop : y; 
@@ -612,12 +604,20 @@ define(['app','services/diagram/api'], function(app) {
                             .attr('stroke-width','1')
                             .attr('d',function(){
                                 var length = a.components.length;
-                                var x = a.components[0].x;
                                 var padding = _this.componentPad * 3;
+
+                                var x = 0 + _this.stageWidth/2 - (_this.componentWidth + _this.componentPad) * 2 ;
+                                var y0 = 0;
+                                var y1 = 0 + padding + _this.componentHeight + padding;
+
+                                if(length>0){
+                                    x = a.components[0].x;
+                                    y0 = a.components[0].y - padding;
+                                    y1 = a.components[length-1].y + _this.componentHeight + padding;
+                                };
+
                                 var x0 = x - padding;
-                                var y0 = a.components[0].y - padding;
                                 var x1 = x + _this.rowActionNum * (_this.componentWidth + _this.componentPad) - _this.componentPad + padding;
-                                var y1 = a.components[length-1].y + _this.componentHeight + padding;
                                 var x2 = x0 + (x1 - x0) / 2; //每个stage的中心点
                                 var y2 = i%2===0 ? y0 - _this.stageHeight/2 - _this.actionPad - _this.actionToTop : y0 - _this.stageHeight/2 - _this.actionPad; //弧线控制点
                                 var x3 = x2 + _this.stageWidth/2 + _this.stagePad/2; //stage-line arc center point
@@ -663,7 +663,6 @@ define(['app','services/diagram/api'], function(app) {
                                 
 
                                 if(i===0){
-                                    
                                     if(ai === 0){
                                         return bottom + top + lineToRight + arcToRight + commonArcToRight;
                                     }
@@ -675,12 +674,30 @@ define(['app','services/diagram/api'], function(app) {
                                     }
                                     return bottom + lineToLeft + arcToLeft +'L'+x8+' '+ y5 + top + lineToRight + arcToRight + 'L'+x6+' '+y5;
                                 }
-                                
+
                             });
 
-                        // action runMode
+                        // action-no-components x point & y point
                         var actionLength = d.actions.length;
+                        var length = a.components.length;
+                        var padding = _this.componentPad * 3;
+                        var x = 0 + _this.stageWidth/2 - (_this.componentWidth + _this.componentPad) * 2 ;
+                        var y0 = 0;
+                        var y1 = 0 + padding + _this.componentHeight + padding;
+
+                        if(length>0){
+                            x = a.components[0].x;
+                            y0 = a.components[0].y - padding;
+                            y1 = a.components[length-1].y + _this.componentHeight + padding;
+                        };
+                        
+                        var x0 = x - padding;
+                        var x1 = x + _this.rowActionNum * (_this.componentWidth + _this.componentPad) - _this.componentPad + padding;
+
+
+                        // action runMode
                         if(d.runMode === 'parallel'){
+
                             perAction.append('svg:image')
                                 .attr('width',_this.runModeWidth)
                                 .attr('height',_this.runModeWidth)
@@ -689,19 +706,15 @@ define(['app','services/diagram/api'], function(app) {
                                     return 'assets/images/icon-action-parallel.svg'
                                 })
                                 .attr('x',function(){
-                                    var x = a.components[0].x;
-                                    var padding = _this.componentPad*3;
                                     var x0 = x - padding;
                                     return x0 -_this.runModeWidth/2;
                                 })
                                 .attr('y',function(){
-                                    var length = a.components.length;
-                                    var padding = _this.componentPad * 3;
-                                    var y0 = a.components[0].y - padding;
-                                    var y1 = a.components[length-1].y + _this.componentHeight + padding;
                                     return y0 + (y1 - y0 - _this.runModeWidth) / 2;
                                 });
+
                         }else if(d.runMode === 'serial'&&ai!==(actionLength-1)){
+
                             perAction.append('svg:image')
                                 .attr('width',_this.runModeWidth)
                                 .attr('height',_this.runModeWidth)
@@ -710,17 +723,9 @@ define(['app','services/diagram/api'], function(app) {
                                     return 'assets/images/icon-action-serial.svg'
                                 })
                                 .attr('x',function(){
-                                    var length = a.components.length;
-                                    var x = a.components[0].x;
-                                    var padding = _this.componentPad*3;
-                                    var x0 = x - padding;
-                                    var x1 = x + _this.rowActionNum * (_this.componentWidth + _this.componentPad) - _this.componentPad + padding;
                                     return x0 + (x1 - x0 - _this.runModeWidth) / 2;
                                 })
                                 .attr('y',function(){
-                                    var length = a.components.length;
-                                    var padding = _this.componentPad * 3;
-                                    var y1 = a.components[length-1].y + _this.componentHeight + padding;
                                     return y1 - _this.runModeWidth/ 2;
                                 })
                         }
@@ -740,14 +745,14 @@ define(['app','services/diagram/api'], function(app) {
                                 return ai;
                             })
                             .attr('x',function(){
-                                var x = a.components[0].x;
-                                var padding = _this.componentPad * 3;
-                                var x1 = x + _this.rowActionNum * (_this.componentWidth + _this.componentPad) - _this.componentPad + padding;
+                                // var x = a.components[0].x;
+                                // var padding = _this.componentPad * 3;
+                                // var x1 = x + _this.rowActionNum * (_this.componentWidth + _this.componentPad) - _this.componentPad + padding;
                                 return x1 - _this.addComponentWidth/2;
                             })
                             .attr('y',function(){
-                                var padding = _this.componentPad * 3;
-                                var y0 = a.components[0].y - padding;
+                                // var padding = _this.componentPad * 3;
+                                // var y0 = a.components[0].y - padding;
                                 return y0 - _this.addComponentWidth/2 + _this.addIconPad;
                             })
                             .on('click',addComponent);
@@ -758,7 +763,6 @@ define(['app','services/diagram/api'], function(app) {
             
 
         }; 
-
 
 
         return {
