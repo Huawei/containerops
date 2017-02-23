@@ -14,11 +14,8 @@ define(["app","services/component/main","services/component/io","services/compon
             }
 
             function checkTabs() {
-                $scope.tabStatus.runtime = componentCheck.tabcheck.runtime($scope.toCreateImage);
-                if ($scope.toCreateImage) {
-                    $scope.tabStatus.editshell = componentCheck.tabcheck.editshell();
-                    $scope.tabStatus.buildimage = componentCheck.tabcheck.buildimage();
-                }
+                $scope.tabStatus.runtime = componentCheck.tabcheck.runtime($scope.component);
+                $scope.tabStatus.newimage = componentCheck.tabcheck.editshell($scope.component) && componentCheck.tabcheck.buildimage($scope.component);
             }
 
             // runtime tab all functions below
@@ -27,6 +24,10 @@ define(["app","services/component/main","services/component/io","services/compon
                 if ($scope.runtimeTab == 2) {
                     componentIO.init($scope.component);
                 }
+            }
+
+            $scope.changeNewImageTab = function(index){
+                $scope.newImageTab = index;
             }
 
             $scope.baseOrAdvanced = function() {
@@ -84,20 +85,6 @@ define(["app","services/component/main","services/component/io","services/compon
                     $scope.component.service.spec.ports.push($.extend(true, {}, componentService.metadata.clusterip));
                 }
                 $scope.serviceType = $scope.component.service.spec.type;
-            }
-
-            $scope.createImage = function() {
-                $scope.toCreateImage = true;
-                $scope.component.image_name = "";
-                $scope.component.image_tag = "";
-                $scope.component.image_setting = $.extend(true, {}, componentService.metadata.imagesetting);
-            }
-
-            $scope.cancelCreateImage = function() {
-                $scope.toCreateImage = false;
-                $scope.component.image_name = "";
-                $scope.component.image_tag = "";
-                $scope.component.image_setting = {};
             }
 
             $scope.switchMode = function(value) {
@@ -213,7 +200,7 @@ define(["app","services/component/main","services/component/io","services/compon
 
             // save component
             $scope.saveComponent = function() {
-                var result = componentCheck.go($scope.toCreateImage);
+                var result = componentCheck.go($scope.component);
                 if (result) {
                     var promise = componentService.addComponent($scope.component);
                     promise.done(function(data) {
@@ -239,18 +226,17 @@ define(["app","services/component/main","services/component/io","services/compon
                 $scope.tab = 1;
                 $scope.tabStatus = {
                     "runtime": false,
-                    "editshell": false,
-                    "buildimage": false
+                    "newimage": false
                 }
 
                 // for runtime config tabs control
                 $scope.runtimeTab = 1;
 
-                // determine if to create image
-                $scope.toCreateImage = false;
-
                 // determine which editor to use for input output json
                 $scope.jsonMode = false;
+
+                // for new image tabs control
+                $scope.newImageTab = 1;
 
                 // for event selection
                 $scope.selectedEvent = 1;
@@ -258,11 +244,9 @@ define(["app","services/component/main","services/component/io","services/compon
                 // init service pod
                 $scope.baseOrAdvanced();
 
-                // init check
-                componentCheck.init($scope.component);
-
-                // for debug display
-                $scope.isSave = false;
+                $scope.$watch("component",function(){
+                    showEventScript();
+                })
             }
 
             init();
