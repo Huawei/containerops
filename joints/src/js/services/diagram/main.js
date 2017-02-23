@@ -24,6 +24,7 @@ define(['app','services/diagram/api'], function(app) {
                 // "runResult":3,
                 "actions":[
                     {
+                        "isChosed":false,
                         "components":[
                             {
                                 "name":"action0",
@@ -35,6 +36,7 @@ define(['app','services/diagram/api'], function(app) {
                         ]
                     },
                     {
+                        "isChosed":false,
                         "components":[
                             {
                                 "name":"action0",
@@ -54,6 +56,7 @@ define(['app','services/diagram/api'], function(app) {
                 "runMode":"parallel",
                 "actions":[
                     {
+                        "isChosed":false,
                         "components":[
                             {
                                 "name":"action0",
@@ -128,6 +131,7 @@ define(['app','services/diagram/api'], function(app) {
                         ]
                     },
                     {
+                        "isChosed":false,
                         "components":[
                             {
                                 "name":"action0",
@@ -161,6 +165,7 @@ define(['app','services/diagram/api'], function(app) {
                 "runMode":"parallel",
                 "actions":[
                     {
+                        "isChosed":false,
                         "components":[
                             {
                                 "name":"action0",
@@ -200,10 +205,10 @@ define(['app','services/diagram/api'], function(app) {
             var baseSize = {
                 svgpad : 50,
                 stagePad : 110,
-                stageWidth : 26,
-                stageHeight : 26,
-                actionPad : 15,
-                actionToTop : 0, 
+                stageWidth : 24,
+                stageHeight : 24,
+                actionPad : 20,
+                actionToTop : 10, 
                 componentWidth : 15,
                 componentHeight : 15,
                 componentPad : 3,
@@ -221,7 +226,7 @@ define(['app','services/diagram/api'], function(app) {
                 addActionWidth: 25,
                 addActionHeight: 25,
                 stageLength : dataset.length
-            }
+            };
             
             var currentDragIndex;
             var endPointIndex;
@@ -290,7 +295,11 @@ define(['app','services/diagram/api'], function(app) {
                 "id":"",
                 "type":"edit-stage",
                 "runMode":"parallel",
-                "actions":[]
+                "actions":[
+                    {
+                        "components":[]
+                    }
+                ]
             };
 
             var newComponent = {
@@ -314,11 +323,11 @@ define(['app','services/diagram/api'], function(app) {
             function zoomed() {
                 d3.select(this).attr("transform", 
                     "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-            }
+            };
 
             function chosedStage(d,i){
                 event.stopPropagation();
-                clearChosedStageIndex();
+                clearChosedIndex('stage');
                 clearChosedStageColor();
 
                 if(d.type === 'add-stage'){
@@ -333,47 +342,84 @@ define(['app','services/diagram/api'], function(app) {
                 };
 
                 if(d.type === 'edit-stage'){
-                    d3.select(this).select('circle').attr('fill','#e43937');
+                    d3.select(this).attr('href','assets/images/icon-stage.svg');
                     chosedStageIndex = i;
                     $state.go("workflow.create.stage",{"id": d.id});
                 };
             };
 
             function clearChosedStageColor(){
-                d3.selectAll('circle')
-                    .attr('fill',function(d){
-                        if(d.type === 'end-stage' || d.type === 'add-stage'){
-                            return '#fff';
+                d3.selectAll('.stage-pic')
+                    .attr('href',function(d){
+                        if(d.type === 'add-stage'){
+                            return 'assets/images/icon-add-stage.svg';
+                        }else if(d.type === 'end-stage'){
+                            return 'assets/images/icon-stage-empty.svg';
+                        }else if(d.type === 'edit-stage'){
+                            return d.runMode === 'parallel' ? 'assets/images/icon-action-parallel.svg' : 'assets/images/icon-action-serial.svg';
                         }
-                        return baseColor.stageOrigin;
                     })
             };
 
-            function clearChosedStageIndex(){
-                chosedStageIndex = '';
+            function clearChosedIndex(type){
+                if(type === 'stage'){
+                    chosedStageIndex = '';
+                }else{
+                    chosedActionIndex = '';
+                }
             };
 
-            function addComponent(){
-                addElement(d3.select(this),'component');
+            function chosedAction(){
+                event.stopPropagation();
+                clearChosedIndex('action');
+                clearAddActionIcon();
+
+                var currentElement = d3.select(this);
+                chosedStageIndex = parseInt(currentElement.attr('data-stageIndex'));
+                chosedActionIndex = parseInt(currentElement.attr('data-actionIndex'));
+                var isChosed = dataset[chosedStageIndex]['actions'][chosedActionIndex]['isChosed'];
+                dataset[chosedStageIndex]['actions'][chosedActionIndex]['isChosed'] = !isChosed;
+                drawWorkflow(selector,dataset); 
             };
 
-            function addAction(){
-                addElement(d3.select(this),'action');
+            function clearAddActionIcon(){
+                angular.forEach(dataset,function(d,i){
+                    angular.forEach(d.actions,function(a,ai){
+                        a.isChosed = false;
+                    })
+                })
+            };
+
+            // function addComponent(){
+            //     addElement(d3.select(this),'component');
+            // };
+
+            function addBottomAction(){
+                addElement(d3.select(this),'bottom');
+            };
+
+            function addTopAction(){
+                addElement(d3.select(this),'top');
             };
 
             function addElement(currentElement,type){
                 event.stopPropagation();
-                var chosedStageIndex = currentElement.attr('data-stageIndex');
-                if(type === 'component'){
-                    var chosedActionIndex = currentElement.attr('data-actionIndex');
-                    var component = angular.copy(newComponent);
-                    dataset[chosedStageIndex]['actions'][chosedActionIndex]['components'].push(component);
+                var chosedStageIndex = parseInt(currentElement.attr('data-stageIndex'));
+                var chosedActionIndex = parseInt(currentElement.attr('data-actionIndex'));
+                var actionLength = dataset[chosedStageIndex]['actions'].length;
+                var action = angular.copy(newAction);
 
+                console.log(actionLength,chosedActionIndex) 
+                if(type === 'bottom'){
+                    if(actionLength === chosedActionIndex+1){
+                        dataset[chosedStageIndex]['actions'].push(action);
+                    }else{
+                        dataset[chosedStageIndex]['actions'].splice(chosedActionIndex+1,0,action);
+                    }
                 }else{
-                    var action = angular.copy(newAction);
-                    dataset[chosedStageIndex]['actions'].push(action);
+                    dataset[chosedStageIndex]['actions'].splice(chosedActionIndex,0,action);
                 };
-
+                    
                 drawWorkflow(selector,dataset); 
             }; 
 
@@ -423,48 +469,37 @@ define(['app','services/diagram/api'], function(app) {
                 .attr('transform',function(d,i){
                     return 'translate('+(i*(_this.stageWidth+_this.stagePad)+_this.svgpad)+','+(_this.stageHeight*2)+')';
                 })
-                .on('click',chosedStage)
                 // .call(drag);
 
-            // add stage circle
-            itemStage.append('circle')
-                .attr('cx',_this.stageWidth/2)
-                .attr('cy',_this.stageHeight/2)
-                .attr('r',_this.stageHeight/2)
-                .attr('stroke',baseColor.stageOrigin)
-                .attr('fill',function(d){
-                    if(d.type === 'end-stage' || d.type === 'add-stage'){
-                        return '#fff';
-                    }
-                    return baseColor.stageOrigin;
-                })
+            // add stage image
+            itemStage.append('svg:image')
+                .attr('width',_this.stageWidth)
+                .attr('height',_this.stageHeight)
                 .attr('class','stage-pic')
+                .attr('href',function(d){
+                    if(d.type === 'add-stage'){
+                        return 'assets/images/icon-add-stage.svg';
+                    }else if(d.type === 'end-stage'){
+                        return 'assets/images/icon-stage-empty.svg';
+                    }else if(d.type === 'edit-stage'){
+                        return d.runMode === 'parallel' ? 'assets/images/icon-action-parallel.svg' : 'assets/images/icon-action-serial.svg';
+                    }
+                })
                 .attr('data-name',function(d){
-                    return d.name
+                    return d.name;
                 })
                 .attr('data-id',function(d){
-                    return d.id
+                    return d.id;
                 })
                 .attr('data-type',function(d){
-                    return d.type
+                    return d.type;
                 })
                 .each(function(d,i){
                     d.translateX = i*(_this.stageWidth+_this.stagePad)+_this.svgpad;
                     d.translateY = _this.stageHeight*2;
-                });
+                })
+                .on('click',chosedStage);
                
-
-            // add add-stage icon
-            itemStage.each(function(d){
-                if(d.type === 'add-stage'){
-                    d3.select(this).append('svg:image')
-                        .attr('width',_this.addStageWidth)
-                        .attr('height',_this.addStageHeight)
-                        .attr('href','assets/images/icon-add-stage.svg')
-                        .attr('x',(_this.stageWidth/2 - _this.addStageWidth / 2))
-                        .attr('y',(_this.stageHeight/2 - _this.addStageHeight / 2));
-                }
-            });
 
             // add stage line & actions & components
             d3.selectAll('.item-stage')
@@ -513,34 +548,12 @@ define(['app','services/diagram/api'], function(app) {
                         .attr('transform',function(a,ai){ // action的y轴起点
                             var translateY = d3.select(this).attr('translateY');
                             return 'translate(0,'+translateY+')';
-                        });
+                        })
+                        .on('click',chosedAction);
 
-                    // action-add icon
-                    if(d.type === 'edit-stage'){
-                        var addActionGroup = stageElement.append('g')
-                            .attr('class','add-action')
-                            .attr('transform','translate(0,'+currentActionY+')');
-
-                        addActionGroup.append('svg:image')
-                            .attr('class','add-action-img')
-                            .attr('width',_this.addActionWidth)
-                            .attr('height',_this.addActionHeight)
-                            .attr('href','assets/images/icon-add-action-old.png')
-                            .attr('data-stageIndex',function(){
-                                return i;
-                            })
-                            .on('click',addAction);
-
-                        addActionGroup.append('path')
-                            .attr('stroke',baseColor.stageBorder)
-                            .attr('d',function(){
-                                var centerPoint = 0 + _this.addActionWidth/2;
-                                return 'M'+centerPoint+' '+0+ 'L'+centerPoint+' '+(0 - _this.actionPad);
-                            });
-                    };
-                    
 
                     // add components
+                    var isChosedPreAction = '';
                     itemAction.each(function(a,ai){
                         // component start y point
                         var currentComponentY = 0;
@@ -594,14 +607,16 @@ define(['app','services/diagram/api'], function(app) {
                             .attr('fill',function(a,r){
                                 return baseColor.componentOrigin;
                             })
-                            .on('click',componentSetting);
+                            // .on('click',componentSetting);
 
                         // action borders
                         perAction.append('path')
                             .attr('class','gatherLine')
                             .attr('fill','none')
                             .attr('stroke',baseColor.stageBorder)
-                            .attr('stroke-width','1')
+                            .attr('stroke-width','2')
+                            .attr('data-stageIndex',i)
+                            .attr('data-actionIndex',ai)
                             .attr('d',function(){
                                 var length = a.components.length;
                                 var padding = _this.componentPad * 3;
@@ -649,6 +664,14 @@ define(['app','services/diagram/api'], function(app) {
                                 var dottedHeight = Math.abs(dottedEnd / 4) - 2;
                                 var dottedToTop = 'L'+x9+' '+(y0 - dottedHeight)+'M'+x9+' '+(y0 - dottedHeight - 2)+'L'+x9+' '+(y0 - dottedHeight*2 - 4)+'M'+x9+' '+(y0 - dottedHeight*2 - 6)+'L'+x9+' '+(y0 - dottedHeight*3 - 6);
                                 var bordLeftTop = 'M'+x0+' '+y3+'L'+x0+' '+(y0 + _this.arcPadSmall)+'Q'+x0+' '+y0+' '+(x0 + _this.arcPadSmall)+' '+y0;
+                                // var toDottedEnd = ai === 0 ? dottedEnd : dottedEnd + _this.addIconPad;
+                                if(isChosedPreAction && ai !== 0){
+                                    dottedEnd = dottedEnd + _this.addIconPad
+                                }
+                                isChosedPreAction = a.isChosed;
+                                // else if(!a.isChosed){
+                                //     dottedEnd = dottedEnd
+                                // }
                                 var bordTop = 'L'+x9+' '+y0+'L'+x9+' '+dottedEnd+'M'+x9+' '+y0+'L'+(x1 - _this.arcPadSmall)+' '+y0+'Q'+x1+' '+y0+' '+x1+' '+(y0 + _this.arcPadSmall);
                                 
                                 if(d.runMode === 'parallel'&&ai!==0){
@@ -674,7 +697,6 @@ define(['app','services/diagram/api'], function(app) {
                                     }
                                     return bottom + lineToLeft + arcToLeft +'L'+x8+' '+ y5 + top + lineToRight + arcToRight + 'L'+x6+' '+y5;
                                 }
-
                             });
 
                         // action-no-components x point & y point
@@ -695,73 +717,57 @@ define(['app','services/diagram/api'], function(app) {
                         var x1 = x + _this.rowActionNum * (_this.componentWidth + _this.componentPad) - _this.componentPad + padding;
 
 
-                        // action runMode
-                        if(d.runMode === 'parallel'){
-
+                        // action-add icon 
+                        if(a.isChosed){
+                            // top icon
                             perAction.append('svg:image')
-                                .attr('width',_this.runModeWidth)
-                                .attr('height',_this.runModeWidth)
-                                .attr('class','run-mode')
+                                .attr('width',_this.addComponentWidth)
+                                .attr('height',_this.addComponentWidth)
+                                .attr('class','add-component')
                                 .attr('href',function(d,i){
-                                    return 'assets/images/icon-action-parallel.svg'
+                                    return 'assets/images/icon-add-action.svg'
+                                })
+                                .attr('data-stageIndex',function(){
+                                    return i;
+                                })
+                                .attr('data-actionIndex',function(){
+                                    return ai;
                                 })
                                 .attr('x',function(){
-                                    var x0 = x - padding;
-                                    return x0 -_this.runModeWidth/2;
+                                    return x0 + (x1 - x0 - _this.addComponentWidth) / 2 ;
                                 })
                                 .attr('y',function(){
-                                    return y0 + (y1 - y0 - _this.runModeWidth) / 2;
-                                });
+                                    return y0 - _this.addComponentWidth/2 - _this.arcPadSmall + _this.addIconPad;
+                                })
+                                .on('click',addTopAction);
 
-                        }else if(d.runMode === 'serial'&&ai!==(actionLength-1)){
-
+                            // bottom icon 
                             perAction.append('svg:image')
-                                .attr('width',_this.runModeWidth)
-                                .attr('height',_this.runModeWidth)
-                                .attr('class','run-mode')
+                                .attr('width',_this.addComponentWidth)
+                                .attr('height',_this.addComponentWidth)
+                                .attr('class','add-component')
                                 .attr('href',function(d,i){
-                                    return 'assets/images/icon-action-serial.svg'
+                                    return 'assets/images/icon-add-action.svg'
+                                })
+                                .attr('data-stageIndex',function(){
+                                    return i;
+                                })
+                                .attr('data-actionIndex',function(){
+                                    return ai;
                                 })
                                 .attr('x',function(){
-                                    return x0 + (x1 - x0 - _this.runModeWidth) / 2;
+                                    return x0 + (x1 - x0 - _this.addComponentWidth) / 2;
                                 })
                                 .attr('y',function(){
-                                    return y1 - _this.runModeWidth/ 2;
+                                    return y1 - _this.addComponentWidth/2;
                                 })
-                        }
-
-                        // component add icon 
-                        perAction.append('svg:image')
-                            .attr('width',_this.addComponentWidth)
-                            .attr('height',_this.addComponentWidth)
-                            .attr('class','add-component')
-                            .attr('href',function(d,i){
-                                return 'assets/images/icon-add-action.svg'
-                            })
-                            .attr('data-stageIndex',function(){
-                                return i;
-                            })
-                            .attr('data-actionIndex',function(){
-                                return ai;
-                            })
-                            .attr('x',function(){
-                                // var x = a.components[0].x;
-                                // var padding = _this.componentPad * 3;
-                                // var x1 = x + _this.rowActionNum * (_this.componentWidth + _this.componentPad) - _this.componentPad + padding;
-                                return x1 - _this.addComponentWidth/2;
-                            })
-                            .attr('y',function(){
-                                // var padding = _this.componentPad * 3;
-                                // var y0 = a.components[0].y - padding;
-                                return y0 - _this.addComponentWidth/2 + _this.addIconPad;
-                            })
-                            .on('click',addComponent);
+                                .on('click',addBottomAction);
+                        };
+                        
 
                     });
                 })
-
             
-
         }; 
 
 
