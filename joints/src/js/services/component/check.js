@@ -15,7 +15,6 @@ limitations under the License.
  */
 define(['app'], function(app) {
     app.provide.factory("componentCheck", ["notifyService", function(notifyService) {
-        var componentData;
 
         // runtime config
         function name() {
@@ -58,13 +57,13 @@ define(['app'], function(app) {
                 return $('#base-image-form').parsley().validate();
             },
             "events": {
-                "component_start": function() {
+                "component_start": function(componentData) {
                     return _.isEmpty(componentData.image_setting.events.component_start);
                 },
-                "component_result": function() {
+                "component_result": function(componentData) {
                     return _.isEmpty(componentData.image_setting.events.component_result);
                 },
-                "component_stop": function() {
+                "component_stop": function(componentData) {
                     return _.isEmpty(componentData.image_setting.events.component_stop);
                 }
             },
@@ -73,11 +72,7 @@ define(['app'], function(app) {
             }
         }
 
-        function init(component) {
-            componentData = component;
-        }
-
-        function go(isnewimage) {
+        function go(componentData) {
             var check_result = true;
 
             if (!name()) {
@@ -92,43 +87,41 @@ define(['app'], function(app) {
                 return check_result;
             }
 
-            if (!isnewimage) {
-                if (!existingimage()) {
-                    check_result = false;
-                    notifyService.notify("Repository name of existing image is required.", "error");
-                    return check_result;
-                }
-            } else {
-                if (image_setting.events.component_start()) {
-                    check_result = false;
-                    notifyService.notify("Script of component start event is required.", "error");
-                    return check_result;
-                }
-                if (image_setting.events.component_result()) {
-                    check_result = false;
-                    notifyService.notify("Script of component result event is required.", "error");
-                    return check_result;
-                }
-                if (image_setting.events.component_stop()) {
-                    check_result = false;
-                    notifyService.notify("Script of component stop event is required.", "error");
-                    return check_result;
-                }
-                if (!image_setting.build()) {
-                    check_result = false;
-                    notifyService.notify("Build image is not complete.", "error");
-                    return check_result;
-                }
-                if (!image_setting.from()) {
-                    check_result = false;
-                    notifyService.notify("Base image is not complete.", "error");
-                    return check_result;
-                }
-                if (!image_setting.push()) {
-                    check_result = false;
-                    notifyService.notify("Push image is not complete.", "error");
-                    return check_result;
-                }
+            if (!existingimage()) {
+                check_result = false;
+                notifyService.notify("Repository name of existing image is required.", "error");
+                return check_result;
+            }
+
+            if (image_setting.events.component_start(componentData)) {
+                check_result = false;
+                notifyService.notify("Script of component start event is required.", "error");
+                return check_result;
+            }
+            if (image_setting.events.component_result(componentData)) {
+                check_result = false;
+                notifyService.notify("Script of component result event is required.", "error");
+                return check_result;
+            }
+            if (image_setting.events.component_stop(componentData)) {
+                check_result = false;
+                notifyService.notify("Script of component stop event is required.", "error");
+                return check_result;
+            }
+            if (!image_setting.build()) {
+                check_result = false;
+                notifyService.notify("Build image is not complete.", "error");
+                return check_result;
+            }
+            if (!image_setting.from()) {
+                check_result = false;
+                notifyService.notify("Base image is not complete.", "error");
+                return check_result;
+            }
+            if (!image_setting.push()) {
+                check_result = false;
+                notifyService.notify("Push image is not complete.", "error");
+                return check_result;
             }
 
             if (!componentData.use_advanced) {
@@ -157,10 +150,10 @@ define(['app'], function(app) {
         }
 
         var tabcheck = {
-            "runtime": function(isnewimage) {
+            "runtime": function(componentData) {
                 var result = true;
 
-                if (!isnewimage && !existingimage()) {
+                if (!existingimage()) {
                     result = false;
                 }
 
@@ -182,13 +175,13 @@ define(['app'], function(app) {
 
                 return result;
             },
-            "editshell": function() {
+            "editshell": function(componentData) {
                 var result = true;
-                if (image_setting.events.component_start()) {
+                if (image_setting.events.component_start(componentData)) {
                     result = false;
-                } else if (image_setting.events.component_result()) {
+                } else if (image_setting.events.component_result(componentData)) {
                     result = false;
-                } else if (image_setting.events.component_stop()) {
+                } else if (image_setting.events.component_stop(componentData)) {
                     result = false;
                 }
                 return result;
@@ -201,7 +194,6 @@ define(['app'], function(app) {
 
         return {
             "version": version,
-            "init": init,
             "go": go,
             "tabcheck": tabcheck
         }

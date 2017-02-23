@@ -37,7 +37,26 @@ define(['app','services/component/api'], function(app) {
                 "env": [],
                 "image_name": "",
                 "image_tag": "",
-                "image_setting": {},
+                "image_setting": {
+                    "build": {
+                        "name": "",
+                        "tag": ""
+                    },
+                    "from": {
+                        "name": "",
+                        "tag": ""
+                    },
+                    "events": {
+                        "component_start": "",
+                        "component_result": "",
+                        "component_stop": ""
+                    },
+                    "push": {
+                        "registry": "",
+                        "username": "",
+                        "password": ""
+                    }
+                },
                 "timeout": 0,
                 "use_advanced": false,
                 "pod": {},
@@ -67,26 +86,6 @@ define(['app','services/component/api'], function(app) {
             "clusterip": {
                 "port": "",
                 "targetPort": ""
-            },
-            "imagesetting": {
-                "build": {
-                    "name": "",
-                    "tag": ""
-                },
-                "from": {
-                    "type": "dockerfile",
-                    "url": ""
-                },
-                "events": {
-                    "component_start": "",
-                    "component_result": "",
-                    "component_stop": ""
-                },
-                "push": {
-                    "registry": "",
-                    "username": "",
-                    "password": ""
-                }
             },
             "env": {
                 "key": "",
