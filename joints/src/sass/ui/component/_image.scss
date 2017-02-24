@@ -48,3 +48,14 @@ limitations under the License. */
 .ace_print-margin{
   background : none !important;
 }
+
+.image-disable-block{
+  z-index : 10000;
+  opacity: 0.3;
+  position: absolute;
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
+  cursor: not-allowed;
+}
