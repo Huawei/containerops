@@ -201,7 +201,7 @@ define(['app','services/diagram/api'], function(app) {
             }
         ];
 
-        function drawWorkflow(selector,dataset) {
+        function drawWorkflow(scope,selector,dataset) {
             var baseSize = {
                 svgpad : 50,
                 stagePad : 110,
@@ -239,80 +239,7 @@ define(['app','services/diagram/api'], function(app) {
                 componentOrigin: '#43b594'
             };
 
-            var chosedStageIndex = '';
-            var chosedActionIndex = '';
-            // var drag = d3.behavior.drag()
-            //     .on("drag", dragmove)
-            //     .on('dragstart',function(d,i){
-            //         currentDragIndex = i;
-            //     })
-            //     .on('dragend',sort); 
-                    
-            // function dragmove(d,i) {
-            //     elementType = d3.select(this).attr('data-type');
-            //     if(elementType !== 'end-stage'){
-            //         d3.select(this)
-            //           .attr("translateX", d.translateX = d3.event.x )
-            //           .attr("transform", 'translate('+d.translateX+','+d.translateY+')');
-            //     }   
-            // };
-
-            // function sort(d,i){
-            //     if(currentDragIndex&&elementType!=='end-stage'){
-
-            //         var dragTranslateX = d3.select(this)
-            //             .attr("translateX");
-
-            //         var stages = d3.selectAll('.item-stage')
-            //             .each(function(d,i){
-            //                 // origin translateX
-            //                 var preTranslateX = i*(_this.stageWidth+_this.stagePad)+_this.svgpad;
-            //                 var nextTranslateX = (i+1)*(_this.stageWidth+_this.stagePad)+_this.svgpad;
-
-            //                 if(currentDragIndex !== i){
-            //                     var stageCenterX = preTranslateX+_this.stageWidth/2;
-
-            //                     if(dragTranslateX>=stageCenterX&&(dragTranslateX)<nextTranslateX){
-            //                         dealSortData(currentDragIndex,i);
-            //                         return;
-            //                     }
-            //                 }
-            //                 // if(currentDragIndex&&currentX>d.translateX&&currentX<)
-            //                 // console.log(d.translateX,(d.translateX+_this.stageWidth+_this.stagePad)+_this.svgpad)
-            //                 // console.log(i*(_this.stageWidth+_this.stagePad)+_this.svgpad)
-            //             })
-            //      // console.log(currentX)
-                    
-            //     }
-            // };
-
-            // function dealSortData(currentDragIndex,endPointIndex){
-            //     console.log(currentDragIndex,endPointIndex)
-            // }
-
-            var newStage = {
-                "name":"",
-                "id":"",
-                "type":"edit-stage",
-                "runMode":"parallel",
-                "actions":[
-                    {
-                        "components":[]
-                    }
-                ]
-            };
-
-            var newComponent = {
-                "name":"action1",
-                "id":"s2-at1",
-                "type":"action",
-                "inputData":"",
-                "outputData":""
-            };
-
-            var newAction = {
-                "components":[]
-            };
+            
 
             var _this = baseSize;
 
@@ -323,108 +250,6 @@ define(['app','services/diagram/api'], function(app) {
             function zoomed() {
                 d3.select(this).attr("transform", 
                     "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-            };
-
-            function chosedStage(d,i){
-                event.stopPropagation();
-                clearChosedIndex('stage');
-                clearChosedStageColor();
-
-                if(d.type === 'add-stage'){
-                    var stage = angular.copy(newStage);
-                    var addstage = angular.copy(dataset[i]);
-                    var endstage = angular.copy(dataset[i+1]);
-                    dataset[i] = stage;
-                    dataset[i+1] = addstage;
-                    dataset[i+2] = endstage;
-                    // dataset.splice(dataset[i-1],0,stage)
-                    drawWorkflow(selector,dataset); 
-                };
-
-                if(d.type === 'edit-stage'){
-                    d3.select(this).attr('href','assets/images/icon-stage.svg');
-                    chosedStageIndex = i;
-                    $state.go("workflow.create.stage",{"id": d.id});
-                };
-            };
-
-            function clearChosedStageColor(){
-                d3.selectAll('.stage-pic')
-                    .attr('href',function(d){
-                        if(d.type === 'add-stage'){
-                            return 'assets/images/icon-add-stage.svg';
-                        }else if(d.type === 'end-stage'){
-                            return 'assets/images/icon-stage-empty.svg';
-                        }else if(d.type === 'edit-stage'){
-                            return d.runMode === 'parallel' ? 'assets/images/icon-action-parallel.svg' : 'assets/images/icon-action-serial.svg';
-                        }
-                    })
-            };
-
-            function clearChosedIndex(type){
-                if(type === 'stage'){
-                    chosedStageIndex = '';
-                }else{
-                    chosedActionIndex = '';
-                }
-            };
-
-            function chosedAction(){
-                event.stopPropagation();
-                clearChosedIndex('action');
-                clearAddActionIcon();
-
-                var currentElement = d3.select(this);
-                chosedStageIndex = parseInt(currentElement.attr('data-stageIndex'));
-                chosedActionIndex = parseInt(currentElement.attr('data-actionIndex'));
-                var isChosed = dataset[chosedStageIndex]['actions'][chosedActionIndex]['isChosed'];
-                dataset[chosedStageIndex]['actions'][chosedActionIndex]['isChosed'] = !isChosed;
-                drawWorkflow(selector,dataset); 
-            };
-
-            function clearAddActionIcon(){
-                angular.forEach(dataset,function(d,i){
-                    angular.forEach(d.actions,function(a,ai){
-                        a.isChosed = false;
-                    })
-                })
-            };
-
-            // function addComponent(){
-            //     addElement(d3.select(this),'component');
-            // };
-
-            function addBottomAction(){
-                addElement(d3.select(this),'bottom');
-            };
-
-            function addTopAction(){
-                addElement(d3.select(this),'top');
-            };
-
-            function addElement(currentElement,type){
-                event.stopPropagation();
-                var chosedStageIndex = parseInt(currentElement.attr('data-stageIndex'));
-                var chosedActionIndex = parseInt(currentElement.attr('data-actionIndex'));
-                var actionLength = dataset[chosedStageIndex]['actions'].length;
-                var action = angular.copy(newAction);
-
-                console.log(actionLength,chosedActionIndex) 
-                if(type === 'bottom'){
-                    if(actionLength === chosedActionIndex+1){
-                        dataset[chosedStageIndex]['actions'].push(action);
-                    }else{
-                        dataset[chosedStageIndex]['actions'].splice(chosedActionIndex+1,0,action);
-                    }
-                }else{
-                    dataset[chosedStageIndex]['actions'].splice(chosedActionIndex,0,action);
-                };
-                    
-                drawWorkflow(selector,dataset); 
-            }; 
-
-            function componentSetting(){
-                event.stopPropagation();
             };
 
 
@@ -498,8 +323,7 @@ define(['app','services/diagram/api'], function(app) {
                     d.translateX = i*(_this.stageWidth+_this.stagePad)+_this.svgpad;
                     d.translateY = _this.stageHeight*2;
                 })
-                .on('click',chosedStage);
-               
+                .on('click',scope.chosedStage);
 
             // add stage line & actions & components
             d3.selectAll('.item-stage')
@@ -549,7 +373,7 @@ define(['app','services/diagram/api'], function(app) {
                             var translateY = d3.select(this).attr('translateY');
                             return 'translate(0,'+translateY+')';
                         })
-                        .on('click',chosedAction);
+                        .on('click',scope.chosedAction);
 
 
                     // add components
@@ -559,69 +383,96 @@ define(['app','services/diagram/api'], function(app) {
                         var currentComponentY = 0;
                         var perAction = d3.select(this); 
 
-                        // action item-component
-                        perAction.selectAll('.item-component')
-                            .data(a.components)
-                            .enter()
-                            .append('rect')
-                            .attr('class','item-component')
-                            .attr('width',_this.componentWidth)
-                            .attr('height',_this.componentHeight)
-                            .attr('data-stageIndex',function(){
-                                return i;
-                            })
-                            .attr('data-actionIndex',function(){
-                                return ai;
-                            })
-                            .attr('data-componentIndex',function(c,ci){
-                                return ci;
-                            })
-                            .attr('data-name',function(c){
-                                return c.name;
-                            })
-                            .attr('data-id',function(c){
-                                return c.id;
-                            })
-                            .attr('data-type',function(c){
-                                return c.type;
-                            })
-                            .attr('x',function(c,r){
-                                var remain = r % _this.rowActionNum;
-                                var componentNum = a.components.length>=_this.rowActionNum ? _this.rowActionNum : a.components.length;
-                                var moveright = (_this.stageWidth - (_this.componentWidth+_this.componentPad)*_this.rowActionNum)/2;
-                                c.x = remain * (_this.componentWidth + _this.componentPad) + moveright;
-                                return c.x;
-                            })
-                            .attr('y',function(c,r){
-                                if(r%_this.rowActionNum===0){
-                                    currentComponentY += 1;
-                                }
+                        // every component x point and y point
+                        a.components.map(function(c,r){
+                            var remain = r % _this.rowActionNum;
+                            var componentNum = a.components.length>=_this.rowActionNum ? _this.rowActionNum : a.components.length;
+                            var moveright = (_this.stageWidth - (_this.componentWidth+_this.componentPad)*_this.rowActionNum)/2 + _this.componentPad/2;
+                            c.x = remain * (_this.componentWidth + _this.componentPad) + moveright ;
 
-                                if(r===0){
-                                    currentComponentY = 0;
-                                }
+                            if(r%_this.rowActionNum===0){
+                                currentComponentY += 1;
+                            }
 
-                                c.y = currentComponentY * (_this.componentPad + _this.componentHeight) + _this.componentPad*3;
-                                return c.y;
-                            })
-                            .attr('fill',function(a,r){
-                                return baseColor.componentOrigin;
-                            })
-                            // .on('click',componentSetting);
+                            if(r===0){
+                                currentComponentY = 0;
+                            }
+
+                            c.y = currentComponentY * (_this.componentPad + _this.componentHeight) + _this.componentPad*3;
+                        });
 
                         // action borders
                         perAction.append('path')
-                            .attr('class','gatherLine')
-                            .attr('fill','none')
+                            .attr('class','borderLine')
+                            .attr('fill','#fff')
                             .attr('stroke',baseColor.stageBorder)
-                            .attr('stroke-width','2')
+                            .attr('stroke-width','1')
                             .attr('data-stageIndex',i)
                             .attr('data-actionIndex',ai)
                             .attr('d',function(){
                                 var length = a.components.length;
                                 var padding = _this.componentPad * 3;
 
-                                var x = 0 + _this.stageWidth/2 - (_this.componentWidth + _this.componentPad) * 2 ;
+                                var x = 0 + _this.stageWidth/2 - (_this.componentWidth + _this.componentPad) * 2 + _this.componentPad/2;
+                                var y0 = 0;
+                                var y1 = 0 + padding + _this.componentHeight + padding;
+
+                                if(length>0){
+                                    x = a.components[0].x;
+                                    y0 = a.components[0].y - padding;
+                                    y1 = a.components[length-1].y + _this.componentHeight + padding;
+                                };
+
+                                var x0 = x - padding;
+                                var x1 = x + _this.rowActionNum * (_this.componentWidth + _this.componentPad) - _this.componentPad + padding;
+                                var x2 = x0 + (x1 - x0) / 2; //每个stage的中心点
+                                var y2 = i%2===0 ? y0 - _this.stageHeight/2 - _this.actionPad - _this.actionToTop : y0 - _this.stageHeight/2 - _this.actionPad; //弧线控制点
+                                var x3 = x2 + _this.stageWidth/2 + _this.stagePad/2; //stage-line arc center point
+                                var x4 = x2 - _this.stageWidth/2 - _this.stagePad/2; //stage-line arc center point
+
+                                var x5 = x1 + _this.lineWidth;
+                                var x6 = x5 + _this.arcPadBig;
+                                var x7 = x0 - _this.lineWidth;
+                                var x8 = x7 - _this.arcPadBig;
+                                var x9 = x0 + (x1 - x0)/2; //action center x point
+                                var y3 = y0 + (y1 - y0)/2; //action center y point
+
+                                var y4 = y3 - _this.arcPadBig;
+
+                                var translateY = perAction.attr('translateY');
+                                var y5 = y0 - translateY + _this.stageHeight/2 + _this.arcPadBig; // stage-line center y point
+
+                                var lineToRight = 'L'+x5+' '+y3;
+                                var lineToLeft = 'L'+x7+' '+y3;
+                                var arcToRight = 'Q'+x6+' '+y3+' '+x6+' '+y4;
+                                var arcToLeft = 'Q'+x8+' '+y3+' '+x8+' '+y4;
+
+                                var bordRightBottom = 'M'+x1+' '+y3+'L'+x1+' '+(y1 - _this.arcPadSmall)+'Q'+x1+' '+y1+' '+(x1 - _this.arcPadSmall)+' '+y1;
+                                var bordBottom = 'L'+(x0 + _this.arcPadSmall)+' '+y1+'Q'+x0+' '+y1+' '+x0+' '+(y1 - _this.arcPadSmall);
+                                var bordLeftBottom = 'L'+x0+' '+y3;
+                                var bottom = bordRightBottom + bordBottom + bordLeftBottom;
+
+                                var bordLeftTop = 'M'+x0+' '+y3+'L'+x0+' '+(y0 + _this.arcPadSmall)+'Q'+x0+' '+y0+' '+(x0 + _this.arcPadSmall)+' '+y0;
+                                var bordTop = 'L'+x9+' '+y0+'L'+(x1 - _this.arcPadSmall)+' '+y0+'Q'+x1+' '+y0+' '+x1+' '+(y0 + _this.arcPadSmall);
+                                var bordRightTop = 'L'+x1+' '+y3;
+                                var top = bordLeftTop + bordTop + bordRightTop;
+                                
+                                return bottom + top;
+                            });
+                        
+                        // arc lines
+                        perAction.append('path')
+                            .attr('class','arcLine')
+                            .attr('fill','none')
+                            .attr('stroke',baseColor.stageBorder)
+                            .attr('stroke-width','1')
+                            .attr('data-stageIndex',i)
+                            .attr('data-actionIndex',ai)
+                            .attr('d',function(){
+                                var length = a.components.length;
+                                var padding = _this.componentPad * 3;
+
+                                var x = 0 + _this.stageWidth/2 - (_this.componentWidth + _this.componentPad) * 2 + _this.componentPad/2;
                                 var y0 = 0;
                                 var y1 = 0 + padding + _this.componentHeight + padding;
 
@@ -698,12 +549,61 @@ define(['app','services/diagram/api'], function(app) {
                                     return bottom + lineToLeft + arcToLeft +'L'+x8+' '+ y5 + top + lineToRight + arcToRight + 'L'+x6+' '+y5;
                                 }
                             });
+    
+                        // action components
+                        perAction.selectAll('.item-component')
+                            .data(a.components)
+                            .enter()
+                            .append('rect')
+                            .attr('class','item-component')
+                            .attr('width',_this.componentWidth)
+                            .attr('height',_this.componentHeight)
+                            .attr('data-stageIndex',function(){
+                                return i;
+                            })
+                            .attr('data-actionIndex',function(){
+                                return ai;
+                            })
+                            .attr('data-componentIndex',function(c,ci){
+                                return ci;
+                            })
+                            .attr('data-name',function(c){
+                                return c.name;
+                            })
+                            .attr('data-id',function(c){
+                                return c.id;
+                            })
+                            .attr('data-type',function(c){
+                                return c.type;
+                            })
+                            .attr('x',function(c,r){
+                                var remain = r % _this.rowActionNum;
+                                var componentNum = a.components.length>=_this.rowActionNum ? _this.rowActionNum : a.components.length;
+                                var moveright = (_this.stageWidth - (_this.componentWidth+_this.componentPad)*_this.rowActionNum)/2;
+                                c.x = remain * (_this.componentWidth + _this.componentPad) + moveright;
+                                return c.x;
+                            })
+                            .attr('y',function(c,r){
+                                if(r%_this.rowActionNum===0){
+                                    currentComponentY += 1;
+                                }
+
+                                if(r===0){
+                                    currentComponentY = 0;
+                                }
+
+                                c.y = currentComponentY * (_this.componentPad + _this.componentHeight) + _this.componentPad*3;
+                                return c.y;
+                            })
+                            .attr('fill',function(a,r){
+                                return baseColor.componentOrigin;
+                            })
 
                         // action-no-components x point & y point
                         var actionLength = d.actions.length;
                         var length = a.components.length;
                         var padding = _this.componentPad * 3;
-                        var x = 0 + _this.stageWidth/2 - (_this.componentWidth + _this.componentPad) * 2 ;
+                        var x = 0 + _this.stageWidth/2 - (_this.componentWidth + _this.componentPad) * 2 + _this.componentPad/2;
                         var y0 = 0;
                         var y1 = 0 + padding + _this.componentHeight + padding;
 
@@ -739,7 +639,7 @@ define(['app','services/diagram/api'], function(app) {
                                 .attr('y',function(){
                                     return y0 - _this.addComponentWidth/2 - _this.arcPadSmall + _this.addIconPad;
                                 })
-                                .on('click',addTopAction);
+                                .on('click',scope.addTopAction);
 
                             // bottom icon 
                             perAction.append('svg:image')
@@ -761,7 +661,7 @@ define(['app','services/diagram/api'], function(app) {
                                 .attr('y',function(){
                                     return y1 - _this.addComponentWidth/2;
                                 })
-                                .on('click',addBottomAction);
+                                .on('click',scope.addBottomAction);
                         };
                         
 
