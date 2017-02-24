@@ -28,6 +28,7 @@ define(["app","services/component/main","services/component/io","services/compon
 
             $scope.changeNewImageTab = function(index){
                 $scope.newImageTab = index;
+                showEventScript();
             }
 
             $scope.baseOrAdvanced = function() {
@@ -156,12 +157,7 @@ define(["app","services/component/main","services/component/io","services/compon
                         $scope.scriptEditor.setValue($scope.component.image_setting.events.component_stop);
                         break;
                 }
-
-                var session = $scope.scriptEditor.getSession();
-                var row = session.getLength();
-                var col = session.getLine(row - 1).length;
-                $scope.scriptEditor.gotoLine(row, col);
-                $scope.scriptEditor.focus();
+                focusEventScript();
             }
 
             function setEventScript() {
@@ -176,6 +172,14 @@ define(["app","services/component/main","services/component/io","services/compon
                         $scope.component.image_setting.events.component_stop = $scope.scriptEditor.getValue();
                         break;
                 }
+            }
+
+            function focusEventScript() {
+                var session = $scope.scriptEditor.getSession();
+                var row = session.getLength();
+                var col = session.getLine(row - 1).length;
+                $scope.scriptEditor.gotoLine(row, col);
+                $scope.scriptEditor.focus();
             }
 
             // build push page functions
@@ -218,6 +222,60 @@ define(["app","services/component/main","services/component/io","services/compon
                 $location.path("/component");
             }
 
+            // debug tab functions
+            function initDebugEdit() {
+                $scope.debugTab = 1;
+                $scope.debugLogTab = 1;
+                $scope.debugcomponent.input = $.extend(true, {}, $scope.component.input);
+                $scope.debugcomponent.env = [];
+                _.each($scope.component.env, function(item) {
+                    $scope.debugcomponent.env.push($.extend(true, {}, item));
+                })
+                $scope.hasDebugInput = !_.isEmpty($scope.debugcomponent.input);
+                if ($scope.hasDebugInput) {
+                    initDebugInput();
+                }
+            }
+
+            function initDebugInput() {
+                if ($scope.inputCodeEditorForDebug) {
+                    $scope.inputCodeEditorForDebug.destroy();
+                }
+                var codeOptions = {
+                    "mode": "code",
+                    "indentation": 2,
+                    "onChange": function() {
+                        $scope.debugcomponent.input = $scope.inputCodeEditorForDebug.get();
+                    }
+                };
+                var inputCodeContainer = $("#inputCodeEditorForDebug")[0];
+                $scope.inputCodeEditorForDebug = new JSONEditor(inputCodeContainer, codeOptions);
+                $scope.inputCodeEditorForDebug.set($scope.debugcomponent.input);
+            }
+
+            $scope.changeDebugTab = function(index) {
+                $scope.debugTab = index;
+            }
+
+            $scope.changeDebugLogTab = function(index) {
+                $scope.debugLogTab = index;
+            }
+
+            $scope.debug = function() {
+                if ($("#component-debug-edit-form").parsley().validate()) {
+                    var dataStream = componentService.debugComponent($scope.component.id);
+                    dataStream.onMessage(function(message) {
+                        apiService.successToCall(data);
+                        console.log(message);
+                    });
+                    dataStream.onError(function(error) {
+                        apiService.failToCall(error);
+                        console.log(error);
+                    })
+                    dataStream.send(JSON.stringify($scope.debugcomponent))
+                }
+            }
+            
             // init component create page
             function init() {
                 $scope.component = $.extend(true, {}, componentService.metadata.component);
@@ -245,8 +303,18 @@ define(["app","services/component/main","services/component/io","services/compon
                 $scope.baseOrAdvanced();
 
                 $scope.$watch("component",function(){
-                    showEventScript();
-                })
+                    if($scope.scriptEditor){
+                        showEventScript();
+                    }
+                });
+
+                $scope.debugcomponent = {
+                    "kube_master": "",
+                    "input": {},
+                    "env": []
+                }
+
+                initDebugEdit();
             }
 
             init();
