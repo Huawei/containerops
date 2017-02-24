@@ -201,7 +201,7 @@ define(['app','services/diagram/api'], function(app) {
             }
         ];
 
-        function drawWorkflow(selector,dataset) {
+        function drawWorkflow(scope,selector,dataset) {
             var baseSize = {
                 svgpad : 50,
                 stagePad : 110,
@@ -239,32 +239,7 @@ define(['app','services/diagram/api'], function(app) {
                 componentOrigin: '#43b594'
             };
 
-            var chosedStageIndex = '';
-            var chosedActionIndex = '';
-
-            var newStage = {
-                "name":"",
-                "id":"",
-                "type":"edit-stage",
-                "runMode":"parallel",
-                "actions":[
-                    {
-                        "components":[]
-                    }
-                ]
-            };
-
-            var newComponent = {
-                "name":"action1",
-                "id":"s2-at1",
-                "type":"action",
-                "inputData":"",
-                "outputData":""
-            };
-
-            var newAction = {
-                "components":[]
-            };
+            
 
             var _this = baseSize;
 
@@ -275,108 +250,6 @@ define(['app','services/diagram/api'], function(app) {
             function zoomed() {
                 d3.select(this).attr("transform", 
                     "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-            };
-
-            function chosedStage(d,i){
-                event.stopPropagation();
-                clearChosedIndex('stage');
-                clearChosedStageColor();
-
-                if(d.type === 'add-stage'){
-                    var stage = angular.copy(newStage);
-                    var addstage = angular.copy(dataset[i]);
-                    var endstage = angular.copy(dataset[i+1]);
-                    dataset[i] = stage;
-                    dataset[i+1] = addstage;
-                    dataset[i+2] = endstage;
-                    // dataset.splice(dataset[i-1],0,stage)
-                    drawWorkflow(selector,dataset); 
-                };
-
-                if(d.type === 'edit-stage'){
-                    d3.select(this).attr('href','assets/images/icon-stage.svg');
-                    chosedStageIndex = i;
-                    $state.go("workflow.create.stage",{"id": d.id});
-                };
-            };
-
-            function clearChosedStageColor(){
-                d3.selectAll('.stage-pic')
-                    .attr('href',function(d){
-                        if(d.type === 'add-stage'){
-                            return 'assets/images/icon-add-stage.svg';
-                        }else if(d.type === 'end-stage'){
-                            return 'assets/images/icon-stage-empty.svg';
-                        }else if(d.type === 'edit-stage'){
-                            return d.runMode === 'parallel' ? 'assets/images/icon-action-parallel.svg' : 'assets/images/icon-action-serial.svg';
-                        }
-                    })
-            };
-
-            function clearChosedIndex(type){
-                if(type === 'stage'){
-                    chosedStageIndex = '';
-                }else{
-                    chosedActionIndex = '';
-                }
-            };
-
-            function chosedAction(){
-                event.stopPropagation();
-                clearChosedIndex('action');
-                clearAddActionIcon();
-
-                var currentElement = d3.select(this);
-                chosedStageIndex = parseInt(currentElement.attr('data-stageIndex'));
-                chosedActionIndex = parseInt(currentElement.attr('data-actionIndex'));
-                var isChosed = dataset[chosedStageIndex]['actions'][chosedActionIndex]['isChosed'];
-                dataset[chosedStageIndex]['actions'][chosedActionIndex]['isChosed'] = !isChosed;
-                drawWorkflow(selector,dataset); 
-            };
-
-            function clearAddActionIcon(){
-                angular.forEach(dataset,function(d,i){
-                    angular.forEach(d.actions,function(a,ai){
-                        a.isChosed = false;
-                    })
-                })
-            };
-
-            // function addComponent(){
-            //     addElement(d3.select(this),'component');
-            // };
-
-            function addBottomAction(){
-                addElement(d3.select(this),'bottom');
-            };
-
-            function addTopAction(){
-                addElement(d3.select(this),'top');
-            };
-
-            function addElement(currentElement,type){
-                event.stopPropagation();
-                var chosedStageIndex = parseInt(currentElement.attr('data-stageIndex'));
-                var chosedActionIndex = parseInt(currentElement.attr('data-actionIndex'));
-                var actionLength = dataset[chosedStageIndex]['actions'].length;
-                var action = angular.copy(newAction);
-
-                console.log(actionLength,chosedActionIndex) 
-                if(type === 'bottom'){
-                    if(actionLength === chosedActionIndex+1){
-                        dataset[chosedStageIndex]['actions'].push(action);
-                    }else{
-                        dataset[chosedStageIndex]['actions'].splice(chosedActionIndex+1,0,action);
-                    }
-                }else{
-                    dataset[chosedStageIndex]['actions'].splice(chosedActionIndex,0,action);
-                };
-                    
-                drawWorkflow(selector,dataset); 
-            }; 
-
-            function componentSetting(){
-                event.stopPropagation();
             };
 
 
@@ -450,8 +323,7 @@ define(['app','services/diagram/api'], function(app) {
                     d.translateX = i*(_this.stageWidth+_this.stagePad)+_this.svgpad;
                     d.translateY = _this.stageHeight*2;
                 })
-                .on('click',chosedStage);
-               
+                .on('click',scope.chosedStage);
 
             // add stage line & actions & components
             d3.selectAll('.item-stage')
@@ -501,7 +373,7 @@ define(['app','services/diagram/api'], function(app) {
                             var translateY = d3.select(this).attr('translateY');
                             return 'translate(0,'+translateY+')';
                         })
-                        .on('click',chosedAction);
+                        .on('click',scope.chosedAction);
 
 
                     // add components
@@ -515,8 +387,8 @@ define(['app','services/diagram/api'], function(app) {
                         a.components.map(function(c,r){
                             var remain = r % _this.rowActionNum;
                             var componentNum = a.components.length>=_this.rowActionNum ? _this.rowActionNum : a.components.length;
-                            var moveright = (_this.stageWidth - (_this.componentWidth+_this.componentPad)*_this.rowActionNum)/2;
-                            c.x = remain * (_this.componentWidth + _this.componentPad) + moveright;
+                            var moveright = (_this.stageWidth - (_this.componentWidth+_this.componentPad)*_this.rowActionNum)/2 + _this.componentPad/2;
+                            c.x = remain * (_this.componentWidth + _this.componentPad) + moveright ;
 
                             if(r%_this.rowActionNum===0){
                                 currentComponentY += 1;
@@ -534,14 +406,14 @@ define(['app','services/diagram/api'], function(app) {
                             .attr('class','borderLine')
                             .attr('fill','#fff')
                             .attr('stroke',baseColor.stageBorder)
-                            .attr('stroke-width','2')
+                            .attr('stroke-width','1')
                             .attr('data-stageIndex',i)
                             .attr('data-actionIndex',ai)
                             .attr('d',function(){
                                 var length = a.components.length;
                                 var padding = _this.componentPad * 3;
 
-                                var x = 0 + _this.stageWidth/2 - (_this.componentWidth + _this.componentPad) * 2 ;
+                                var x = 0 + _this.stageWidth/2 - (_this.componentWidth + _this.componentPad) * 2 + _this.componentPad/2;
                                 var y0 = 0;
                                 var y1 = 0 + padding + _this.componentHeight + padding;
 
@@ -593,14 +465,14 @@ define(['app','services/diagram/api'], function(app) {
                             .attr('class','arcLine')
                             .attr('fill','none')
                             .attr('stroke',baseColor.stageBorder)
-                            .attr('stroke-width','2')
+                            .attr('stroke-width','1')
                             .attr('data-stageIndex',i)
                             .attr('data-actionIndex',ai)
                             .attr('d',function(){
                                 var length = a.components.length;
                                 var padding = _this.componentPad * 3;
 
-                                var x = 0 + _this.stageWidth/2 - (_this.componentWidth + _this.componentPad) * 2 ;
+                                var x = 0 + _this.stageWidth/2 - (_this.componentWidth + _this.componentPad) * 2 + _this.componentPad/2;
                                 var y0 = 0;
                                 var y1 = 0 + padding + _this.componentHeight + padding;
 
@@ -731,7 +603,7 @@ define(['app','services/diagram/api'], function(app) {
                         var actionLength = d.actions.length;
                         var length = a.components.length;
                         var padding = _this.componentPad * 3;
-                        var x = 0 + _this.stageWidth/2 - (_this.componentWidth + _this.componentPad) * 2 ;
+                        var x = 0 + _this.stageWidth/2 - (_this.componentWidth + _this.componentPad) * 2 + _this.componentPad/2;
                         var y0 = 0;
                         var y1 = 0 + padding + _this.componentHeight + padding;
 
@@ -767,7 +639,7 @@ define(['app','services/diagram/api'], function(app) {
                                 .attr('y',function(){
                                     return y0 - _this.addComponentWidth/2 - _this.arcPadSmall + _this.addIconPad;
                                 })
-                                .on('click',addTopAction);
+                                .on('click',scope.addTopAction);
 
                             // bottom icon 
                             perAction.append('svg:image')
@@ -789,7 +661,7 @@ define(['app','services/diagram/api'], function(app) {
                                 .attr('y',function(){
                                     return y1 - _this.addComponentWidth/2;
                                 })
-                                .on('click',addBottomAction);
+                                .on('click',scope.addBottomAction);
                         };
                         
 
