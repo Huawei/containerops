@@ -469,9 +469,13 @@
 				    								<div class="event-selection {{selectedEvent == 3 ? 'event-selected' : ''}}" ng-click="selectEvent(3)">Component Stop</div>
 				    							</div>
 				    						</div>
-				    						<div id="scriptEditor"></div>
+				    						<div class="col-md-12">
+					    						<div id="scriptEditor"></div>
+					    						<div class="image-disable-block hide"></div>
+					    					</div>
 				    					</div>
 				    					<div class="my-tab-pane" ng-show="newImageTab == 2">
+				    						<div class="image-disable-block hide"></div>
 				    						<form id="build-image-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">	
 				    							<fieldset class="row" style="padding:15px 0px">
 				    								<div class="row">
@@ -571,7 +575,149 @@
 				    			</div>
 	    					</div>
 	    					<div style="margin-top:20px" ng-show="tab == 3">
-	    						
+	    						<div class="tabbable tabs-left mb-lg">
+	    							<ul class="nav nav-tabs">
+	    								<li class="nav-item">
+	                            			<a class="nav-link {{debugTab == 1 ? 'active' : ''}}" data-toggle="tab" ng-click="changeDebugTab(1)">Debug Edit</a>
+	                            		</li>
+	                            		<li class="nav-item">
+	                            			<a class="nav-link {{debugTab == 2 ? 'active' : ''}}" data-toggle="tab" ng-click="changeDebugTab(2)">Debug Log</a>
+	                            		</li>
+	    							</ul>
+	    							<div class="tab-content">
+	    								<div class="my-tab-pane" ng-show="debugTab == 1">
+	    									<form id="component-debug-edit-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
+		    									<div class="row">
+		    										<div class="col-md-9 form-group">
+		    											<label for="normal-field" class="col-sm-1 control-label">
+		    												<i class="fa fa-user"></i>
+		    											</label>
+		    											<div class="col-sm-11">
+		    												<input type="text" id="kube-master-name" class="devops-input" ng-model="debugcomponent.kube_master" placeholder="Kubernetes Master" title="Kubernetes Master" required>
+		    											</div>
+		    										</div>
+		    										<div class="col-md-3">
+		    											<button type="button" class="btn btn-cyan" ng-click="debug()" style="float:right">
+															<i class="fa fa-bug" style="font-size:16px"></i>
+															<span style="margin-left:5px">Debug</span>
+														</button>
+		    										</div>
+		    									</div>
+		    									<div class="row" style="margin-top:15px">
+			    									<div class="col-md-6 import-div">
+			    										<div class="panel">
+			    											<div class="panel-heading" style="background-color:#f7f7f7">
+			    												<i class="output-from-edit-icon"></i>
+			    												<span class="panel-title">Edit Env</span>
+			    											</div>
+			    											<div class="panel-body" style="min-height:500px">
+			    												<div class="col-md-12 debug-env-row" ng-repeat="item in debugcomponent.env track by $index">
+				                                                    <div class="form-group">
+				                                                    	<label for="normal-field" class="col-sm-4 control-label">
+				                                                    		{{item.key}}
+				                                                    	</label>
+				                                                    	<div class="col-sm-7">
+				                                                    		<input type="text" class="devops-input" ng-model="item.value" placeholder="Value">
+				                                                    	</div>
+				                                                    </div>
+				                                                </div>
+				                                                <div class="list-row" ng-show="debugcomponent.env.length == 0">
+									                                <div class="col-md-12" style="text-align:center;padding-top:10px">
+									                                    <span>No Env Found.</span>
+									                                </div>
+									                            </div>
+			    											</div>
+			    										</div>
+			    									</div>
+			    									<div class="col-md-6 import-div">
+			    										<div class="panel">
+			    											<div class="panel-heading" style="background-color:#f7f7f7">
+			    												<i class="input-from-edit-icon"></i>
+			    												<span class="panel-title">Edit Input</span>
+			    											</div>
+			    											<div class="panel-body" style="min-height:500px">
+			    												<div id="inputCodeEditorForDebug" class="codeEditor" ng-show="hasDebugInput" style="height:400px"></div>
+			    												<div class="list-row" ng-show="!hasDebugInput">
+									                                <div class="col-md-12" style="text-align:center;padding-top:10px">
+									                                    <span>No Input Found.</span>
+									                                </div>
+									                            </div>
+			    											</div>
+			    										</div>
+			    									</div>
+			    								</div>
+		    								</form>
+	                                    </div>
+	                                    <div class="my-tab-pane" ng-show="debugTab == 2">
+	                                        <div class="action-way-div row">
+	                                        	<div class="col-md-3 component-tab {{debugLogTab == 1 ? 'component-tab-active' : ''}}" ng-click="changeDebugLogTab(1)">
+	                                        		<div class="tab-text">Result Logs</div>
+	                                        	</div>
+	                                        	<div class="col-md-3 component-tab {{debugLogTab == 2 ? 'component-tab-active' : ''}}" ng-click="changeDebugLogTab(2)">
+	                                        		<div class="tab-text">Event Status</div>
+	                                        	</div>
+	                                        	<div class="col-md-3 component-tab {{debugLogTab == 3 ? 'component-tab-active' : ''}}" ng-click="changeDebugLogTab(3)">
+	                                        		<div class="tab-text">Action Stream Data</div>
+	                                        	</div>
+	                                        </div>
+	                                        <div ng-show="debugLogTab == 1">
+	                                        	<div class="showBox">
+	                                        		<table class="table table-striped" >
+	                                        			<thead>
+	                                        				<tr>
+	                                        					<th> </th>
+	                                        					<th> </th>
+	                                        				</tr>
+	                                        			</thead>
+	                                        			<tbody id="resultLog_list"></tbody>
+	                                        		</table>
+	                                        	</div>
+	                                        </div>
+	                                        <div ng-show="debugLogTab == 2">
+	                                        	<table id="logs-table" class="table ">
+	                                        		<thead>
+	                                        			<tr>
+	                                        				<th></th>
+	                                        				<th>Time</th>
+	                                        				<th>Event</th>
+	                                        				<th>EVENT_ID</th>
+	                                        				<th>RUN_ID</th>
+	                                        				<th>INFO_STATUS</th>
+	                                        				<th>DETAILS</th>
+	                                        			</tr>  
+	                                        		</thead>
+	                                        		<tbody id="logs-tr"></tbody>
+	                                        	</table>
+	                                        </div>
+
+
+	                                        <div ng-show="debugLogTab == 3">
+	                                        	<div class="row">
+	                                        		<div class="col-md-6 import-div">
+	                                        			<div class="panel">
+	                                        				<div class="panel-heading input-panel-heading">
+	                                        					<span class="panel-title">Show Input Data</span>
+	                                        				</div>
+	                                        				<div class="panel-body" style="min-height:500px;">
+	                                        					<textarea class="advanced-service-textarea" id="action-input-stream" disabled></textarea>
+	                                        				</div>
+	                                        			</div>
+	                                        		</div>
+	                                        		<div class="col-md-6 import-div">
+	                                        			<div class="panel">
+	                                        				<div class="panel-heading input-panel-heading">
+	                                        					<span class="panel-title">Show Output Data</span>
+	                                        				</div>
+	                                        				<div class="panel-body" style="min-height:500px;">
+	                                        					<textarea class="advanced-service-textarea" id="action-output-stream" disabled></textarea>
+	                                        				</div>
+	                                        			</div>
+	                                        		</div>
+	                                        	</div>
+	                                        </div>
+	                                    </div>
+	    							</div>
+	    						</div>	
 	    					</div>
     					</div>
     				</div>
