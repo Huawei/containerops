@@ -13,11 +13,8 @@ define(["app","services/component/main","services/component/io","services/compon
             }
 
             function checkTabs() {
-                $scope.tabStatus.runtime = componentCheck.tabcheck.runtime($scope.toCreateImage);
-                if ($scope.toCreateImage) {
-                    $scope.tabStatus.editshell = componentCheck.tabcheck.editshell();
-                    $scope.tabStatus.buildimage = componentCheck.tabcheck.buildimage();
-                }
+                $scope.tabStatus.runtime = componentCheck.tabcheck.runtime($scope.component);
+                $scope.tabStatus.newimage = componentCheck.tabcheck.editshell($scope.component) && componentCheck.tabcheck.buildimage($scope.component);
             }
 
             // runtime tab all functions below
@@ -28,6 +25,11 @@ define(["app","services/component/main","services/component/io","services/compon
                 }
             }
 
+            $scope.changeNewImageTab = function(index){
+                $scope.newImageTab = index;
+                showEventScript();
+            }
+            
             $scope.baseOrAdvanced = function() {
                 if ($scope.component.use_advanced) {
                     $scope.component.service = {};
@@ -212,7 +214,7 @@ define(["app","services/component/main","services/component/io","services/compon
 
             // save component
             $scope.saveComponent = function() {
-                var result = componentCheck.go($scope.toCreateImage);
+                var result = componentCheck.go($scope.component);
                 if (result) {
                     var promise = componentService.updateComponent($scope.component);
                     promise.done(function(data) {
@@ -232,7 +234,7 @@ define(["app","services/component/main","services/component/io","services/compon
 
             // save new version
             $scope.saveNewVersion = function() {
-                var result = componentCheck.go($scope.toCreateImage);
+                var result = componentCheck.go($scope.component);
                 if (result) {
                     $scope.toSaveNewVersion = true;
                 }
@@ -283,8 +285,7 @@ define(["app","services/component/main","services/component/io","services/compon
                     $scope.tab = 1;
                     $scope.tabStatus = {
                         "runtime": true,
-                        "editshell": $scope.toCreateImage,
-                        "buildimage": $scope.toCreateImage
+                        "newimage": true
                     }
 
                     // for runtime config tabs control
@@ -293,14 +294,14 @@ define(["app","services/component/main","services/component/io","services/compon
                     // determine which editor to use for input output json
                     $scope.jsonMode = false;
 
+                    // for new image tabs control
+                    $scope.newImageTab = 1;
+
                     // for event selection
                     $scope.selectedEvent = 1;
 
                     // init service pod
                     $scope.serviceType = $scope.component.service.spec.type;
-
-                    // init check
-                    componentCheck.init($scope.component);
 
                     // for debug tab
                     initDebugEdit();
