@@ -17,8 +17,24 @@ limitations under the License.
 package middleware
 
 import (
+	"bytes"
+	"io"
+	"io/ioutil"
+	"strings"
+
+	logs "github.com/Huawei/containerops/component/log"
+	"github.com/containerops/configure"
+
 	"gopkg.in/macaron.v1"
 )
+
+//  log is log pkg instance
+var log *logs.Logger
+
+// init is init log pkg instance
+func init() {
+	log = logs.New()
+}
 
 // SetMiddlewares is
 func SetMiddlewares(m *macaron.Macaron) {
@@ -41,4 +57,29 @@ func SetMiddlewares(m *macaron.Macaron) {
 			ctx.Resp.Flush()
 		}
 	})
+
+	if configure.GetBool("log.showReqInfo") {
+		m.Use(func(ctx *macaron.Context) {
+			headerStr := ""
+			for key, value := range ctx.Req.Header {
+				headerStr += "\t" + key + ":" + strings.Join(value, " ") + "\n"
+			}
+
+			body := gotBody(ctx, 10*1024*1024)
+			bodyStr := "\t" + strings.Replace(string(body), "\n", "\n\t", -1)
+			log.Debugf("got request from:%9s ;url:%s\nheader is:\n%sbody is:\n%s", ctx.Req.Host, ctx.Req.RequestURI, headerStr, bodyStr)
+		})
+	}
+}
+
+func gotBody(ctx *macaron.Context, MaxMemory int64) []byte {
+	if ctx.Req.Request.Body == nil {
+		return []byte{}
+	}
+	safe := &io.LimitedReader{R: ctx.Req.Request.Body, N: MaxMemory}
+	requestbody, _ := ioutil.ReadAll(safe)
+	ctx.Req.Request.Body.Close()
+	bf := bytes.NewBuffer(requestbody)
+	ctx.Req.Request.Body = ioutil.NopCloser(bf)
+	return requestbody
 }
