@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 )
 
+// ComponentBaseData is component's base data to describe a component
 type ComponentBaseData struct {
 	ID      int64  `json:"id"`
 	Name    string `json:"name"`
@@ -94,7 +95,7 @@ type BuildInfo struct {
 type DebugInfo struct {
 	ImageInfo
 	Input       *json.RawMessage `json:"input"`
-	Ouput       *json.RawMessage `json:"output"`
+	Output      *json.RawMessage `json:"output"`
 	Env         []Env            `json:"env"`
 	Timeout     int              `json:"timeout"`
 	UseAdvanced bool             `json:"useAdvanced"`

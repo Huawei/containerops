@@ -182,11 +182,12 @@ func CreateComponent(namespace string, componentInfo []byte) (int64, error) {
 	}
 
 	if cInfo.ImageSetting != nil {
-		if shell, err := json.Marshal(cInfo.ImageSetting.EventShell); err != nil {
+		var shell []byte
+		if shell, err = json.Marshal(cInfo.ImageSetting.EventShell); err != nil {
 			return 0, fmt.Errorf("CreateComponent error: format eventShell error: %s", err.Error())
-		} else {
-			shellStr = string(shell)
 		}
+
+		shellStr = string(shell)
 	}
 
 	component := new(models.Component)
@@ -214,7 +215,7 @@ func CreateComponent(namespace string, componentInfo []byte) (int64, error) {
 	count := int64(0)
 	err = component.GetComponent().Where("namespace = ?", namespace).Where("name = ?", cInfo.Name).Where("version = ?", cInfo.Version).Count(&count).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return 0, fmt.Errorf("error when query component info:", err.Error())
+		return 0, fmt.Errorf("error when query component info: %s", err.Error())
 	} else if count > 0 {
 		return 0, fmt.Errorf("CreateComponent error: component exist")
 	}
@@ -409,11 +410,12 @@ func UpdateComponent(namespace string, id int64, componentInfo []byte) error {
 	}
 
 	if cInfo.ImageSetting != nil {
-		if shell, err := json.Marshal(cInfo.ImageSetting.EventShell); err != nil {
+		var shell []byte
+		if shell, err = json.Marshal(cInfo.ImageSetting.EventShell); err != nil {
 			return fmt.Errorf("CreateComponent error: format eventShell error: %s", err.Error())
-		} else {
-			shellStr = string(shell)
 		}
+
+		shellStr = string(shell)
 	}
 
 	component := new(models.Component)

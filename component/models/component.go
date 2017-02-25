@@ -23,16 +23,21 @@ import (
 )
 
 const (
+	// ComponentContainerTypeDocker is the Container type of component
 	ComponentContainerTypeDocker = iota
+	// ComponentContainerTypeRKT is the Container type of component
 	ComponentContainerTypeRKT
 )
 
 const (
+	// ComponentEngineTypeKube is the Engine type of component
 	ComponentEngineTypeKube = iota
+	// ComponentEngineTypeSwarm is the Engine type of component
 	ComponentEngineTypeSwarm
 )
 
 var (
+	// ComponentEngineMap define all component engine type
 	ComponentEngineMap = map[string]int{
 		"Kubernetes": ComponentEngineTypeKube,
 		"Swarm":      ComponentEngineTypeSwarm,
@@ -46,9 +51,9 @@ type Component struct {
 	Name          string     `json:"name" sql:"not null;type:varchar(100)"`    // Component name for query.
 	Version       string     `json:"version" sql:"not null;type:varchar(30)"`  // Component version for display
 	Containertype int        `json:"-" sql:"not null;default:0"`               // Container type: docker or rkt.
-	Runengine     int        `json:"-" sql:"not null";defalut:0`               // Component engine tye : kube or swarm
-	ImageName     string     `json:"imageName" sql:"not null;varchar(100)"`    //
-	ImageTag      string     `json:"imageTag" sql:"varchar(30)";`              //
+	Runengine     int        `json:"-" sql:"not null;defalut:0"`               // Component engine tye : kube or swarm
+	ImageName     string     `json:"imageName"`                                //
+	ImageTag      string     `json:"imageTag"`                                 //
 	Timeout       int        `json:"timeout" sql:"default 0"`                  //
 	UseAdvanced   bool       `json:"useAdvanced" sql:"not null;default:false"` // is component use advance setting, if true, when send create msg to k8s/swarm use setting directly
 	KubeSetting   string     `json:"-" sql:"null;type:text"`                   // Kubernetes execute script.
@@ -68,6 +73,7 @@ func (c *Component) TableName() string {
 	return "component"
 }
 
+// GetComponent is return the db conn with model is component
 func (c *Component) GetComponent() *gorm.DB {
 	if db == nil {
 		OpenDatabase()
