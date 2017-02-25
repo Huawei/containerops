@@ -158,18 +158,28 @@ func (f *MyFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	}
 	pc, file, line, _ := runtime.Caller(depth)
 
-	pkgandmodel := strings.Split(runtime.FuncForPC(pc).Name(), ".")
-	if len(pkgandmodel) < 2 {
-		pkgandmodel = append(pkgandmodel, pkgandmodel[0])
+	pcName := runtime.FuncForPC(pc).Name()
+	index := strings.LastIndex(pcName, ".")
+	pkg := ""
+	model := ""
+	if index != -1 {
+		pkg = pcName[:index]
+		model = pcName[index+1:]
+	} else {
+		pkg = pcName
+		model = pcName
 	}
+
+	paths := strings.Split(file, "/")
+	file = paths[len(paths)-1]
 
 	fmtStr := ""
 	if logrus.IsTerminal() {
 		fmtStr = "\x1b[%dm[%s] %s%d %s [%s] %-4s\x1b[0m"
-		fmt.Fprintf(b, fmtStr, levelColor, entry.Time.Format(time.RFC3339), file+":", line, pkgandmodel[0], pkgandmodel[1], levelText)
+		fmt.Fprintf(b, fmtStr, levelColor, entry.Time.Format(time.RFC3339), file+":", line, pkg, model, levelText)
 	} else {
 		fmtStr = "[%s] %s%d %s [%s] %-4s"
-		fmt.Fprintf(b, fmtStr, entry.Time.Format(time.RFC3339), file+":", line, pkgandmodel[0], pkgandmodel[1], levelText)
+		fmt.Fprintf(b, fmtStr, entry.Time.Format(time.RFC3339), file+":", line, pkg, model, levelText)
 	}
 
 	for _, k := range keys {
