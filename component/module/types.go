@@ -84,9 +84,9 @@ type BuildInfo struct {
 	From       *ImageInfo `json:"from"`
 	Push       *ImageInfo `json:"push"`
 	EventShell struct {
-		ComponentStart  interface{} `json:"componentStart"`
-		ComponentResult interface{} `json:"componentResult"`
-		ComponentStop   interface{} `json:"componentStop"`
+		ComponentStart  string `json:"componentStart"`
+		ComponentResult string `json:"componentResult"`
+		ComponentStop   string `json:"componentStop"`
 	} `json:"events"`
 }
 
@@ -104,7 +104,7 @@ type DebugInfo struct {
 
 // ImageInfo is the image info
 type ImageInfo struct {
-	ImageName string `json:"imagesName"`
+	ImageName string `json:"imageName"`
 	ImageTag  string `json:"imageTag"`
 	AuthType  string `json:"authType,omitempty"`
 	Username  string `json:"username,omitempty"`

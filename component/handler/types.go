@@ -23,7 +23,7 @@ import (
 // CommonResp is common resp that each resp will have
 type CommonResp struct {
 	OK        bool    `json:"ok"`
-	ErrorCode errCode `json:"error_code,omitempty"`
+	ErrorCode errCode `json:"errorCode,omitempty"`
 	Message   string  `json:"message",omitempty`
 }
 
