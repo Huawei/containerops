@@ -23,7 +23,7 @@ import (
 	"github.com/Huawei/containerops/component/router"
 )
 
-//
+// SetPilotagedMacaron is
 func SetPilotagedMacaron(m *macaron.Macaron) {
 	//Setting Middleware
 	middleware.SetMiddlewares(m)

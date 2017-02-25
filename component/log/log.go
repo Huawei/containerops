@@ -31,11 +31,22 @@ import (
 )
 
 const (
+	// PanicLevel is the level of log
 	PanicLevel = iota
+
+	// FatalLevel is the level of log
 	FatalLevel
+
+	// ErrorLevel is the level of log
 	ErrorLevel
+
+	// WarnLevel is the level of log
 	WarnLevel
+
+	// InfoLevel is the level of log
 	InfoLevel
+
+	// DebugLevel is the level of log
 	DebugLevel
 )
 
@@ -48,6 +59,7 @@ const (
 	gray    = 37
 )
 
+// Logger is a copy struct of logrus.Logger
 type Logger struct {
 	*logrus.Logger
 }
@@ -56,6 +68,7 @@ var (
 	log *Logger
 )
 
+// New return a logger with config file setting
 func New() *Logger {
 	if log == nil {
 		log = new(Logger)
@@ -97,11 +110,11 @@ func getLogFile(name string) *os.File {
 		if fileInfo.IsDir() {
 			name = name + string(os.PathSeparator) + "runtime.log"
 			return getLogFile(name)
-		} else {
-			var flag int
-			flag = os.O_RDWR | os.O_APPEND
-			f, err = os.OpenFile(name, flag, 0)
 		}
+
+		var flag int
+		flag = os.O_RDWR | os.O_APPEND
+		f, err = os.OpenFile(name, flag, 0)
 	} else if os.IsNotExist(err) {
 		d := path.Dir(name)
 		_, err = os.Stat(d)
@@ -117,9 +130,11 @@ func getLogFile(name string) *os.File {
 	return f
 }
 
+// MyFormatter define the log's output format
 type MyFormatter struct {
 }
 
+// Format is define the log's output format
 func (f *MyFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	var b *bytes.Buffer
 	keys := make([]string, 0, len(entry.Data))

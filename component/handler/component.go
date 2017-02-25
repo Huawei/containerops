@@ -20,9 +20,9 @@ import (
 	"encoding/json"
 	"net/http"
 
+	logs "github.com/Huawei/containerops/component/log"
 	"github.com/Huawei/containerops/component/module"
 
-	logs "github.com/Huawei/containerops/component/log"
 	"gopkg.in/macaron.v1"
 )
 

@@ -20,6 +20,7 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
+// SetMiddlewares is
 func SetMiddlewares(m *macaron.Macaron) {
 	//Set static file directory,static file access without log output
 	m.Use(macaron.Static("external", macaron.StaticOptions{
