@@ -1,0 +1,74 @@
+<div class="panel panel-default">
+    <div class="panel-heading" style="background-color: #ddd; position:relative;">
+        <h3 class="panel-title">
+            Action Info
+            <span style="position:absolute;right:10px;top:15px;color:#fff;border-radius:3px;background:#4887ae;padding:3px 5px;">
+                <i class="fa fa-trash"></i>
+                Delete
+            </span>
+        </h3>
+    </div>
+    <div class="panel-body" id="action-detail" style="background-color: #fff;min-height: 200px;">
+        <form class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-md-1 control-label">
+                            <span class="icon icon-baseImage-respository-name"></span>
+                        </label>
+                        <div class="col-md-10">
+                            <input type="text" class="devops-input" placeholder="Action Name" title="Stage Name" ng-model="currentActionInfo.name" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-md-1 control-label">
+                            <i class="icon icon-baseImage-tag"></i>
+                        </label>
+                        <div class="col-md-10">
+                            <input type="text" class="devops-input" placeholder="Action Timeout" title="Stage Timeout" ng-model="currentActionInfo.timeout">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <div class="row">
+                <div class="col-md-12">     
+                    <span class="icon icon-baseImage-respository-name"></span>
+                    <span class="marg-lt-fifteen">The Selected Component</span>
+                    <span class="space bg-green" ng-click="componentEvent.add()">
+                        <i class="fa fa-share"></i>
+                        import Component
+                    </span>
+                    <span class="space bg-grey">
+                        <i class="fa fa-share"></i>
+                        import Service
+                    </span>
+                </div>
+            </div>
+            <div class="row" id="componentList">
+                <div class="col-xs-10 col-xs-offset-1">
+                    <div class="row component-info" ng-repeat="item in currentActionInfo.components">
+                        <div class="col-xs-1">
+                           <input type="checkbox" name="components" value="item.id"/> 
+                        </div>
+                        <div class="col-xs-4">
+                            {{item.name}}
+                        </div>
+                        <div class="col-xs-4">
+                            {{item.version}}
+                        </div>
+                        <div class="col-xs-1 edit" ng-click="componentEvent.edit($index)">
+                            <i class="fa fa-edit"></i>
+                            <span>Edit</span>
+                        </div>
+                        <div class="col-xs-1 col-xs-offset-1">
+                            <i class="fa fa-times cursor-pointer" ng-click="componentEvent.delete($index)"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
