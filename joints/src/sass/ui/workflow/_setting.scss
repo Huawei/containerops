@@ -123,6 +123,11 @@ limitations under the License. */
   }
 }
 
+.icon-cog {
+  font-size: 20px;
+  margin-left: 20px;
+}
+
 #workflow-setting {
   background: #fff;
   padding: 20px 0;
@@ -131,6 +136,9 @@ limitations under the License. */
   }
   .col-purple {
     color: #9c27b0;
+  }
+  .cursor-pointer {
+    cursor: pointer;
   }
   .nav-setting {
     background: #9c27b0;
@@ -150,12 +158,20 @@ limitations under the License. */
       background: #fff;
       border-radius: 3px 3px 0 0;
     }
+    .save-setting {
+      padding: 5px;
+      border-radius: 3px;
+      &:hover {
+        background: #ddd;
+      }
+    }
   }
   .base-setting {
     input {
       border: none;
       border-bottom: 1px solid #d7d7d7;
       margin-bottom: 20px;
+      padding-left: 12px;
       background: none;
       &:focus {
         border: none;

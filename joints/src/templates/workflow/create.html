@@ -12,6 +12,7 @@
                 <i class="fa fa-reply" style="font-size:16px"></i>
                 <span style="margin:0 5px">Cancel</span>
             </button>
+            <i class="fa fa-cog icon-cog" ng-click="isShowDialog(true)"></i>
         </div>
     </div>
 </div>
@@ -25,46 +26,46 @@
         </h5>
     </div>
 </div>
-<div id="workflow-setting">
+<div id="workflow-setting" ng-if="isShowSetting.showInfo">
     <div class="row">
         <div class="col-xs-10 col-xs-offset-1">
             <div class="row nav-setting">
                 <div class="col-xs-3 space">Workflow setting</div>
-                <div class="col-xs-2 space" ng-class="isShowSetting.settingType === 'base' ? 'active' : '' " ng-click="changeSettingNav('base')">Base setting</div>
-                <div class="col-xs-2 space" ng-class="isShowSetting.settingType === 'env' ? 'active' : '' " ng-click="changeSettingNav('env')">Env setting</div>
-                <div class="col-xs-3 space" ng-class="isShowSetting.settingType === 'global' ? 'active' : '' " ng-click="changeSettingNav('global')">Global Varibale setting</div>
-                <div class="col-xs-2 space">OK</div>
+                <div class="col-xs-2 space cursor-pointer" ng-class="isShowSetting.settingType === 'base' ? 'active' : '' " ng-click="changeSettingNav('base')">Base setting</div>
+                <div class="col-xs-2 space cursor-pointer" ng-class="isShowSetting.settingType === 'env' ? 'active' : '' " ng-click="changeSettingNav('env')">Env setting</div>
+                <div class="col-xs-3 space cursor-pointer" ng-class="isShowSetting.settingType === 'global' ? 'active' : '' " ng-click="changeSettingNav('global')">Global Varibale setting</div>
+                <div class="col-xs-2 space cursor-pointer"><span class="save-setting" ng-click="isShowDialog(false)">OK</span></div>
             </div>
             <div class="row base-setting" ng-if="isShowSetting.settingType === 'base'">
                 <div class="col-xs-6">
                     <img src="assets/images/icon-workflow-active.png" class="icon-size">
                     Workflow Name
-                    <input type="text">
+                    <input type="text" ng-model="setting.data.workflowName">
                 </div>
                 <div class="col-xs-6">
                     <img src="assets/images/icon-workflow-active.png" class="icon-size">
                     Workflow Version
-                    <input type="text">
+                    <input type="text" ng-model="setting.data.workflowVersion">
                 </div>
                 <div class="col-xs-6">
                     <img src="assets/images/icon-workflow-active.png" class="icon-size">
                     Workflow Url
-                    <input type="text">
+                    <input type="text" ng-model="setting.data.workflowUrl">
                 </div>
                 <div class="col-xs-6">
                     <img src="assets/images/icon-workflow-active.png" class="icon-size">
                     Workflow Token
-                    <input type="text">
+                    <input type="text" ng-model="setting.data.workflowToken">
                 </div>
                 <div class="col-xs-6">
                     <img src="assets/images/icon-workflow-active.png" class="icon-size">
                     KUBE_APISERVER_IP
-                    <input type="text">
+                    <input type="text" ng-model="setting.data.serverIp">
                 </div>
                 <div class="col-xs-6">
                     <img src="assets/images/icon-workflow-active.png" class="icon-size">
                     KUBE_NODE_IP
-                    <input type="text">
+                    <input type="text" ng-model="setting.data.nodeIp">
                 </div>
                 <div class="col-xs-12 marg-bt-ten">
                     <img src="assets/images/icon-workflow-active.png" class="icon-size">
@@ -111,8 +112,34 @@
                     </div>
                 </div>
             </div>
-            <div class="row" ng-if="isShowSetting.settingType === 'env'">env</div>
-            <div class="row" ng-if="isShowSetting.settingType === 'global'">global</div>
+            <div class="row" ng-if="isShowSetting.settingType === 'env'">
+                <div class="col-xs-6">
+                    KUBE_APISERVER_IP
+                </div>
+                <div class="col-xs-6 marg-bt-ten">
+                    <input type="text" ng-model="setting.env.serverIp">
+                </div>
+                <div class="col-xs-6">
+                    KUBE_NODE_IP
+                </div>
+                <div class="col-xs-6">
+                    <input type="text" ng-model="setting.env.nodeIp">
+                </div>
+            </div>
+            <div class="row" ng-if="isShowSetting.settingType === 'global'">
+                <div class="col-xs-6">
+                    KUBE_APISERVER_IP
+                </div>
+                <div class="col-xs-6 marg-bt-ten">
+                    <input type="text" ng-model="setting.globalVar.serverIp">
+                </div>
+                <div class="col-xs-6">
+                    KUBE_NODE_IP
+                </div>
+                <div class="col-xs-6">
+                    <input type="text" ng-model="setting.globalVar.nodeIp">
+                </div>
+            </div>
             
         </div>
     </div>
