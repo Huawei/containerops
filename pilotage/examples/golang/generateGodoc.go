@@ -60,7 +60,7 @@ func main() {
 	resultMap := make(map[string]interface{}, 0)
 	resultMap["output"] = map[string]string{"doc": result}
 	resultMap["status"] = true
-	resultMap["result"] = map[string]interface{}{"status": resultMap["status"], "status": "success", "output": resultMap["output"]}
+	resultMap["result"] = map[string]interface{}{"status": resultMap["status"], "output": resultMap["output"]}
 	resultByte, _ := json.Marshal(resultMap)
 	// after task done send a TASK_RESULT notify to workflow
 	notifyEvent("TASK_RESULT", "application/json", bytes.NewReader(resultByte))
