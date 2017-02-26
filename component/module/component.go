@@ -182,11 +182,12 @@ func CreateComponent(namespace string, componentInfo []byte) (int64, error) {
 	}
 
 	if cInfo.ImageSetting != nil {
-		if shell, err := json.Marshal(cInfo.ImageSetting.EventShell); err != nil {
+		var shell []byte
+		if shell, err = json.Marshal(cInfo.ImageSetting.EventShell); err != nil {
 			return 0, fmt.Errorf("CreateComponent error: format eventShell error: %s", err.Error())
-		} else {
-			shellStr = string(shell)
 		}
+
+		shellStr = string(shell)
 	}
 
 	component := new(models.Component)
@@ -214,7 +215,7 @@ func CreateComponent(namespace string, componentInfo []byte) (int64, error) {
 	count := int64(0)
 	err = component.GetComponent().Where("namespace = ?", namespace).Where("name = ?", cInfo.Name).Where("version = ?", cInfo.Version).Count(&count).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return 0, fmt.Errorf("error when query component info:", err.Error())
+		return 0, fmt.Errorf("error when query component info: %s", err.Error())
 	} else if count > 0 {
 		return 0, fmt.Errorf("CreateComponent error: component exist")
 	}
@@ -303,7 +304,9 @@ func GetComponentByID(namespace string, id int64) (*ComponentData, error) {
 				return nil, fmt.Errorf("error when unmarshal component kubesetting[podConfig]: %s", err.Error())
 			}
 
-			json.Unmarshal(setting, result.Pod)
+			var podSet interface{}
+			json.Unmarshal(setting, &podSet)
+			result.Pod = podSet
 		}
 
 		if serviceSetting, ok := kubeSettingMap["serviceConfig"]; ok {
@@ -312,7 +315,9 @@ func GetComponentByID(namespace string, id int64) (*ComponentData, error) {
 				return nil, fmt.Errorf("error when unmarshal component kubesetting[serviceConfig]: %s", err.Error())
 			}
 
-			json.Unmarshal(setting, result.Service)
+			var serviceSet interface{}
+			json.Unmarshal(setting, &serviceSet)
+			result.Service = serviceSet
 		}
 	}
 
@@ -323,9 +328,15 @@ func GetComponentByID(namespace string, id int64) (*ComponentData, error) {
 			return nil, fmt.Errorf("error when unmarshal compoent event shell: %s", err.Error())
 		}
 
-		result.ImageSetting.EventShell.ComponentStart = eventMap["componentStart"]
-		result.ImageSetting.EventShell.ComponentResult = eventMap["componentResult"]
-		result.ImageSetting.EventShell.ComponentStop = eventMap["componentStop"]
+		if shell, ok := eventMap["componentStart"].(string); ok {
+			result.ImageSetting.EventShell.ComponentStart = shell
+		}
+		if shell, ok := eventMap["componentResult"].(string); ok {
+			result.ImageSetting.EventShell.ComponentResult = shell
+		}
+		if shell, ok := eventMap["componentStop"].(string); ok {
+			result.ImageSetting.EventShell.ComponentStop = shell
+		}
 	}
 
 	if component.BaseImageName != "" {
@@ -353,6 +364,7 @@ func UpdateComponent(namespace string, id int64, componentInfo []byte) error {
 	inputStr := ""
 	outputStr := ""
 	envStr := ""
+	shellStr := ""
 
 	cInfo := new(ComponentData)
 	err := json.Unmarshal(componentInfo, &cInfo)
@@ -397,6 +409,15 @@ func UpdateComponent(namespace string, id int64, componentInfo []byte) error {
 		envStr = string(env)
 	}
 
+	if cInfo.ImageSetting != nil {
+		var shell []byte
+		if shell, err = json.Marshal(cInfo.ImageSetting.EventShell); err != nil {
+			return fmt.Errorf("CreateComponent error: format eventShell error: %s", err.Error())
+		}
+
+		shellStr = string(shell)
+	}
+
 	component := new(models.Component)
 	err = component.GetComponent().Where("namespace = ?", namespace).Where("id = ?", id).First(&component).Error
 	if err != nil {
@@ -412,6 +433,14 @@ func UpdateComponent(namespace string, id int64, componentInfo []byte) error {
 	component.Input = inputStr
 	component.Output = outputStr
 	component.Environment = envStr
+
+	if cInfo.ImageSetting != nil {
+		if cInfo.ImageSetting.From != nil {
+			component.BaseImageName = cInfo.ImageSetting.From.ImageName
+			component.BaseImageTag = cInfo.ImageSetting.From.ImageTag
+		}
+		component.EventShell = shellStr
+	}
 
 	err = component.GetComponent().Save(component).Error
 	if err != nil {

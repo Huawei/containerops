@@ -28,21 +28,24 @@ import (
 	"strings"
 )
 
+// IsDirExist is
 func IsDirExist(path string) bool {
 	fi, err := os.Stat(path)
 
 	if err != nil {
 		return os.IsExist(err)
-	} else {
-		return fi.IsDir()
 	}
+
+	return fi.IsDir()
 }
 
+// IsFileExist is
 func IsFileExist(filename string) bool {
 	_, err := os.Stat(filename)
 	return err == nil || os.IsExist(err)
 }
 
+// Contain is
 func Contain(obj interface{}, target interface{}) (bool, error) {
 	targetValue := reflect.ValueOf(target)
 
@@ -62,6 +65,7 @@ func Contain(obj interface{}, target interface{}) (bool, error) {
 	return false, errors.New("not in array")
 }
 
+// EncodeBasicAuth is
 func EncodeBasicAuth(username string, password string) string {
 	auth := username + ":" + password
 	msg := []byte(auth)
@@ -70,6 +74,7 @@ func EncodeBasicAuth(username string, password string) string {
 	return string(authorization)
 }
 
+// DecodeBasicAuth is
 func DecodeBasicAuth(authorization string) (username string, password string, err error) {
 	basic := strings.Split(strings.TrimSpace(authorization), " ")
 	if len(basic) <= 1 {
@@ -99,6 +104,7 @@ func DecodeBasicAuth(authorization string) (username string, password string, er
 	return username, password, nil
 }
 
+// ValidatePassword is
 func ValidatePassword(password string) error {
 	if valida, _ := regexp.MatchString("[:alpha:]", password); valida != true {
 		return fmt.Errorf("No alpha character in the password.")
@@ -115,6 +121,7 @@ func ValidatePassword(password string) error {
 	return nil
 }
 
+// MD5 is
 func MD5(key string) string {
 	md5String := fmt.Sprintf("dockyard %s is a container hub", key)
 	h := md5.New()
