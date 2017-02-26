@@ -12,6 +12,7 @@
                 <i class="fa fa-reply" style="font-size:16px"></i>
                 <span style="margin:0 5px">Cancel</span>
             </button>
+            <i class="fa fa-cog icon-cog" ng-click="isShowDialog(true)"></i>
         </div>
     </div>
 </div>
@@ -23,6 +24,124 @@
         <h5>
            <span class="glyphicon glyphicon-option-horizontal designer-split" draggable="true"></span>
         </h5>
+    </div>
+</div>
+<div id="workflow-setting" ng-if="isShowSetting.showInfo">
+    <div class="row">
+        <div class="col-xs-10 col-xs-offset-1">
+            <div class="row nav-setting">
+                <div class="col-xs-3 space">Workflow setting</div>
+                <div class="col-xs-2 space cursor-pointer" ng-class="isShowSetting.settingType === 'base' ? 'active' : '' " ng-click="changeSettingNav('base')">Base setting</div>
+                <div class="col-xs-2 space cursor-pointer" ng-class="isShowSetting.settingType === 'env' ? 'active' : '' " ng-click="changeSettingNav('env')">Env setting</div>
+                <div class="col-xs-3 space cursor-pointer" ng-class="isShowSetting.settingType === 'global' ? 'active' : '' " ng-click="changeSettingNav('global')">Global Varibale setting</div>
+                <div class="col-xs-2 space cursor-pointer"><span class="save-setting" ng-click="isShowDialog(false)">OK</span></div>
+            </div>
+            <div class="row base-setting" ng-if="isShowSetting.settingType === 'base'">
+                <div class="col-xs-6">
+                    <img src="assets/images/icon-workflow-active.png" class="icon-size">
+                    Workflow Name
+                    <input type="text" ng-model="setting.data.workflowName">
+                </div>
+                <div class="col-xs-6">
+                    <img src="assets/images/icon-workflow-active.png" class="icon-size">
+                    Workflow Version
+                    <input type="text" ng-model="setting.data.workflowVersion">
+                </div>
+                <div class="col-xs-6">
+                    <img src="assets/images/icon-workflow-active.png" class="icon-size">
+                    Workflow Url
+                    <input type="text" ng-model="setting.data.workflowUrl">
+                </div>
+                <div class="col-xs-6">
+                    <img src="assets/images/icon-workflow-active.png" class="icon-size">
+                    Workflow Token
+                    <input type="text" ng-model="setting.data.workflowToken">
+                </div>
+                <div class="col-xs-6">
+                    <img src="assets/images/icon-workflow-active.png" class="icon-size">
+                    KUBE_APISERVER_IP
+                    <input type="text" ng-model="setting.data.serverIp">
+                </div>
+                <div class="col-xs-6">
+                    <img src="assets/images/icon-workflow-active.png" class="icon-size">
+                    KUBE_NODE_IP
+                    <input type="text" ng-model="setting.data.nodeIp">
+                </div>
+                <div class="col-xs-12 marg-bt-ten">
+                    <img src="assets/images/icon-workflow-active.png" class="icon-size">
+                    Select the workflow to start the way
+                </div>
+                <div class="col-xs-5" style="padding-left: 50px">
+                    <input type="radio" name="startway" value="number" ng-model="isShowSetting.startWay">
+                    Number of running instances
+                </div>
+                <div class="col-xs-3">
+                    <input type="radio" name="startway" value="manual" ng-model="isShowSetting.startWay">
+                    Manual start
+                </div>
+                <div class="col-xs-3">
+                    <input type="radio" name="startway" value="timed" ng-model="isShowSetting.startWay">
+                    Timed Task
+                </div>
+                <div class="col-xs-12" ng-if="isShowSetting.startWay === 'number'">
+                    <input type="number" ng-model="setting.data.runningInstances.number">
+                    <span class="col-purple">/ times</span>
+                </div>
+                <div class="col-xs-12" ng-if="isShowSetting.startWay === 'manual'">
+                    <textarea class="manual" ng-model="setting.data.manualStart"></textarea>
+                </div>
+                <div class="col-xs-12" ng-if="isShowSetting.startWay === 'timed'">
+                    <div class="row" ng-repeat="item in setting.data.timedTasks.tasks" style="margin-top:20px">
+                        <div class="col-xs-3">
+                            <img src="assets/images/icon-workflow-active.png" class="icon-size">
+                            Timed Task
+                        </div>
+                        <div class="col-xs-9 task-info">
+                            <div class="pull-left" style="width:80%">
+                                <textarea>{{item.eventName}} | {{item.eventType}} | {{item.startJson}}</textarea><br/>
+                                Generated cron entry: {{item.cronEntry}}
+                            </div>
+                            <div class="pull-right">
+                                <img src="assets/images/icon-edit.png" class="icon-size"/>
+                                <img src="assets/images/icon-delete.png" class="icon-size" ng-click="timeTaskEvent.delete($index)"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12" style="margin-top:30px">
+                        <span class="add-task"ng-click="timeTaskEvent.add()">+ Add Timed Task</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-if="isShowSetting.settingType === 'env'">
+                <div class="col-xs-6">
+                    KUBE_APISERVER_IP
+                </div>
+                <div class="col-xs-6 marg-bt-ten">
+                    <input type="text" ng-model="setting.env.serverIp">
+                </div>
+                <div class="col-xs-6">
+                    KUBE_NODE_IP
+                </div>
+                <div class="col-xs-6">
+                    <input type="text" ng-model="setting.env.nodeIp">
+                </div>
+            </div>
+            <div class="row" ng-if="isShowSetting.settingType === 'global'">
+                <div class="col-xs-6">
+                    KUBE_APISERVER_IP
+                </div>
+                <div class="col-xs-6 marg-bt-ten">
+                    <input type="text" ng-model="setting.globalVar.serverIp">
+                </div>
+                <div class="col-xs-6">
+                    KUBE_NODE_IP
+                </div>
+                <div class="col-xs-6">
+                    <input type="text" ng-model="setting.globalVar.nodeIp">
+                </div>
+            </div>
+            
+        </div>
     </div>
 </div>
 <div class="row" ui-view="element"></div>
