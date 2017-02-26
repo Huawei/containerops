@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 )
 
+// ComponentBaseData is component's base data to describe a component
 type ComponentBaseData struct {
 	ID      int64  `json:"id"`
 	Name    string `json:"name"`
@@ -84,9 +85,9 @@ type BuildInfo struct {
 	From       *ImageInfo `json:"from"`
 	Push       *ImageInfo `json:"push"`
 	EventShell struct {
-		ComponentStart  interface{} `json:"componentStart"`
-		ComponentResult interface{} `json:"componentResult"`
-		ComponentStop   interface{} `json:"componentStop"`
+		ComponentStart  string `json:"componentStart"`
+		ComponentResult string `json:"componentResult"`
+		ComponentStop   string `json:"componentStop"`
 	} `json:"events"`
 }
 
@@ -94,7 +95,7 @@ type BuildInfo struct {
 type DebugInfo struct {
 	ImageInfo
 	Input       *json.RawMessage `json:"input"`
-	Ouput       *json.RawMessage `json:"output"`
+	Output      *json.RawMessage `json:"output"`
 	Env         []Env            `json:"env"`
 	Timeout     int              `json:"timeout"`
 	UseAdvanced bool             `json:"useAdvanced"`
@@ -104,7 +105,7 @@ type DebugInfo struct {
 
 // ImageInfo is the image info
 type ImageInfo struct {
-	ImageName string `json:"imagesName"`
+	ImageName string `json:"imageName"`
 	ImageTag  string `json:"imageTag"`
 	AuthType  string `json:"authType,omitempty"`
 	Username  string `json:"username,omitempty"`

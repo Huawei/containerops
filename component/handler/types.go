@@ -23,8 +23,8 @@ import (
 // CommonResp is common resp that each resp will have
 type CommonResp struct {
 	OK        bool    `json:"ok"`
-	ErrorCode errCode `json:"error_code,omitempty"`
-	Message   string  `json:"message",omitempty`
+	ErrorCode errCode `json:"errorCode,omitempty"`
+	Message   string  `json:"message,omitempty"`
 }
 
 // ListComponentsResp is get component list's struct
@@ -33,6 +33,7 @@ type ListComponentsResp struct {
 	Components []module.ComponentBaseData `json:"components"`
 }
 
+// CreateComponentResp is the resp after create a component
 type CreateComponentResp struct {
 	CommonResp    `json:"common"`
 	ComponentInfo struct {

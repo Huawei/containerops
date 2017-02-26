@@ -31,11 +31,22 @@ import (
 )
 
 const (
+	// PanicLevel is the level of log
 	PanicLevel = iota
+
+	// FatalLevel is the level of log
 	FatalLevel
+
+	// ErrorLevel is the level of log
 	ErrorLevel
+
+	// WarnLevel is the level of log
 	WarnLevel
+
+	// InfoLevel is the level of log
 	InfoLevel
+
+	// DebugLevel is the level of log
 	DebugLevel
 )
 
@@ -48,6 +59,7 @@ const (
 	gray    = 37
 )
 
+// Logger is a copy struct of logrus.Logger
 type Logger struct {
 	*logrus.Logger
 }
@@ -56,6 +68,7 @@ var (
 	log *Logger
 )
 
+// New return a logger with config file setting
 func New() *Logger {
 	if log == nil {
 		log = new(Logger)
@@ -97,11 +110,11 @@ func getLogFile(name string) *os.File {
 		if fileInfo.IsDir() {
 			name = name + string(os.PathSeparator) + "runtime.log"
 			return getLogFile(name)
-		} else {
-			var flag int
-			flag = os.O_RDWR | os.O_APPEND
-			f, err = os.OpenFile(name, flag, 0)
 		}
+
+		var flag int
+		flag = os.O_RDWR | os.O_APPEND
+		f, err = os.OpenFile(name, flag, 0)
 	} else if os.IsNotExist(err) {
 		d := path.Dir(name)
 		_, err = os.Stat(d)
@@ -117,9 +130,11 @@ func getLogFile(name string) *os.File {
 	return f
 }
 
+// MyFormatter define the log's output format
 type MyFormatter struct {
 }
 
+// Format is define the log's output format
 func (f *MyFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	var b *bytes.Buffer
 	keys := make([]string, 0, len(entry.Data))
@@ -143,18 +158,28 @@ func (f *MyFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	}
 	pc, file, line, _ := runtime.Caller(depth)
 
-	pkgandmodel := strings.Split(runtime.FuncForPC(pc).Name(), ".")
-	if len(pkgandmodel) < 2 {
-		pkgandmodel = append(pkgandmodel, pkgandmodel[0])
+	pcName := runtime.FuncForPC(pc).Name()
+	index := strings.LastIndex(pcName, ".")
+	pkg := ""
+	model := ""
+	if index != -1 {
+		pkg = pcName[:index]
+		model = pcName[index+1:]
+	} else {
+		pkg = pcName
+		model = pcName
 	}
+
+	paths := strings.Split(file, "/")
+	file = paths[len(paths)-1]
 
 	fmtStr := ""
 	if logrus.IsTerminal() {
 		fmtStr = "\x1b[%dm[%s] %s%d %s [%s] %-4s\x1b[0m"
-		fmt.Fprintf(b, fmtStr, levelColor, entry.Time.Format(time.RFC3339), file+":", line, pkgandmodel[0], pkgandmodel[1], levelText)
+		fmt.Fprintf(b, fmtStr, levelColor, entry.Time.Format(time.RFC3339), file+":", line, pkg, model, levelText)
 	} else {
 		fmtStr = "[%s] %s%d %s [%s] %-4s"
-		fmt.Fprintf(b, fmtStr, entry.Time.Format(time.RFC3339), file+":", line, pkgandmodel[0], pkgandmodel[1], levelText)
+		fmt.Fprintf(b, fmtStr, entry.Time.Format(time.RFC3339), file+":", line, pkg, model, levelText)
 	}
 
 	for _, k := range keys {
