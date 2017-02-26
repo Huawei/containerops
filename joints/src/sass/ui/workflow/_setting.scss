@@ -128,6 +128,7 @@ limitations under the License. */
   margin-left: 20px;
 }
 
+// workflow setting
 #workflow-setting {
   background: #fff;
   padding: 20px 0;
@@ -209,5 +210,44 @@ limitations under the License. */
   .icon-size {
     width: 20px;
     height: auto;
+  }
+}
+
+// action detail
+#action-detail {
+  .bg-green {
+    background: #43b594;
+  }
+  .bg-grey {
+    background: #d7d7d7;
+  }
+  .bg-orange {
+    background: #ff9800;
+  }
+  .cursor-pointer {
+    cursor: pointer;
+  }
+  .marg-lt-fifteen {
+    margin-left: 15px;
+  }
+  .space {
+    padding: 5px 12px;
+    color: #fff;
+    border-radius: 3px;
+    margin: 0 10px;
+  }
+  .component-info {
+    background: #f0fffe;
+    padding: 8px 0;
+    border: 1px solid #43b594;
+    border-radius: 3px;
+    margin-top: 20px;
+    .edit {
+      padding: 3px 5px;
+      text-align: center;
+      background: #7dd5bd;
+      border-radius: 3px;
+      cursor: pointer;
+    }
   }
 }

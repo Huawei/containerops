@@ -85,6 +85,42 @@ define(['app'], function(app) {
                         }
                     }
                 })
+                .state('workflow.create.action', {
+                    url: '/action/:id',
+                    views: {
+                        'element': {
+                            templateUrl: 'templates/workflow/actionDetail.html',
+                            controller: 'ActionDetailController',
+                            resolve: {
+                                loadCtrl_workflow: ["$q", function($q) {
+                                    var deferred = $q.defer();
+                                    require(["controllers/workflow/actionDetail"], function() {
+                                        deferred.resolve();
+                                    });
+                                    return deferred.promise;
+                                }],
+                            }
+                        }
+                    }
+                })
+                .state('workflow.create.addComponent', {
+                    url: '/addComponent',
+                    views: {
+                        'element': {
+                            templateUrl: 'templates/workflow/addComponent.html',
+                            controller: 'AddComponentController',
+                            resolve: {
+                                loadCtrl_workflow: ["$q", function($q) {
+                                    var deferred = $q.defer();
+                                    require(["controllers/workflow/addComponent"], function() {
+                                        deferred.resolve();
+                                    });
+                                    return deferred.promise;
+                                }],
+                            }
+                        }
+                    }
+                })
                 .state('component', {
                     parent: 'home',
                     url: '/component',

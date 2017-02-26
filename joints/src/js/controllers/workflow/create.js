@@ -97,6 +97,11 @@ define(["app","services/diagram/main"], function(app) {
             $scope.resetWorkflowData();
         };
 
+        $scope.resetActionInfo = function(stageIndex,actionIndex){
+            diagramService.currentActionIndex = actionIndex;
+            $scope.resetStageInfo(stageIndex);
+        };
+
         $scope.newStage = {
             "name":"",
             "id":"",
@@ -145,7 +150,6 @@ define(["app","services/diagram/main"], function(app) {
                 $scope.resetStageInfo(i);
                 $state.go("workflow.create.stage",{"id": d.id});
             };
-
         };
 
         $scope.clearChosedStageColor = function(){
@@ -170,7 +174,7 @@ define(["app","services/diagram/main"], function(app) {
         };
 
         // chosed action
-        $scope.chosedAction = function(){
+        $scope.chosedAction = function(d,i){
             event.stopPropagation();
             $scope.clearChosedIndex('action');
             $scope.clearAddActionIcon();
@@ -183,6 +187,8 @@ define(["app","services/diagram/main"], function(app) {
             var isChosed = $scope.workflowData[chosedStageIndex]['actions'][chosedActionIndex]['isChosed'];
             $scope.workflowData[chosedStageIndex]['actions'][chosedActionIndex]['isChosed'] = !isChosed;
             $scope.drawWorkflow(); 
+            $scope.resetActionInfo(chosedStageIndex,chosedActionIndex);
+            $state.go("workflow.create.action",{"id": d.id});
         };
 
         $scope.clearAddActionIcon = function(){
