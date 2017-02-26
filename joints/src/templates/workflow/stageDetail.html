@@ -12,7 +12,7 @@
                             <span class="icon icon-baseImage-respository-name"></span>
                         </label>
                         <div class="col-md-10">
-                            <input type="text" class="devops-input" placeholder="Stage Name" title="Stage Name" ng-model="stage.name" required>
+                            <input type="text" class="devops-input" placeholder="Stage Name" title="Stage Name" ng-model="currentStageInfo.name" required>
                         </div>
                     </div>
                 </div>
@@ -22,7 +22,7 @@
                             <i class="icon icon-baseImage-tag"></i>
                         </label>
                         <div class="col-md-10">
-                            <input type="text" class="devops-input" placeholder="Stage Timeout" title="Stage Timeout" ng-model="stage.timeout">
+                            <input type="text" class="devops-input" placeholder="Stage Timeout" title="Stage Timeout" ng-model="currentStageInfo.timeout">
                         </div>
                     </div>
                 </div>
@@ -43,10 +43,10 @@
                 <div class="col-md-12"></div>
                 <div class="col-md-6">
                     <label class="col-md-offset-1 col-md-2 radio-inline" >
-                        <input type="radio" name="inlineRadioOptions" value="option1"> Serial
+                        <input type="radio" name="inlineRadioOptions" value="serial" ng-model="currentStageInfo.runMode"> Serial
                     </label>
                     <label class="col-md-2 radio-inline">
-                        <input type="radio" name="inlineRadioOptions" value="option2"> Parallel
+                        <input type="radio" name="inlineRadioOptions" value="parallel" ng-model="currentStageInfo.runMode"> Parallel
                     </label>
                 </div>
             </div>
