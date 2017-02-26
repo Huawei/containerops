@@ -10,12 +10,19 @@ define(["app","services/diagram/main"], function(app) {
         $scope.workflowData = diagramService.dataset;
 
         $scope.isShowSetting = {
+            showInfo: true,
             startWay: "number",
-            settingType: "base"
+            settingType: "base",
         };
 
         $scope.setting = {
             "data":{
+                "workflowName":"devops",
+                "workflowVersion":"0.0.1",
+                "workflowUrl":"www.devops.com",
+                "workflowToken":"37dfeg8efab3",
+                "serverIp":"100.10.10.1",
+                "nodeIp":"100.10.10.1",
                 "runningInstances":{
                     "available":true,
                     "number":10
@@ -36,11 +43,23 @@ define(["app","services/diagram/main"], function(app) {
                         }
                     ]
                 }
+            },
+            "env":{
+                "serverIp":"100.10.10.1",
+                "nodeIp":"100.10.10.1"
+            },
+            "globalVar":{
+                "serverIp":"100.10.10.2",
+                "nodeIp":"100.10.10.2"
             }
         };
 
         $scope.changeSettingNav = function(nav){
             $scope.isShowSetting.settingType = nav;
+        };
+
+        $scope.isShowDialog = function(val){
+            $scope.isShowSetting.showInfo = val;
         };
 
         $scope.timeTaskEvent = {
@@ -60,7 +79,7 @@ define(["app","services/diagram/main"], function(app) {
             add: function(){
                 $scope.setting.data.timedTasks.tasks.push(angular.copy($scope.timeTaskEvent.timeTask))
             }
-        }
+        };
 
         $scope.drawWorkflow = function() {
             diagramService.drawWorkflow($scope,'#div-d3-main-svg', $scope.workflowData)
