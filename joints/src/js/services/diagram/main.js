@@ -15,12 +15,13 @@ limitations under the License.
  */
 define(['app','services/diagram/api'], function(app) {
     app.provide.factory("diagramService", ["diagramApiService","$state", function(diagramApiService,$state) {
-        var dataset = [
+        var workflowData = [
             {
                 "name":"stage0",
                 "id":"s0",
                 "type":"edit-stage",
                 "runMode":"serial", //serial串行，parallel并行
+                "timeout":1000,
                 // "runResult":3,
                 "actions":[
                     {
@@ -54,6 +55,7 @@ define(['app','services/diagram/api'], function(app) {
                 "id":"s1",
                 "type":"edit-stage",
                 "runMode":"parallel",
+                "timeout":1100,
                 "actions":[
                     {
                         "isChosed":false,
@@ -163,6 +165,7 @@ define(['app','services/diagram/api'], function(app) {
                 "id":"s2",
                 "type":"edit-stage",
                 "runMode":"parallel",
+                "timeout":1200,
                 "actions":[
                     {
                         "isChosed":false,
@@ -190,6 +193,7 @@ define(['app','services/diagram/api'], function(app) {
                 "id":"s3",
                 "type":"add-stage",
                 "runMode":"",
+                "timeout":1000,
                 "actions":[]
             },
             {
@@ -197,9 +201,13 @@ define(['app','services/diagram/api'], function(app) {
                 "id":"s3",
                 "type":"end-stage",
                 "runMode":"",
+                "timeout":1000,
                 "actions":[]
             }
         ];
+
+        var currentStageInfo = '';
+        var currentStageIndex = '';
 
         function drawWorkflow(scope,selector,dataset) {
             var baseSize = {
@@ -670,10 +678,16 @@ define(['app','services/diagram/api'], function(app) {
             
         }; 
 
+        function resetWorkflowData(newData){
+            var workflowData = newData;
+        }
 
         return {
-            "dataset": dataset,
-            "drawWorkflow": drawWorkflow
+            "workflowData": workflowData,
+            "currentStageInfo": currentStageInfo,
+            "currentStageIndex": currentStageIndex,
+            "drawWorkflow": drawWorkflow,
+            "resetWorkflowData": resetWorkflowData
         }
     }])
 })
