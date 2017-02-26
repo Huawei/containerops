@@ -8,6 +8,60 @@ define(["app","services/diagram/main"], function(app) {
         };
 
         $scope.workflowData = diagramService.dataset;
+
+        $scope.isShowSetting = {
+            startWay: "number",
+            settingType: "base"
+        };
+
+        $scope.setting = {
+            "data":{
+                "runningInstances":{
+                    "available":true,
+                    "number":10
+                },
+                "manualStart":"test",
+                "timedTasks":{
+                    "available":true,
+                    "tasks":[
+                        {
+                            "byDesigner":true,
+                            "collapse":true,
+                            "cronEntry":"* * * * *",
+                            "eventName":"test",
+                            "eventType":"test",
+                            "startJson":{
+                                "name":"test"
+                            }
+                        }
+                    ]
+                }
+            }
+        };
+
+        $scope.changeSettingNav = function(nav){
+            $scope.isShowSetting.settingType = nav;
+        };
+
+        $scope.timeTaskEvent = {
+            timeTask: {
+                            "byDesigner":true,
+                            "collapse":true,
+                            "cronEntry":"* * * * *",
+                            "eventName":"test",
+                            "eventType":"test",
+                            "startJson":{
+                                "name":"test"
+                            }
+                        },
+            delete: function(index){
+                $scope.setting.data.timedTasks.tasks.splice(index,1)
+            },
+            add: function(){
+                $scope.setting.data.timedTasks.tasks.push(angular.copy($scope.timeTaskEvent.timeTask))
+            }
+        }
+
         $scope.drawWorkflow = function() {
             diagramService.drawWorkflow($scope,'#div-d3-main-svg', $scope.workflowData)
         };
