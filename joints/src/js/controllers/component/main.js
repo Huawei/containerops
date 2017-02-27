@@ -1,7 +1,7 @@
 define(["app","services/component/main"], function(app) {
-    app.controllerProvider.register('ComponentController', ['$scope', '$location', 'componentService', 'notifyService', 'loading', 'more',
+    app.controllerProvider.register('ComponentController', ['$scope', '$location', 'componentService', 'notifyService', 'loading',
         'apiService', 'utilService',
-        function($scope, $location, componentService, notifyService, loading, more, apiService, utilService) {
+        function($scope, $location, componentService, notifyService, loading, apiService, utilService) {
 
             function getOffset(type, name) {
                 if (type == "component") {
@@ -13,7 +13,7 @@ define(["app","services/component/main"], function(app) {
                 }
             }
 
-            function showMoreComponent() {
+            $scope.showMoreComponent = function() {
                 var promise = componentService.getComponents($scope.filter.name, $scope.filter.version, true, $scope.pageNum, $scope.versionNum, getOffset("component"));
                 promise.done(function(data) {
                     loading.hide();
@@ -64,9 +64,6 @@ define(["app","services/component/main"], function(app) {
                 promise.done(function(data) {
                     loading.hide();
                     $scope.components = utilService.componentDataTransfer(data.components);
-                    more.show(function() {
-                        showMoreComponent();
-                    });
                     $scope.dataReady = true;
                     if (type == "init" && $scope.components.length > 0) {
                         $scope.nodata = false;

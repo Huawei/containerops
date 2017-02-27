@@ -80,44 +80,8 @@
             </div>
             <span class="version-more" ng-click="showMoreVersion(component.name)">More</span>
         </section>
-        <!-- <div class="col-md-12">
-                        <div class="row list-header">
-                            <div class="col-md-4">Name</div>
-                            <div class="col-md-4">Version</div>
-                            <div class="col-md-4">Operation</div>
-                        </div>
-                        <div class="row list-body">
-                            <div class="row" ng-repeat="component in components">
-                                <div class="list-row">
-                                    <div class="col-md-4">
-                                        <span>{{component.name}}</span>
-                                    </div>
-                                    <div class="col-md-8">
-                                        <div class="row sublist-row" ng-repeat="version in component.versions track by version.id">
-                                            <div class="col-md-6">
-                                                <span>{{version.version}}</span>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <button type="button" class="btn btn-primary td-btn" ng-click="showComponentDetail(version.id)" style="padding:3px 5px">
-                                                    <i class="btn-primary fa fa-edit" style="font-size:16px"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="list-row-more">
-                                    <button type="button" class="btn btn-success td-btn view-btn" ng-click="showMoreVersion(component.name)" style="float:right;">
-                                        <i class="fa fa-refresh" style="font-size:16px"></i>
-                                        <span style="margin-left:5px">show more</span>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="list-row" ng-show="components.length == 0">
-                                <div class="col-md-12" style="text-align:center;padding-top:10px">
-                                    <span>No Data Found.</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div> -->
+        <section style="text-align:center;height:30px;margin: 30px ">
+            <span style="cursor:pointer" ng-click="showMoreComponent()"> ~~~ more ~~~ </span>
+        </section>
     </div>
 </div>

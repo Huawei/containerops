@@ -18,26 +18,31 @@ define(['app'], function(app) {
         var apiUrlConf = {
             host: "",
 
-            rootUrl: "/v2",
+            rootUrl: "/v1/{namespace}/components",
 
             list: {
-                "url": "/components?name={filterName}&version={filterVersion}&fuzzy={fuzzy}&page_num={pageNum}&version_num={versionNum}&offset={offset}",
+                "url": "?name={filterName}&fuzzy={fuzzy}&pageNum={pageNum}&versionNum={versionNum}&offset={offset}",
                 "type": "GET"
             },
 
             detail: {
-                "url": "/components/{componentID}",
+                "url": "/{componentID}",
                 "type": "GET"
             },
 
             add: {
-                "url": "/components",
+                "url": "",
                 "type": "POST"
             },
 
             update: {
-                "url": "/components/{componentID}",
+                "url": "/{componentID}",
                 "type": "PUT"
+            },
+
+            del: {
+                "url": "/{componentID}",
+                "type": "DELETE"
             },
 
             debug: {
@@ -70,13 +75,14 @@ define(['app'], function(app) {
         function ajaxCall(target, params, reqbody) {
             beforeApiInvocation(apiUrlConf[target].skipAbort);
 
+            var urlroot = getUrlRoot();
             var urlext = getUrlExt(target, params);
             var type = apiUrlConf[target].type;
 
             var options;
             if (type == "GET") {
                 options = {
-                    "url": apiUrlConf.host + apiUrlConf.rootUrl + urlext,
+                    "url": apiUrlConf.host + urlroot + urlext,
                     "type": type,
                     "dataType": "json",
                     "cache": false
@@ -84,15 +90,27 @@ define(['app'], function(app) {
             } else if (type == "POST" || type == "PUT") {
                 var data = JSON.stringify(reqbody);
                 options = {
-                    "url": apiUrlConf.host + apiUrlConf.rootUrl + urlext,
+                    "url": apiUrlConf.host + urlroot + urlext,
                     "type": type,
                     "dataType": "json",
                     "data": data
                 }
+            }else if (type == "DELETE") {
+                options = {
+                    "url": apiUrlConf.host + urlroot + urlext,
+                    "type": type,
+                    "dataType": "json"
+                }
             }
+
             var promise = $.ajax(options);
             apiService.addPromise(promise);
             return promise;
+        }
+
+        function getUrlRoot(){
+            var rootUrl = apiUrlConf.rootUrl;
+            return rootUrl.replace(/{namespace}/g, "demo");
         }
 
         function getUrlExt(target, params) {
