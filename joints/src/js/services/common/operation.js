@@ -28,19 +28,6 @@ define(['services/module'], function(commonServiceModule) {
                 "hide": hide
             }
         })
-        .factory("more", ['$location', function($location) {
-            return {
-                show: function(next) {
-                    $(window).scroll(function() {
-                        if ($location.path() == "/component") {
-                            if ($(window).scrollTop() + $(window).height() == $(document).height()) {
-                                next();
-                            }
-                        }
-                    });
-                }
-            }
-        }])
         .factory("notifyService", function() {
             Messenger.options = { extraClasses: 'messenger-fixed messenger-theme-future messenger-on-top'};
             return {
