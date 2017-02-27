@@ -17,6 +17,10 @@ file = ""
 level = "debug"
 # is log print all request info,if set to true && level set to debug, all request info will be print
 showReqInfo = false
+# is log will record db info
+dblog = true
+# where the db log will be record
+dblogfile = "runtime/log/db.log"
 
 [database]
 driver = "mysql"
