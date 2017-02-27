@@ -1,7 +1,7 @@
 define(["app","services/component/main","services/component/io","services/component/check"], function(app) {
-    app.controllerProvider.register('CreateComponentController', ['$scope', '$location', 'componentService', 'componentIO',
+    app.controllerProvider.register('CreateComponentController', ['$scope', '$state', 'componentService', 'componentIO',
         'componentCheck', 'notifyService', 'apiService', 'loading',
-        function($scope, $location, componentService, componentIO, componentCheck, notifyService, apiService, loading) {
+        function($scope, $state, componentService, componentIO, componentCheck, notifyService, apiService, loading) {
             // tabs control
             $scope.selectTab = function(index) {
                 $scope.tab = index;
@@ -209,7 +209,7 @@ define(["app","services/component/main","services/component/io","services/compon
                     var promise = componentService.addComponent($scope.component);
                     promise.done(function(data) {
                         apiService.successToCall(data);
-                        $location.path("/component/" + data.component.id);
+                        $state.go("component");
                     });
                     promise.fail(function(xhr, status, error) {
                         apiService.failToCall(xhr.responseJSON);
@@ -219,7 +219,7 @@ define(["app","services/component/main","services/component/io","services/compon
 
             // back to list
             $scope.backToList = function() {
-                $location.path("/component");
+                $state.go("component");
             }
 
             // debug tab functions
