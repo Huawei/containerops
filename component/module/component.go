@@ -93,11 +93,11 @@ func getComponentNames(namespace, name string, fuzzy bool, pageNum, offset int) 
 		queryArray = append(queryArray, "%"+name+"%")
 	}
 
-	queryLimitStr := "LIMIT ? OFFSET ?"
+	queryLimitStr := " LIMIT ? OFFSET ?"
 	queryArray = append(queryArray, pageNum)
 	queryArray = append(queryArray, offset)
 
-	err := models.GetDB().Raw("SELECT DISTINCT(A.name) as name FROM ( SELECT B.* FROM component B WHERE 1=1 "+queryStr+" ORDER BY updated_at desc "+queryLimitStr+") A", queryArray...).Scan(&names).Error
+	err := models.GetDB().Raw("SELECT DISTINCT(A.name) as name FROM ( SELECT B.* FROM component B ORDER BY updated_at desc) A WHERE 1=1 "+queryStr+queryLimitStr, queryArray...).Scan(&names).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return result, err
 	}
