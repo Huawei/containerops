@@ -39,6 +39,31 @@ define(['services/module'], function(commonServiceModule) {
                         "showCloseButton": true,
                         "hideAfter": showtime ? showtime : 3
                     });
+                },
+
+                confirm: function(msg, type,actions, showtime) {
+                    // actions is an array of {"name":"","label":"","action":function}
+                    var options = {
+                        "message": msg,
+                        "type": type,
+                        /* success, error, info*/
+                        "showCloseButton": true,
+                        "hideAfter" : showtime ? showtime : 60,
+                        "actions" : {}
+                    }
+
+                    _.each(actions,function(item){
+                        var oneAction = {
+                            "label" : item.label,
+                            "action" : function(){
+                                item.action();
+                                this.hide();
+                            }
+                        }
+                        options.actions[item.name] = oneAction;
+                    })
+
+                    Messenger().post(options);
                 }
             }
         })
