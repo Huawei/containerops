@@ -32,7 +32,7 @@ define(["app","services/component/main","services/component/io","services/compon
             }
 
             $scope.baseOrAdvanced = function() {
-                if ($scope.component.use_advanced) {
+                if ($scope.component.useAdvanced) {
                     $scope.component.service = {};
                     $scope.component.pod = {};
 
@@ -148,13 +148,13 @@ define(["app","services/component/main","services/component/io","services/compon
             function showEventScript() {
                 switch ($scope.selectedEvent) {
                     case 1:
-                        $scope.scriptEditor.setValue($scope.component.image_setting.events.component_start);
+                        $scope.scriptEditor.setValue($scope.component.imageSetting.events.componentStart);
                         break;
                     case 2:
-                        $scope.scriptEditor.setValue($scope.component.image_setting.events.component_result);
+                        $scope.scriptEditor.setValue($scope.component.imageSetting.events.componentResult);
                         break;
                     case 3:
-                        $scope.scriptEditor.setValue($scope.component.image_setting.events.component_stop);
+                        $scope.scriptEditor.setValue($scope.component.imageSetting.events.componentStop);
                         break;
                 }
                 focusEventScript();
@@ -163,13 +163,13 @@ define(["app","services/component/main","services/component/io","services/compon
             function setEventScript() {
                 switch ($scope.selectedEvent) {
                     case 1:
-                        $scope.component.image_setting.events.component_start = $scope.scriptEditor.getValue();
+                        $scope.component.imageSetting.events.componentStart = $scope.scriptEditor.getValue();
                         break;
                     case 2:
-                        $scope.component.image_setting.events.component_result = $scope.scriptEditor.getValue();
+                        $scope.component.imageSetting.events.componentResult = $scope.scriptEditor.getValue();
                         break;
                     case 3:
-                        $scope.component.image_setting.events.component_stop = $scope.scriptEditor.getValue();
+                        $scope.component.imageSetting.events.componentStop = $scope.scriptEditor.getValue();
                         break;
                 }
             }
@@ -184,21 +184,21 @@ define(["app","services/component/main","services/component/io","services/compon
 
             // build push page functions
             $scope.changeBaseImageType = function() {
-                if ($scope.component.image_setting.from.type == "url") {
-                    delete $scope.component.image_setting.from.name;
-                    delete $scope.component.image_setting.from.tag;
-                    delete $scope.component.image_setting.from.dockerfile;
-                    $scope.component.image_setting.from["url"] = "";
-                } else if ($scope.component.image_setting.from.type == "dockerfile") {
-                    delete $scope.component.image_setting.from.name;
-                    delete $scope.component.image_setting.from.tag;
-                    delete $scope.component.image_setting.from.url;
-                    $scope.component.image_setting.from["dockerfile"] = "";
-                } else if ($scope.component.image_setting.from.type == "name") {
-                    delete $scope.component.image_setting.from.url;
-                    delete $scope.component.image_setting.from.dockerfile;
-                    $scope.component.image_setting.from["name"] = "";
-                    $scope.component.image_setting.from["tag"] = "";
+                if ($scope.component.imageSetting.from.type == "url") {
+                    delete $scope.component.imageSetting.from.name;
+                    delete $scope.component.imageSetting.from.tag;
+                    delete $scope.component.imageSetting.from.dockerfile;
+                    $scope.component.imageSetting.from["url"] = "";
+                } else if ($scope.component.imageSetting.from.type == "dockerfile") {
+                    delete $scope.component.imageSetting.from.name;
+                    delete $scope.component.imageSetting.from.tag;
+                    delete $scope.component.imageSetting.from.url;
+                    $scope.component.imageSetting.from["dockerfile"] = "";
+                } else if ($scope.component.imageSetting.from.type == "name") {
+                    delete $scope.component.imageSetting.from.url;
+                    delete $scope.component.imageSetting.from.dockerfile;
+                    $scope.component.imageSetting.from["name"] = "";
+                    $scope.component.imageSetting.from["tag"] = "";
                 }
             }
 
