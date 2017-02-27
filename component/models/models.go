@@ -17,7 +17,11 @@ limitations under the License.
 package models
 
 import (
+	"fmt"
+	oslog "log"
 	"os"
+	"path"
+	"strings"
 
 	logs "github.com/Huawei/containerops/component/log"
 	"github.com/jinzhu/gorm"
@@ -43,6 +47,7 @@ func OpenDatabase() {
 		log.Fatal("Initlization database connection error.")
 		os.Exit(1)
 	} else {
+		setLogger()
 		db.DB()
 		db.DB().Ping()
 		db.SingularTable(true)
@@ -68,4 +73,45 @@ func GetDB() *gorm.DB {
 
 	OpenDatabase()
 	return db
+}
+
+func setLogger() {
+	openDBlog := configure.GetBool("log.dblog")
+	log.Info("db log :", openDBlog)
+	if openDBlog {
+		db.LogMode(true)
+		logFile := getLogFile(strings.TrimSpace(configure.GetString("log.dblogfile")))
+		db.SetLogger(oslog.New(logFile, "\r\n", 0))
+	}
+}
+
+func getLogFile(name string) *os.File {
+	log.Info("got file:", name)
+	if name == "" {
+		return os.Stdout
+	}
+	var f *os.File
+	fileInfo, err := os.Stat(name)
+	if err == nil {
+		if fileInfo.IsDir() {
+			name = name + string(os.PathSeparator) + "db.log"
+			return getLogFile(name)
+		}
+
+		var flag int
+		flag = os.O_RDWR | os.O_APPEND
+		f, err = os.OpenFile(name, flag, 0)
+	} else if os.IsNotExist(err) {
+		d := path.Dir(name)
+		_, err = os.Stat(d)
+		if os.IsNotExist(err) {
+			os.MkdirAll(d, 0755)
+		}
+		f, err = os.Create(name)
+	}
+	if err != nil {
+		f = os.Stdout
+		fmt.Println(err)
+	}
+	return f
 }
