@@ -35,30 +35,29 @@ define(['app','services/component/api'], function(app) {
                 "input": {},
                 "output": {},
                 "env": [],
-                "image_name": "",
-                "image_tag": "",
-                "image_setting": {
-                    "build": {
-                        "name": "",
-                        "tag": ""
-                    },
+                "imageName": "",
+                "imageTag": "",
+                "imageSetting": {
                     "from": {
-                        "name": "",
-                        "tag": ""
-                    },
-                    "events": {
-                        "component_start": "",
-                        "component_result": "",
-                        "component_stop": ""
+                        "imageName": "",
+                        "imageTag": "",
+                        "username" : "",
+                        "pwd" : "" 
                     },
                     "push": {
-                        "registry": "",
+                        "imageName": "",
+                        "imageTag": "",
                         "username": "",
-                        "password": ""
-                    }
+                        "pwd": ""
+                    },
+                    "events": {
+                        "componentStart": "",
+                        "componentResult": "",
+                        "componentStop": ""
+                    } 
                 },
                 "timeout": 0,
-                "use_advanced": false,
+                "useAdvanced": false,
                 "pod": {},
                 "service": {}
             },
@@ -111,6 +110,13 @@ define(['app','services/component/api'], function(app) {
             return componentApiService.ajaxCall("update", params, reqbody);
         }
 
+        function deleteComponent(componentID) {
+            var params = {
+                "componentID": componentID
+            }
+            return componentApiService.ajaxCall("del", params);
+        }
+
         function debugComponent(componentID) {
             var params = {
                 "componentID": componentID
@@ -124,6 +130,7 @@ define(['app','services/component/api'], function(app) {
             "addComponent": addComponent,
             "getComponent": getComponent,
             "updateComponent": updateComponent,
+            "deleteComponent": deleteComponent,
             "debugComponent": debugComponent
         }
     }])
