@@ -1,5 +1,5 @@
 define(["app","services/diagram/main"], function(app) {
-    app.controllerProvider.register('WorkflowCreateController', ['$scope', '$state', 'notifyService', 'diagramService', function($scope, $state, notifyService, diagramService) {
+    app.controllerProvider.register('WorkflowCreateController', ['$scope', '$state', '$rootScope', 'notifyService', 'diagramService', function($scope, $state, $rootScope, notifyService, diagramService) {
         $scope.backToList = function() {
             $state.go("workflow");
         };
@@ -81,8 +81,8 @@ define(["app","services/diagram/main"], function(app) {
             }
         };
 
-        $scope.drawWorkflow = function() {
-            diagramService.drawWorkflow($scope,'#div-d3-main-svg', $scope.workflowData)
+        $rootScope.drawWorkflow = function() {
+            diagramService.drawWorkflow($scope,'#div-d3-main-svg',diagramService.workflowData);
         };
 
         $scope.resetWorkflowData = function(){
@@ -104,44 +104,57 @@ define(["app","services/diagram/main"], function(app) {
 
         $scope.newStage = {
             "name":"",
-            "id":"",
+            "id":"stage-",
             "type":"edit-stage",
             "runMode":"parallel",
+            "timeout":'',
             "actions":[
                 {
+                    "isChosed":false,
+                    "name":"",
+                    "id":"action-",
+                    "type":"action",
+                    "timeout":'',
                     "components":[]
                 }
             ]
         };
 
-        $scope.newComponent = {
-            "name":"action1",
-            "id":"s2-at1",
-            "type":"action",
-            "inputData":"",
-            "outputData":""
-        };
+        // $scope.newComponent = {
+        //     "name":"",
+        //     "id":"component-",
+        //     "type":"action",
+        //     "version":"",
+        //     "inputData":"",
+        //     "outputData":""
+        // };
 
         $scope.newAction = {
+            "isChosed":false,
+            "name":"",
+            "id":"action-",
+            "type":"action",
+            "timeout":'',
             "components":[]
         };
-      
         // add or chosed stage
         $scope.chosedStage = function(d,i){
             event.stopPropagation();
             $scope.clearChosedIndex('stage');
             $scope.clearChosedStageColor();
+            $scope.workflowData = diagramService.workflowData;
             if(d.type === 'add-stage'){
                 var stage = angular.copy($scope.newStage);
+                    stage.id += uuid.v1();
+                    stage.actions[0].id += uuid.v1();
                 var addstage = angular.copy($scope.workflowData[i]);
                 var endstage = angular.copy($scope.workflowData[i+1]);
-                stage.id = 's'+i;
+
                 $scope.workflowData[i] = stage;
                 $scope.workflowData[i+1] = addstage;
                 $scope.workflowData[i+2] = endstage;
                 // dataset.splice(dataset[i-1],0,stage)
-                // drawWorkflow(selector,dataset); 
-                $scope.drawWorkflow();
+                $rootScope.drawWorkflow();
             };
 
             if(d.type === 'edit-stage'){
@@ -178,6 +191,7 @@ define(["app","services/diagram/main"], function(app) {
             event.stopPropagation();
             $scope.clearChosedIndex('action');
             $scope.clearAddActionIcon();
+            $scope.workflowData = diagramService.workflowData;
 
             var currentElement = d3.select(this);
             $scope.chosedStageIndex = parseInt(currentElement.attr('data-stageIndex'));
@@ -186,7 +200,7 @@ define(["app","services/diagram/main"], function(app) {
             var chosedActionIndex = $scope.chosedActionIndex;
             var isChosed = $scope.workflowData[chosedStageIndex]['actions'][chosedActionIndex]['isChosed'];
             $scope.workflowData[chosedStageIndex]['actions'][chosedActionIndex]['isChosed'] = !isChosed;
-            $scope.drawWorkflow(); 
+            $rootScope.drawWorkflow(); 
             $scope.resetActionInfo(chosedStageIndex,chosedActionIndex);
             $state.go("workflow.create.action",{"id": d.id});
         };
@@ -217,6 +231,7 @@ define(["app","services/diagram/main"], function(app) {
             var chosedActionIndex = $scope.chosedActionIndex;
             var actionLength = $scope.workflowData[chosedStageIndex]['actions'].length;
             var action = angular.copy($scope.newAction);
+            action.id += uuid.v1();
 
             if(type === 'bottom'){
                 if(actionLength === chosedActionIndex+1){
@@ -228,7 +243,7 @@ define(["app","services/diagram/main"], function(app) {
                 $scope.workflowData[chosedStageIndex]['actions'].splice(chosedActionIndex,0,action);
             };
                 
-            $scope.drawWorkflow(); 
+            $rootScope.drawWorkflow(); 
         }; 
 
         // add component
@@ -236,7 +251,7 @@ define(["app","services/diagram/main"], function(app) {
             addElement(d3.select(this),'component');
         };
 
-        $scope.drawWorkflow();
+        $rootScope.drawWorkflow();
   
 
     }]);
