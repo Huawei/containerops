@@ -79,14 +79,15 @@ require.config({
  * bootstraps angular onto the window.document node
  */
 define([
-	'require','angular','app','underscore','jquery','jsoneditor','angular-ui-router',
-	'bootstrap','angular-bootstrap', 'router','messenger','messenger-theme','parsley','d3','node-uuid',
+	'require','angular','app','underscore','jquery','jsoneditor','node-uuid', 'angular-ui-router',
+	'bootstrap','angular-bootstrap', 'router','messenger','messenger-theme','parsley','d3',
 	'select2','js-yaml','clipboard','jquery.autocomplete','ace-mode-golang','ace-theme-dawn',
 	'angular-websocket'
-], function(require, angular, app, _, $, jsoneditor) {
+], function(require, angular, app, _, $, jsoneditor, uuid) {
 	'use strict';
 	require(['domReady!'], function(document) {
 		window.JSONEditor = jsoneditor;
+		window.uuid = uuid;
 		angular.bootstrap(document, ['DevOps']);
 	});
 });
