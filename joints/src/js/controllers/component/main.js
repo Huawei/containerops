@@ -1,7 +1,7 @@
 define(["app","services/component/main"], function(app) {
-    app.controllerProvider.register('ComponentController', ['$scope', '$location', 'componentService', 'notifyService', 'loading',
+    app.controllerProvider.register('ComponentController', ['$scope', '$state', 'componentService', 'notifyService', 'loading',
         'apiService', 'utilService',
-        function($scope, $location, componentService, notifyService, loading, apiService, utilService) {
+        function($scope, $state, componentService, notifyService, loading, apiService, utilService) {
 
             function getOffset(type, name) {
                 if (type == "component") {
@@ -56,7 +56,7 @@ define(["app","services/component/main"], function(app) {
             }
 
             $scope.showNewComponent = function() {
-                $location.path("/component/create");
+                $state.go("component.create");
             }
 
             $scope.getComponents = function(type) {
@@ -79,7 +79,37 @@ define(["app","services/component/main"], function(app) {
             }
 
             $scope.showComponentDetail = function(id) {
-                $location.path("/component/" + id);
+                $state.go("component.detail",{"id" : id});
+            }
+
+            $scope.confirmDeleteComponent = function(id,componentName,version){
+                var actions = [
+                    {
+                        "name" : "delete",
+                        "label" : "Yes",
+                        "action" : function action(){
+                            deleteComponent(id);
+                        }
+                    },
+                    {
+                        "name" : "cancel",
+                        "label" : "No",
+                        "action" : function action(){
+                        }
+                    }
+                ];
+                notifyService.confirm("Are you sure to delete the component " + componentName + " " + version + "?", "info", actions);
+            }
+
+            function deleteComponent(id){
+                var promise = componentService.deleteComponent(id);
+                promise.done(function(data) {
+                    loading.hide();
+                    $scope.getComponents("init");
+                });
+                promise.fail(function(xhr, status, error) {
+                    apiService.failToCall(xhr.responseJSON);
+                });
             }
 
             function init() {

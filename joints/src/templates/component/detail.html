@@ -52,10 +52,6 @@
     								<div class="tab-text">New Image</div>
     								<div class="{{tabStatus.newimage ? 'tab-finished' : 'tab-unfinished'}}"></div>
     							</div>
-    							<!-- <div class="col-md-3 component-tab {{tab == 3 ? 'component-tab-active' : ''}}" ng-click="selectTab(3)" ng-if="toCreateImage">
-    								<div class="tab-text">Build Image</div>
-    								<div class="{{tabStatus.buildimage ? 'tab-finished' : 'tab-unfinished'}}"></div>
-    							</div> -->
     							<div class="col-md-3 component-tab {{tab == 3 ? 'component-tab-active' : ''}}" ng-click="selectTab(3)">
     								<div class="tab-text">Debug</div>
     							</div>
@@ -112,7 +108,7 @@
 	                                                            	<span class="icon icon-baseImage-respository-name"></span>
 	                                                            </label>
 	                                                            <div class="col-sm-11">
-	                                                                <input type="text" id="k8s-pod-image-name" class="devops-input" placeholder="Repository Name" title="Repository Name" ng-model="component.image_name" required>
+	                                                                <input type="text" id="k8s-pod-image-name" class="devops-input" placeholder="Repository Name" title="Repository Name" ng-model="component.imageName" required>
 	                                                            </div>
 	                                                        </div>
 	                                                    </div>
@@ -122,7 +118,7 @@
 	                                                                <i class="icon icon-baseImage-tag"></i>
 	                                                            </label>
 	                                                            <div class="col-sm-11">
-	                                                                <input type="text" id="k8s-pod-image-tag" class="devops-input" placeholder="Image Tag" title="Image Tag" ng-model="component.image_tag">
+	                                                                <input type="text" id="k8s-pod-image-tag" class="devops-input" placeholder="Image Tag" title="Image Tag" ng-model="component.imageTag">
 	                                                            </div>
 	                                                        </div>
 	                                                    </div>
@@ -132,13 +128,13 @@
 	                                        <div class="row type-header">
 	                                            <div class="type-label">Kubernetes</div>
 	                                            <div class="type-setting">
-	                                                <input type="radio" id="setting-way-base" name="k8s-setting-way" ng-value="false" ng-model="component.use_advanced" ng-change="baseOrAdvanced()"> 
+	                                                <input type="radio" id="setting-way-base" name="k8s-setting-way" ng-value="false" ng-model="component.useAdvanced" ng-change="baseOrAdvanced()"> 
 	                                                <span style="margin-left:5px">Base Setting</span>
-	                                                <input type="radio" id="setting-way-advanced" name="k8s-setting-way" style="margin-left:30px" ng-value="true" ng-model="component.use_advanced" ng-change="baseOrAdvanced()">
+	                                                <input type="radio" id="setting-way-advanced" name="k8s-setting-way" style="margin-left:30px" ng-value="true" ng-model="component.useAdvanced" ng-change="baseOrAdvanced()">
 	                                                <span style="margin-left:5px">Advanced Setting</span>
 	                                            </div>
 	                                        </div>
-	                                        <form id="base-setting-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate" ng-if="!component.use_advanced">
+	                                        <form id="base-setting-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate" ng-if="!component.useAdvanced">
 	                                            <fieldset>  
 	                                                <div id="basesetting">
 	                                                    <div class="row resource-setting-div" ng-repeat="item in component.pod.spec.containers track by $index">
@@ -234,7 +230,7 @@
 	                                                </div>
 	                                            </fieldset>
 	                                        </form>
-	                                        <form id="advanced-setting-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate" ng-if="component.use_advanced">
+	                                        <form id="advanced-setting-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate" ng-if="component.useAdvanced">
 	                                            <fieldset id="advancedsetting" class="row advanced-setting-div">
 	                                                <div class="advanced-content">
 	                                                    <div class="col-md-6 panel">
@@ -448,58 +444,56 @@
 				    					</div>
 				    					<div class="my-tab-pane" ng-show="newImageTab == 2">
 				    						<div class="image-disable-block hide"></div>
-				    						<form id="build-image-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">	
-				    							<fieldset class="row" style="padding:15px 0px">
-				    								<div class="row">
-				    									<div class="col-md-6">
-				    										<div class="form-group">
-				    											<label for="hint-field" class="col-sm-2 control-label">
-				    												<i class="icon icon-buildImage-name"></i>
-				    											</label>
-				    											<div class="col-sm-9 input-group">
-				    												<input type="text" id="build-name" class="devops-input" ng-model="component.image_setting.build.name" placeholder="Build Image Name" title="Build Image Name" required> 
-				    											</div>
-				    										</div>
-				    									</div>
-				    									<div class="col-md-6">
-				    										<div class="form-group">
-				    											<label for="hint-field" class="col-sm-2 control-label">
-				    												<i class="icon icon-build-tag"></i>
-				    											</label>
-				    											<div class="col-sm-9 input-group">
-				    												<input type="text" id="build-tag" class="devops-input" ng-model="component.image_setting.build.tag" placeholder="Build Image Tag" title="Build Image Tag"> 
-				    											</div>
-				    										</div>
-				    									</div>
-				    								</div>
-				    							</fieldset>
-				    						</form>
 				    						<form id="base-image-form" class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
 				    							<fieldset class="row" style="padding:15px 0px 15px 20px">
 				    								<div class="type-header" style="margin-top:-10px">
 				    									<div class="type-label" style="width:200px">Base Image</div>
 				    								</div>	
-				    								<div class="row image-input-div"> 
-				    									<div class="col-md-6">
-				    										<div class="form-group">
-				    											<label for="normal-field" class="col-sm-2 control-label">
-				    												<i class="icon icon-componentName"></i>
-				    											</label>
-				    											<div class="col-sm-9">
-				    												<input type="text" id="base-image-name" class="devops-input" ng-model="component.image_setting.from.name" placeholder="Base Image Name" title="Base Image Name" required>
-				    											</div>
-				    										</div>
-				    									</div>
-				    									<div class="col-md-6">
-				    										<div class="form-group">
-				    											<label for="normal-field" class="col-sm-2 control-label">
-				    												<i class="icon icon-baseImage-tag"></i>
-				    											</label>
-				    											<div class="col-sm-9">
-				    												<input type="text" id="base-image-tag" class="devops-input" ng-model="component.image_setting.from.tag" placeholder="Base Image Tag" title="Base Image Tag">
-				    											</div>
-				    										</div>
-				    									</div>
+				    								<div class="image-input-div">
+					    								<div class="row"> 
+					    									<div class="col-md-6">
+					    										<div class="form-group">
+					    											<label for="normal-field" class="col-sm-2 control-label">
+					    												<i class="icon icon-componentName"></i>
+					    											</label>
+					    											<div class="col-sm-9">
+					    												<input type="text" id="base-image-name" class="devops-input" ng-model="component.imageSetting.from.imageName" placeholder="Base Image Name" title="Base Image Name" required>
+					    											</div>
+					    										</div>
+					    									</div>
+					    									<div class="col-md-6">
+					    										<div class="form-group">
+					    											<label for="normal-field" class="col-sm-2 control-label">
+					    												<i class="icon icon-baseImage-tag"></i>
+					    											</label>
+					    											<div class="col-sm-9">
+					    												<input type="text" id="base-image-tag" class="devops-input" ng-model="component.imageSetting.from.imageTag" placeholder="Base Image Tag" title="Base Image Tag">
+					    											</div>
+					    										</div>
+					    									</div>
+					    								</div>
+					    								<div class="row">
+					    									<div class="col-md-6">
+					    										<div class="form-group">
+					    											<label for="hint-field" class="col-sm-2 control-label">
+					    												<i class="icon icon-userName"></i>
+					    											</label>
+					    											<div class="col-sm-9 input-group">
+					    												<input type="text" id="base-username" class="devops-input" ng-model="component.imageSetting.from.username" placeholder="User Name" title="User Name"> 
+					    											</div>
+					    										</div>
+					    									</div>
+					    									<div class="col-md-6">
+					    										<div class="form-group">
+					    											<label for="hint-field" class="col-sm-2 control-label">
+					    												<i class="icon icon-password"></i>
+					    											</label>
+					    											<div class="col-sm-9 input-group">
+					    												<input type="password" id="base-password" class="devops-input" ng-model="component.imageSetting.from.pwd" placeholder="Password" title="Password"> 
+					    											</div>
+					    										</div>
+					    									</div>
+					    								</div>
 				    								</div>
 				    							</fieldset>
 				    						</form>
@@ -508,38 +502,52 @@
 				    								<div class="type-header" style="margin-top:-10px">
 				    									<div class="type-label" style="width:200px">Push</div>
 				    								</div>
-				    								<div class="row image-input-div">
-				    									<div class="col-md-6">
-				    										<div class="form-group">
-				    											<label for="hint-field" class="col-sm-2 control-label">
-				    												<i class="icon icon-userName"></i>
-				    											</label>
-				    											<div class="col-sm-9 input-group">
-				    												<input type="text" id="push-username" class="devops-input" ng-model="component.image_setting.push.username" placeholder="User Name" title="User Name"> 
-				    											</div>
-				    										</div>
-				    									</div>
-				    									<div class="col-md-6">
-				    										<div class="form-group">
-				    											<label for="hint-field" class="col-sm-2 control-label">
-				    												<i class="icon icon-password"></i>
-				    											</label>
-				    											<div class="col-sm-9 input-group">
-				    												<input type="password" id="push-password" class="devops-input" ng-model="component.image_setting.push.password" placeholder="Password" title="Password"> 
-				    											</div>
-				    										</div>
-				    									</div>
-				    									<div class="col-md-12">
-				    										<div class="form-group">
-				    											<label for="hint-field" class="col-sm-1 control-label">
-				    												<i class="icon icon-registry"></i>
-				    											</label>
-				    											<div class="col-sm-10 input-group">
-				    												<input type="text" id="push-registry" class="devops-input" ng-model="component.image_setting.push.registry" placeholder="Registry" title="Registry" required> 
-				    											</div>
-				    										</div>
-				    									</div>
-				    								</div>
+				    								<div class="image-input-div">
+					    								<div class="row">
+					    									<div class="col-md-6">
+					    										<div class="form-group">
+					    											<label for="normal-field" class="col-sm-2 control-label">
+					    												<i class="icon icon-componentName"></i>
+					    											</label>
+					    											<div class="col-sm-9">
+					    												<input type="text" id="push-image-name" class="devops-input" ng-model="component.imageSetting.push.imageName" placeholder="Push Image Name" title="Push Image Name" required>
+					    											</div>
+					    										</div>
+					    									</div>
+					    									<div class="col-md-6">
+					    										<div class="form-group">
+					    											<label for="normal-field" class="col-sm-2 control-label">
+					    												<i class="icon icon-baseImage-tag"></i>
+					    											</label>
+					    											<div class="col-sm-9">
+					    												<input type="text" id="push-image-tag" class="devops-input" ng-model="component.imageSetting.push.imageTag" placeholder="Push Image Tag" title="Push Image Tag">
+					    											</div>
+					    										</div>
+					    									</div>
+					    								</div>
+					    								<div class="row">
+					    									<div class="col-md-6">
+					    										<div class="form-group">
+					    											<label for="hint-field" class="col-sm-2 control-label">
+					    												<i class="icon icon-userName"></i>
+					    											</label>
+					    											<div class="col-sm-9 input-group">
+					    												<input type="text" id="push-username" class="devops-input" ng-model="component.imageSetting.push.username" placeholder="User Name" title="User Name"> 
+					    											</div>
+					    										</div>
+					    									</div>
+					    									<div class="col-md-6">
+					    										<div class="form-group">
+					    											<label for="hint-field" class="col-sm-2 control-label">
+					    												<i class="icon icon-password"></i>
+					    											</label>
+					    											<div class="col-sm-9 input-group">
+					    												<input type="password" id="push-password" class="devops-input" ng-model="component.imageSetting.push.password" placeholder="Password" title="Password"> 
+					    											</div>
+					    										</div>
+					    									</div>
+					    								</div>
+					    							</div>
 				    							</fieldset>
 				    						</form>
 				    					</div>

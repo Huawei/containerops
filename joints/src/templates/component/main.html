@@ -68,10 +68,14 @@
                             <div class="col-md-8 list-row-item">
                                 <span>{{version.version}}</span>
                             </div>
-                            <div class="col-md-4 list-row-item">
-                                <button type="button" class="btn btn-cyan td-btn" ng-click="showComponentDetail(version.id)" style="padding:3px 5px">
+                            <div class="col-md-4 list-row-item" style="padding:12px 0">
+                                <button type="button" class="btn btn-cyan td-btn" ng-click="showComponentDetail(version.id)" style="padding:4px 10px">
                                     <i class="fa fa-eye" style="font-size:16px"></i>
                                     <span style="margin-left:5px">View</span>
+                                </button>
+                                <button type="button" class="btn btn-cyan td-btn" ng-click="confirmDeleteComponent(version.id,component.name,version.version)" style="padding:4px 10px">
+                                    <i class="fa fa-remove" style="font-size:16px"></i>
+                                    <span style="margin-left:5px">Delete</span>
                                 </button>
                             </div>
                         </div>
