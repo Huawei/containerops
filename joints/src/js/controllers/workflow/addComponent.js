@@ -88,6 +88,7 @@ define(["app","services/diagram/main","services/component/main"], function(app) 
                     v.type = 'component';
                     v.inputData = '';
                     v.outData = '';
+                    v.uuid = 'component-'+uuid.v1();
                     $scope.importComponents.push(v);
                 })
             })

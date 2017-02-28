@@ -3,7 +3,6 @@ define(["app","services/diagram/main"], function(app) {
         $scope.workflowData = diagramService.workflowData;
         var currentStageIndex = diagramService.currentStageIndex;
         var currentActionIndex = diagramService.currentActionIndex;
-        console.log(diagramService)
         $scope.currentActionInfo = $scope.workflowData[currentStageIndex]['actions'][currentActionIndex];
         $scope.componentEvent = {
             delete: function(index){
@@ -12,6 +11,8 @@ define(["app","services/diagram/main"], function(app) {
                 $rootScope.drawWorkflow();
             },
             add: function(){
+        console.log(diagramService)
+                
                 $state.go("workflow.create.addComponent");
             },
             edit: function(index){
