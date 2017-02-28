@@ -104,7 +104,7 @@ define(["app","services/diagram/main"], function(app) {
 
         $scope.newStage = {
             "name":"",
-            "id":"",
+            "id":"stage-",
             "type":"edit-stage",
             "runMode":"parallel",
             "timeout":'',
@@ -112,7 +112,7 @@ define(["app","services/diagram/main"], function(app) {
                 {
                     "isChosed":false,
                     "name":"",
-                    "id":"",
+                    "id":"action-",
                     "type":"action",
                     "timeout":'',
                     "components":[]
@@ -120,24 +120,23 @@ define(["app","services/diagram/main"], function(app) {
             ]
         };
 
-        $scope.newComponent = {
-            "name":"",
-            "id":"",
-            "type":"action",
-            "version":"",
-            "inputData":"",
-            "outputData":""
-        };
+        // $scope.newComponent = {
+        //     "name":"",
+        //     "id":"component-",
+        //     "type":"action",
+        //     "version":"",
+        //     "inputData":"",
+        //     "outputData":""
+        // };
 
         $scope.newAction = {
             "isChosed":false,
             "name":"",
-            "id":"",
+            "id":"action-",
             "type":"action",
             "timeout":'',
             "components":[]
         };
-      
         // add or chosed stage
         $scope.chosedStage = function(d,i){
             event.stopPropagation();
@@ -146,9 +145,11 @@ define(["app","services/diagram/main"], function(app) {
             $scope.workflowData = diagramService.workflowData;
             if(d.type === 'add-stage'){
                 var stage = angular.copy($scope.newStage);
+                    stage.id += uuid.v1();
+                    stage.actions[0].id += uuid.v1();
                 var addstage = angular.copy($scope.workflowData[i]);
                 var endstage = angular.copy($scope.workflowData[i+1]);
-                stage.id = 's'+i;
+
                 $scope.workflowData[i] = stage;
                 $scope.workflowData[i+1] = addstage;
                 $scope.workflowData[i+2] = endstage;
@@ -230,6 +231,7 @@ define(["app","services/diagram/main"], function(app) {
             var chosedActionIndex = $scope.chosedActionIndex;
             var actionLength = $scope.workflowData[chosedStageIndex]['actions'].length;
             var action = angular.copy($scope.newAction);
+            action.id += uuid.v1();
 
             if(type === 'bottom'){
                 if(actionLength === chosedActionIndex+1){
