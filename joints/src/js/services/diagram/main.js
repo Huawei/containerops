@@ -464,10 +464,11 @@ define(['app','services/diagram/api'], function(app) {
                                 var y1 = 0 + padding + _this.componentHeight + padding;
 
                                 if(length>0){
-                                    x = a.components[0].x;
-                                    y0 = a.components[0].y - padding;
+                                    // x = a.components[0].x;
+                                    // y0 = a.components[0].y - padding;
                                     y1 = a.components[length-1].y + _this.componentHeight + padding;
                                 };
+
 
                                 var x0 = x - padding;
                                 var x1 = x + _this.rowActionNum * (_this.componentWidth + _this.componentPad) - _this.componentPad + padding;
@@ -502,7 +503,6 @@ define(['app','services/diagram/api'], function(app) {
                                 var bordTop = 'L'+x9+' '+y0+'L'+(x1 - _this.arcPadSmall)+' '+y0+'Q'+x1+' '+y0+' '+x1+' '+(y0 + _this.arcPadSmall);
                                 var bordRightTop = 'L'+x1+' '+y3;
                                 var top = bordLeftTop + bordTop + bordRightTop;
-                                
                                 return bottom + top;
                             });
                         
@@ -523,8 +523,8 @@ define(['app','services/diagram/api'], function(app) {
                                 var y1 = 0 + padding + _this.componentHeight + padding;
 
                                 if(length>0){
-                                    x = a.components[0].x;
-                                    y0 = a.components[0].y - padding;
+                                    // x = a.components[0].x;
+                                    // y0 = a.components[0].y - padding;
                                     y1 = a.components[length-1].y + _this.componentHeight + padding;
                                 };
 
@@ -625,7 +625,7 @@ define(['app','services/diagram/api'], function(app) {
                             .attr('x',function(c,r){
                                 var remain = r % _this.rowActionNum;
                                 var componentNum = a.components.length>=_this.rowActionNum ? _this.rowActionNum : a.components.length;
-                                var moveright = (_this.stageWidth - (_this.componentWidth+_this.componentPad)*_this.rowActionNum)/2;
+                                var moveright = (_this.stageWidth - (_this.componentWidth+_this.componentPad)*_this.rowActionNum)/2 + _this.componentPad/2;
                                 c.x = remain * (_this.componentWidth + _this.componentPad) + moveright;
                                 return c.x;
                             })
@@ -654,8 +654,8 @@ define(['app','services/diagram/api'], function(app) {
                         var y1 = 0 + padding + _this.componentHeight + padding;
 
                         if(length>0){
-                            x = a.components[0].x;
-                            y0 = a.components[0].y - padding;
+                            // x = a.components[0].x;
+                            // y0 = a.components[0].y - padding;
                             y1 = a.components[length-1].y + _this.componentHeight + padding;
                         };
 
@@ -680,7 +680,7 @@ define(['app','services/diagram/api'], function(app) {
                                     return ai;
                                 })
                                 .attr('x',function(){
-                                    return x0 + (x1 - x0 - _this.addComponentWidth) / 2 ;
+                                    return x0 + (x1 - x0 - _this.addComponentWidth) / 2;
                                 })
                                 .attr('y',function(){
                                     return y0 - _this.addComponentWidth/2 - _this.arcPadSmall + _this.addIconPad;
@@ -708,17 +708,15 @@ define(['app','services/diagram/api'], function(app) {
                                     return y1 - _this.addComponentWidth/2;
                                 })
                                 .on('click',scope.addBottomAction);
-                        };
-                        
+                        };                        
 
                     });
                 })
-            
         }; 
 
         function resetWorkflowData(newData){
-            var workflowData = newData;
-        }
+            this.workflowData = newData;
+        };
 
         return {
             "workflowData": workflowData,

@@ -70,7 +70,7 @@ require.config({
 			exports: 'angular-websocket',
 			deps: ['angular']
 		}
-		
+
 
 		
 	}
