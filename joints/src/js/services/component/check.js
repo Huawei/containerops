@@ -49,22 +49,19 @@ define(['app'], function(app) {
             return $('#component-envs').parsley().validate();
         }
 
-        var image_setting = {
-            "build": function() {
-                return $('#build-image-form').parsley().validate();
-            },
+        var imageSetting = {
             "from": function() {
                 return $('#base-image-form').parsley().validate();
             },
             "events": {
-                "component_start": function(componentData) {
-                    return _.isEmpty(componentData.image_setting.events.component_start);
+                "componentStart": function(componentData) {
+                    return _.isEmpty(componentData.imageSetting.events.componentStart);
                 },
-                "component_result": function(componentData) {
-                    return _.isEmpty(componentData.image_setting.events.component_result);
+                "componentResult": function(componentData) {
+                    return _.isEmpty(componentData.imageSetting.events.componentResult);
                 },
-                "component_stop": function(componentData) {
-                    return _.isEmpty(componentData.image_setting.events.component_stop);
+                "componentStop": function(componentData) {
+                    return _.isEmpty(componentData.imageSetting.events.componentStop);
                 }
             },
             "push": function() {
@@ -93,38 +90,33 @@ define(['app'], function(app) {
                 return check_result;
             }
 
-            if (image_setting.events.component_start(componentData)) {
+            if (imageSetting.events.componentStart(componentData)) {
                 check_result = false;
                 notifyService.notify("Script of component start event is required.", "error");
                 return check_result;
             }
-            if (image_setting.events.component_result(componentData)) {
+            if (imageSetting.events.componentResult(componentData)) {
                 check_result = false;
                 notifyService.notify("Script of component result event is required.", "error");
                 return check_result;
             }
-            if (image_setting.events.component_stop(componentData)) {
+            if (imageSetting.events.componentStop(componentData)) {
                 check_result = false;
                 notifyService.notify("Script of component stop event is required.", "error");
                 return check_result;
             }
-            if (!image_setting.build()) {
-                check_result = false;
-                notifyService.notify("Build image is not complete.", "error");
-                return check_result;
-            }
-            if (!image_setting.from()) {
+            if (!imageSetting.from()) {
                 check_result = false;
                 notifyService.notify("Base image is not complete.", "error");
                 return check_result;
             }
-            if (!image_setting.push()) {
+            if (!imageSetting.push()) {
                 check_result = false;
                 notifyService.notify("Push image is not complete.", "error");
                 return check_result;
             }
 
-            if (!componentData.use_advanced) {
+            if (!componentData.useAdvanced) {
                 if (!basesetting()) {
                     check_result = false;
                     notifyService.notify("Kubernetes base setting is not complete.", "error");
@@ -157,7 +149,7 @@ define(['app'], function(app) {
                     result = false;
                 }
 
-                if (!componentData.use_advanced) {
+                if (!componentData.useAdvanced) {
                     if (!basesetting()) {
                         result = false;
                     }
@@ -177,17 +169,17 @@ define(['app'], function(app) {
             },
             "editshell": function(componentData) {
                 var result = true;
-                if (image_setting.events.component_start(componentData)) {
+                if (imageSetting.events.componentStart(componentData)) {
                     result = false;
-                } else if (image_setting.events.component_result(componentData)) {
+                } else if (imageSetting.events.componentResult(componentData)) {
                     result = false;
-                } else if (image_setting.events.component_stop(componentData)) {
+                } else if (imageSetting.events.componentStop(componentData)) {
                     result = false;
                 }
                 return result;
             },
             "buildimage": function() {
-                var result = image_setting.build() && image_setting.from() && image_setting.push();
+                var result = imageSetting.from() && imageSetting.push();
                 return result;
             }
         }

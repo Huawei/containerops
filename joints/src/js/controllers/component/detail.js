@@ -1,7 +1,7 @@
 define(["app","services/component/main","services/component/io","services/component/check"], function(app) {
-    app.controllerProvider.register('ComponentDetailController', ['$scope', '$stateParams', '$location', 'componentService', 'componentIO',
+    app.controllerProvider.register('ComponentDetailController', ['$scope', '$stateParams', '$state', 'componentService', 'componentIO',
         'componentCheck', 'notifyService', 'apiService', 'loading',
-        function($scope, $stateParams, $location, componentService, componentIO, componentCheck, notifyService, apiService, loading) {
+        function($scope, $stateParams, $state, componentService, componentIO, componentCheck, notifyService, apiService, loading) {
             // tabs control
             $scope.selectTab = function(index) {
                 checkTabs();
@@ -31,7 +31,7 @@ define(["app","services/component/main","services/component/io","services/compon
             }
             
             $scope.baseOrAdvanced = function() {
-                if ($scope.component.use_advanced) {
+                if ($scope.component.useAdvanced) {
                     $scope.component.service = {};
                     $scope.component.pod = {};
 
@@ -85,20 +85,6 @@ define(["app","services/component/main","services/component/io","services/compon
                     $scope.component.service.spec.ports.push($.extend(true, {}, componentService.metadata.clusterip));
                 }
                 $scope.serviceType = $scope.component.service.spec.type;
-            }
-
-            $scope.createImage = function() {
-                $scope.toCreateImage = true;
-                $scope.component.image_name = "";
-                $scope.component.image_tag = "";
-                $scope.component.image_setting = $.extend(true, {}, componentService.metadata.imagesetting);
-            }
-
-            $scope.cancelCreateImage = function() {
-                $scope.toCreateImage = false;
-                $scope.component.image_name = "";
-                $scope.component.image_tag = "";
-                $scope.component.image_setting = {};
             }
 
             $scope.switchMode = function(value) {
@@ -161,16 +147,34 @@ define(["app","services/component/main","services/component/io","services/compon
             function showEventScript() {
                 switch ($scope.selectedEvent) {
                     case 1:
-                        $scope.scriptEditor.setValue($scope.component.image_setting.events.component_start);
+                        $scope.scriptEditor.setValue($scope.component.imageSetting.events.componentStart);
                         break;
                     case 2:
-                        $scope.scriptEditor.setValue($scope.component.image_setting.events.component_result);
+                        $scope.scriptEditor.setValue($scope.component.imageSetting.events.componentResult);
                         break;
                     case 3:
-                        $scope.scriptEditor.setValue($scope.component.image_setting.events.component_stop);
+                        $scope.scriptEditor.setValue($scope.component.imageSetting.events.componentStop);
                         break;
                 }
 
+                focusEventScript();
+            }
+
+            function setEventScript() {
+                switch ($scope.selectedEvent) {
+                    case 1:
+                        $scope.component.imageSetting.events.componentStart = $scope.scriptEditor.getValue();
+                        break;
+                    case 2:
+                        $scope.component.imageSetting.events.componentResult = $scope.scriptEditor.getValue();
+                        break;
+                    case 3:
+                        $scope.component.imageSetting.events.componentStop = $scope.scriptEditor.getValue();
+                        break;
+                }
+            }
+
+            function focusEventScript() {
                 var session = $scope.scriptEditor.getSession();
                 var row = session.getLength();
                 var col = session.getLine(row - 1).length;
@@ -178,37 +182,23 @@ define(["app","services/component/main","services/component/io","services/compon
                 $scope.scriptEditor.focus();
             }
 
-            function setEventScript() {
-                switch ($scope.selectedEvent) {
-                    case 1:
-                        $scope.component.image_setting.events.component_start = $scope.scriptEditor.getValue();
-                        break;
-                    case 2:
-                        $scope.component.image_setting.events.component_result = $scope.scriptEditor.getValue();
-                        break;
-                    case 3:
-                        $scope.component.image_setting.events.component_stop = $scope.scriptEditor.getValue();
-                        break;
-                }
-            }
-
             // build push page functions
             $scope.changeBaseImageType = function() {
-                if ($scope.component.image_setting.from.type == "url") {
-                    delete $scope.component.image_setting.from.name;
-                    delete $scope.component.image_setting.from.tag;
-                    delete $scope.component.image_setting.from.dockerfile;
-                    $scope.component.image_setting.from["url"] = "";
-                } else if ($scope.component.image_setting.from.type == "dockerfile") {
-                    delete $scope.component.image_setting.from.name;
-                    delete $scope.component.image_setting.from.tag;
-                    delete $scope.component.image_setting.from.url;
-                    $scope.component.image_setting.from["dockerfile"] = "";
-                } else if ($scope.component.image_setting.from.type == "name") {
-                    delete $scope.component.image_setting.from.url;
-                    delete $scope.component.image_setting.from.dockerfile;
-                    $scope.component.image_setting.from["name"] = "";
-                    $scope.component.image_setting.from["tag"] = "";
+                if ($scope.component.imageSetting.from.type == "url") {
+                    delete $scope.component.imageSetting.from.name;
+                    delete $scope.component.imageSetting.from.tag;
+                    delete $scope.component.imageSetting.from.dockerfile;
+                    $scope.component.imageSetting.from["url"] = "";
+                } else if ($scope.component.imageSetting.from.type == "dockerfile") {
+                    delete $scope.component.imageSetting.from.name;
+                    delete $scope.component.imageSetting.from.tag;
+                    delete $scope.component.imageSetting.from.url;
+                    $scope.component.imageSetting.from["dockerfile"] = "";
+                } else if ($scope.component.imageSetting.from.type == "name") {
+                    delete $scope.component.imageSetting.from.url;
+                    delete $scope.component.imageSetting.from.dockerfile;
+                    $scope.component.imageSetting.from["name"] = "";
+                    $scope.component.imageSetting.from["tag"] = "";
                 }
             }
 
@@ -229,7 +219,7 @@ define(["app","services/component/main","services/component/io","services/compon
 
             // back to list
             $scope.backToList = function() {
-                $location.path("/component");
+                $state.go("component");
             }
 
             // save new version
@@ -251,7 +241,7 @@ define(["app","services/component/main","services/component/io","services/compon
                         $scope.toSaveNewVersion = false;
                         $scope.$apply();
                         apiService.successToCall(data);
-                        $location.path("/component/" + data.component.id);
+                        $state.go("component.detail" , { "id" : data.component.id } );
                     });
                     promise.fail(function(xhr, status, error) {
                         $scope.toSaveNewVersion = false;
@@ -268,7 +258,7 @@ define(["app","services/component/main","services/component/io","services/compon
 
             // show new component
             $scope.showNewComponent = function() {
-                $location.path("/component/create");
+                $state.go("component.create");
             }
 
             // get data
@@ -277,9 +267,6 @@ define(["app","services/component/main","services/component/io","services/compon
                 promise.done(function(data) {
                     loading.hide();
                     $scope.component = data.component;
-
-                    // determine if to create image
-                    $scope.toCreateImage = _.isEmpty($scope.component.image_name);
 
                     // for top tabs control
                     $scope.tab = 1;
