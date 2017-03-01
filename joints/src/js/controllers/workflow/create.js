@@ -1,48 +1,47 @@
 define(["app","services/diagram/main"], function(app) {
     app.controllerProvider.register('WorkflowCreateController', ['$scope', '$state', '$rootScope', 'notifyService', 'diagramService', function($scope, $state, $rootScope, notifyService, diagramService) {
-        $scope.backToList = function() {
-            $state.go("workflow");
-        };
-        $scope.saveWorkflow = function(){
-            $state.go("workflow");
-        };
-
-        $scope.workflowData = diagramService.workflowData;
+        $scope.originData = angular.copy(diagramService.workflowData);
 
         $scope.isShowSetting = {
-            showInfo: false,
+            showInfo: true,
             startWay: "number",
             settingType: "base",
         };
 
         $scope.setting = {
-            "data":{
-                "workflowName":"devops",
-                "workflowVersion":"0.0.1",
-                "workflowUrl":"www.devops.com",
-                "workflowToken":"37dfeg8efab3",
+            "baseInfo":{
+                "id":'',
+                "name":"workflow",
+                "version":"0.0.1",
+                "webhookURL":"https://address/to/exec/workflow",
+                "webhookSecret":"37dfeg8efab3",
+                "latestRunStatus":1,
+                "latestRunTime":"2016-01-02 15:04:05",
                 "serverIp":"100.10.10.1",
-                "nodeIp":"100.10.10.1",
-                "runningInstances":{
-                    "available":true,
-                    "number":10
-                },
-                "manualStart":"test",
-                "timedTasks":{
-                    "available":true,
-                    "tasks":[
-                        {
-                            "byDesigner":true,
-                            "collapse":true,
-                            "cronEntry":"* * * * *",
-                            "eventName":"test",
-                            "eventType":"test",
-                            "startJson":{
-                                "name":"test"
-                            }
+                "nodeIp":"100.10.10.1"
+            },
+            "kubeSetting":{
+               "apiServerAddr":"https://url/to/kube/api/server:port"
+            },
+            "runningInstances":{
+                "available":true,
+                "number":10
+            },
+            "manualStart":"test",
+            "timedTasks":{
+                "available":true,
+                "tasks":[
+                    {
+                        "byDesigner":true,
+                        "collapse":true,
+                        "cronEntry":"* * * * *",
+                        "eventName":"test",
+                        "eventType":"test",
+                        "startJson":{
+                            "name":"test"
                         }
-                    ]
-                }
+                    }
+                ]
             },
             "env":{
                 "serverIp":"100.10.10.1",
@@ -52,6 +51,19 @@ define(["app","services/diagram/main"], function(app) {
                 "serverIp":"100.10.10.2",
                 "nodeIp":"100.10.10.2"
             }
+        };
+
+        $scope.resetWorkflowData = function(){
+            diagramService.resetWorkflowData($scope.originData);
+        };
+        $scope.backToList = function() {
+            $state.go("workflow");
+            $scope.resetWorkflowData();
+        };
+
+        $scope.saveWorkflow = function(){
+            console.log(diagramService.workflowData)
+            $state.go("workflow");
         };
 
         $scope.changeSettingNav = function(nav){
@@ -85,16 +97,11 @@ define(["app","services/diagram/main"], function(app) {
             diagramService.drawWorkflow($scope,'#div-d3-main-svg',diagramService.workflowData);
         };
 
-        $scope.resetWorkflowData = function(){
-            diagramService.resetWorkflowData($scope.workflowData);
-        };
-
         $scope.chosedStageIndex = '';
         $scope.chosedActionIndex = '';
 
         $scope.resetStageInfo = function(index){
             diagramService.currentStageIndex = index;
-            $scope.resetWorkflowData();
         };
 
         $scope.resetActionInfo = function(stageIndex,actionIndex){
@@ -251,7 +258,24 @@ define(["app","services/diagram/main"], function(app) {
             addElement(d3.select(this),'component');
         };
 
-        $rootScope.drawWorkflow();
+        function init(){
+            initUuid();
+            $scope.resetWorkflowData();
+            $rootScope.drawWorkflow();
+        };
+
+        function initUuid(){
+            var originData = $scope.originData;
+            var length = originData.length;
+            if(!originData[0].id){
+                originData[0].id = 'stage' + uuid.v1();
+                originData[length-1].id += uuid.v1();
+                originData[length-2].id += uuid.v1();
+                originData[0].actions[0].id += uuid.v1();
+            }
+        };
+
+        init();
   
 
     }]);
