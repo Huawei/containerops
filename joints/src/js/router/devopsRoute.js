@@ -121,6 +121,24 @@ define(['app'], function(app) {
                         }
                     }
                 })
+                .state('workflow.create.editComponent', {
+                    url: '/editComponent/:id',
+                    views: {
+                        'element': {
+                            templateUrl: 'templates/workflow/componentDetail.html',
+                            controller: 'ComponentDetailController',
+                            resolve: {
+                                loadCtrl_workflow: ["$q", function($q) {
+                                    var deferred = $q.defer();
+                                    require(["controllers/workflow/componentDetail"], function() {
+                                        deferred.resolve();
+                                    });
+                                    return deferred.promise;
+                                }],
+                            }
+                        }
+                    }
+                })
                 .state('component', {
                     parent: 'home',
                     url: '/component',
