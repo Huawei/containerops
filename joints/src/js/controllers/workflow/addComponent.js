@@ -83,15 +83,24 @@ define(["app","services/diagram/main","services/component/main"], function(app) 
                 angular.forEach(d.versions,function(v,vi){
                     if(v.id === id){
                         v.importTimes++;
+                        getComponent(id);
                     }
-                    v.name = d.name;
-                    v.type = 'component';
-                    v.inputData = '';
-                    v.outData = '';
-                    v.uuid = 'component-'+uuid.v1();
-                    $scope.importComponents.push(v);
                 })
             })
+        };
+
+        function getComponent(id) {
+            var promise = componentService.getComponent(id);
+            promise.done(function(data) {
+                loading.hide();
+                var component = data.component;
+                    component.uuid = uuid.v1();
+                $scope.importComponents.push(component);
+
+            });
+            promise.fail(function(xhr, status, error) {
+                apiService.failToCall(xhr.responseJSON);
+            });
         };
 
         $scope.closeComponents = function(){
@@ -123,7 +132,6 @@ define(["app","services/diagram/main","services/component/main"], function(app) 
             $scope.getComponents("init");
         };
         init();
-        // console.log(uuid.v1())
 
     }]);
 })

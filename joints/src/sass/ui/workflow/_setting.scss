@@ -129,9 +129,23 @@ limitations under the License. */
 }
 
 // workflow setting
+.dialog {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: #ddd;
+  opacity: 0.6;
+}
+
 #workflow-setting {
   background: #fff;
   padding: 20px 0;
+  position: absolute;
+  top: 20%;
+  right: 5%;
+  width: 90%;
   .marg-bt-ten {
     margin-bottom: 10px;
   }

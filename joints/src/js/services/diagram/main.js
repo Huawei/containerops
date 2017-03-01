@@ -17,228 +17,37 @@ define(['app','services/diagram/api'], function(app) {
     app.provide.factory("diagramService", ["diagramApiService","$state", function(diagramApiService,$state) {
         var workflowData = [
             {
-                "name":"stage0",
-                "id":"s0",
+                "name":"",
+                "id":"",
                 "type":"edit-stage",
-                "runMode":"serial", //serial串行，parallel并行
-                "timeout":1000,
+                "runMode":"parallel", //serial串行，parallel并行
+                "timeout":0,
                 // "runResult":3,
                 "actions":[
                     {
                         "isChosed":false,
-                        "name":"a0",
-                        "id":"a0",
+                        "name":"",
+                        "id":"action-",
                         "type":"action",
-                        "timeout":1000,
-                        "components":[
-                            {
-                                "name":"action0",
-                                "id":"s0-at0",
-                                "type":"component",
-                                "version":"v0.1",
-                                "inputData":"",
-                                "outputData":""
-                            }
-                        ]
-                    },
-                    {
-                        "isChosed":false,
-                        "name":"a1",
-                        "id":"a1",
-                        "type":"action",
-                        "timeout":1000,
-                        "components":[
-                            {
-                                "name":"action0",
-                                "id":"s0-at0",
-                                "type":"component",
-                                "version":"v1.1",
-                                "inputData":"",
-                                "outputData":""
-                            }
-                        ]
+                        "timeout":0,
+                        "components":[]
                     }
                 ]
             },
             {
-                "name":"stage1",
-                "id":"s1",
-                "type":"edit-stage",
-                "runMode":"parallel",
-                "timeout":1100,
-                "actions":[
-                    {
-                        "isChosed":false,
-                        "name":"a2",
-                        "id":"a2",
-                        "type":"action",
-                        "timeout":1000,
-                        "components":[
-                            {
-                                "name":"action0",
-                                "id":"s1-at0",
-                                "type":"component",
-                                "version":"v1.2",
-                                "inputData":"",
-                                "outputData":""
-                            },
-                            {
-                                "name":"action1",
-                                "id":"s1-at1",
-                                "type":"component",
-                                "version":"v1.3",
-                                "inputData":"",
-                                "outputData":""
-                            },
-                            {
-                                "name":"action2",
-                                "id":"s1-at2",
-                                "type":"component",
-                                "version":"v1.4",
-                                "inputData":"",
-                                "outputData":""
-                            },
-                            {
-                                "name":"action3",
-                                "id":"s1-at3",
-                                "type":"component",
-                                "version":"v1.5",
-                                "inputData":"",
-                                "outputData":""
-                            },
-                            {
-                                "name":"action4",
-                                "id":"s1-at4",
-                                "type":"component",
-                                "version":"v1.6",
-                                "inputData":"",
-                                "outputData":""
-                            },
-                            {
-                                "name":"action0",
-                                "id":"s1-at0",
-                                "type":"component",
-                                "version":"v1.7",
-                                "inputData":"",
-                                "outputData":""
-                            },
-                            {
-                                "name":"action1",
-                                "id":"s1-at1",
-                                "type":"component",
-                                "version":"v1.8",
-                                "inputData":"",
-                                "outputData":""
-                            },
-                            {
-                                "name":"action2",
-                                "id":"s1-at2",
-                                "type":"component",
-                                "version":"v1.9",
-                                "inputData":"",
-                                "outputData":""
-                            },
-                            {
-                                "name":"action3",
-                                "id":"s1-at3",
-                                "type":"component",
-                                "version":"v2.0",
-                                "inputData":"",
-                                "outputData":""
-                            },
-                            {
-                                "name":"action4",
-                                "id":"s1-at4",
-                                "type":"component",
-                                "version":"v2.1",
-                                "inputData":"",
-                                "outputData":""
-                            }
-                        ]
-                    },
-                    {
-                        "isChosed":false,
-                        "name":"a4",
-                        "id":"a4",
-                        "type":"action",
-                        "timeout":1000,
-                        "components":[
-                            {
-                                "name":"action0",
-                                "id":"s1-at0",
-                                "type":"component",
-                                "version":"v2.2",
-                                "inputData":"",
-                                "outputData":""
-                            },
-                            {
-                                "name":"action3",
-                                "id":"s1-at3",
-                                "type":"component",
-                                "version":"v2.3",
-                                "inputData":"",
-                                "outputData":""
-                            },
-                            {
-                                "name":"action4",
-                                "id":"s1-at4",
-                                "type":"component",
-                                "version":"v2.4",
-                                "inputData":"",
-                                "outputData":""
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "name":"stage2",
-                "id":"s2",
-                "type":"edit-stage",
-                "runMode":"parallel",
-                "timeout":1200,
-                "actions":[
-                    {
-                        "isChosed":false,
-                        "name":"a5",
-                        "id":"a5",
-                        "type":"action",
-                        "timeout":1000,
-                        "components":[
-                            {
-                                "name":"action0",
-                                "id":"s2-at0",
-                                "type":"component",
-                                "version":"v2.5",
-                                "inputData":"",
-                                "outputData":""
-                            },
-                            {
-                                "name":"action1",
-                                "id":"s2-at1",
-                                "type":"component",
-                                "version":"v2.6",
-                                "inputData":"",
-                                "outputData":""
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "name":"stage3",
-                "id":"s3",
+                "name":"addStage",
+                "id":"stage-",
                 "type":"add-stage",
                 "runMode":"",
-                "timeout":1000,
+                "timeout":0,
                 "actions":[]
             },
             {
-                "name":"stage3",
-                "id":"s3",
+                "name":"endStage",
+                "id":"stage-",
                 "type":"end-stage",
                 "runMode":"",
-                "timeout":1000,
+                "timeout":0,
                 "actions":[]
             }
         ];
@@ -246,6 +55,7 @@ define(['app','services/diagram/api'], function(app) {
         // var currentStageInfo = '';
         var currentStageIndex = '';
         var currentActionIndex = '';
+        var currentComponentIndex = '';
 
         function drawWorkflow(scope,selector,dataset) {
             var baseSize = {
@@ -723,6 +533,7 @@ define(['app','services/diagram/api'], function(app) {
             // "currentStageInfo": currentStageInfo,
             "currentStageIndex": currentStageIndex,
             "currentActionIndex": currentActionIndex,
+            "currentComponentIndex": currentComponentIndex,
             "drawWorkflow": drawWorkflow,
             "resetWorkflowData": resetWorkflowData
         }
