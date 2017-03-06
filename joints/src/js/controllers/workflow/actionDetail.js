@@ -33,6 +33,13 @@ define(["app","services/diagram/main"], function(app) {
 
         $scope.currentActionInfo = $scope.workflowData[currentStageIndex]['actions'][currentActionIndex];
 
+        $scope.actionEvent = {
+            delete: function(){
+                $scope.workflowData[currentStageIndex]['actions'].splice(currentActionIndex,1);
+                $scope.redraw();
+            }
+        };
+
         $scope.componentEvent = {
             delete: function(index){
                 $scope.currentActionInfo.components.splice(index,1);
