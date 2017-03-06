@@ -1,7 +1,12 @@
-<div class="panel panel-default">
-    <div class="panel-heading" style="background-color: #ddd;">
-        <h3 class="panel-title">Stage Information</h3>
-
+<div class="panel panel-default" ng-if="isShowPage">
+    <div class="panel-heading" style="background-color: #ddd;position:relative;">
+        <h3 class="panel-title">
+            Stage Information
+            <span style="position:absolute;right:10px;top:15px;color:#fff;border-radius:3px;background:#4887ae;padding:3px 5px;cursor:pointer;" ng-click="stageEvent.delete()">
+                <i class="fa fa-trash"></i>
+                Delete
+            </span>
+        </h3>
     </div>
     <div class="panel-body" style="background-color: #fff;min-height: 200px;">
         <form class="form-horizontal" data-parsley-priority-enabled="false" novalidate="novalidate">
