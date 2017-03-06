@@ -86,10 +86,10 @@ define(["app","services/diagram/main"], function(app) {
                             }
                         },
             delete: function(index){
-                $scope.setting.data.timedTasks.tasks.splice(index,1)
+                $scope.setting.timedTasks.tasks.splice(index,1)
             },
             add: function(){
-                $scope.setting.data.timedTasks.tasks.push(angular.copy($scope.timeTaskEvent.timeTask))
+                $scope.setting.timedTasks.tasks.push(angular.copy($scope.timeTaskEvent.timeTask))
             }
         };
 
