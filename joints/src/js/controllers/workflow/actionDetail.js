@@ -1,10 +1,12 @@
 define(["app","services/diagram/main"], function(app) {
     app.controllerProvider.register('ActionDetailController', ['$scope', '$rootScope', '$state', '$stateParams', 'notifyService', 'diagramService', function($scope, $rootScope, $state, $stateParams, notifyService, diagramService) {
         $scope.workflowData = diagramService.workflowData;
+        $scope.isShowPage = true;
 
         var currentStageIndex = diagramService.currentStageIndex;
         var currentActionIndex = diagramService.currentActionIndex;
         var id = $stateParams.id;
+
 
         $scope.redraw = function(){
             diagramService.resetWorkflowData($scope.workflowData);
@@ -14,7 +16,6 @@ define(["app","services/diagram/main"], function(app) {
         $scope.getCurrentAction = function(id){
             angular.forEach($scope.workflowData,function(d,i){
                 angular.forEach(d.actions,function(a,ai){
-                    // console.log(9999999999,a.id)
                     if(a.id === id){
                         currentStageIndex = i;
                         currentActionIndex = ai;
@@ -37,6 +38,7 @@ define(["app","services/diagram/main"], function(app) {
             delete: function(){
                 $scope.workflowData[currentStageIndex]['actions'].splice(currentActionIndex,1);
                 $scope.redraw();
+                $scope.isShowPage = false;
             }
         };
 
