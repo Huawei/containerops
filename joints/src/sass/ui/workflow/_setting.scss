@@ -129,6 +129,15 @@ limitations under the License. */
 }
 
 // workflow setting
+.navigation {
+  .cursor {
+    cursor: pointer;
+  }
+  .active {
+    border-bottom: 1px solid #5d8fc2;
+  }
+}
+
 .dialog {
   position: fixed;
   left: 0;

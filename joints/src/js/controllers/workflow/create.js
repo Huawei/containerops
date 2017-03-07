@@ -1,9 +1,10 @@
 define(["app","services/diagram/main"], function(app) {
     app.controllerProvider.register('WorkflowCreateController', ['$scope', '$state', '$rootScope', 'notifyService', 'diagramService', function($scope, $state, $rootScope, notifyService, diagramService) {
+        $scope.navbar = 'workflowInfo';
         $scope.originData = angular.copy(diagramService.workflowData);
 
         $scope.isShowSetting = {
-            showInfo: true,
+            showInfo: false,
             startWay: "number",
             settingType: "base",
         };
@@ -56,6 +57,11 @@ define(["app","services/diagram/main"], function(app) {
         $scope.resetWorkflowData = function(){
             diagramService.resetWorkflowData($scope.originData);
         };
+
+        $scope.changeNav = function(val){
+            $scope.navbar = val;
+        };
+
         $scope.backToList = function() {
             $state.go("workflow");
             $scope.resetWorkflowData();
