@@ -1,5 +1,5 @@
 define(["app","services/diagram/main","services/component/main"], function(app) {
-    app.controllerProvider.register('AddComponentController', ['$scope', '$rootScope', '$state', 'notifyService', 'diagramService', 'componentService', 'utilService', 'loading', function($scope, $rootScope, $state, notifyService, diagramService, componentService, utilService, loading) {
+    app.controllerProvider.register('AddComponentController', ['$scope', '$rootScope', '$state', 'notifyService', 'diagramService', 'componentService', 'utilService', 'apiService', 'loading', function($scope, $rootScope, $state, notifyService, diagramService, componentService, utilService, apiService, loading) {
         $scope.workflowData = diagramService.workflowData;
         var currentStageIndex = diagramService.currentStageIndex;
         var currentActionIndex = diagramService.currentActionIndex;
