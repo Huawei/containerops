@@ -46,18 +46,18 @@ type Component struct {
 	Type        string     `json:"type" gorm:"not null;type:varchar(128)"`                                                   //The Component type link to the [ComponentTypeDocker, ComponentTypeAppc, ComponentTypeOCI]
 	Endpoint    string     `json:"endpoint" gorm:"null;type:text"`                                                           //The Component endpoint is the container URI like dockyard.sh/genedna/cloudnativeday:1.0.
 	Gravatar    string     `json:"gravatar" gorm:"null;type:text"`                                                           //The component also has a gravatar like a user or an organization. The system will crawl the registry/hub of the endpoint. If the crawling failure, the system will generate a gravataing picture. And user also could upload a picture take place the crawling or generate picture.
-	ImageName   string     `sql:"not null;type:varchar(256);index:idx_component_iamge_name"`                                 //Image name it must match the regular expression [a-z0-9]+(?:[._-][a-z0-9]+)* , and must be less than 256 characters. Specification at [Docker Registry V2 Sepcification](https://github.com/docker/distribution/blob/master/docs/spec/api.md#overview)
-	ImageTag    string     `sql:"null;type:varchar(255);index:idx_component_image_tag"`                                      //
-	Timeout     int        `sql:"not null;default:0"`                                                                        //
-	UseAdvanced bool       `sql:"not null;default:false"`                                                                    //
-	KubeSetting string     `sql:"null;type:text"`                                                                            //Kubernetes execute script.
-	Input       string     `sql:"null;type:text"`                                                                            //component input
-	Output      string     `sql:"null;type:text"`                                                                            //component output
-	Environment string     `sql:"null;type:text"`                                                                            //Environment parameters.
-	Manifest    string     `sql:"null;type:longtext"`                                                                        //
-	CreatedAt   time.Time  ``                                                                                                //
-	UpdatedAt   time.Time  ``                                                                                                //
-	DeletedAt   *time.Time ``                                                                                                //
+	ImageName   string     `json:"image_name" gorm:"not null;type:varchar(256);index:idx_component_iamge_name"`              //Image name it must match the regular expression [a-z0-9]+(?:[._-][a-z0-9]+)* , and must be less than 256 characters. Specification at [Docker Registry V2 Sepcification](https://github.com/docker/distribution/blob/master/docs/spec/api.md#overview)
+	ImageTag    string     `json:"image_tag" gorm:"null;type:varchar(255);index:idx_component_image_tag"`                    //
+	Timeout     int        `json:"timeout" gorm:"not null;default:0"`                                                        //
+	UseAdvanced bool       `json:"use_advanced" gorm:"not null;default:false"`                                               //
+	KubeSetting string     `json:"kube_setting" gorm:"null;type:text"`                                                       //Kubernetes execute script.
+	Input       string     `json:"input" gorm:"null;type:text"`                                                              //component input
+	Output      string     `json:"output" gorm:"null;type:text"`                                                             //component output
+	Environment string     `json:"environment" gorm:"null;type:text"`                                                        //Environment parameters.
+	Manifest    string     `json:"manifest" gorm:"null;type:longtext"`                                                       //
+	CreatedAt   time.Time  `json:"created_at" gorm:""`                                                                       //
+	UpdatedAt   time.Time  `json:"updated_at" gorm:""`                                                                       //
+	DeletedAt   *time.Time `json:"deleted_at" gorm:""`                                                                       //
 }
 
 //TableName is return the table name of Component in MySQL database.
