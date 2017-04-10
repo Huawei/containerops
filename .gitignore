@@ -14,6 +14,10 @@ tenant/*/dist
 tenant/*/css
 tenant/*/dev
 
+tenant/*/src/app/*.js
+tenant/*/src/app/*.js.map
+tenant/*/src/main.js
+tenant/*/src/main.js.map
 
 # dependencies
 scaffold/node_modules
