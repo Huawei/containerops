@@ -44,6 +44,17 @@ func Deploynode(list map[string]string, ip string) {
 	cmd.ExecCPparams("/tmp/config/scheduler", "/etc/kubernetes/scheduler")
 
 	// #flanneld reserved
+	cmd.ExecCPparams("/tmp/flannel/usr/bin/flanneld-start", "/usr/bin/flanneld-start")
+
+	cmd.ExecCPparams("/tmp/flannel/usr/bin/flanneld", "/usr/bin/flanneld")
+
+	cmd.ExecCMDparams("mkdir", []string{"/usr/libexec/flannel/"})
+
+	cmd.ExecCPparams("/tmp/flannel/usr/libexec/flannel/mk-docker-opts.sh", "/usr/libexec/flannel/mk-docker-opts.sh")
+
+	cmd.ExecCPparams("/tmp/config/flanneld", "/etc/sysconfig/flanneld")
+
+	cmd.ExecCPparams("/tmp/config/flanneld.service", "/usr/lib/systemd/system/flanneld.service")
 
 	// #refresh service
 	cmd.Reload()
