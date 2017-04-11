@@ -1,0 +1,7 @@
+#!/bin/sh
+
+exec /usr/bin/flanneld \
+	-etcd-endpoints=${FLANNEL_ETCD_ENDPOINTS:-${FLANNEL_ETCD}} \
+	-etcd-prefix=${FLANNEL_ETCD_PREFIX:-${FLANNEL_ETCD_KEY}} \
+	"$@"
+
