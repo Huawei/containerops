@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/Huawei/containerops_he3io/singular/nodes"
+	"github.com/Huawei/containerops/singular/nodes"
 )
 
 //var nodes = [2][2]string{{"192.168.60.141", "centos-master"}, {"192.168.60.150", "centos-minion"}}
