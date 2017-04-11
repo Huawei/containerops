@@ -1,8 +1,8 @@
-// package unittest
+package unittest
 
 // //	initsystem "github.com/Huawei/containerops_he3io/singular/initsystem"
 
-// func Test() { 
+// func Test() {
 // 	for k, item := range nodes {
 
 // 		fmt.Printf("k=%v, item=%v item[1]=%v \n", k, item[0], item[1])
@@ -25,8 +25,6 @@
 // 	// 	}
 // 	// }
 
-
-	
 // 	//1
 // 	// command := "/usr/bin/systemctl stop etcd"
 // 	// params := []string{"-i"}
@@ -136,8 +134,6 @@
 // // 	cmd.Wait()
 // // 	return true
 // // }
-
-
 
 // func restartSvc(svcArr []string) error {
 // 	for _, svc := range svcArr {
