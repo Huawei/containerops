@@ -1,6 +1,6 @@
 package nodes
 
-import cmd "github.com/Huawei/containerops_he3io/singular/cmd"
+import cmd "github.com/Huawei/containerops/singular/cmd"
 
 func Deploynode(list map[string]string, ip string) {
 
