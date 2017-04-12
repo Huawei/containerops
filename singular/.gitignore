@@ -1,0 +1,5 @@
+debug
+test/
+/k8s_config/k8s_binary/
+/k8s_config/etcd/
+/k8s_config/flannel/
