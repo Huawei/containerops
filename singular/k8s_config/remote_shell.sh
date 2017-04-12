@@ -1,14 +1,24 @@
 #!/bin/bash
-cmd="echo 'hello world' >> /tmp/lyc-ld" 
-passwd="test"
-nodeip="192.168.60.150"
+#cmd="echo 'hello world' >> /tmp/lyc-ld" 
+cmd1="touch /tmp/ldld" 
 
-expect << EOF
-spawn ssh -C root@ip "$CMD"
-expect{
-    "yes"{send "yes\r";exp_continue}
-    "password"{send "$passwd\r";expect eof}
-}
+passwd="root"
+nodeip="192.168.60.150"
+expect "yes"{send "yes\r";exp_continue}
+expect "password"{send "$passwd\r";expect eof}
+ssh -C root@192.168.60.150 "$cmd1"
+
+expect <<EOF
+expect "yes"{send "yes\r";exp_continue}
+expect "password"{send "$passwd\r";expect eof}
+EOF
+
+
+expect <<EOF
+expect "yes"{send "yes\r";exp_continue}
+expect "password"{send "$passwd\r";expect eof}
+spawn ssh -C root@192.168.60.150 "touch /tmp/ldld"
+EOF
 
 #local 
 ssh-keygen -b 2048 -t rsa                    
