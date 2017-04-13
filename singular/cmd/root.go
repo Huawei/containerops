@@ -1,0 +1,169 @@
+package cmd
+
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"log"
+	"os/exec"
+	"strings"
+)
+
+//log "github.com/Sirupsen/logrus"
+//"github.com/kubespray/kargo-cli/common"
+
+// "github.com/fatih/color"
+// "github.com/spf13/cobra"
+// "github.com/spf13/viper"
+
+var (
+	// RedPrint      = color.New(color.FgHiRed).SprintFunc()
+	// YellowPrint   = color.New(color.FgHiYellow).SprintFunc()
+	// GreenPrint    = color.New(color.FgHiGreen).SprintFunc()
+	CfgFile       string
+	KargoPath     string
+	InventoryPath string
+	LogFile       string
+	ClusterName   string
+	etcdCount     uint16
+	masterCount   uint16
+	nodeCount     uint16
+	Log           *log.Logger
+)
+
+func RestartSvc(svcArr []string) error {
+	for _, svc := range svcArr {
+		args := []string{"restart", svc}
+		ExecCMDparams(svc, args)
+		args = []string{"enable", svc}
+		ExecCMDparams(svc, args)
+	}
+	args := []string{"daemon-reload"}
+	_, err := exec.Command("systemctl", args...).Output()
+	return err
+}
+func Reload() error {
+	args := []string{"daemon-reload"}
+	_, err := exec.Command("systemctl", args...).Output()
+	return err
+}
+
+func ExecCommand(service string) error {
+	args := []string{"start", service}
+	_, err := exec.Command("systemctl", args...).Output()
+	return err
+}
+
+//	exec.Command("sh", "-c", "echo 456 /n 123  >>/etc/hosts").Output()
+func ExecShCommandEcho(txtContet string, targetName string) error {
+	_, err := exec.Command("sh", "-c", "echo 456 /n 123  >>/etc/hosts").Output()
+
+	return err
+}
+func ExecCPparams(sourceName string, targetName string) bool {
+
+	//cmd := exec.Command("cp", params...)
+	params := []string{sourceName, targetName}
+	cmd := exec.Command("cp", params...)
+
+	//显示运行的命令
+	fmt.Println(cmd.Args)
+
+	stdout, err := cmd.StdoutPipe()
+
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	cmd.Start()
+
+	reader := bufio.NewReader(stdout)
+
+	//实时循环读取输出流中的一行内容
+	for {
+		line, err2 := reader.ReadString('\n')
+		if err2 != nil || io.EOF == err2 {
+			break
+		}
+		fmt.Println(line)
+	}
+
+	cmd.Wait()
+	return true
+}
+
+func ExecCMDparams(commandName string, params []string) bool {
+	cmd := exec.Command(commandName, params...)
+
+	//显示运行的命令
+	fmt.Println(cmd.Args)
+
+	stdout, err := cmd.StdoutPipe()
+
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	cmd.Start()
+
+	reader := bufio.NewReader(stdout)
+
+	//实时循环读取输出流中的一行内容
+	for {
+		line, err2 := reader.ReadString('\n')
+		if err2 != nil || io.EOF == err2 {
+			break
+		}
+		fmt.Println(line)
+	}
+
+	cmd.Wait()
+	return true
+}
+
+func ServiceStart(service string) error {
+	args := []string{"start", service}
+	_, err := exec.Command("systemctl", args...).Output()
+	return err
+}
+
+func ServiceStop(service string) error {
+	args := []string{"stop", service}
+	_, err := exec.Command("systemctl", args...).Output()
+	return err
+}
+
+func ServiceExists(service string) bool {
+	args := []string{"status", service}
+	outBytes, _ := exec.Command("systemctl", args...).Output()
+	output := string(outBytes)
+	if strings.Contains(output, "Loaded: not-found") {
+		return false
+	}
+	return true
+}
+
+func ServiceIsEnabled(service string) bool {
+	args := []string{"is-enabled", service}
+	_, err := exec.Command("systemctl", args...).Output()
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+// ServiceIsActive will check is the service is "active". In the case of
+// crash looping services (kubelet in our case) status will return as
+// "activating", so we will consider this active as well.
+func ServiceIsActive(service string) bool {
+	args := []string{"is-active", service}
+	// Ignoring error here, command returns non-0 if in "activating" status:
+	outBytes, _ := exec.Command("systemctl", args...).Output()
+	output := strings.TrimSpace(string(outBytes))
+	if output == "active" || output == "activating" {
+		return true
+	}
+	return false
+}
