@@ -30,7 +30,15 @@ var (
 	nodeCount     uint16
 	Log           *log.Logger
 )
+var user string = "root"
+var targetIP string = "@192.168.60.147"
 
+type SSHCommander struct {
+	User string
+	IP   string
+}
+
+//
 func RestartSvc(svcArr []string) error {
 	for _, svc := range svcArr {
 		args := []string{"restart", svc}
@@ -39,105 +47,43 @@ func RestartSvc(svcArr []string) error {
 		ExecCMDparams(svc, args)
 	}
 	args := []string{"daemon-reload"}
-	_, err := exec.Command("systemctl", args...).Output()
+	//_, err := exec.Command("systemctl", args...).Output()
+	err := ExecCMDparams("systemctl", args)
 	return err
 }
 func Reload() error {
 	args := []string{"daemon-reload"}
-	_, err := exec.Command("systemctl", args...).Output()
-	return err
+	//_, err := exec.Command("systemctl", args...).Output()
+
+	return ExecCMDparams("systemctl", args)
+
 }
 
 func ExecCommand(service string) error {
 	args := []string{"start", service}
-	_, err := exec.Command("systemctl", args...).Output()
-	return err
-}
+	//	_, err := exec.Command("systemctl", args...).Output()
 
-//	exec.Command("sh", "-c", "echo 456 /n 123  >>/etc/hosts").Output()
-func ExecShCommandEcho(txtContet string, targetName string) error {
-	_, err := exec.Command("sh", "-c", "echo 456 /n 123  >>/etc/hosts").Output()
-
-	return err
-}
-func ExecCPparams(sourceName string, targetName string) bool {
-
-	//cmd := exec.Command("cp", params...)
-	params := []string{sourceName, targetName}
-	cmd := exec.Command("cp", params...)
-
-	//显示运行的命令
-	fmt.Println(cmd.Args)
-
-	stdout, err := cmd.StdoutPipe()
-
-	if err != nil {
-		fmt.Println(err)
-		return false
-	}
-
-	cmd.Start()
-
-	reader := bufio.NewReader(stdout)
-
-	//实时循环读取输出流中的一行内容
-	for {
-		line, err2 := reader.ReadString('\n')
-		if err2 != nil || io.EOF == err2 {
-			break
-		}
-		fmt.Println(line)
-	}
-
-	cmd.Wait()
-	return true
-}
-
-func ExecCMDparams(commandName string, params []string) bool {
-	cmd := exec.Command(commandName, params...)
-
-	//显示运行的命令
-	fmt.Println(cmd.Args)
-
-	stdout, err := cmd.StdoutPipe()
-
-	if err != nil {
-		fmt.Println(err)
-		return false
-	}
-
-	cmd.Start()
-
-	reader := bufio.NewReader(stdout)
-
-	//实时循环读取输出流中的一行内容
-	for {
-		line, err2 := reader.ReadString('\n')
-		if err2 != nil || io.EOF == err2 {
-			break
-		}
-		fmt.Println(line)
-	}
-
-	cmd.Wait()
-	return true
+	return ExecCMDparams("systemctl", args)
 }
 
 func ServiceStart(service string) error {
 	args := []string{"start", service}
-	_, err := exec.Command("systemctl", args...).Output()
-	return err
+	//	_, err := exec.Command("systemctl", args...).Output()
+
+	return ExecCMDparams("systemctl", args)
 }
 
 func ServiceStop(service string) error {
 	args := []string{"stop", service}
-	_, err := exec.Command("systemctl", args...).Output()
-	return err
+	//	_, err := exec.Command("systemctl", args...).Output()
+
+	return ExecCMDparams("systemctl", args)
 }
 
 func ServiceExists(service string) bool {
 	args := []string{"status", service}
 	outBytes, _ := exec.Command("systemctl", args...).Output()
+	ExecCMDparams("systemctl", args)
 	output := string(outBytes)
 	if strings.Contains(output, "Loaded: not-found") {
 		return false
@@ -147,10 +93,12 @@ func ServiceExists(service string) bool {
 
 func ServiceIsEnabled(service string) bool {
 	args := []string{"is-enabled", service}
-	_, err := exec.Command("systemctl", args...).Output()
-	if err != nil {
-		return false
-	}
+	//	_, err := exec.Command("systemctl", args...).Output()
+	ExecCMDparams("systemctl", args)
+
+	// if err != nil {
+	// 	return false
+	// }
 	return true
 }
 
@@ -161,9 +109,57 @@ func ServiceIsActive(service string) bool {
 	args := []string{"is-active", service}
 	// Ignoring error here, command returns non-0 if in "activating" status:
 	outBytes, _ := exec.Command("systemctl", args...).Output()
+	ExecCMDparams("systemctl", args)
 	output := strings.TrimSpace(string(outBytes))
 	if output == "active" || output == "activating" {
 		return true
 	}
 	return false
+}
+
+// inner cmmd
+
+func ExecShCommandEcho(txtContet string, targetName string) error {
+	_, err := exec.Command("sh", "-c", "echo 456 /n 123  >>/etc/hosts").Output()
+
+	return err
+}
+
+func ExecCPparams(sourceName string, targetName string) error {
+
+	return ExecCMDparams("cp", []string{targetName})
+}
+
+func ExecCMDparams(commandName string, params []string) error {
+	cmdstr := []string{user + targetIP}
+	cmdstr = append(cmdstr, commandName)
+	for _, item := range params {
+		cmdstr = append(cmdstr, item)
+	}
+	cmd := exec.Command("ssh", cmdstr...)
+	//show cmds
+	fmt.Println(cmd.Args)
+
+	stdout, err := cmd.StdoutPipe()
+
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	cmd.Start()
+
+	reader := bufio.NewReader(stdout)
+
+	// show content of stream in time
+	for {
+		line, err2 := reader.ReadString('\n')
+		if err2 != nil || io.EOF == err2 {
+			break
+		}
+		fmt.Println(line)
+	}
+
+	cmd.Wait()
+	return err
 }
