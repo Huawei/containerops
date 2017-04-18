@@ -48,39 +48,36 @@ func RestartSvc(svcArr []string) error {
 	}
 	args := []string{"daemon-reload"}
 	//_, err := exec.Command("systemctl", args...).Output()
-	ExecCMDparams("systemctl", args)
+	err := ExecCMDparams("systemctl", args)
 	return err
 }
 func Reload() error {
 	args := []string{"daemon-reload"}
 	//_, err := exec.Command("systemctl", args...).Output()
-	ExecCMDparams("systemctl", args)
 
-	return err
+	return ExecCMDparams("systemctl", args)
+
 }
 
 func ExecCommand(service string) error {
 	args := []string{"start", service}
 	//	_, err := exec.Command("systemctl", args...).Output()
-	ExecCMDparams("systemctl", args)
 
-	return err
+	return ExecCMDparams("systemctl", args)
 }
 
 func ServiceStart(service string) error {
 	args := []string{"start", service}
 	//	_, err := exec.Command("systemctl", args...).Output()
-	ExecCMDparams("systemctl", args)
 
-	return err
+	return ExecCMDparams("systemctl", args)
 }
 
 func ServiceStop(service string) error {
 	args := []string{"stop", service}
 	//	_, err := exec.Command("systemctl", args...).Output()
-	ExecCMDparams("systemctl", args)
 
-	return err
+	return ExecCMDparams("systemctl", args)
 }
 
 func ServiceExists(service string) bool {
@@ -128,12 +125,12 @@ func ExecShCommandEcho(txtContet string, targetName string) error {
 	return err
 }
 
-func ExecCPparams(sourceName string, targetName string) bool {
+func ExecCPparams(sourceName string, targetName string) error {
 
-	ExecCMDparams("cp", params...)
+	return ExecCMDparams("cp", []string{targetName})
 }
 
-func ExecCMDparams(commandName string, params []string) bool {
+func ExecCMDparams(commandName string, params []string) error {
 	cmdstr := []string{user + targetIP}
 	cmdstr = append(cmdstr, commandName)
 	for _, item := range params {
@@ -147,7 +144,7 @@ func ExecCMDparams(commandName string, params []string) bool {
 
 	if err != nil {
 		fmt.Println(err)
-		return false
+		return err
 	}
 
 	cmd.Start()
@@ -164,5 +161,5 @@ func ExecCMDparams(commandName string, params []string) bool {
 	}
 
 	cmd.Wait()
-	return true
+	return err
 }
