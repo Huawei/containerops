@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/Huawei/containerops/singular/nodes"
+	"github.com/Huawei/containerops_he3io/singular/nodes"
+	//"containerops/singular/cmd"
+	//"github.com/Huawei/containerops_he3io/singular/cmd"
 )
 
 //var nodes = [2][2]string{{"192.168.60.141", "centos-master"}, {"192.168.60.150", "centos-minion"}}
@@ -22,7 +24,5 @@ func main() {
 			nodes.Deploynode(m, v)
 		}
 	}
-
-	//cmd.ExecCMDparams("echo", []string{"-e", MasterIP + "centos-master\n" + NodeIP + "centos-minion", ">>", "/etc/hosts"})
 
 }
