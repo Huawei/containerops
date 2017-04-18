@@ -33,6 +33,11 @@ var (
 var user string = "root"
 var targetIP string = "@192.168.60.147"
 
+type SSHCommander struct {
+	User string
+	IP   string
+}
+
 //
 func RestartSvc(svcArr []string) error {
 	for _, svc := range svcArr {
