@@ -1,8 +1,11 @@
-## Component Src
+## DevOps Component
 
-### How to build image
+### What's the DevOps Component?
 
-### How to push
+### Why choose the Phusion BaseImage as the base image?
 
-### How test
+### How to transfer data from the component with environment variables?
 
+### How to collecting the data from stdout/stderr?
+
+### What's the official DevOps component?
