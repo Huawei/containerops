@@ -1,43 +1,57 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
-# compiled output
+# scaffold
 scaffold/dist
 scaffold/dev
 scaffold/tmp
 scaffold/css/
+scaffold/node_modules
+scaffold/bower_components
+
+# joints
 joints/dist
 joints/dev
 joints/tmp
 joints/css/
+joints/node_modules
+joints/bower_components
 
+# tenant
 tenant/*/dist
 tenant/*/css
 tenant/*/dev
-
 tenant/*/src/app/*.js
 tenant/*/src/app/*.js.map
 tenant/*/src/main.js
 tenant/*/src/main.js.map
-
-# dependencies
-scaffold/node_modules
-scaffold/bower_components
-joints/node_modules
-joints/bower_components
-
 tenant/node_modules
 tenant/bower_components
 tenant/*/node_modules 
 tenant/*/bower_components 
+tenant/*、npm-debug.log
+
+# pilotage
+pilotage/pilotage
+pilotage/conf
+pilotage/cert
+pilotage/log/*
+pilotage/data/*
+
+# docs
+docs/_site
+docs/.sass-cache
+docs/.jekyll-metadata
+docs/_posts/
+docs/pdf/
 
 # IDEs and editors
 .idea
-pilotage/.idea
-scaffold/.idea
 .idea/*
-pilotage/.idea/*
-scaffold/.idea/*
 
+pilotage/.idea
+pilotage/.idea/*
+scaffold/.idea
+scaffold/.idea/*
 
 scaffold/.project
 scaffold/.classpath
@@ -51,8 +65,7 @@ scaffold/coverage/*
 scaffold/libpeerconnection.log
 scaffold/npm-debug.log
 scaffold/testem.log
-scaffold//typings
-tenant/*、npm-debug.log
+scaffold/typings
 
 # e2e
 scaffold/e2e/*.js
@@ -87,13 +100,3 @@ _testmain.go
 *.exe
 *.test
 *.prof
-
-pilotage/pilotage
-pilotage/conf
-pilotage/cert
-pilotage/log/*
-pilotage/data/*
-
-docs/_site
-docs/.sass-cache
-docs/.jekyll-metadata
