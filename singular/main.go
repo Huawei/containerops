@@ -41,7 +41,6 @@ func main() {
 			nodes.Deploynode(m, ip)
 		}
 	}
-	return
 
 	tokenSource := &TokenSource{
 		AccessToken: init_config.TSpet,
@@ -64,6 +63,6 @@ func main() {
 	//newDroplet
 	_, _, err := client.Droplets.Create(ctx, createRequest)
 
-	fmt.Printf("Something bad happened: %s\n\n", err)
+	fmt.Printf("%s\n\n", err)
 
 }
