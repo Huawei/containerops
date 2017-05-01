@@ -37,6 +37,9 @@ pilotage/cert
 pilotage/log/*
 pilotage/data/*
 
+#singular
+singular/singular
+
 # docs
 docs/_site
 docs/.sass-cache
