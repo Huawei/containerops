@@ -11,38 +11,38 @@ func Deploymaster(list map[string]string, ip string) {
 		cmd.ExecShCommandEcho(k+" "+v, "/etc/hosts")
 	}
 
-	//firewalld
+	// firewalld
 	cmd.ExecCMDparams("systemctl", []string{"disable", "firewalld"})
 	cmd.ExecCMDparams("systemctl", []string{"stop", "firewalld"})
 	//#downlload  binary & config to temp
 	cmd.ExecCMDparams("mkdir", []string{"/tmp/etcd"})
 	cmd.ExecCMDparams("mkdir", []string{"/tmp/k8s_binary"})
 
-	//#erc create dir
+	//#etc create dir
 	cmd.ExecCMDparams("mkdir", []string{"/etc/kubernetes/"})
 	cmd.ExecCPparams("/tmp/config/config", "/etc/kubernetes/config")
 	// #etc service
 	cmd.ExecCMDparams("mkdir", []string{"/etc/etcd/"})
 	cmd.ExecCPparams("/tmp/etcd/etc/etcd/etcd.conf", "/etc/etcd/etcd.conf")
+	cmd.ExecCMDparams("mkdir", []string{"/usr/lib/systemd/system/"})
 	cmd.ExecCPparams("/tmp/config/etcd.service", "/usr/lib/systemd/system/etcd.service")
 	cmd.ExecCPparams("/tmp/etcd/usr/bin/etcd", "/usr/bin/etcd")
 	cmd.ExecCPparams("/tmp/etcd/usr/bin/etcdctl", "/usr/bin/etcdctl")
 	cmd.ExecCMDparams("mkdir", []string{"/var/lib/etcd/"})
 	// #/var/lib/etcd/default.etcd auto?
 
-	cmd.ExecCMDparams("mkdir", []string{"/etc/kubernetes/"})
-	cmd.ExecCMDparams("systemctl", []string{"/etc/kubernetes/"})
+	cmd.ExecCMDparams("systemctl", []string{"daemon-reload"})
 	cmd.ServiceStart("etcd")
-
-	cmd.ExecCMDparams("etcdctl", []string{"mkdir", "/kube-centos/network"})
-	cmd.ExecCMDparams("etcdctl", []string{"mk", "/kube-centos/network/config", "{ \"Network\": \"172.40.0.0/16\", \"SubnetLen\": 24, \"Backend\": { \"Type\": \"vxlan\" } }"})
 	cmd.ServiceIsEnabled("etcd")
 	cmd.ServiceExists("etcd")
+	cmd.ExecCMDparams("etcdctl", []string{"mkdir", "/kube-ubantu/network"})
+	cmd.ExecCMDparams("etcdctl", []string{"mk", "/kube-ubantu/network/config", "{\"Network\":\"172.40.0.0/16\"\\,\"SubnetLen\":24\\,\"Backend\":{\"Type\":\"vxlan\"}}"})
 
 	//#kube-apiserver
 	cmd.ExecCPparams("/tmp/k8s_binary/kube-apiserver", "/usr/bin/kube-apiserver")
 	cmd.ExecCPparams("/tmp/config/kube-apiserver.service", "/usr/lib/systemd/system/kube-apiserver.service")
 	cmd.ExecCPparams("/tmp/config/apiserver", "/etc/kubernetes/apiserver")
+
 	//#kube-controller-manager
 	cmd.ExecCPparams("/tmp/k8s_binary/kube-controller-manager", "/usr/bin/kube-controller-manager")
 	cmd.ExecCPparams("/tmp/config/kube-controller-manager.service", "/usr/lib/systemd/system/kube-controller-manager.service")
@@ -57,9 +57,11 @@ func Deploymaster(list map[string]string, ip string) {
 
 	cmd.ExecCPparams("/tmp/flannel/usr/bin/flanneld", "/usr/bin/flanneld")
 
-	cmd.ExecCMDparams("mkdir", []string{"/usr/libexec/flannel/"})
-
+	cmd.ExecCMDparams("mkdir", []string{"-p", "/usr/libexec/flannel/"})
+	cmd.ExecCMDparams("mkdir", []string{"/tmp/etcd"})
+	// check work
 	cmd.ExecCPparams("/tmp/flannel/usr/libexec/flannel/mk-docker-opts.sh", "/usr/libexec/flannel/mk-docker-opts.sh")
+	cmd.ExecCMDparams("mkdir", []string{"-p", "/etc/sysconfig/"})
 
 	cmd.ExecCPparams("/tmp/config/flanneld", "/etc/sysconfig/flanneld")
 
@@ -82,7 +84,7 @@ func Deploymaster(list map[string]string, ip string) {
 	cmd.ExecCMDparams("kubectl", []string{"config", "use-context", "use-context"})
 	cmd.ExecCMDparams("kubectl", []string{"config", "get", "nodes"})
 
-	// kubectl get nodes
+	// // kubectl get nodes
 	cmd.ExecCMDparams("kubectl", []string{"config", "cluster-info", "dump"})
 
 }
