@@ -7,6 +7,8 @@ import (
 	"log"
 	"os/exec"
 	"strings"
+
+	"github.com/Huawei/containerops/singular/init_config"
 )
 
 //log "github.com/Sirupsen/logrus"
@@ -30,8 +32,6 @@ var (
 	nodeCount     uint16
 	Log           *log.Logger
 )
-var user string = "root"
-var targetIP string = "@192.168.60.147"
 
 type SSHCommander struct {
 	User string
@@ -127,12 +127,15 @@ func ExecShCommandEcho(txtContet string, targetName string) error {
 
 func ExecCPparams(sourceName string, targetName string) error {
 
-	return ExecCMDparams("cp", []string{targetName})
+	return ExecCMDparams("cp", []string{sourceName, targetName})
 }
 
 func ExecCMDparams(commandName string, params []string) error {
-	cmdstr := []string{user + targetIP}
+
+	cmdstr := []string{init_config.User + "@" + init_config.MasterIP} //TargetIP}
+	//fmt.Println(cmdstr)
 	cmdstr = append(cmdstr, commandName)
+
 	for _, item := range params {
 		cmdstr = append(cmdstr, item)
 	}
