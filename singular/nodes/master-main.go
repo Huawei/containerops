@@ -1,12 +1,14 @@
 package nodes
 
 import cmd "github.com/Huawei/containerops/singular/cmd"
+import init_config "github.com/Huawei/containerops/singular/init_config"
 
 func Deploymaster(list map[string]string, ip string) {
 
 	// node & ip config
 	//echo -e "192.168.121.9 centos-master\n192.168.121.65 centos-minion" >> /etc/hosts
 	//	cmd.ExecCMDparams("echo", []string{"-e", MasterIP + "centos-master\n" + NodeIP + " centos-minion", ">>", "/etc/hosts"})
+
 	for k, v := range list {
 		cmd.ExecShCommandEcho(k+" "+v, "/etc/hosts")
 	}
@@ -35,8 +37,8 @@ func Deploymaster(list map[string]string, ip string) {
 	cmd.ServiceStart("etcd")
 	cmd.ServiceIsEnabled("etcd")
 	cmd.ServiceExists("etcd")
-	cmd.ExecCMDparams("etcdctl", []string{"mkdir", "/kube-ubantu/network"})
-	cmd.ExecCMDparams("etcdctl", []string{"mk", "/kube-ubantu/network/config", "{\"Network\":\"172.40.0.0/16\"\\,\"SubnetLen\":24\\,\"Backend\":{\"Type\":\"vxlan\"}}"})
+	cmd.ExecCMDparams("etcdctl", []string{"mkdir", init_config.EtcdNet}) //"/kube-centos/network/config nend update config
+	cmd.ExecCMDparams("etcdctl", []string{"mk", init_config.EtcdNet, "{\"Network\":\"172.40.0.0/16\"\\,\"SubnetLen\":24\\,\"Backend\":{\"Type\":\"vxlan\"}}"})
 
 	//#kube-apiserver
 	cmd.ExecCPparams("/tmp/k8s_binary/kube-apiserver", "/usr/bin/kube-apiserver")
