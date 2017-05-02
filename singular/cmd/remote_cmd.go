@@ -132,7 +132,7 @@ func ExecCPparams(sourceName string, targetName string) error {
 
 func ExecCMDparams(commandName string, params []string) error {
 
-	cmdstr := []string{init_config.User + "@" + init_config.MasterIP} //TargetIP}
+	cmdstr := []string{init_config.User + "@" + init_config.TargetIP}
 	//fmt.Println(cmdstr)
 	cmdstr = append(cmdstr, commandName)
 

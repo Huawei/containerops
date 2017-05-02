@@ -30,17 +30,6 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 }
 func main() {
 	// SSHCommander.IP
-	m["centos-master"] = init_config.MasterIP
-	//m["centos-minion"] = init_config.NodeIP
-	for k, ip := range m {
-		fmt.Printf("k=%v, v=%v\n", k, ip)
-		if k == "centos-master" {
-			nodes.Deploymaster(m, ip)
-		}
-		if k == "centos-minion" {
-			nodes.Deploynode(m, ip)
-		}
-	}
 
 	tokenSource := &TokenSource{
 		AccessToken: init_config.TSpet,
@@ -52,7 +41,7 @@ func main() {
 
 	createRequest := &godo.DropletCreateRequest{
 		Name:   dropletName,
-		Region: "nyc3",
+		Region: "sfo2",
 		Size:   "512mb",
 		Image: godo.DropletCreateImage{
 			Slug: "ubuntu-17-04-x64", //17.04 x64
@@ -60,9 +49,21 @@ func main() {
 	}
 
 	ctx := context.TODO()
-	//newDroplet
-	_, _, err := client.Droplets.Create(ctx, createRequest)
+	//newDroplet have  sync issue
+	newDroplet, _, err := client.Droplets.Create(ctx, createRequest)
+	dropletIP, err := newDroplet.PublicIPv4()
+	fmt.Printf("%s\n\n", err, dropletIP)
 
-	fmt.Printf("%s\n\n", err)
-
+	m["centos-master"] = init_config.MasterIP
+	m["centos-minion"] = init_config.NodeIP
+	for k, ip := range m {
+		init_config.TargetIP = ip
+		fmt.Printf("k=%v, v=%v\n", k, ip)
+		if k == "centos-master" {
+			nodes.Deploymaster(m, ip)
+		}
+		if k == "centos-minion" {
+			nodes.Deploynode(m, ip)
+		}
+	}
 }
