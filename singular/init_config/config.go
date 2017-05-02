@@ -3,13 +3,13 @@ package init_config
 // import (
 // 	"fmt"
 // 	)
-
+// cluster
 var MasterIP string = "45.55.14.171"
-var NodeIP string = "45.55.14.171"
-
+var NodeIP string = "104.131.117.126"
+var TargetIP string
 var User string = "root"
-
 var TSpet string = "6f2671de0d70ee5048379d16c0d0405df4a720ced263ffb35f67aded4834f330"
+var EtcdNet string = "/kube-centos/network" // nend update config of node and master
 
 //etcd:
 var etcd string = "https://storage.googleapis.com/containerops-release/etcd/3.1.7/etcd"

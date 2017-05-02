@@ -6,9 +6,15 @@ func Deploynode(list map[string]string, ip string) {
 
 	// node & ip config
 	//cmd.ExecCMDparams("echo", []string{"-e", MasterIP + "centos-master\n" + NodeIP + " centos-minion", ">>", "/etc/hosts"})
+
 	for k, v := range list {
 		cmd.ExecShCommandEcho(k+" "+v, "/etc/hosts")
 	}
+
+	//docker apt-get install docker.io
+	// input yes
+
+	cmd.ExecCMDparams("apt-get", []string{"install", "docker.io"})
 
 	//firewalld
 	cmd.ExecCMDparams("systemctl", []string{"disable", "firewalld"})
@@ -25,6 +31,7 @@ func Deploynode(list map[string]string, ip string) {
 	// #kubelet
 	cmd.ExecCMDparams("mkdir", []string{"/var/lib/kubelet"})
 	cmd.ExecCPparams("/tmp/k8s_binary/kubelet", "/usr/bin/kubelet")
+	cmd.ExecCMDparams("mkdir", []string{"-p", "/usr/lib/systemd/system/"})
 	cmd.ExecCPparams("/tmp/config/kubelet.service", "/usr/lib/systemd/system/kubelet.service")
 	cmd.ExecCPparams("/tmp/config/kubelet", "/etc/kubernetes/kubelet")
 
@@ -32,26 +39,16 @@ func Deploynode(list map[string]string, ip string) {
 	cmd.ExecCPparams("/tmp/k8s_binary/kube-proxy", "/usr/bin/kube-proxy")
 	cmd.ExecCPparams("/tmp/config/kube-proxy.service", "/usr/lib/systemd/system/kube-proxy.service")
 	cmd.ExecCPparams("/tmp/config/proxy", "/etc/kubernetes/proxy")
-	//#flanneld reserved
 
-	//#kube-controller-manager
-	cmd.ExecCPparams("/tmp/k8s_binary/kube-controller-manager", "/usr/bin/kube-controller-manager")
-	cmd.ExecCPparams("/tmp/config/kube-controller-manager.service", "/usr/lib/systemd/system/kube-controller-manager.service")
-	cmd.ExecCPparams("/tmp/config/controller-manager", "/etc/kubernetes/controller-manager")
-	//#kube-scheduler
-	cmd.ExecCPparams("/tmp/k8s_binary/kube-scheduler", "/usr/bin/kube-scheduler")
-	cmd.ExecCPparams("/tmp/config/kube-scheduler.service", "/usr/lib/systemd/system/kube-scheduler.service")
-	cmd.ExecCPparams("/tmp/config/scheduler", "/etc/kubernetes/scheduler")
-
-	// #flanneld reserved
+	// #flanneld
 	cmd.ExecCPparams("/tmp/flannel/usr/bin/flanneld-start", "/usr/bin/flanneld-start")
 
 	cmd.ExecCPparams("/tmp/flannel/usr/bin/flanneld", "/usr/bin/flanneld")
 
-	cmd.ExecCMDparams("mkdir", []string{"/usr/libexec/flannel/"})
+	cmd.ExecCMDparams("mkdir", []string{"-p", "/usr/libexec/flannel/"})
 
 	cmd.ExecCPparams("/tmp/flannel/usr/libexec/flannel/mk-docker-opts.sh", "/usr/libexec/flannel/mk-docker-opts.sh")
-
+	cmd.ExecCMDparams("mkdir", []string{"-p", "/etc/sysconfig/"})
 	cmd.ExecCPparams("/tmp/config/flanneld", "/etc/sysconfig/flanneld")
 
 	cmd.ExecCPparams("/tmp/config/flanneld.service", "/usr/lib/systemd/system/flanneld.service")
