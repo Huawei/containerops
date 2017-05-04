@@ -16,7 +16,7 @@ type SSHCommander struct {
 }
 
 //var nodes = [2][2]string{{"192.168.60.141", "centos-master"}, {"192.168.60.150", "centos-minion"}}
-var m = make(map[string]string)
+var nodelist = make(map[string]string)
 
 type TokenSource struct {
 	AccessToken string
@@ -30,7 +30,28 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 }
 func main() {
 	// SSHCommander.IP
+	init_config.TargetIP = init_config.MasterIP
+	nodes.DownloadFiles()
+	createNewVM()
+	deployNodes()
+}
 
+func deployNodes() {
+
+	nodelist["centos-master"] = init_config.MasterIP
+	nodelist["centos-minion"] = init_config.NodeIP
+	for k, ip := range nodelist {
+		init_config.TargetIP = ip
+		fmt.Printf("k=%v, v=%v\n", k, ip)
+		if k == "centos-master" {
+			nodes.Deploymaster(nodelist, ip)
+		}
+		if k == "centos-minion" {
+			nodes.Deploynode(nodelist, ip)
+		}
+	}
+}
+func createNewVM() {
 	tokenSource := &TokenSource{
 		AccessToken: init_config.TSpet,
 	}
@@ -53,17 +74,4 @@ func main() {
 	newDroplet, _, err := client.Droplets.Create(ctx, createRequest)
 	dropletIP, err := newDroplet.PublicIPv4()
 	fmt.Printf("%s\n\n", err, dropletIP)
-
-	m["centos-master"] = init_config.MasterIP
-	m["centos-minion"] = init_config.NodeIP
-	for k, ip := range m {
-		init_config.TargetIP = ip
-		fmt.Printf("k=%v, v=%v\n", k, ip)
-		if k == "centos-master" {
-			nodes.Deploymaster(m, ip)
-		}
-		if k == "centos-minion" {
-			nodes.Deploynode(m, ip)
-		}
-	}
 }
