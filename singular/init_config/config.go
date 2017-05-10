@@ -11,6 +11,12 @@ var User string = "root"
 var TSpet string = "6f2671de0d70ee5048379d16c0d0405df4a720ced263ffb35f67aded4834f330"
 var EtcdNet string = "/kube-centos/network" // nend update config of node and master
 
+//VM
+var MSize string = "512mb"
+var Region string = "sfo2"
+var Slug string = "ubuntu-17-04-x64"
+var Fingerprint string = "ee:81:d0:59:ab:09:1c:ff:52:dd:11:f8:bd:a6:7f:d8"
+
 var fileslist = make(map[string]string)
 
 func Get_files() map[string]string {
