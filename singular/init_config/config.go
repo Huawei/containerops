@@ -1,11 +1,18 @@
 package init_config
 
-// import (
-// 	"fmt"
-// 	)
+import (
+	"fmt"
+	"io/ioutil"
+	"path/filepath"
+
+	yaml "gopkg.in/yaml.v2"
+)
+
+//go get gopkg.in/yaml.v2
+
 // cluster
-var MasterIP string = "45.55.14.171"
-var NodeIP string = "104.131.117.126"
+var MasterIP string = "138.68.14.193"
+var NodeIP string = "138.68.22.86"
 var TargetIP string
 var User string = "root"
 var TSpet string = "6f2671de0d70ee5048379d16c0d0405df4a720ced263ffb35f67aded4834f330"
@@ -32,6 +39,51 @@ func Get_files() map[string]string {
 	fileslist["kubelet"] = kubelet_157
 
 	return fileslist
+}
+
+type Settings struct {
+	DBname         string `yaml:"database_name"`
+	DBpass         string `yaml:"database_pass"`
+	DBport         string `yaml:"database_port"`
+	DBurl          string `yaml:"database_url"`
+	DBuser         string `yaml:"database_user"`
+	DropWhenNOrule bool   `yaml:"drop_when_no_rule"`
+}
+
+type Config struct {
+	AppSettings Settings `yaml:"app_config"`
+}
+
+func getconfig(configname string) {
+
+	filename, _ := filepath.Abs("./init.yaml")
+	yamlFile, err := ioutil.ReadFile(filename)
+
+	if err != nil {
+		panic(err)
+	}
+
+	var config Config
+
+	err = yaml.Unmarshal(yamlFile, &config)
+	if err != nil {
+		panic(err)
+	}
+
+	//
+	// print everything...
+	//
+	fmt.Printf("%#v\n\n", config.AppSettings)
+	//
+	// print one by one...
+	//
+	fmt.Printf("database_name: %s\n", config.AppSettings.DBname)
+	fmt.Printf("database_pass: %s\n", config.AppSettings.DBpass)
+	fmt.Printf("database_port: %s\n", config.AppSettings.DBport)
+	fmt.Printf("database_url: %s\n", config.AppSettings.DBurl)
+	fmt.Printf("database_user: %s\n", config.AppSettings.DBuser)
+	fmt.Printf("drop_when_no_rule: %t\n", config.AppSettings.DropWhenNOrule)
+	//return config.AppSettings
 }
 
 //etcd:
