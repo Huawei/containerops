@@ -120,9 +120,8 @@ func ServiceIsActive(service string) bool {
 // inner cmmd
 
 func ExecShCommandEcho(txtContet string, targetName string) error {
-	_, err := exec.Command("sh", "-c", "echo 456 /n 123  >>/etc/hosts").Output()
-
-	return err
+	//	_, err := exec.Command("sh", "-c", "echo 456 /n 123  >>/etc/hosts").Output()
+	return ExecCMDparams("echo", []string{"-e", txtContet + " " + targetName, ">>", "/etc/hosts"})
 }
 
 func ExecCPparams(sourceName string, targetName string) error {
@@ -133,13 +132,53 @@ func ExecCPparams(sourceName string, targetName string) error {
 func ExecCMDparams(commandName string, params []string) error {
 
 	cmdstr := []string{init_config.User + "@" + init_config.TargetIP}
-	//fmt.Println(cmdstr)
+	fmt.Println(cmdstr)
 	cmdstr = append(cmdstr, commandName)
+	fmt.Println(cmdstr)
 
 	for _, item := range params {
 		cmdstr = append(cmdstr, item)
 	}
 	cmd := exec.Command("ssh", cmdstr...)
+	//show cmds
+	fmt.Println(cmd.Args)
+
+	stdout, err := cmd.StdoutPipe()
+
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	cmd.Start()
+
+	reader := bufio.NewReader(stdout)
+
+	// show content of stream in time
+	for {
+		line, err2 := reader.ReadString('\n')
+		if err2 != nil || io.EOF == err2 {
+			break
+		}
+		fmt.Println(line)
+	}
+
+	cmd.Wait()
+	return err
+}
+
+func LocalExecCMDparams(commandName string, params []string) error {
+
+	cmdstr := []string{}
+	fmt.Println(cmdstr)
+	cmdstr = append(cmdstr, commandName)
+	fmt.Println(cmdstr)
+
+	for _, item := range params {
+		cmdstr = append(cmdstr, item)
+	}
+	cmd := exec.Command(commandName, params...)
+
 	//show cmds
 	fmt.Println(cmd.Args)
 
