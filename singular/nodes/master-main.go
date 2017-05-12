@@ -10,26 +10,30 @@ func Deploymaster(list map[string]string, ip string) {
 	//	cmd.ExecCMDparams("echo", []string{"-e", MasterIP + "centos-master\n" + NodeIP + " centos-minion", ">>", "/etc/hosts"})
 
 	for k, v := range list {
-		cmd.ExecShCommandEcho(k+" "+v, "/etc/hosts")
+		cmd.ExecShCommandEcho(k, v)
 	}
 
 	// firewalld
 	cmd.ExecCMDparams("systemctl", []string{"disable", "firewalld"})
 	cmd.ExecCMDparams("systemctl", []string{"stop", "firewalld"})
 	//#downlload  binary & config to temp
-	cmd.ExecCMDparams("mkdir", []string{"/tmp/etcd"})
-	cmd.ExecCMDparams("mkdir", []string{"/tmp/k8s_binary"})
+	//cmd.ExecCMDparams("mkdir", []string{"/tmp/etcd"})
+	//cmd.ExecCMDparams("mkdir", []string{"/tmp/k8s_binary"})
 
 	//#etc create dir
 	cmd.ExecCMDparams("mkdir", []string{"/etc/kubernetes/"})
-	cmd.ExecCPparams("/tmp/config/config", "/etc/kubernetes/config")
+	cmd.ExecCPparams("/tmp/config/config", "/etc/kubernetes/config") //
 	// #etc service
 	cmd.ExecCMDparams("mkdir", []string{"/etc/etcd/"})
-	cmd.ExecCPparams("/tmp/etcd/etc/etcd/etcd.conf", "/etc/etcd/etcd.conf")
+	//cmd.ExecCPparams("/tmp/etcd/etc/etcd/etcd.conf", "/etc/etcd/etcd.conf")
+	cmd.ExecCPparams("/tmp/etcd.conf", "/etc/etcd/etcd.conf")
+
 	cmd.ExecCMDparams("mkdir", []string{"/usr/lib/systemd/system/"})
-	cmd.ExecCPparams("/tmp/config/etcd.service", "/usr/lib/systemd/system/etcd.service")
-	cmd.ExecCPparams("/tmp/etcd/usr/bin/etcd", "/usr/bin/etcd")
-	cmd.ExecCPparams("/tmp/etcd/usr/bin/etcdctl", "/usr/bin/etcdctl")
+	cmd.ExecCPparams("/tmp/config/etcd.service", "/usr/lib/systemd/system/etcd.service") //
+	//cmd.ExecCPparams("/tmp/etcd/usr/bin/etcd", "/usr/bin/etcd")
+	cmd.ExecCPparams("/tmp/etcd", "/usr/bin/etcd")
+	cmd.ExecCPparams("/tmp/etcdctl", "/usr/bin/etcdctl")
+	// cmd.ExecCPparams("/tmp/etcd/usr/bin/etcdctl", "/usr/bin/etcdctl")
 	cmd.ExecCMDparams("mkdir", []string{"/var/lib/etcd/"})
 	// #/var/lib/etcd/default.etcd auto?
 
@@ -41,23 +45,30 @@ func Deploymaster(list map[string]string, ip string) {
 	cmd.ExecCMDparams("etcdctl", []string{"mk", init_config.EtcdNet, "{\"Network\":\"172.40.0.0/16\"\\,\"SubnetLen\":24\\,\"Backend\":{\"Type\":\"vxlan\"}}"})
 
 	//#kube-apiserver
-	cmd.ExecCPparams("/tmp/k8s_binary/kube-apiserver", "/usr/bin/kube-apiserver")
+	//cmd.ExecCPparams("/tmp/k8s_binary/kube-apiserver", "/usr/bin/kube-apiserver")
+	cmd.ExecCPparams("/tmp/kube-apiserver", "/usr/bin/kube-apiserver")
+
 	cmd.ExecCPparams("/tmp/config/kube-apiserver.service", "/usr/lib/systemd/system/kube-apiserver.service")
 	cmd.ExecCPparams("/tmp/config/apiserver", "/etc/kubernetes/apiserver")
 
 	//#kube-controller-manager
-	cmd.ExecCPparams("/tmp/k8s_binary/kube-controller-manager", "/usr/bin/kube-controller-manager")
+	//cmd.ExecCPparams("/tmp/k8s_binary/kube-controller-manager", "/usr/bin/kube-controller-manager")
+	cmd.ExecCPparams("/tmp/kube-controller-manager", "/usr/bin/kube-controller-manager")
+
 	cmd.ExecCPparams("/tmp/config/kube-controller-manager.service", "/usr/lib/systemd/system/kube-controller-manager.service")
 	cmd.ExecCPparams("/tmp/config/controller-manager", "/etc/kubernetes/controller-manager")
 	//#kube-scheduler
-	cmd.ExecCPparams("/tmp/k8s_binary/kube-scheduler", "/usr/bin/kube-scheduler")
+	cmd.ExecCPparams("/tmp/kube-scheduler", "/usr/bin/kube-scheduler")
+	// cmd.ExecCPparams("/tmp/k8s_binary/kube-scheduler", "/usr/bin/kube-scheduler")
+
 	cmd.ExecCPparams("/tmp/config/kube-scheduler.service", "/usr/lib/systemd/system/kube-scheduler.service")
 	cmd.ExecCPparams("/tmp/config/scheduler", "/etc/kubernetes/scheduler")
 
 	// #flanneld reserved
-	cmd.ExecCPparams("/tmp/flannel/usr/bin/flanneld-start", "/usr/bin/flanneld-start")
+	//cmd.ExecCPparams("/tmp/flannel/usr/bin/flanneld-start", "/usr/bin/flanneld-start")
+	cmd.ExecCPparams("/tmp/flanneld", "/usr/bin/flanneld")
 
-	cmd.ExecCPparams("/tmp/flannel/usr/bin/flanneld", "/usr/bin/flanneld")
+	//cmd.ExecCPparams("/tmp/flannel/usr/bin/flanneld", "/usr/bin/flanneld")
 
 	cmd.ExecCMDparams("mkdir", []string{"-p", "/usr/libexec/flannel/"})
 	cmd.ExecCMDparams("mkdir", []string{"/tmp/etcd"})
@@ -80,7 +91,9 @@ func Deploymaster(list map[string]string, ip string) {
 	cmd.RestartSvc([]string{"etcd", "kube-apiserver", "kube-controller-manager", "kube-scheduler"})
 
 	// #kubectl config
-	cmd.ExecCPparams("/tmp/k8s_binary/kubectl", "/usr/bin/kubectl")
+	//cmd.ExecCPparams("/tmp/k8s_binary/kubectl", "/usr/bin/kubectl")
+	cmd.ExecCPparams("/tmp/kubectl", "/usr/bin/kubectl")
+
 	cmd.ExecCMDparams("kubectl", []string{"config", "set-cluster", "default-cluster", "--server=http://centos-master:8080"})
 	cmd.ExecCMDparams("kubectl", []string{"config", "set-cluster", "default-cluster", "--cluster=default-cluster", "--user=default-admin"})
 	cmd.ExecCMDparams("kubectl", []string{"config", "use-context", "use-context"})

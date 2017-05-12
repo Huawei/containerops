@@ -1,0 +1,7 @@
+app_config:
+    database_name:     mane_vision_daem
+    database_pass:     ubuntu
+    database_port:     3306
+    database_url:      "127.0.0.1"
+    database_user:     root
+    drop_when_no_rule: false
