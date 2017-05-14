@@ -27,15 +27,14 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/containerops/configure"
 	"github.com/jinzhu/gorm"
 	"github.com/satori/go.uuid"
 	"gopkg.in/macaron.v1"
 
-	"github.com/Huawei/dockyard/models"
-	"github.com/Huawei/dockyard/module"
-	"github.com/Huawei/dockyard/module/signature"
-	"github.com/Huawei/dockyard/utils"
+	"github.com/Huawei/containerops/common"
+	"github.com/Huawei/containerops/dockyard/model"
+	"github.com/Huawei/containerops/dockyard/module"
+	"github.com/Huawei/containerops/dockyard/module/signature"
 )
 
 //GetPingV2Handler is https://github.com/docker/distribution/blob/master/docs/spec/api.md#api-version-check
@@ -70,7 +69,7 @@ func HeadBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	digest := ctx.Params(":digest")
 	tarsum := strings.Split(digest, ":")[1]
 
-	i := new(models.DockerImageV2)
+	i := new(model.DockerImageV2)
 	if err := i.Get(tarsum); err != nil && err == gorm.ErrRecordNotFound {
 		log.Info("Not found blob: %s", tarsum)
 
@@ -100,7 +99,7 @@ func PostBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	namespace := ctx.Params(":namespace")
 	repository := ctx.Params(":repository")
 
-	r := new(models.DockerV2)
+	r := new(model.DockerV2)
 
 	if err := r.Put(namespace, repository); err != nil {
 		log.Errorf("Put or search repository error: %s", err.Error())
@@ -109,10 +108,10 @@ func PostBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	uuid := utils.MD5(uuid.NewV4().String())
-	state := utils.MD5(fmt.Sprintf("%s/%s/%d", namespace, repository, time.Now().UnixNano()/int64(time.Millisecond)))
+	uuid := common.MD5(uuid.NewV4().String())
+	state := common.MD5(fmt.Sprintf("%s/%s/%d", namespace, repository, time.Now().UnixNano()/int64(time.Millisecond)))
 	random := fmt.Sprintf("https://%s/v2/%s/%s/blobs/uploads/%s?_state=%s",
-		configure.GetString("deployment.domains"), namespace, repository, uuid, state)
+		"deployment.domains", namespace, repository, uuid, state)
 
 	ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	ctx.Resp.Header().Set("Docker-Upload-Uuid", uuid)
@@ -141,11 +140,11 @@ func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	} else if upload == true {
 		//It's run above docker 1.9.0
-		basePath := configure.GetString("dockerv2.storage")
+		basePath := "dockerv2.storage"
 		uuidPath := fmt.Sprintf("%s/uuid/%s", basePath, uuid)
 		uuidFile := fmt.Sprintf("%s/uuid/%s/%s", basePath, uuid, uuid)
 
-		if !utils.IsDirExist(uuidPath) {
+		if !common.IsDirExist(uuidPath) {
 			os.MkdirAll(uuidPath, os.ModePerm)
 		}
 
@@ -161,15 +160,15 @@ func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 		} else {
 			io.Copy(file, ctx.Req.Request.Body)
 
-			size, _ := utils.GetFileSize(uuidFile)
+			size, _ := common.GetFileSize(uuidFile)
 
 			ctx.Resp.Header().Set("Range", fmt.Sprintf("0-%v", size-1))
 		}
 	}
 
-	state := utils.MD5(fmt.Sprintf("%s/%v", fmt.Sprintf("%s/%s", namespace, repository), time.Now().UnixNano()/int64(time.Millisecond)))
+	state := common.MD5(fmt.Sprintf("%s/%v", fmt.Sprintf("%s/%s", namespace, repository), time.Now().UnixNano()/int64(time.Millisecond)))
 	random := fmt.Sprintf("https://%s/v2/%s/%s/blobs/uploads/%s?_state=%s",
-		configure.GetString("deployment.domains"), namespace, repository, uuid, state)
+		"deployment.domains", namespace, repository, uuid, state)
 
 	ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	ctx.Resp.Header().Set("Docker-Upload-Uuid", uuid)
@@ -193,12 +192,12 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	digest := ctx.Query("digest")
 	tarsum := strings.Split(digest, ":")[1]
 
-	basePath := configure.GetString("dockerv2.storage")
+	basePath := "dockerv2.storage"
 	imagePath := fmt.Sprintf("%s/image/%s", basePath, tarsum)
 	imageFile := fmt.Sprintf("%s/image/%s/%s", basePath, tarsum, tarsum)
 
 	//Save from uuid path save too image path
-	if !utils.IsDirExist(imagePath) {
+	if !common.IsDirExist(imagePath) {
 		os.MkdirAll(imagePath, os.ModePerm)
 	}
 
@@ -224,7 +223,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 				return http.StatusBadRequest, result
 			}
 
-			size, _ = utils.GetFileSize(imagePath)
+			size, _ = common.GetFileSize(imagePath)
 
 			os.RemoveAll(uuidFile)
 			os.RemoveAll(uuidPath)
@@ -238,11 +237,11 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 			return http.StatusBadRequest, result
 		} else {
 			io.Copy(file, ctx.Req.Request.Body)
-			size, _ = utils.GetFileSize(imagePath)
+			size, _ = common.GetFileSize(imagePath)
 		}
 	}
 
-	i := new(models.DockerImageV2)
+	i := new(model.DockerImageV2)
 	if err := i.Put(tarsum, imageFile, size); err != nil {
 		log.Errorf("Save the iamge data %s error: %s", tarsum, err.Error())
 
@@ -250,9 +249,9 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	state := utils.MD5(fmt.Sprintf("%s/%v", fmt.Sprintf("%s/%s", namespace, repository), time.Now().UnixNano()/int64(time.Millisecond)))
+	state := common.MD5(fmt.Sprintf("%s/%v", fmt.Sprintf("%s/%s", namespace, repository), time.Now().UnixNano()/int64(time.Millisecond)))
 	random := fmt.Sprintf("https://%s/v2/%s/%s/blobs/uploads/%s?_state=%s",
-		configure.GetString("deployment.domains"), namespace, repository, uuid, state)
+		"deployment.domains", namespace, repository, uuid, state)
 
 	ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	ctx.Resp.Header().Set("Docker-Content-Digest", digest)
@@ -267,7 +266,7 @@ func GetBlobsV2Handler(ctx *macaron.Context) {
 	digest := ctx.Params(":digest")
 	tarsum := strings.Split(digest, ":")[1]
 
-	i := new(models.DockerImageV2)
+	i := new(model.DockerImageV2)
 	if err := i.Get(tarsum); err != nil && err == gorm.ErrRecordNotFound {
 		log.Info("Not found blob: %s", tarsum)
 
@@ -330,7 +329,7 @@ func PutManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 		_, imageID, version, _ := module.GetTarsumlist([]byte(data))
 		digest, _ := signature.DigestManifest([]byte(data))
 
-		r := new(models.DockerV2)
+		r := new(model.DockerV2)
 		if err := r.PutAgent(namespace, repository, agent, strconv.FormatInt(version, 10)); err != nil {
 			log.Errorf("Put the manifest data error: %s", err.Error())
 
@@ -338,7 +337,7 @@ func PutManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 			return http.StatusBadRequest, result
 		}
 
-		t := new(models.DockerTagV2)
+		t := new(model.DockerTagV2)
 		if err := t.Put(namespace, repository, tag, imageID, data, strconv.FormatInt(version, 10)); err != nil {
 			log.Errorf("Put the manifest data error: %s", err.Error())
 
@@ -347,7 +346,7 @@ func PutManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 		}
 
 		random := fmt.Sprintf("https://%s/v2/%s/%s/manifests/%s",
-			configure.GetString("deployment.domains"), namespace, repository, digest)
+			"deployment.domains", namespace, repository, digest)
 
 		ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		ctx.Resp.Header().Set("Docker-Content-Digest", digest)
@@ -369,7 +368,7 @@ func GetTagsListV2Handler(ctx *macaron.Context) (int, []byte) {
 	data := map[string]interface{}{}
 	data["name"] = fmt.Sprintf("%s/%s", namespace, repository)
 
-	r := new(models.DockerV2)
+	r := new(model.DockerV2)
 
 	if data["tags"], err = r.GetTags(namespace, repository); err != nil && err == gorm.ErrRecordNotFound {
 		log.Info("Not found repository in getting tags list: %s/%s", namespace, repository)
@@ -393,7 +392,7 @@ func GetManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 	namespace := ctx.Params(":namespace")
 	tag := ctx.Params(":tag")
 
-	t := new(models.DockerTagV2)
+	t := new(model.DockerTagV2)
 	if _, err := t.Get(namespace, repository, tag); err != nil && err == gorm.ErrRecordNotFound {
 		log.Info("Not found repository in tetting tag manifest: %s/%s:%s", namespace, repository, tag)
 

@@ -26,7 +26,7 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/macaron.v1"
 
-	"github.com/Huawei/containerops/dockyard/utils"
+	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/dockyard/web"
 )
 
@@ -103,7 +103,7 @@ func startDeamon(cmd *cobra.Command, args []string) {
 		break
 	case "unix":
 		listenaddr := fmt.Sprintf("%s", address)
-		if utils.IsFileExist(listenaddr) {
+		if common.IsFileExist(listenaddr) {
 			os.Remove(listenaddr)
 		}
 

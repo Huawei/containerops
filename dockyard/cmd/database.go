@@ -25,7 +25,7 @@ import (
 // databasecmd is subcommand which migrate/backup/restore Dockyard's database.
 var databaseCmd = &cobra.Command{
 	Use:   "database",
-	Short: "Database subcommand migrate/backup/restore Dockyard's database.",
+	Short: "Database sub command migrate/backup/restore Dockyard's database.",
 	Long:  ``,
 }
 
