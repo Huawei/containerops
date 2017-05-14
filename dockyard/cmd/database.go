@@ -64,7 +64,7 @@ func init() {
 
 // migrateDatabase is auto-migrate database of Dockyard.
 func migrateDatabase(cmd *cobra.Command, args []string) {
-	models.Migrate()
+	model.Migrate()
 }
 
 // backupDatabase is
