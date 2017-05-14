@@ -1,0 +1,22 @@
+## Topnav single links
+## if you want to list an external url, use external_url instead of url. the theme will apply a different link base.
+topnav:
+- title: Topnav
+  items:
+    - title: Homepage
+      url: https://dockyard.sh
+
+#Topnav dropdowns
+topnav_dropdowns:
+- title: Topnav dropdowns
+  folders:
+    - title: Resources
+      folderitems:
+        - title: Dockyard Repo
+          external_url: https://github.com/containerops/dockyard.sh
+        - title: Dockyard Documentation
+          external_url: http://docs.dockyard.sh
+    - title: Documentation
+      folderitems:
+        - title: Core Concepts
+          url: /core-concepts.html

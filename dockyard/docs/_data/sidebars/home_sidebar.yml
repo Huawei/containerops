@@ -1,0 +1,104 @@
+entries:
+- title: Sidebar
+  folders:
+
+  - title: Introduction
+    output: web
+    folderitems:
+
+    - title: Introduction
+      output: web
+      url: /introduction.html
+
+      subfolders:
+      - title: Dockyard VS Others
+        output: web
+        subfolderitems:
+
+        - title: Docker Hub
+          output: web
+          url: /vs-docker-hub.html
+
+        - title: Quay.io
+          output: web
+          url: /vs-quay.html
+
+  - title: Getting Start
+    output: web
+    folderitems:
+
+    - title: Installing Local
+      output: web
+      url: /install-local.html
+
+    - title: Deploying Hosted And Cloud
+      output: web
+      url: /deploying-hosted.html
+
+    - title: Docker Pull & Push
+      output: web
+      url: /docker-pull-push.html
+
+    - title: Rkt Fetch
+      output: web
+      url: /rkt-fetch.html
+    
+    - title: Artifact fetch and Push
+      output: web
+      url: /artifact-fetch.html
+
+    - title: OCI
+      output: web
+      url: /oci-fetch.html
+
+  - title: Concepts
+    output: web
+    folderitems:
+
+    - title: Architecture
+      output: web
+      url: /concept-architecture.html
+
+  - title: Community
+    output: web
+    folderitems:
+
+      - title: Github
+        output: web
+        url: /github-community.html
+
+      - title: Slack
+        output: web
+        url: /slack-community.html
+
+      - title: Talks
+        output: web
+        url: /talks-community.html
+
+  - title: Download
+    output: web
+    folderitems:
+
+      - title: Linux
+        output: web
+        url: linux-download.html
+
+      - title: Mac
+        output: web
+        url: mac-download.html
+
+      - title: Windows
+        output: web
+        url: windows-download.html
+
+  - title: API
+    output: web
+    folderitems:
+
+      - title: V1
+        output: web
+        url: /v1-specification.html
+
+      - title: models
+        output: web
+        url: /database-models.html  

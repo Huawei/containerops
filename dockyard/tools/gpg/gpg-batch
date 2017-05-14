@@ -1,0 +1,14 @@
+%echo Generating a default key
+Key-Type: RSA
+Key-Length: 2048
+Subkey-Type: RSA
+Subkey-Length: 2048
+Name-Real: Meaglith Ma 
+Name-Comment: Dockyard ACI Signing Key
+Name-Email: genedna@gmail.com 
+Expire-Date: 0
+Passphrase: dockyard.sh
+%pubring dockyard.pub
+%secring dockyard.sec
+%commit
+%echo done
