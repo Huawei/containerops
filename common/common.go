@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package utils
+package common
 
 import (
 	"bytes"
@@ -282,4 +282,19 @@ func TokenUnmarshal(token string, key string, v interface{}) error {
 	}
 
 	return json.NewDecoder(bytes.NewBuffer(msg)).Decode(&v)
+}
+
+// GetFileSize get the size(bytes) of file.
+func GetFileSize(path string) (int64, error) {
+	if file, err := os.Open(path); err != nil {
+		return 0, err
+	} else {
+		header := make([]byte, 512)
+		file.Read(header)
+		stat, _ := file.Stat()
+
+		defer file.Close()
+
+		return stat.Size(), nil
+	}
 }

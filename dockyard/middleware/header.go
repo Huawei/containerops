@@ -17,27 +17,14 @@ limitations under the License.
 package middleware
 
 import (
-	"strings"
-
 	"gopkg.in/macaron.v1"
-
-	"github.com/containerops/configure"
 )
 
 //setRespHeaders is set Resp header value.
 //TODO: Add a config option for provide Docker Registry V1.
 func setRespHeaders() macaron.Handler {
 	return func(ctx *macaron.Context) {
-		if flag := strings.Contains(ctx.Req.RequestURI, "/v1"); flag == true {
-			//Docker Registry V1
-			ctx.Resp.Header().Set("Content-Type", "application/json")
-			ctx.Resp.Header().Set("X-Docker-Registry-Standalone", configure.GetString("dockerv1.standalone"))
-			ctx.Resp.Header().Set("X-Docker-Registry-Version", configure.GetString("dockerv1.version"))
-			ctx.Resp.Header().Set("X-Docker-Registry-Config", configure.GetString("runmode"))
-		} else if flag := strings.Contains(ctx.Req.RequestURI, "/v2"); flag == true {
-			//Docker Registry V2
-			ctx.Resp.Header().Set("Docker-Distribution-Api-Version", configure.GetString("dockerv2.distribution"))
-		} else {
-		}
+		//Docker Registry V2
+		ctx.Resp.Header().Set("Docker-Distribution-Api-Version", "registry/2.0")
 	}
 }

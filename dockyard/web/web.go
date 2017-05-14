@@ -19,8 +19,8 @@ package web
 import (
 	"gopkg.in/macaron.v1"
 
-	"github.com/Huawei/dockyard/middleware"
-	"github.com/Huawei/dockyard/router"
+	"github.com/Huawei/containerops/dockyard/middleware"
+	"github.com/Huawei/containerops/dockyard/router"
 )
 
 func SetDockyardMacaron(m *macaron.Macaron) {

@@ -27,8 +27,7 @@ import (
 var RootCmd = &cobra.Command{
 	Use:   "dockyard",
 	Short: "dockyard is a container and artifact repository",
-	Long: `Dockyard is a container and artifact repository storing and distributing container image, software artifact and virtual images of KVM or XEN. 
-We hosting a public service in https://dockyard.sh.`,
+	Long:  `Dockyard is a container and artifact repository storing and distributing container image, software artifact and virtual images of KVM or XEN.`,
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.

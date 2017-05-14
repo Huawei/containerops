@@ -51,11 +51,7 @@ func OpenDatabase() {
 func Migrate() {
 	OpenDatabase()
 
-	DB.AutoMigrate(&AppcV1{}, &ACIv1{})
-	DB.AutoMigrate(&AppV1{}, &ArtifactV1{})
-	DB.AutoMigrate(&DockerV1{}, &DockerImageV1{}, &DockerTagV1{})
 	DB.AutoMigrate(&DockerV2{}, &DockerImageV2{}, &DockerTagV2{})
-	DB.AutoMigrate(&ImageV1{}, &VirtualV1{})
 
 	log.Info("Auto Migrate Dockyard Database Structs Done.")
 }
