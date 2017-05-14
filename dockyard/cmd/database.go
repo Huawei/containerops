@@ -19,7 +19,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/Huawei/dockyard/models"
+	"github.com/Huawei/containerops/dockyard/model"
 )
 
 // databasecmd is subcommand which migrate/backup/restore Dockyard's database.

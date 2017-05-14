@@ -26,9 +26,8 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/macaron.v1"
 
-	"github.com/Huawei/dockyard/utils"
-	"github.com/Huawei/dockyard/web"
-	"github.com/containerops/configure"
+	"github.com/Huawei/containerops/dockyard/utils"
+	"github.com/Huawei/containerops/dockyard/web"
 )
 
 var address string
@@ -87,7 +86,7 @@ func startDeamon(cmd *cobra.Command, args []string) {
 	// Set Macaron Web Middleware And Routers
 	web.SetDockyardMacaron(m)
 
-	listenMode := configure.GetString("listenmode")
+	listenMode := "https"
 	switch listenMode {
 	case "http":
 		listenaddr := fmt.Sprintf("%s:%d", address, port)
@@ -98,7 +97,7 @@ func startDeamon(cmd *cobra.Command, args []string) {
 	case "https":
 		listenaddr := fmt.Sprintf("%s:443", address)
 		server := &http.Server{Addr: listenaddr, TLSConfig: &tls.Config{MinVersion: tls.VersionTLS10}, Handler: m}
-		if err := server.ListenAndServeTLS(configure.GetString("httpscertfile"), configure.GetString("httpskeyfile")); err != nil {
+		if err := server.ListenAndServeTLS("httpscertfile", "httpskeyfile"); err != nil {
 			fmt.Printf("Start Dockyard https service error: %v\n", err.Error())
 		}
 		break
