@@ -17,11 +17,6 @@ limitations under the License.
 package model
 
 import (
-	"github.com/jinzhu/gorm"
-	"os"
-)
-
-import (
 	"os"
 
 	log "github.com/Sirupsen/logrus"
