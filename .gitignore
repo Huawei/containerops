@@ -39,6 +39,7 @@ pilotage/data/*
 
 #singular
 singular/singular
+singular/.vscode
 
 # docs
 docs/_site
