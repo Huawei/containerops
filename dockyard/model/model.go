@@ -15,3 +15,52 @@ limitations under the License.
 */
 
 package model
+
+import (
+	"github.com/jinzhu/gorm"
+	"os"
+)
+
+import (
+	"os"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/jinzhu/gorm"
+)
+
+var (
+	DB *gorm.DB
+)
+
+// init()
+func init() {
+
+}
+
+// OpenDatabase is
+func OpenDatabase() {
+	var err error
+	if DB, err = gorm.Open("database.driver", "database.uri"); err != nil {
+		log.Fatal("Initlization database connection error.")
+		os.Exit(1)
+	} else {
+		DB.DB()
+		DB.DB().Ping()
+		DB.DB().SetMaxIdleConns(10)
+		DB.DB().SetMaxOpenConns(100)
+		DB.SingularTable(true)
+	}
+}
+
+// Migrate is
+func Migrate() {
+	OpenDatabase()
+
+	DB.AutoMigrate(&AppcV1{}, &ACIv1{})
+	DB.AutoMigrate(&AppV1{}, &ArtifactV1{})
+	DB.AutoMigrate(&DockerV1{}, &DockerImageV1{}, &DockerTagV1{})
+	DB.AutoMigrate(&DockerV2{}, &DockerImageV2{}, &DockerTagV2{})
+	DB.AutoMigrate(&ImageV1{}, &VirtualV1{})
+
+	log.Info("Auto Migrate Dockyard Database Structs Done.")
+}
