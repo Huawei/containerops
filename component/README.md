@@ -4,7 +4,7 @@
 
 ### Why choose the Phusion BaseImage as the base image?
 
-### How to transfer data from the component with environment variables?
+### How to transfer data to the component inside with environment variables?
 
 ### How to collecting the data from stdout/stderr?
 
