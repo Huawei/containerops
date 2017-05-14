@@ -22,7 +22,7 @@ import (
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
-	"github.com/Huawei/dockyard/cmd"
+	"github.com/Huawei/containerops/dockyard/cmd"
 )
 
 func init() {
