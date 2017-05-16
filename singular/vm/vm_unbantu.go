@@ -45,9 +45,11 @@ func CreateNewVM(vmname string) {
 	ctx := context.TODO()
 	//newDroplet have  sync issue
 	newDroplet, newResponse, err := client.Droplets.Create(ctx, createRequest)
-	dropletIP := newDroplet.Networks.V4
+	fmt.Printf("%s\n\n", err, newDroplet, newResponse)
+
+	//dropletIP := newDroplet.Networks.V4
 	//newDroplet.PublicIPv4()
-	dropletIP1, _ := newDroplet.PrivateIPv4()
+	//dropletIP1, _ := newDroplet.PrivateIPv4()
 	//newDroplet.Networks.V4String()
-	fmt.Printf("%s\n\n", err, dropletIP, newResponse, dropletIP1)
+	//fmt.Printf("%s\n\n", err, dropletIP, newResponse, dropletIP1)
 }
