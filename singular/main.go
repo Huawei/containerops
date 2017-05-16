@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/Huawei/containerops/singular/init_config"
-	"github.com/Huawei/containerops/singular/nodes"
+	"github.com/Huawei/containerops/singular/deploy"
+	"github.com/Huawei/containerops/singular/download"
+	"github.com/Huawei/containerops/singular/vm"
 )
 
 type SSHCommander struct {
@@ -14,9 +15,12 @@ type SSHCommander struct {
 
 func main() {
 	// SSHCommander.IP
-	init_config.TargetIP = init_config.MasterIP
-	// vm.CreateNewVM("lidian-unbantu-droplet")
-	nodes.DownloadFiles()
-	nodes.DeployNodes()
+	//init_config.TargetIP = init_config.MasterIP
+
+	// create vmlist
+	vm.CreateNewVM("lidian-unbantu-wk-master")
+	//get iplist while
+	download.Download_main()
+	deploy.DeployNodes()
 
 }

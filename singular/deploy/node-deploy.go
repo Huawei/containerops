@@ -1,4 +1,4 @@
-package nodes
+package deploy
 
 import cmd "github.com/Huawei/containerops/singular/cmd"
 

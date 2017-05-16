@@ -1,7 +1,9 @@
-package nodes
+package deploy
 
-import cmd "github.com/Huawei/containerops/singular/cmd"
-import init_config "github.com/Huawei/containerops/singular/init_config"
+import (
+	cmd "github.com/Huawei/containerops/singular/cmd"
+	"github.com/Huawei/containerops/singular/init_config"
+)
 
 func Deploymaster(list map[string]string, ip string) {
 
