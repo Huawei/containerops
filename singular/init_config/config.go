@@ -10,6 +10,9 @@ import (
 
 //go get gopkg.in/yaml.v2
 
+var Minion_name string = "centos-minion"
+var Master_name string = "centos-master"
+
 // cluster
 var MasterIP string = "138.68.249.233"
 var NodeIP string = "138.68.22.86"
