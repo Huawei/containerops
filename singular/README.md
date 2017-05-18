@@ -1,58 +1,60 @@
 # Singular
 
-##NAME
+## NAME
 
 ```
      singular -- The deployment and operations tools.
 
 ```
-##SYNOPSIS
-   
+## SYNOPSIS
 ```
-      [--user <name> ][--tokens <value>] 
+    Usage:	singular [OPTIONS] [ARG...]
+```
+```
+     ### The following options are available:
+
+      [--user <name> ]
+      [--tokens <value>] 
       [--ssh] <directory_name>
       [--cluster [master|node]][--NodeCount][--MSize][--Region][--Slug][--Privtenet]
       [--security yes|no]
-
-			[--install master|node]
+	  [--install master|node]
 
 ```
 
-##DESCRIPTION
+## DESCRIPTION
     
-     ## The following options are available:
 ```
-		 --user  Your custom name or system account. default is "singular_user"
+		 --user     Your custom name or system account. default is "singular_user"
 ```
 ```
 
-	 	 --tokens Tokens you have generated to access the vm cloud API.
+	 	 --tokens       Tokens you have generated to access the vm cloud API.
 ```
 ```
 	 	 
-     --ssh    Setting up SSH keys that access to your linux server without the need for type password.
+         --ssh      Setting up SSH keys that access to your Linux server without the need for type password.
      					Without ssh option ,the default value is /etc/singular/id_rsa.pub
-     					Or you cloud type your custom path for generate file id_rsa and id_rsa.pub
+     					Or you could type your custom path for generate file id_rsa and id_rsa.pub
 ```
 ```  					
-		 --security singular will automatically generate kubernetes certificate for provides an additional layer of security. 
+		 --security  singular will automatically generate kubernetes certificate for provides an additional layer of security. 
 ```
 ```
-     --cluster    
-     					 master|node  <NodeCount>    Custom configurations for master|node vm 
-     					 NodeCount <value>					 Number of nodes in cluster
-     					 MSize		< 512|1024|2048|>  Node memory Size
+         --cluster    
+     					 master|node  <NodeCount>            Custom configurations for master|node vm 
+     					 NodeCount   <value>				 Number of nodes in cluster
+     					 MSize		<512|1024|2048|>         Node memory Size
      					 Region    sfo|nyc					 Node local region
      					 Slug      <value>					 System version
-     					 Privtenet yes|no						 Privte network for your cluster
+     					 Privtenet yes|no					 Privte network for your cluster
 ```
 ```
-		 --install Start to install kubenetes cluster automatically by configuration file. "/etc/singular/config.yaml"
+		 --install Start to install kubenetes cluster automatically by the configuration file. "/etc/singular/config.yaml"
 ```
-#Using singulary with a configuration file
+# Using singulary with a configuration file
 
-##It’s possible to configure singulary with a configuration file instead of command line flags, and some more advanced 
-	features may only be available as configuration file options. 
+## It’s possible to configure singulary with a configuration file instead of command line flags, and some more advanced features may only be available as configuration file options. 
 
 
 Sample Master Configuration
@@ -67,7 +69,7 @@ vm_config:
     MSize:     "1024mb"
     Region:     "sfo2"
     Slug:     "ubuntu-17-04-x64"
-    Fingerprint:      "ee:81:d0:59:ab:09:1c:ff:52:dd:11:f8:bd:a6:7f:d8"
+    Fingerprint:      "ee:81:d0:59:ab:09:1c:ff:52:dd:11:f8:bd:a6:7f:a8"
 cluster_download:
     cloud_controller_manager : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/cloud-controller-manager"
     hyperkube : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/hyperkube"
