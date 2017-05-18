@@ -10,8 +10,11 @@ import (
 
 //go get gopkg.in/yaml.v2
 
+var Minion_name string = "centos-minion"
+var Master_name string = "centos-master"
+
 // cluster
-var MasterIP string = "138.68.14.193"
+var MasterIP string = "138.68.249.233"
 var NodeIP string = "138.68.22.86"
 var TargetIP string
 var User string = "root"
@@ -19,7 +22,7 @@ var TSpet string = "6f2671de0d70ee5048379d16c0d0405df4a720ced263ffb35f67aded4834
 var EtcdNet string = "/kube-centos/network" // nend update config of node and master
 
 //VM
-var MSize string = "512mb"
+var MSize string = "1024mb"
 var Region string = "sfo2"
 var Slug string = "ubuntu-17-04-x64"
 var Fingerprint string = "ee:81:d0:59:ab:09:1c:ff:52:dd:11:f8:bd:a6:7f:d8"
@@ -39,6 +42,17 @@ func Get_files() map[string]string {
 	fileslist["kubelet"] = kubelet_157
 
 	return fileslist
+}
+
+var Nodeslist = make(map[string]string)
+
+func Get_nodes() map[string]string {
+
+	//getconfig from yaml
+	Nodeslist["centos-master"] = MasterIP
+	Nodeslist["centos-minion"] = NodeIP
+
+	return Nodeslist
 }
 
 type Settings struct {

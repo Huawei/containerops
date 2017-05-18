@@ -11,17 +11,7 @@ import (
 	"github.com/Huawei/containerops/singular/init_config"
 )
 
-//log "github.com/Sirupsen/logrus"
-//"github.com/kubespray/kargo-cli/common"
-
-// "github.com/fatih/color"
-// "github.com/spf13/cobra"
-// "github.com/spf13/viper"
-
 var (
-	// RedPrint      = color.New(color.FgHiRed).SprintFunc()
-	// YellowPrint   = color.New(color.FgHiYellow).SprintFunc()
-	// GreenPrint    = color.New(color.FgHiGreen).SprintFunc()
 	CfgFile       string
 	KargoPath     string
 	InventoryPath string
@@ -40,6 +30,7 @@ type SSHCommander struct {
 
 //
 func RestartSvc(svcArr []string) error {
+	
 	for _, svc := range svcArr {
 		args := []string{"restart", svc}
 		ExecCMDparams(svc, args)

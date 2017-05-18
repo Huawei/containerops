@@ -1,7 +1,26 @@
-app_config:
-    database_name:     mane_vision_daem
-    database_pass:     ubuntu
-    database_port:     3306
-    database_url:      "127.0.0.1"
-    database_user:     root
-    drop_when_no_rule: false
+
+
+
+cluster_config:
+    MasterIP:     "138.68.249.233"
+    NodeIP:     "138.68.22.86"
+    User:     "root"
+    TSpet:     ""
+    EtcdNet: "/kube-centos/network"
+vm_config:
+    MSize:     "1024mb"
+    Region:     "sfo2"
+    Slug:     "ubuntu-17-04-x64"
+    Fingerprint:      "ee:81:d0:59:ab:09:1c:ff:52:dd:11:f8:bd:a6:7f:d8"
+cluster_download:
+    cloud_controller_manager : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/cloud-controller-manager"
+    hyperkube : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/hyperkube"
+    kube_aggregator : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kube-aggregator"
+    kube_apiserver : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kube-apiserver"
+    kube_controller_manager : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kube-controller-manager"
+    kube_proxy : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kube-proxy"
+    kube_scheduler : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kube-scheduler"
+    kubeadm : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kubeadm"
+    kubectl : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kubectl"
+    kubefed : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kubefed"
+    kubelet : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kubelet"
