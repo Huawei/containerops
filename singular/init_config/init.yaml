@@ -5,7 +5,7 @@ cluster_config:
     MasterIP:     "138.68.249.233"
     NodeIP:     "138.68.22.86"
     User:     "root"
-    TSpet:     "6f2671de0d70ee5048379d16c0d0405df4a720ced263ffb35f67aded4834f330"
+    TSpet:     ""
     EtcdNet: "/kube-centos/network"
 vm_config:
     MSize:     "1024mb"
