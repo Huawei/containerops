@@ -7,8 +7,6 @@ import (
 )
 
 func main() {
-	// SSHCommander.IP
-	//init_config.TargetIP = init_config.MasterIP
 
 	// create vmlist
 	vm.CreateVMs()
