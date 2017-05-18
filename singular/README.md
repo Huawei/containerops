@@ -28,36 +28,33 @@
 		 --user     Your custom name or system account. default is "singular_user"
 ```
 ```
-
 	 	 --tokens       Tokens you have generated to access the vm cloud API.
 ```
 ```
-	 	 
-         --ssh      Setting up SSH keys that access to your Linux server without the need for type password.
-     					Without ssh option ,the default value is /etc/singular/id_rsa.pub
-     					Or you could type your custom path for generate file id_rsa and id_rsa.pub
+	 	 --ssh      Setting up SSH keys that access to your Linux server without the need for type password.
+     				Without ssh option ,the default value is /etc/singular/id_rsa.pub
+     				Or you could type your custom path for generate file id_rsa and id_rsa.pub
 ```
 ```  					
 		 --security  singular will automatically generate kubernetes certificate for provides an additional layer of security. 
 ```
 ```
          --cluster    
-     					 master|node  <NodeCount>            Custom configurations for master|node vm 
-     					 NodeCount   <value>				 Number of nodes in cluster
-     					 MSize		<512|1024|2048|>         Node memory Size
-     					 Region    sfo|nyc					 Node local region
-     					 Slug      <value>					 System version
-     					 Privtenet yes|no					 Privte network for your cluster
+     		        master|node  <NodeCount>            Custom configurations for master|node vm 
+     		        NodeCount   <value>				 Number of nodes in cluster
+     				MSize		<512|1024|2048|>         Node memory Size
+     				Region    sfo|nyc					 Node local region
+     				Slug      <value>					 System version
+     				Privtenet yes|no					 Privte network for your cluster
 ```
 ```
 		 --install Start to install kubenetes cluster automatically by the configuration file. "/etc/singular/config.yaml"
 ```
 # Using singulary with a configuration file
 
-## It’s possible to configure singulary with a configuration file instead of command line flags, and some more advanced features may only be available as configuration file options. 
+### It’s possible to configure singulary with a configuration file instead of command line flags, and some more advanced features may only be available as configuration file options. 
 
-
-Sample Master Configuration
+Sample  Configuration
 ```
 cluster_config:
     User:     "singular_user"
