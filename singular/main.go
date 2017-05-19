@@ -1,13 +1,12 @@
 package main
 
-import (
-	"github.com/Huawei/containerops/singular/deploy"
-	"github.com/Huawei/containerops/singular/download"
-	"github.com/Huawei/containerops/singular/vm"
-)
+import "github.com/Huawei/containerops/singular/cmd"
+
+/
 
 func main() {
 
+	cmd.Execute()
 	// create vmlist
 	vm.CreateVMs()
 	//vm.CreateNewVM("lidian-unbantu-wk-master")

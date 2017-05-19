@@ -1,63 +1,66 @@
 # Singular
 
-## NAME
+### NAME
 
 ```
-     singular -- The deployment and operations tools.
+$ singular -- The deployment and operations tools.
 ```
-## SYNOPSIS
+### SYNOPSIS
 ```
-    Usage:	singular COMMAND <ARG...> [OPTION] 
+Usage:	singular <command> <subcommand> [option] 
 ```
 ```
-    The following command are available:
-    init  Initialize your singular application config for installing kubernetes cluster 
-    install To start a new kubernetes cluster installing and running each services
-    cluster List kubernetes cluster information and status
+Available Commands:
+init     Initialize your singular application config for installing kubernetes cluster
+config   Config  Configure your nodes of kubernetes cluster
+install  To start a new kubernetes cluster installing and running each services
+cluster  List kubernetes cluster information and status
 ```
 
-## DESCRIPTION SUBCOMMAND & OPTION
+### DESCRIPTION SUBCOMMAND & OPTION
     
 ```
-     init      Your singular int for installing kubernetes cluster 
+command:
+init    Installing kubernetes cluster with default configration
+option:
+		--apikey	APIkey you have generated to access the public cloud API.
+		--cerkey	Generated key-certificate pairs could help to access to the linux server    without the need to type password.
+					by using Generated key-certificate pairs, you could access to the linux server without typing password.
+		--cerpath	Without CApath option ,the default value is /etc/.singular/id_rsa.pub
+					Or you could type your custom path for generate file id_rsa and id_rsa.pub
+```
+```
+command:
+config  Configure your nodes of kubernetes cluster
+option:
+		--master|slave                       Create master or slave nodes
+		--security                           Generate kubernetes certificate
+		--privtenet       					 Privte network for your cluster
+		--count =3   <value>		    	 Number of nodes in cluster
+        --mSize =512	 <1024|2048|>        Node memory Size
+        --region =sfo    sfo|nyc			 Cluster's localization of the region
+        --slug=ubuntu-17-04-x64  <value>     System version
+```
+```
+command:
+install Start to install kubenetes cluster automatically by the configuration file.
+        --master|slave     Custom installation, master or slave nodes only.
+        --pull             Download Kubernetes binaries without install.               
+option:
+        --config=~/etc/.singular/config.yaml      setting custom singular path of config.
+```
+```
+command:
+		cluster List kubernetes cluster information and status
+option:
+		--master|slave     List master or slave nodes information and status          
+```
+## Using singulary with a configuration file
 
-            apikey  
-                     APIkey you have generated to access the public cloud API.
-            cerkey   
-                    Generated key-certificate pairs could help to access to the linux server    without the need to type password.
-            cerpath <path> 
-                     Without CApath option ,the default value is /etc/.singular/id_rsa.pub
-                     Or you could type your custom path for generate file id_rsa and id_rsa.pub
-```
-```
-    config  Configure your nodes of kubernetes cluster 
-            master|slave                         Create master or slave nodes
-            security                             Generate kubernetes certificate
-            privtenet       					 Privte network for your cluster
+##### It’s possible to configure singulary with a configuration file instead of command line flags, and some more advanced features may only be available as configuration file options. 
 
-            --count =3   <value>		    	 Number of nodes in cluster
-            --mSize =512	 <1024|2048|>        Node memory Size
-            --region =sfo    sfo|nyc			 Cluster's localization of the region
-            --slug=ubuntu-17-04-x64  <value>     System version
-```
-```
-    start Start to install kubenetes cluster automatically by the configuration file.
-          master|slave     Custom installation, master or slave nodes only.
-          pull             Download Kubernetes binaries without install.               
+###Sample  Configuration
 
-          --config=~/etc/.singular/config.yaml      setting custom singular path of config.
-```
-```
-    cluster List kubernetes cluster information and status
-          master|slave     List master or slave nodes information and status
-          
-            
-```
-# Using singulary with a configuration file
-
-### It’s possible to configure singulary with a configuration file instead of command line flags, and some more advanced features may only be available as configuration file options. 
-
-Sample  Configuration
 ```
 cluster_config:
     User:     "singular_user"
@@ -82,6 +85,4 @@ cluster_download:
     kubectl : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kubectl"
     kubefed : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kubefed"
     kubelet : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kubelet"
-    
-    
 ```
