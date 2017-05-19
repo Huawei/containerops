@@ -7,45 +7,51 @@
 ```
 ## SYNOPSIS
 ```
-    Usage:	singular [OPTIONS] [ARG...]
+    Usage:	singular COMMAND <ARG...> [OPTION] 
 ```
 ```
-    The following options are available:
-    [--user <name> ]
-    [--tokens <value>] 
-    [--ssh] <directory_name>
-    [--cluster [master|node]][--NodeCount][--MSize][--Region][--Slug][--Privtenet]
-    [--security yes|no]
-    [--install master|node]
+    The following command are available:
+    init  Initialize your singular application config for installing kubernetes cluster 
+    install To start a new kubernetes cluster installing and running each services
+    cluster List kubernetes cluster information and status
 ```
 
-## DESCRIPTION
+## DESCRIPTION SUBCOMMAND & OPTION
     
 ```
-    --user  Your custom name or system account. default is "singular_user"
+     init      Your singular int for installing kubernetes cluster 
+
+            apikey  
+                     APIkey you have generated to access the public cloud API.
+            cerkey   
+                    Generated key-certificate pairs could help to access to the linux server    without the need to type password.
+            cerpath <path> 
+                     Without CApath option ,the default value is /etc/.singular/id_rsa.pub
+                     Or you could type your custom path for generate file id_rsa and id_rsa.pub
 ```
 ```
-    --tokens    Tokens you have generated to access the vm cloud API.
+    config  Configure your nodes of kubernetes cluster 
+            master|slave                         Create master or slave nodes
+            security                             Generate kubernetes certificate
+            privtenet       					 Privte network for your cluster
+
+            --count =3   <value>		    	 Number of nodes in cluster
+            --mSize =512	 <1024|2048|>        Node memory Size
+            --region =sfo    sfo|nyc			 Cluster's localization of the region
+            --slug=ubuntu-17-04-x64  <value>     System version
 ```
 ```
-    --ssh   Setting up SSH keys that access to your Linux server without the need for type password.
-            Without ssh option ,the default value is /etc/singular/id_rsa.pub
-            Or you could type your custom path for generate file id_rsa and id_rsa.pub
-```
-```  					
-    --security  singular will automatically generate kubernetes certificate for provides an additional layer of security. 
-```
-```
-    --cluster    
-            master|node  <NodeCount>            Custom configurations for master|node vm 
-            NodeCount   <value>				 Number of nodes in cluster
-            MSize		<512|1024|2048|>         Node memory Size
-            Region    sfo|nyc					 Node local region
-            Slug      <value>					 System version
-            Privtenet yes|no					 Privte network for your cluster
+    start Start to install kubenetes cluster automatically by the configuration file.
+          master|slave     Custom installation, master or slave nodes only.
+          pull             Download Kubernetes binaries without install.               
+
+          --config=~/etc/.singular/config.yaml      setting custom singular path of config.
 ```
 ```
-    --install Start to install kubenetes cluster automatically by the configuration file. "/etc/singular/config.yaml"
+    cluster List kubernetes cluster information and status
+          master|slave     List master or slave nodes information and status
+          
+            
 ```
 # Using singulary with a configuration file
 
