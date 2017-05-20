@@ -1,57 +1,66 @@
 # Singular
 
-## NAME
+### NAME
 
 ```
-     singular -- The deployment and operations tools.
+$ singular -- The deployment and operations tools.
 ```
-## SYNOPSIS
+### SYNOPSIS
 ```
-    Usage:	singular [OPTIONS] [ARG...]
+Usage:	singular <command> <subcommand> [option] 
 ```
 ```
-    The following options are available:
-    [--user <name> ]
-    [--tokens <value>] 
-    [--ssh] <directory_name>
-    [--cluster [master|node]][--NodeCount][--MSize][--Region][--Slug][--Privtenet]
-    [--security yes|no]
-    [--install master|node]
+Available Commands:
+init     Initialize your singular application config for installing kubernetes cluster
+config   Config  Configure your nodes of kubernetes cluster
+install  To start a new kubernetes cluster installing and running each services
+cluster  List kubernetes cluster information and status
 ```
 
-## DESCRIPTION
+### DESCRIPTION SUBCOMMAND & OPTION
     
 ```
-    --user  Your custom name or system account. default is "singular_user"
+command:
+init    Installing kubernetes cluster with default configration
+option:
+		--apikey	APIkey you have generated to access the public cloud API.
+		--cerkey	Generated key-certificate pairs could help to access to the linux server    without the need to type password.
+					by using Generated key-certificate pairs, you could access to the linux server without typing password.
+		--cerpath	Without CApath option ,the default value is /etc/.singular/id_rsa.pub
+					Or you could type your custom path for generate file id_rsa and id_rsa.pub
 ```
 ```
-    --tokens    Tokens you have generated to access the vm cloud API.
+command:
+config  Configure your nodes of kubernetes cluster
+option:
+		--master|slave                       Create master or slave nodes
+		--security                           Generate kubernetes certificate
+		--privtenet       					 Privte network for your cluster
+		--count =3   <value>		    	 Number of nodes in cluster
+        --mSize =512	 <1024|2048|>        Node memory Size
+        --region =sfo    sfo|nyc			 Cluster's localization of the region
+        --slug=ubuntu-17-04-x64  <value>     System version
 ```
 ```
-    --ssh   Setting up SSH keys that access to your Linux server without the need for type password.
-            Without ssh option ,the default value is /etc/singular/id_rsa.pub
-            Or you could type your custom path for generate file id_rsa and id_rsa.pub
-```
-```  					
-    --security  singular will automatically generate kubernetes certificate for provides an additional layer of security. 
-```
-```
-    --cluster    
-            master|node  <NodeCount>            Custom configurations for master|node vm 
-            NodeCount   <value>				 Number of nodes in cluster
-            MSize		<512|1024|2048|>         Node memory Size
-            Region    sfo|nyc					 Node local region
-            Slug      <value>					 System version
-            Privtenet yes|no					 Privte network for your cluster
+command:
+install Start to install kubenetes cluster automatically by the configuration file.
+        --master|slave     Custom installation, master or slave nodes only.
+        --pull             Download Kubernetes binaries without install.               
+option:
+        --config=~/etc/.singular/config.yaml      setting custom singular path of config.
 ```
 ```
-    --install Start to install kubenetes cluster automatically by the configuration file. "/etc/singular/config.yaml"
+command:
+		cluster List kubernetes cluster information and status
+option:
+		--master|slave     List master or slave nodes information and status          
 ```
-# Using singulary with a configuration file
+## Using singulary with a configuration file
 
-### It’s possible to configure singulary with a configuration file instead of command line flags, and some more advanced features may only be available as configuration file options. 
+##### It’s possible to configure singulary with a configuration file instead of command line flags, and some more advanced features may only be available as configuration file options. 
 
-Sample  Configuration
+###Sample  Configuration
+
 ```
 cluster_config:
     User:     "singular_user"
@@ -76,6 +85,4 @@ cluster_download:
     kubectl : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kubectl"
     kubefed : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kubefed"
     kubelet : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kubelet"
-    
-    
 ```
