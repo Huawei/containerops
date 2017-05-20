@@ -1,22 +1,17 @@
 package main
 
-import (
-	"github.com/Huawei/containerops/singular/init_config"
-	"github.com/Huawei/containerops/singular/nodes"
-)
+import "github.com/Huawei/containerops/singular/cmd"
 
-type SSHCommander struct {
-	User string
-	IP   string
-}
-
-//var nodes = [2][2]string{{"192.168.60.141", "centos-master"}, {"192.168.60.150", "centos-minion"}}
+/
 
 func main() {
-	// SSHCommander.IP
-	init_config.TargetIP = init_config.MasterIP
-	// vm.CreateNewVM("lidian-unbantu-droplet")
-	nodes.DownloadFiles()
-	nodes.DeployNodes()
+
+	cmd.Execute()
+	// create vmlist
+	vm.CreateVMs()
+	//vm.CreateNewVM("lidian-unbantu-wk-master")
+	//get iplist while
+	download.Download_main()
+	deploy.DeployNodes()
 
 }
