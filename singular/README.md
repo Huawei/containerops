@@ -83,7 +83,8 @@ cerkey	Generated key-certificate pairs could help to access to the linux server 
 		by using Generated key-certificate pairs, you could access to the linux server without typing password.
 options:
 		
-		--cerpath	Without CApath option ,the default value is /etc/.singular/id_rsa.pub
+		--config=~/etc/.singular/config.yaml setting custom singular path of config.
+        --cerpath	Without CApath option ,the default value is /etc/.singular/id_rsa.pub
 					Or you could type your custom path for generate file id_rsa and id_rsa.pub
 		--master|slave                       Create master or slave nodes
 		--security                           Generate kubernetes certificate
@@ -93,7 +94,6 @@ options:
         --region =sfo    sfo|nyc			 Cluster's localization of the region
         --slug=ubuntu-17-04-x64  <value>     System version
         --pull             Download Kubernetes binaries without install.               
-        --config=~/etc/.singular/config.yaml      setting custom singular path of config.
         
 ```
 ## Using singular with a configuration file

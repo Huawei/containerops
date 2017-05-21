@@ -58,10 +58,10 @@ func init() {
 	ConfigCmd.Flags().IntVarP(&mSize, "mSize", "m", 512, "Node memory Size")
 	ConfigCmd.Flags().StringVarP(&region, "region", "r", "sfo", "Cluster's localization of the region")
 	ConfigCmd.Flags().StringVarP(&region, "system", "s", "ubuntu-17-04-x64", "Virtual machine system version")
+	ConfigCmd.Flags().IntVarP(&count, "count", "c", 3, "Number of nodes in cluster")
 
 	//createCmd
 	RootCmd.AddCommand(createCmd)
-	createCmd.Flags().IntVarP(&count, "count", "c", 3, "Number of nodes in cluster")
 	createCmd.AddCommand(pullCmd)
 
 	RootCmd.AddCommand(cerkeyCmd)
