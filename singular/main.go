@@ -1,8 +1,11 @@
 package main
 
-import "github.com/Huawei/containerops/singular/cmd"
-
-/
+import (
+	"github.com/Huawei/containerops/singular/cmd"
+	"github.com/Huawei/containerops/singular/deploy"
+	"github.com/Huawei/containerops/singular/download"
+	"github.com/Huawei/containerops/singular/vm"
+)
 
 func main() {
 
