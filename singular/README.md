@@ -75,14 +75,14 @@ $ singular cerkey
     
 ```
 Available Commands:
-config   Config  Configure your nodes of kubernetes cluster
+config  Configure your nodes of kubernetes cluster
 deploy  To start a new kubernetes cluster deploying and running each services
 cluster  Get kubernetes cluster information and status
-cerkey
+apikey	APIkey you have generated to access the public cloud API.
+cerkey	Generated key-certificate pairs could help to access to the linux server without the need to type password.
+		by using Generated key-certificate pairs, you could access to the linux server without typing password.
 options:
-		--apikey	APIkey you have generated to access the public cloud API.
-		--cerkey	Generated key-certificate pairs could help to access to the linux server    without the need to type password.
-					by using Generated key-certificate pairs, you could access to the linux server without typing password.
+		
 		--cerpath	Without CApath option ,the default value is /etc/.singular/id_rsa.pub
 					Or you could type your custom path for generate file id_rsa and id_rsa.pub
 		--master|slave                       Create master or slave nodes
