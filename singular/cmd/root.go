@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Huawei/containerops/singular/init_config"
 	"github.com/Huawei/containerops/singular/vm"
 	cobra "github.com/spf13/cobra"
 )
@@ -47,8 +48,18 @@ func Execute() {
 var mSize int
 var region string
 var count int
+var APIkey string
+var cerkeypath string
 
 func init() {
+
+	// 1) apikeyCmd
+	RootCmd.AddCommand(apikeyCmd)
+	// 2) cerkeyCmd
+	RootCmd.AddCommand(cerkeyCmd)
+	cerkeyCmd.Flags().StringVarP(&cerkeypath, "cerpath", "v", "", "Type your custom path for generate file id_rsa and id_rsa.pub")
+	// 3) cerkeyCmd
+
 	//RootCmd.AddCommand(versionCmd)
 	RootCmd.Flags().StringVarP(&address, "version", "v", "", "Show the Singular version information")
 
@@ -63,8 +74,6 @@ func init() {
 	//createCmd
 	RootCmd.AddCommand(createCmd)
 	createCmd.AddCommand(pullCmd)
-
-	RootCmd.AddCommand(cerkeyCmd)
 
 	RootCmd.AddCommand(deployCmd)
 
@@ -161,30 +170,28 @@ var apikeyCmd = &cobra.Command{
 
 func apikey(cmd *cobra.Command, args []string) {
 
-	fmt.Println("[singular] API Server key is ready.")
+	// if args count <1 {
+
+	// }
+	//fmt.Println("[singular] API Server key is ready.")
+	init_config.SetAPIkey(args[0])
 
 }
 
-var cerpathCmd = &cobra.Command{
-	Use:   "cerpath",
-	Short: "",
-	Long:  ``,
-	Run:   cerpath,
-}
+// var cerpathCmd = &cobra.Command{
+// 	Use:   "cerpath",
+// 	Short: "",
+// 	Long:  ``,
+// 	Run:   cerpath,
+// }
 
-func cerpath(cmd *cobra.Command, args []string) {
-	fmt.Println("" + address)
-}
+// func cerpath(cmd *cobra.Command, args []string) {
+// 	fmt.Println("" + address)
+// }
 
 var cerkeyCmd = &cobra.Command{
 	Use:   "cerkey",
 	Short: "",
 	Long:  ``,
-	Run:   cerkey,
-}
-
-func cerkey(cmd *cobra.Command, args []string) {
-	fmt.Println("[singular] Generated Certificate Authority key and certificate.")
-	fmt.Println("[singular] Created keys and certificates in \"/usr/singular/\"")
-	fmt.Println(args)
+	Run:   Cerkey,
 }

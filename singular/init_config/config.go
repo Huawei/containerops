@@ -45,6 +45,14 @@ var Fingerprint string = "ee:81:d0:59:ab:09:1c:ff:52:dd:11:f8:bd:a6:7f:d8"
 
 var fileslist = make(map[string]string)
 
+func SetAPIkey(apikey string) {
+
+	// check string length
+	fmt.Printf("[singular] API Server key is ready.  %s\n", apikey)
+
+	//viper
+}
+
 func Get_files() map[string]string {
 
 	fileslist["Etcd"] = Etcd
