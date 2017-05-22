@@ -29,7 +29,7 @@ ubuntu-minion-3        Ready      1024M      sfo
 ```
 ##### 2）  By calling call the public cloud API, singular can build your vm node and retrieve the node information list.
 ```
-$ singular create master 
+$ singular deploy master 
 NAME                   STATUS     PROGRESS          IP
 ubuntu-master-1        Ready      100%        138.68.14.197
 ubuntu-master-2        Ready      100%        138.68.14.198
