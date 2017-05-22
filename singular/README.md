@@ -12,46 +12,8 @@ The kubernetes deployment and operations tools.
 To automatically deply kubernetes, you could simply follow below steps:
 
 ```
-### Getting Started
-
-##### 1）  Configure cluster size and node with singular, a yaml file will be generated.
-```
-$ singular config master --count 2 --mSize 512 --region sfo --slug buntu-17-04-x64
-NAME                   STATUS     MSize     REGION 
-ubuntu-master-1        Ready      512M        sfo   
-ubuntu-master-2        Ready      512M        sfo   
-$ singular config node   --count 3 --mSize 1024 --region sfo --slug buntu-17-04-x64
-NAME                   STATUS     AGE     REGION       
-ubuntu-minion-1        Ready      1024M      sfo   
-ubuntu-minion-2        Ready      1024M      sfo   
-ubuntu-minion-3        Ready      1024M      sfo   
-
-```
-##### 2）  By calling call the public cloud API, singular can build your vm node and retrieve the node information list.
-```
-$ singular deploy master 
-NAME                   STATUS     PROGRESS          IP
-ubuntu-master-1        Ready      100%        138.68.14.197
-ubuntu-master-2        Ready      100%        138.68.14.198
-ubuntu-master-3        NoReady     80%              -
-```
-##### 3）  According the list, singular can download kubernetes binary files to each node, and start deployment with the yaml file generated in step 1.
-```
-$ singular deploy master 
-NAME                 Donwload      Deploy       STATUS
-ubuntu-master-1        100%         100%        SUCCEED
-ubuntu-master-2        100%         100%        FAILED
-ubuntu-master-3        80%          0%            -
-```
-
-Note:
-You could manually configure yaml file, and then execute setup to deploy and install. However, without the configuration file, part of information will be lost after singular destroyed, such as the path for api key and cert.
 ### Precondition
-Before using a singular, you need to tell it about your AWS credentials. You can do this in several steps:
-
- 
-Note: api server key is required for authentication while call api.
-For example:
+Before using the singular, you need to tell it about your public cloud credentials. You can do this in several steps:
  
 ##### 1）  Register an account for public cloud, and retrieve api server key and put it into the yaml file.
 Note: api server key is required for authentication while call api.
@@ -68,16 +30,60 @@ Note:Each step of the virtual machine operation depends on if your local private
 ```
 $ singular cerpath  ./usr/singular/
 $ singular cerkey 
-[singular] Generated Certificate Authority key and certificate.
-[singular] Created keys and certificates in "/usr/singular/"
+$ [singular] Generated Certificate Authority key and certificate.
+$ [singular] Created keys and certificates in "/usr/singular/"
+```
+
+### Getting Started
+
+##### 1） Create kubernetes node automatically with command option. Configure cluster size and node setting with singular, a yaml file will be generated.
+```
+$ singular create node --master-count 2 --mSize 1024 --region sfo --slug ubuntu-17-04-x64 --confirm --deploy
+
+NAME                   STATUS     AGE     REGION  
+ubuntu-master-1        Ready      512M        sfo   
+ubuntu-master-2        Ready      512M        sfo      
+ubuntu-minion-1        Ready      1024M      sfo   
+ubuntu-minion-2        Ready      1024M      sfo   
+ubuntu-minion-3        Ready      1024M      sfo
+$ [singular]Confirm the virtual machin settings?[yes/no]
+```
+Note:You could manually configure yaml file, and then execute deploy to setup and install. However, without the configuration file, part of information will be lost after singular destroyed, such as the path for api key and cert.
+
+
+##### 2）  By calling call the public cloud API, singular can build your virtual machine nodes and retrieve the nodes information list.
+```
+$ [singular] comfirm the virtual machine settings?[yes/no] yes
+NAME                   STATUS     PROGRESS          IP
+ubuntu-master-1        Ready      100%        138.68.14.197
+ubuntu-master-2        Ready      100%        138.68.14.198
+ubuntu-master-3        NoReady     80%              -
+$ [singular] Confirm it and continue  deployment? ?[yes/no]
+```
+Note: Without "--confirm" option ,the singular will start to deploy dirctly.
+
+##### 3）  According the list, singular can download kubernetes binary files to each node, and start deployment with the yaml file generated in step 1.
+```
+$ [singular] Confirm it and continue deployment? ?[yes/no] yes
+NAME                 Donwload      Deploy       STATUS
+ubuntu-master-1        100%         100%        SUCCEED
+ubuntu-master-2        100%         100%        FAILED
+ubuntu-master-3        80%          0%            -
+```
+Note:You could manually deploy  after configuration as follows.
+
+```
+$ singular deploy
+$ [singular]  deploying 100%
+$ [singular]  deploy succeed
+
 ```
 ### DESCRIPTION COMMAND & OPTION
     
 ```
 Available Commands:
-config  Configure your nodes of kubernetes cluster
-deploy  To start a new kubernetes cluster deploying and running each services
-cluster  Get kubernetes cluster information and status
+create  Create your nodes of kubernetes cluster.
+deploy  Manual to start a new kubernetes cluster deploying and running each services.
 apikey	APIkey you have generated to access the public cloud API.
 cerkey	Generated key-certificate pairs could help to access to the linux server without the need to type password.
 		by using Generated key-certificate pairs, you could access to the linux server without typing password.
