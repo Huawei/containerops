@@ -72,12 +72,12 @@ Note: You could manually configure YAML file, and then execute deploy to setup a
 $ singular deploy
 $ [Singular]  deploying 100%
 $ [Singular]  Your Kubernetes master has deployed successfully!
-
 ```
 ### DESCRIPTION COMMAND & OPTION
     
 ```
 Available Commands:
+
 configure   Configure 
 create      Create your nodes of Kubernetes cluster with custom options.
 deploy      Manual to start a new Kubernetes cluster deploying and running each service.
