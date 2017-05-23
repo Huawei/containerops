@@ -19,10 +19,12 @@ Before using the singular, you need to tell it about your public cloud credentia
 For example:  
   
 ```
-$ singular configure
+$ singular configure --help
 [Singular] (1/2) APIkey you have generated to access the public cloud API.
+[Singular] (2/2) By using key-certificate pairs, you could access to the linux server without typing password.
+
+$ singular configure
 Cloud Access Key ID [None]: 6f2671de0d70ee5048379d16c0d0405df4a720ced263ffb35f67aded4834f321
-[Singular] (2/2) By using  key-certificate pairs, you could access to the linux server without typing password.
 Cloud SSHkey Path [./usr/singular/rsd_id.pub]: ./usr/singular/rsd_custom_name.pub
 [Singular] API Server key is pass validation from cloud server.
 [Singular] Generated Certificate Authority SSHkey and certificate.
@@ -45,22 +47,22 @@ ubuntu-master-3        Ready      512M       sfo
 ubuntu-node-1          Ready      1024M      sfo   
 ubuntu-node-2          Ready      1024M      sfo   
 ubuntu-node-3          Ready      1024M      sfo
-$ [singular]Confirm the virtual machine settings?[yes/no]
+$ [singular]Are you sure you want to continue creating?[yes/no]
 ```
 ##### (2/3)  By calling call the public cloud API, singular can build your virtual machine nodes and retrieve the nodes information list.
 ```
-$ [singular] comfirm the virtual machine settings?[yes/no] yes
+$ [singular]Are you sure you want to continue creating?[yes/no] yes
 NAME                   STATUS     PROGRESS          IP
 ubuntu-master-1        Ready      100%        138.68.14.197
 ubuntu-master-2        Ready      100%        138.68.14.198
 ubuntu-master-3        NoReady     80%              -
-$ [singular] Are you sure you want to continue creating? ?[yes/no]
+$ [singular] Are you sure you want to continue deploying?[yes/no]
 ```
 Note: Without "--confirm" option ,the singular will start to deploy dirctly.
 
 ##### (3/3)  According the list, singular can download Kubernetes binary files to each node, and start deployment with the YAML file generated in step 1.
 ```
-$ [singular] Are you sure you want to continue deploying? ?[yes/no] yes
+$ [singular]Are you sure you want to continue deploying? ?[yes/no] yes
 NAME                 Donwload      Deploy       STATUS
 ubuntu-master-1        100%         100%        SUCCEED
 ubuntu-master-2        100%         100%        FAILED
@@ -68,10 +70,11 @@ ubuntu-master-3        80%          0%            -
 ```
 
 Note: You could manually configure YAML file, and then execute deploy to setup and install. However, without the configuration file, part of information will be lost after singular destroyed, such as the path for API key and cert.
+
 ```
 $ singular deploy
-$ [Singular]  deploying 100%
-$ [Singular]  Your Kubernetes master has deployed successfully!
+ [Singular] Deploying 100%
+ [Singular] Your Kubernetes master has deployed successfully!
 ```
 ### DESCRIPTION COMMAND & OPTION
     
