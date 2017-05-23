@@ -10,7 +10,7 @@ Usage: singular [OPTIONS] COMMAND [arg...]
 
 Singular,the kubernetes deployment and operations tools.
 ```
-####To automatically deply kubernetes, you could simply follow below steps:
+####To automatically deploy kubernetes, you could simply follow below steps:
 ### Precondition
 Before using the singular, you need to tell it about your public cloud credentials. You can do this in several steps:
  
@@ -23,7 +23,7 @@ $ singular apikey  6f2671de0d70ee5048379d16c0d0405df4a720ced263ffb35f67aded4834f
 [singular] API Server key is ready.
 ```
 
-##### 2）  Singular can generates the ssh certificate key pair locally and automatically deploys the public key into vm. Then you can operate the virtual machine without a password. 
+##### 2）  Singular can generate the ssh certificate key pair locally and automatically deploys the public key into vm. Then you can operate the virtual machine without a password. 
 Note:Each step of the virtual machine operation depends on if your local private key matches virtual machine public key. It is more secure compared to the use of account password
     
 ```
@@ -37,14 +37,15 @@ $ [singular] Created keys and certificates in "/usr/singular/"
 
 ##### (1/3) Create kubernetes node automatically with command option. Configure cluster size and node setting with singular, a yaml file will be generated.
 ```
-$ singular create node --master-count 2 --mSize 1024 --region sfo --slug ubuntu-17-04-x64 --confirm --deploy
+$ singular create node --master-count 3 --node-count 3  --mSize 1024 --region sfo --slug ubuntu-17-04-x64 --confirm --deploy
 
 NAME                   STATUS     AGE     REGION  
-ubuntu-master-1        Ready      512M        sfo   
-ubuntu-master-2        Ready      512M        sfo      
-ubuntu-minion-1        Ready      1024M      sfo   
-ubuntu-minion-2        Ready      1024M      sfo   
-ubuntu-minion-3        Ready      1024M      sfo
+ubuntu-master-1        Ready      512M       sfo   
+ubuntu-master-2        Ready      512M       sfo   
+ubuntu-master-3        Ready      512M       sfo         
+ubuntu-node-1          Ready      1024M      sfo   
+ubuntu-node-2          Ready      1024M      sfo   
+ubuntu-node-3          Ready      1024M      sfo
 $ [singular]Confirm the virtual machin settings?[yes/no]
 ```
 Note:You could manually configure yaml file, and then execute deploy to setup and install. However, without the configuration file, part of information will be lost after singular destroyed, such as the path for api key and cert.
