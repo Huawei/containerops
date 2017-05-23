@@ -74,7 +74,7 @@ Note: You could manually configure YAML file, and then execute deploy to setup a
 ```
 $ singular deploy
  [Singular] Deploying 100%
- [Singular] Your Kubernetes master has deployed successfully!
+ [Singular] Your Kubernetes cluster has deployed successfully!
 ```
 ### DESCRIPTION COMMAND & OPTION
     
