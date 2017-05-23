@@ -49,7 +49,6 @@ var mSize int
 var region string
 var count int
 var APIkey string
-var cerkeypath string
 
 func init() {
 
@@ -194,4 +193,23 @@ var cerkeyCmd = &cobra.Command{
 	Short: "",
 	Long:  ``,
 	Run:   Cerkey,
+}
+var cerkeypath string
+
+func Cerkey(cmd *cobra.Command, args []string) {
+
+	//ssh-keygen -t rsa
+	//ssh-keygen -b 2048 -t rsa
+	//ssh-keygen -b 2048 -t rsa -f ~/.ssh/name
+
+	if len(args) > 0 {
+		fmt.Println(args)
+		LocalExecCMDparams("ssh-keygen", []string{"-b", "2048", "-t", "rsa", "-f", args[1]})
+	} else if cerkeypath != "" {
+		LocalExecCMDparams("ssh-keygen", []string{"-b", "2048", "-t", "rsa", "-f", cerkeypath})
+	} else {
+		LocalExecCMDparams("ssh-keygen", []string{"-b", "2048", "-t", "rsa", "-f", "~/.ssh/id_rsa"})
+	}
+	fmt.Println("[singular] Generated Certificate Authority key and certificate.")
+	fmt.Println("[singular] Created keys and certificates in \"/usr/singular/\"")
 }

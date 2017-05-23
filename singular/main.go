@@ -16,12 +16,9 @@ limitations under the License.
 
 package main
 
-import (
-	"github.com/Huawei/containerops/singular/cmd"
-)
+import "github.com/Huawei/containerops/singular/cmd"
 
 func main() {
 
 	cmd.Execute()
-
 }
