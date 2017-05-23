@@ -17,17 +17,20 @@ func _config(cmd *cobra.Command, args []string) {
 
 }
 
-func Cerkey(cmd *cobra.Command, args []string) {
-	//  124  ssh-keygen -t rsa
+func _Cerkey(cmd *cobra.Command, args []string) {
+
+	//ssh-keygen -t rsa
 	//ssh-keygen -b 2048 -t rsa
-	//ssh-keygen -b 2048 -t rsa -f ~/.ssh/lidian
-	LocalExecCMDparams("ssh-keygen", []string{"-b", "2048", "-t", "rsa", "-f", "~/.ssh/lidian111"})
+	//ssh-keygen -b 2048 -t rsa -f ~/.ssh/name
+	if len(args) > 0 {
+		fmt.Println(args)
 
-	LocalExecCMDparams("ssh-keygen", []string{"-b", "2048", "-t", "rsa", "-f", args[1]})
-
+		LocalExecCMDparams("ssh-keygen", []string{"-b", "2048", "-t", "rsa", "-f", args[1]})
+	} else {
+		LocalExecCMDparams("ssh-keygen", []string{"-b", "2048", "-t", "rsa", "-f", "~/.ssh/id_rsa"})
+	}
 	// singular_cmd.ExecCPparams("/tmp/flanneld", "/usr/bin/flanneld")
 	// singular_cmd.ExecCMDparams("mkdir", []string{"-p", "/usr/libexec/flannel/"})
 	fmt.Println("[singular] Generated Certificate Authority key and certificate.")
 	fmt.Println("[singular] Created keys and certificates in \"/usr/singular/\"")
-	fmt.Println(args)
 }
