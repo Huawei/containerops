@@ -8,10 +8,9 @@ $ singular
 Usage: singular [OPTIONS] COMMAND [arg...]
        singular [ --help | -v | --version ]
 
-The kubernetes deployment and operations tools.
-To automatically deply kubernetes, you could simply follow below steps:
-
+Singular,the kubernetes deployment and operations tools.
 ```
+####To automatically deply kubernetes, you could simply follow below steps:
 ### Precondition
 Before using the singular, you need to tell it about your public cloud credentials. You can do this in several steps:
  
@@ -36,7 +35,7 @@ $ [singular] Created keys and certificates in "/usr/singular/"
 
 ### Getting Started
 
-##### 1） Create kubernetes node automatically with command option. Configure cluster size and node setting with singular, a yaml file will be generated.
+##### (1/3) Create kubernetes node automatically with command option. Configure cluster size and node setting with singular, a yaml file will be generated.
 ```
 $ singular create node --master-count 2 --mSize 1024 --region sfo --slug ubuntu-17-04-x64 --confirm --deploy
 
@@ -51,7 +50,7 @@ $ [singular]Confirm the virtual machin settings?[yes/no]
 Note:You could manually configure yaml file, and then execute deploy to setup and install. However, without the configuration file, part of information will be lost after singular destroyed, such as the path for api key and cert.
 
 
-##### 2）  By calling call the public cloud API, singular can build your virtual machine nodes and retrieve the nodes information list.
+##### (2/3)  By calling call the public cloud API, singular can build your virtual machine nodes and retrieve the nodes information list.
 ```
 $ [singular] comfirm the virtual machine settings?[yes/no] yes
 NAME                   STATUS     PROGRESS          IP
@@ -62,7 +61,7 @@ $ [singular] Confirm it and continue  deployment? ?[yes/no]
 ```
 Note: Without "--confirm" option ,the singular will start to deploy dirctly.
 
-##### 3）  According the list, singular can download kubernetes binary files to each node, and start deployment with the yaml file generated in step 1.
+##### (3/3)  According the list, singular can download kubernetes binary files to each node, and start deployment with the yaml file generated in step 1.
 ```
 $ [singular] Confirm it and continue deployment? ?[yes/no] yes
 NAME                 Donwload      Deploy       STATUS
