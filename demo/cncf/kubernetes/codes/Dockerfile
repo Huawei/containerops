@@ -14,3 +14,8 @@
 
 FROM containerops/golang:1.8.1
 MAINTAINER Quanyi Ma <genedna@gmail.com>
+
+RUN mkdir -p $GOPATH/github.com/Huawei/containerops
+ADD ./k8s.go $GOPATH/github.com/Huawei/containerops
+WORKDIR $GOPATH/github.com/Huawei/containerops
+RUN go get && go build k8s.go
