@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM containerops/golang:1.8.1
+FROM containerops/golang:1.8.3
 MAINTAINER Quanyi Ma <genedna@gmail.com>
 
 RUN mkdir -p $GOPATH/github.com/Huawei/containerops
 ADD ./k8s.go $GOPATH/github.com/Huawei/containerops
 WORKDIR $GOPATH/github.com/Huawei/containerops
-RUN go get && go build k8s.go
+RUN go get gopkg.in/src-d/go-git.v4 && go build k8s.go
