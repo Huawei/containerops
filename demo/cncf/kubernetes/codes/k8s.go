@@ -22,15 +22,14 @@ import (
 	"os/exec"
 	"path"
 	"strings"
-	"syscall"
 )
 
 const (
-	FAILUER_EXIT      = -1
-	MISSING_PARAMATER = -2
-	PARSE_ENV_FAILURE = -3
-	CLONE_ERROR       = -4
-	UNKNOWN_ACTION    = -5
+	FailuerExit      = -1
+	MissingParamater = -2
+	ParseEnvFailure  = -3
+	CLONE_ERROR      = -4
+	UNKNOWN_ACTION   = -5
 )
 
 //Parse CO_DATA value, and return Kubernetes repository URI and action (build/test/publish).
@@ -67,7 +66,7 @@ func git_clone(repo, dest string) error {
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Git clone error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
-		os.Exit(FAILUER_EXIT)
+		os.Exit(FailuerExit)
 	}
 
 	/*
@@ -92,7 +91,7 @@ func bazel_test(dest string) {
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Bazel test error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
-		os.Exit(FAILUER_EXIT)
+		os.Exit(FailuerExit)
 	}
 
 }
@@ -107,7 +106,7 @@ func bazel_build(dest string) {
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Bazel build error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
-		os.Exit(FAILUER_EXIT)
+		os.Exit(FailuerExit)
 	}
 }
 
@@ -122,21 +121,18 @@ func main() {
 	if len(co_data) == 0 {
 		fmt.Fprintf(os.Stderr, "[COUT] The CO_DATA value is null.\n")
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
-		os.Exit(MISSING_PARAMATER)
+		os.Exit(MissingParamater)
 	}
 
 	//Parse the CO_DATA, get the kubernetes repository URI and action
 	if k8s_repo, action, err := parse_env(co_data); err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
-		os.Exit(PARSE_ENV_FAILURE)
+		os.Exit(ParseEnvFailure)
 	} else {
-		mask := syscall.Umask(0)
-
 		//Create the base path within GOPATH.
 		base_path := path.Join(os.Getenv("GOPATH"), "src", "github.com", "kubernetes")
 		os.MkdirAll(base_path, os.ModePerm)
-		syscall.Umask(mask)
 
 		//Clone the git repository
 		if err := git_clone(k8s_repo, base_path); err != nil {

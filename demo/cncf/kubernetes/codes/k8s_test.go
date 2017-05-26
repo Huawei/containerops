@@ -15,3 +15,35 @@ limitations under the License.
 */
 
 package main
+
+import "testing"
+
+func Test_parse_env(t *testing.T) {
+	type args struct {
+		env string
+	}
+	tests := []struct {
+		name       string
+		args       args
+		wantURI    string
+		wantAction string
+		wantErr    bool
+	}{
+	// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotURI, gotAction, err := parse_env(tt.args.env)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("parse_env() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if gotURI != tt.wantURI {
+				t.Errorf("parse_env() gotURI = %v, want %v", gotURI, tt.wantURI)
+			}
+			if gotAction != tt.wantAction {
+				t.Errorf("parse_env() gotAction = %v, want %v", gotAction, tt.wantAction)
+			}
+		})
+	}
+}
