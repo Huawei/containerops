@@ -22,8 +22,7 @@ import (
 	"os/exec"
 	"path"
 	"strings"
-
-	"gopkg.in/src-d/go-git.v4"
+	"syscall"
 )
 
 const (
@@ -38,7 +37,7 @@ const (
 func parse_env(env string) (uri string, action string, err error) {
 	files := strings.Fields(env)
 	if len(files) == 0 {
-		return "", "", fmt.Errorf("CO_DATA value is null")
+		return "", "", fmt.Errorf("CO_DATA value is null\n")
 	}
 
 	for _, v := range files {
@@ -51,7 +50,7 @@ func parse_env(env string) (uri string, action string, err error) {
 		case "action":
 			action = value
 		default:
-			fmt.Fprintf(os.Stdout, "[COUT] Unknown Parameter: [%s]", s)
+			fmt.Fprintf(os.Stdout, "[COUT] Unknown Parameter: [%s]\n", s)
 		}
 	}
 
@@ -60,41 +59,54 @@ func parse_env(env string) (uri string, action string, err error) {
 
 //Git clone the kubernetes repository, and process will redirect to system stdout.
 func git_clone(repo, dest string) error {
-	if _, err := git.PlainClone(dest, false, &git.CloneOptions{
-		URL:               repo,
-		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
-		Progress:          os.Stdout,
-	}); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-//`make bazel-test`
-func bazel_test(dest string) {
-	cmd := exec.Command("make bazel-test")
+	cmd := exec.Command("git", "clone", repo, dest)
 	cmd.Path = dest
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "[COUT] Bazel test error: %s", err.Error())
-		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false")
+		fmt.Fprintf(os.Stderr, "[COUT] Git clone error: %s\n", err.Error())
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
 		os.Exit(FAILUER_EXIT)
 	}
+
+	/*
+		if _, err := git.PlainClone(dest, false, &git.CloneOptions{
+			URL:               repo,
+			RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
+			Progress:          os.Stdout,
+		}); err != nil {
+			return err
+		}
+	*/
+	return nil
+}
+
+//make bazel-test
+func bazel_test(dest string) {
+	cmd := exec.Command("make", "bazel-test")
+	cmd.Path = dest
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "[COUT] Bazel test error: %s\n", err.Error())
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
+		os.Exit(FAILUER_EXIT)
+	}
+
 }
 
 //`make bazel-build`
 func bazel_build(dest string) {
-	cmd := exec.Command("make bazel-build")
+	cmd := exec.Command("make", "bazel-build")
 	cmd.Path = dest
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "[COUT] Bazel build error: %s", err.Error())
-		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false")
+		fmt.Fprintf(os.Stderr, "[COUT] Bazel build error: %s\n", err.Error())
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
 		os.Exit(FAILUER_EXIT)
 	}
 }
@@ -108,47 +120,48 @@ func main() {
 	//Get the CO_DATA from environment parameter "CO_DATA"
 	co_data := os.Getenv("CO_DATA")
 	if len(co_data) == 0 {
-		fmt.Fprintf(os.Stderr, "[COUT] The CO_DATA value is null.")
-		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false")
+		fmt.Fprintf(os.Stderr, "[COUT] The CO_DATA value is null.\n")
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
 		os.Exit(MISSING_PARAMATER)
 	}
 
 	//Parse the CO_DATA, get the kubernetes repository URI and action
 	if k8s_repo, action, err := parse_env(co_data); err != nil {
-		fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA error: %s", err.Error())
-		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false")
+		fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA error: %s\n", err.Error())
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
 		os.Exit(PARSE_ENV_FAILURE)
 	} else {
+		mask := syscall.Umask(0)
+
 		//Create the base path within GOPATH.
-		base_path := path.Join(os.Getenv("GOPATH"), "github.com", "kubernetes")
-		os.MkdirAll(base_path, 0777)
+		base_path := path.Join(os.Getenv("GOPATH"), "src", "github.com", "kubernetes")
+		os.MkdirAll(base_path, os.ModePerm)
+		syscall.Umask(mask)
 
 		//Clone the git repository
 		if err := git_clone(k8s_repo, base_path); err != nil {
-			fmt.Fprintf(os.Stderr, "[COUT] Clone the kubernetes repository error: %s", err.Error())
-			fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false")
+			fmt.Fprintf(os.Stderr, "[COUT] Clone the kubernetes repository error: %s\n", err.Error())
+			fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
 			os.Exit(CLONE_ERROR)
 		}
-
-		k8s_path := path.Join(base_path, "kubernetes")
 
 		//Execute action
 		switch action {
 		case "build":
-			bazel_build(k8s_path)
+			bazel_build(path.Join(base_path, "kubernetes"))
 		case "test":
-			bazel_test(k8s_path)
+			bazel_test(path.Join(base_path, "kubernetes"))
 		case "publish":
-			publish(k8s_path)
+			publish(base_path)
 		default:
-			fmt.Fprintf(os.Stderr, "[COUT] Unknown action, the component only support build, test and publish action.")
-			fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false")
+			fmt.Fprintf(os.Stderr, "[COUT] Unknown action, the component only support build, test and publish action.\n")
+			fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
 			os.Exit(UNKNOWN_ACTION)
 		}
 
 	}
 
 	//Print result
-	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = true")
+	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = true\n")
 	os.Exit(0)
 }

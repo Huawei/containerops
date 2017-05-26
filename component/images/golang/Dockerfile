@@ -15,6 +15,8 @@
 FROM  phusion/baseimage:0.9.21
 MAINTAINER Quanyi Ma <maquanyi@huawei.com>
 
+RUN apt-get update && apt-get install -y git
+
 ARG go_version
 ENV GO_VERSION ${go_version}
 
