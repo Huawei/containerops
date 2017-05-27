@@ -12,54 +12,51 @@ Singular, the Kubernetes deployment and operations tools.
 ```
 #### To automatically deploy Kubernetes, you could simply follow below steps:
 ### Before You Start
-Before using the singular, you need to tell it about your public cloud credentials. Two steps as following:
- 
-##### 1）  Register an account for public cloud,  get API server key and set it into the Singular.
-##### 2）  Singular can generate the ssh certificate key pair locally and automatically deploys the public key into virtual machine on a cloud. Then you can operate the virtual machine without a password. 
+Before using the singular, you need to tell it about your public cloud credentials. Two steps as following example:
 For example:  
   
 ```
-
-$ singular config
+$ singular config 
+[Singular]Let's start 
 [Singular]Select your cloud compute provider: 
-1 DigitalOcean 
-2 Amazon Web Services
-3 Google Cloud Platfrom
+    [1] DigitalOcean 
+    [2] Amazon Web Services
+    [3] Google Cloud Platfrom
 Input item number : 1
-
-DigitalOcean Cloud Access Key ID [None]: 6f267**********************321
-
-
-
- singular config
-[Singular]Select your cloud compute provider: 
-    1 DigitalOcean 
-    2 Amazon Web Services
-    3 Google Cloud Platfrom
-Input item number : 1
-[Singular]Input your DigitalOcean Cloud API Access Key which you get from your 
-API Access Key ID [None]: 6f267**********************321
-Cloud SSHkey Path [/usr/singular/rsd_id.pub]: /usr/singular/rsd_custom_name.pub
+-------------------------------------------------------------------------------------------------------------------
+[Singular]Input your Cloud API Access Key of DigitalOcean‘s Account.
+API Access Key ID : 6f267**********************321D34
 [Singular] API Server key is pass validation from cloud server.
+-------------------------------------------------------------------------------------------------------------------
+[Singular] Singular can generate the ssh certificate key pair locally and automatically deploys the public key into virtual machine on a cloud. Then you can operate the virtual machine without a password.
+Cloud SSHkey Path : /etc/singular/rsd_custom_name.pub
 [Singular] Generated Certificate Authority SSHkey and certificate.
-[Singular] Created keys and certificates in "./usr/singular/rsd_custom_name.pub"
+[Singular] Created SSHkey and certificate successfully. 
+[Singular] Setting up SSH keys on your cloud account.
+[Singular] Now,You can create new virtual machine  with an SSH key already set on them.
+[Singular] Congratulations, Let us get deployd up and running and build your container cluster !
+-------------------------------------------------------------------------------------------------------------------
 ```
 Note: API server key is required for authentication while calling API.
 Note: Each step of the virtual machine operation depends on if your local private key matches virtual machine public key. It is more secure compared to the use of account password
-
 
 ### Getting Started
 
 ##### (1/3) Create Kubernetes cluster automatically with wizard. Configure cluster size and node setting with the singular, a YAML file will be generated.
 ```
 
-$ singular deploy cluster 
+$ singular deploy k8s 
     Master Count [1]: 3
     Node Count [2]: 3
-    Memory Size [512]: 1024
-    Region  [sfo]: 
-    System Version [ubuntu-17-04-x64]:
-     
+    Virtual Machine Size :
+    ------[1]----------------[2]---------------[3]-------
+    | 4 GB / 2 CPUs  | 8 GB / 4 CPUs   | 16 GB / 8 CPUs  |
+    | 60 GB SSD disk | 80 GB SSD disk  | 160 GB SSD disk |
+    | 4 TB transfer  | 5 TB transfer   | 6 TB transfer   |
+    ------------------------------------------------------
+    Region: 
+    [1]New York [2]San Francisco [3]Amsterdam [4]Singapore[5]London
+
     NAME                   STATUS     AGE     REGION  
     ubuntu-master-1        Ready      1024M      sfo   
     ubuntu-master-2        Ready      1024M      sfo   
@@ -118,3 +115,23 @@ vm_config:
     System Version:    "ubuntu-17-04-x64"
 
 ```
+
+
+
+$  40 /mo
+$0.060 /hour
+4 GB / 2 CPUs
+60 GB SSD disk
+4 TB transfer
+ 
+$  80 /mo
+$0.119 /hour
+8 GB / 4 CPUs
+80 GB SSD disk
+5 TB transfer
+ 
+$  160 /mo
+$0.238 /hour
+16 GB / 8 CPUs
+160 GB SSD disk
+6 TB transfer
