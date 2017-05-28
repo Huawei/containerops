@@ -59,7 +59,6 @@ func parse_env(env string) (uri string, action string, err error) {
 //Git clone the kubernetes repository, and process will redirect to system stdout.
 func git_clone(repo, dest string) error {
 	cmd := exec.Command("git", "clone", repo, dest)
-	cmd.Path = dest
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -69,20 +68,11 @@ func git_clone(repo, dest string) error {
 		os.Exit(FailuerExit)
 	}
 
-	/*
-		if _, err := git.PlainClone(dest, false, &git.CloneOptions{
-			URL:               repo,
-			RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
-			Progress:          os.Stdout,
-		}); err != nil {
-			return err
-		}
-	*/
 	return nil
 }
 
 //make bazel-test
-func bazel_test(dest string) {
+func bazel_test(dest string) error {
 	cmd := exec.Command("make", "bazel-test")
 	cmd.Path = dest
 	cmd.Stdout = os.Stdout
@@ -91,13 +81,15 @@ func bazel_test(dest string) {
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Bazel test error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
-		os.Exit(FailuerExit)
+
+		return err
 	}
 
+	return nil
 }
 
 //`make bazel-build`
-func bazel_build(dest string) {
+func bazel_build(dest string) error {
 	cmd := exec.Command("make", "bazel-build")
 	cmd.Path = dest
 	cmd.Stdout = os.Stdout
@@ -106,13 +98,16 @@ func bazel_build(dest string) {
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Bazel build error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
-		os.Exit(FailuerExit)
+
+		return err
 	}
+
+	return nil
 }
 
 //TODO Build the kubernetes all binrary files, and publish to containerops repository. And not execute the `make bazel-publish` command.
-func publish(dest string) {
-
+func publish(dest string) error {
+	return nil
 }
 
 func main() {
@@ -131,7 +126,7 @@ func main() {
 		os.Exit(ParseEnvFailure)
 	} else {
 		//Create the base path within GOPATH.
-		base_path := path.Join(os.Getenv("GOPATH"), "src", "github.com", "kubernetes")
+		base_path := path.Join(os.Getenv("GOPATH"), "src", "github.com", "kubernetes", "kubernetes")
 		os.MkdirAll(base_path, os.ModePerm)
 
 		//Clone the git repository
@@ -144,11 +139,23 @@ func main() {
 		//Execute action
 		switch action {
 		case "build":
-			bazel_build(path.Join(base_path, "kubernetes"))
+
+			if err := bazel_build(path.Join(base_path, "kubernetes")); err != nil {
+				os.Exit(FailuerExit)
+			}
+
 		case "test":
-			bazel_test(path.Join(base_path, "kubernetes"))
+
+			if err := bazel_test(path.Join(base_path, "kubernetes")); err != nil {
+				os.Exit(FailuerExit)
+			}
+
 		case "publish":
-			publish(base_path)
+
+			if err := publish(base_path); err != nil {
+				os.Exit(FailuerExit)
+			}
+
 		default:
 			fmt.Fprintf(os.Stderr, "[COUT] Unknown action, the component only support build, test and publish action.\n")
 			fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")

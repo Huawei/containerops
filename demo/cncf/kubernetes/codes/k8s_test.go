@@ -16,34 +16,123 @@ limitations under the License.
 
 package main
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
-func Test_parse_env(t *testing.T) {
-	type args struct {
-		env string
+//Testing git clone with a small repository.
+func Test_git_clone(t *testing.T) {
+	type repository struct {
+		r    string
+		dest string
 	}
+
 	tests := []struct {
-		name       string
-		args       args
-		wantURI    string
-		wantAction string
-		wantErr    bool
+		name    string
+		r       repository
+		wantErr bool
 	}{
-	// TODO: Add test cases.
+		{
+			name: "Dockyard",
+			r: repository{
+				r:    "git@github.com:Huawei/dockyard.git",
+				dest: "/tmp/tests",
+			},
+			wantErr: false,
+		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			gotURI, gotAction, err := parse_env(tt.args.env)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("parse_env() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if gotURI != tt.wantURI {
-				t.Errorf("parse_env() gotURI = %v, want %v", gotURI, tt.wantURI)
-			}
-			if gotAction != tt.wantAction {
-				t.Errorf("parse_env() gotAction = %v, want %v", gotAction, tt.wantAction)
-			}
-		})
+
+	for _, v := range tests {
+		os.MkdirAll(v.r.dest, 0777)
+		err := git_clone(v.r.r, v.r.dest)
+
+		if (err != nil) != v.wantErr {
+			t.Errorf("git_clone() error = %v, and want error %v", err, v.wantErr)
+			return
+		}
+
+		os.RemoveAll(v.r.dest)
+
+		t.Log("git_clone() function test OK")
 	}
+}
+
+//The system should install bazel first follow the https://bazel.io
+func Test_bazel_test(t *testing.T) {
+	type k8sRepo struct {
+		r        string
+		location string
+	}
+
+	tests := []struct {
+		name    string
+		repo    k8sRepo
+		wantErr bool
+	}{
+		{
+			name: "Kubernetes",
+			repo: k8sRepo{
+				r:        "https://github.com/kubernetes/kubernetes.git",
+				location: "/tmp/kubernetes",
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, v := range tests {
+		os.MkdirAll(v.repo.location, 0777)
+		git_clone(v.repo.r, v.repo.location)
+
+		err := bazel_test(v.repo.location)
+		if (err != nil) != v.wantErr {
+			t.Errorf("bazel_test() error = %v, and want error %v", err, v.wantErr)
+			return
+		}
+
+		os.RemoveAll(v.repo.location)
+	}
+
+	t.Log("bazel_test() function test OK")
+}
+
+func Test_bazel_build(t *testing.T) {
+	type k8sRepo struct {
+		r        string
+		location string
+	}
+
+	tests := []struct {
+		name    string
+		repo    k8sRepo
+		wantErr bool
+	}{
+		{
+			name: "Kubernetes",
+			repo: k8sRepo{
+				r:        "https://github.com/kubernetes/kubernetes.git",
+				location: "/tmp/kubernetes",
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, v := range tests {
+		os.MkdirAll(v.repo.location, 0777)
+		git_clone(v.repo.r, v.repo.location)
+
+		err := bazel_build(v.repo.location)
+		if (err != nil) != v.wantErr {
+			t.Errorf("bazel_build() error = %v, and want error %v", err, v.wantErr)
+			return
+		}
+
+		os.RemoveAll(v.repo.location)
+	}
+
+	t.Log("bazel_build() function test OK")
+}
+
+func Test_bazel_publish() {
+	t.Log("bazel_build() function test OK")
 }
