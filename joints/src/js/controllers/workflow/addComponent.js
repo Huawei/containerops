@@ -1,20 +1,25 @@
+/*
+Copyright 2016 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 define(["app","services/diagram/main","services/component/main"], function(app) {
     app.controllerProvider.register('AddComponentController', ['$scope', '$rootScope', '$state', 'notifyService', 'diagramService', 'componentService', 'utilService', 'apiService', 'loading', function($scope, $rootScope, $state, notifyService, diagramService, componentService, utilService, apiService, loading) {
         $scope.workflowData = diagramService.workflowData;
         var currentStageIndex = diagramService.currentStageIndex;
         var currentActionIndex = diagramService.currentActionIndex;
         $scope.currentActionInfo = $scope.workflowData[currentStageIndex]['actions'][currentActionIndex];
-        // $scope.componentEvent = {
-        //     delete: function(index){
-        //         $scope.currentActionInfo.components.splice(index,1);
-        //     },
-        //     add: function(){
-        //         $state.go("workflow.create.action",{"id": d.id});
-        //     },
-        //     edit: function(index){
-        //         console.log($scope.currentActionInfo.components[index])
-        //     }
-        // }
          $scope.showMoreVersion = function(componentName) {
             var promise = componentService.getComponents(componentName, "", false, $scope.pageNum, $scope.versionNum, getOffset("version", componentName));
             promise.done(function(data) {
