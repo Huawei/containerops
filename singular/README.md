@@ -12,19 +12,19 @@ Singular, the Kubernetes deployment and operations tools.
 ```
 #### To automatically deploy Kubernetes, you could simply follow below steps:
 ### Before You Start
-Before using the singular, you need to tell it about your public cloud credentials. Two steps as following example:
-For example:  
-  
+Before using the singular, you need to tell it about your public cloud credentials. Two steps as following example:  
+
 ```
 $ singular config 
-Let's start 
+Welcome to singular!
 Which one is your cloud compute provider: 
     [1] DigitalOcean 
     [2] Amazon Web Services
     [3] Google Cloud Platfrom
 Input item number : 1
 
-Input your Cloud API Access Key of DigitalOcean‘s Account.
+DigitalOcean is your provider.Please input your Cloud API Access Key. [Your could find it from your Account with following website.]
+https://cloud.digitalocean.com/settings/api/tokens.
 
 API Access Key ID : 6f267**********************321D34
 API Server key is pass validation from cloud server.
@@ -45,71 +45,79 @@ Note: Each step of the virtual machine operation depends on if your local privat
 
 ### Getting Started
 
-##### (1/3) Create Kubernetes cluster automatically with wizard. Configure cluster size and node setting with the singular, a YAML file will be generated.
+##### Create Kubernetes cluster automatically with wizard. Configure cluster size and node setting with the singular, a YAML file will be generated.
 ```
 
 $ singular deploy k8s 
-Master Count [1]: 3
-Node Count [2]: 3
-Virtual Machine Size :
+Let us start to deploy kubernetes cluster wish singular!
+Nodes configuration：
+Number of Master in cluster : 3
+Number of Node in cluster : 3
+
+Master[3]/Node[3]. Now, set virtual machine size :
 [1] 4GB  2CPUs  60GB SSDdisk  4TB transfer
 [2] 8GB  4CPUs  80GB SSDdisk  5TB transfer
 [3] 16GB 8CPUs 160GB SSDdisk  6TB transfer
-
-Select virtual machine region:
-[1]New York [2]San Francisco [3]Amsterdam [4]Singapore[5]London
 Input item number : 1
 
- ------------------------------------------------------
-| NAME                             | SIZE  |  REGION |
--------------------------------------------------------
-| k8s-master-ubuntu-4gb-nyc3-01    |  4G   |   sfo   |
-| k8s-master-ubuntu-4gb-nyc3-01    |  4G   |   sfo   |
-| k8s-master-ubuntu-4gb-nyc3-01    |  4G   |   sfo   |     
-| k8s-node-ubuntu-4gb-nyc3-01      |  4G   |   sfo   |
-| k8s-node-ubuntu-4gb-nyc3-01      |  4G   |   sfo   |
-| k8s-node-ubuntu-4gb-nyc3-01      |  4G   |   sfo   |
--------------------------------------------------------
+The Nodes Size same as Mastes[Yes/no]:n
+Node's virtual machine size :
+[1] 4GB  2CPUs  60GB SSDdisk  4TB transfer
+[2] 8GB  4CPUs  80GB SSDdisk  5TB transfer
+[3] 16GB 8CPUs 160GB SSDdisk  6TB transfer
+Input item number : 2
 
-Are you sure you want to continue creating?[yes/no]
-```
-##### (2/3)  By calling call the public cloud API, singular can build your virtual machine nodes and retrieve the nodes information list.
-```
-Are you sure you want to continue creating?[Yes/no] y
------------------------------------------------------------------
-|       NAME       |       STATUS       |         IP            |
------------------------------------------------------------------
-| ubuntu-master-1  |       Ready        |      138.68.14.197    |
-| ubuntu-master-2  |       Ready        |      138.68.14.198    |
-| ubuntu-master-3  |       NoReady      |          -            |
------------------------------------------------------------------
+Done. At last, select virtual machine region:
+[1]New York [2]San Francisco [3]Singapore [4]Frankfurt 
+Input item number : 2
 
-    Are you sure you want to continue deploying?[Yes/no]
+Based on your selection, generate a list for you. 
+
+---------------------------------------------------------
+| HOST NAME                      | Price /Monthly &Hour |
+---------------------------------------------------------
+| k8s-master-ubuntu-4gb-NYC1-01  | $40/mo  $0.060 /hour |
+| k8s-master-ubuntu-4gb-NYC1-02  | $40/mo  $0.060 /hour |
+| k8s-master-ubuntu-4gb-NYC1-03  | $40/mo  $0.060 /hour |     
+| k8s-node-ubuntu-8gb-NYC1-04    | $80/mo  $0.119 /hour |
+| k8s-node-ubuntu-8gb-NYC1-05    | $80/mo  $0.119 /hour |
+| k8s-node-ubuntu-8gb-NYC1-06    | $80/mo  $0.119 /hour |
+---------------------------------------------------------
+Add up $360/mo or $0.537/hour.
+Are you sure you want to continue creating?[Yes/no]:
 ```
-##### (3/3)  According the list, singular can download Kubernetes binary files to each node, and start deployment.
+##### By calling call the public cloud API, singular can build your virtual machine nodes and retrieve the nodes information list.
 ```
-Are you sure you want to continue deploying?[Yes/no] y
------------------------------------------------------------------
-| NAME              |    Donwload   |    Deploy    |    STATUS  | 
------------------------------------------------------------------
-| ubuntu-master-1   |      100%     |     100%     |    SUCCEED | 
-| ubuntu-master-2   |      100%     |     100%     |    FAILED  | 
-| ubuntu-master-3   |      80%      |      0%      |       -    | 
------------------------------------------------------------------
+Are you sure you want to continue creating?[Yes/no]:y
+This will download and install the official compiler of kubernetes for the Cluster.
+
+---------------------------------------------------------------
+| NAME            |    STATUS   |            IP               | 
+---------------------------------------------------------------
+| k8s-master-ubuntu-4gb-NYC1-01 | Success     | 138.68.14.191 | 
+| k8s-master-ubuntu-4gb-NYC1-02 | Installing  | 138.68.14.192 |  
+| k8s-master-ubuntu-4gb-NYC1-03 | installing  | 138.68.14.193 |   
+| k8s-node-ubuntu-8gb-NYC1-04   | Downloading | 138.68.14.197 |   
+| k8s-node-ubuntu-8gb-NYC1-05   | VM Created  | 138.68.14.198 | 
+| k8s-node-ubuntu-8gb-NYC1-06   | VM Creating |        -      | 
+---------------------------------------------------------------
+Rust is installed now. Great!
+
 ```
 Note: You could manually configure YAML file, and then execute deploy to setup and install. However, without the configuration file, part of information will be lost after singular destroyed, such as the path for API key and SSH certification.
 
 
 ### DESCRIPTION COMMAND & OPTION    
 ```
-$ singular deploy cluster --master-count 2 --node-count 3 --mSize 512 --region sfo --sysversion ubuntu-17-04-x64
+
+$ singular deploy cluster --master-count 2 --node-count 3 --mSize 4 --region sfo --storage 100
 
 Available Commands:
 configure   Configure your APIkey and API Server key and SSH certification of Kubernetes cluster with the wizard.
 deploy      To start a new Kubernetes cluster deploying and running each service.
 options:
-    --config=~/usr/singular/config.yaml  setting custom singular path of config.
-    --security                           Generate Kubernetes certificate
+--config=~/etc/singular/config.yaml  setting custom singular path of config.
+--security                           Generate Kubernetes certificate
 ```
 ## Using singular with a configuration file
 ##### It’s possible to configure the Singular with a configuration file instead of command line flags, and some more advanced features may only be available as configuration file options. 
@@ -118,14 +126,15 @@ options:
 
 ```
 cluster_config:
-    SSHkey:     ""
-    APIkey:     ""
-    EtcdNet: "/kube/network"
-    Security: "yes"
+	SSHkey:     ""
+	APIkey:     ""
+	EtcdNet: "/kube/network"
+	Security: "True"
+	Private networking:"True"
+   Region:     "sfo2"
 
 vm_config:
-    Memory Size:     "1024mb"
-    Region:     "sfo2"
+    Memory Size:"8"
     System Version:    "ubuntu-17-04-x64"
-
+    Block storage:"100"
 ```
