@@ -54,6 +54,7 @@ dockyard/dockyard
 # IDEs and editors
 .idea
 .idea/*
+.vscode/*
 
 pilotage/.idea
 pilotage/.idea/*
