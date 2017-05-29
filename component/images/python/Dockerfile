@@ -3,7 +3,7 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-#
+# 
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM containerops/golang:1.8.3
-MAINTAINER Quanyi Ma <genedna@gmail.com>
+FROM  phusion/baseimage:0.9.21
+MAINTAINER Quanyi Ma <maquanyi@huawei.com>
 
-RUN mkdir -p $GOPATH/github.com/Huawei/containerops
-ADD ./k8s.go $GOPATH/github.com/Huawei/containerops
-WORKDIR $GOPATH/github.com/Huawei/containerops
-RUN go build k8s.go
+RUN apt-get update && apt-get install -y  python python-dev python-pip python-virtualenv 

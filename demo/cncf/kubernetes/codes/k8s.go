@@ -74,7 +74,6 @@ func git_clone(repo, dest string) error {
 //make bazel-test
 func bazel_test(dest string) error {
 	cmd := exec.Command("make", "bazel-test")
-	cmd.Path = dest
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -91,7 +90,6 @@ func bazel_test(dest string) error {
 //`make bazel-build`
 func bazel_build(dest string) error {
 	cmd := exec.Command("make", "bazel-build")
-	cmd.Path = dest
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -140,13 +138,13 @@ func main() {
 		switch action {
 		case "build":
 
-			if err := bazel_build(path.Join(base_path, "kubernetes")); err != nil {
+			if err := bazel_build(base_path); err != nil {
 				os.Exit(FailuerExit)
 			}
 
 		case "test":
 
-			if err := bazel_test(path.Join(base_path, "kubernetes")); err != nil {
+			if err := bazel_test(base_path); err != nil {
 				os.Exit(FailuerExit)
 			}
 
