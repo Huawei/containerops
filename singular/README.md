@@ -29,7 +29,6 @@ https://cloud.digitalocean.com/settings/api/tokens.
 API Access Key ID : 6f267**********************321D34
 API Server key is pass validation from cloud server.
 
-Singular can generate the ssh certificate key pair locally and automatically deploys the public key into virtual machine on a cloud. Then you can operate the virtual machine without a password.
 
 Cloud SSHkey Path : /etc/singular/rsd_custom_name.pub
 
@@ -40,12 +39,9 @@ Now,You can create new virtual machine  with an SSH key already set on them.
 Congratulations, Let us get deployd up and running and build your container cluster !
 
 ```
-Note: API server key is required for authentication while calling API.
-Note: Each step of the virtual machine operation depends on if your local private key matches virtual machine public key. It is more secure compared to the use of account password
 
 ### Getting Started
 
-##### Create Kubernetes cluster automatically with wizard. Configure cluster size and node setting with the singular, a YAML file will be generated.
 ```
 
 $ singular deploy k8s 
@@ -86,7 +82,6 @@ Based on your selection, generate a list for you.
 Add up $360/mo or $0.537/hour.
 Are you sure you want to continue creating?[Yes/no]:
 ```
-##### By calling call the public cloud API, singular can build your virtual machine nodes and retrieve the nodes information list.
 ```
 Are you sure you want to continue creating?[Yes/no]:y
 This will download and install the official compiler of kubernetes for the Cluster.
@@ -104,7 +99,6 @@ This will download and install the official compiler of kubernetes for the Clust
 Kubernetes is installed now. Great!
 
 ```
-Note: You could manually configure YAML file, and then execute deploy to setup and install. However, without the configuration file, part of information will be lost after singular destroyed, such as the path for API key and SSH certification.
 
 
 ### DESCRIPTION COMMAND & OPTION    
@@ -125,7 +119,6 @@ options:
 --storage       Storage Volume region of virtual machine
 ```
 ## Using singular with a configuration file
-##### It’s possible to configure the Singular with a configuration file instead of command line flags, and some more advanced features may only be available as configuration file options. 
 
 ### Sample Configuration
 
