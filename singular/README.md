@@ -29,9 +29,7 @@ https://cloud.digitalocean.com/settings/api/tokens.
 API Access Key ID : 6f267**********************321D34
 API Server key is pass validation from cloud server.
 
-
 Cloud SSHkey Path : /etc/singular/rsd_custom_name.pub
-
 Generated Certificate Authority SSHkey and certificate.
 Created SSHkey and certificate successfully. 
 Setting up SSH keys on your cloud account.
@@ -112,11 +110,11 @@ deploy      To start a new Kubernetes cluster deploying and running each service
 options:
 --config=~/etc/singular/config.yaml  setting custom singular path of config.
 --security                           Generate Kubernetes certificate
---master-numbe  master nodes number of kubernetes cluster
---node-number   slaves nodes number of kubernetes cluster
+--master-number Master nodes number of kubernetes cluster
+--node-number   Slaves nodes number of kubernetes cluster
 --mSize         Memory size of virtual machine
 --region        Location region of virtual machine
---storage       Storage Volume region of virtual machine
+--storage       Storage volume region of virtual machine
 ```
 ## Using singular with a configuration file
 
@@ -124,12 +122,12 @@ options:
 
 ```
 cluster_config:
-	SSHkey:     ""
-	APIkey:     ""
+	SSHkey: ""
+	APIkey: ""
 	EtcdNet: "/kube/network"
 	Security: "True"
 	Private networking:"True"
-   Region:     "sfo2"
+        Region: "sfo2"
 
 vm_config:
     Memory Size:"8"
