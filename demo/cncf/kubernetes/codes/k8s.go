@@ -33,7 +33,7 @@ const (
 )
 
 //Parse CO_DATA value, and return Kubernetes repository URI and action (build/test/publish).
-func parse_env(env string) (uri string, action string, err error) {
+func parseEnv(env string) (uri string, action string, err error) {
 	files := strings.Fields(env)
 	if len(files) == 0 {
 		return "", "", fmt.Errorf("CO_DATA value is null\n")
@@ -57,7 +57,7 @@ func parse_env(env string) (uri string, action string, err error) {
 }
 
 //Git clone the kubernetes repository, and process will redirect to system stdout.
-func git_clone(repo, dest string) error {
+func gitClone(repo, dest string) error {
 	cmd := exec.Command("git", "clone", repo, dest)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -72,7 +72,7 @@ func git_clone(repo, dest string) error {
 }
 
 //make bazel-test
-func bazel_test(dest string) error {
+func bazelTest(dest string) error {
 	cmd := exec.Command("make", "bazel-test")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -88,7 +88,7 @@ func bazel_test(dest string) error {
 }
 
 //`make bazel-build`
-func bazel_build(dest string) error {
+func bazelBuild(dest string) error {
 	cmd := exec.Command("make", "bazel-build")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -118,7 +118,7 @@ func main() {
 	}
 
 	//Parse the CO_DATA, get the kubernetes repository URI and action
-	if k8s_repo, action, err := parse_env(co_data); err != nil {
+	if k8s_repo, action, err := parseEnv(co_data); err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
 		os.Exit(ParseEnvFailure)
@@ -128,7 +128,7 @@ func main() {
 		os.MkdirAll(base_path, os.ModePerm)
 
 		//Clone the git repository
-		if err := git_clone(k8s_repo, base_path); err != nil {
+		if err := gitClone(k8s_repo, base_path); err != nil {
 			fmt.Fprintf(os.Stderr, "[COUT] Clone the kubernetes repository error: %s\n", err.Error())
 			fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
 			os.Exit(CLONE_ERROR)
@@ -138,13 +138,13 @@ func main() {
 		switch action {
 		case "build":
 
-			if err := bazel_build(base_path); err != nil {
+			if err := bazelBuild(base_path); err != nil {
 				os.Exit(FailuerExit)
 			}
 
 		case "test":
 
-			if err := bazel_test(base_path); err != nil {
+			if err := bazelTest(base_path); err != nil {
 				os.Exit(FailuerExit)
 			}
 

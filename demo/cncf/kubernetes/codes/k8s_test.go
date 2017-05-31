@@ -45,16 +45,16 @@ func Test_git_clone(t *testing.T) {
 
 	for _, v := range tests {
 		os.MkdirAll(v.r.dest, 0777)
-		err := git_clone(v.r.r, v.r.dest)
+		err := gitClone(v.r.r, v.r.dest)
 
 		if (err != nil) != v.wantErr {
-			t.Errorf("git_clone() error = %v, and want error %v", err, v.wantErr)
+			t.Errorf("GitClone() error = %v, and want error %v", err, v.wantErr)
 			return
 		}
 
 		os.RemoveAll(v.r.dest)
 
-		t.Log("git_clone() function test OK")
+		t.Log("GitClone() function test OK")
 	}
 }
 
@@ -82,9 +82,9 @@ func Test_bazel_test(t *testing.T) {
 
 	for _, v := range tests {
 		os.MkdirAll(v.repo.location, 0777)
-		git_clone(v.repo.r, v.repo.location)
+		gitClone(v.repo.r, v.repo.location)
 
-		err := bazel_test(v.repo.location)
+		err := bazelTest(v.repo.location)
 		if (err != nil) != v.wantErr {
 			t.Errorf("bazel_test() error = %v, and want error %v", err, v.wantErr)
 			return
@@ -119,20 +119,20 @@ func Test_bazel_build(t *testing.T) {
 
 	for _, v := range tests {
 		os.MkdirAll(v.repo.location, 0777)
-		git_clone(v.repo.r, v.repo.location)
+		gitClone(v.repo.r, v.repo.location)
 
-		err := bazel_build(v.repo.location)
+		err := bazelBuild(v.repo.location)
 		if (err != nil) != v.wantErr {
-			t.Errorf("bazel_build() error = %v, and want error %v", err, v.wantErr)
+			t.Errorf("BazelBuild() error = %v, and want error %v", err, v.wantErr)
 			return
 		}
 
 		os.RemoveAll(v.repo.location)
 	}
 
-	t.Log("bazel_build() function test OK")
+	t.Log("BazelBuild() function test OK")
 }
 
-func Test_bazel_publish() {
-	t.Log("bazel_build() function test OK")
+func Test_bazel_publish(t *testing.T) {
+	t.Log("BazelBuild() function test OK")
 }
