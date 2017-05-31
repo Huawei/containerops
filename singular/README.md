@@ -92,7 +92,7 @@ Are you sure you want to continue creating?[Yes/no]:y
 This will download and install the official compiler of kubernetes for the Cluster.
 
 ---------------------------------------------------------------
-| NAME            |    STATUS   |            IP               | 
+| NAME           		|    STATUS   |      IP       | 
 ---------------------------------------------------------------
 | k8s-master-ubuntu-4gb-NYC1-01 | Success     | 138.68.14.191 | 
 | k8s-master-ubuntu-4gb-NYC1-02 | Installing  | 138.68.14.192 |  
@@ -101,7 +101,7 @@ This will download and install the official compiler of kubernetes for the Clust
 | k8s-node-ubuntu-8gb-NYC1-05   | VM Created  | 138.68.14.198 | 
 | k8s-node-ubuntu-8gb-NYC1-06   | VM Creating |        -      | 
 ---------------------------------------------------------------
-Rust is installed now. Great!
+Kubernetes is installed now. Great!
 
 ```
 Note: You could manually configure YAML file, and then execute deploy to setup and install. However, without the configuration file, part of information will be lost after singular destroyed, such as the path for API key and SSH certification.
@@ -120,9 +120,9 @@ options:
 --security                           Generate Kubernetes certificate
 --master-numbe  master nodes number of kubernetes cluster
 --node-number   slaves nodes number of kubernetes cluster
---mSize         
---region
---storage 
+--mSize         Memory size of virtual machine
+--region        Location region of virtual machine
+--storage       Storage Volume region of virtual machine
 ```
 ## Using singular with a configuration file
 ##### It’s possible to configure the Singular with a configuration file instead of command line flags, and some more advanced features may only be available as configuration file options. 
