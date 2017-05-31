@@ -12,7 +12,7 @@ Singular, the Kubernetes deployment and operations tools.
 ```
 #### To automatically deploy Kubernetes, you could simply follow below steps:
 ### Before You Start
-Before using the singular, you need to tell it about your public cloud credentials.
+Before using the singular, you need to tell it about your API Server Key and public cloud credentials.
 
 ```
 $ singular config 
@@ -23,11 +23,12 @@ Which one is your cloud compute provider:
     [3] Google Cloud Platfrom
 Input item number : 1
 
-DigitalOcean is your provider.Please input your Cloud API Access Key. [Your could find it from your Account with following website.]
-https://cloud.digitalocean.com/settings/api/tokens.
+DigitalOcean is your provider.
+Please input your Cloud API Access Key. 
 
-API Access Key ID : 6f267**********************321D34
+API Server Key ID : 6f267**********************321D34
 API Server key is pass validation from cloud server.
+Input your SSHkey path.Default is "~/.ssh/singular.pub"
 
 Cloud SSHkey Path : /etc/singular/rsd_custom_name.pub
 Generated Certificate Authority SSHkey and certificate.
