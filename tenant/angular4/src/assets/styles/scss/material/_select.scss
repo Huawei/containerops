@@ -1,0 +1,35 @@
+body {
+  .mat-select-panel {
+    background-color: mat-color($background, card);
+  }
+  .mat-select-trigger, .mat-option {
+    font-size: $font-size-base;
+  }
+  .mat-select-trigger {
+    height: 22px;
+    //margin: 13px 0;
+
+    margin: 1em 0;
+    padding-bottom: 6px;
+  }
+  .mat-select-placeholder {
+    line-height: normal;
+    padding: 0;
+  }
+  .mat-select-value {
+    bottom: 6px;
+  }
+  .mat-select-value-text {
+    //line-height: normal;
+  }
+  .mat-select-placeholder.mat-floating-placeholder {
+    top: -15px!important;
+    left: 0!important;
+  }
+  .mat-select-underline {
+    bottom: 1px;
+  }
+  .app-dark .mat-select-panel {
+    background-color: mat-color($dark-background, card);
+  }
+}
