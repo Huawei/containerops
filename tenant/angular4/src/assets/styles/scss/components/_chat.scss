@@ -1,0 +1,144 @@
+@import "../material.variables";
+@import "../mixins/bi-app/bi-app-ltr";
+@import "../app.variables";
+@import "../mixins";
+
+.chat-conversation-user {
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: $gutter;
+  padding: 0 2rem;
+  @include flexbox;
+}
+
+.me {
+  @include justify-content(flex-end);
+}
+
+.me .chat-conversation-avatar {
+  @include margin-left($gutter);
+  @include order(2);
+}
+
+.chat-conversation-message {
+  position: relative;
+  padding: .625rem $gutter;
+  background-color: white;
+  @include rounded(4px);
+  p {
+    margin: 0;
+  }
+  .chat-date {
+    display: block;
+    font-size: 11px;
+    padding-top: 2px;
+  }
+}
+
+.me .chat-conversation-message {
+  @include order(1);
+  .chat-date {
+    text-align: right;
+  }
+}
+
+.me .chat-conversation-message::after {
+  position: absolute;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  content: '';
+  border: 5px solid mat-color($accent);
+  border-top-color: transparent;
+  border-right-color: transparent;
+  @include right(-7px);
+}
+
+.them .chat-conversation-avatar {
+  @include margin-right($gutter);
+}
+
+.them .chat-conversation-message::after {
+  position: absolute;
+  top: 0;
+  width: 0;
+  height: 0;
+  content: '';
+  border: 5px solid mat-color($background, card);
+  border-bottom-color: transparent;
+  @include left(-7px);
+  @include border-left-color(transparent);
+}
+
+.chat-conversation-avatar {
+  position: relative;
+  width: 36px;
+  @include flex-shrink(0);
+  @include flex-grow(0);
+  img {
+    max-width: 100%;
+    border-radius: 50%;
+  }
+}
+.chat-conversation-user.me .chat-conversation-message {
+  position: relative;
+  background-color: mat-color($accent);
+  @include float(right);
+  p {
+    color: white;
+  }
+}
+
+.app-dark :host /deep/ {
+  .them .chat-conversation-message {
+    background: mat-color($dark-background, card);
+  }
+  .them .chat-conversation-message::after {
+    border: 5px solid mat-color($dark-background, card);
+    border-bottom-color: transparent;
+    @include left(-7px);
+    @include border-left-color(transparent);
+  }
+}
+
+[dir="rtl"] :host /deep/ {
+  .me .chat-conversation-avatar {
+    @include margin-left(0);
+    @include margin-right($gutter);
+  }
+  .me .chat-conversation-message {
+    .chat-date {
+      text-align: left;
+    }
+  }
+
+  .me .chat-conversation-message::after {
+    border: 5px solid mat-color($accent);
+    border-top-color: transparent;
+    border-right-color: mat-color($accent);
+    border-left-color: transparent;
+    @include right(auto);
+    @include left(-7px);
+  }
+
+  .them .chat-conversation-avatar {
+    @include margin-right(0);
+    @include margin-left($gutter);
+  }
+
+  .them .chat-conversation-message::after {
+    border: 5px solid mat-color($background, card);
+    border-bottom-color: transparent;
+    border-right-color: transparent;
+    @include left(auto);
+    @include right(-7px);
+    //@include border-left-color(transparent);
+  }
+
+
+  .chat-conversation-user.me .chat-conversation-message {
+//    @include float(right);
+    @include float(left);
+  }
+}

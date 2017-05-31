@@ -1,0 +1,38 @@
+/* $listgroup
+ ------------------------------------------*/
+md-list, md-nav-list {
+  md-list-item, a[md-list-item] {
+    color: rgba(mat-color($foreground, base), 0.87);
+  }
+}
+md-list-item, .mat-list-item {
+  md-icon {
+    &[md-list-avatar] {
+      -webkit-align-items: center;
+      -ms-flex-align: center;
+      align-items: center;
+      -webkit-align-content: center;
+      -ms-flex-line-pack: center;
+      align-content: center;
+      -webkit-justify-content: center;
+      -ms-flex-pack: center;
+      justify-content: center;
+      display: flex;
+    }
+  }
+}
+md-divider {
+  border-top: 1px solid mat-color($foreground, divider)!important;
+}
+md-list md-list-item [md-list-avatar], md-list a[md-list-item] [md-list-avatar], md-nav-list md-list-item [md-list-avatar], md-nav-list a[md-list-item] [md-list-avatar] {
+  min-width: 40px;
+}
+md-list-item.active > .mat-list-item-content {
+  background: mat-color($background, 'hover');
+}
+md-list md-list-item .mat-list-item-content,
+md-list a[md-list-item] .mat-list-item-content,
+md-nav-list md-list-item .mat-list-item-content,
+md-nav-list a[md-list-item] .mat-list-item-content{
+  font-size: $font-size-base!important;
+}

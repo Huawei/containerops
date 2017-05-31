@@ -1,0 +1,101 @@
+//
+
+@mixin vertical-align($parent-height, $element-height) {
+  margin-top: (($parent-height - $element-height) / 2);
+  margin-bottom: (($parent-height - $element-height) / 2);
+}
+
+@mixin vertical-align-padding($parent-height, $element-height) {
+  padding-top: (($parent-height - $element-height) / 2);
+  padding-bottom: (($parent-height - $element-height) / 2);
+}
+
+@mixin rounded($radius: 2px) {
+  border-radius: $radius;
+}
+
+@mixin box-shadow($arguments...) {
+  box-shadow: $arguments;
+}
+
+@mixin transform($arguments...) {
+  -webkit-transform: $arguments;
+  -moz-transform: $arguments;
+  -ms-transform: $arguments;
+  -o-transform: $arguments;
+  transform: $arguments;
+}
+
+@mixin rotate($deg: 5deg) {
+  @include transform(rotate($deg));
+}
+
+@mixin translate($x: 0, $y:0) {
+  @include transform(translate($x, $y));
+}
+
+@mixin translate3d($x: 0, $y:0, $z:0) {
+  @include transform(translate3d($x, $y, $z));
+}
+
+@mixin scale($x: 0, $y:0) {
+  @include transform(scale($x, $y));
+}
+
+@mixin scale3d($x: 0, $y:0, $z:0) {
+  @include transform(scale3d($x, $y, $z));
+}
+
+@mixin transition($value...) {
+  -webkit-transition: $value;
+  transition: $value;
+}
+
+@mixin animation-duration($duration) {
+  -webkit-animation-duration: $duration;
+  animation-duration: $duration;
+}
+
+@mixin animation-timing-function($timing) {
+  -webkit-animation-timing-function: $timing;
+  animation-timing-function: $timing;
+}
+
+@mixin animation-fill-mode($mode) {
+  -webkit-animation-fill-mode: $mode;
+  animation-fill-mode: $mode;
+}
+
+@mixin animation-name($name) {
+  -webkit-animation-name: $name;
+  animation-name: $name;
+}
+
+@mixin transition-delay($delay) {
+  -webkit-transition-delay: $delay;
+  transition-delay: $delay;
+}
+
+@mixin transition-duration($duration: .2s) {
+  -moz-transition-duration: $duration;
+  transition-duration: $duration;
+}
+
+@mixin transform-origin($origin) {
+  -webkit-transform-origin: $origin;
+  -moz-transform-origin: $origin;
+  -ms-transform-origin: $origin;
+  -o-transform-origin: $origin;
+  transform-origin: $origin;
+}
+
+@mixin user-select($argument: none) {
+  -webkit-user-select: $argument;
+  -moz-user-select: $argument;
+  -ms-user-select: $argument;
+  user-select: $argument;
+}
+
+@mixin opacity($opacity: .5) {
+  opacity: $opacity;
+}

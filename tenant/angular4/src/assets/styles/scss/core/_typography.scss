@@ -1,0 +1,46 @@
+/* $typography
+ ------------------------------------------*/
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  margin-bottom: $headings-margin-bottom;
+  font-weight: $headings-font-weight;
+  line-height: $headings-line-height;
+  color: $headings-color;
+}
+
+h1, .h1 { font-size: $font-size-h1; }
+h2, .h2 { font-size: $font-size-h2; }
+h3, .h3 { font-size: $font-size-h3; }
+h4, .h4 { font-size: $font-size-h4; }
+h5, .h5 { font-size: $font-size-h5; }
+h6, .h6 { font-size: $font-size-h6; }
+
+a {
+  text-decoration: none;
+  color: inherit;
+  @include hover-focus {
+    cursor: pointer;
+    text-decoration: none;
+    outline: 0;
+  }
+}
+
+button {
+  outline: 0;
+}
+
+figure {
+  margin: 0;
+}
+
+hr {
+  margin-top: 0;
+  margin-bottom: 0;
+  border: 0;
+  border-top: 1px solid mat-color($foreground, divider);
+}
+
+strong, b {
+	font-weight: 700;
+}

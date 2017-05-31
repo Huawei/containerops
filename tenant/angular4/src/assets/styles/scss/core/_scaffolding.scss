@@ -1,0 +1,81 @@
+/* $scaffolding
+ ------------------------------------------*/
+html {
+  font-size: 16px;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-touch-callout: none;
+
+  min-height: 100%;
+
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-weight: $font-weight-base;
+  font-size: $font-size-base;
+  color: rgba(mat-color($foreground, base), 0.87);
+  line-height: 1.5;
+  font-family: $mat-font-family;
+  &.pace-done {
+    background: #6b6b6b;
+  }
+}
+
+[tabindex='-1']:focus {
+  outline: none;
+}
+
+select,
+button,
+textarea,
+input {
+  vertical-align: baseline;
+}
+
+html, body {
+  &[dir=rtl], &[dir=ltr] {
+     unicode-bidi: embed
+  }
+}
+
+bdo[dir=rtl] {
+  direction: rtl;
+  unicode-bidi: bidi-override;
+}
+bdo[dir=ltr] {
+  direction: ltr;
+  unicode-bidi: bidi-override;
+}
+
+
+.mat-card.settings-panel {
+  position: fixed;
+  bottom: 6px;
+  right: 6px;
+  width: 250px;
+  z-index: 9;
+}
+
+.demo-checkbox {
+  .mat-checkbox, .mat-checkbox-layout {
+    width: 100%;
+  }
+  .mat-checkbox-layout .mat-checkbox-label {
+    flex: 1;
+    box-sizing: border-box;
+    -webkit-box-flex: 1;
+  }
+}
