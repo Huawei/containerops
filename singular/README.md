@@ -122,7 +122,7 @@ options:
 ## Using singular with a configuration file
 ##### It’s possible to configure the Singular with a configuration file instead of command line flags, and some more advanced features may only be available as configuration file options. 
 
-###Sample Configuration
+### Sample Configuration
 
 ```
 cluster_config:
