@@ -12,7 +12,7 @@ Singular, the Kubernetes deployment and operations tools.
 ```
 #### To automatically deploy Kubernetes, you could simply follow below steps:
 ### Before You Start
-Before using the singular, you need to tell it about your public cloud credentials. Two steps as following example:  
+Before using the singular, you need to tell it about your public cloud credentials.
 
 ```
 $ singular config 
@@ -62,9 +62,9 @@ Input item number : 1
 
 The Nodes Size same as Mastes[Yes/no]:n
 Node's virtual machine size :
-[1] 4GB  2CPUs  60GB SSDdisk  4TB transfer
-[2] 8GB  4CPUs  80GB SSDdisk  5TB transfer
-[3] 16GB 8CPUs 160GB SSDdisk  6TB transfer
+[1] 2CPUs 4GB  Memory  60GB SSDdisk  4TB transfer
+[2] 4CPUs 8GB  Memory  80GB SSDdisk  5TB transfer
+[3] 8CPUs 16GB Memory 160GB SSDdisk  6TB transfer
 Input item number : 2
 
 Done. At last, select virtual machine region:
@@ -110,14 +110,19 @@ Note: You could manually configure YAML file, and then execute deploy to setup a
 ### DESCRIPTION COMMAND & OPTION    
 ```
 
-$ singular deploy cluster --master-count 2 --node-count 3 --mSize 4 --region sfo --storage 100
+$ singular deploy cluster --master-number 2 --node-number 3 --mSize 4 --region sfo --storage 100
 
 Available Commands:
-configure   Configure your APIkey and API Server key and SSH certification of Kubernetes cluster with the wizard.
+config      Configure your APIkey and API Server key and SSH certification of Kubernetes cluster with the wizard.
 deploy      To start a new Kubernetes cluster deploying and running each service.
 options:
 --config=~/etc/singular/config.yaml  setting custom singular path of config.
---security                           Generate Kubernetes certificate
+--security                           Generate Kubernetes certificate
+--master-numbe  master nodes number of kubernetes cluster
+--node-number   slaves nodes number of kubernetes cluster
+--mSize         
+--region
+--storage 
 ```
 ## Using singular with a configuration file
 ##### It’s possible to configure the Singular with a configuration file instead of command line flags, and some more advanced features may only be available as configuration file options. 
