@@ -1,0 +1,57 @@
+//
+// Text
+//
+
+// Alignment
+
+.text-justify        { text-align: justify !important; }
+.text-nowrap         { white-space: nowrap !important; }
+
+// Responsive alignment
+
+@each $breakpoint in map-keys($grid-breakpoints) {
+  @include media-breakpoint-up($breakpoint) {
+    .text-#{$breakpoint}-left   { text-align: left !important; }
+    .text-#{$breakpoint}-right  { text-align: right !important; }
+    .text-#{$breakpoint}-center { text-align: center !important; }
+  }
+}
+
+// Transformation
+
+.text-lowercase      { text-transform: lowercase !important; }
+.text-uppercase      { text-transform: uppercase !important; }
+.text-capitalize     { text-transform: capitalize !important; }
+
+// Size
+
+.text-xs { font-size: 50% !important; }
+.text-sm { font-size: 70% !important; }
+.text-md { font-size: 80% !important; }
+.text-df { font-size: 13px !important; }
+.text-lg { font-size: 110% !important; }
+.text-xl { font-size: 120% !important; }
+.text-xxl { font-size: 60px !important; }
+
+// Weight and italics
+
+.font-weight-normal  { font-weight: normal!important; }
+.font-weight-bold    { font-weight: 700!important; }
+.font-italic         { font-style: italic!important; }
+
+// Contextual colors
+
+@include text-emphasis-variant('.mat-text-muted', mat-color($foreground, secondary-text));
+
+@include text-emphasis-variant('.mat-text-default', mat-color($foreground, base));
+
+@include text-emphasis-variant('.mat-text-primary', mat-color($primary));
+
+@include text-emphasis-variant('.mat-text-warn', mat-color($warn));
+
+@include text-emphasis-variant('.mat-text-accent', mat-color($accent));
+
+.app-dark {
+	@include text-emphasis-variant('.mat-text-muted', mat-color($dark-foreground, secondary-text));
+	@include text-emphasis-variant('.mat-text-default', mat-color($dark-foreground, base));
+}

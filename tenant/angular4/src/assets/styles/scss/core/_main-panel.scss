@@ -1,0 +1,81 @@
+/* $main-panel
+ ------------------------------------------*/
+$mat-toolbar-height-desktop: 64px !default;
+$mat-toolbar-height-mobile-portrait: 56px !default;
+$mat-toolbar-height-mobile-landscape: 48px !default;
+
+.app-inner {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  height: calc(100vh - #{$mat-toolbar-height-desktop});
+  @include flexbox;
+  @include flex-direction(row);
+}
+
+@media ($mat-xsmall) and (orientation: portrait) {
+  .app-inner {
+    height: calc(100vh - #{$mat-toolbar-height-mobile-portrait});
+  }
+}
+
+// Specific height for mobile devices in landscape mode.
+@media ($mat-small) and (orientation: landscape) {
+  .app-inner {
+    height: calc(100vh - #{$mat-toolbar-height-mobile-landscape});
+  }
+}
+
+/* Boxed layout*/
+
+.app.boxed {
+  overflow: hidden;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (min-width: 48em) {
+  .app.boxed {
+    max-width: 46.88rem;
+  }
+}
+
+@media (min-width: 62rem) {
+  .app.boxed {
+    max-width: 60.63rem;
+  }
+}
+
+@media (min-width: 75rem) {
+  .app.boxed {
+    max-width: 73.13rem;
+  }
+}
+
+.mat-sidenav-content {
+  min-height: 100%;
+  //background: $main-panel-bg;
+  box-sizing: border-box;
+  @include flex-direction(column);
+  @include flexbox;
+  @include flex(1);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: ($gutter/3);
+  > .main-content {
+    box-sizing: border-box;
+    @include flex-direction(column);
+    @include flexbox;
+    @include flex(1);
+    > .content-view {
+      position: relative;
+      box-sizing: border-box;
+      padding: $gutter;
+      @include flex(1 0 auto);
+    }
+  }
+}
+
+.app-dark .mat-sidenav-content {
+  background-color: rgba(53, 53, 53, 1.00);
+}

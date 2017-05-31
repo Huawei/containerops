@@ -1,0 +1,312 @@
+@import "../material.variables";
+@import "../mixins/bi-app/bi-app-ltr";
+@import "../app.variables";
+@import "../mixins";
+
+.timeline {
+  position: relative;
+  margin: ($gutter/3);
+  &::before {
+    position: absolute;
+    top: 6px;
+    width: 4px;
+    height: 100%;
+    content: '';
+    background: mat-color($background, card);
+    @include left(4px);
+  }
+  .timeline-icon {
+    position: absolute;
+    top: 15px;
+    width: 12px;
+    height: 12px;
+    text-align: center;
+    @include left(0);
+    @include rounded(50%);
+    &::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      @include left(2px);
+      width: 8px;
+      height: 8px;
+      @include rounded(50%);
+      background: white;
+    }
+  }
+  .timeline-card {
+    position: relative;
+    margin: 40px 0;
+    @include clearfix();
+    &:first-child .timeline-icon {
+      top: 0;
+    }
+    &:last-child .timeline-icon {
+      top: 0;
+    }
+  }
+  .timeline-card:first-child {
+    margin-top: 0;
+  }
+  .timeline-content {
+    position: relative;
+    @include margin-left(30px);
+    @include clearfix();
+    > .mat-card {
+      @include float(left);
+      display: inline-block;
+      margin: 0;
+    }
+  }
+  .timeline-content .timeline-date {
+    display: inline-block;
+    padding: 4px 0 10px;
+  }
+  .timeline-content > .mat-card::before {
+    position: absolute;
+    top: 11px;
+    width: 0;
+    height: 0;
+    content: ' ';
+    pointer-events: none;
+    border-width: 10px;
+    border-style: solid;
+    @include right(100%);
+    @include border-color(transparent, rgba(150, 150, 150, .2), transparent, transparent);
+  }
+  .timeline-content > .mat-card::after {
+    position: absolute;
+    top: 12px;
+    width: 0;
+    height: 0;
+    content: ' ';
+    pointer-events: none;
+    border-width: 9px;
+    border-style: solid;
+    @include right(100%);
+    @include border-color(transparent, mat-color($background, card), transparent, transparent);
+  }
+}
+
+@include media-breakpoint-up(lg) {
+  .timeline:not(.stacked) {
+    &::before {
+      @include left(50%);
+      @include margin-left(-2px);
+    }
+    .timeline-card:nth-child(odd) .timeline-content {
+      @include float(right);
+    }
+    .timeline-card:nth-child(even) .timeline-content {
+      @include float(left);
+    }
+    .timeline-card:nth-child(even) .timeline-content > .mat-card {
+      @include float(right);
+    }
+    .timeline-card:nth-child(even) .timeline-content > .mat-card::before {
+      position: absolute;
+      @include right(auto);
+      @include left(100%);
+      @include border-color(transparent, transparent, transparent, rgba(150, 150, 150, .2));
+    }
+    .timeline-card:nth-child(even) .timeline-content > .mat-card::after {
+      position: absolute;
+      @include right(auto);
+      @include left(100%);
+      @include border-color(transparent, transparent, transparent, mat-color($background, card));
+    }
+    .timeline-card:nth-child(odd) .timeline-content .timeline-date {
+      @include right(112%);
+      @include left(auto);
+      @include text-align(right);
+    }
+    .timeline-card:first-child {
+      margin-top: 0;
+    }
+    .timeline-icon {
+      @include left(50%);
+      @include margin-left(-6px);
+    }
+    .timeline-content {
+      width: 47%;
+      @include margin-left(0);
+    }
+  }
+  .timeline .timeline-date {
+    position: absolute;
+    top: 7px;
+    width: 100%;
+    @include left(112%);
+  }
+  .timeline.stacked {
+    .timeline-content > .mat-card {
+      margin-bottom: 0;
+    }
+    .timeline-date {
+      position: relative;
+      top: 0;
+      width: 100%;
+      @include left(auto);
+    }
+  }
+}
+
+@include media-breakpoint-down(md) {
+  .timeline {
+    .timeline-content {
+      margin-left: 30px;
+    }
+    .timeline-content > .mat-card {
+      @include float(left);
+    }
+    .timeline-content > .mat-card {
+      margin-bottom: 0;
+    }
+    .timeline-date {
+      position: relative;
+      top: 0;
+      width: 100%;
+      @include left(auto);
+    }
+  }
+}
+
+[dir="rtl"] :host /deep/ {
+  .timeline {
+    &::before {
+      @include left(auto); 
+      @include right(4px); 
+    }
+    .timeline-icon {
+      @include left(auto);
+      @include right(0); 
+    }
+    .timeline-content {
+      > .mat-card {
+        @include float(right!important);
+      }
+    }
+    &.stacked {
+      .timeline-content {
+        margin-left: 0;
+        margin-right: 30px;
+      }
+      .timeline-content .timeline-date {
+        text-align: right;
+      }
+      .timeline-content > .mat-card::before {
+        @include right(auto);
+        @include left(100%);
+        @include border-color(transparent, transparent, transparent, rgba(150, 150, 150, .2));
+      }
+      .timeline-content > .mat-card::after {
+        @include right(auto);
+        @include left(100%);
+        @include border-color(transparent, transparent, transparent, mat-color($background, card));
+      }
+    }
+  }
+
+  @include media-breakpoint-up(lg) {
+    .timeline:not(.stacked) {
+      &::before {
+        @include left(auto);
+        @include right(50%); 
+        @include margin-left(0);
+        @include margin-right(-2px);
+      }
+      .timeline-icon {
+        @include left(auto); 
+        @include right(50%); 
+        @include margin-left(0); 
+        @include margin-right(-6px); 
+      }
+    }
+    .timeline .timeline-date {
+      text-align: left;
+    }
+    .timeline.stacked {
+      .timeline-date {
+        position: relative;
+        top: 0;
+        width: 100%;
+        @include left(auto);
+        text-align: right; 
+      }
+    }
+  }
+
+  @include media-breakpoint-down(md) {
+    .timeline {
+      .timeline-content {
+        margin-left: 0;
+        margin-right: 30px;
+      }
+      .timeline-content .timeline-date {
+        text-align: right;
+      }
+      .timeline-content > .mat-card::before {
+        @include right(auto!important);
+        @include left(100%!important);
+        @include border-color(transparent, transparent, transparent, rgba(150, 150, 150, .2)!important);
+      }
+      .timeline-content > .mat-card::after {
+        @include right(auto!important);
+        @include left(100%!important);
+        @include border-color(transparent, transparent, transparent, mat-color($background, card)!important);
+      }
+    }
+  }
+}
+
+.app-dark :host /deep/ {
+  .timeline {
+    &::before {
+      background: mat-color($dark-background, card);
+    }
+    .timeline-icon {
+      &::after {
+        background: mat-color($dark-background, card);
+      }
+    }
+    .timeline-content > .mat-card::before {
+      @include border-color(transparent, mat-color($dark-background, card), transparent, transparent!important);
+    }
+    .timeline-content > .mat-card::after {
+      @include border-color(transparent, mat-color($dark-background, card), transparent, transparent!important);
+    }
+  }
+  @include media-breakpoint-up(lg) {
+    .timeline:not(.stacked) {
+      .timeline-card:nth-child(even) .timeline-content > .mat-card::before {
+        @include border-color(transparent, transparent, transparent, mat-color($dark-background, card)!important);
+      }
+      .timeline-card:nth-child(even) .timeline-content > .mat-card::after {
+        @include border-color(transparent, transparent, transparent, mat-color($dark-background, card)!important);
+      }
+    }
+  }
+}
+
+.app-dark[dir="rtl"] :host /deep/ {
+  .timeline {
+    &.stacked {
+      .timeline-content > .mat-card::before {
+        @include border-color(transparent, transparent, transparent, rgba(150, 150, 150, .2)!important);
+      }
+      .timeline-content > .mat-card::after {
+        @include border-color(transparent, transparent, transparent, mat-color($dark-background, card)!important);
+      }
+    }
+  }
+  @include media-breakpoint-down(md) {
+    .timeline {
+      .timeline-content > .mat-card::before {
+        @include border-color(transparent, transparent, transparent, rgba(150, 150, 150, .2)!important);
+      }
+      .timeline-content > .mat-card::after {
+        @include border-color(transparent, transparent, transparent, mat-color($dark-background, card)!important);
+      }
+    }
+  }
+}
