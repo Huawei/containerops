@@ -1,0 +1,26 @@
+@import "../material.variables";
+@import "../mixins/bi-app/bi-app-ltr";
+@import "../app.variables";
+@import "../mixins";
+
+:host /deep/ {
+}
+
+.app-dark :host /deep/ {
+  .ql-snow .ql-picker .ql-picker-label {
+    color: mat-color($dark-foreground, base);
+  }
+  .ql-snow .ql-stroke {
+    stroke: mat-color($dark-foreground, base);
+  }
+  .ql-snow .ql-fill, .ql-snow .ql-stroke.ql-fill {
+    fill: mat-color($dark-foreground, base);
+  }
+}
+
+[dir=rtl] :host /deep/ {
+  .ql-snow .ql-picker:not(.ql-color-picker):not(.ql-icon-picker) svg {
+    right: auto;
+    left: 0;
+  }
+}

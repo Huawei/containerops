@@ -1,0 +1,19 @@
+/* $chat-panel
+ ------------------------------------------*/
+
+.chat-panel {
+  max-width: 320px;
+  width: 100%;
+  overflow: hidden;
+  md-tab-group, .mat-tab-body-wrapper, md-tab-body, .mat-tab-body-content {
+    height: 100%;
+  }
+  .scroll {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: absolute;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+}

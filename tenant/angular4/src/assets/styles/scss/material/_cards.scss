@@ -1,0 +1,141 @@
+/* $cards
+ ------------------------------------------*/
+$mat-card-header-size: 40px !default;
+body {
+  .mat-card {
+    padding: 0;
+    margin: ($gutter/3);
+    border-radius: $border-radius-base;
+    @include mat-elevation(1);
+    color: rgba(mat-color($foreground, base), 0.87);
+    .mat-card-header {
+      height: auto;
+    }
+    > :first-child {
+      border-radius: $border-radius-base $border-radius-base 0 0;
+    }
+    > :last-child {
+      border-radius: 0 0 $border-radius-base $border-radius-base;
+    }
+    /* Temporary fix */
+    /* https://github.com/angular/material2/issues/3131 */
+    [md-card-avatar] {
+      height: $mat-card-header-size;
+      width: $mat-card-header-size;
+      border-radius: 50%;
+    }
+    [md-card-avatar] {
+      font-size: 40px;
+      line-height: 40px;
+      margin: $gutter 0 0 $gutter;
+    }
+    /*********/
+    .mat-card-image {
+      width: 100%;
+      margin: 0;
+    }
+    .mat-card-image:first-child {
+      margin-top: 0;
+      border-radius: $border-radius-base $border-radius-base 0 0;
+    }
+    .mat-card-title {
+      padding-top: $gutter;
+      padding-left: $gutter;
+      padding-right: $gutter;
+      line-height: 1;
+      font-size: 16px;
+      font-weight: 400;
+    }
+    .mat-card-subtitle {
+      padding-left: $gutter;
+      padding-right: $gutter;
+      line-height: 1;
+      font-size: 13px;
+    }
+    .mat-card-subtitle:first-child {
+      padding-top: $gutter;
+    }
+    .mat-card-title:nth-child(2) {
+      margin-top: -24px;
+    }
+    .mat-card-content {
+      padding: $gutter;
+      margin-bottom: 0;
+      position: relative;
+    }
+    [md-fab-card-float] {
+      top: -36px;
+      position: absolute;
+      right: 8px;
+    }
+    .mat-card-actions,
+    .mat-card-actions:last-child {
+      padding: $gutter / 2;
+      margin: 0;
+    }
+    &.mat-card {
+      padding: 0;
+    }
+    [md-card-float-icon] {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      margin-top: -20px;
+      width: 40px;
+      height: 40px;
+      .material-icons {
+        font-size: 40px;
+        opacity: .2;
+        transform: rotate(-5deg);
+      }
+    }
+    [md-card-widget] {
+      height: auto;
+      display: flex;
+      flex-direction: row;
+      -webkit-box-align: center;
+      -webkit-align-items: center;
+      -ms-grid-row-align: center;
+      align-items: center;
+      -webkit-align-content: center;
+      align-content: center;
+      max-width: 100%;
+      padding: $gutter;
+      [md-card-widget-title], p {
+        margin: 0;
+        padding: 0;
+      }
+    }
+    .card-image-header {
+      position: relative;
+      background-size: cover;
+      background-position: center bottom;
+      background-repeat: no-repat;
+      width: 100%;
+    }
+    &.card-widget {
+      .card-widget-content {
+        display: flex;
+        flex-direction: row;
+        height: 40px;
+        margin: -($gutter/2) 0 $gutter 0;
+      }
+    }
+  }
+}
+
+body [dir="rtl"] {
+  .mat-card {
+    [md-card-avatar] {
+      margin: $gutter $gutter 0 0;
+    }
+    [md-fab-card-float] {
+      right: auto;
+      left: 8px;
+    }
+    [md-card-float-icon] {
+      right: auto;
+      left: 15px;
+    }
+  }
+}

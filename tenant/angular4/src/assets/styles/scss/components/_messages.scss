@@ -1,0 +1,83 @@
+@import "../material.variables";
+@import "../mixins/bi-app/bi-app-ltr";
+@import "../app.variables";
+@import "../mixins";
+:host /deep/ {
+  [appAccordionToggle] {
+    cursor: pointer;
+  }
+  .message-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+  }
+  .message-content {
+    overflow: hidden;
+    max-height: 0;
+    -webkit-transition: .3s cubic-bezier(.35, 0, .25, 1);
+    -moz-transition: .3s cubic-bezier(.35, 0, .25, 1);
+    transition: .3s cubic-bezier(.35, 0, .25, 1);
+    -webkit-transition-property: max-height;
+    -moz-transition-property: max-height;
+    transition-property: max-height;
+  }
+  .messages-list [appAccordion] {
+    -webkit-transition: .3s cubic-bezier(.35, 0, .25, 1);
+    -moz-transition: .3s cubic-bezier(.35, 0, .25, 1);
+    transition: .3s cubic-bezier(.35, 0, .25, 1);
+    -webkit-transition-property: margin;
+    -moz-transition-property: margin;
+    transition-property: margin;
+    }
+  .messages-list [appAccordionLink].open .message-content {
+    max-height: 1000px;
+  }
+  .messages-list [appAccordionLink].open .mat-list-item-content {
+    padding: 0.8rem 2rem;
+  }
+  .messages-list [appAccordionLink]:not(.open) {
+    .show-on-open {
+      display: none;
+    }
+  }
+  .messages-list [appAccordionLink].open {
+    margin: 1rem -1rem!important;
+    .hide-on-open {
+      display: none;
+    }
+  }
+  .messages-nav {
+    md-icon {
+      margin-right: 16px;
+    }
+  }
+  .messages-list .mat-list-item-content {
+    display: block!important;
+    height: auto;
+    padding: 0.8rem $gutter;
+  }
+  .messages-list {
+    position: relative;
+    .mat-list-item {
+      box-shadow: 0 0 0 1px rgba(0,0,0,.05),0 1px 1px rgba(0,0,0,.05)!important;
+      background-color: #fff;
+      display: block;
+    }
+  }
+}
+.app-dark :host /deep/ {
+  .messages-list {
+    .mat-list-item {
+      background: mat-color($dark-background, card);
+      color: mat-color($dark-foreground, base);
+    }
+  }
+}
+[dir="rtl"] :host /deep/ {
+  .messages-nav {
+    md-icon {
+      margin-right: 0;
+      margin-left: 16px;
+    }
+  }
+}
