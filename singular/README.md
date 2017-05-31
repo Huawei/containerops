@@ -55,9 +55,9 @@ Number of Master in cluster : 3
 Number of Node in cluster : 3
 
 Master[3]/Node[3]. Now, set virtual machine size :
-[1] 4GB  2CPUs  60GB SSDdisk  4TB transfer
-[2] 8GB  4CPUs  80GB SSDdisk  5TB transfer
-[3] 16GB 8CPUs 160GB SSDdisk  6TB transfer
+[1] 2CPUs 4GB  Memory  60GB SSDdisk  4TB transfer
+[2] 4CPUs 8GB  Memory  80GB SSDdisk  5TB transfer
+[3] 8CPUs 16GB Memory 160GB SSDdisk  6TB transfer
 Input item number : 1
 
 The Nodes Size same as Mastes[Yes/no]:n
