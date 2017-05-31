@@ -78,9 +78,6 @@ Based on your selection, generate a list for you.
 | k8s-node-ubuntu-8gb-NYC1-06    | $80/mo  $0.119 /hour |
 ---------------------------------------------------------
 Add up $360/mo or $0.537/hour.
-Are you sure you want to continue creating?[Yes/no]:
-```
-```
 Are you sure you want to continue creating?[Yes/no]:y
 This will download and install the official compiler of kubernetes for the Cluster.
 
@@ -101,9 +98,6 @@ Kubernetes is installed now. Great!
 
 ### DESCRIPTION COMMAND & OPTION    
 ```
-
-$ singular deploy cluster --master-number 2 --node-number 3 --mSize 4 --region sfo --storage 100
-
 Available Commands:
 config      Configure your APIkey and API Server key and SSH certification of Kubernetes cluster with the wizard.
 deploy      To start a new Kubernetes cluster deploying and running each service.
@@ -115,6 +109,10 @@ options:
 --mSize         Memory size of virtual machine
 --region        Location region of virtual machine
 --storage       Storage volume region of virtual machine
+```
+Example:
+```
+$ singular deploy cluster --master-number 2 --node-number 3 --mSize 4 --region sfo --storage 100
 ```
 ## Using singular with a configuration file
 
@@ -130,7 +128,7 @@ cluster_config:
         Region: "sfo2"
 
 vm_config:
-    Memory Size:"8"
-    System Version:    "ubuntu-17-04-x64"
-    Block storage:"100"
+    Memory Size(G): "8"
+    System Version: "ubuntu-17-04-x64"
+    Storage Volume:"100"
 ```
