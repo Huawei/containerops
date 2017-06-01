@@ -14,9 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// import { Component } from '@angular/core';
 import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+
 import * as D3 from 'd3';
+import * as yaml from 'js-yaml';
 
 
 @Component({
@@ -40,6 +41,13 @@ export class DashboardComponent implements OnInit {
     this.host = D3.select(this.htmlElement);
     this.setup();
     this.buildSVG();
+
+
+    var doc = yaml.load('greeting: hello\nname: world');
+
+    console.log(doc);
+
+
   }
 
   private setup(): void {
