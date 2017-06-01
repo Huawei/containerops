@@ -15,10 +15,13 @@ limitations under the License.
 */
 
 import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { Http, Response } from '@angular/http';
+import { Observable } from 'rxjs/Observable';
+// import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/map';
 
 import * as D3 from 'd3';
 import * as yaml from 'js-yaml';
-
 
 @Component({
   selector: 'app-dashboard',
@@ -27,6 +30,7 @@ import * as yaml from 'js-yaml';
 })
 export class DashboardComponent implements OnInit {
   @ViewChild('design') element: ElementRef;
+  constructor(private http: Http) {};
 
   private host: D3.Selection;
   private svg: D3.Selection;
@@ -34,20 +38,26 @@ export class DashboardComponent implements OnInit {
   private height: number;
   private radius: number;
   private htmlElement: HTMLElement;
-  private pieData = [1, 2, 3, 4, 5]
+  private pieData = [1, 2, 3, 4, 5];
+
+  private workflowObj: Object;
+
+  getYaml() {
+    this.http.get('http://localhost:4200/assets/debug/cncf-demo.yaml').subscribe(data => this.extractData(data));
+  }
+  private extractData(res: Response) {
+    this.workflowObj = yaml.load(res.text());
+    console.log(this.workflowObj);
+  }
 
   ngOnInit() {
+
+    this.getYaml();
+
     this.htmlElement = this.element.nativeElement;
     this.host = D3.select(this.htmlElement);
     this.setup();
     this.buildSVG();
-
-
-    var doc = yaml.load('greeting: hello\nname: world');
-
-    console.log(doc);
-
-
   }
 
   private setup(): void {
