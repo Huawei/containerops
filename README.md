@@ -41,6 +41,3 @@ If you interest the ContainerOps and want to get involved in developing. Getting
 * The [contributor guidelines](CONTRIBUTING.md)
 
 ### Community
-
-### Community
-
