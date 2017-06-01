@@ -16,9 +16,6 @@ limitations under the License.
 
 import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { Http, Response } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
-// import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/map';
 
 import * as D3 from 'd3';
 import * as yaml from 'js-yaml';
