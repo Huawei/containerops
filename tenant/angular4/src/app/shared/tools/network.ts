@@ -15,22 +15,22 @@
  */
 
 // import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
-import { Http, Response } from '@angular/http';
-
-// import * as D3 from 'd3';
-import * as yaml from 'js-yaml';
-
-export class Network {
-
-  // getAll(): void {
-  //   // return MENUITEMS;
-  // }
-
-  getYaml() {
-    this.http.get('http://localhost:4200/assets/debug/cncf-demo.yaml').subscribe(data => this.extractData(data));
-  }
-  private extractData(res: Response) {
-    this.workflowObj = yaml.load(res.text());
-    console.log(this.workflowObj);
-  }
-}
+// import { Http, Response } from '@angular/http';
+//
+// // import * as D3 from 'd3';
+// import * as yaml from 'js-yaml';
+//
+// export class Network {
+//
+//   // getAll(): void {
+//   //   // return MENUITEMS;
+//   // }
+//
+//   getYaml() {
+//     this.http.get('http://localhost:4200/assets/debug/cncf-demo.yaml').subscribe(data => this.extractData(data));
+//   }
+//   private extractData(res: Response) {
+//     this.workflowObj = yaml.load(res.text());
+//     console.log(this.workflowObj);
+//   }
+// }
