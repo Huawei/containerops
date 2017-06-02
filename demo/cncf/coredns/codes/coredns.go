@@ -37,7 +37,7 @@ const (
 	UnknownAction = -5
 )
 
-//Parse CO_DATA value, and return Kubernetes repository URI and action (build/test/release).
+//Parse CO_DATA value, and return CoreDNS repository URI and action (build/test/release).
 func parseEnv(env string) (uri string, action string, err error) {
 	files := strings.Fields(env)
 	if len(files) == 0 {
@@ -49,7 +49,7 @@ func parseEnv(env string) (uri string, action string, err error) {
 		key, value := s[0], s[1]
 
 		switch key {
-		case "kubernetes":
+		case "coredns":
 			uri = value
 		case "action":
 			action = value
@@ -61,7 +61,7 @@ func parseEnv(env string) (uri string, action string, err error) {
 	return uri, action, nil
 }
 
-//Git clone the Kubernetes repository, and process will redirect to system stdout.
+//Git clone the CoreDNS repository, and process will redirect to system stdout.
 func gitClone(repo, dest string) error {
 	cmd := exec.Command("git", "clone", repo, dest)
 	cmd.Stdout = os.Stdout
@@ -76,14 +76,14 @@ func gitClone(repo, dest string) error {
 	return nil
 }
 
-//make bazel-test
-func bazelTest() error {
-	cmd := exec.Command("make", "bazel-test")
+//Execute `make coredns` in the CoreDNS folder.
+func corednsBuild() error {
+	cmd := exec.Command("make", "coredns")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "[COUT] Bazel test error: %s\n", err.Error())
+		fmt.Fprintf(os.Stderr, "[COUT] Make test error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 
 		return err
@@ -92,14 +92,14 @@ func bazelTest() error {
 	return nil
 }
 
-//`make bazel-build`
-func bazelBuild() error {
-	cmd := exec.Command("make", "bazel-build")
+//Execute `make test` in the CoreDNS folder.
+func corednsTest() error {
+	cmd := exec.Command("make", "test")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "[COUT] Bazel build error: %s\n", err.Error())
+		fmt.Fprintf(os.Stderr, "[COUT] Make test error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 
 		return err
@@ -108,7 +108,7 @@ func bazelBuild() error {
 	return nil
 }
 
-//TODO Build the Kubernetes all binary files, and release to ContainerOps repository. And not execute the `make bazel-release` command.
+//TODO Build the CoreDNS all binary files, and release to ContainerOps repository.
 func release() error {
 	fmt.Fprintf(os.Stderr, "[COUT] %s", "No release function in the demo component yet.")
 	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
@@ -121,23 +121,22 @@ func main() {
 	data := os.Getenv("CO_DATA")
 	if len(data) == 0 {
 		fmt.Fprintf(os.Stderr, "[COUT] %s\n", "The CO_DATA value is null.")
-		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "The CO_DATA value is null.")
 		os.Exit(MissingParameter)
 	}
 
-	//Parse the CO_DATA, get the kubernetes repository URI and action
-	if k8sRepo, action, err := parseEnv(data); err != nil {
+	if prometheusRepo, action, err := parseEnv(data); err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 		os.Exit(ParseEnvFailure)
 	} else {
 		//Create the base path within GOPATH.
-		basePath := path.Join(os.Getenv("GOPATH"), "src", "github.com", "kubernetes", "kubernetes")
+		basePath := path.Join(os.Getenv("GOPATH"), "src", "github.com", "coredns", "coredns")
 		os.MkdirAll(basePath, os.ModePerm)
 
 		//Clone the git repository
-		if err := gitClone(k8sRepo, basePath); err != nil {
-			fmt.Fprintf(os.Stderr, "[COUT] Clone the kubernetes repository error: %s\n", err.Error())
+		if err := gitClone(prometheusRepo, basePath); err != nil {
+			fmt.Fprintf(os.Stderr, "[COUT] Clone the coredns repository error: %s\n", err.Error())
 			fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 			os.Exit(CloneError)
 		}
@@ -146,13 +145,13 @@ func main() {
 		switch action {
 		case "build":
 
-			if err := bazelBuild(); err != nil {
+			if err := corednsBuild(); err != nil {
 				os.Exit(FailuerExit)
 			}
 
 		case "test":
 
-			if err := bazelTest(); err != nil {
+			if err := corednsTest(); err != nil {
 				os.Exit(FailuerExit)
 			}
 

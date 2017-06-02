@@ -37,7 +37,7 @@ const (
 	UnknownAction = -5
 )
 
-//Parse CO_DATA value, and return Kubernetes repository URI and action (build/test/release).
+//Parse CO_DATA value, and return Prometheus repository URI and action (build/test/release).
 func parseEnv(env string) (uri string, action string, err error) {
 	files := strings.Fields(env)
 	if len(files) == 0 {
@@ -61,7 +61,7 @@ func parseEnv(env string) (uri string, action string, err error) {
 	return uri, action, nil
 }
 
-//Git clone the prometheus repository, and process will redirect to system stdout.
+//Git clone the Prometheus repository, and process will redirect to system stdout.
 func gitClone(repo, dest string) error {
 	cmd := exec.Command("git", "clone", repo, dest)
 	cmd.Stdout = os.Stdout
@@ -76,7 +76,7 @@ func gitClone(repo, dest string) error {
 	return nil
 }
 
-//Execute `make build` in the prometheus folder.
+//Execute `make build` in the Prometheus folder.
 func prometheusBuild() error {
 	cmd := exec.Command("make", "build")
 	cmd.Stdout = os.Stdout
@@ -92,7 +92,7 @@ func prometheusBuild() error {
 	return nil
 }
 
-//Execute `make test` in the prometheus folder.
+//Execute `make test` in the Prometheus folder.
 func prometheusTest() error {
 	cmd := exec.Command("make", "test")
 	cmd.Stdout = os.Stdout
@@ -108,8 +108,8 @@ func prometheusTest() error {
 	return nil
 }
 
-//TODO Build the Prometheus all binary files, and release to containerops repository.
-func release(dest string) error {
+//TODO Build the Prometheus all binary files, and release to ContainerOps repository.
+func release() error {
 	fmt.Fprintf(os.Stderr, "[COUT] %s", "No release function in the demo component yet.")
 	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 
@@ -157,12 +157,12 @@ func main() {
 
 		case "release":
 
-			if err := release(basePath); err != nil {
+			if err := release(); err != nil {
 				os.Exit(FailuerExit)
 			}
 
 		default:
-			fmt.Fprintf(os.Stderr, "[COUT] %s\n", "Unknown action, the component only support build, test and publish action.")
+			fmt.Fprintf(os.Stderr, "[COUT] %s\n", "Unknown action, the component only support build, test and release action.")
 			fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 			os.Exit(UnknownAction)
 		}
