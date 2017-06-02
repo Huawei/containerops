@@ -25,8 +25,8 @@ stages:
   - stage:
       type: normal
       name: k8s-test-build-release
-      title: Build, Test and Publish the Kubernetes Binary
-      sequencing: sequence # parallel or sequnce 
+      title: Build, Test and Release the Kubernetes Binary
+      sequencing: sequence # parallel or sequence
       actios: 
         - action:
             name: build-kubernetes
@@ -56,7 +56,7 @@ stages:
                     - default: kubernetes=https://github.com/kubernetes/kubernetes.git action=test
         - action:    
             name: release-kubernetes
-            title: Publish Kubernetes
+            title: Release Kubernetes
             jobs:
               - job:
                   type: component
@@ -70,7 +70,7 @@ stages:
   - stage:
       type: normal
       name: prometheus-test-build-release
-      title: Build, Test and Publish the Prometheus Binary
+      title: Build, Test and Release the Prometheus Binary
       sequencing: sequence
       actions:
         - action:
@@ -101,7 +101,7 @@ stages:
                     - default: prometheus=https://github.com/prometheus/prometheus.git action=test
         - action:    
             name: release-prometheus
-            title: Publish Prometheus
+            title: Release Prometheus
             jobs:
               - job:
                   type: component
@@ -115,7 +115,7 @@ stages:
   - stage:
       type: normal
       name: coredns-test-build-release
-      title: Build, Test and Publish the CoreDNS Binary
+      title: Build, Test and Release the CoreDNS Binary
       sequencing: sequence
       actions:
         - action:
@@ -146,7 +146,7 @@ stages:
                     - default: coredns=https://github.com/coredns/coredns.git action=test
         - action:    
             name: release-coredns
-            title: Publish CoreDNS
+            title: Release CoreDNS
             jobs:
               - job:
                   type: component
