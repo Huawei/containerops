@@ -24,7 +24,7 @@ stages:
       title: Start
   - stage:
       type: normal
-      name: k8s-test-build-publish
+      name: k8s-test-build-release
       title: Build, Test and Publish the Kubernetes Binary
       sequencing: sequence # parallel or sequnce 
       actios: 
@@ -34,7 +34,7 @@ stages:
             jobs:
               - job:
                   type: component # component or service
-                  endpoint: https://hub.docker.com/containerops/cncf-demo-kubernetes
+                  endpoint: docker.io/containerops/cncf-demo-kubernetes
                   resources:
                     cpu: 0
                     memory: 0
@@ -47,7 +47,7 @@ stages:
             jobs:
               - job:
                   type: component
-                  endpoint: https://hub.docker.com/containerops/cncf-demo-kubernetes
+                  endpoint: docker.io/containerops/cncf-demo-kubernetes
                   resources:
                     cpu: 0
                     memory: 0
@@ -55,21 +55,21 @@ stages:
                   environments:
                     - default: kubernetes=https://github.com/kubernetes/kubernetes.git action=test
         - action:    
-            name: publish-kubernetes
+            name: release-kubernetes
             title: Publish Kubernetes
             jobs:
               - job:
                   type: component
-                  endpoint: https://hub.docker.com/containerops/cncf-demo-kubernetes
+                  endpoint: docker.io/containerops/cncf-demo-kubernetes
                   resources:
                     cpu: 0
                     memory: 0
                   timeout: 0 
                   environments:
-                    - default: kubernetes=https://github.com/kubernetes/kubernetes.git action=publish
+                    - default: kubernetes=https://github.com/kubernetes/kubernetes.git action=release
   - stage:
       type: normal
-      name: prometheus-test-build-publish
+      name: prometheus-test-build-release
       title: Build, Test and Publish the Prometheus Binary
       sequencing: sequence
       actions:
@@ -79,7 +79,7 @@ stages:
             jobs:
               - job:
                   type: component # component or service
-                  endpoint: https://hub.docker.com/containerops/cncf-demo-prometheus
+                  endpoint: docker.io/containerops/cncf-demo-prometheus
                   resources:
                     cpu: 0
                     memory: 0
@@ -92,7 +92,7 @@ stages:
             jobs:
               - job:
                   type: component
-                  endpoint: https://hub.docker.com/containerops/cncf-demo-prometheus
+                  endpoint: docker.io/containerops/cncf-demo-prometheus
                   resources:
                     cpu: 0
                     memory: 0
@@ -100,21 +100,21 @@ stages:
                   environments:
                     - default: prometheus=https://github.com/prometheus/prometheus.git action=test
         - action:    
-            name: publish-prometheus
+            name: release-prometheus
             title: Publish Prometheus
             jobs:
               - job:
                   type: component
-                  endpoint: https://hub.docker.com/containerops/cncf-demo-prometheus
+                  endpoint: docker.io/containerops/cncf-demo-prometheus
                   resources:
                     cpu: 0
                     memory: 0
                   timeout: 0 
                   environments:
-                    - default: prometheus=https://github.com/prometheus/prometheus.git action=publish
+                    - default: prometheus=https://github.com/prometheus/prometheus.git action=release
   - stage:
       type: normal
-      name: coredns-test-build-publish
+      name: coredns-test-build-release
       title: Build, Test and Publish the CoreDNS Binary
       sequencing: sequence
       actions:
@@ -124,7 +124,7 @@ stages:
             jobs:
               - job:
                   type: component # component or service
-                  endpoint: https://hub.docker.com/containerops/cncf-demo-coredns
+                  endpoint: docker.io/containerops/cncf-demo-coredns
                   resources:
                     cpu: 0
                     memory: 0
@@ -137,7 +137,7 @@ stages:
             jobs:
               - job:
                   type: component
-                  endpoint: https://hub.docker.com/containerops/cncf-demo-coredns
+                  endpoint: docker.io/containerops/cncf-demo-coredns
                   resources:
                     cpu: 0
                     memory: 0
@@ -145,18 +145,18 @@ stages:
                   environments:
                     - default: coredns=https://github.com/coredns/coredns.git action=test
         - action:    
-            name: publish-coredns
+            name: release-coredns
             title: Publish CoreDNS
             jobs:
               - job:
                   type: component
-                  endpoint: https://hub.docker.com/containerops/cncf-demo-coredns
+                  endpoint: docker.io/containerops/cncf-demo-coredns
                   resources:
                     cpu: 0
                     memory: 0
                   timeout: 0 
                   environments:
-                    - default: coredns=https://github.com/coredns/coredns.git action=publish     
+                    - default: coredns=https://github.com/coredns/coredns.git action=release     
   - stage:
         type: end
         name: end

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM containerops/bazel:latest
+FROM docker.io/containerops/bazel:latest
 MAINTAINER Quanyi Ma <genedna@gmail.com>
 
 USER root
