@@ -1,4 +1,4 @@
-## Build, Test And Publish Kubernetes With Bazel
+## Build, Test And Kubernetes Kubernetes With Bazel
 
 ```bash
 docker build -t containerops/cncf-demo-kubernetes .

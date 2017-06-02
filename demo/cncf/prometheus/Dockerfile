@@ -12,8 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM containerops/golang:1.8.3
+FROM docker.io/containerops/golang:1.8.3
 MAINTAINER Quanyi Ma <genedna@gmail.com>
+
+USER root
+
+RUN apt-get update && apt-get install -y gcc make g++ 
 
 ENV PATH $PATH:$GOPATH/src/github.com/Huawei/containerops
 
