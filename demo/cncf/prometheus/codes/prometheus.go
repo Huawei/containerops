@@ -49,7 +49,7 @@ func parseEnv(env string) (uri string, action string, err error) {
 		key, value := s[0], s[1]
 
 		switch key {
-		case "kubernetes":
+		case "prometheus":
 			uri = value
 		case "action":
 			action = value
