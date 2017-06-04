@@ -112,4 +112,15 @@ export class DashboardComponent implements OnInit {
       .text((datum, index) => this.pieData[index])
       .style('text-anchor', 'middle');
   }
+
+  private drawStage(): void {}
+
+  private drawAction(): void {}
+
+  private drawLink(): void {}
+
+  private drawJob(): void {}
+
+
+
 }
