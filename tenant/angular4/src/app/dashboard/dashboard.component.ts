@@ -31,9 +31,11 @@ export class DashboardComponent implements OnInit {
 
   private host: D3.Selection;
   private svg: D3.Selection;
-  private width: number;
-  private height: number;
-  private radius: number;
+  private svgWidth: number;
+  private svgHeight: number;
+
+  private stageGroup: D3.Selection;
+
   private htmlElement: HTMLElement;
   private pieData = [1, 2, 3, 4, 5];
 
@@ -44,7 +46,6 @@ export class DashboardComponent implements OnInit {
   }
   private extractData(res: Response) {
     this.workflowObj = yaml.load(res.text());
-    console.log(this.workflowObj);
   }
 
   ngOnInit() {
@@ -53,64 +54,27 @@ export class DashboardComponent implements OnInit {
 
     this.htmlElement = this.element.nativeElement;
     this.host = D3.select(this.htmlElement);
-    this.setup();
-    this.buildSVG();
-  }
 
-  private setup(): void {
-    this.width = 250;
-    this.height = 250;
-    this.radius = Math.min(this.width, this.height) / 2;
+    this.buildSVG();
   }
 
   private buildSVG(): void {
     this.host.html('');
-    this.svg = this.host.append('svg')
-      .attr('viewBox', `0 0 500 500`);
+    this.svg = this.host.append('svg');
+    this.svgWidth = this.htmlElement.offsetWidth;
+    this.svgHeight = (this.htmlElement.parentElement.parentElement.offsetHeight) / 2 ;
+    this.svg.attr('width', this.svgWidth).attr('height', this.svgHeight);
 
-    const myline = this.svg.append('rect');
-    myline
-      .attr('x', 100)
-      .attr('y', 100)
-      .attr('width', 200)
-      .attr('height', 200);
-    myline.style('stroke', 'red');
-    myline.style('stroke-width', 5);
-    myline.style('fill', 'yellow');
-  }
+    this.stageGroup = this.svg.append('g');
 
+    // init stages
+    this.stageGroup.append('image')
+      .attr('xlink:href', 'http://localhost:4200/assets/images/workflow/stage_start.svg')
+      .attr('x', 60)
+      .attr('y', 60)
+      .attr('width', 40)
+      .attr('height', 40);
 
-  private buildPie(): void {
-    const pie = D3.layout.pie();
-    const arcSelection = this.svg.selectAll('.arc')
-      .data(pie(this.pieData))
-      .enter()
-      .append('g')
-      .attr('class', 'arc');
-
-    this.populatePie(arcSelection);
-  }
-
-  private populatePie(arcSelection: D3.Selection<D3.layout.pie.Arc>): void {
-    const innerRadius = this.radius - 50;
-    const outerRadius = this.radius - 10;
-    const pieColor = D3.scale.category20c();
-    const arc = D3.svg.arc<D3.layout.pie.Arc>()
-      .outerRadius(outerRadius);
-    arcSelection.append('path')
-      .attr('d', arc)
-      .attr('fill', (datum, index) => {
-        return pieColor(`${index}`);
-      });
-
-    arcSelection.append('text')
-      .attr('transform', (datum: any) => {
-        datum.innerRadius = 0;
-        datum.outerRadius = outerRadius;
-        return 'translate(' + arc.centroid(datum) + ')';
-      })
-      .text((datum, index) => this.pieData[index])
-      .style('text-anchor', 'middle');
   }
 
   private drawStage(): void {}
