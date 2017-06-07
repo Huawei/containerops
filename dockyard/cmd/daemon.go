@@ -27,6 +27,7 @@ import (
 	"gopkg.in/macaron.v1"
 
 	"github.com/Huawei/containerops/common"
+	"github.com/Huawei/containerops/dockyard/model"
 	"github.com/Huawei/containerops/dockyard/web"
 )
 
@@ -81,6 +82,7 @@ func init() {
 
 // startDeamon() start Dockyard's REST API daemon.
 func startDeamon(cmd *cobra.Command, args []string) {
+	model.OpenDatabase()
 	m := macaron.New()
 
 	// Set Macaron Web Middleware And Routers
