@@ -17,6 +17,7 @@ limitations under the License.
 package model
 
 import (
+	"sync"
 	"time"
 )
 
@@ -115,6 +116,9 @@ func (r *DockerV2) Put(namespace, repository string) error {
 
 	tx := DB.Begin()
 
+	mutex := &sync.Mutex{}
+	mutex.Lock()
+	defer mutex.Unlock()
 	if err := tx.Debug().Where("namespace = ? AND repository = ? ", namespace, repository).FirstOrCreate(&r).Error; err != nil {
 		tx.Rollback()
 		return err
