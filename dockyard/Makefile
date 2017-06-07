@@ -12,127 +12,64 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-BIN := dockyard
+VET_REPORT = vet.report
+TEST_REPORT = tests.xml
 
-PKG := github.com/Huawei/containerops/dockyard
+BINARY = dockyard
+PKG = github.com/Huawei/containerops/dockyard
+REGISTRY = docker.io/containerops/dockyard
+GOARCH = amd64
 
-REGISTRY ?= docker.io/containerops/dockyard
+VERSION? = ?
+COMMIT = $(shell git rev-parse HEAD)
+BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 
-ARCH ?= amd64
+BUILD_DIR=${GOPATH}/src/github.com/Huawei/containerops/${BINARY}
+CURRENT_DIR=$(shell pwd)
 
-VERSION := $(shell git describe --tags --always --dirty)
+LDFLAGS = -ldflags "-X main.VERSION=${VERSION} -X main.COMMIT=${COMMIT} -X main.BRANCH=${BRANCH}"
 
-SRC_DIRS := .
+all: clean test vet linux darwin windows
 
-ALL_ARCH := amd64 arm arm64 ppc64le
+linux: 
+		cd ${BUILD_DIR}; \
+		GOOS=linux GOARCH=${GOARCH} go build ${LDFLAGS} -o ${BINARY}-linux-${GOARCH} . ; \
+		cd - >/dev/null ; \
+		mv ${BINARY}-linux-${GOARCH} ${BUILD_DIR}/bin
 
-ifeq ($(ARCH),amd64)
-    BASEIMAGE?=alpine
-endif
-ifeq ($(ARCH),arm)
-    BASEIMAGE?=armel/busybox
-endif
-ifeq ($(ARCH),arm64)
-    BASEIMAGE?=aarch64/busybox
-endif
-ifeq ($(ARCH),ppc64le)
-    BASEIMAGE?=ppc64le/busybox
-endif
+darwin:
+		cd ${BUILD_DIR}; \
+		GOOS=darwin GOARCH=${GOARCH} go build ${LDFLAGS} -o ${BINARY}-darwin-${GOARCH} . ; \
+	  cd - >/dev/null; \
+		mv ${BINARY}-darwin-${GOARCH} ${BUILD_DIR}/bin
 
-IMAGE := $(REGISTRY)/$(BIN)-$(ARCH)
+windows:
+		cd ${BUILD_DIR}; \
+	  GOOS=windows GOARCH=${GOARCH} go build ${LDFLAGS} -o ${BINARY}-windows-${GOARCH}.exe . ; \
+	  cd - >/dev/null; \
+		mv ${BINARY}-windows-${GOARCH}.exe ${BUILD_DIR}/bin
 
-BUILD_IMAGE ?= golang:1.8.3
+test:
+		if ! hash go2xunit 2>/dev/null; then go install github.com/tebeka/go2xunit; fi
+		cd ${BUILD_DIR}; \
+		godep go test -v ./... 2>&1 | go2xunit -output ${TEST_REPORT} ; \
+	  cd - >/dev/null; \
+		mv ${TEST_REPORT} ${BUILD_DIR}/bin
 
-all: build
+vet:
+		cd ${BUILD_DIR}; \
+		godep go vet ./... > ${VET_REPORT} 2>&1 ; \
+		cd - >/dev/null; \
+		mv ${VET_REPORT} ${BUILD_DIR}/bin
 
-build-%:
-	@$(MAKE) --no-print-directory ARCH=$* build
+fmt:
+		cd ${BUILD_DIR}; \
+		go fmt $$(go list ./... | grep -v /vendor/) ; \
+	  cd - >/dev/null
 
-container-%:
-	@$(MAKE) --no-print-directory ARCH=$* container
+clean:
+		rm -f ${BUILD_DIR}/bin/${TEST_REPORT}
+		rm -f ${BUILD_DIR}/bin/${VET_REPORT}
+		rm -f ${BUILD_DIR}/bin/${BINARY}-*
 
-push-%:
-	@$(MAKE) --no-print-directory ARCH=$* push
-
-all-build: $(addprefix build-, $(ALL_ARCH))
-
-all-container: $(addprefix container-, $(ALL_ARCH))
-
-all-push: $(addprefix push-, $(ALL_ARCH))
-
-build: bin/$(ARCH)/$(BIN)
-
-bin/$(ARCH)/$(BIN): build-dirs
-	@echo "building: $@"
-	@docker run                                                            \
-	    -ti                                                                \
-	    -u $$(id -u):$$(id -g)                                             \
-	    -v $$(pwd)/.go:/go                                                 \
-	    -v $$(pwd):/go/src/$(PKG)                                          \
-	    -v $$(pwd)/bin/$(ARCH):/go/bin                                     \
-	    -v $$(pwd)/bin/$(ARCH):/go/bin/linux_$(ARCH)                       \
-	    -v $$(pwd)/.go/std/$(ARCH):/usr/local/go/pkg/linux_$(ARCH)_static  \
-	    -w /go/src/$(PKG)                                                  \
-	    $(BUILD_IMAGE)                                                     \
-	    /bin/sh -c "                                                       \
-	        ARCH=$(ARCH)                                                   \
-	        VERSION=$(VERSION)                                             \
-	        PKG=$(PKG)                                                     \
-	        ./build/build.sh                                               \
-	    "
-
-DOTFILE_IMAGE = $(subst :,_,$(subst /,_,$(IMAGE))-$(VERSION))
-
-container: .container-$(DOTFILE_IMAGE) container-name
-.container-$(DOTFILE_IMAGE): bin/$(ARCH)/$(BIN) Dockerfile.in
-	@sed \
-	    -e 's|ARG_BIN|$(BIN)|g' \
-	    -e 's|ARG_ARCH|$(ARCH)|g' \
-	    -e 's|ARG_FROM|$(BASEIMAGE)|g' \
-	    Dockerfile.in > .dockerfile-$(ARCH)
-	@docker build -t $(IMAGE):$(VERSION) -f .dockerfile-$(ARCH) .
-	@docker images -q $(IMAGE):$(VERSION) > $@
-
-container-name:
-	@echo "container: $(IMAGE):$(VERSION)"
-
-push: .push-$(DOTFILE_IMAGE) push-name
-.push-$(DOTFILE_IMAGE): .container-$(DOTFILE_IMAGE)
-ifeq ($(findstring gcr.io,$(REGISTRY)),gcr.io)
-	@gcloud docker -- push $(IMAGE):$(VERSION)
-else
-	@docker push $(IMAGE):$(VERSION)
-endif
-	@docker images -q $(IMAGE):$(VERSION) > $@
-
-push-name:
-	@echo "pushed: $(IMAGE):$(VERSION)"
-
-version:
-	@echo $(VERSION)
-
-test: build-dirs
-	@docker run                                                            \
-	    -ti                                                                \
-	    -u $$(id -u):$$(id -g)                                             \
-	    -v $$(pwd)/.go:/go                                                 \
-	    -v $$(pwd):/go/src/$(PKG)                                          \
-	    -v $$(pwd)/bin/$(ARCH):/go/bin                                     \
-	    -v $$(pwd)/.go/std/$(ARCH):/usr/local/go/pkg/linux_$(ARCH)_static  \
-	    -w /go/src/$(PKG)                                                  \
-	    $(BUILD_IMAGE)                                                     \
-	    /bin/sh -c "                                                       \
-	        ./build/test.sh $(SRC_DIRS)                                    \
-	    "
-
-build-dirs:
-	@mkdir -p bin/$(ARCH)
-	@mkdir -p .go/src/$(PKG) .go/pkg .go/bin .go/std/$(ARCH)
-
-clean: container-clean bin-clean
-
-container-clean:
-	rm -rf .container-* .dockerfile-* .push-*
-
-bin-clean:
-	rm -rf .go bin
+.PHONY: link linux darwin windows test vet fmt clean
