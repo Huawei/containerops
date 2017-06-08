@@ -55,16 +55,19 @@ export class RepoComponent implements OnInit {
 //  @ViewChild('design') element: ElementRef;
  // constructor(private http: Http) {};
   
-    public form: FormGroup;
+  public form: FormGroup;
   constructor(private fb: FormBuilder) {}
 
   // control: FormControl = new FormControl('value', Validators.minLength(2));
   // setValue() { this.control.setValue('new value'); }
 
+  // favoriteSeason = 'Autumn';
+  // seasonOptions: string[] = ['Docker', 'Files' ];
+
     repo: Repo  = {
       name: '',
       islimit:true,
-      repo_type:0,
+      repo_type:-1,
       ishavekey:false,
       description:""
     };

@@ -5,20 +5,24 @@
   <md-card-content>
     <md-card>
       <md-card-content>
-   
-                      <div fxLayout="column">
-                         <md-radio-button name="group1" [(ngModel)]="repo.islimit" ngDefaultControl>
-                            <label for="privateRbx" class="">
-                            <span >Private</span>
-                            <span >- only authorized users can download your files.</span>
-                            </label></md-radio-button>
-                         <md-radio-button name="group1" [(ngModel)]="repo.islimit" ngDefaultControl>
-                            <label for="publicRbx">
-                            <span >Public</span>
-                            <span>- anyone can download your files.</span>
-                            </label>
-                         </md-radio-button>
-                      </div>
+
+
+                       <md-radio-group name="repotype" [(ngModel)]="repo.islimit"  fxLayout="column">
+                            <div fxLayout="column">
+                                <md-radio-button name="privateRbx1" [value]=true  ngDefaultControl>
+                                    <label for="privateRbx1" class="">
+                                    <span >Private</span>
+                                    <span >- only authorized users can download your files.</span>
+                                    </label></md-radio-button>
+                                <md-radio-button name="publicRbx2"  [value]=false ngDefaultControl>
+                                    <label for="publicRbx2">
+                                    <span >Public</span>
+                                    <span>- anyone can download your files.</span>
+                                    </label>
+                                </md-radio-button>
+                            </div>
+                       </md-radio-group>
+
     </md-card-content>
     <md-card>
     </md-card>
@@ -38,19 +42,30 @@
                 </div>
 
                 <div fxLayout="column"> Type
-                         <md-radio-button name="group2" [(ngModel)]="repo.repo_type" ngDefaultControl >
-                           <label for="typeRbx" class="" >
-                            <span >Docker Images</span>
-                            <span >- An Docker Image is a read-only template with instructions for creating a Docker container.</span>
-                            </label>
-                            </md-radio-button>
 
-                         <md-radio-button name="group2" [(ngModel)]="repo.repo_type" ngDefaultControl >
-                                <label for="typeBFRbx">
-                                    <span >Binary Files</span>
-                                    <span>- any kinds of file types.</span>
-                                </label>
-                         </md-radio-button>
+
+                    <md-radio-group name="repotype" [(ngModel)]="repo.repo_type"  fxLayout="column">
+                        <md-radio-button  name="repotype" [value]="0">
+                                        <label for="typeRbx" class="" >
+                                        <span >Docker Images</span>
+                                        <span >- An Docker Image is a read-only template with instructions for creating a Docker container.</span>
+                                        </label>
+                        
+                            </md-radio-button>
+                            <div *ngIf="!repo.repo_type" class="pr-1 hide-on-open">
+                                            <label for="typeRbx" class="" >
+                                                <span >docker login -u deanlee -p &lt;API_KEY	&gt; -e &lt;EMAIL	&gt; hubops-docker-test_private.bintray.io</span>
+                                            </label>
+                            </div>
+                        <md-radio-button  name="repotype" [value]="1">
+                        <label for="typeBFRbx">
+                                        <span >Binary Files</span>
+                                        <span>- any kinds of file types.</span>
+                            </label>
+                        </md-radio-button>
+                    </md-radio-group>
+                    <!--<p>Your select is: {{repo.repo_type}}</p>-->
+
                  </div>
                 <br>
                 <hr>
@@ -78,12 +93,12 @@
 
        <md-card-actions>
             <br>
-             <div *ngIf="!repo.name" class="pr-1 hide-on-open">
+             <div *ngIf="!repo.name||form.controls['fname'].hasError('minlength')||form.controls['fname'].hasError('maxlength')" class="pr-1 hide-on-open">
             <button md-raised-button disabled class="mr-1" value="Create" >Create</button>
             <button md-raised-button class="mr-1">Cancel</button>
 
              </div>
-             <div *ngIf="repo.name" class="pr-1 hide-on-open">
+             <div *ngIf="repo.name&&!form.controls['fname'].hasError('minlength')&&!form.controls['fname'].hasError('maxlength')" class="pr-1 hide-on-open">
             <button md-raised-button color="primary" class="mr-1" value="Create" (click)="onCreateButtonClick(repo)" >Create</button>
             <button md-raised-button class="mr-1">Cancel</button>
 
