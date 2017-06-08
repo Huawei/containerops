@@ -17,8 +17,10 @@ limitations under the License.
 package model
 
 import (
+	"fmt"
 	"os"
 
+	"github.com/Huawei/containerops/dockyard/setting"
 	log "github.com/Sirupsen/logrus"
 	"github.com/jinzhu/gorm"
 )
@@ -33,10 +35,12 @@ func init() {
 }
 
 // OpenDatabase is
-func OpenDatabase() {
+func OpenDatabase(dbconfig *setting.DatabaseConfig) {
+	driver, host, port, user, password, db := dbconfig.Driver, dbconfig.Host, dbconfig.Port, dbconfig.User, dbconfig.Password, dbconfig.Name
 	var err error
-	if DB, err = gorm.Open("database.driver", "database.uri"); err != nil {
-		log.Fatal("Initlization database connection error.")
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=True&loc=Local", user, password, host, port, db)
+	if DB, err = gorm.Open(driver, dsn); err != nil {
+		log.Fatal("Initlization database connection error.", err)
 		os.Exit(1)
 	} else {
 		DB.DB()
@@ -49,7 +53,11 @@ func OpenDatabase() {
 
 // Migrate is
 func Migrate() {
-	OpenDatabase()
+	if err := setting.SetConfig("./conf/runtime.conf"); err != nil {
+		log.Fatalf("Failed to init settings: %s", err.Error())
+		return
+	}
+	OpenDatabase(&setting.DBConfig)
 
 	DB.AutoMigrate(&DockerV2{}, &DockerImageV2{}, &DockerTagV2{})
 
