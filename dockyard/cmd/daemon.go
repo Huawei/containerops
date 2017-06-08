@@ -23,11 +23,13 @@ import (
 	"net/http"
 	"os"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/macaron.v1"
 
 	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/dockyard/model"
+	"github.com/Huawei/containerops/dockyard/setting"
 	"github.com/Huawei/containerops/dockyard/web"
 )
 
@@ -73,6 +75,7 @@ func init() {
 	daemonCmd.AddCommand(startDaemonCmd)
 	startDaemonCmd.Flags().StringVarP(&address, "address", "a", "0.0.0.0", "http or https listen address.")
 	startDaemonCmd.Flags().Int64VarP(&port, "port", "p", 80, "the port of http.")
+	startDaemonCmd.Flags().StringVarP(&configFilePath, "config", "c", "./conf/runtime.conf", "path of the config file.")
 
 	// Add stop subcommand
 	daemonCmd.AddCommand(stopDaemonCmd)
@@ -82,7 +85,12 @@ func init() {
 
 // startDeamon() start Dockyard's REST API daemon.
 func startDeamon(cmd *cobra.Command, args []string) {
-	model.OpenDatabase()
+	if err := setting.SetConfig(configFilePath); err != nil {
+		log.Fatalf("Failed to init settings: %s", err.Error())
+		os.Exit(1)
+	}
+
+	model.OpenDatabase(&setting.DBConfig)
 	m := macaron.New()
 
 	// Set Macaron Web Middleware And Routers
