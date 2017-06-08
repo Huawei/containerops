@@ -24,20 +24,7 @@ import (
 	"strings"
 )
 
-const (
-	//FailuerExit exit code is -1.
-	FailuerExit = -1
-	//MissingParameter exit code is -2.
-	MissingParameter = -2
-	//ParseEnvFailure exit code is -3.
-	ParseEnvFailure = -3
-	//CloneError exit code is -4
-	CloneError = -4
-	//UnknownAction exit code is -5
-	UnknownAction = -5
-)
-
-//Parse CO_DATA value, and return CoreDNS repository URI and action (build/test/release).
+// Parse CO_DATA value, and return CoreDNS repository URI and action (build/test/release).
 func parseEnv(env string) (uri string, action string, err error) {
 	files := strings.Fields(env)
 	if len(files) == 0 {
@@ -61,7 +48,7 @@ func parseEnv(env string) (uri string, action string, err error) {
 	return uri, action, nil
 }
 
-//Git clone the CoreDNS repository, and process will redirect to system stdout.
+// Git clone the CoreDNS repository, and process will redirect to system stdout.
 func gitClone(repo, dest string) error {
 	cmd := exec.Command("git", "clone", repo, dest)
 	cmd.Stdout = os.Stdout
@@ -70,13 +57,13 @@ func gitClone(repo, dest string) error {
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Git clone error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
-		os.Exit(FailuerExit)
+		os.Exit(1)
 	}
 
 	return nil
 }
 
-//Execute `make coredns` in the CoreDNS folder.
+// Execute `make coredns` in the CoreDNS folder.
 func corednsBuild() error {
 	cmd := exec.Command("make", "coredns")
 	cmd.Stdout = os.Stdout
@@ -92,7 +79,7 @@ func corednsBuild() error {
 	return nil
 }
 
-//Execute `make test` in the CoreDNS folder.
+// Execute `make test` in the CoreDNS folder.
 func corednsTest() error {
 	cmd := exec.Command("make", "test")
 	cmd.Stdout = os.Stdout
@@ -108,7 +95,7 @@ func corednsTest() error {
 	return nil
 }
 
-//TODO Build the CoreDNS all binary files, and release to ContainerOps repository.
+// TODO Build the CoreDNS all binary files, and release to ContainerOps repository.
 func release() error {
 	fmt.Fprintf(os.Stderr, "[COUT] %s", "No release function in the demo component yet.")
 	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
@@ -122,13 +109,13 @@ func main() {
 	if len(data) == 0 {
 		fmt.Fprintf(os.Stderr, "[COUT] %s\n", "The CO_DATA value is null.")
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "The CO_DATA value is null.")
-		os.Exit(MissingParameter)
+		os.Exit(1)
 	}
 
 	if prometheusRepo, action, err := parseEnv(data); err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
-		os.Exit(ParseEnvFailure)
+		os.Exit(1)
 	} else {
 		//Create the base path within GOPATH.
 		basePath := path.Join(os.Getenv("GOPATH"), "src", "github.com", "coredns", "coredns")
@@ -138,7 +125,7 @@ func main() {
 		if err := gitClone(prometheusRepo, basePath); err != nil {
 			fmt.Fprintf(os.Stderr, "[COUT] Clone the coredns repository error: %s\n", err.Error())
 			fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
-			os.Exit(CloneError)
+			os.Exit(1)
 		}
 
 		//Execute action
@@ -146,25 +133,25 @@ func main() {
 		case "build":
 
 			if err := corednsBuild(); err != nil {
-				os.Exit(FailuerExit)
+				os.Exit(1)
 			}
 
 		case "test":
 
 			if err := corednsTest(); err != nil {
-				os.Exit(FailuerExit)
+				os.Exit(1)
 			}
 
 		case "release":
 
 			if err := release(); err != nil {
-				os.Exit(FailuerExit)
+				os.Exit(1)
 			}
 
 		default:
 			fmt.Fprintf(os.Stderr, "[COUT] %s\n", "Unknown action, the component only support build, test and release action.")
 			fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
-			os.Exit(UnknownAction)
+			os.Exit(1)
 		}
 
 	}
