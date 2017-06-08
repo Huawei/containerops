@@ -24,19 +24,6 @@ import (
 	"strings"
 )
 
-const (
-	//FailuerExit exit code is -1.
-	FailuerExit = -1
-	//MissingParameter exit code is -2.
-	MissingParameter = -2
-	//ParseEnvFailure exit code is -3.
-	ParseEnvFailure = -3
-	//CloneError exit code is -4
-	CloneError = -4
-	//UnknownAction exit code is -5
-	UnknownAction = -5
-)
-
 //Parse CO_DATA value, and return Kubernetes repository URI and action (build/test/release).
 func parseEnv(env string) (uri string, action string, err error) {
 	files := strings.Fields(env)
@@ -70,7 +57,7 @@ func gitClone(repo, dest string) error {
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Git clone error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
-		os.Exit(FailuerExit)
+		os.Exit(1)
 	}
 
 	return nil
@@ -122,14 +109,14 @@ func main() {
 	if len(data) == 0 {
 		fmt.Fprintf(os.Stderr, "[COUT] %s\n", "The CO_DATA value is null.")
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
-		os.Exit(MissingParameter)
+		os.Exit(1)
 	}
 
 	//Parse the CO_DATA, get the kubernetes repository URI and action
 	if k8sRepo, action, err := parseEnv(data); err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
-		os.Exit(ParseEnvFailure)
+		os.Exit(1)
 	} else {
 		//Create the base path within GOPATH.
 		basePath := path.Join(os.Getenv("GOPATH"), "src", "github.com", "kubernetes", "kubernetes")
@@ -139,7 +126,7 @@ func main() {
 		if err := gitClone(k8sRepo, basePath); err != nil {
 			fmt.Fprintf(os.Stderr, "[COUT] Clone the kubernetes repository error: %s\n", err.Error())
 			fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
-			os.Exit(CloneError)
+			os.Exit(1)
 		}
 
 		//Execute action
@@ -147,25 +134,25 @@ func main() {
 		case "build":
 
 			if err := bazelBuild(); err != nil {
-				os.Exit(FailuerExit)
+				os.Exit(1)
 			}
 
 		case "test":
 
 			if err := bazelTest(); err != nil {
-				os.Exit(FailuerExit)
+				os.Exit(1)
 			}
 
 		case "release":
 
 			if err := release(); err != nil {
-				os.Exit(FailuerExit)
+				os.Exit(1)
 			}
 
 		default:
 			fmt.Fprintf(os.Stderr, "[COUT] %s\n", "Unknown action, the component only support build, test and release action.")
 			fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
-			os.Exit(UnknownAction)
+			os.Exit(1)
 		}
 
 	}
