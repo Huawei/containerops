@@ -23,7 +23,7 @@ import (
 	"net/http"
 	"os"
 
-	log "github.com/jcloudpub/speedy/logs"
+	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/macaron.v1"
 
