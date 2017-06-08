@@ -53,12 +53,6 @@ func OpenDatabase(dbconfig *setting.DatabaseConfig) {
 
 // Migrate is
 func Migrate() {
-	if err := setting.SetConfig("./conf/runtime.conf"); err != nil {
-		log.Fatalf("Failed to init settings: %s", err.Error())
-		return
-	}
-	OpenDatabase(&setting.DBConfig)
-
 	DB.AutoMigrate(&DockerV2{}, &DockerImageV2{}, &DockerTagV2{})
 
 	log.Info("Auto Migrate Dockyard Database Structs Done.")

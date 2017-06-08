@@ -75,6 +75,7 @@ func init() {
 	daemonCmd.AddCommand(startDaemonCmd)
 	startDaemonCmd.Flags().StringVarP(&address, "address", "a", "0.0.0.0", "http or https listen address.")
 	startDaemonCmd.Flags().Int64VarP(&port, "port", "p", 80, "the port of http.")
+	startDaemonCmd.Flags().StringVarP(&configFilePath, "config", "c", "./conf/runtime.conf", "path of the config file.")
 
 	// Add stop subcommand
 	daemonCmd.AddCommand(stopDaemonCmd)
@@ -84,7 +85,7 @@ func init() {
 
 // startDeamon() start Dockyard's REST API daemon.
 func startDeamon(cmd *cobra.Command, args []string) {
-	if err := setting.SetConfig("./conf/runtime.conf"); err != nil {
+	if err := setting.SetConfig(configFilePath); err != nil {
 		log.Fatalf("Failed to init settings: %s", err.Error())
 		os.Exit(1)
 	}

@@ -17,9 +17,12 @@ limitations under the License.
 package cmd
 
 import (
+	log "github.com/Sirupsen/logrus"
+
 	"github.com/spf13/cobra"
 
 	"github.com/Huawei/containerops/dockyard/model"
+	"github.com/Huawei/containerops/dockyard/setting"
 )
 
 // databasecmd is subcommand which migrate/backup/restore Dockyard's database.
@@ -60,10 +63,18 @@ func init() {
 	databaseCmd.AddCommand(migrateDatabaseCmd)
 	databaseCmd.AddCommand(backupDatabaseCmd)
 	databaseCmd.AddCommand(restoreDatabaseCmd)
+
+	migrateDatabaseCmd.Flags().StringVarP(&configFilePath, "config", "c", "./conf/runtime.conf", "path of the config file.")
 }
 
 // migrateDatabase is auto-migrate database of Dockyard.
 func migrateDatabase(cmd *cobra.Command, args []string) {
+	if err := setting.SetConfig(configFilePath); err != nil {
+		log.Fatalf("Failed to init settings: %s", err.Error())
+		return
+	}
+
+	model.OpenDatabase(&setting.DBConfig)
 	model.Migrate()
 }
 
