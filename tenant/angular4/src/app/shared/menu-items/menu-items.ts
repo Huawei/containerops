@@ -42,6 +42,12 @@ const MENUITEMS = [
     name: 'HOME',
     type: 'link',
     icon: 'explore'
+  },
+   {
+    state: 'repo',
+    name: 'Repo',
+    type: 'link',
+    icon: 'apps'
   }
 ];
 

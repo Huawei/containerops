@@ -1,0 +1,92 @@
+<div class="d3-design" #design></div>
+<md-card>
+  <md-card-title>Create Repository</md-card-title>
+  <!--<md-card-subtitle>md-card is a content container component that conforms to the spec of a Material Design card.</md-card-subtitle>-->
+  <md-card-content>
+    <md-card>
+      <md-card-content>
+   
+                      <div fxLayout="column">
+                         <md-radio-button name="group1" [(ngModel)]="repo.islimit" ngDefaultControl>
+                            <label for="privateRbx" class="">
+                            <span >Private</span>
+                            <span >- only authorized users can download your files.</span>
+                            </label></md-radio-button>
+                         <md-radio-button name="group1" [(ngModel)]="repo.islimit" ngDefaultControl>
+                            <label for="publicRbx">
+                            <span >Public</span>
+                            <span>- anyone can download your files.</span>
+                            </label>
+                         </md-radio-button>
+                      </div>
+    </md-card-content>
+    <md-card>
+    </md-card>
+  <!--<form [formGroup]="form">-->
+
+      <md-card-content>
+          
+                 <div fxLayout="column" class="mb-1" fxLayoutWrap="wrap">
+                    <md-input-container  style="width: 50%;" [(ngModel)]="repo.name" ngDefaultControl>
+                    <input mdInput placeholder="Name"   [formControl]="form.controls['fname']"   type="Cannot be changed once the repository is created." >
+                    </md-input-container>
+                    <!--<md-input-container style="width: 100%">
+            <input mdInput placeholder="First name" [formControl]="form.controls['fname']">
+          </md-input-container>-->
+                    <small style ="margin-left:5px" *ngIf="form.controls['fname'].hasError('required') && form.controls['fname'].touched" class="mat-text-warn">You must include a name.</small>
+                    <small *ngIf="form.controls['fname'].hasError('minlength') && form.controls['fname'].touched" class="mat-text-warn">Your  name must be at least 5 characters long.</small>
+                    <small *ngIf="form.controls['fname'].hasError('maxlength') && form.controls['fname'].touched" class="mat-text-warn">Your  name cannot exceed 10 characters.</small>
+                    <div *ngIf="true" class="pr-1 hide-on-open">
+                    </div>
+                </div>
+
+                <div fxLayout="column"> Type
+                         <md-radio-button name="group2" [(ngModel)]="repo.repo_type" ngDefaultControl >
+                           <label for="typeRbx" class="" >
+                            <span >Docker Images</span>
+                            <span >- An Docker Image is a read-only template with instructions for creating a Docker container.</span>
+                            </label>
+                            </md-radio-button>
+
+                         <md-radio-button name="group2" [(ngModel)]="repo.repo_type" ngDefaultControl >
+                                <label for="typeBFRbx">
+                                    <span >Binary Files</span>
+                                    <span>- any kinds of file types.</span>
+                                </label>
+                         </md-radio-button>
+                 </div>
+                <br>
+                <hr>
+                <br>
+                <div fxLayout="column"  class="mb-2" >
+                    <md-input-container  style="width: 100%;" [(ngModel)]="repo.Description" ngDefaultControl>
+                        <input mdInput placeholder="Description (Optional)"  [formControl]="form.controls['desc']" type="Description (Optional)">
+                    </md-input-container>
+                    <small *ngIf="form.controls['desc'].hasError('minlength') && form.controls['desc'].touched" class="mat-text-warn">Your description must be at least 5 characters long.</small>
+                    <small *ngIf="form.controls['desc'].hasError('maxlength') && form.controls['desc'].touched" class="mat-text-warn">Your description cannot exceed 100 characters.</small>
+
+                </div>
+       
+            <md-card-footer>
+                <md-progress-bar mode="indeterminate"></md-progress-bar>
+            </md-card-footer>
+        
+        </md-card-content>
+
+        <md-card-content>
+            <br>
+            <md-checkbox [checked]="repo.ishavekey" >Repository files using Binary's public/private key pair.</md-checkbox>
+                            <!--//ngDefaultControl-->
+        </md-card-content>
+
+       <md-card-actions>
+            <br>
+            <button md-raised-button color="primary" class="mr-1" value="Create" (click)="onCreateButtonClick(repo)" >Create</button>
+            <button md-raised-button class="mr-1">Cancel</button>
+      </md-card-actions>
+    </md-card>
+  
+  </md-card-content>
+    <!--</form>-->
+
+</md-card>
