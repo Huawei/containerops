@@ -52,10 +52,13 @@
                                         </label>
                         
                             </md-radio-button>
-                            <div *ngIf="!repo.repo_type" class="pr-1 hide-on-open">
-                                            <label for="typeRbx" class="" >
-                                                <span >docker login -u deanlee -p &lt;API_KEY	&gt; -e &lt;EMAIL	&gt; hubops-docker-test_private.bintray.io</span>
-                                            </label>
+                            <div *ngIf="!repo.repo_type" class="pr-1 hide-on-open" class="repo-input-button" style="margin: 10px">
+                                            <!--<label for="typeRbx" class="" >
+                                            </label>-->
+                                                  <button md-raised-button >                                                
+                                                      <span >docker login -u {{username}} -p &lt;API_KEY	&gt; -e &lt;EMAIL	&gt; {{webside_url}}</span>
+                                                </button>
+
                             </div>
                         <md-radio-button  name="repotype" [value]="1">
                         <label for="typeBFRbx">
@@ -79,30 +82,33 @@
 
                 </div>
        
-            <md-card-footer>
-                <md-progress-bar mode="indeterminate"></md-progress-bar>
-            </md-card-footer>
+         
         
         </md-card-content>
 
         <md-card-content>
             <br>
-            <md-checkbox [checked]="repo.ishavekey" >Repository files using Binary's public/private key pair.</md-checkbox>
-                            <!--//ngDefaultControl-->
+            <md-checkbox [(ngModel)]="repo.ishavekey" >Repository files using Binary's public/private key pair.</md-checkbox>
         </md-card-content>
 
        <md-card-actions>
             <br>
-             <div *ngIf="!repo.name||form.controls['fname'].hasError('minlength')||form.controls['fname'].hasError('maxlength')" class="pr-1 hide-on-open">
+             <div *ngIf="!repo.name||form.controls['fname'].hasError('minlength')||form.controls['fname'].hasError('maxlength')||repo.repo_type===-1" class="pr-1 hide-on-open">
             <button md-raised-button disabled class="mr-1" value="Create" >Create</button>
             <button md-raised-button class="mr-1">Cancel</button>
 
              </div>
-             <div *ngIf="repo.name&&!form.controls['fname'].hasError('minlength')&&!form.controls['fname'].hasError('maxlength')" class="pr-1 hide-on-open">
+             <div *ngIf="repo.name&&!form.controls['fname'].hasError('minlength')&&!form.controls['fname'].hasError('maxlength')&&repo.repo_type!=-1" class="pr-1 hide-on-open">
             <button md-raised-button color="primary" class="mr-1" value="Create" (click)="onCreateButtonClick(repo)" >Create</button>
             <button md-raised-button class="mr-1">Cancel</button>
-
              </div>
+
+            <div *ngIf="isCreate" class="pr-1 hide-on-open" class="repo-input-button" style="margin: 10px">
+                  <md-card-footer>
+                    <md-progress-bar mode="indeterminate"></md-progress-bar>
+                  </md-card-footer>
+             </div>
+               
       </md-card-actions>
     </md-card>
   

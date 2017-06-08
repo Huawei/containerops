@@ -61,9 +61,9 @@ export class RepoComponent implements OnInit {
   // control: FormControl = new FormControl('value', Validators.minLength(2));
   // setValue() { this.control.setValue('new value'); }
 
-  // favoriteSeason = 'Autumn';
-  // seasonOptions: string[] = ['Docker', 'Files' ];
-
+    username ="DeanLee"
+    webside_url ="hubops-docker-test_private.bintray.io"
+    isCreate = false
     repo: Repo  = {
       name: '',
       islimit:true,
@@ -91,12 +91,12 @@ export class RepoComponent implements OnInit {
 
 //    constructor(private repoService: RepoService) { }
 
-//    getHeroes(): void {
+//    getrepo(): void {
 //     this.repoService.addRepo().then(repo => this.repo = repo);
 //   }
 
     onCreateButtonClick(repo: Repo): void {
-
+     this.isCreate =true;
       alert(JSON.stringify( repo))
     }
  

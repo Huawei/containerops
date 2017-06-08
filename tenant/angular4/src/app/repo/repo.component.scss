@@ -30,10 +30,20 @@ limitations under the License.
     margin-right: -5px;
   }
 }
+.repo-input-button {
+  padding: 5;
+  margin: 10px;
+  margin-left: 20px;
+}
 
 $mat-toolbar-height-desktop: 64px !default;
 $mat-toolbar-height-mobile-portrait: 56px !default;
 $mat-toolbar-height-mobile-landscape: 48px !default;
+
+.mat-card-top {
+  margin-top: -($mat-toolbar-height-desktop);
+}
+
 
 .mat-card-top {
   margin-top: -($mat-toolbar-height-desktop);
