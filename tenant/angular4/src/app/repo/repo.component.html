@@ -30,14 +30,11 @@
                     <md-input-container  style="width: 50%;" [(ngModel)]="repo.name" ngDefaultControl>
                     <input mdInput placeholder="Name"   [formControl]="form.controls['fname']"   type="Cannot be changed once the repository is created." >
                     </md-input-container>
-                    <!--<md-input-container style="width: 100%">
-            <input mdInput placeholder="First name" [formControl]="form.controls['fname']">
-          </md-input-container>-->
+                  
                     <small style ="margin-left:5px" *ngIf="form.controls['fname'].hasError('required') && form.controls['fname'].touched" class="mat-text-warn">You must include a name.</small>
                     <small *ngIf="form.controls['fname'].hasError('minlength') && form.controls['fname'].touched" class="mat-text-warn">Your  name must be at least 5 characters long.</small>
                     <small *ngIf="form.controls['fname'].hasError('maxlength') && form.controls['fname'].touched" class="mat-text-warn">Your  name cannot exceed 10 characters.</small>
-                    <div *ngIf="true" class="pr-1 hide-on-open">
-                    </div>
+                   
                 </div>
 
                 <div fxLayout="column"> Type
@@ -81,8 +78,16 @@
 
        <md-card-actions>
             <br>
+             <div *ngIf="!repo.name" class="pr-1 hide-on-open">
+            <button md-raised-button disabled class="mr-1" value="Create" >Create</button>
+            <button md-raised-button class="mr-1">Cancel</button>
+
+             </div>
+             <div *ngIf="repo.name" class="pr-1 hide-on-open">
             <button md-raised-button color="primary" class="mr-1" value="Create" (click)="onCreateButtonClick(repo)" >Create</button>
             <button md-raised-button class="mr-1">Cancel</button>
+
+             </div>
       </md-card-actions>
     </md-card>
   
