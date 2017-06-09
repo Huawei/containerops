@@ -28,7 +28,7 @@ The ContainerOps engine checks the exit code of the process determined the resul
 * _72_ - Critical OS file missing
 * _73_ - Can't create (user) output file
 * _74_ - Input/Output error
-* _75 - Temp failure; user is invited to retry
+* _75_ - Temp failure; user is invited to retry
 * _76_ - Remote error in protocol
 * _77_ - Permission denied
 * _78_ - Configuration error
