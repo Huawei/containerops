@@ -42,6 +42,40 @@ const MENUITEMS = [
     name: 'HOME',
     type: 'link',
     icon: 'explore'
+  },
+  {
+    state: 'pr',
+    name: 'PULLREQUEST',
+    type: 'link',
+    icon: 'device_hub'
+  },
+  {
+    state: 'repos',
+    name: 'REPOSITORIES',
+    type: 'link',
+    icon: 'apps'
+  },
+  {
+    state: 'flow',
+    name: 'ORCHESTRATION',
+    type: 'sub',
+    icon: 'timeline',
+    children: [
+      {state: 'overview', name: 'FLOWOVERVIEW'},
+      {state: 'status', name: 'FLOWOSTATUS'}
+    ]
+  },
+  {
+    state: 'setting',
+    name: 'SYSSETTING',
+    type: 'link',
+    icon: 'settings_applications'
+  },
+  {
+    state: 'https://github.com',
+    name: 'DOCS',
+    type: 'extTabLink',
+    icon: 'local_library'
   }
 ];
 
