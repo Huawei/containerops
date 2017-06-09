@@ -75,6 +75,17 @@ export class DashboardComponent implements OnInit {
       .attr('width', 40)
       .attr('height', 40);
 
+    // <path fill-opacity="0" stroke="#ff0000"  d="
+    // M202,15
+    // L202,75
+    // C202,83 195,90 187,90
+    // L150,90" />
+    // <path fill-opacity="0" stroke="#ff0000"  d="
+    // M202,75
+    // L202,125
+    // C202,133 195,140 187,140
+    // L150,140" />
+
   }
 
   private drawStage(): void {}
