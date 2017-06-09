@@ -36,8 +36,7 @@ export function createTranslateLoader(http: Http) {
 
 @NgModule({
   declarations: [
-    AppComponent
-    ,
+    AppComponent,
     CoreLayoutComponent
   ],
   imports: [
@@ -45,7 +44,6 @@ export function createTranslateLoader(http: Http) {
     BrowserAnimationsModule,
     SharedModule,
     RouterModule.forRoot(AppRoutes),
-    FormsModule,
     TranslateModule.forRoot({
       provide: TranslateLoader,
       useFactory: (createTranslateLoader),

@@ -1,3 +1,10 @@
 {
-  "HOME": "Home"
+  "HOME": "Home",
+  "PULLREQUEST": "Pull Request",
+  "REPOSITORIES": "Reposiotries",
+  "ORCHESTRATION": "Orchestration",
+  "FLOWOVERVIEW": "Overview",
+  "FLOWOSTATUS": "Status",
+  "SYSSETTING": "System Setting",
+  "DOCS": "docs"
 }
