@@ -52,13 +52,19 @@ const MENUITEMS = [
   {
     state: 'repos',
     name: 'REPOSITORIES',
-    type: 'link',
-    icon: 'apps'
+    type: 'submenu',
+    icon: 'apps',
+    children: [
+      {state: 'hub', name: 'REPOSHUB'},
+      {state: 'binary', name: 'REPOSBINARY'},
+      {state: 'docker', name: 'REPOSDOCKER'},
+      {state: 'aci', name: 'REPOSACI'}
+    ]
   },
   {
     state: 'flow',
     name: 'ORCHESTRATION',
-    type: 'sub',
+    type: 'submenu',
     icon: 'timeline',
     children: [
       {state: 'overview', name: 'FLOWOVERVIEW'},
@@ -72,9 +78,9 @@ const MENUITEMS = [
     icon: 'settings_applications'
   },
   {
-    state: 'https://github.com',
+    state: 'https://github.com/Huawei/containerops',
     name: 'DOCS',
-    type: 'extTabLink',
+    type: 'extraLink',
     icon: 'local_library'
   }
 ];
