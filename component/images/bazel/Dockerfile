@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM  phusion/baseimage:0.9.21
+FROM  docker.io/phusion/baseimage:0.9.21
 MAINTAINER Quanyi Ma <genedna@gmail.com>
 
 ENV BAZEL_VERSION 0.4.5

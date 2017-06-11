@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM containerops/bazel:latest
+FROM docker.io/containerops/bazel:latest
 MAINTAINER Quanyi Ma <genedna@gmail.com>
 
 USER root
 
 RUN apt-get update && apt-get install -y git make python python-dev python-pip python-virtualenv
+
 RUN curl -sSL https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz -o /tmp/go.tar.gz && \
   echo "1862f4c3d3907e59b04a757cfda0ea7aa9ef39274af99a784f5be843c80c6772  /tmp/go.tar.gz" | sha256sum -c - && \
   tar -C /var/opt -xzf /tmp/go.tar.gz && \

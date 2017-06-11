@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM containerops/golang:1.8.3
+FROM docker.io/containerops/golang:1.8.3
 MAINTAINER Quanyi Ma <genedna@gmail.com>
 
 RUN mkdir -p $GOPATH/github.com/Huawei/containerops

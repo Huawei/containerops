@@ -43,7 +43,7 @@
     "ng2-validation": "4.2.0",
     "perfect-scrollbar": "0.7.0",
     "quill": "1.2.4",
-    "rxjs": "5.4.0",
+    "rxjs": "^5.4.0",
     "screenfull": "3.2.0",
     "zone.js": "0.8.10"
   },

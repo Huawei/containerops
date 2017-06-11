@@ -35,6 +35,7 @@ import (
 	"github.com/Huawei/containerops/dockyard/model"
 	"github.com/Huawei/containerops/dockyard/module"
 	"github.com/Huawei/containerops/dockyard/module/signature"
+	"github.com/Huawei/containerops/dockyard/utils"
 )
 
 //GetPingV2Handler is https://github.com/docker/distribution/blob/master/docs/spec/api.md#api-version-check
@@ -110,8 +111,8 @@ func PostBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 
 	uuid := common.MD5(uuid.NewV4().String())
 	state := common.MD5(fmt.Sprintf("%s/%s/%d", namespace, repository, time.Now().UnixNano()/int64(time.Millisecond)))
-	random := fmt.Sprintf("https://%s/v2/%s/%s/blobs/uploads/%s?_state=%s",
-		"deployment.domains", namespace, repository, uuid, state)
+	random := fmt.Sprintf("%s://%s/v2/%s/%s/blobs/uploads/%s?_state=%s",
+		utils.GetRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, uuid, state)
 
 	ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	ctx.Resp.Header().Set("Docker-Upload-Uuid", uuid)
@@ -167,8 +168,8 @@ func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	state := common.MD5(fmt.Sprintf("%s/%v", fmt.Sprintf("%s/%s", namespace, repository), time.Now().UnixNano()/int64(time.Millisecond)))
-	random := fmt.Sprintf("https://%s/v2/%s/%s/blobs/uploads/%s?_state=%s",
-		"deployment.domains", namespace, repository, uuid, state)
+	random := fmt.Sprintf("%s://%s/v2/%s/%s/blobs/uploads/%s?_state=%s",
+		utils.GetRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, uuid, state)
 
 	ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	ctx.Resp.Header().Set("Docker-Upload-Uuid", uuid)
@@ -250,8 +251,8 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	state := common.MD5(fmt.Sprintf("%s/%v", fmt.Sprintf("%s/%s", namespace, repository), time.Now().UnixNano()/int64(time.Millisecond)))
-	random := fmt.Sprintf("https://%s/v2/%s/%s/blobs/uploads/%s?_state=%s",
-		"deployment.domains", namespace, repository, uuid, state)
+	random := fmt.Sprintf("%s://%s/v2/%s/%s/blobs/uploads/%s?_state=%s",
+		utils.GetRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, uuid, state)
 
 	ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	ctx.Resp.Header().Set("Docker-Content-Digest", digest)
@@ -345,8 +346,8 @@ func PutManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 			return http.StatusBadRequest, result
 		}
 
-		random := fmt.Sprintf("https://%s/v2/%s/%s/manifests/%s",
-			"deployment.domains", namespace, repository, digest)
+		random := fmt.Sprintf("%s://%s/v2/%s/%s/manifests/%s",
+			utils.GetRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, digest)
 
 		ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		ctx.Resp.Header().Set("Docker-Content-Digest", digest)

@@ -20,15 +20,18 @@ import { RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule, Http } from '@angular/http';
-
-import { TranslateModule, TranslateLoader, TranslateStaticLoader } from 'ng2-translate/ng2-translate';
 import { MaterialModule } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
+import { TranslateModule, TranslateLoader, TranslateStaticLoader } from 'ng2-translate/ng2-translate';
+
+
 import { AppRoutes } from './app.routing';
+
+import { SharedModule } from './shared/shared.module';
+
 import { AppComponent } from './app.component';
 import { CoreLayoutComponent } from './layouts/core/core-layout.component';
-import { SharedModule } from './shared/shared.module';
 
 export function createTranslateLoader(http: Http) {
   return new TranslateStaticLoader(http, './assets/i18n', '.json');
@@ -36,8 +39,7 @@ export function createTranslateLoader(http: Http) {
 
 @NgModule({
   declarations: [
-    AppComponent
-    ,
+    AppComponent,
     CoreLayoutComponent
   ],
   imports: [
@@ -45,14 +47,13 @@ export function createTranslateLoader(http: Http) {
     BrowserAnimationsModule,
     SharedModule,
     RouterModule.forRoot(AppRoutes),
-    FormsModule,
     TranslateModule.forRoot({
       provide: TranslateLoader,
       useFactory: (createTranslateLoader),
       deps: [Http]
     }),
     MaterialModule,
-    FlexLayoutModule,
+    FlexLayoutModule
   ],
   providers: [],
   bootstrap: [AppComponent]
