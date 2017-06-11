@@ -28,8 +28,17 @@ export const AppRoutes: Routes = [{
   children: [{
     path: 'home',
     loadChildren: './dashboard/dashboard.module#DashboardModule'
+  }, {
+    path: 'project',
+    loadChildren: './project/project.module#ProjectModule'
+  }, {
+    path: 'repo',
+    loadChildren: './repository/repository.module#RepositoryModule'
+  }, {
+    path: 'flow',
+    loadChildren: './flow/flow.module#FlowModule'
   }]
 }, {
   path: '**',
-  redirectTo: 'session/404'
+  redirectTo: './dashboard/dashboard.module#DashboardModule'
 }];

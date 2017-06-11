@@ -14,17 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Component } from '@angular/core';
-import {TranslateService} from 'ng2-translate/ng2-translate';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-root',
-  template: '<router-outlet></router-outlet>'
+  selector: 'app-binary',
+  templateUrl: './binary.component.html',
+  styleUrls: ['./binary.component.scss']
 })
-export class AppComponent {
-  constructor(translate: TranslateService) {
-    translate.addLangs(['en']);
-    translate.setDefaultLang('en');
-    translate.use('en');
+export class BinaryComponent implements OnInit {
+
+  constructor() { }
+
+  ngOnInit() {
   }
+
 }

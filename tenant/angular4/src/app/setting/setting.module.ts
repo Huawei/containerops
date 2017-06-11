@@ -14,17 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Component } from '@angular/core';
-import {TranslateService} from 'ng2-translate/ng2-translate';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
-@Component({
-  selector: 'app-root',
-  template: '<router-outlet></router-outlet>'
+@NgModule({
+  imports: [
+    CommonModule
+  ],
+  declarations: []
 })
-export class AppComponent {
-  constructor(translate: TranslateService) {
-    translate.addLangs(['en']);
-    translate.setDefaultLang('en');
-    translate.use('en');
-  }
-}
+export class SettingModule { }

@@ -44,18 +44,19 @@ const MENUITEMS = [
     icon: 'explore'
   },
   {
-    state: 'pr',
-    name: 'PULLREQUEST',
+    state: 'project',
+    name: 'PROJECT',
     type: 'link',
     icon: 'device_hub'
   },
   {
-    state: 'repos',
+    state: 'repo',
     name: 'REPOSITORIES',
     type: 'submenu',
     icon: 'apps',
     children: [
       {state: 'hub', name: 'REPOSHUB'},
+      {state: 'git', name: 'REPOSGIT'},
       {state: 'binary', name: 'REPOSBINARY'},
       {state: 'docker', name: 'REPOSDOCKER'},
       {state: 'aci', name: 'REPOSACI'}
