@@ -16,9 +16,9 @@ limitations under the License.
 
 import { Routes } from '@angular/router';
 
-import { RepoComponent } from './repo.component';
+import { CreateComponent } from './create.component';
 
 export const RepoRoutes: Routes = [{
   path: '',
-  component: RepoComponent
+  component: CreateComponent
 }];

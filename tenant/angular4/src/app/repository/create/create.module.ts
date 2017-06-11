@@ -18,8 +18,8 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { RepoComponent } from './repo.component';
-import { RepoRoutes } from './repo.routing';
+import { CreateComponent } from './create.component';
+import { RepoRoutes } from './create.routing';
 // import { BrowserModule } from '@angular/platform-browser';
 import { MdIconModule, MdInputModule,MdCheckboxModule,MdRadioModule, MdCardModule, MdButtonModule, MdListModule, MdProgressBarModule, MdMenuModule } from '@angular/material';
 import { FormsModule }   from '@angular/forms'; 
@@ -57,7 +57,7 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
    ,ReactiveFormsModule
 
   ],
-  declarations: [RepoComponent],
+  declarations: [CreateComponent],
 
 
 
