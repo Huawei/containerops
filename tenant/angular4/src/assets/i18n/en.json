@@ -1,8 +1,9 @@
 {
   "HOME": "Home",
-  "PULLREQUEST": "Pull Request",
+  "PROJECT": "Project",
   "REPOSITORIES": "Reposiotries",
   "REPOSHUB": "Hub",
+  "REPOSGIT": "Git",
   "REPOSBINARY": "Binary",
   "REPOSDOCKER": "Docker Image",
   "REPOSACI": "ACI Image",

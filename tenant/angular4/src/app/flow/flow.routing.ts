@@ -14,17 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Component } from '@angular/core';
-import {TranslateService} from 'ng2-translate/ng2-translate';
+import { Routes } from '@angular/router';
 
-@Component({
-  selector: 'app-root',
-  template: '<router-outlet></router-outlet>'
-})
-export class AppComponent {
-  constructor(translate: TranslateService) {
-    translate.addLangs(['en']);
-    translate.setDefaultLang('en');
-    translate.use('en');
-  }
-}
+import { OverviewComponent } from './overview/overview.component';
+import { StatusComponent } from './status/status.component';
+
+
+export const FlowRoutes: Routes = [{
+  path: '',
+  children: [{
+    path: 'overview',
+    component: OverviewComponent
+  }, {
+    path: 'status',
+    component: StatusComponent
+  }, {
+    path: '**',
+    component: OverviewComponent
+  }]
+}];
