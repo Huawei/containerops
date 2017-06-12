@@ -20,7 +20,6 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -30,7 +29,6 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/macaron.v1"
 
-	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/dockyard/model"
 	"github.com/Huawei/containerops/dockyard/setting"
 	"github.com/Huawei/containerops/dockyard/web"
@@ -104,50 +102,20 @@ func startDeamon(cmd *cobra.Command, args []string) {
 
 	signal.Notify(stopChan, os.Interrupt)
 
-	address := setting.ListenMode.Address
+	address := setting.Web.Address
 	if addressOption != "" {
 		address = addressOption
 	}
-	port := setting.ListenMode.Port
+	port := setting.Web.Port
 	if portOption != 0 {
 		port = portOption
 	}
-	fmt.Println("listening on", address, port)
 
 	go func() {
-		switch setting.ListenMode.Mode {
-		case "http":
-			listenaddr := fmt.Sprintf("%s:%d", address, port)
-			server = &http.Server{Addr: listenaddr, Handler: m}
-			if err := server.ListenAndServe(); err != nil {
-				fmt.Printf("Start Dockyard http service error: %v\n", err.Error())
-			}
-			break
-		case "https":
-			listenaddr := fmt.Sprintf("%s:%d", address, port)
-			server = &http.Server{Addr: listenaddr, TLSConfig: &tls.Config{MinVersion: tls.VersionTLS10}, Handler: m}
-			if err := server.ListenAndServeTLS(setting.ListenMode.Cert, setting.ListenMode.CertKey); err != nil {
-				fmt.Printf("Start Dockyard https service error: %v\n", err.Error())
-			}
-			break
-		case "unix":
-			listenaddr := fmt.Sprintf("%s", address)
-			if common.IsFileExist(listenaddr) {
-				os.Remove(listenaddr)
-			}
-
-			if listener, err := net.Listen("unix", listenaddr); err != nil {
-				fmt.Printf("Start Dockyard unix socket error: %v\n", err.Error())
-			} else {
-				server = &http.Server{Handler: m}
-				if err := server.Serve(listener); err != nil {
-					fmt.Printf("Start Dockyard unix socket error: %v\n", err.Error())
-				}
-			}
-			break
-		default:
-			fmt.Printf("Invalid listenMode: %s\n", setting.ListenMode.Mode)
-			os.Exit(1)
+		listenaddr := fmt.Sprintf("%s:%d", address, port)
+		server = &http.Server{Addr: listenaddr, TLSConfig: &tls.Config{MinVersion: tls.VersionTLS10}, Handler: m}
+		if err := server.ListenAndServeTLS(setting.Web.Cert, setting.Web.Key); err != nil {
+			fmt.Printf("Start Dockyard https service error: %v\n", err.Error())
 		}
 	}()
 
