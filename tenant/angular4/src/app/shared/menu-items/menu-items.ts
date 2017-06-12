@@ -43,46 +43,11 @@ const MENUITEMS = [
     type: 'link',
     icon: 'explore'
   },
-  {
-    state: 'project',
-    name: 'PROJECT',
-    type: 'link',
-    icon: 'device_hub'
-  },
-  {
+   {
     state: 'repo',
-    name: 'REPOSITORIES',
-    type: 'submenu',
-    icon: 'apps',
-    children: [
-      {state: 'hub', name: 'REPOSHUB'},
-      {state: 'git', name: 'REPOSGIT'},
-      {state: 'binary', name: 'REPOSBINARY'},
-      {state: 'docker', name: 'REPOSDOCKER'},
-      {state: 'aci', name: 'REPOSACI'}
-    ]
-  },
-  {
-    state: 'flow',
-    name: 'ORCHESTRATION',
-    type: 'submenu',
-    icon: 'timeline',
-    children: [
-      {state: 'overview', name: 'FLOWOVERVIEW'},
-      {state: 'status', name: 'FLOWOSTATUS'}
-    ]
-  },
-  {
-    state: 'setting',
-    name: 'SYSSETTING',
+    name: 'Repo',
     type: 'link',
-    icon: 'settings_applications'
-  },
-  {
-    state: 'https://github.com/Huawei/containerops',
-    name: 'DOCS',
-    type: 'extraLink',
-    icon: 'local_library'
+    icon: 'apps'
   }
 ];
 
