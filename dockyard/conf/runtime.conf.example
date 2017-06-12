@@ -1,7 +1,0 @@
-[database]
-driver = "mysql"
-host = "127.0.0.1"
-port = "3306"
-user = "root"
-password = "containerops_dockyard_password"
-db = 'containerops_dockyard'

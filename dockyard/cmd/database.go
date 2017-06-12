@@ -74,7 +74,7 @@ func migrateDatabase(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	model.OpenDatabase(&setting.DBConfig)
+	model.OpenDatabase(&setting.Database)
 	model.Migrate()
 }
 
