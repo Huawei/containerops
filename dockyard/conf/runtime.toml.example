@@ -7,16 +7,8 @@ password = "containerops_dockyard_password"
 db = 'containerops_dockyard'
 
 # Configs for daemon sub command
-[listenmode]
-mode = "http"
+[web]
 address = "127.0.0.1"
-port = 8990
-#
-# mode = "https"
-# address = "127.0.0.1"
-# port = 443
-# cert = "PATH_TO_CERT_FILE"
-# key = "PATH_TO_KEY_FILE"
-#
-# mode = "unix"
-# address = "/var/run/dockyard.sock"
+port = 443
+cert = "PATH_TO_CERT_FILE"
+key = "PATH_TO_KEY_FILE"

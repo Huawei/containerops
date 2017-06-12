@@ -64,7 +64,7 @@ func init() {
 	databaseCmd.AddCommand(backupDatabaseCmd)
 	databaseCmd.AddCommand(restoreDatabaseCmd)
 
-	migrateDatabaseCmd.Flags().StringVarP(&configFilePath, "config", "c", "./conf/runtime.conf", "path of the config file.")
+	migrateDatabaseCmd.Flags().StringVarP(&configFilePath, "config", "c", "./conf/runtime.toml", "path of the config file.")
 }
 
 // migrateDatabase is auto-migrate database of Dockyard.

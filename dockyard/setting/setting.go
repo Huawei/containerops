@@ -3,7 +3,6 @@ package setting
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/spf13/viper"
 )
@@ -20,7 +19,7 @@ func SetConfig(configPath string) error {
 		return err
 	}
 
-	if err := setListenMode(viper.GetStringMap("listenmode")); err != nil {
+	if err := setWebConfig(viper.GetStringMap("web")); err != nil {
 		return err
 	}
 
@@ -36,16 +35,15 @@ type DatabaseConfig struct {
 	Name     string `json:"db"`
 }
 
-type ListenModeConfig struct {
-	Mode    string `json:"mode"`
+type WebConfig struct {
 	Address string `json:"address"`
 	Port    int    `json:"port"`
-	CertKey string `json:"key"`
+	Key     string `json:"key"`
 	Cert    string `json:"cert"`
 }
 
 var Database DatabaseConfig
-var ListenMode ListenModeConfig
+var Web WebConfig
 
 func setDatabaseConfig(config map[string]interface{}) error {
 	bs, err := json.Marshal(&config)
@@ -56,19 +54,15 @@ func setDatabaseConfig(config map[string]interface{}) error {
 	return json.Unmarshal(bs, &Database)
 }
 
-func setListenMode(config map[string]interface{}) error {
+func setWebConfig(config map[string]interface{}) error {
 	bs, err := json.Marshal(&config)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(bs, &ListenMode)
+	err = json.Unmarshal(bs, &Web)
 	if err != nil {
 		return err
-	}
-
-	if ListenMode.Mode != "http" && ListenMode.Mode != "https" && ListenMode.Mode != "unix" {
-		return fmt.Errorf("Invalid listen mode: %s", ListenMode.Mode)
 	}
 
 	return nil
