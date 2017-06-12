@@ -14,12 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export class DockerIMG {
+export class Repo {
   name: string;
-  description:string
-  cmd:string
-  path: string;
-  tag:string;
-  version:string
-  isCer:boolean;
+  repo_type: number;
+  islimit:boolean;
+  Description:string
+  ishavekey:boolean;
 }

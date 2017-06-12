@@ -30,11 +30,6 @@ import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
 import { TreeModule } from 'angular-tree-component';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
-
-
-
-//import { Repo } from './repo';
-
 @NgModule({
   imports: [
   CommonModule,

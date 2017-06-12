@@ -16,7 +16,7 @@ limitations under the License.
 
 import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { Http, Response } from '@angular/http';
-import { RepoService } from './repo.service';
+import { RepoService } from './create.service';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { CustomValidators } from 'ng2-validation';
 

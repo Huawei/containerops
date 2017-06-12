@@ -14,12 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export class DockerIMG {
-  name: string;
-  description:string
-  cmd:string
-  path: string;
-  tag:string;
-  version:string
-  isCer:boolean;
+import { Injectable } from '@angular/core';
+
+@Injectable()
+export class RepoService {
+
+      addRepo(): void {} // stub
 }
