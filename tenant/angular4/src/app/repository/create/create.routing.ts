@@ -16,24 +16,9 @@ limitations under the License.
 
 import { Routes } from '@angular/router';
 
-import { CoreLayoutComponent } from './layouts/core/core-layout.component';
+import { CreateComponent } from './create.component';
 
-export const AppRoutes: Routes = [{
+export const RepoRoutes: Routes = [{
   path: '',
-  redirectTo: 'home',
-  pathMatch: 'full',
-}, {
-  path: '',
-  component: CoreLayoutComponent,
-  children: [{
-    path: 'home',
-    loadChildren: './dashboard/dashboard.module#DashboardModule'
-  },
-  {
-    path: 'repo',
-    loadChildren: './repo/repo.module#RepoModule'
-  }]
-}, {
-  path: '**',
-  redirectTo: 'session/404'
+  component: CreateComponent
 }];
