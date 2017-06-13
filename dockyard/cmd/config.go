@@ -20,7 +20,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// configComd is subcommand which config the Dockyard setting, only use the client model.
+// configCmd is sub command which config the Dockyard setting, only use the client model.
 var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Config subcommand config Dockyard's client settings.",
