@@ -9,7 +9,7 @@ Quinton Hoole ([@quintonhoole](https://github.com/quintonhoole)) and Quanyi Ma (
 ### How to try the demo?
 
 1. *_Repositories_* Any commit or pull request trigger the demo. If you try this demo, you need to fork the Kubernetes, Prometheus, CoreDNS first. Then you should update the git repository URI in the cncf-demo YAML file.
-2. *_Cloud_* The demo only supports DigitalOcean just now, so you need to registry an account of DigitalOcean. Then you should generate an access token for the demo and update the deploy component input data.
+2. *_Cloud_* The demo only supports DigitalOcean just now, so you need to registry an account of DigitalOcean. Then you should generate an access token for the demo and update the deploy component input data.
 3. *_Debug_* Run the pilotage with the YAML file.
 
 ```
