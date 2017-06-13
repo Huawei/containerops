@@ -176,7 +176,7 @@ md-sidenav.sidebar-panel {
         text-align: center;
         box-sizing: content-box!important;
         -ms-flex-direction: column!important;
-        flex-direction: column!important,;
+        flex-direction: column!important;
         height: 42px;
       }
       .navigation > .mat-list-item > .mat-list-item-content > a > span:not(.menu-badge):not(.menu-caret) {
@@ -196,12 +196,12 @@ md-sidenav.sidebar-panel {
         display: block!important;
         visibility: visible;
       }
-      
+
       .mat-list-item > .mat-list-item-content > a > .menu-caret,
-      .mat-list-item > .mat-list-item-content > a > [fxflex], {
+      .mat-list-item > .mat-list-item-content > a > [fxflex] {
         display: none;
       }
-      
+
       .sub-menu {
         display: none!important;
         visibility: hidden;
@@ -282,7 +282,7 @@ md-sidenav.sidebar-panel {
           right: auto;
           left: 16px;
         }
-        
+
         .sub-menu {
           left: auto;
           right: 100%;
@@ -290,7 +290,7 @@ md-sidenav.sidebar-panel {
             padding-left: 16px;
             padding-right: 16px;
           }
-        } 
+        }
       }
     }
   }
@@ -298,7 +298,7 @@ md-sidenav.sidebar-panel {
   .app-dark {
     &.compact-sidebar, .compact-sidebar {
       md-sidenav.sidebar-panel .sub-menu {
-        background: mat-color($dark-background, card); 
+        background: mat-color($dark-background, card);
       }
     }
   }
