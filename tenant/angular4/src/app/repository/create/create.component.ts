@@ -14,18 +14,89 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { Http, Response } from '@angular/http';
+import { RepoService } from './create.service';
+import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import { CustomValidators } from 'ng2-validation';
 
+const password = new FormControl('', Validators.required);
+const confirmPassword = new FormControl('', CustomValidators.equalTo(password));
 @Component({
   selector: 'app-create',
   templateUrl: './create.component.html',
   styleUrls: ['./create.component.scss']
 })
+
+export class Repo {
+  name: string;
+  repo_type: number;
+  islimit:boolean;
+  description:string
+  ishavekey:boolean;
+}
+
+export class DockerIMG {
+  name: string;
+  description:string
+  cmd:string
+  path: string;
+  tag:string;
+  version:string
+  isCer:boolean;
+}
+@Component({
+  selector: 'app-repo',
+  templateUrl: './repo.component.html',
+  styleUrls: ['./repo.component.scss']
+})
 export class CreateComponent implements OnInit {
 
-  constructor() { }
+public form: FormGroup;
+  constructor(private fb: FormBuilder) {}
 
-  ngOnInit() {
-  }
+  // control: FormControl = new FormControl('value', Validators.minLength(2));
+  // setValue() { this.control.setValue('new value'); }
 
+    username ="DeanLee"
+    webside_url ="hubops-docker-test_private.bintray.io"
+    isCreate = false
+    repo: Repo  = {
+      name: '',
+      islimit:true,
+      repo_type:-1,
+      ishavekey:false,
+      description:""
+    };
+
+
+    selecteddocker:DockerIMG;
+    
+    onSelect(dockerimg: DockerIMG): void {
+        dockerimg =  {
+        name: this.repo.name+"_dockerimg",
+        description:"",
+        cmd:"string",
+        path: "string",
+        tag:"string",
+        version:"string",
+        isCer:false
+      }
+      this.selecteddocker = dockerimg;
+    }
+
+
+    onCreateButtonClick(repo: Repo): void {
+     this.isCreate =true;
+      alert(JSON.stringify( repo))
+    }
+ 
+        
+    ngOnInit() {
+    this.form = this.fb.group({
+          fname: [null, Validators.compose([Validators.required, Validators.minLength(5), Validators.maxLength(10)])],
+          desc: [null, Validators.compose([Validators.minLength(5), Validators.maxLength(100)])]
+        });
+        
+      }
 }
