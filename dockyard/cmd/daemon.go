@@ -36,14 +36,14 @@ import (
 var address string
 var port int64
 
-// webCmd is subcommand which start/stop/monitor Dockyard's REST API daemon.
+// webCmd is sub command which start/stop/monitor Dockyard's REST API daemon.
 var daemonCmd = &cobra.Command{
 	Use:   "daemon",
-	Short: "Web subcommand start/stop/monitor Dockyard's REST API daemon.",
+	Short: "Web sub command start/stop/monitor Dockyard's REST API daemon.",
 	Long:  ``,
 }
 
-// start Dockyard deamon subcommand
+// start Dockyard deamon sub command
 var startDaemonCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Start Dockyard's REST API daemon.",
@@ -51,7 +51,7 @@ var startDaemonCmd = &cobra.Command{
 	Run:   startDeamon,
 }
 
-// stop Dockyard deamon subcommand
+// stop Dockyard deamon sub command
 var stopDaemonCmd = &cobra.Command{
 	Use:   "stop",
 	Short: "stop Dockyard's REST API daemon.",
@@ -59,7 +59,7 @@ var stopDaemonCmd = &cobra.Command{
 	Run:   stopDaemon,
 }
 
-// monitor Dockyard deamon subcommand
+// monitor Dockyard deamon sub command
 var monitorDeamonCmd = &cobra.Command{
 	Use:   "monitor",
 	Short: "monitor Dockyard's REST API daemon.",
@@ -71,15 +71,15 @@ var monitorDeamonCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(daemonCmd)
 
-	// Add start subcommand
+	// Add start sub command
 	daemonCmd.AddCommand(startDaemonCmd)
 	startDaemonCmd.Flags().StringVarP(&address, "address", "a", "0.0.0.0", "http or https listen address.")
 	startDaemonCmd.Flags().Int64VarP(&port, "port", "p", 80, "the port of http.")
 	startDaemonCmd.Flags().StringVarP(&configFilePath, "config", "c", "./conf/runtime.conf", "path of the config file.")
 
-	// Add stop subcommand
+	// Add stop sub command
 	daemonCmd.AddCommand(stopDaemonCmd)
-	// Add daemon subcommand
+	// Add daemon sub command
 	daemonCmd.AddCommand(monitorDeamonCmd)
 }
 
