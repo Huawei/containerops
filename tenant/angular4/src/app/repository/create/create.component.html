@@ -5,23 +5,21 @@
   <md-card-content>
     <md-card>
       <md-card-content>
-
-
-                       <md-radio-group name="repotype" [(ngModel)]="repo.islimit"  fxLayout="column">
-                            <div fxLayout="column">
-                                <md-radio-button name="privateRbx1" [value]=true  ngDefaultControl>
-                                    <label for="privateRbx1" class="">
-                                    <span >Private</span>
-                                    <span >- only authorized users can download your files.</span>
-                                    </label></md-radio-button>
-                                <md-radio-button name="publicRbx2"  [value]=false ngDefaultControl>
-                                    <label for="publicRbx2">
-                                    <span >Public</span>
-                                    <span>- anyone can download your files.</span>
-                                    </label>
-                                </md-radio-button>
-                            </div>
-                       </md-radio-group>
+                            <md-radio-group name="repotype" [(ngModel)]="repo.islimit"  fxLayout="column">
+                                    <div fxLayout="column">
+                                        <md-radio-button name="privateRbx1" [value]=true  ngDefaultControl>
+                                            <label for="privateRbx1" class="">
+                                            <span >Private</span>
+                                            <span >- only authorized users can download your files.</span>
+                                            </label></md-radio-button>
+                                        <md-radio-button name="publicRbx2"  [value]=false ngDefaultControl>
+                                            <label for="publicRbx2">
+                                            <span >Public</span>
+                                            <span>- anyone can download your files.</span>
+                                            </label>
+                                        </md-radio-button>
+                                    </div>
+                            </md-radio-group>
 
     </md-card-content>
     <md-card>
