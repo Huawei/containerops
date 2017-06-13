@@ -119,7 +119,7 @@ func (r *DockerV2) Put(namespace, repository string) error {
 	mutex := &sync.Mutex{}
 	mutex.Lock()
 	defer mutex.Unlock()
-	if err := tx.Debug().Where("namespace = ? AND repository = ? ", namespace, repository).FirstOrCreate(&r).Error; err != nil {
+	if err := tx.Debug().Where("namespace = ? AND repository = ? ", namespace, repository).FirstOrCreate(r).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -165,7 +165,7 @@ func (i *DockerImageV2) Put(tarsum, path string, size int64) error {
 
 	tx := DB.Begin()
 
-	if err := tx.Debug().Where("blob_sum = ? ", tarsum).FirstOrCreate(&i).Error; err != nil {
+	if err := tx.Debug().Where("blob_sum = ? ", tarsum).FirstOrCreate(i).Error; err != nil {
 		tx.Rollback()
 		return err
 	}

@@ -17,24 +17,25 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
+	"os/signal"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/macaron.v1"
 
-	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/dockyard/model"
 	"github.com/Huawei/containerops/dockyard/setting"
 	"github.com/Huawei/containerops/dockyard/web"
 )
 
-var address string
-var port int64
+var addressOption string
+var portOption int
 
 // webCmd is subcommand which start/stop/monitor Dockyard's REST API daemon.
 var daemonCmd = &cobra.Command{
@@ -73,8 +74,8 @@ func init() {
 
 	// Add start subcommand
 	daemonCmd.AddCommand(startDaemonCmd)
-	startDaemonCmd.Flags().StringVarP(&address, "address", "a", "0.0.0.0", "http or https listen address.")
-	startDaemonCmd.Flags().Int64VarP(&port, "port", "p", 80, "the port of http.")
+	startDaemonCmd.Flags().StringVarP(&addressOption, "address", "a", "", "http or https listen address.")
+	startDaemonCmd.Flags().IntVarP(&portOption, "port", "p", 0, "the port of http.")
 	startDaemonCmd.Flags().StringVarP(&configFilePath, "config", "c", "./conf/runtime.conf", "path of the config file.")
 
 	// Add stop subcommand
@@ -90,46 +91,43 @@ func startDeamon(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	model.OpenDatabase(&setting.DBConfig)
+	model.OpenDatabase(&setting.Database)
 	m := macaron.New()
 
 	// Set Macaron Web Middleware And Routers
 	web.SetDockyardMacaron(m)
 
-	listenMode := "https"
-	switch listenMode {
-	case "http":
+	var server *http.Server
+	stopChan := make(chan os.Signal)
+
+	signal.Notify(stopChan, os.Interrupt)
+
+	address := setting.Web.Address
+	if addressOption != "" {
+		address = addressOption
+	}
+	port := setting.Web.Port
+	if portOption != 0 {
+		port = portOption
+	}
+
+	go func() {
 		listenaddr := fmt.Sprintf("%s:%d", address, port)
-		if err := http.ListenAndServe(listenaddr, m); err != nil {
-			fmt.Printf("Start Dockyard http service error: %v\n", err.Error())
-		}
-		break
-	case "https":
-		listenaddr := fmt.Sprintf("%s:443", address)
-		server := &http.Server{Addr: listenaddr, TLSConfig: &tls.Config{MinVersion: tls.VersionTLS10}, Handler: m}
-		if err := server.ListenAndServeTLS("httpscertfile", "httpskeyfile"); err != nil {
+		server = &http.Server{Addr: listenaddr, TLSConfig: &tls.Config{MinVersion: tls.VersionTLS10}, Handler: m}
+		if err := server.ListenAndServeTLS(setting.Web.Cert, setting.Web.Key); err != nil {
 			fmt.Printf("Start Dockyard https service error: %v\n", err.Error())
 		}
-		break
-	case "unix":
-		listenaddr := fmt.Sprintf("%s", address)
-		if common.IsFileExist(listenaddr) {
-			os.Remove(listenaddr)
-		}
+	}()
 
-		if listener, err := net.Listen("unix", listenaddr); err != nil {
-			fmt.Printf("Start Dockyard unix socket error: %v\n", err.Error())
+	// Graceful shutdown
+	<-stopChan // wait for SIGINT
+	log.Errorln("Shutting down server...")
 
-		} else {
-			server := &http.Server{Handler: m}
-			if err := server.Serve(listener); err != nil {
-				fmt.Printf("Start Dockyard unix socket error: %v\n", err.Error())
-			}
-		}
-		break
-	default:
-		break
-	}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	server.Shutdown(ctx)
+
+	log.Errorln("Server gracefully stopped")
 }
 
 // stopDaemon() stop Dockyard's REST API daemon.
