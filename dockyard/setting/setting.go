@@ -18,19 +18,32 @@ func SetConfig(configPath string) error {
 	if err := setDatabaseConfig(viper.GetStringMap("database")); err != nil {
 		return err
 	}
+
+	if err := setWebConfig(viper.GetStringMap("web")); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 type DatabaseConfig struct {
 	Driver   string `json:"driver"`
 	Host     string `json:"host"`
-	Port     string `json:"port"`
+	Port     int    `json:"port"`
 	User     string `json:"user"`
 	Password string `json:"password"`
 	Name     string `json:"db"`
 }
 
-var DBConfig DatabaseConfig
+type WebConfig struct {
+	Address string `json:"address"`
+	Port    int    `json:"port"`
+	Key     string `json:"key"`
+	Cert    string `json:"cert"`
+}
+
+var Database DatabaseConfig
+var Web WebConfig
 
 func setDatabaseConfig(config map[string]interface{}) error {
 	bs, err := json.Marshal(&config)
@@ -38,5 +51,19 @@ func setDatabaseConfig(config map[string]interface{}) error {
 		return err
 	}
 
-	return json.Unmarshal(bs, &DBConfig)
+	return json.Unmarshal(bs, &Database)
+}
+
+func setWebConfig(config map[string]interface{}) error {
+	bs, err := json.Marshal(&config)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(bs, &Web)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
