@@ -22,14 +22,19 @@ import (
 	"github.com/Huawei/containerops/dockyard/handler"
 )
 
-//SetRouters is setting REST API interface with handler function.
+// SetRouters is setting REST API interface with handler function.
 func SetRouters(m *macaron.Macaron) {
-	//Docker Registry V2
+	// Create Repository
+	m.Group("/v1", func() {
+		m.Post("/:namespace/:repository/:type", handler.PostRepositoryV1Handler)
+	})
+
+	// Docker Registry V2
 	m.Group("/v2", func() {
 		m.Get("/", handler.GetPingV2Handler)
 		m.Get("/_catalog", handler.GetCatalogV2Handler)
 
-		//user mode: /namespace/repository:tag
+		// ser mode: /namespace/repository:tag
 		m.Head("/:namespace/:repository/blobs/:digest", handler.HeadBlobsV2Handler)
 		m.Post("/:namespace/:repository/blobs/uploads", handler.PostBlobsV2Handler)
 		m.Patch("/:namespace/:repository/blobs/uploads/:uuid", handler.PatchBlobsV2Handler)
@@ -42,9 +47,18 @@ func SetRouters(m *macaron.Macaron) {
 		m.Delete("/:namespace/:repository/:blobs/:uuid", handler.DeleteBlobsUUUIDV2Handler)
 		m.Delete("/:namespace/:repository/manifests/:reference", handler.DeleteManifestsV2Handler)
 
-		//library mode: /repository:tag
-		//m.Get("/:repository/blobs/:digest", handler.GetBlobsV2LibraryHandler)
-		//m.Get("/:repository/tags/list", handler.GetTagsListV2LibraryHandler)
-		//m.Get("/:repository/manifests/:tag", handler.GetManifestsV2LibraryHandler)
+		// Library mode: /repository:tag
+		// m.Get("/:repository/blobs/:digest", handler.GetBlobsV2LibraryHandler)
+		// m.Get("/:repository/tags/list", handler.GetTagsListV2LibraryHandler)
+		// m.Get("/:repository/manifests/:tag", handler.GetManifestsV2LibraryHandler)
 	})
+
+	// Binary File
+	m.Group("/Binary", func() {
+		// V1 Version
+		m.Group("/v1", func() {
+			m.Post("/:namespace/:repository/", )
+		})
+	})
+
 }
