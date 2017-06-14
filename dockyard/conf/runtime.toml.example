@@ -9,7 +9,7 @@ db = 'containerops_dockyard'
 # Configs for daemon sub command
 [web]
 # Listen on https port
-mode = https
+mode = 'https'
 address = "127.0.0.1"
 port = 443
 cert = "PATH_TO_CERT_FILE"
