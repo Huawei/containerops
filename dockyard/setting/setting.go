@@ -36,7 +36,8 @@ type DatabaseConfig struct {
 }
 
 type WebConfig struct {
-	Address string `json:"address"`
+	Mode    string `json:"mode" description:"Listen mode, 'https' or 'unix'"`
+	Address string `json:"address" description:"The host address when mode is 'https', or socket file path when mode is 'unix'"`
 	Port    int    `json:"port"`
 	Key     string `json:"key"`
 	Cert    string `json:"cert"`
