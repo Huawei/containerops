@@ -21,7 +21,7 @@ import (
 	"time"
 )
 
-//DockerV2
+// DockerV2
 type DockerV2 struct {
 	ID            int64      `json:"id" gorm:"primary_key"`
 	Namespace     string     `json:"namespace" sql:"not null;type:varchar(255)"  gorm:"unique_index:dockerv2_repository"`
@@ -38,12 +38,12 @@ type DockerV2 struct {
 	DeletedAt     *time.Time `json:"delete_at" sql:"index"`
 }
 
-//TableName is
+// TableName is
 func (r *DockerV2) TableName() string {
 	return "docker_v2"
 }
 
-//DockerImageV2 is
+// DockerImageV2 is
 type DockerImageV2 struct {
 	ID              int64      `json:"id" gorm:"primary_key"`
 	ImageID         string     `json:"image_id" sql:"null;type:varchar(255)"`
@@ -58,12 +58,12 @@ type DockerImageV2 struct {
 	DeletedAt       *time.Time `json:"delete_at" sql:"index"`
 }
 
-//TableName is
+// TableName is
 func (i *DockerImageV2) TableName() string {
 	return "docker_image_v2"
 }
 
-//DockerTagV2 is
+// DockerTagV2 is
 type DockerTagV2 struct {
 	ID            int64      `json:"id" gorm:"primary_key"`
 	DockerV2      int64      `json:"docker_v2" sql:"not null;default:0"`
@@ -76,12 +76,12 @@ type DockerTagV2 struct {
 	DeletedAt     *time.Time `json:"delete_at" sql:"index"`
 }
 
-//TableName is
+// TableName is
 func (t *DockerTagV2) TableName() string {
 	return "docker_tag_v2"
 }
 
-//GetTags return tas data of repository.
+// GetTags return tas data of repository.
 func (r *DockerV2) GetTags(namespace, repository string) ([]string, error) {
 	if err := DB.Debug().Where("namespace = ? AND repository = ?", namespace, repository).First(&r).Error; err != nil {
 		return []string{}, err
@@ -101,7 +101,7 @@ func (r *DockerV2) GetTags(namespace, repository string) ([]string, error) {
 	}
 }
 
-//Get is
+// Get is
 func (r *DockerV2) Get(namespace, repository string) error {
 	if err := DB.Debug().Where("namespace = ? AND repository =? ", namespace, repository).First(&r).Error; err != nil {
 		return err
@@ -110,7 +110,7 @@ func (r *DockerV2) Get(namespace, repository string) error {
 	return nil
 }
 
-//Put is
+// Put is
 func (r *DockerV2) Put(namespace, repository string) error {
 	r.Namespace, r.Repository = namespace, repository
 
@@ -128,7 +128,7 @@ func (r *DockerV2) Put(namespace, repository string) error {
 	return nil
 }
 
-//PutAgent is
+// PutAgent is
 func (r *DockerV2) PutAgent(namespace, repository, agent, version string) error {
 	r.Namespace, r.Repository = namespace, repository
 
@@ -148,7 +148,7 @@ func (r *DockerV2) PutAgent(namespace, repository, agent, version string) error 
 	return nil
 }
 
-//Get is
+// Get is
 func (i *DockerImageV2) Get(blobsum string) error {
 	i.BlobSum = blobsum
 
@@ -159,7 +159,7 @@ func (i *DockerImageV2) Get(blobsum string) error {
 	return nil
 }
 
-//Put is
+// Put is
 func (i *DockerImageV2) Put(tarsum, path string, size int64) error {
 	i.BlobSum, i.Path, i.Size = tarsum, path, size
 
@@ -174,7 +174,7 @@ func (i *DockerImageV2) Put(tarsum, path string, size int64) error {
 	return nil
 }
 
-//Get is get DockerTagV2 data
+// Get is get DockerTagV2 data
 func (t *DockerTagV2) Get(namespace, repository, tag string) (*DockerTagV2, error) {
 	r := new(DockerV2)
 
@@ -189,7 +189,7 @@ func (t *DockerTagV2) Get(namespace, repository, tag string) (*DockerTagV2, erro
 	return t, nil
 }
 
-//Put is
+// Put is
 func (t *DockerTagV2) Put(namespace, repository, tag, imageID, manifest, schema string) error {
 	r := new(DockerV2)
 

@@ -34,38 +34,23 @@ import (
 	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/dockyard/model"
 	"github.com/Huawei/containerops/dockyard/module"
-	"github.com/Huawei/containerops/dockyard/module/signature"
 	"github.com/Huawei/containerops/dockyard/utils"
+	"github.com/Huawei/dockyard/module/signature"
 )
 
-//GetPingV2Handler is https://github.com/docker/distribution/blob/master/docs/spec/api.md#api-version-check
+// GetPingV2Handler is https://github.com/docker/distribution/blob/master/docs/spec/api.md#api-version-check
 func GetPingV2Handler(ctx *macaron.Context) (int, []byte) {
-	//if len(ctx.Req.Header.Get("Authorization")) == 0 {
-	//	ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
-
-	//TODO Bearer Token
-	//realm -> describe the authorization endpoint
-	//service -> describe the name of the service that hold the resources.
-	//scope -> which describe the resources that needed to be accessed,and the operation requested by the client (pulled/pushed).
-	//account -> an optional attribute which describes the account used for authentication.
-	//	ctx.Resp.Header().Set("WWW-Authenticate",
-	//		fmt.Sprintf("Bearer realm=\"https://dockayrd.sh/authorizate\" service=\"Dockyard Service\" scope=\"repository:genedna/dockyard\" account=\"genedna\""))
-
-	//	result, _ := json.Marshal(map[string]string{})
-	//	return http.StatusUnauthorized, result
-	//}
-
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result
 }
 
-//GetCatalogV2Handler is
+// GetCatalogV2Handler is
 func GetCatalogV2Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result
 }
 
-//HeadBlobsV2Handler is
+// HeadBlobsV2Handler is
 func HeadBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	digest := ctx.Params(":digest")
 	tarsum := strings.Split(digest, ":")[1]
@@ -74,12 +59,12 @@ func HeadBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	if err := i.Get(tarsum); err != nil && err == gorm.ErrRecordNotFound {
 		log.Info("Not found blob: %s", tarsum)
 
-		result, _ := module.EncodingError(module.BLOB_UNKNOWN, digest)
+		result, _ := module.DockerV2EncodingError(module.BLOB_UNKNOWN, digest)
 		return http.StatusNotFound, result
 	} else if err != nil && err != gorm.ErrRecordNotFound {
 		log.Info("Failed to get blob %s: %s", tarsum, err.Error())
 
-		result, _ := module.EncodingError(module.UNKNOWN, err.Error())
+		result, _ := module.DockerV2EncodingError(module.UNKNOWN, err.Error())
 		return http.StatusBadRequest, result
 	}
 
@@ -92,9 +77,9 @@ func HeadBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-//PostBlobsV2Handler is
-//Initiate a resumable blob upload. If successful, an upload location will be provided to complete the upload.
-//Optionally, if the digest parameter is present, the request body will be used to complete the upload in a single request.
+// PostBlobsV2Handler is
+// Initiate a resumable blob upload. If successful, an upload location will be provided to complete the upload.
+// Optionally, if the digest parameter is present, the request body will be used to complete the upload in a single request.
 func PostBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	//TODO: If standalone == true, Dockyard will check HEADER Authorization; if standalone == false, Dockyard will check HEADER TOEKN.
 	namespace := ctx.Params(":namespace")
@@ -105,7 +90,7 @@ func PostBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	if err := r.Put(namespace, repository); err != nil {
 		log.Errorf("Put or search repository error: %s", err.Error())
 
-		result, _ := module.EncodingError(module.UNKNOWN, map[string]string{"namespace": namespace, "repository": repository})
+		result, _ := module.DockerV2EncodingError(module.UNKNOWN, map[string]string{"namespace": namespace, "repository": repository})
 		return http.StatusBadRequest, result
 	}
 
@@ -123,10 +108,10 @@ func PostBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusAccepted, result
 }
 
-//PatchBlobsV2Handler is
-//Upload a chunk of data for the specified upload.
-//Docker 1.9.x above version saves layer in PATCH methord
-//Docker 1.9.x below version saves layer in PUT methord
+// PatchBlobsV2Handler is
+// Upload a chunk of data for the specified upload.
+// Docker 1.9.x above version saves layer in PATCH methord
+// Docker 1.9.x below version saves layer in PUT methord
 func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	repository := ctx.Params(":repository")
 	namespace := ctx.Params(":namespace")
@@ -137,7 +122,7 @@ func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	if upload, err := module.CheckDockerVersion19(ctx.Req.Header.Get("User-Agent")); err != nil {
 		log.Errorf("Decode docker version error: %s", err.Error())
 
-		result, _ := module.EncodingError(module.BLOB_UPLOAD_UNKNOWN, map[string]string{"namespace": namespace, "repository": repository})
+		result, _ := module.DockerV2EncodingError(module.BLOB_UPLOAD_UNKNOWN, map[string]string{"namespace": namespace, "repository": repository})
 		return http.StatusBadRequest, result
 	} else if upload == true {
 		//It's run above docker 1.9.0
@@ -156,7 +141,7 @@ func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 		if file, err := os.Create(uuidFile); err != nil {
 			log.Errorf("[%s] Create UUID file error: %s", ctx.Req.RequestURI, err.Error())
 
-			result, _ := module.EncodingError(module.BLOB_UPLOAD_UNKNOWN, map[string]string{"namespace": namespace, "repository": repository})
+			result, _ := module.DockerV2EncodingError(module.BLOB_UPLOAD_UNKNOWN, map[string]string{"namespace": namespace, "repository": repository})
 			return http.StatusBadRequest, result
 		} else {
 			io.Copy(file, ctx.Req.Request.Body)
@@ -179,8 +164,8 @@ func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-//PutBlobsV2Handler is
-//Complete the upload specified by uuid, optionally appending the body as the final chunk.
+// PutBlobsV2Handler is
+// Complete the upload specified by uuid, optionally appending the body as the final chunk.
 func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	var size int64
 
@@ -209,7 +194,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	if upload, err := module.CheckDockerVersion19(ctx.Req.Header.Get("User-Agent")); err != nil {
 		log.Errorf("Decode docker version error: %s", err.Error())
 
-		result, _ := module.EncodingError(module.BLOB_UPLOAD_INVALID, map[string]string{"namespace": namespace, "repository": repository})
+		result, _ := module.DockerV2EncodingError(module.BLOB_UPLOAD_INVALID, map[string]string{"namespace": namespace, "repository": repository})
 		return http.StatusBadRequest, result
 	} else if upload == true {
 		//Docker 1.9.x above version saves layer in PATCH method, in PUT method move from uuid to image:sha256
@@ -220,7 +205,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 			if err := os.Rename(uuidFile, imageFile); err != nil {
 				log.Errorf("Move the temp file to image folder %s error: %s", imageFile, err.Error())
 
-				result, _ := module.EncodingError(module.BLOB_UPLOAD_INVALID, map[string]string{"namespace": namespace, "repository": repository})
+				result, _ := module.DockerV2EncodingError(module.BLOB_UPLOAD_INVALID, map[string]string{"namespace": namespace, "repository": repository})
 				return http.StatusBadRequest, result
 			}
 
@@ -234,7 +219,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 		if file, err := os.Create(imageFile); err != nil {
 			log.Errorf("Save the file %s error: %s", imageFile, err.Error())
 
-			result, _ := module.EncodingError(module.BLOB_UPLOAD_INVALID, map[string]string{"namespace": namespace, "repository": repository})
+			result, _ := module.DockerV2EncodingError(module.BLOB_UPLOAD_INVALID, map[string]string{"namespace": namespace, "repository": repository})
 			return http.StatusBadRequest, result
 		} else {
 			io.Copy(file, ctx.Req.Request.Body)
@@ -246,7 +231,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	if err := i.Put(tarsum, imageFile, size); err != nil {
 		log.Errorf("Save the iamge data %s error: %s", tarsum, err.Error())
 
-		result, _ := module.EncodingError(module.BLOB_UPLOAD_INVALID, map[string]string{"namespace": namespace, "repository": repository})
+		result, _ := module.DockerV2EncodingError(module.BLOB_UPLOAD_INVALID, map[string]string{"namespace": namespace, "repository": repository})
 		return http.StatusBadRequest, result
 	}
 
@@ -262,7 +247,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-//GetBlobsV2Handler is
+// GetBlobsV2Handler is
 func GetBlobsV2Handler(ctx *macaron.Context) {
 	digest := ctx.Params(":digest")
 	tarsum := strings.Split(digest, ":")[1]
@@ -271,14 +256,14 @@ func GetBlobsV2Handler(ctx *macaron.Context) {
 	if err := i.Get(tarsum); err != nil && err == gorm.ErrRecordNotFound {
 		log.Info("Not found blob: %s", tarsum)
 
-		result, _ := module.EncodingError(module.BLOB_UNKNOWN, digest)
+		result, _ := module.DockerV2EncodingError(module.BLOB_UNKNOWN, digest)
 		ctx.Resp.Write(result)
 		ctx.Resp.WriteHeader(http.StatusBadRequest)
 		return
 	} else if err != nil && err != gorm.ErrRecordNotFound {
 		log.Info("Failed to get blob %s: %s", tarsum, err.Error())
 
-		result, _ := module.EncodingError(module.UNKNOWN, err.Error())
+		result, _ := module.DockerV2EncodingError(module.UNKNOWN, err.Error())
 		ctx.Resp.Write(result)
 		ctx.Resp.WriteHeader(http.StatusBadRequest)
 		return
@@ -287,7 +272,7 @@ func GetBlobsV2Handler(ctx *macaron.Context) {
 	if file, err := os.Open(i.Path); err != nil {
 		log.Info("Failed to get blob %s: %s", tarsum, err.Error())
 
-		result, _ := module.EncodingError(module.UNKNOWN, err.Error())
+		result, _ := module.DockerV2EncodingError(module.UNKNOWN, err.Error())
 		ctx.Resp.Write(result)
 		ctx.Resp.WriteHeader(http.StatusBadRequest)
 		return
@@ -314,7 +299,7 @@ func GetBlobsV2Handler(ctx *macaron.Context) {
 	}
 }
 
-//PutManifestsV2Handler is
+// PutManifestsV2Handler is
 func PutManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 	repository := ctx.Params(":repository")
 	namespace := ctx.Params(":namespace")
@@ -360,7 +345,7 @@ func PutManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 	}
 }
 
-//GetTagsListV2Handler is
+// GetTagsListV2Handler is
 func GetTagsListV2Handler(ctx *macaron.Context) (int, []byte) {
 	var err error
 	repository := ctx.Params(":repository")
@@ -374,12 +359,12 @@ func GetTagsListV2Handler(ctx *macaron.Context) (int, []byte) {
 	if data["tags"], err = r.GetTags(namespace, repository); err != nil && err == gorm.ErrRecordNotFound {
 		log.Info("Not found repository in getting tags list: %s/%s", namespace, repository)
 
-		result, _ := module.EncodingError(module.BLOB_UNKNOWN, fmt.Sprintf("%s/%s", namespace, repository))
+		result, _ := module.DockerV2EncodingError(module.BLOB_UNKNOWN, fmt.Sprintf("%s/%s", namespace, repository))
 		return http.StatusNotFound, result
 	} else if err != nil && err != gorm.ErrRecordNotFound {
 		log.Info("Failed found repository in getting tags list %s/%s: %s", namespace, repository, err.Error())
 
-		result, _ := module.EncodingError(module.UNKNOWN, err.Error())
+		result, _ := module.DockerV2EncodingError(module.UNKNOWN, err.Error())
 		return http.StatusBadRequest, result
 	}
 
@@ -387,7 +372,7 @@ func GetTagsListV2Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-//GetManifestsV2Handler is
+// GetManifestsV2Handler is
 func GetManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 	repository := ctx.Params(":repository")
 	namespace := ctx.Params(":namespace")
@@ -397,12 +382,12 @@ func GetManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 	if _, err := t.Get(namespace, repository, tag); err != nil && err == gorm.ErrRecordNotFound {
 		log.Info("Not found repository in tetting tag manifest: %s/%s:%s", namespace, repository, tag)
 
-		result, _ := module.EncodingError(module.BLOB_UNKNOWN, fmt.Sprintf("%s/%s", namespace, repository))
+		result, _ := module.DockerV2EncodingError(module.BLOB_UNKNOWN, fmt.Sprintf("%s/%s", namespace, repository))
 		return http.StatusNotFound, result
 	} else if err != nil && err != gorm.ErrRecordNotFound {
 		log.Info("Failed to get tag manifest %s/%s:%s : ", namespace, repository, tag, err.Error())
 
-		result, _ := module.EncodingError(module.UNKNOWN, err.Error())
+		result, _ := module.DockerV2EncodingError(module.UNKNOWN, err.Error())
 		return http.StatusBadRequest, result
 	}
 
@@ -415,19 +400,19 @@ func GetManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, []byte(t.Manifest)
 }
 
-//DeleteBlobsV2Handler is
+// DeleteBlobsV2Handler is
 func DeleteBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result
 }
 
-//DeleteBlobsUUUIDV2Handler is
-func DeleteBlobsUUUIDV2Handler(ctx *macaron.Context) (int, []byte) {
+// DeleteBlobsUUIDV2Handler is
+func DeleteBlobsUUIDV2Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result
 }
 
-//DeleteManifestsV2Handler is
+// DeleteManifestsV2Handler is
 func DeleteManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result

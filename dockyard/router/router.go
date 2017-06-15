@@ -34,7 +34,7 @@ func SetRouters(m *macaron.Macaron) {
 		m.Get("/", handler.GetPingV2Handler)
 		m.Get("/_catalog", handler.GetCatalogV2Handler)
 
-		// ser mode: /namespace/repository:tag
+		// User mode: /namespace/repository:tag
 		m.Head("/:namespace/:repository/blobs/:digest", handler.HeadBlobsV2Handler)
 		m.Post("/:namespace/:repository/blobs/uploads", handler.PostBlobsV2Handler)
 		m.Patch("/:namespace/:repository/blobs/uploads/:uuid", handler.PatchBlobsV2Handler)
@@ -44,20 +44,22 @@ func SetRouters(m *macaron.Macaron) {
 		m.Get("/:namespace/:repository/tags/list", handler.GetTagsListV2Handler)
 		m.Get("/:namespace/:repository/manifests/:tag", handler.GetManifestsV2Handler)
 		m.Delete("/:namespace/:repository/blobs/:digest", handler.DeleteBlobsV2Handler)
-		m.Delete("/:namespace/:repository/:blobs/:uuid", handler.DeleteBlobsUUUIDV2Handler)
+		m.Delete("/:namespace/:repository/:blobs/:uuid", handler.DeleteBlobsUUIDV2Handler)
 		m.Delete("/:namespace/:repository/manifests/:reference", handler.DeleteManifestsV2Handler)
 
 		// Library mode: /repository:tag
-		// m.Get("/:repository/blobs/:digest", handler.GetBlobsV2LibraryHandler)
-		// m.Get("/:repository/tags/list", handler.GetTagsListV2LibraryHandler)
-		// m.Get("/:repository/manifests/:tag", handler.GetManifestsV2LibraryHandler)
+		m.Get("/:repository/blobs/:digest", handler.GetBlobsV2LibraryHandler)
+		m.Get("/:repository/tags/list", handler.GetTagsListV2LibraryHandler)
+		m.Get("/:repository/manifests/:tag", handler.GetManifestsV2LibraryHandler)
 	})
 
 	// Binary File
 	m.Group("/Binary", func() {
 		// V1 Version
 		m.Group("/v1", func() {
-			m.Post("/:namespace/:repository/", )
+			m.Post("/:namespace/:repository/binary/:tag", handler.PostBinaryV1Handler)
+			m.Put("/:namespace/:repository/binary/:binary/:tag/:label", handler.PutBinaryLabelV1Handler)
+			m.Delete("/:namespace/:repository/binary/:binary/:tag", handler.DeleteBinaryV1Handler)
 		})
 	})
 

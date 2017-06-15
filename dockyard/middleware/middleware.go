@@ -22,11 +22,6 @@ import (
 
 //SetMiddlewares set all middleware functions.
 func SetMiddlewares(m *macaron.Macaron) {
-	//Set static file directory,static file access without log output
-	//m.Use(macaron.Static("external", macaron.StaticOptions{
-	//	Expires: func() string { return "max-age=0" },
-	//}))
-
 	//Set log
 	m.Use(logger())
 

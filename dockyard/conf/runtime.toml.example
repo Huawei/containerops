@@ -14,7 +14,7 @@ address = "127.0.0.1"
 port = 443
 cert = "PATH_TO_CERT_FILE"
 key = "PATH_TO_KEY_FILE"
-# For unix socket:
+# Listen on Unix socket
 # Listen on unix socket, only address is needed
 # mode = "unix"
 # address = '/var/run/dockyard.socket'

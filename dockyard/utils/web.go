@@ -1,6 +1,8 @@
 package utils
 
-import "net/http"
+import (
+	"net/http"
+)
 
 // GetRequestScheme Returns the scheme of a http request.
 func GetRequestScheme(r *http.Request) string {
