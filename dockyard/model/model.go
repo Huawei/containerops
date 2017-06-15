@@ -20,9 +20,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Huawei/containerops/dockyard/setting"
 	log "github.com/Sirupsen/logrus"
 	"github.com/jinzhu/gorm"
+
+	"github.com/Huawei/containerops/common/model"
+	"github.com/Huawei/containerops/dockyard/setting"
 )
 
 var (
@@ -55,7 +57,14 @@ func OpenDatabase(dbconfig *setting.DatabaseConfig) {
 
 // Migrate is
 func Migrate() {
+	// Docker V2 Require Table
 	DB.AutoMigrate(&DockerV2{}, &DockerImageV2{}, &DockerTagV2{})
+
+	// Binary V1 Require Table
+	DB.AutoMigrate(&BinaryV1{}, &BinaryFileV1{})
+
+	// Label V1 Require Table
+	DB.AutoMigrate(&model.LabelV1{})
 
 	log.Info("Auto Migrate Dockyard Database Structs Done.")
 }
