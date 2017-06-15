@@ -16,16 +16,32 @@ limitations under the License.
 
 import { Component, OnInit } from '@angular/core';
 
+import { Http, Response } from '@angular/http';
+import 'rxjs/add/operator/toPromise';
+// import * as D3 from 'd3';
+import * as yaml from 'js-yaml';
+
 @Component({
   selector: 'app-status',
   templateUrl: './status.component.html',
   styleUrls: ['./status.component.scss']
 })
 export class StatusComponent implements OnInit {
+  constructor(private http: Http) {};
 
-  constructor() { }
+  private workflowObj: Object;
 
   ngOnInit() {
+    this.http.get('http://localhost:4200/assets/debug/cncf-demo.yaml')
+      .toPromise()
+      .then(response => {this.workflowObj = yaml.load(response.text()); return this.workflowObj; })
+      .then(workflowData => {console.log('------------------');  console.log(workflowData); })
+      ;
+      // .subscribe(data => {
+      //   this.workflowObj = yaml.load(data.text());
+      //   console.log(this.workflowObj);
+      // });
   }
+
 
 }
