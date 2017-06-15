@@ -15,3 +15,28 @@ limitations under the License.
 */
 
 package handler
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"gopkg.in/macaron.v1"
+)
+
+// PostBinaryV1Handler is
+func PostBinaryV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{})
+	return http.StatusOK, result
+}
+
+// DeleteBinaryV1Handler is
+func DeleteBinaryV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{})
+	return http.StatusOK, result
+}
+
+// PutBinaryLabelV1Handler is
+func PutBinaryLabelV1Handler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{})
+	return http.StatusOK, result
+}

@@ -14,16 +14,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package middleware
+package handler
 
 import (
+	"encoding/json"
+	"net/http"
+
 	"gopkg.in/macaron.v1"
 )
 
-//setRespHeaders is set Resp header value.
-func setRespHeaders() macaron.Handler {
-	return func(ctx *macaron.Context) {
-		//Docker Registry V2
-		ctx.Resp.Header().Set("Docker-Distribution-Api-Version", "registry/2.0")
-	}
+// GetBlobsV2LibraryHandler is
+func GetBlobsV2LibraryHandler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{})
+	return http.StatusOK, result
+}
+
+// GetTagsListV2LibraryHandler is
+func GetTagsListV2LibraryHandler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{})
+	return http.StatusOK, result
+}
+
+// GetManifestsV2LibraryHandler is
+func GetManifestsV2LibraryHandler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{})
+	return http.StatusOK, result
 }

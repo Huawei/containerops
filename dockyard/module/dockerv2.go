@@ -25,29 +25,29 @@ import (
 var ErrorDescription = make(map[string]string)
 
 const (
-	//UNKNOWN is
+	// UNKNOWN is
 	UNKNOWN = "UNKNOWN"
-	//DIGEST_INVALID is
+	// DIGEST_INVALID is
 	DIGEST_INVALID = "DIGEST_INVALID"
-	//NAME_INVALID is
+	// NAME_INVALID is
 	NAME_INVALID = "NAME_INVALID"
-	//TAG_INVALID is
+	// TAG_INVALID is
 	TAG_INVALID = "TAG_INVALID"
-	//NAME_UNKNOWN is
+	// NAME_UNKNOWN is
 	NAME_UNKNOWN = "NAME_UNKNOWN"
-	//MANIFEST_UNKNOWN is
+	// MANIFEST_UNKNOWN is
 	MANIFEST_UNKNOWN = "MANIFEST_UNKNOWN"
-	//MANIFEST_INVALID is
+	// MANIFEST_INVALID is
 	MANIFEST_INVALID = "MANIFEST_INVALID"
-	//MANIFEST_UNVERIFIED is
+	// MANIFEST_UNVERIFIED is
 	MANIFEST_UNVERIFIED = "MANIFEST_UNVERIFIED"
-	//MANIFEST_BLOB_UNKNOWN is
+	// MANIFEST_BLOB_UNKNOWN is
 	MANIFEST_BLOB_UNKNOWN = "MANIFEST_BLOB_UNKNOWN"
-	//BLOB_UNKNOWN is
+	// BLOB_UNKNOWN is
 	BLOB_UNKNOWN = "BLOB_UNKNOWN"
-	//BLOB_UPLOAD_UNKNOWN is
+	// BLOB_UPLOAD_UNKNOWN is
 	BLOB_UPLOAD_UNKNOWN = "BLOB_UPLOAD_UNKNOWN"
-	//BLOB_UPLOAD_INVALID is
+	// BLOB_UPLOAD_INVALID is
 	BLOB_UPLOAD_INVALID = "BLOB_UPLOAD_INVALID"
 )
 
@@ -66,20 +66,20 @@ func init() {
 	ErrorDescription[BLOB_UPLOAD_INVALID] = "blob upload invalid"
 }
 
-//Errors is
+// Errors is
 type Errors struct {
 	Errors []ErrorUnit `json:"errors"`
 }
 
-//ErrorUnit is
+// ErrorUnit is
 type ErrorUnit struct {
 	Code    string      `json:"code"`
 	Message string      `json:"message"`
 	Detail  interface{} `json:"detail,omitempty"`
 }
 
-//EncodingError is
-func EncodingError(code string, detail interface{}) ([]byte, error) {
+// DockerV2EncodingError is
+func DockerV2EncodingError(code string, detail interface{}) ([]byte, error) {
 	var errs = Errors{}
 
 	item := ErrorUnit{
@@ -93,7 +93,7 @@ func EncodingError(code string, detail interface{}) ([]byte, error) {
 	return json.Marshal(errs)
 }
 
-//CheckDockerVersion19 is
+// CheckDockerVersion19 is
 func CheckDockerVersion19(headers string) (bool, error) {
 	agents := map[string]string{}
 	for _, v := range strings.Split(headers, " ") {
@@ -119,7 +119,7 @@ func CheckDockerVersion19(headers string) (bool, error) {
 	return false, nil
 }
 
-//GetTarsumlist is
+// GetTarsumlist is
 func GetTarsumlist(data []byte) ([]string, string, int64, error) {
 	var tarsumlist []string
 	var imageID string
