@@ -31,10 +31,9 @@ import (
 	"github.com/satori/go.uuid"
 	"gopkg.in/macaron.v1"
 
-	"github.com/Huawei/containerops/common"
+	common "github.com/Huawei/containerops/common/utils"
 	"github.com/Huawei/containerops/dockyard/model"
 	"github.com/Huawei/containerops/dockyard/module"
-	"github.com/Huawei/containerops/dockyard/utils"
 	"github.com/Huawei/dockyard/module/signature"
 )
 
@@ -97,7 +96,7 @@ func PostBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	uuid := common.MD5(uuid.NewV4().String())
 	state := common.MD5(fmt.Sprintf("%s/%s/%d", namespace, repository, time.Now().UnixNano()/int64(time.Millisecond)))
 	random := fmt.Sprintf("%s://%s/v2/%s/%s/blobs/uploads/%s?_state=%s",
-		utils.GetRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, uuid, state)
+		getRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, uuid, state)
 
 	ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	ctx.Resp.Header().Set("Docker-Upload-Uuid", uuid)
@@ -154,7 +153,7 @@ func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 
 	state := common.MD5(fmt.Sprintf("%s/%v", fmt.Sprintf("%s/%s", namespace, repository), time.Now().UnixNano()/int64(time.Millisecond)))
 	random := fmt.Sprintf("%s://%s/v2/%s/%s/blobs/uploads/%s?_state=%s",
-		utils.GetRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, uuid, state)
+		getRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, uuid, state)
 
 	ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	ctx.Resp.Header().Set("Docker-Upload-Uuid", uuid)
@@ -237,7 +236,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 
 	state := common.MD5(fmt.Sprintf("%s/%v", fmt.Sprintf("%s/%s", namespace, repository), time.Now().UnixNano()/int64(time.Millisecond)))
 	random := fmt.Sprintf("%s://%s/v2/%s/%s/blobs/uploads/%s?_state=%s",
-		utils.GetRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, uuid, state)
+		getRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, uuid, state)
 
 	ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	ctx.Resp.Header().Set("Docker-Content-Digest", digest)
@@ -332,7 +331,7 @@ func PutManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 		}
 
 		random := fmt.Sprintf("%s://%s/v2/%s/%s/manifests/%s",
-			utils.GetRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, digest)
+			getRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, digest)
 
 		ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		ctx.Resp.Header().Set("Docker-Content-Digest", digest)
@@ -416,4 +415,15 @@ func DeleteBlobsUUIDV2Handler(ctx *macaron.Context) (int, []byte) {
 func DeleteManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result
+}
+
+// getRequestScheme Returns the scheme of a http request.
+func getRequestScheme(r *http.Request) string {
+	scheme := "http"
+	if r.TLS != nil {
+		scheme = "https"
+	} else { // Request from a proxy server to unix socket, read the proto from header
+		scheme = r.Header.Get("X-Forwarded-Proto")
+	}
+	return scheme
 }
