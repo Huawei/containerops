@@ -50,10 +50,16 @@ password = "root"
 db = 'containerops_dockyard'
 
 [web]
+#dockyard support only https and unix
+mode = 'https'
 address = "127.0.0.1"
 port = 8990
-cert = "./cert/nginx.crt" #dockyard support only https!
+cert = "./cert/nginx.crt"
 key = "./cert/nginx.key"
+# For unix socket listening:
+# mode = 'unix'
+# address = "/var/run/containerops/dockyard.socket"
+
 ```
 
 You can also override the address and port by passing command line arguments:

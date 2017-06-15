@@ -20,6 +20,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -29,6 +30,7 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/macaron.v1"
 
+	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/dockyard/model"
 	"github.com/Huawei/containerops/dockyard/setting"
 	"github.com/Huawei/containerops/dockyard/web"
@@ -112,10 +114,34 @@ func startDeamon(cmd *cobra.Command, args []string) {
 	}
 
 	go func() {
-		listenaddr := fmt.Sprintf("%s:%d", address, port)
-		server = &http.Server{Addr: listenaddr, TLSConfig: &tls.Config{MinVersion: tls.VersionTLS10}, Handler: m}
-		if err := server.ListenAndServeTLS(setting.Web.Cert, setting.Web.Key); err != nil {
-			fmt.Printf("Start Dockyard https service error: %v\n", err.Error())
+		switch setting.Web.Mode {
+		case "https":
+			listenaddr := fmt.Sprintf("%s:%d", address, port)
+			server = &http.Server{Addr: listenaddr, TLSConfig: &tls.Config{MinVersion: tls.VersionTLS10}, Handler: m}
+			if err := server.ListenAndServeTLS(setting.Web.Cert, setting.Web.Key); err != nil {
+				log.Errorf("Start Dockyard https service error: %s\n", err.Error())
+			}
+
+			break
+		case "unix":
+			listenaddr := fmt.Sprintf("%s", address)
+			if common.IsFileExist(listenaddr) {
+				os.Remove(listenaddr)
+			}
+
+			if listener, err := net.Listen("unix", listenaddr); err != nil {
+				log.Errorf("Start Dockyard unix socket error: %s\n", err.Error())
+			} else {
+				server = &http.Server{Handler: m}
+				if err := server.Serve(listener); err != nil {
+					log.Errorf("Start Dockyard unix socket error: %s\n", err.Error())
+				}
+			}
+			break
+		default:
+			log.Fatalf("Invalid listen mode: %s\n", setting.Web.Mode)
+			os.Exit(1)
+			break
 		}
 	}()
 
@@ -123,9 +149,11 @@ func startDeamon(cmd *cobra.Command, args []string) {
 	<-stopChan // wait for SIGINT
 	log.Errorln("Shutting down server...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	server.Shutdown(ctx)
+	if server != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		server.Shutdown(ctx)
+	}
 
 	log.Errorln("Server gracefully stopped")
 }
