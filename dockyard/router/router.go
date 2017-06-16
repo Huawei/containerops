@@ -57,7 +57,8 @@ func SetRouters(m *macaron.Macaron) {
 	m.Group("/Binary", func() {
 		// V1 Version
 		m.Group("/v1", func() {
-			m.Post("/:namespace/:repository/binary/:tag", handler.PostBinaryV1Handler)
+			m.Post("/:namespace/:repository/binary/:binary/:tag", handler.PostBinaryV1Handler)
+			m.Get("/:namespace/:repository/binary/:binary/:tag", handler.GetBinaryV1Handler)
 			m.Put("/:namespace/:repository/binary/:binary/:tag/:label", handler.PutBinaryLabelV1Handler)
 			m.Delete("/:namespace/:repository/binary/:binary/:tag", handler.DeleteBinaryV1Handler)
 		})

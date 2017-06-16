@@ -18,15 +18,136 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
+	"os"
 
+	log "github.com/Sirupsen/logrus"
 	"gopkg.in/macaron.v1"
+
+	"github.com/Huawei/containerops/common/utils"
+	"github.com/Huawei/containerops/dockyard/model"
+	"github.com/Huawei/containerops/dockyard/module"
+	"github.com/Huawei/containerops/dockyard/setting"
+	"strconv"
 )
+
+func init() {
+	if err := setting.SetConfig("./conf/runtime.conf"); err != nil {
+		log.Fatalf("Failed to init settings: %s", err.Error())
+		os.Exit(1)
+	}
+}
 
 // PostBinaryV1Handler is
 func PostBinaryV1Handler(ctx *macaron.Context) (int, []byte) {
+	repository := ctx.Params(":repository")
+	namespace := ctx.Params(":namespace")
+	binary := ctx.Params(":binary")
+	tag := ctx.Params(":tag")
+
+	b := new(model.BinaryV1)
+	if err := b.Get(namespace, repository); err != nil {
+		log.Errorf("get repository error: %s", err.Error())
+
+		result, _ := module.EncodingError(module.REPOSITORY_NONE, map[string]string{"namespace": namespace, "repository": repository})
+		return http.StatusBadRequest, result
+	}
+
+	f := new(model.BinaryFileV1)
+	if err := f.Get(b.ID, binary, tag); err != nil {
+		log.Errorf("get file error: %s", err.Error())
+
+		result, _ := module.EncodingError(module.UNKNOWN, map[string]string{"namespace": namespace, "repository": repository, "file": binary, "tag": tag})
+		return http.StatusBadRequest, result
+	}
+
+	if f.ID == 0 {
+		basePath := setting.Storage.BinaryV1
+		tagPath := fmt.Sprintf("%s/tags/%s", basePath, tag)
+		binaryPath := fmt.Sprintf("%s/tags/%s/%s", basePath, tag, binary)
+
+		if !utils.IsDirExist(tagPath) {
+			os.MkdirAll(tagPath, os.ModePerm)
+		}
+
+		if _, err := os.Stat(binaryPath); err == nil {
+			os.Remove(binaryPath)
+		}
+
+		if file, err := os.Create(binaryPath); err != nil {
+			log.Errorf("[%s] Create binary file error: %s", ctx.Req.RequestURI, err.Error())
+
+			result, _ := module.EncodingError(module.BLOB_UPLOAD_UNKNOWN, map[string]string{"namespace": namespace, "repository": repository, "file": binary, "tag": tag})
+			return http.StatusBadRequest, result
+		} else {
+			io.Copy(file, ctx.Req.Request.Body)
+
+			size, _ := utils.GetFileSize(binaryPath)
+			sha512, _ := utils.GetFileSHA512(binaryPath)
+
+			if err := f.Put(b.ID, size, binary, tag, sha512, binaryPath); err != nil {
+				result, _ := module.EncodingError(module.BLOB_UPLOAD_UNKNOWN, map[string]string{"namespace": namespace, "repository": repository, "file": binary, "tag": tag})
+				return http.StatusBadRequest, result
+			}
+		}
+	}
+
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result
+}
+
+// GetBinaryV1Handler is
+func GetBinaryV1Handler(ctx *macaron.Context) {
+	repository := ctx.Params(":repository")
+	namespace := ctx.Params(":namespace")
+	binary := ctx.Params(":binary")
+	tag := ctx.Params(":tag")
+
+	b := new(model.BinaryV1)
+	if err := b.Get(namespace, repository); err != nil {
+		log.Errorf("get repository error: %s", err.Error())
+
+		result, _ := module.EncodingError(module.REPOSITORY_NONE, map[string]string{"namespace": namespace, "repository": repository})
+		ctx.Resp.Write(result)
+		ctx.Resp.WriteHeader(http.StatusBadRequest)
+	}
+
+	f := new(model.BinaryFileV1)
+	if err := f.Get(b.ID, binary, tag); err != nil {
+		log.Errorf("get file error: %s", err.Error())
+
+		result, _ := module.EncodingError(module.UNKNOWN, map[string]string{"namespace": namespace, "repository": repository, "file": binary, "tag": tag})
+		ctx.Resp.Write(result)
+		ctx.Resp.WriteHeader(http.StatusBadRequest)
+	}
+
+	if file, err := os.Open(f.Path); err != nil {
+		result, _ := module.EncodingError(module.UNKNOWN, err.Error())
+		ctx.Resp.Write(result)
+		ctx.Resp.WriteHeader(http.StatusBadRequest)
+		return
+	} else {
+		stat, _ := file.Stat()
+		size := strconv.FormatInt(stat.Size(), 10)
+
+		ctx.Resp.Header().Set("Content-Description", "File Transfer")
+		ctx.Resp.Header().Set("Content-Type", "application/octet-stream")
+		ctx.Resp.Header().Set("Content-Length", size)
+		ctx.Resp.Header().Set("sha512", f.SHA512)
+		ctx.Resp.Header().Set("Expires", "0")
+		ctx.Resp.Header().Set("Cache-Control", "must-revalidate")
+		ctx.Resp.Header().Set("Content-Transfer-Encoding", "binary")
+		ctx.Resp.Header().Set("Pragma", "public")
+
+		file.Seek(0, 0)
+		defer file.Close()
+
+		io.Copy(ctx.Resp, file)
+		ctx.Resp.WriteHeader(http.StatusOK)
+		return
+	}
 }
 
 // DeleteBinaryV1Handler is

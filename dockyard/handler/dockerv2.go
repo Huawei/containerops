@@ -34,8 +34,15 @@ import (
 	"github.com/Huawei/containerops/common/utils"
 	"github.com/Huawei/containerops/dockyard/model"
 	"github.com/Huawei/containerops/dockyard/module"
-	"github.com/Huawei/dockyard/module/signature"
+	"github.com/Huawei/containerops/dockyard/setting"
 )
+
+func init() {
+	if err := setting.SetConfig("./conf/runtime.conf"); err != nil {
+		log.Fatalf("Failed to init settings: %s", err.Error())
+		os.Exit(1)
+	}
+}
 
 // GetPingV2Handler is https://github.com/docker/distribution/blob/master/docs/spec/api.md#api-version-check
 func GetPingV2Handler(ctx *macaron.Context) (int, []byte) {
@@ -58,12 +65,12 @@ func HeadBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	if err := i.Get(tarsum); err != nil && err == gorm.ErrRecordNotFound {
 		log.Info("Not found blob: %s", tarsum)
 
-		result, _ := module.DockerV2EncodingError(module.BLOB_UNKNOWN, digest)
+		result, _ := module.EncodingError(module.BLOB_UNKNOWN, digest)
 		return http.StatusNotFound, result
 	} else if err != nil && err != gorm.ErrRecordNotFound {
 		log.Info("Failed to get blob %s: %s", tarsum, err.Error())
 
-		result, _ := module.DockerV2EncodingError(module.UNKNOWN, err.Error())
+		result, _ := module.EncodingError(module.UNKNOWN, err.Error())
 		return http.StatusBadRequest, result
 	}
 
@@ -89,7 +96,7 @@ func PostBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	if err := r.Put(namespace, repository); err != nil {
 		log.Errorf("Put or search repository error: %s", err.Error())
 
-		result, _ := module.DockerV2EncodingError(module.UNKNOWN, map[string]string{"namespace": namespace, "repository": repository})
+		result, _ := module.EncodingError(module.UNKNOWN, map[string]string{"namespace": namespace, "repository": repository})
 		return http.StatusBadRequest, result
 	}
 
@@ -121,11 +128,11 @@ func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	if upload, err := module.CheckDockerVersion19(ctx.Req.Header.Get("User-Agent")); err != nil {
 		log.Errorf("Decode docker version error: %s", err.Error())
 
-		result, _ := module.DockerV2EncodingError(module.BLOB_UPLOAD_UNKNOWN, map[string]string{"namespace": namespace, "repository": repository})
+		result, _ := module.EncodingError(module.BLOB_UPLOAD_UNKNOWN, map[string]string{"namespace": namespace, "repository": repository})
 		return http.StatusBadRequest, result
 	} else if upload == true {
 		//It's run above docker 1.9.0
-		basePath := "dockerv2.storage"
+		basePath := setting.Storage.DockerV2
 		uuidPath := fmt.Sprintf("%s/uuid/%s", basePath, uuid)
 		uuidFile := fmt.Sprintf("%s/uuid/%s/%s", basePath, uuid, uuid)
 
@@ -140,7 +147,7 @@ func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 		if file, err := os.Create(uuidFile); err != nil {
 			log.Errorf("[%s] Create UUID file error: %s", ctx.Req.RequestURI, err.Error())
 
-			result, _ := module.DockerV2EncodingError(module.BLOB_UPLOAD_UNKNOWN, map[string]string{"namespace": namespace, "repository": repository})
+			result, _ := module.EncodingError(module.BLOB_UPLOAD_UNKNOWN, map[string]string{"namespace": namespace, "repository": repository})
 			return http.StatusBadRequest, result
 		} else {
 			io.Copy(file, ctx.Req.Request.Body)
@@ -177,7 +184,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	digest := ctx.Query("digest")
 	tarsum := strings.Split(digest, ":")[1]
 
-	basePath := "dockerv2.storage"
+	basePath := setting.Storage.DockerV2
 	imagePath := fmt.Sprintf("%s/image/%s", basePath, tarsum)
 	imageFile := fmt.Sprintf("%s/image/%s/%s", basePath, tarsum, tarsum)
 
@@ -193,7 +200,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	if upload, err := module.CheckDockerVersion19(ctx.Req.Header.Get("User-Agent")); err != nil {
 		log.Errorf("Decode docker version error: %s", err.Error())
 
-		result, _ := module.DockerV2EncodingError(module.BLOB_UPLOAD_INVALID, map[string]string{"namespace": namespace, "repository": repository})
+		result, _ := module.EncodingError(module.BLOB_UPLOAD_INVALID, map[string]string{"namespace": namespace, "repository": repository})
 		return http.StatusBadRequest, result
 	} else if upload == true {
 		//Docker 1.9.x above version saves layer in PATCH method, in PUT method move from uuid to image:sha256
@@ -204,7 +211,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 			if err := os.Rename(uuidFile, imageFile); err != nil {
 				log.Errorf("Move the temp file to image folder %s error: %s", imageFile, err.Error())
 
-				result, _ := module.DockerV2EncodingError(module.BLOB_UPLOAD_INVALID, map[string]string{"namespace": namespace, "repository": repository})
+				result, _ := module.EncodingError(module.BLOB_UPLOAD_INVALID, map[string]string{"namespace": namespace, "repository": repository})
 				return http.StatusBadRequest, result
 			}
 
@@ -218,7 +225,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 		if file, err := os.Create(imageFile); err != nil {
 			log.Errorf("Save the file %s error: %s", imageFile, err.Error())
 
-			result, _ := module.DockerV2EncodingError(module.BLOB_UPLOAD_INVALID, map[string]string{"namespace": namespace, "repository": repository})
+			result, _ := module.EncodingError(module.BLOB_UPLOAD_INVALID, map[string]string{"namespace": namespace, "repository": repository})
 			return http.StatusBadRequest, result
 		} else {
 			io.Copy(file, ctx.Req.Request.Body)
@@ -230,7 +237,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	if err := i.Put(tarsum, imageFile, size); err != nil {
 		log.Errorf("Save the iamge data %s error: %s", tarsum, err.Error())
 
-		result, _ := module.DockerV2EncodingError(module.BLOB_UPLOAD_INVALID, map[string]string{"namespace": namespace, "repository": repository})
+		result, _ := module.EncodingError(module.BLOB_UPLOAD_INVALID, map[string]string{"namespace": namespace, "repository": repository})
 		return http.StatusBadRequest, result
 	}
 
@@ -255,14 +262,14 @@ func GetBlobsV2Handler(ctx *macaron.Context) {
 	if err := i.Get(tarsum); err != nil && err == gorm.ErrRecordNotFound {
 		log.Info("Not found blob: %s", tarsum)
 
-		result, _ := module.DockerV2EncodingError(module.BLOB_UNKNOWN, digest)
+		result, _ := module.EncodingError(module.BLOB_UNKNOWN, digest)
 		ctx.Resp.Write(result)
 		ctx.Resp.WriteHeader(http.StatusBadRequest)
 		return
 	} else if err != nil && err != gorm.ErrRecordNotFound {
 		log.Info("Failed to get blob %s: %s", tarsum, err.Error())
 
-		result, _ := module.DockerV2EncodingError(module.UNKNOWN, err.Error())
+		result, _ := module.EncodingError(module.UNKNOWN, err.Error())
 		ctx.Resp.Write(result)
 		ctx.Resp.WriteHeader(http.StatusBadRequest)
 		return
@@ -271,7 +278,7 @@ func GetBlobsV2Handler(ctx *macaron.Context) {
 	if file, err := os.Open(i.Path); err != nil {
 		log.Info("Failed to get blob %s: %s", tarsum, err.Error())
 
-		result, _ := module.DockerV2EncodingError(module.UNKNOWN, err.Error())
+		result, _ := module.EncodingError(module.UNKNOWN, err.Error())
 		ctx.Resp.Write(result)
 		ctx.Resp.WriteHeader(http.StatusBadRequest)
 		return
@@ -312,7 +319,7 @@ func PutManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	} else {
 		_, imageID, version, _ := module.GetTarsumlist([]byte(data))
-		digest, _ := signature.DigestManifest([]byte(data))
+		digest, _ := module.DockerV2DigestManifest([]byte(data))
 
 		r := new(model.DockerV2)
 		if err := r.PutAgent(namespace, repository, agent, strconv.FormatInt(version, 10)); err != nil {
@@ -358,12 +365,12 @@ func GetTagsListV2Handler(ctx *macaron.Context) (int, []byte) {
 	if data["tags"], err = r.GetTags(namespace, repository); err != nil && err == gorm.ErrRecordNotFound {
 		log.Info("Not found repository in getting tags list: %s/%s", namespace, repository)
 
-		result, _ := module.DockerV2EncodingError(module.BLOB_UNKNOWN, fmt.Sprintf("%s/%s", namespace, repository))
+		result, _ := module.EncodingError(module.BLOB_UNKNOWN, fmt.Sprintf("%s/%s", namespace, repository))
 		return http.StatusNotFound, result
 	} else if err != nil && err != gorm.ErrRecordNotFound {
 		log.Info("Failed found repository in getting tags list %s/%s: %s", namespace, repository, err.Error())
 
-		result, _ := module.DockerV2EncodingError(module.UNKNOWN, err.Error())
+		result, _ := module.EncodingError(module.UNKNOWN, err.Error())
 		return http.StatusBadRequest, result
 	}
 
@@ -381,16 +388,16 @@ func GetManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 	if _, err := t.Get(namespace, repository, tag); err != nil && err == gorm.ErrRecordNotFound {
 		log.Info("Not found repository in tetting tag manifest: %s/%s:%s", namespace, repository, tag)
 
-		result, _ := module.DockerV2EncodingError(module.BLOB_UNKNOWN, fmt.Sprintf("%s/%s", namespace, repository))
+		result, _ := module.EncodingError(module.BLOB_UNKNOWN, fmt.Sprintf("%s/%s", namespace, repository))
 		return http.StatusNotFound, result
 	} else if err != nil && err != gorm.ErrRecordNotFound {
 		log.Info("Failed to get tag manifest %s/%s:%s : ", namespace, repository, tag, err.Error())
 
-		result, _ := module.DockerV2EncodingError(module.UNKNOWN, err.Error())
+		result, _ := module.EncodingError(module.UNKNOWN, err.Error())
 		return http.StatusBadRequest, result
 	}
 
-	digest, _ := signature.DigestManifest([]byte(t.Manifest))
+	digest, _ := module.DockerV2DigestManifest([]byte(t.Manifest))
 
 	ctx.Resp.Header().Set("Content-Type", "application/vnd.docker.distribution.manifest.v2+json")
 	ctx.Resp.Header().Set("Docker-Content-Digest", digest)

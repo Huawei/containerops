@@ -23,6 +23,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
+	"crypto/sha512"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/hex"
@@ -30,6 +31,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"reflect"
 	"regexp"
@@ -296,5 +298,16 @@ func GetFileSize(path string) (int64, error) {
 		defer file.Close()
 
 		return stat.Size(), nil
+	}
+}
+
+func GetFileSHA512(path string) (string, error) {
+	if file, err := os.Open(path); err != nil {
+		return "", err
+	} else {
+		hs := sha512.New()
+		io.Copy(hs, file)
+
+		return string(hs.Sum(nil)), nil
 	}
 }
