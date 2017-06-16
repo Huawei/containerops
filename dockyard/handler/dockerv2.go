@@ -31,7 +31,7 @@ import (
 	"github.com/satori/go.uuid"
 	"gopkg.in/macaron.v1"
 
-	common "github.com/Huawei/containerops/common/utils"
+	"github.com/Huawei/containerops/common/utils"
 	"github.com/Huawei/containerops/dockyard/model"
 	"github.com/Huawei/containerops/dockyard/module"
 	"github.com/Huawei/dockyard/module/signature"
@@ -93,8 +93,8 @@ func PostBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	uuid := common.MD5(uuid.NewV4().String())
-	state := common.MD5(fmt.Sprintf("%s/%s/%d", namespace, repository, time.Now().UnixNano()/int64(time.Millisecond)))
+	uuid := utils.MD5(uuid.NewV4().String())
+	state := utils.MD5(fmt.Sprintf("%s/%s/%d", namespace, repository, time.Now().UnixNano()/int64(time.Millisecond)))
 	random := fmt.Sprintf("%s://%s/v2/%s/%s/blobs/uploads/%s?_state=%s",
 		getRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, uuid, state)
 
@@ -129,7 +129,7 @@ func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 		uuidPath := fmt.Sprintf("%s/uuid/%s", basePath, uuid)
 		uuidFile := fmt.Sprintf("%s/uuid/%s/%s", basePath, uuid, uuid)
 
-		if !common.IsDirExist(uuidPath) {
+		if !utils.IsDirExist(uuidPath) {
 			os.MkdirAll(uuidPath, os.ModePerm)
 		}
 
@@ -145,13 +145,13 @@ func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 		} else {
 			io.Copy(file, ctx.Req.Request.Body)
 
-			size, _ := common.GetFileSize(uuidFile)
+			size, _ := utils.GetFileSize(uuidFile)
 
 			ctx.Resp.Header().Set("Range", fmt.Sprintf("0-%v", size-1))
 		}
 	}
 
-	state := common.MD5(fmt.Sprintf("%s/%v", fmt.Sprintf("%s/%s", namespace, repository), time.Now().UnixNano()/int64(time.Millisecond)))
+	state := utils.MD5(fmt.Sprintf("%s/%v", fmt.Sprintf("%s/%s", namespace, repository), time.Now().UnixNano()/int64(time.Millisecond)))
 	random := fmt.Sprintf("%s://%s/v2/%s/%s/blobs/uploads/%s?_state=%s",
 		getRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, uuid, state)
 
@@ -182,7 +182,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	imageFile := fmt.Sprintf("%s/image/%s/%s", basePath, tarsum, tarsum)
 
 	//Save from uuid path save too image path
-	if !common.IsDirExist(imagePath) {
+	if !utils.IsDirExist(imagePath) {
 		os.MkdirAll(imagePath, os.ModePerm)
 	}
 
@@ -208,7 +208,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 				return http.StatusBadRequest, result
 			}
 
-			size, _ = common.GetFileSize(imagePath)
+			size, _ = utils.GetFileSize(imagePath)
 
 			os.RemoveAll(uuidFile)
 			os.RemoveAll(uuidPath)
@@ -222,7 +222,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 			return http.StatusBadRequest, result
 		} else {
 			io.Copy(file, ctx.Req.Request.Body)
-			size, _ = common.GetFileSize(imagePath)
+			size, _ = utils.GetFileSize(imagePath)
 		}
 	}
 
@@ -234,7 +234,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	state := common.MD5(fmt.Sprintf("%s/%v", fmt.Sprintf("%s/%s", namespace, repository), time.Now().UnixNano()/int64(time.Millisecond)))
+	state := utils.MD5(fmt.Sprintf("%s/%v", fmt.Sprintf("%s/%s", namespace, repository), time.Now().UnixNano()/int64(time.Millisecond)))
 	random := fmt.Sprintf("%s://%s/v2/%s/%s/blobs/uploads/%s?_state=%s",
 		getRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, uuid, state)
 
