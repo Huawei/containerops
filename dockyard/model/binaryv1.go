@@ -16,7 +16,10 @@ limitations under the License.
 
 package model
 
-import "time"
+import (
+	"sync"
+	"time"
+)
 
 // BinaryV1 is
 type BinaryV1 struct {
@@ -40,7 +43,7 @@ func (b *BinaryV1) TableName() string {
 // BinaryFileV1 is
 type BinaryFileV1 struct {
 	ID        int64      `json:"id" gorm:"primary_key"`
-	BinaryV1  int64      `json:"binary_v1" sql:"not null;default:0"`
+	BinaryV1  int64      `json:"binary_v1" sql:"not null;default:0" gorm:"unique_index:binaryfilev1_file"`
 	Name      string     `json:"name" sql:"not null;type:varchar(255)" gorm:"unique_index:binaryfilev1_file"`
 	Tag       string     `json:"tag" sql:"not null;type:varchar(255)" gorm:"unique_index:binaryfilev1_file"`
 	Agent     string     `json:"agent" sql:"null;type:text"`
@@ -57,4 +60,58 @@ type BinaryFileV1 struct {
 // TableName is
 func (b *BinaryFileV1) TableName() string {
 	return "binary_file_v1"
+}
+
+// Put is
+func (b *BinaryV1) Put(namespace, repository string) error {
+	tx := DB.Begin()
+
+	mutex := &sync.Mutex{}
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	if err := tx.Debug().Where("namespace = ? AND repository = ? ", namespace, repository).FirstOrCreate(b).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
+}
+
+// Get is
+func (b *BinaryV1) Get(namespace, repository string) error {
+	if err := DB.Debug().Where("namespace = ? AND repository =? ", namespace, repository).First(&b).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Get is
+func (f *BinaryFileV1) Get(repository int64, name, tag string) error {
+	if err := DB.Debug().Where("binary_v1 =? AND name = ? AND tag = ?", repository, name, tag).First(&f).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Put is
+func (f *BinaryFileV1) Put(repository, size int64, name, tag, sha512, path string) error {
+	tx := DB.Begin()
+
+	mutex := &sync.Mutex{}
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	if err := tx.Debug().Where("binary_V1 = ? AND name = ? AND tag = ?", repository, name, tag).FirstOrCreate(&f).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	f.SHA512, f.Path, f.Size = sha512, path, size
+
+	tx.Commit()
+	return nil
 }
