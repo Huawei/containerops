@@ -34,7 +34,7 @@ import (
 )
 
 func init() {
-	if err := setting.SetConfig("./conf/runtime.conf"); err != nil {
+	if err := setting.SetConfig("./conf/runtime.toml"); err != nil {
 		log.Fatalf("Failed to init settings: %s", err.Error())
 		os.Exit(1)
 	}

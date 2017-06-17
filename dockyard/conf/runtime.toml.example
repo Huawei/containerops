@@ -17,9 +17,9 @@ key = "PATH_TO_KEY_FILE"
 # Listen on Unix socket
 # Listen on unix socket, only address is needed
 # mode = "unix"
-# address = '/var/run/dockyard.socket'
+# address = "/var/run/dockyard.socket"
 
 # Configs for storage path
 [storage]
-dockerv2 = /tmp/dockerv2
-binaryv1 = /tmp/binaryv1
+dockerv2 = "/tmp/dockerv2"
+binaryv1 = "/tmp/binaryv1"
