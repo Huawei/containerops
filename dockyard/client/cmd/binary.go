@@ -14,8 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package cmd
 
-func main() {
+import (
+	"github.com/spf13/cobra"
+)
 
+var binaryCmd = &cobra.Command{
+	Use:   "binary",
+	Short: "binary to repository",
+	Long:  ``,
 }

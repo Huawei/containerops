@@ -13,4 +13,10 @@
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
 
+# Runtime configuration file
 conf/runtime.toml
+
+# Binary output
+bin/*
+dockyard
+warship
