@@ -19,4 +19,4 @@ conf/runtime.toml
 # Binary output
 bin/*
 dockyard
-client/dockyard
+warship
