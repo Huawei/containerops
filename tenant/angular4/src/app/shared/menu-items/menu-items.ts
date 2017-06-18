@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
 import { Injectable } from '@angular/core';
 
 export interface BadgeItem {
@@ -44,6 +43,48 @@ const MENUITEMS = [
     icon: 'explore'
   },
   {
+    state: 'project',
+    name: 'PROJECT',
+    type: 'link',
+    icon: 'device_hub'
+  },
+  {
+    state: 'repo',
+    name: 'REPOSITORIES',
+    type: 'submenu',
+    icon: 'apps',
+    children: [
+      {state: 'hub', name: 'REPOSHUB'},
+      {state: 'git', name: 'REPOSGIT'},
+      {state: 'binary', name: 'REPOSBINARY'},
+      {state: 'docker', name: 'REPOSDOCKER'},
+      {state: 'aci', name: 'REPOSACI'}
+    ]
+  },
+  {
+    state: 'flow',
+    name: 'ORCHESTRATION',
+    type: 'submenu',
+    icon: 'timeline',
+    children: [
+      {state: 'overview', name: 'FLOWOVERVIEW'},
+      {state: 'status', name: 'FLOWOSTATUS'}
+    ]
+  },
+  
+  {
+    state: 'setting',
+    name: 'SYSSETTING',
+    type: 'link',
+    icon: 'settings_applications'
+  },
+  {
+    state: 'https://github.com/Huawei/containerops',
+    name: 'DOCS',
+    type: 'extraLink',
+    icon: 'local_library'
+  },
+    {
     state: 'create',
     name: 'Repo',
     type: 'link',
