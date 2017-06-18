@@ -14,24 +14,32 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package cmd
 
 import (
 	"fmt"
 	"os"
 
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-
-	"github.com/Huawei/containerops/dockyard/cmd"
+	"github.com/spf13/cobra"
 )
 
-func init() {
-	//
+// RootCmd is root cmd of dockyard.
+var RootCmd = &cobra.Command{
+	Use:   "dockyard",
+	Short: "dockyard client push/pull binary with Dcokayrd repository",
+	Long:  `Dockyard is a container and artifact repository storing and distributing container image, software artifact and virtual images of KVM or XEN.`,
 }
 
-func main() {
-	if err := cmd.RootCmd.Execute(); err != nil {
+// Execute adds all child commands to the root command sets flags appropriately.
+// This is called by main.main(). It only needs to happen once to the rootCmd.
+func Execute() {
+	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		os.Exit(-1)
 	}
+}
+
+// init()
+func init() {
+
 }

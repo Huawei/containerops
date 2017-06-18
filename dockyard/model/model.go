@@ -20,9 +20,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Huawei/containerops/dockyard/setting"
 	log "github.com/Sirupsen/logrus"
 	"github.com/jinzhu/gorm"
+
+	"github.com/Huawei/containerops/common/model"
+	"github.com/Huawei/containerops/dockyard/setting"
 )
 
 var (
@@ -36,8 +38,10 @@ func init() {
 
 // OpenDatabase is
 func OpenDatabase(dbconfig *setting.DatabaseConfig) {
-	driver, host, port, user, password, db := dbconfig.Driver, dbconfig.Host, dbconfig.Port, dbconfig.User, dbconfig.Password, dbconfig.Name
 	var err error
+
+	driver, host, port, user, password, db := dbconfig.Driver, dbconfig.Host, dbconfig.Port, dbconfig.User, dbconfig.Password, dbconfig.Name
+
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=True&loc=Local", user, password, host, port, db)
 	if DB, err = gorm.Open(driver, dsn); err != nil {
 		log.Fatal("Initlization database connection error.", err)
@@ -53,7 +57,14 @@ func OpenDatabase(dbconfig *setting.DatabaseConfig) {
 
 // Migrate is
 func Migrate() {
+	// Docker V2 Require Table
 	DB.AutoMigrate(&DockerV2{}, &DockerImageV2{}, &DockerTagV2{})
+
+	// Binary V1 Require Table
+	DB.AutoMigrate(&BinaryV1{}, &BinaryFileV1{})
+
+	// Label V1 Require Table
+	DB.AutoMigrate(&model.LabelV1{})
 
 	log.Info("Auto Migrate Dockyard Database Structs Done.")
 }

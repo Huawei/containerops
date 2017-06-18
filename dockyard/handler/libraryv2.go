@@ -14,24 +14,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package handler
 
 import (
-	"fmt"
-	"os"
+	"encoding/json"
+	"net/http"
 
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-
-	"github.com/Huawei/containerops/dockyard/cmd"
+	"gopkg.in/macaron.v1"
 )
 
-func init() {
-	//
+// GetBlobsV2LibraryHandler is
+func GetBlobsV2LibraryHandler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{})
+	return http.StatusOK, result
 }
 
-func main() {
-	if err := cmd.RootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+// GetTagsListV2LibraryHandler is
+func GetTagsListV2LibraryHandler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{})
+	return http.StatusOK, result
+}
+
+// GetManifestsV2LibraryHandler is
+func GetManifestsV2LibraryHandler(ctx *macaron.Context) (int, []byte) {
+	result, _ := json.Marshal(map[string]string{})
+	return http.StatusOK, result
 }

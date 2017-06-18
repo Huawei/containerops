@@ -21,7 +21,6 @@ import (
 )
 
 //setRespHeaders is set Resp header value.
-//TODO: Add a config option for provide Docker Registry V1.
 func setRespHeaders() macaron.Handler {
 	return func(ctx *macaron.Context) {
 		//Docker Registry V2

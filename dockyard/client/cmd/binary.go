@@ -14,24 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package cmd
 
 import (
-	"fmt"
-	"os"
-
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-
-	"github.com/Huawei/containerops/dockyard/cmd"
+	"github.com/spf13/cobra"
 )
 
-func init() {
-	//
-}
-
-func main() {
-	if err := cmd.RootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+var binaryCmd = &cobra.Command{
+	Use:   "binary",
+	Short: "binary to repository",
+	Long:  ``,
 }

@@ -31,41 +31,32 @@ import (
 	"github.com/satori/go.uuid"
 	"gopkg.in/macaron.v1"
 
-	"github.com/Huawei/containerops/common"
+	"github.com/Huawei/containerops/common/utils"
 	"github.com/Huawei/containerops/dockyard/model"
 	"github.com/Huawei/containerops/dockyard/module"
-	"github.com/Huawei/containerops/dockyard/module/signature"
-	"github.com/Huawei/containerops/dockyard/utils"
+	"github.com/Huawei/containerops/dockyard/setting"
 )
 
-//GetPingV2Handler is https://github.com/docker/distribution/blob/master/docs/spec/api.md#api-version-check
+func init() {
+	if err := setting.SetConfig("./conf/runtime.toml"); err != nil {
+		log.Fatalf("Failed to init settings: %s", err.Error())
+		os.Exit(1)
+	}
+}
+
+// GetPingV2Handler is https://github.com/docker/distribution/blob/master/docs/spec/api.md#api-version-check
 func GetPingV2Handler(ctx *macaron.Context) (int, []byte) {
-	//if len(ctx.Req.Header.Get("Authorization")) == 0 {
-	//	ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
-
-	//TODO Bearer Token
-	//realm -> describe the authorization endpoint
-	//service -> describe the name of the service that hold the resources.
-	//scope -> which describe the resources that needed to be accessed,and the operation requested by the client (pulled/pushed).
-	//account -> an optional attribute which describes the account used for authentication.
-	//	ctx.Resp.Header().Set("WWW-Authenticate",
-	//		fmt.Sprintf("Bearer realm=\"https://dockayrd.sh/authorizate\" service=\"Dockyard Service\" scope=\"repository:genedna/dockyard\" account=\"genedna\""))
-
-	//	result, _ := json.Marshal(map[string]string{})
-	//	return http.StatusUnauthorized, result
-	//}
-
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result
 }
 
-//GetCatalogV2Handler is
+// GetCatalogV2Handler is
 func GetCatalogV2Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result
 }
 
-//HeadBlobsV2Handler is
+// HeadBlobsV2Handler is
 func HeadBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	digest := ctx.Params(":digest")
 	tarsum := strings.Split(digest, ":")[1]
@@ -92,9 +83,9 @@ func HeadBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-//PostBlobsV2Handler is
-//Initiate a resumable blob upload. If successful, an upload location will be provided to complete the upload.
-//Optionally, if the digest parameter is present, the request body will be used to complete the upload in a single request.
+// PostBlobsV2Handler is
+// Initiate a resumable blob upload. If successful, an upload location will be provided to complete the upload.
+// Optionally, if the digest parameter is present, the request body will be used to complete the upload in a single request.
 func PostBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	//TODO: If standalone == true, Dockyard will check HEADER Authorization; if standalone == false, Dockyard will check HEADER TOEKN.
 	namespace := ctx.Params(":namespace")
@@ -109,10 +100,10 @@ func PostBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	uuid := common.MD5(uuid.NewV4().String())
-	state := common.MD5(fmt.Sprintf("%s/%s/%d", namespace, repository, time.Now().UnixNano()/int64(time.Millisecond)))
+	uuid := utils.MD5(uuid.NewV4().String())
+	state := utils.MD5(fmt.Sprintf("%s/%s/%d", namespace, repository, time.Now().UnixNano()/int64(time.Millisecond)))
 	random := fmt.Sprintf("%s://%s/v2/%s/%s/blobs/uploads/%s?_state=%s",
-		utils.GetRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, uuid, state)
+		getRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, uuid, state)
 
 	ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	ctx.Resp.Header().Set("Docker-Upload-Uuid", uuid)
@@ -123,10 +114,10 @@ func PostBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusAccepted, result
 }
 
-//PatchBlobsV2Handler is
-//Upload a chunk of data for the specified upload.
-//Docker 1.9.x above version saves layer in PATCH methord
-//Docker 1.9.x below version saves layer in PUT methord
+// PatchBlobsV2Handler is
+// Upload a chunk of data for the specified upload.
+// Docker 1.9.x above version saves layer in PATCH methord
+// Docker 1.9.x below version saves layer in PUT methord
 func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	repository := ctx.Params(":repository")
 	namespace := ctx.Params(":namespace")
@@ -141,11 +132,11 @@ func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	} else if upload == true {
 		//It's run above docker 1.9.0
-		basePath := "dockerv2.storage"
+		basePath := setting.Storage.DockerV2
 		uuidPath := fmt.Sprintf("%s/uuid/%s", basePath, uuid)
 		uuidFile := fmt.Sprintf("%s/uuid/%s/%s", basePath, uuid, uuid)
 
-		if !common.IsDirExist(uuidPath) {
+		if !utils.IsDirExist(uuidPath) {
 			os.MkdirAll(uuidPath, os.ModePerm)
 		}
 
@@ -161,15 +152,15 @@ func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 		} else {
 			io.Copy(file, ctx.Req.Request.Body)
 
-			size, _ := common.GetFileSize(uuidFile)
+			size, _ := utils.GetFileSize(uuidFile)
 
 			ctx.Resp.Header().Set("Range", fmt.Sprintf("0-%v", size-1))
 		}
 	}
 
-	state := common.MD5(fmt.Sprintf("%s/%v", fmt.Sprintf("%s/%s", namespace, repository), time.Now().UnixNano()/int64(time.Millisecond)))
+	state := utils.MD5(fmt.Sprintf("%s/%v", fmt.Sprintf("%s/%s", namespace, repository), time.Now().UnixNano()/int64(time.Millisecond)))
 	random := fmt.Sprintf("%s://%s/v2/%s/%s/blobs/uploads/%s?_state=%s",
-		utils.GetRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, uuid, state)
+		getRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, uuid, state)
 
 	ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	ctx.Resp.Header().Set("Docker-Upload-Uuid", uuid)
@@ -179,8 +170,8 @@ func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-//PutBlobsV2Handler is
-//Complete the upload specified by uuid, optionally appending the body as the final chunk.
+// PutBlobsV2Handler is
+// Complete the upload specified by uuid, optionally appending the body as the final chunk.
 func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	var size int64
 
@@ -193,12 +184,12 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	digest := ctx.Query("digest")
 	tarsum := strings.Split(digest, ":")[1]
 
-	basePath := "dockerv2.storage"
+	basePath := setting.Storage.DockerV2
 	imagePath := fmt.Sprintf("%s/image/%s", basePath, tarsum)
 	imageFile := fmt.Sprintf("%s/image/%s/%s", basePath, tarsum, tarsum)
 
 	//Save from uuid path save too image path
-	if !common.IsDirExist(imagePath) {
+	if !utils.IsDirExist(imagePath) {
 		os.MkdirAll(imagePath, os.ModePerm)
 	}
 
@@ -224,7 +215,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 				return http.StatusBadRequest, result
 			}
 
-			size, _ = common.GetFileSize(imagePath)
+			size, _ = utils.GetFileSize(imagePath)
 
 			os.RemoveAll(uuidFile)
 			os.RemoveAll(uuidPath)
@@ -238,7 +229,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 			return http.StatusBadRequest, result
 		} else {
 			io.Copy(file, ctx.Req.Request.Body)
-			size, _ = common.GetFileSize(imagePath)
+			size, _ = utils.GetFileSize(imagePath)
 		}
 	}
 
@@ -250,9 +241,9 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	state := common.MD5(fmt.Sprintf("%s/%v", fmt.Sprintf("%s/%s", namespace, repository), time.Now().UnixNano()/int64(time.Millisecond)))
+	state := utils.MD5(fmt.Sprintf("%s/%v", fmt.Sprintf("%s/%s", namespace, repository), time.Now().UnixNano()/int64(time.Millisecond)))
 	random := fmt.Sprintf("%s://%s/v2/%s/%s/blobs/uploads/%s?_state=%s",
-		utils.GetRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, uuid, state)
+		getRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, uuid, state)
 
 	ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	ctx.Resp.Header().Set("Docker-Content-Digest", digest)
@@ -262,7 +253,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-//GetBlobsV2Handler is
+// GetBlobsV2Handler is
 func GetBlobsV2Handler(ctx *macaron.Context) {
 	digest := ctx.Params(":digest")
 	tarsum := strings.Split(digest, ":")[1]
@@ -314,7 +305,7 @@ func GetBlobsV2Handler(ctx *macaron.Context) {
 	}
 }
 
-//PutManifestsV2Handler is
+// PutManifestsV2Handler is
 func PutManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 	repository := ctx.Params(":repository")
 	namespace := ctx.Params(":namespace")
@@ -328,7 +319,7 @@ func PutManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	} else {
 		_, imageID, version, _ := module.GetTarsumlist([]byte(data))
-		digest, _ := signature.DigestManifest([]byte(data))
+		digest, _ := module.DockerV2DigestManifest([]byte(data))
 
 		r := new(model.DockerV2)
 		if err := r.PutAgent(namespace, repository, agent, strconv.FormatInt(version, 10)); err != nil {
@@ -347,7 +338,7 @@ func PutManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 		}
 
 		random := fmt.Sprintf("%s://%s/v2/%s/%s/manifests/%s",
-			utils.GetRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, digest)
+			getRequestScheme(ctx.Req.Request), ctx.Req.Request.Host, namespace, repository, digest)
 
 		ctx.Resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		ctx.Resp.Header().Set("Docker-Content-Digest", digest)
@@ -360,7 +351,7 @@ func PutManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 	}
 }
 
-//GetTagsListV2Handler is
+// GetTagsListV2Handler is
 func GetTagsListV2Handler(ctx *macaron.Context) (int, []byte) {
 	var err error
 	repository := ctx.Params(":repository")
@@ -387,7 +378,7 @@ func GetTagsListV2Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-//GetManifestsV2Handler is
+// GetManifestsV2Handler is
 func GetManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 	repository := ctx.Params(":repository")
 	namespace := ctx.Params(":namespace")
@@ -406,7 +397,7 @@ func GetManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
-	digest, _ := signature.DigestManifest([]byte(t.Manifest))
+	digest, _ := module.DockerV2DigestManifest([]byte(t.Manifest))
 
 	ctx.Resp.Header().Set("Content-Type", "application/vnd.docker.distribution.manifest.v2+json")
 	ctx.Resp.Header().Set("Docker-Content-Digest", digest)
@@ -415,20 +406,31 @@ func GetManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, []byte(t.Manifest)
 }
 
-//DeleteBlobsV2Handler is
+// DeleteBlobsV2Handler is
 func DeleteBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result
 }
 
-//DeleteBlobsUUUIDV2Handler is
-func DeleteBlobsUUUIDV2Handler(ctx *macaron.Context) (int, []byte) {
+// DeleteBlobsUUIDV2Handler is
+func DeleteBlobsUUIDV2Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result
 }
 
-//DeleteManifestsV2Handler is
+// DeleteManifestsV2Handler is
 func DeleteManifestsV2Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result
+}
+
+// getRequestScheme Returns the scheme of a http request.
+func getRequestScheme(r *http.Request) string {
+	scheme := "http"
+	if r.TLS != nil {
+		scheme = "https"
+	} else { // Request from a proxy server to unix socket, read the proto from header
+		scheme = r.Header.Get("X-Forwarded-Proto")
+	}
+	return scheme
 }

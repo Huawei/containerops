@@ -20,13 +20,11 @@ import (
 	"fmt"
 	"os"
 
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-
-	"github.com/Huawei/containerops/dockyard/cmd"
+	"github.com/Huawei/containerops/dockyard/client/cmd"
 )
 
 func init() {
-	//
+
 }
 
 func main() {
