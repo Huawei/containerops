@@ -29,8 +29,8 @@ export const AppRoutes: Routes = [{
     path: 'project',
     loadChildren: './project/project.module#ProjectModule'
   }, {
-    path: 'repo',
-    loadChildren: './create/create.module#CreateModule'
+    path: 'create',
+    loadChildren: './repository/create/create.module#CreateModule'
   }, {
     path: 'flow',
     loadChildren: './flow/flow.module#FlowModule'
