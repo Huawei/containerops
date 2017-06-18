@@ -19,8 +19,6 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { CreateComponent } from './create.component';
-import { RepoRoutes } from './create.routing';
-// import { BrowserModule } from '@angular/platform-browser';
 import { MdIconModule, MdInputModule,MdCheckboxModule,MdRadioModule, MdCardModule, MdButtonModule, MdListModule, MdProgressBarModule, MdMenuModule } from '@angular/material';
 import { FormsModule }   from '@angular/forms'; 
 import { ReactiveFormsModule } from '@angular/forms'
@@ -29,11 +27,12 @@ import { MdToolbarModule } from '@angular/material';
 import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
 import { TreeModule } from 'angular-tree-component';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { CreateRoutes } from './create.routing';
 
 @NgModule({
   imports: [
   CommonModule,
-  RouterModule.forChild(RepoRoutes),
+  RouterModule.forChild(CreateRoutes),
   MdIconModule,
   MdCardModule,
   FlexLayoutModule,
@@ -44,19 +43,12 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
   MdMenuModule,
   MdCheckboxModule,
   MdRadioModule,
-  MdInputModule
-  // BrowserModule
-   // Repo
-    ,FormsModule
-
-   ,ReactiveFormsModule
-
+  MdInputModule,
+  FormsModule,
+  ReactiveFormsModule,
   ],
   declarations: [CreateComponent],
-
-
-
 })
 
-export class RepoModule {}
+export class CreateModule {}
 

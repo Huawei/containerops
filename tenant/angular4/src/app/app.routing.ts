@@ -18,21 +18,24 @@ import { Routes } from '@angular/router';
 
 import { CoreLayoutComponent } from './layouts/core/core-layout.component';
 
-export const AppRoutes: Routes = [{
-  path: '',
-  redirectTo: 'home',
-  pathMatch: 'full',
-}, {
+export const AppRoutes: Routes = [
+  //{
+  // path: '',
+  // redirectTo: 'home',
+  // pathMatch: 'full',
+  // },
+  {
   path: '',
   component: CoreLayoutComponent,
-  children: [{
+  children: [
+    {
     path: 'home',
     loadChildren: './dashboard/dashboard.module#DashboardModule'
-  },
-  {
-    path: 'repo',
-    loadChildren: './repo/repo.module#RepoModule'
-  }]
+    },
+    {
+    path: 'create',
+    loadChildren: './repository/create/create.module#CreateModule'
+    },]
 }, {
   path: '**',
   redirectTo: 'session/404'

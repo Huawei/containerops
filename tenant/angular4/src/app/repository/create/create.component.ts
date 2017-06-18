@@ -16,7 +16,7 @@ limitations under the License.
 
 import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { Http, Response } from '@angular/http';
-import { RepoService } from './create.service';
+// import { CreateService } from './create.service';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { CustomValidators } from 'ng2-validation';
 
@@ -46,9 +46,9 @@ export class DockerIMG {
   isCer:boolean;
 }
 @Component({
-  selector: 'app-repo',
-  templateUrl: './repo.component.html',
-  styleUrls: ['./repo.component.scss']
+  selector: 'app-create',
+  templateUrl: './create.component.html',
+  styleUrls: ['./create.component.scss']
 })
 export class CreateComponent implements OnInit {
 

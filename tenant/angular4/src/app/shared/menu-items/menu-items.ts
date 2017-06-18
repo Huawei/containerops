@@ -43,8 +43,8 @@ const MENUITEMS = [
     type: 'link',
     icon: 'explore'
   },
-   {
-    state: 'repo',
+  {
+    state: 'create',
     name: 'Repo',
     type: 'link',
     icon: 'apps'

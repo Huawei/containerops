@@ -14,10 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Injectable } from '@angular/core';
+import { Routes } from '@angular/router';
 
-@Injectable()
-export class CreateService {
+import { CreateComponent } from './create.component';
 
-      addRepo(): void {} // stub
-}
+export const CreateRoutes: Routes = [{
+  path: '',
+  component: CreateComponent
+}];
