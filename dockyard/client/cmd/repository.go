@@ -20,13 +20,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var domain string
 var namespace, repository, repoType string
 
 // repository sub command
 var repositoryCmd = &cobra.Command{
 	Use:   "repository",
-	Short: "repository sub command create/delete and other manage function.",
+	Short: "repository sub command which create/delete and other manage repository functions.",
 	Long:  ``,
 }
 
@@ -42,7 +41,7 @@ var createRepositoryCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(repositoryCmd)
 
-	repositoryCmd.AddCommand(repositoryCmd)
+	repositoryCmd.AddCommand(createRepositoryCmd)
 	repositoryCmd.Flags().StringVar(&namespace, "user", "u", "Username or Organization for repository")
 	repositoryCmd.Flags().StringVar(&repository, "repo", "r", "Repository name")
 	repositoryCmd.Flags().StringVar(&repoType, "type", "t", "Repository type")
