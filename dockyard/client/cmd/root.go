@@ -23,11 +23,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var domain string
+
 // RootCmd is root cmd of dockyard.
 var RootCmd = &cobra.Command{
-	Use:   "dockyard",
-	Short: "dockyard client push/pull binary with Dcokayrd repository",
-	Long:  `Dockyard is a container and artifact repository storing and distributing container image, software artifact and virtual images of KVM or XEN.`,
+	Use:   "warship",
+	Short: "Warship is a dockyard client which push/pull binary from Dockyard repository.",
+	Long:  `Dockyard is a container and artifact repository storing and distributing container image, software artifact and virtual images of KVM or XEN. Warship is the Dockyard client which push/pull binary file with Dockyard server, and push/pull Docker image [WIP].`,
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
