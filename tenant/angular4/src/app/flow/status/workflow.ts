@@ -20,7 +20,7 @@ export class Workflow {
   timeout: number;
   title: string;
   version: number;
-  stages: array<Stage>;
+  stages: Array<Stage>;
 }
 
 export class Stage {
@@ -28,19 +28,19 @@ export class Stage {
   sequencing: string;
   title: string;
   type: string;
-  actions: array<Action>;
+  actions: Array<Action>;
 }
 
 export class Action {
   name: string;
   title: string;
-  jobs: array<Job>;
+  jobs: Array<Job>;
 }
 
 export class Job {
   endpoint: string;
-  environments: array<any>;
-  resources: array<any>;
+  environments: Array<any>;
+  resources: Array<any>;
   timeout: number;
   type: string;
 }
