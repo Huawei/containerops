@@ -29,6 +29,8 @@ export class DashboardComponent implements OnInit {
   @ViewChild('design') element: ElementRef;
   constructor(private http: Http) {};
 
+  private htmlElement: HTMLElement;
+
   private host: D3.Selection;
   private svg: D3.Selection;
   private svgWidth: number;
@@ -36,7 +38,6 @@ export class DashboardComponent implements OnInit {
 
   private stageGroup: D3.Selection;
 
-  private htmlElement: HTMLElement;
   private pieData = [1, 2, 3, 4, 5];
 
   private workflowObj: Object;

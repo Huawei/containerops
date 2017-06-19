@@ -14,12 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 
 import { Http, Response } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
-// import * as D3 from 'd3';
+
+import * as D3 from 'd3';
 import * as yaml from 'js-yaml';
+
+import * as workflow from './workflow';
+
+const stageTypeStar = 'start';
+const stageTypeEnd = 'end';
+const stageTypeNormal = 'normal';
+const stageSequencingSequence = 'sequence';
+const stageSequencingParallel = 'parallel';
+
 
 @Component({
   selector: 'app-status',
@@ -27,21 +37,84 @@ import * as yaml from 'js-yaml';
   styleUrls: ['./status.component.scss']
 })
 export class StatusComponent implements OnInit {
+  @ViewChild('design') element: ElementRef;
   constructor(private http: Http) {};
 
-  private workflowObj: Object;
+  private htmlElement: HTMLElement;
+
+  private host: D3.Selection;
+  private svg: D3.Selection;
+  private svgWidth: number;
+  private svgHeight: number;
+
+  private stageGroup: D3.Selection;
+
+
+  private workflowObj: workflow.Workflow;
 
   ngOnInit() {
     this.http.get('http://localhost:4200/assets/debug/cncf-demo.yaml')
       .toPromise()
-      .then(response => {this.workflowObj = yaml.load(response.text()); return this.workflowObj; })
-      .then(workflowData => {console.log('------------------');  console.log(workflowData); })
-      ;
-      // .subscribe(data => {
-      //   this.workflowObj = yaml.load(data.text());
-      //   console.log(this.workflowObj);
-      // });
+      .then(response => yaml.load(response.text()))
+      .then(wfObj => {
+        this.htmlElement = this.element.nativeElement;
+        this.host = D3.select(this.htmlElement);
+        this.host.html('');
+        this.svg = this.host.append('svg');
+        this.svgWidth = this.htmlElement.offsetWidth;
+        this.svgHeight = (this.htmlElement.parentElement.parentElement.offsetHeight) / 2 ;
+        this.svg.attr('width', this.svgWidth).attr('height', this.svgHeight);
+
+        this.stageGroup = this.svg.append('g');
+        this.drawWorkflow(wfObj);
+      });
   }
 
+  drawWorkflow(wfObj: any): void {
+    wfObj.stages.forEach((v, i) => {
+      // console.log(v.stage);
+      // console.log(v.stage.actions);
+      // console.log(v.stage.type);
+      // console.log('-----------------');
+
+      let stageImageUrl: string = '';
+
+      switch (v.stage.type) {
+        case stageTypeStar :
+          stageImageUrl = 'http://localhost:4200/assets/images/workflow/stage_start.svg';
+          break;
+        case stageTypeEnd :
+          stageImageUrl = 'http://localhost:4200/assets/images/workflow/stage_end.svg';
+          break;
+        case stageTypeNormal :
+          if (stageSequencingSequence === v.stage.sequencing) {
+            stageImageUrl = 'http://localhost:4200/assets/images/workflow/stage_sequnce.svg';
+            console.log('stageSequencingSequence');
+          }else if (stageSequencingParallel === v.stage.sequencing) {
+            stageImageUrl = 'http://localhost:4200/assets/images/workflow/stage_parallel.svg';
+            console.log('stageSequencingParallel');
+          }
+          break;
+      };
+
+      //Draw Stage
+      this.stageGroup.append('image')
+        .attr('xlink:href', stageImageUrl)
+        .attr('x', 60 * (i + 1) + (i * 100))
+        .attr('y', 60 )
+        .attr('width', 40)
+        .attr('height', 40);
+
+      //Draw Stage line
+
+      //Draw Action
+
+      //Draw Action line
+
+      //Draw Action to Stage line
+
+    });
+
+  }
 
 }
