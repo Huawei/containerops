@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
 import { Injectable } from '@angular/core';
 
 export interface BadgeItem {
@@ -72,6 +71,7 @@ const MENUITEMS = [
       {state: 'status', name: 'FLOWOSTATUS'}
     ]
   },
+  
   {
     state: 'setting',
     name: 'SYSSETTING',
@@ -83,6 +83,12 @@ const MENUITEMS = [
     name: 'DOCS',
     type: 'extraLink',
     icon: 'local_library'
+  },
+    {
+    state: 'create',
+    name: 'Repo',
+    type: 'link',
+    icon: 'apps'
   }
 ];
 
