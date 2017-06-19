@@ -48,6 +48,7 @@ export class StatusComponent implements OnInit {
   private svgHeight: number;
 
   private stageGroup: D3.Selection;
+  private stageLineGroup: D3.Selection;
 
 
   private workflowObj: workflow.Workflow;
@@ -66,12 +67,16 @@ export class StatusComponent implements OnInit {
         this.svg.attr('width', this.svgWidth).attr('height', this.svgHeight);
 
         this.stageGroup = this.svg.append('g');
+        this.stageGroup.attr('id', 'stageGroup');
+        this.stageLineGroup = this.svg.append('g');
+        this.stageLineGroup.attr('id', 'stageLineGroup');
+
         this.drawWorkflow(wfObj);
       });
   }
 
   drawWorkflow(wfObj: any): void {
-    wfObj.stages.forEach((v, i) => {
+    wfObj.stages.forEach((stageValue, stageIndex) => {
       // console.log(v.stage);
       // console.log(v.stage.actions);
       // console.log(v.stage.type);
@@ -79,7 +84,7 @@ export class StatusComponent implements OnInit {
 
       let stageImageUrl: string = '';
 
-      switch (v.stage.type) {
+      switch (stageValue.stage.type) {
         case stageTypeStar :
           stageImageUrl = 'http://localhost:4200/assets/images/workflow/stage_start.svg';
           break;
@@ -87,10 +92,10 @@ export class StatusComponent implements OnInit {
           stageImageUrl = 'http://localhost:4200/assets/images/workflow/stage_end.svg';
           break;
         case stageTypeNormal :
-          if (stageSequencingSequence === v.stage.sequencing) {
+          if (stageSequencingSequence === stageValue.stage.sequencing) {
             stageImageUrl = 'http://localhost:4200/assets/images/workflow/stage_sequnce.svg';
             console.log('stageSequencingSequence');
-          }else if (stageSequencingParallel === v.stage.sequencing) {
+          }else if (stageSequencingParallel === stageValue.stage.sequencing) {
             stageImageUrl = 'http://localhost:4200/assets/images/workflow/stage_parallel.svg';
             console.log('stageSequencingParallel');
           }
@@ -100,14 +105,25 @@ export class StatusComponent implements OnInit {
       //Draw Stage
       this.stageGroup.append('image')
         .attr('xlink:href', stageImageUrl)
-        .attr('x', 60 * (i + 1) + (i * 100))
+        .attr('x', 60 * (stageIndex + 1) + (stageIndex * 100))
         .attr('y', 60 )
         .attr('width', 40)
         .attr('height', 40);
 
       //Draw Stage line
+      if (stageValue.stage.type !== stageTypeEnd) {
+        this.stageLineGroup.append('line')
+          .attr('x1', 60 * (stageIndex + 1) + (stageIndex * 100) + 40)
+          .attr('y1', 80)
+          .attr('x2', 60 * (stageIndex + 1) + (stageIndex * 100) + 160)
+          .attr('y2', 80)
+          .attr('stroke', '#adadad')
+          .attr('stroke-width', '5');
+      }
 
       //Draw Action
+
+      //Draw Job
 
       //Draw Action line
 
