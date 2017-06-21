@@ -49,6 +49,8 @@ export class StatusComponent implements OnInit {
 
   private stageGroup: D3.Selection;
   private stageLineGroup: D3.Selection;
+  private actionGroups: Map<string, D3.Selection> = new Map();
+  private jobGroups: Map<string, D3.Selection> = new Map();
 
 
   private workflowObj: workflow.Workflow;
@@ -68,6 +70,7 @@ export class StatusComponent implements OnInit {
 
         this.stageGroup = this.svg.append('g');
         this.stageGroup.attr('id', 'stageGroup');
+
         this.stageLineGroup = this.svg.append('g');
         this.stageLineGroup.attr('id', 'stageLineGroup');
 
@@ -76,13 +79,13 @@ export class StatusComponent implements OnInit {
   }
 
   drawWorkflow(wfObj: any): void {
+
     wfObj.stages.forEach((stageValue, stageIndex) => {
       // console.log(v.stage);
       // console.log(v.stage.actions);
       // console.log(v.stage.type);
       // console.log('-----------------');
-
-      let stageImageUrl: string = '';
+      let stageImageUrl = '';
 
       switch (stageValue.stage.type) {
         case stageTypeStar :
@@ -94,40 +97,92 @@ export class StatusComponent implements OnInit {
         case stageTypeNormal :
           if (stageSequencingSequence === stageValue.stage.sequencing) {
             stageImageUrl = 'http://localhost:4200/assets/images/workflow/stage_sequnce.svg';
-            console.log('stageSequencingSequence');
           }else if (stageSequencingParallel === stageValue.stage.sequencing) {
             stageImageUrl = 'http://localhost:4200/assets/images/workflow/stage_parallel.svg';
-            console.log('stageSequencingParallel');
           }
           break;
       };
 
-      //Draw Stage
+      // Draw Stage
       this.stageGroup.append('image')
         .attr('xlink:href', stageImageUrl)
-        .attr('x', 60 * (stageIndex + 1) + (stageIndex * 100))
+        .attr('x', 140 * (stageIndex + 1) + (stageIndex * 100))
         .attr('y', 60 )
         .attr('width', 40)
         .attr('height', 40);
 
-      //Draw Stage line
+      // Draw Stage line
       if (stageValue.stage.type !== stageTypeEnd) {
         this.stageLineGroup.append('line')
-          .attr('x1', 60 * (stageIndex + 1) + (stageIndex * 100) + 40)
+          .attr('x1', 140 * (stageIndex + 1) + (stageIndex * 100) + 40)
           .attr('y1', 80)
-          .attr('x2', 60 * (stageIndex + 1) + (stageIndex * 100) + 160)
+          .attr('x2', 140 * (stageIndex + 1) + (stageIndex * 100) + 240)
           .attr('y2', 80)
           .attr('stroke', '#adadad')
           .attr('stroke-width', '5');
       }
 
-      //Draw Action
+      // Draw Action
 
-      //Draw Job
+      if (stageValue.stage.actions) {
+        let jobRowCount, jobColCount: number;
 
-      //Draw Action line
 
-      //Draw Action to Stage line
+        const actionGroupName = stageValue.stage.name +  '-Actions';
+        this.actionGroups.set(actionGroupName, this.svg.append('g'));
+        this.actionGroups.get(actionGroupName).attr('id', actionGroupName);
+
+        stageValue.stage.actions.forEach((actionValue, actionIndex) => {
+
+          jobRowCount = Math.ceil( actionValue.action.jobs.length / 4 ) ;
+          jobColCount = actionValue.action.jobs.length > 4 ? 4 : actionValue.action.jobs.length;
+          console.log('===rowCount===');
+          console.log( jobRowCount + ':' + jobColCount);
+
+          const actonXBase = 140 * (stageIndex + 1) + (stageIndex * 100);
+
+          console.log(actonXBase / 16 * jobColCount);
+
+          this.actionGroups.get(actionGroupName).append('rect')
+            .attr('x', 20 + actonXBase - (40 * jobColCount / 2) )
+            .attr('y', (actionIndex + 1) * 150)
+            .attr('width', 40 * jobColCount)
+            .attr('height', 40)
+            .attr('rx', 8)
+            .attr('ry', 8)
+            .attr('stroke', '#000000')
+            .attr('stroke-width', '1')
+            .attr('fill', '#000000')
+            .attr('fill-opacity', '0');
+
+          // Draw Job
+          // console.log(actionValue.action.jobs);
+          actionValue.action.jobs.forEach((jobValue, jobIndex) => {
+
+            const jobGroupName = stageValue.stage.name + '-' + actionValue.action.name + '-job';
+            this.jobGroups.set(jobGroupName, this.svg.append('g'));
+            this.jobGroups.get(jobGroupName).attr('id', jobGroupName);
+            this.jobGroups.get(jobGroupName).append('rect')
+              .attr('x', 20 + actonXBase - (40 * jobColCount / 2) + 8 + (jobIndex * 40))
+              .attr('y', (actionIndex + 1) * 150 + 8 )
+              .attr('width', 25)
+              .attr('height', 25)
+              .attr('rx', 3)
+              .attr('ry', 3)
+              .attr('stroke', '#000000')
+              .attr('stroke-width', '1')
+              .attr('fill', '#000000')
+              .attr('fill-opacity', '0');
+
+          });
+
+
+        });
+      }
+
+      // Draw Action line
+
+      // Draw Action to Stage line
 
     });
 
