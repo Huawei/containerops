@@ -17,8 +17,8 @@ title: Demo For Cloud Native Computing Foundation CI Working Group
 version: 12
 tag: latest
 timeout: 0
-stages: 
-  - stage: 
+stages:
+  - stage:
       type: start
       name: start
       title: Start
@@ -26,8 +26,8 @@ stages:
       type: normal
       name: k8s-test-build-release
       title: Build, Test and Publish the Kubernetes Binary
-      sequencing: sequence # parallel or sequnce 
-      actios: 
+      sequencing: sequence # parallel or sequnce
+      actions:
         - action:
             name: build-kubernetes
             title: Build Kubernetes
@@ -38,10 +38,37 @@ stages:
                   resources:
                     cpu: 0
                     memory: 0
-                  timeout: 0 
+                  timeout: 0
                   environments:
                     - default: kubernetes=https://github.com/kubernetes/kubernetes.git action=build
-        - action:    
+              - job:
+                  type: component # component or service
+                  endpoint: docker.io/containerops/cncf-demo-kubernetes
+                  resources:
+                    cpu: 0
+                    memory: 0
+                  timeout: 0
+                  environments:
+                    - default: kubernetes=https://github.com/kubernetes/kubernetes.git action=build
+              - job:
+                  type: component # component or service
+                  endpoint: docker.io/containerops/cncf-demo-kubernetes
+                  resources:
+                    cpu: 0
+                    memory: 0
+                  timeout: 0
+                  environments:
+                    - default: kubernetes=https://github.com/kubernetes/kubernetes.git action=build
+              - job:
+                  type: component # component or service
+                  endpoint: docker.io/containerops/cncf-demo-kubernetes
+                  resources:
+                    cpu: 0
+                    memory: 0
+                  timeout: 0
+                  environments:
+                    - default: kubernetes=https://github.com/kubernetes/kubernetes.git action=build
+        - action:
             name: test-kubernetes
             title: Test Kubernetes
             jobs:
@@ -51,10 +78,28 @@ stages:
                   resources:
                     cpu: 0
                     memory: 0
-                  timeout: 0 
+                  timeout: 0
                   environments:
                     - default: kubernetes=https://github.com/kubernetes/kubernetes.git action=test
-        - action:    
+              - job:
+                  type: component
+                  endpoint: docker.io/containerops/cncf-demo-kubernetes
+                  resources:
+                    cpu: 0
+                    memory: 0
+                  timeout: 0
+                  environments:
+                    - default: kubernetes=https://github.com/kubernetes/kubernetes.git action=test
+              - job:
+                  type: component
+                  endpoint: docker.io/containerops/cncf-demo-kubernetes
+                  resources:
+                    cpu: 0
+                    memory: 0
+                  timeout: 0
+                  environments:
+                    - default: kubernetes=https://github.com/kubernetes/kubernetes.git action=test
+        - action:
             name: release-kubernetes
             title: Publish Kubernetes
             jobs:
@@ -64,7 +109,16 @@ stages:
                   resources:
                     cpu: 0
                     memory: 0
-                  timeout: 0 
+                  timeout: 0
+                  environments:
+                    - default: kubernetes=https://github.com/kubernetes/kubernetes.git action=release
+              - job:
+                  type: component
+                  endpoint: docker.io/containerops/cncf-demo-kubernetes
+                  resources:
+                    cpu: 0
+                    memory: 0
+                  timeout: 0
                   environments:
                     - default: kubernetes=https://github.com/kubernetes/kubernetes.git action=release
   - stage:
@@ -83,10 +137,10 @@ stages:
                   resources:
                     cpu: 0
                     memory: 0
-                  timeout: 0 
+                  timeout: 0
                   environments:
                     - default: prometheus=https://github.com/prometheus/prometheus.git action=build
-        - action:    
+        - action:
             name: test-prometheus
             title: Test Prometheus
             jobs:
@@ -96,10 +150,10 @@ stages:
                   resources:
                     cpu: 0
                     memory: 0
-                  timeout: 0 
+                  timeout: 0
                   environments:
                     - default: prometheus=https://github.com/prometheus/prometheus.git action=test
-        - action:    
+        - action:
             name: release-prometheus
             title: Publish Prometheus
             jobs:
@@ -109,7 +163,7 @@ stages:
                   resources:
                     cpu: 0
                     memory: 0
-                  timeout: 0 
+                  timeout: 0
                   environments:
                     - default: prometheus=https://github.com/prometheus/prometheus.git action=release
   - stage:
@@ -128,10 +182,10 @@ stages:
                   resources:
                     cpu: 0
                     memory: 0
-                  timeout: 0 
+                  timeout: 0
                   environments:
                     - default: coredns=https://github.com/coredns/coredns.git action=build
-        - action:    
+        - action:
             name: test-coredns
             title: Test CoreDNS
             jobs:
@@ -141,10 +195,10 @@ stages:
                   resources:
                     cpu: 0
                     memory: 0
-                  timeout: 0 
+                  timeout: 0
                   environments:
                     - default: coredns=https://github.com/coredns/coredns.git action=test
-        - action:    
+        - action:
             name: release-coredns
             title: Publish CoreDNS
             jobs:
@@ -154,9 +208,9 @@ stages:
                   resources:
                     cpu: 0
                     memory: 0
-                  timeout: 0 
+                  timeout: 0
                   environments:
-                    - default: coredns=https://github.com/coredns/coredns.git action=release     
+                    - default: coredns=https://github.com/coredns/coredns.git action=release
   - stage:
         type: end
         name: end
