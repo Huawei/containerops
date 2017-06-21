@@ -23,7 +23,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// RootCmd is root cmd of dockyard.
+var cfgFile string
+
+// RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "dockyard",
 	Short: "dockyard is a container and artifact repository",

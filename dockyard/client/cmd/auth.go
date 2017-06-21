@@ -27,6 +27,7 @@ var authCmd = &cobra.Command{
 	Long:  ``,
 }
 
+// login sub command
 var loginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "Login the Dockyard server.",
@@ -34,6 +35,7 @@ var loginCmd = &cobra.Command{
 	Run:   loginServer,
 }
 
+// logout sub command
 var logoutCmd = &cobra.Command{
 	Use:   "logout",
 	Short: "Logout from Dockyard server.",
@@ -41,6 +43,7 @@ var logoutCmd = &cobra.Command{
 	Run:   logoutServer,
 }
 
+// init()
 func init() {
 	RootCmd.AddCommand(authCmd)
 
@@ -48,10 +51,12 @@ func init() {
 	authCmd.AddCommand(logoutCmd)
 }
 
+// loginServer is
 func loginServer(cmd *cobra.Command, args []string) {
 
 }
 
+// logoutServer is
 func logoutServer(cmd *cobra.Command, args []string) {
 
 }
