@@ -8,7 +8,6 @@ This document defines the for roadmap of ContainerOps development.
 - [ ] Workflow Engine Runtime
 - [ ] Component Editor
 - [ ] Component Management
-- [ ] Third Service Integration
 - [ ] Artifact And Container Registry
 - [ ] RABC Service
 - [ ] Deployment Service
@@ -19,6 +18,7 @@ This document defines the for roadmap of ContainerOps development.
 - [ ] DevOps Components
 - [ ] Artifact And Container Build
 - [ ] Dashboard
+- [ ] Third Service Integration
 
 ##### _1.2 [ 2017.Q3 ]_
 

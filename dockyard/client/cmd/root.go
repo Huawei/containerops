@@ -20,16 +20,31 @@ import (
 	"fmt"
 	"os"
 
+	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
-var domain string
+var cfgFile, domain string
 
-// RootCmd is root cmd of dockyard.
+// RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "warship",
-	Short: "Warship is a dockyard client which push/pull binary from Dockyard repository.",
-	Long:  `Dockyard is a container and artifact repository storing and distributing container image, software artifact and virtual images of KVM or XEN. Warship is the Dockyard client which push/pull binary file with Dockyard server, and push/pull Docker image [WIP].`,
+	Short: "Warship is a dockyard client.",
+	Long: `Dockyard is a container and artifact repository storing and distributing 
+container image, software artifact and virtual images of KVM or XEN. 
+Warship is the Dockyard client which push/pull binary file with Dockyard server.
+And we also working on push/pull Docker image, rkt ACI and OCI Image.`,
+}
+
+// init()
+func init() {
+	cobra.OnInitialize(initConfig)
+
+	RootCmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.containerops/config/containerops)")
+	RootCmd.Flags().StringVarP(&domain, "domain", "d", "", "dockyard service domain")
+
+	viper.BindPFlag("domain", RootCmd.Flags().Lookup("domain"))
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -41,7 +56,30 @@ func Execute() {
 	}
 }
 
-// init()
-func init() {
+// initConfig reads in config file and ENV variables if set.
+func initConfig() {
+	if cfgFile != "" {
+		// Use config file from the flag.
+		viper.SetConfigFile(cfgFile)
+	} else {
+		// Find home directory.
+		home, err := homedir.Dir()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 
+		// Search config in home directory with name "containerops" (without extension).
+		viper.AddConfigPath("/etc/containerops/config")
+		viper.AddConfigPath(fmt.Sprintf("%s/.containerops/config", home))
+		viper.AddConfigPath(".")
+		viper.SetConfigName("containerops")
+	}
+
+	viper.AutomaticEnv() // read in environment variables that match
+
+	// If a config file is found, read it in.
+	if err := viper.ReadInConfig(); err == nil {
+		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	}
 }
