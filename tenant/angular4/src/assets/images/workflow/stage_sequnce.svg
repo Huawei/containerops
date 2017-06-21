@@ -1,16 +1,48 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="Layer_1" style="enable-background:new 0 0 64 64;" version="1.1" viewBox="0 0 64 64" xml:space="preserve">
-
-  <style type="text/css">
-	.st0{fill:#134563;}
-</style>
-<g id="g3450" transform="matrix(0,1,-1,0,64,0)">
-  <g id="Icon-Arrow-bottom" transform="translate(28,328)">
-    <path class="st0" d="m 4,-272.1 c -13.2,0 -23.9,-10.7 -23.9,-23.9 0,-13.2 10.7,-23.9 23.9,-23.9 13.2,0 23.9,10.7 23.9,23.9 0,13.2 -10.7,23.9 -23.9,23.9 l 0,0 z m 0,-45.2 c -11.7,0 -21.3,9.6 -21.3,21.3 0,11.7 9.6,21.3 21.3,21.3 11.7,0 21.3,-9.6 21.3,-21.3 0,-11.7 -9.6,-21.3 -21.3,-21.3 l 0,0 z" id="Fill-25" inkscape:connector-curvature="0" style="fill:#134563"/>
-    <polyline class="st0" id="Fill-26" points="3.5,-282.3 1.7,-284.2 13.4,-296 1.7,-307.8 3.5,-309.7 17.2,-296 3.5,-282.3    " style="fill:#134563"/>
-    <polygon class="st0" id="Fill-27" points="-8.7,-294.6 -8.7,-297.4 15.3,-297.4 15.3,-294.6 " style="fill:#134563"/>
-  </g>
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+<g>
+	<g>
+		<g>
+			<path d="M256,0C114.88,0,0,114.88,0,256s114.88,256,256,256s256-114.88,256-256S397.12,0,256,0z M256,490.667
+				c-129.387,0-234.667-105.28-234.667-234.667S126.613,21.333,256,21.333S490.667,126.613,490.667,256S385.387,490.667,256,490.667
+				z"/>
+			<path d="M365.76,280.533l-99.093,99.093V107.093c0-5.333-3.84-10.133-9.067-10.88c-6.613-0.96-12.267,4.16-12.267,10.56v272.96
+				l-99.093-99.2c-4.267-4.053-10.987-3.947-15.04,0.213c-3.947,4.16-3.947,10.667,0,14.827l117.333,117.333
+				c4.16,4.16,10.88,4.16,15.04,0l117.333-117.333c4.053-4.267,3.947-10.987-0.213-15.04
+				C376.533,276.587,369.92,276.587,365.76,280.533z"/>
+		</g>
+	</g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
 </g>
 </svg>
