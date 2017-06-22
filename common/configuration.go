@@ -17,9 +17,9 @@ limitations under the License.
 package common
 
 import (
+	"encoding/json"
 	"fmt"
 
-	"encoding/json"
 	homeDir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )

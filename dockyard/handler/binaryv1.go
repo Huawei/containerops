@@ -25,6 +25,7 @@ import (
 	"strconv"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/jinzhu/gorm"
 	"gopkg.in/macaron.v1"
 
 	"github.com/Huawei/containerops/common"
@@ -49,7 +50,7 @@ func PostBinaryV1Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	f := new(model.BinaryFileV1)
-	if err := f.Get(b.ID, binary, tag); err != nil {
+	if err := f.Get(b.ID, binary, tag); err != nil && err != gorm.ErrRecordNotFound {
 		log.Errorf("get file error: %s", err.Error())
 
 		result, _ := module.EncodingError(module.UNKNOWN, map[string]string{"namespace": namespace, "repository": repository, "file": binary, "tag": tag})
@@ -57,9 +58,10 @@ func PostBinaryV1Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	if f.ID == 0 {
+		// Storage pattern namespace/repository/tag/file
 		basePath := common.Storage.BinaryV1
-		tagPath := fmt.Sprintf("%s/tags/%s", basePath, tag)
-		binaryPath := fmt.Sprintf("%s/tags/%s/%s", basePath, tag, binary)
+		tagPath := fmt.Sprintf("%s/%s/%s/%s", basePath, namespace, repository, tag)
+		binaryPath := fmt.Sprintf("%s/%s/%s/%s/%s", basePath, namespace, repository, tag, binary)
 
 		if !utils.IsDirExist(tagPath) {
 			os.MkdirAll(tagPath, os.ModePerm)
