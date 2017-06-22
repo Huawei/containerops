@@ -21,6 +21,7 @@ import (
 	"net/http"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/jinzhu/gorm"
 	"gopkg.in/macaron.v1"
 
 	"fmt"
@@ -76,8 +77,22 @@ func PostRepositoryV1Handler(ctx *macaron.Context) (int, []byte) {
 	case "docker":
 		r := new(model.DockerV2)
 
+		if err := r.Get(namespace, repository); err != nil && err != gorm.ErrRecordNotFound {
+			log.Errorf("Get Docker repository error [v2]: %s", err.Error())
+
+			result, _ := module.EncodingError(module.REPOSITORY_CREATE_FAILED, fmt.Sprintf("%s/%s", namespace, repository))
+			return http.StatusBadRequest, result
+		}
+
+		if r.ID > 0 {
+			log.Errorf("Create Docker repository error [v2]: %s", "repository reduplicated")
+
+			result, _ := module.EncodingError(module.REPOSITORY_CREATE_REDUPLICATED, fmt.Sprintf("%s/%s", namespace, repository))
+			return http.StatusBadRequest, result
+		}
+
 		if err := r.Put(namespace, repository); err != nil {
-			log.Errorf("Put Docker V2 repository error: %s", err.Error())
+			log.Errorf("Put Docker V2 repository error [v2]: %s", err.Error())
 
 			result, _ := module.EncodingError(module.REPOSITORY_CREATE_FAILED, fmt.Sprintf("%s/%s", namespace, repository))
 			return http.StatusBadRequest, result
@@ -85,8 +100,22 @@ func PostRepositoryV1Handler(ctx *macaron.Context) (int, []byte) {
 	case "binary":
 		b := new(model.BinaryV1)
 
+		if err := b.Get(namespace, repository); err != nil && err != gorm.ErrRecordNotFound {
+			log.Errorf("Get binary repository error [v1]: %s", err.Error())
+
+			result, _ := module.EncodingError(module.REPOSITORY_CREATE_FAILED, fmt.Sprintf("%s/%s", namespace, repository))
+			return http.StatusBadRequest, result
+		}
+
+		if b.ID > 0 {
+			log.Errorf("Create binary repository error [v1]: %s", "repository reduplicated")
+
+			result, _ := module.EncodingError(module.REPOSITORY_CREATE_REDUPLICATED, fmt.Sprintf("%s/%s", namespace, repository))
+			return http.StatusBadRequest, result
+		}
+
 		if err := b.Put(namespace, repository); err != nil {
-			log.Errorf("Put Binary V2 repository error: %s", err.Error())
+			log.Errorf("Put Binary V2 repository error [v1]: %s", err.Error())
 
 			result, _ := module.EncodingError(module.REPOSITORY_CREATE_FAILED, fmt.Sprintf("%s/%s", namespace, repository))
 			return http.StatusBadRequest, result
