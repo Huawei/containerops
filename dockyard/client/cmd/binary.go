@@ -79,6 +79,7 @@ func init() {
 }
 
 // Upload binary to Dockyard service.
+// curl -i -X PUT -T <filename> -H "Content-Type: text/plain"  https://hub.opshub.sh/binary/v1/:namespace/:repository/binary/:binary/:tag
 func uploadBinary(cmd *cobra.Command, args []string) {
 	if domain == "" {
 		domain = common.Warship.Domain
