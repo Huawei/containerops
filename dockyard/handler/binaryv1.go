@@ -22,23 +22,16 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 
 	log "github.com/Sirupsen/logrus"
 	"gopkg.in/macaron.v1"
 
+	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/common/utils"
 	"github.com/Huawei/containerops/dockyard/model"
 	"github.com/Huawei/containerops/dockyard/module"
-	"github.com/Huawei/containerops/dockyard/setting"
-	"strconv"
 )
-
-func init() {
-	if err := setting.SetConfig("./conf/runtime.toml"); err != nil {
-		log.Fatalf("Failed to init settings: %s", err.Error())
-		os.Exit(1)
-	}
-}
 
 // PostBinaryV1Handler is
 func PostBinaryV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -64,7 +57,7 @@ func PostBinaryV1Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	if f.ID == 0 {
-		basePath := setting.Storage.BinaryV1
+		basePath := common.Storage.BinaryV1
 		tagPath := fmt.Sprintf("%s/tags/%s", basePath, tag)
 		binaryPath := fmt.Sprintf("%s/tags/%s/%s", basePath, tag, binary)
 

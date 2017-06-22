@@ -20,9 +20,10 @@ import (
 	"fmt"
 	"os"
 
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/Huawei/containerops/common"
 )
 
 var cfgFile, domain string
@@ -41,10 +42,11 @@ And we also working on push/pull Docker image, rkt ACI and OCI Image.`,
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	RootCmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.containerops/config/containerops)")
-	RootCmd.Flags().StringVarP(&domain, "domain", "d", "", "dockyard service domain")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Configuration file path")
+	RootCmd.PersistentFlags().StringVar(&domain, "domain", "", "Dockyard service domain")
 
 	viper.BindPFlag("domain", RootCmd.Flags().Lookup("domain"))
+	viper.BindPFlag("config", RootCmd.Flags().Lookup("config"))
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -58,28 +60,8 @@ func Execute() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		// Search config in home directory with name "containerops" (without extension).
-		viper.AddConfigPath("/etc/containerops/config")
-		viper.AddConfigPath(fmt.Sprintf("%s/.containerops/config", home))
-		viper.AddConfigPath(".")
-		viper.SetConfigName("containerops")
-	}
-
-	viper.AutomaticEnv() // read in environment variables that match
-
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	if err := common.SetConfig(cfgFile); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }
