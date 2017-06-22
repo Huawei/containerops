@@ -18,20 +18,27 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 
 	"github.com/Huawei/containerops/common"
+	"github.com/Huawei/containerops/dockyard/client/repo"
 )
 
 var repoType string
 
-// repository sub command
+// repo sub command
 var repositoryCmd = &cobra.Command{
-	Use:   "repository",
-	Short: "repository sub command which create/delete and other manage repository.",
+	Use:   "repo",
+	Short: "Create/delete and other manage repository.",
 	Long: `When using Dockyard as binary repository, should create a repository with
-binary type before uploading file.`,
+binary type before uploading file.
+    
+    warship repo create --type binary containerops/cncf-demo
+    
+`,
 }
 
 // create repository command
@@ -57,5 +64,23 @@ func createRepository(cmd *cobra.Command, args []string) {
 		domain = common.Warship.Domain
 	}
 
-	fmt.Println(domain)
+	if repoType == "" {
+		fmt.Println("The repository must be `docker` or `binary`, not be a null value.")
+		os.Exit(1)
+	}
+
+	if args[0] == "" {
+		fmt.Println("The repository name and namespace is required.")
+		os.Exit(1)
+	}
+
+	namespace := strings.Split(args[0], "/")[0]
+	repository := strings.Split(args[0], "/")[1]
+
+	if err := repo.CreateRepository(domain, namespace, repository, repoType); err != nil {
+		fmt.Println(fmt.Sprintf("Create repository %s error: %s", args[0], err.Error()))
+		os.Exit(1)
+	}
+
+	fmt.Println("Create repository successfully.")
 }

@@ -20,10 +20,12 @@ import (
 	"github.com/Huawei/containerops/dockyard/client/cmd"
 )
 
+// init()
 func init() {
 
 }
 
+// main()
 func main() {
 	cmd.Execute()
 }
