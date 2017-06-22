@@ -30,9 +30,9 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/macaron.v1"
 
+	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/common/utils"
 	"github.com/Huawei/containerops/dockyard/model"
-	"github.com/Huawei/containerops/dockyard/setting"
 	"github.com/Huawei/containerops/dockyard/web"
 )
 
@@ -78,7 +78,6 @@ func init() {
 	daemonCmd.AddCommand(startDaemonCmd)
 	startDaemonCmd.Flags().StringVarP(&addressOption, "address", "a", "", "http or https listen address.")
 	startDaemonCmd.Flags().IntVarP(&portOption, "port", "p", 0, "the port of http.")
-	startDaemonCmd.Flags().StringVarP(&configFilePath, "config", "c", "./conf/runtime.conf", "path of the config file.")
 
 	// Add stop sub command
 	daemonCmd.AddCommand(stopDaemonCmd)
@@ -88,48 +87,43 @@ func init() {
 
 // startDeamon() start Dockyard's REST API daemon.
 func startDeamon(cmd *cobra.Command, args []string) {
-	if err := setting.SetConfig(configFilePath); err != nil {
-		log.Fatalf("Failed to init settings: %s", err.Error())
-		os.Exit(1)
-	}
-
-	model.OpenDatabase(&setting.Database)
+	model.OpenDatabase(&common.Database)
 	m := macaron.New()
 
 	// Set Macaron Web Middleware And Routers
-	web.SetDockyardMacaron(m)
+	web.SetDockyardMacaron(m, cfgFile)
 
 	var server *http.Server
 	stopChan := make(chan os.Signal)
 
 	signal.Notify(stopChan, os.Interrupt)
 
-	address := setting.Web.Address
+	address := common.Web.Address
 	if addressOption != "" {
 		address = addressOption
 	}
-	port := setting.Web.Port
+	port := common.Web.Port
 	if portOption != 0 {
 		port = portOption
 	}
 
 	go func() {
-		switch setting.Web.Mode {
+		switch common.Web.Mode {
 		case "https":
-			listenaddr := fmt.Sprintf("%s:%d", address, port)
-			server = &http.Server{Addr: listenaddr, TLSConfig: &tls.Config{MinVersion: tls.VersionTLS10}, Handler: m}
-			if err := server.ListenAndServeTLS(setting.Web.Cert, setting.Web.Key); err != nil {
+			listenAddr := fmt.Sprintf("%s:%d", address, port)
+			server = &http.Server{Addr: listenAddr, TLSConfig: &tls.Config{MinVersion: tls.VersionTLS10}, Handler: m}
+			if err := server.ListenAndServeTLS(common.Web.Cert, common.Web.Key); err != nil {
 				log.Errorf("Start Dockyard https service error: %s\n", err.Error())
 			}
 
 			break
 		case "unix":
-			listenaddr := fmt.Sprintf("%s", address)
-			if utils.IsFileExist(listenaddr) {
-				os.Remove(listenaddr)
+			listenAddr := fmt.Sprintf("%s", address)
+			if utils.IsFileExist(listenAddr) {
+				os.Remove(listenAddr)
 			}
 
-			if listener, err := net.Listen("unix", listenaddr); err != nil {
+			if listener, err := net.Listen("unix", listenAddr); err != nil {
 				log.Errorf("Start Dockyard unix socket error: %s\n", err.Error())
 			} else {
 				server = &http.Server{Handler: m}
@@ -139,7 +133,7 @@ func startDeamon(cmd *cobra.Command, args []string) {
 			}
 			break
 		default:
-			log.Fatalf("Invalid listen mode: %s\n", setting.Web.Mode)
+			log.Fatalf("Invalid listen mode: %s\n", common.Web.Mode)
 			os.Exit(1)
 			break
 		}

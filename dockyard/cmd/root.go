@@ -21,6 +21,9 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
+	"github.com/Huawei/containerops/common"
 )
 
 var cfgFile string
@@ -32,6 +35,15 @@ var RootCmd = &cobra.Command{
 	Long:  `Dockyard is a container and artifact repository storing and distributing container image, software artifact and virtual images of KVM or XEN.`,
 }
 
+// init()
+func init() {
+	cobra.OnInitialize(initConfig)
+
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Configuration file path")
+
+	viper.BindPFlag("config", RootCmd.Flags().Lookup("config"))
+}
+
 // Execute adds all child commands to the root command sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
@@ -41,7 +53,10 @@ func Execute() {
 	}
 }
 
-// init()
-func init() {
-
+// initConfig reads in config file and ENV variables if set.
+func initConfig() {
+	if err := common.SetConfig(cfgFile); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }

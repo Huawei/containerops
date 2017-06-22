@@ -18,25 +18,26 @@ package cmd
 
 import (
 	"fmt"
-	//"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/Huawei/containerops/common"
 )
 
-var namespace, repository, repoType string
+var repoType string
 
 // repository sub command
 var repositoryCmd = &cobra.Command{
 	Use:   "repository",
 	Short: "repository sub command which create/delete and other manage repository.",
 	Long: `When using Dockyard as binary repository, should create a repository with
-binary type.`,
+binary type before uploading file.`,
 }
 
 // create repository command
 var createRepositoryCmd = &cobra.Command{
 	Use:   "create",
-	Short: "Create a repository in Dockyard",
+	Short: "Namespace and repository as the args like `containerops/cncf-demo`.",
 	Long:  `There are two repository types support just now, it's docker and binary`,
 	Run:   createRepository,
 }
@@ -47,20 +48,14 @@ func init() {
 
 	//Add create repository sub command.
 	repositoryCmd.AddCommand(createRepositoryCmd)
-	repositoryCmd.PersistentFlags().StringVarP(&namespace, "user", "u", "", "Username or Organization for repository")
-	repositoryCmd.PersistentFlags().StringVarP(&repository, "repo", "r", "", "Repository name")
-	repositoryCmd.PersistentFlags().StringVarP(&repoType, "type", "t", "", "Repository type")
-
+	createRepositoryCmd.Flags().StringVarP(&repoType, "type", "t", "", "Repository type")
 }
 
 // createRepository is
 func createRepository(cmd *cobra.Command, args []string) {
-	//if domain == "" || namespace == "" || repository == "" || repoType == "" {
-	//	fmt.Println("Parameter may not be empty. ")
-	//	os.Exit(1)
-	//}
-	//
-	//uri := fmt.Sprintf("https://%s/v1/%s/%s/%s", domain, namespace, repository, repoType)
-	//fmt.Println(uri)
+	if domain == "" {
+		domain = common.Warship.Domain
+	}
+
 	fmt.Println(domain)
 }

@@ -19,11 +19,15 @@ package web
 import (
 	"gopkg.in/macaron.v1"
 
+	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/dockyard/middleware"
 	"github.com/Huawei/containerops/dockyard/router"
 )
 
-func SetDockyardMacaron(m *macaron.Macaron) {
+func SetDockyardMacaron(m *macaron.Macaron, config string) {
+	//Setting Config
+	common.SetConfig(config)
+
 	//Setting Middleware
 	middleware.SetMiddlewares(m)
 

@@ -23,8 +23,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/jinzhu/gorm"
 
+	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/common/model"
-	"github.com/Huawei/containerops/dockyard/setting"
 )
 
 var (
@@ -37,7 +37,7 @@ func init() {
 }
 
 // OpenDatabase is
-func OpenDatabase(dbconfig *setting.DatabaseConfig) {
+func OpenDatabase(dbconfig *common.DatabaseConfig) {
 	var err error
 
 	driver, host, port, user, password, db := dbconfig.Driver, dbconfig.Host, dbconfig.Port, dbconfig.User, dbconfig.Password, dbconfig.Name

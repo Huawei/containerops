@@ -31,18 +31,11 @@ import (
 	"github.com/satori/go.uuid"
 	"gopkg.in/macaron.v1"
 
+	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/common/utils"
 	"github.com/Huawei/containerops/dockyard/model"
 	"github.com/Huawei/containerops/dockyard/module"
-	"github.com/Huawei/containerops/dockyard/setting"
 )
-
-func init() {
-	if err := setting.SetConfig("./conf/runtime.toml"); err != nil {
-		log.Fatalf("Failed to init settings: %s", err.Error())
-		os.Exit(1)
-	}
-}
 
 // GetPingV2Handler is https://github.com/docker/distribution/blob/master/docs/spec/api.md#api-version-check
 func GetPingV2Handler(ctx *macaron.Context) (int, []byte) {
@@ -132,7 +125,7 @@ func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	} else if upload == true {
 		//It's run above docker 1.9.0
-		basePath := setting.Storage.DockerV2
+		basePath := common.Storage.DockerV2
 		uuidPath := fmt.Sprintf("%s/uuid/%s", basePath, uuid)
 		uuidFile := fmt.Sprintf("%s/uuid/%s/%s", basePath, uuid, uuid)
 
@@ -184,7 +177,7 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	digest := ctx.Query("digest")
 	tarsum := strings.Split(digest, ":")[1]
 
-	basePath := setting.Storage.DockerV2
+	basePath := common.Storage.DockerV2
 	imagePath := fmt.Sprintf("%s/image/%s", basePath, tarsum)
 	imageFile := fmt.Sprintf("%s/image/%s/%s", basePath, tarsum, tarsum)
 
