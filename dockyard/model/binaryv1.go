@@ -64,13 +64,15 @@ func (b *BinaryFileV1) TableName() string {
 
 // Put is
 func (b *BinaryV1) Put(namespace, repository string) error {
+	b.Namespace, b.Repository = namespace, repository
+
 	tx := DB.Begin()
 
 	mutex := &sync.Mutex{}
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	if err := tx.Debug().Where("namespace = ? AND repository = ? ", namespace, repository).FirstOrCreate(b).Error; err != nil {
+	if err := tx.Debug().Where("namespace = ? AND repository = ? ", namespace, repository).FirstOrCreate(&b).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -81,6 +83,8 @@ func (b *BinaryV1) Put(namespace, repository string) error {
 
 // Get is
 func (b *BinaryV1) Get(namespace, repository string) error {
+	b.Namespace, b.Repository = namespace, repository
+
 	if err := DB.Debug().Where("namespace = ? AND repository =? ", namespace, repository).First(&b).Error; err != nil {
 		return err
 	}
@@ -90,6 +94,8 @@ func (b *BinaryV1) Get(namespace, repository string) error {
 
 // Get is
 func (f *BinaryFileV1) Get(repository int64, name, tag string) error {
+	f.BinaryV1, f.Name, f.Tag = repository, name, tag
+
 	if err := DB.Debug().Where("binary_v1 =? AND name = ? AND tag = ?", repository, name, tag).First(&f).Error; err != nil {
 		return err
 	}
@@ -99,6 +105,8 @@ func (f *BinaryFileV1) Get(repository int64, name, tag string) error {
 
 // Put is
 func (f *BinaryFileV1) Put(repository, size int64, name, tag, sha512, path string) error {
+	f.BinaryV1, f.Size, f.Name, f.Tag, f.SHA512, f.Path = repository, size, name, tag, sha512, path
+
 	tx := DB.Begin()
 
 	mutex := &sync.Mutex{}
@@ -109,8 +117,6 @@ func (f *BinaryFileV1) Put(repository, size int64, name, tag, sha512, path strin
 		tx.Rollback()
 		return err
 	}
-
-	f.SHA512, f.Path, f.Size = sha512, path, size
 
 	tx.Commit()
 	return nil
