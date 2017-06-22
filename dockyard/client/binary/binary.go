@@ -18,6 +18,7 @@ package binary
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -29,9 +30,6 @@ func UploadBinaryFile(filePath, domain, namespace, repository, tag string) error
 		return err
 	} else {
 		defer f.Close()
-
-		fmt.Println(fmt.Sprintf("https://%s/binary/v1/%s/%s/binary/%s/%s",
-			domain, namespace, repository, filepath.Base(filePath), tag))
 
 		if req, err := http.NewRequest(http.MethodPut,
 			fmt.Sprintf("https://%s/binary/v1/%s/%s/binary/%s/%s",
@@ -63,6 +61,28 @@ func UploadBinaryFile(filePath, domain, namespace, repository, tag string) error
 	return nil
 }
 
+// Download binary file to the local.
 func DownloadBinaryFile(domain, namespace, repository, filename, tag, filePath string) error {
+	if _, err := os.Stat(filePath); err == nil {
+		os.Remove(filePath)
+	}
+
+	if f, err := os.Create(filePath); err != nil {
+		return err
+	} else {
+		defer f.Close()
+
+		if resp, err := http.Get(fmt.Sprintf("https://%s/binary/v1/%s/%s/binary/%s/%s",
+			domain, namespace, repository, filename, tag)); err != nil {
+			return err
+		} else {
+			defer resp.Body.Close()
+
+			if _, err := io.Copy(f, resp.Body); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
