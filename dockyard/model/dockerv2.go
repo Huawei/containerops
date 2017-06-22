@@ -83,6 +83,8 @@ func (t *DockerTagV2) TableName() string {
 
 // GetTags return tas data of repository.
 func (r *DockerV2) GetTags(namespace, repository string) ([]string, error) {
+	r.Namespace, r.Repository = namespace, repository
+
 	if err := DB.Debug().Where("namespace = ? AND repository = ?", namespace, repository).First(&r).Error; err != nil {
 		return []string{}, err
 	} else {
@@ -120,7 +122,7 @@ func (r *DockerV2) Put(namespace, repository string) error {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	if err := tx.Debug().Where("namespace = ? AND repository = ? ", namespace, repository).FirstOrCreate(r).Error; err != nil {
+	if err := tx.Debug().Where("namespace = ? AND repository = ? ", namespace, repository).FirstOrCreate(&r).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
