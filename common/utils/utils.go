@@ -308,6 +308,6 @@ func GetFileSHA512(path string) (string, error) {
 		hs := sha512.New()
 		io.Copy(hs, file)
 
-		return string(hs.Sum(nil)), nil
+		return fmt.Sprintf("%x", hs.Sum(nil)), nil
 	}
 }
