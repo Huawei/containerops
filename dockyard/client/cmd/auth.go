@@ -23,7 +23,7 @@ import (
 // auth sub command
 var authCmd = &cobra.Command{
 	Use:   "auth",
-	Short: "auth sub command which login and logout a Dockyard server.",
+	Short: "Login and logout a Dockyard server.",
 	Long:  ``,
 }
 
