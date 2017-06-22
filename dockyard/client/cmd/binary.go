@@ -59,10 +59,10 @@ The upload URI pattern is <namespace>/<repository>/<tag>`,
 
 var downloadCmd = &cobra.Command{
 	Use:   "download",
-	Short: "Download file form Dockyard service, `warship binary download <namespace>/<repository>/<filename>/<tag>",
+	Short: "Download file form Dockyard service, `warship binary download <namespace>/<repository>/<filename>/<tag> <filename>",
 	Long: `Download file from repository of Dockyard:
 
-warship binary download --domain hub.opshub.sh  containerops/cncf-demo/warship/strichers
+warship binary download --domain hub.opshub.sh  containerops/cncf-demo/warship/strichers /tmp/warship
 
 The download URI pattern is <namespace>/<repository>/<filename>/<tag>`,
 	Run: downloadBinary,
@@ -89,6 +89,7 @@ func uploadBinary(cmd *cobra.Command, args []string) {
 		fmt.Println("The file path and upload uri is required.")
 		os.Exit(1)
 	}
+
 	namespace := strings.Split(args[1], "/")[0]
 	repository := strings.Split(args[1], "/")[1]
 	tag := strings.Split(args[1], "/")[2]
@@ -106,4 +107,22 @@ func downloadBinary(cmd *cobra.Command, args []string) {
 	if domain == "" {
 		domain = common.Warship.Domain
 	}
+
+	if len(args) <= 0 {
+		fmt.Println("The file path and upload uri is required.")
+		os.Exit(1)
+	}
+
+	namespace := strings.Split(args[0], "/")[0]
+	repsitory := strings.Split(args[0], "/")[1]
+	filename := strings.Split(args[0], "/")[2]
+	tag := strings.Split(args[0], "/")[3]
+
+	if err := binary.DownloadBinaryFile(domain, namespace, repsitory, filename, tag, args[1]); err != nil {
+		fmt.Println("Download file error: ", err.Error())
+		os.Exit(1)
+	}
+
+	fmt.Println("Download file sucessfully.")
+	os.Exit(0)
 }
