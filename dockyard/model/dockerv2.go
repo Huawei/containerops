@@ -23,19 +23,19 @@ import (
 
 // DockerV2
 type DockerV2 struct {
-	ID            int64      `json:"id" gorm:"primary_key"`
-	Namespace     string     `json:"namespace" sql:"not null;type:varchar(255)"  gorm:"unique_index:dockerv2_repository"`
-	Repository    string     `json:"repository" sql:"not null;type:varchar(255)"  gorm:"unique_index:dockerv2_repository"`
-	SchemaVersion string     `json:"schema_version" sql:"not null;type:varchar(255)"`
-	Manifests     string     `json:"manifests" sql:"null;type:text"`
-	Agent         string     `json:"agent" sql:"null;type:text"`
-	Short         string     `json:"short" sql:"null;type:text"`
-	Description   string     `json:"description" sql:"null;type:text"`
-	Size          int64      `json:"size" sql:"default:0"`
-	Locked        bool       `json:"locked" sql:"default:false"`
-	CreatedAt     time.Time  `json:"create_at" sql:""`
-	UpdatedAt     time.Time  `json:"update_at" sql:""`
-	DeletedAt     *time.Time `json:"delete_at" sql:"index"`
+	ID            int64      `json:"id" gorm:"column:id;primary_key"`
+	Namespace     string     `json:"namespace" sql:"not null;type:varchar(255)"  gorm:"column:namespace;unique_index:dockerv2_repository"`
+	Repository    string     `json:"repository" sql:"not null;type:varchar(255)"  gorm:"column:repository;unique_index:dockerv2_repository"`
+	SchemaVersion string     `json:"schema_version" sql:"not null;type:varchar(255)" gorm:"column:schema_version"`
+	Manifests     string     `json:"manifests" sql:"null;type:text" gorm:"column:manifests"`
+	Agent         string     `json:"agent" sql:"null;type:text" gorm:"column:agent"`
+	Short         string     `json:"short" sql:"null;type:text" gorm:"column:short"`
+	Description   string     `json:"description" sql:"null;type:text" gorm:"column:description"`
+	Size          int64      `json:"size" sql:"default:0" gorm:"column:size"`
+	Locked        bool       `json:"locked" sql:"default:false" gorm:"column:locked"`
+	CreatedAt     time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
+	UpdatedAt     time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
+	DeletedAt     *time.Time `json:"delete_at" sql:"index" gorm:"column:delete_at"`
 }
 
 // TableName is
@@ -45,17 +45,17 @@ func (r *DockerV2) TableName() string {
 
 // DockerImageV2 is
 type DockerImageV2 struct {
-	ID              int64      `json:"id" gorm:"primary_key"`
-	ImageID         string     `json:"image_id" sql:"null;type:varchar(255)"`
-	BlobSum         string     `json:"blob_sum" sql:"null;type:varchar(255)"`
-	V1Compatibility string     `json:"v1_compatibility" sql:"null;type:text"`
-	Path            string     `json:"path" sql:"null;type:text"`
-	OSS             string     `json:"oss" sql:"null;type:text"`
-	Size            int64      `json:"size" sql:"default:0"`
-	Locked          bool       `json:"locked" sql:"default:false"`
-	CreatedAt       time.Time  `json:"create_at" sql:""`
-	UpdatedAt       time.Time  `json:"update_at" sql:""`
-	DeletedAt       *time.Time `json:"delete_at" sql:"index"`
+	ID              int64      `json:"id" gorm:"primary_key" gorm:"column:id"`
+	ImageID         string     `json:"image_id" sql:"null;type:varchar(255)" gorm:"column:image_id"`
+	BlobSum         string     `json:"blob_sum" sql:"null;type:varchar(255)" gorm:"column:blob_sum"`
+	V1Compatibility string     `json:"v1_compatibility" sql:"null;type:text" gorm:"column:v1_compatibility"`
+	Path            string     `json:"path" sql:"null;type:text" gorm:"column:path"`
+	OSS             string     `json:"oss" sql:"null;type:text" gorm:"column:oss"`
+	Size            int64      `json:"size" sql:"default:0" gorm:"column:size"`
+	Locked          bool       `json:"locked" sql:"default:false" gorm:"column:locked"`
+	CreatedAt       time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
+	UpdatedAt       time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
+	DeletedAt       *time.Time `json:"delete_at" sql:"index" gorm:"column:delete_at"`
 }
 
 // TableName is
@@ -65,15 +65,15 @@ func (i *DockerImageV2) TableName() string {
 
 // DockerTagV2 is
 type DockerTagV2 struct {
-	ID            int64      `json:"id" gorm:"primary_key"`
-	DockerV2      int64      `json:"docker_v2" sql:"not null;default:0"`
-	Tag           string     `json:"tag" sql:"not null;type:varchar(255)"`
-	ImageID       string     `json:"image_id" sql:"not null;type:varchar(255)"`
-	Manifest      string     `json:"manifest" sql:"null;type:text"`
-	SchemaVersion string     `json:"schema_version" sql:"not null;type:varchar(255)"`
-	CreatedAt     time.Time  `json:"create_at" sql:""`
-	UpdatedAt     time.Time  `json:"update_at" sql:""`
-	DeletedAt     *time.Time `json:"delete_at" sql:"index"`
+	ID            int64      `json:"id" gorm:"primary_key" gorm:"column:id"`
+	DockerV2      int64      `json:"docker_v2" sql:"not null;default:0" gorm:"column:docker_v2"`
+	Tag           string     `json:"tag" sql:"not null;type:varchar(255)" gorm:"column:tag"`
+	ImageID       string     `json:"image_id" sql:"not null;type:varchar(255)" gorm:"column:image_id"`
+	Manifest      string     `json:"manifest" sql:"null;type:text" gorm:"column:manifest"`
+	SchemaVersion string     `json:"schema_version" sql:"not null;type:varchar(255)" gorm:"column:schema_version"`
+	CreatedAt     time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
+	UpdatedAt     time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
+	DeletedAt     *time.Time `json:"delete_at" sql:"index" gorm:"column:delete_at"`
 }
 
 // TableName is
