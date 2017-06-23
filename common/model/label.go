@@ -22,14 +22,14 @@ import (
 
 // LabelV1 is
 type LabelV1 struct {
-	ID        int64      `json:"id" gorm:"primary_key"`
-	Type      string     `json:"type" sql:"not null;type:varchar(255)" gorm:"unique_index:labelv1_value"`
-	Label     string     `json:"label" sql:"not null;type:varchar(255)" gorm:"unique_index:labelv1_value"`
-	Value     string     `json:"value" sql:"not null;type:varchar(255)" gorm:"unique_index:labelv1_value"`
-	Object    int64      `json:"object" sql:"not null; default:0" gorm:"unique_index:labelv1_value"`
-	CreatedAt time.Time  `json:"create_at" sql:""`
-	UpdatedAt time.Time  `json:"update_at" sql:""`
-	DeletedAt *time.Time `json:"delete_at" sql:"index"`
+	ID        int64      `json:"id" gorm:"column:id;primary_key"`
+	Type      string     `json:"type" sql:"not null;type:varchar(255)" gorm:"column:type;unique_index:labelv1_value"`
+	Label     string     `json:"label" sql:"not null;type:varchar(255)" gorm:"column:label;unique_index:labelv1_value"`
+	Value     string     `json:"value" sql:"not null;type:varchar(255)" gorm:"column:value;unique_index:labelv1_value"`
+	Object    int64      `json:"object" sql:"not null; default:0" gorm:"column:object;unique_index:labelv1_value"`
+	CreatedAt time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
+	UpdatedAt time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
+	DeletedAt *time.Time `json:"delete_at" sql:"index" gorm:"column:delete_at"`
 }
 
 // TableName is
