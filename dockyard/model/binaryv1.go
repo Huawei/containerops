@@ -23,16 +23,16 @@ import (
 
 // BinaryV1 is
 type BinaryV1 struct {
-	ID          int64      `json:"id" gorm:"primary_key"`
-	Namespace   string     `json:"namespace" sql:"not null;type:varchar(255)"  gorm:"unique_index:dockerv2_repository"`
-	Repository  string     `json:"repository" sql:"not null;type:varchar(255)"  gorm:"unique_index:dockerv2_repository"`
-	Short       string     `json:"short" sql:"null;type:text"`
-	Description string     `json:"description" sql:"null;type:text"`
-	Size        int64      `json:"size" sql:"default:0"`
-	Locked      bool       `json:"locked" sql:"default:false"`
-	CreatedAt   time.Time  `json:"create_at" sql:""`
-	UpdatedAt   time.Time  `json:"update_at" sql:""`
-	DeletedAt   *time.Time `json:"delete_at" sql:"index"`
+	ID          int64      `json:"id" gorm:"column:id;primary_key"`
+	Namespace   string     `json:"namespace" sql:"not null;type:varchar(255)"  gorm:"column:namespace;unique_index:dockerv2_repository"`
+	Repository  string     `json:"repository" sql:"not null;type:varchar(255)"  gorm:"column:repository;unique_index:dockerv2_repository"`
+	Short       string     `json:"short" sql:"null;type:text" gorm:"column:short"`
+	Description string     `json:"description" sql:"null;type:text" gorm:"column:description"`
+	Size        int64      `json:"size" sql:"default:0" gorm:"column:size"`
+	Locked      bool       `json:"locked" sql:"default:false" gorm:"column:locked"`
+	CreatedAt   time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
+	UpdatedAt   time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
+	DeletedAt   *time.Time `json:"delete_at" sql:"index" gorm:"column:delete_at"`
 }
 
 // TableName is
@@ -42,19 +42,19 @@ func (b *BinaryV1) TableName() string {
 
 // BinaryFileV1 is
 type BinaryFileV1 struct {
-	ID        int64      `json:"id" gorm:"primary_key"`
-	BinaryV1  int64      `json:"binary_v1" sql:"not null;default:0" gorm:"unique_index:binaryfilev1_file"`
-	Name      string     `json:"name" sql:"not null;type:varchar(255)" gorm:"unique_index:binaryfilev1_file"`
-	Tag       string     `json:"tag" sql:"not null;type:varchar(255)" gorm:"unique_index:binaryfilev1_file"`
-	Agent     string     `json:"agent" sql:"null;type:text"`
-	SHA512    string     `json:"sha512" sql:"null;type:varchar(255)"`
-	Path      string     `json:"path" sql:"null;type:text"`
-	OSS       string     `json:"oss" sql:"null;type:text"`
-	Size      int64      `json:"size" sql:"default:0"`
-	Locked    bool       `json:"locked" sql:"default:false"`
-	CreatedAt time.Time  `json:"create_at" sql:""`
-	UpdatedAt time.Time  `json:"update_at" sql:""`
-	DeletedAt *time.Time `json:"delete_at" sql:"index"`
+	ID        int64      `json:"id" gorm:"column:id;primary_key"`
+	BinaryV1  int64      `json:"binary_v1" sql:"not null;default:0" gorm:"column:binary_v1;unique_index:binaryfilev1_file"`
+	Name      string     `json:"name" sql:"not null;type:varchar(255)" gorm:"column:name;unique_index:binaryfilev1_file"`
+	Tag       string     `json:"tag" sql:"not null;type:varchar(255)" gorm:"column:tag;unique_index:binaryfilev1_file"`
+	Agent     string     `json:"agent" sql:"null;type:text" gorm:"column:agent"`
+	SHA512    string     `json:"sha_512" sql:"null;type:varchar(255)" gorm:"column:sha512"`
+	Path      string     `json:"path" sql:"null;type:text" gorm:"column:path"`
+	OSS       string     `json:"oss" sql:"null;type:text" gorm:"column:oss"`
+	Size      int64      `json:"size" sql:"default:0" gorm:"column:size"`
+	Locked    bool       `json:"locked" sql:"default:false" gorm:"column:locked"`
+	CreatedAt time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
+	UpdatedAt time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
+	DeletedAt *time.Time `json:"delete_at" sql:"index" gorm:"column:delete_at"`
 }
 
 // TableName is
