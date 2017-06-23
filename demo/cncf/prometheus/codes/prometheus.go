@@ -18,17 +18,19 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 )
 
 //Parse CO_DATA value, and return Prometheus repository URI and action (build/test/release).
-func parseEnv(env string) (uri string, action string, err error) {
+func parseEnv(env string) (uri, action, release string, err error) {
 	files := strings.Fields(env)
 	if len(files) == 0 {
-		return "", "", fmt.Errorf("CO_DATA value is null\n")
+		return "", "", "", fmt.Errorf("CO_DATA value is null\n")
 	}
 
 	for _, v := range files {
@@ -40,12 +42,14 @@ func parseEnv(env string) (uri string, action string, err error) {
 			uri = value
 		case "action":
 			action = value
+		case "release":
+			release = value
 		default:
 			fmt.Fprintf(os.Stdout, "[COUT] Unknown Parameter: [%s]\n", s)
 		}
 	}
 
-	return uri, action, nil
+	return uri, action, release, nil
 }
 
 //Git clone the Prometheus repository, and process will redirect to system stdout.
@@ -95,12 +99,89 @@ func prometheusTest() error {
 	return nil
 }
 
-//TODO Build the Prometheus all binary files, and release to ContainerOps repository.
-func release() error {
-	fmt.Fprintf(os.Stderr, "[COUT] %s", "No release function in the demo component yet.")
-	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+// Execute `make` in the Prometheus folder, and upload `prometheus` and `promtool` file to artifact repository.
+func prometheusRelease(repo, release string) error {
+	if err := prometheusBuild(); err != nil {
+		return err
+	}
 
-	return fmt.Errorf("No release function yet.")
+	prometheusPath := fmt.Sprintf("%s/prometheus", repo)
+	promtoolPath := fmt.Sprintf("%s/promtool", repo)
+
+	if err := upload(prometheusPath, release); err != nil {
+		return err
+	}
+
+	if err := upload(promtoolPath, release); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func upload(filePath, release string) error {
+	if f, err := os.Open(filePath); err != nil {
+		fmt.Fprintf(os.Stderr, "[COUT] Read %s binary file error: %s\n", filepath.Base(filePath), err.Error())
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+
+		return err
+	} else {
+		defer f.Close()
+
+		// Pattern: <domain>/<namespace>/<repository>/<tag>
+		// hub.opshub.sh/containerops/cncf-demo/demo
+
+		domain := strings.Split(release, "/")[0]
+		namespace := strings.Split(release, "/")[1]
+		repository := strings.Split(release, "/")[2]
+		tag := strings.Split(release, "/")[3]
+
+		if req, err := http.NewRequest(http.MethodPut,
+			fmt.Sprintf("https://%s/binary/v1/%s/%s/binary/%s/%s",
+				domain, namespace, repository, filepath.Base(filePath), tag), f); err != nil {
+
+			fmt.Fprintf(os.Stderr, "[COUT] Upload %s binary file error: %s\n", filepath.Base(filePath), err.Error())
+			fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+
+			return err
+		} else {
+			req.Header.Set("Content-Type", "text/plain")
+
+			client := &http.Client{}
+			if resp, err := client.Do(req); err != nil {
+				fmt.Fprintf(os.Stderr, "[COUT] Upload %s binary file error: %s\n", filepath.Base(filePath), err.Error())
+				fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+
+				return err
+			} else {
+				defer resp.Body.Close()
+
+				switch resp.StatusCode {
+				case http.StatusOK:
+					uri := fmt.Sprintf("https://%s/binary/v1/%s/%s/binary/%s/%s",
+						domain, namespace, repository, filepath.Base(filePath), tag)
+					fmt.Fprintf(os.Stdout, "[COUT] %s_URI = %s", strings.ToUpper(filepath.Base(filePath)), uri)
+
+					return nil
+				case http.StatusBadRequest:
+					fmt.Fprintf(os.Stderr, "[COUT] Upload %s binary file, service return 400 error.", filepath.Base(filePath))
+					fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+
+					return fmt.Errorf("Binary upload failed.")
+				case http.StatusUnauthorized:
+					fmt.Fprintf(os.Stderr, "[COUT] Upload %s binary file, service return 401 error.", filepath.Base(filePath))
+					fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+
+					return fmt.Errorf("Action unauthorized.")
+				default:
+					fmt.Fprintf(os.Stderr, "[COUT] Upload %s binary file, service return unknown error.", filepath.Base(filePath))
+					fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+
+					return fmt.Errorf("Unknown error.")
+				}
+			}
+		}
+	}
 }
 
 func main() {
@@ -112,7 +193,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if prometheusRepo, action, err := parseEnv(data); err != nil {
+	if prometheusRepo, action, release, err := parseEnv(data); err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 		os.Exit(1)
@@ -144,7 +225,7 @@ func main() {
 
 		case "release":
 
-			if err := release(); err != nil {
+			if err := prometheusRelease(basePath, release); err != nil {
 				os.Exit(1)
 			}
 
