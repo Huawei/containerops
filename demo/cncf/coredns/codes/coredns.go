@@ -99,7 +99,7 @@ func corednsTest() error {
 	return nil
 }
 
-// Execute `make build` in the CoreDNS folder, then upload the coredns binary file to the artifact repository.
+// Execute `make build` in the CoreDNS folder, upload the coredns binary file to the artifact repository.
 func corednsRelease(repo, release string) error {
 	if err := corednsBuild(); err != nil {
 		return err
