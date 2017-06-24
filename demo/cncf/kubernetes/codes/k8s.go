@@ -18,6 +18,8 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"os/exec"
 	"path"
@@ -25,10 +27,10 @@ import (
 )
 
 //Parse CO_DATA value, and return Kubernetes repository URI and action (build/test/release).
-func parseEnv(env string) (uri string, action string, err error) {
+func parseEnv(env string) (uri, action, release string, err error) {
 	files := strings.Fields(env)
 	if len(files) == 0 {
-		return "", "", fmt.Errorf("CO_DATA value is null\n")
+		return "", "", "", fmt.Errorf("CO_DATA value is null\n")
 	}
 
 	for _, v := range files {
@@ -40,12 +42,14 @@ func parseEnv(env string) (uri string, action string, err error) {
 			uri = value
 		case "action":
 			action = value
+		case "release":
+			release = value
 		default:
 			fmt.Fprintf(os.Stdout, "[COUT] Unknown Parameter: [%s]\n", s)
 		}
 	}
 
-	return uri, action, nil
+	return uri, action, release, nil
 }
 
 //Git clone the Kubernetes repository, and process will redirect to system stdout.
@@ -95,12 +99,98 @@ func bazelBuild() error {
 	return nil
 }
 
-//TODO Build the Kubernetes all binary files, and release to ContainerOps repository. And not execute the `make bazel-release` command.
-func release() error {
-	fmt.Fprintf(os.Stderr, "[COUT] %s", "No release function in the demo component yet.")
-	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+//`make all`
+func makeBuild() error {
+	cmd := exec.Command("make", "all")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
-	return fmt.Errorf("No release function yet.")
+	if err := cmd.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "[COUT] Make build error: %s\n", err.Error())
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+
+		return err
+	}
+
+	return nil
+}
+
+// Execute `make all` in the kubernetes folder, and upload all files of `_output/bin` to the artifact repository.
+func k8sRelease(basePath, release string) error {
+	binPath := path.Join(basePath, "_output", "bin")
+
+	if files, err := ioutil.ReadDir(binPath); err != nil {
+		fmt.Fprintf(os.Stderr, "[COUT] Read kubernetes binary file folder error: %s\n", err.Error())
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+
+		return err
+	} else {
+		for _, file := range files {
+			if f, err := os.Open(path.Join(binPath, file.Name())); err != nil {
+				fmt.Fprintf(os.Stderr, "[COUT] Read kubernetes binary file error: %s\n", err.Error())
+				fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+
+				return err
+			} else {
+				defer f.Close()
+
+				// Pattern: <domain>/<namespace>/<repository>/<tag>
+				// hub.opshub.sh/containerops/cncf-demo/demo
+
+				domain := strings.Split(release, "/")[0]
+				namespace := strings.Split(release, "/")[1]
+				repository := strings.Split(release, "/")[2]
+				tag := strings.Split(release, "/")[3]
+
+				if req, err := http.NewRequest(http.MethodPut,
+					fmt.Sprintf("https://%s/binary/v1/%s/%s/binary/%s/%s",
+						domain, namespace, repository, file.Name(), tag), f); err != nil {
+
+					fmt.Fprintf(os.Stderr, "[COUT] Upload kubernetes binary file error: %s\n", err.Error())
+					fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+
+					return err
+				} else {
+					req.Header.Set("Content-Type", "text/plain")
+
+					client := &http.Client{}
+					if resp, err := client.Do(req); err != nil {
+						fmt.Fprintf(os.Stderr, "[COUT] Upload kubernetes binary file error: %s\n", err.Error())
+						fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+
+						return err
+					} else {
+						defer resp.Body.Close()
+
+						switch resp.StatusCode {
+						case http.StatusOK:
+							uri := fmt.Sprintf("https://%s/binary/v1/%s/%s/binary/%s/%s\n",
+								domain, namespace, repository, file.Name(), tag)
+							fmt.Fprintf(os.Stdout, "[COUT] COREDNS_URI = %s", uri)
+
+						case http.StatusBadRequest:
+							fmt.Fprint(os.Stderr, "[COUT] Upload kubernetes binary file, service return 400 error.")
+							fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+
+							return fmt.Errorf("Binary upload failed.")
+						case http.StatusUnauthorized:
+							fmt.Fprint(os.Stderr, "[COUT] Upload kubernetes binary file, service return 401 error.")
+							fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+
+							return fmt.Errorf("Action unauthorized.")
+						default:
+							fmt.Fprint(os.Stderr, "[COUT] Upload kubernetes binary file, service return unknown error.")
+							fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+
+							return fmt.Errorf("Unknown error.")
+						}
+					}
+				}
+			}
+
+		}
+	}
+	return nil
 }
 
 func main() {
@@ -113,7 +203,7 @@ func main() {
 	}
 
 	//Parse the CO_DATA, get the kubernetes repository URI and action
-	if k8sRepo, action, err := parseEnv(data); err != nil {
+	if k8sRepo, action, release, err := parseEnv(data); err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 		os.Exit(1)
@@ -145,7 +235,7 @@ func main() {
 
 		case "release":
 
-			if err := release(); err != nil {
+			if err := k8sRelease(basePath, release); err != nil {
 				os.Exit(1)
 			}
 
