@@ -117,6 +117,8 @@ func makeBuild() error {
 
 // Execute `make all` in the kubernetes folder, and upload all files of `_output/bin` to the artifact repository.
 func k8sRelease(basePath, release string) error {
+	makeBuild()
+
 	binPath := path.Join(basePath, "_output", "bin")
 
 	if files, err := ioutil.ReadDir(binPath); err != nil {
@@ -166,7 +168,8 @@ func k8sRelease(basePath, release string) error {
 						case http.StatusOK:
 							uri := fmt.Sprintf("https://%s/binary/v1/%s/%s/binary/%s/%s\n",
 								domain, namespace, repository, file.Name(), tag)
-							fmt.Fprintf(os.Stdout, "[COUT] COREDNS_URI = %s", uri)
+							paramName := fmt.Sprintf("CO_%s_URI", strings.ToUpper(file.Name()))
+							fmt.Fprintf(os.Stdout, "[COUT] %s = %s", paramName, uri)
 
 						case http.StatusBadRequest:
 							fmt.Fprint(os.Stderr, "[COUT] Upload kubernetes binary file, service return 400 error.")

@@ -147,7 +147,7 @@ func corednsRelease(repo, release string) error {
 				case http.StatusOK:
 					uri := fmt.Sprintf("https://%s/binary/v1/%s/%s/binary/%s/%s\n",
 						domain, namespace, repository, filepath.Base(filePath), tag)
-					fmt.Fprintf(os.Stdout, "[COUT] COREDNS_URI = %s", uri)
+					fmt.Fprintf(os.Stdout, "[COUT] CO_COREDNS_URI = %s", uri)
 
 					return nil
 				case http.StatusBadRequest:
