@@ -6,7 +6,7 @@ docker build -t docker.io/containerops/cncf-demo-kubernetes .
 
 
 ```bash
-docker run --env CO_DATA="kubernetes=https://github.com/kubernetes/kubernetes.git action=build" docker.io/containerops/cncf-demo-kubernetes:latest
+docker run --env CO_DATA="kubernetes=https://github.com/kubernetes/kubernetes.git action=build release=hub.opshub.sh/containerops/cncf-demo/demo" docker.io/containerops/cncf-demo-kubernetes:latest
 ```
 
 ```dockerfile
