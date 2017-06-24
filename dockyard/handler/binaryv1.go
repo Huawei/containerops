@@ -107,6 +107,7 @@ func GetBinaryV1Handler(ctx *macaron.Context) {
 		result, _ := module.EncodingError(module.REPOSITORY_NONE, map[string]string{"namespace": namespace, "repository": repository})
 		ctx.Resp.Write(result)
 		ctx.Resp.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	f := new(model.BinaryFileV1)
@@ -116,6 +117,7 @@ func GetBinaryV1Handler(ctx *macaron.Context) {
 		result, _ := module.EncodingError(module.UNKNOWN, map[string]string{"namespace": namespace, "repository": repository, "file": binary, "tag": tag})
 		ctx.Resp.Write(result)
 		ctx.Resp.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	if file, err := os.Open(f.Path); err != nil {
@@ -140,7 +142,7 @@ func GetBinaryV1Handler(ctx *macaron.Context) {
 		defer file.Close()
 
 		io.Copy(ctx.Resp, file)
-		ctx.Resp.WriteHeader(http.StatusOK)
+
 		return
 	}
 }
