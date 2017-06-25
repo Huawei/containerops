@@ -9,4 +9,8 @@ spec:
    env:
    - name: CO_DATA
      value: "coredns=https://github.com/coredns/coredns.git action=build release=test.opshub.sh/containerops/cncf-demo/demo"
+   resources:
+     requests:
+       cpu: 2
+       memory: 4G
  restartPolicy: Never
