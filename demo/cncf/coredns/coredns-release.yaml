@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+ name: cncf-demo-coredns-release
+spec:
+ containers:
+ - name: cncf-demo-coredns-release
+   image: docker.io/containerops/cncf-demo-coredns:latest
+   env:
+   - name: CO_DATA
+     value: "coredns=https://github.com/coredns/coredns.git action=rele release=test.opshub.sh/containerops/cncf-demo/demo"
+ restartPolicy: Never
