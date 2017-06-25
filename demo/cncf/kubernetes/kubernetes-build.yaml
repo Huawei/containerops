@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+ name: cncf-demo-kubernetes-build
+spec:
+ containers:
+ - name: cncf-demo-kubernetes-build
+   image: docker.io/containerops/cncf-demo-kubernetes:latest
+   env:
+   - name: CO_DATA
+     value: "kubernetes=https://github.com/kubernetes/kubernetes.git action=build release=test.opshub.sh/containerops/cncf-demo/demo"
+   resources:
+     requests:
+       cpu: 2
+       memory: 8G
+ restartPolicy: Never
