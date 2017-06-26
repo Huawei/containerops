@@ -35,7 +35,10 @@ var cliCmd = &cobra.Command{
 	Long: `Pilotage cli model runs orchestration flow in local. It uses the kubectl command interacting
 with Kubernetes master which create pod and get logs. The kubectl install and config document:
 
-https://kubernetes.io/docs/user-guide/kubectl-overview`,
+https://kubernetes.io/docs/user-guide/kubectl-overview
+
+1. The cli model doesn't have trigger.
+2. The cli model doesn't have database, never save result and log.'`,
 }
 
 var runCmd = &cobra.Command{
