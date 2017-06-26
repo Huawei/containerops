@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: cncnf/demo-for-cncf-ci
+name: cncf/demo-for-cncf-ci
 title: Demo For Cloud Native Computing Foundation CI Working Group
-version: 12
+version: 4
 tag: latest
 timeout: 0
-stages: 
-  - stage: 
+stages:
+  - stage:
       type: start
       name: start
       title: Start
@@ -33,40 +33,43 @@ stages:
             title: Build Prometheus
             jobs:
               - job:
-                  type: component # component or service
+                  type: component
+                  kuberctl: prometheus/prometheus-build.yaml
                   endpoint: docker.io/containerops/cncf-demo-prometheus:latest
                   resources:
                     cpu: 2
                     memory: 4G
-                  timeout: 0 
+                  timeout: 0
                   environments:
                     - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=build release=test.opshub.sh/containerops/cncf-demo/demo"
                   output: []
-        - action:    
+        - action:
             name: test-prometheus
             title: Test Prometheus
             jobs:
               - job:
                   type: component
+                  kuberctl: prometheus/prometheus-test.yaml
                   endpoint: docker.io/containerops/cncf-demo-prometheus:latest
                   resources:
                     cpu: 2
                     memory: 4G
-                  timeout: 0 
+                  timeout: 0
                   environments:
                     - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
                   output: []
-        - action:    
+        - action:
             name: release-prometheus
             title: Release Prometheus
             jobs:
               - job:
                   type: component
+                  kuberctl: prometheus/prometheus-release.yaml
                   endpoint: docker.io/containerops/cncf-demo-prometheus:latest
                   resources:
                     cpu: 2
                     memory: 4G
-                  timeout: 0 
+                  timeout: 0
                   environments:
                     - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=release release=test.opshub.sh/containerops/cncf-demo/demo"
                   output: ["CO_PROMETHEUS_URI", "CO_PROMTOOL_URI"]
@@ -81,40 +84,43 @@ stages:
             title: Build CoreDNS
             jobs:
               - job:
-                  type: component # component or service
+                  type: component
+                  kubectl: coredns/coredns-build.yaml
                   endpoint: docker.io/containerops/cncf-demo-coredns:latest
                   resources:
                     cpu: 2
                     memory: 4G
-                  timeout: 0 
+                  timeout: 0
                   environments:
                     - CO_DATA: "coredns=https://github.com/coredns/coredns.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
                   output: []
-        - action:    
+        - action:
             name: test-coredns
             title: Test CoreDNS
             jobs:
               - job:
                   type: component
+                  kubectl: coredns/coredns-test.yaml
                   endpoint: docker.io/containerops/cncf-demo-coredns:latest
                   resources:
                     cpu: 2
                     memory: 4G
-                  timeout: 0 
+                  timeout: 0
                   environments:
                     - CO_DATA: "coredns=https://github.com/coredns/coredns.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
                   output: []
-        - action:    
+        - action:
             name: release-coredns
             title: Release CoreDNS
             jobs:
               - job:
                   type: component
+                  kubectl: coredns/coredns-release.yaml
                   endpoint: docker.io/containerops/cncf-demo-coredns:latest
                   resources:
                     cpu: 0
                     memory: 0
-                  timeout: 0 
+                  timeout: 0
                   environments:
                     - CO_DATA: "coredns=https://github.com/coredns/coredns.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
                   output: ["CO_COREDNS_URI"]
@@ -130,6 +136,7 @@ stages:
             jobs:
               - job:
                   type: component # component or service
+                  kubectl: kubernetes/kubernetes-build.yaml
                   endpoint: docker.io/containerops/cncf-demo-kubernetes:latest
                   resources:
                     cpu: 2
@@ -144,6 +151,7 @@ stages:
             jobs:
               - job:
                   type: component
+                  kubectl: kubernetes/kubernetes-test.yaml
                   endpoint: docker.io/containerops/cncf-demo-kubernetes:latest
                   resources:
                     cpu: 2
@@ -158,6 +166,7 @@ stages:
             jobs:
               - job:
                   type: component
+                  kuberctl: kubernetes/kubernetes-release.yaml
                   endpoint: docker.io/containerops/cncf-demo-kubernetes:latest
                   resources:
                     cpu: 2
