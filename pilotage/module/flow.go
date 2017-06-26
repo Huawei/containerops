@@ -14,18 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package module
 
-import (
-	"github.com/Huawei/containerops/pilotage/cmd"
-)
-
-// init()
-func init() {
-
+// Run
+func (f *Flow) Run() error {
+	return nil
 }
 
-// main()
-func main() {
-	cmd.Execute()
+// ExecuteFlowFromFile
+func (f *Flow) ExecuteFlowFromFile(flowFile string, verbose bool) error {
+	return nil
 }
