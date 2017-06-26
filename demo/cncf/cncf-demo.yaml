@@ -18,164 +18,164 @@ version: 4
 tag: latest
 timeout: 0
 stages:
-  - stage:
-      type: start
-      name: start
-      title: Start
-  - stage:
-      type: normal
-      name: prometheus-test-build-release
-      title: Build, Test and Release the Prometheus Binary
-      sequencing: sequence
-      actions:
-        - action:
-            name: build-prometheus
-            title: Build Prometheus
-            jobs:
-              - job:
-                  type: component
-                  kuberctl: prometheus/prometheus-build.yaml
-                  endpoint: docker.io/containerops/cncf-demo-prometheus:latest
-                  resources:
-                    cpu: 2
-                    memory: 4G
-                  timeout: 0
-                  environments:
-                    - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=build release=test.opshub.sh/containerops/cncf-demo/demo"
-                  output: []
-        - action:
-            name: test-prometheus
-            title: Test Prometheus
-            jobs:
-              - job:
-                  type: component
-                  kuberctl: prometheus/prometheus-test.yaml
-                  endpoint: docker.io/containerops/cncf-demo-prometheus:latest
-                  resources:
-                    cpu: 2
-                    memory: 4G
-                  timeout: 0
-                  environments:
-                    - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
-                  output: []
-        - action:
-            name: release-prometheus
-            title: Release Prometheus
-            jobs:
-              - job:
-                  type: component
-                  kuberctl: prometheus/prometheus-release.yaml
-                  endpoint: docker.io/containerops/cncf-demo-prometheus:latest
-                  resources:
-                    cpu: 2
-                    memory: 4G
-                  timeout: 0
-                  environments:
-                    - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=release release=test.opshub.sh/containerops/cncf-demo/demo"
-                  output: ["CO_PROMETHEUS_URI", "CO_PROMTOOL_URI"]
-  - stage:
-      type: normal
-      name: coredns-test-build-release
-      title: Build, Test and Release the CoreDNS Binary
-      sequencing: sequence
-      actions:
-        - action:
-            name: build-coredns
-            title: Build CoreDNS
-            jobs:
-              - job:
-                  type: component
-                  kubectl: coredns/coredns-build.yaml
-                  endpoint: docker.io/containerops/cncf-demo-coredns:latest
-                  resources:
-                    cpu: 2
-                    memory: 4G
-                  timeout: 0
-                  environments:
-                    - CO_DATA: "coredns=https://github.com/coredns/coredns.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
-                  output: []
-        - action:
-            name: test-coredns
-            title: Test CoreDNS
-            jobs:
-              - job:
-                  type: component
-                  kubectl: coredns/coredns-test.yaml
-                  endpoint: docker.io/containerops/cncf-demo-coredns:latest
-                  resources:
-                    cpu: 2
-                    memory: 4G
-                  timeout: 0
-                  environments:
-                    - CO_DATA: "coredns=https://github.com/coredns/coredns.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
-                  output: []
-        - action:
-            name: release-coredns
-            title: Release CoreDNS
-            jobs:
-              - job:
-                  type: component
-                  kubectl: coredns/coredns-release.yaml
-                  endpoint: docker.io/containerops/cncf-demo-coredns:latest
-                  resources:
-                    cpu: 0
-                    memory: 0
-                  timeout: 0
-                  environments:
-                    - CO_DATA: "coredns=https://github.com/coredns/coredns.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
-                  output: ["CO_COREDNS_URI"]
-  - stage:
-      type: normal
-      name: k8s-test-build-release
-      title: Build, Test and Release the Kubernetes Binary
-      sequencing: sequence # parallel or sequence
-      actios:
-        - action:
-            name: build-kubernetes
-            title: Build Kubernetes
-            jobs:
-              - job:
-                  type: component # component or service
-                  kubectl: kubernetes/kubernetes-build.yaml
-                  endpoint: docker.io/containerops/cncf-demo-kubernetes:latest
-                  resources:
-                    cpu: 2
-                    memory: 8G
-                  timeout: 0
-                  environments:
-                    - CO_DATA: "kubernetes=https://github.com/kubernetes/kubernetes.git action=build release=test.opshub.sh/containerops/cncf-demo/demo"
-                  output: []
-        - action:
-            name: test-kubernetes
-            title: Test Kubernetes
-            jobs:
-              - job:
-                  type: component
-                  kubectl: kubernetes/kubernetes-test.yaml
-                  endpoint: docker.io/containerops/cncf-demo-kubernetes:latest
-                  resources:
-                    cpu: 2
-                    memory: 8G
-                  timeout: 0
-                  environments:
-                    - CO_DATA: "kubernetes=https://github.com/kubernetes/kubernetes.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
-                  output: []
-        - action:
-            name: release-kubernetes
-            title: Release Kubernetes
-            jobs:
-              - job:
-                  type: component
-                  kuberctl: kubernetes/kubernetes-release.yaml
-                  endpoint: docker.io/containerops/cncf-demo-kubernetes:latest
-                  resources:
-                    cpu: 2
-                    memory: 8G
-                  timeout: 0
-                  environments:
-                    - CO_DATA: "kubernetes=https://github.com/kubernetes/kubernetes.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
-                  output: ["CO_APIEXTENSIONS-APISERVER_URI", "CO_CLOUD-CONTROLLER-MANAGER_URI", "CO_CONVERSION-GEN_URI", "CO_DEEPCOPY-GEN_URI", "CO_DEFAULTER-GEN_URI", "CO_E2E.TEST_URI", "CO_E2E_NODE.TEST_URI", "CO_GENDOCS_URI", "CO_GENFEDDOCS_URI", "CO_GENKUBEDOCS_URI", "CO_GENMAN_URI", "CO_GENSWAGGERTYPEDOCS_URI", "CO_GENYAML_URI", "CO_GINKGO_URI", "CO_GKE-CERTIFICATES-CONTROLLER_URI", "CO_GO-BINDATA_URI", "CO_HYPERKUBE_URI", "CO_KUBE-AGGREGATOR_URI", "CO_KUBE-APISERVER_URI", "CO_KUBE-CONTROLLER-MANAGER_URI", "CO_KUBE-PROXY_URI", "CO_KUBE-SCHEDULER_URI", "CO_KUBEADM_URI", "CO_KUBECTL_URI", "CO_KUBEFED_URI", "CO_KUBELET_URI", "CO_KUBEMARK_URI", "CO_LINKCHECK_URI", "CO_MUNGEDOCS_URI", "CO_OPENAPI-GEN_URI", "CO_TESTSTALE_URI"]
-  - stage:
-        type: end
-        name: end
-        title: End
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: prometheus-test-build-release
+    title: Build, Test and Release the Prometheus Binary
+    sequencing: sequence
+    actions:
+      -
+        name: build-prometheus
+        title: Build Prometheus
+        jobs:
+          -
+            type: component
+            kubectl: prometheus/prometheus-build.yaml
+            endpoint: docker.io/containerops/cncf-demo-prometheus:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=build release=test.opshub.sh/containerops/cncf-demo/demo"
+            output: []
+      -
+        name: test-prometheus
+        title: Test Prometheus
+        jobs:
+          -
+            type: component
+            kubectl: prometheus/prometheus-test.yaml
+            endpoint: docker.io/containerops/cncf-demo-prometheus:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
+            output: []
+      -
+        name: release-prometheus
+        title: Release Prometheus
+        jobs:
+          -
+            type: component
+            kubectl: prometheus/prometheus-release.yaml
+            endpoint: docker.io/containerops/cncf-demo-prometheus:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=release release=test.opshub.sh/containerops/cncf-demo/demo"
+            output: ["CO_PROMETHEUS_URI", "CO_PROMTOOL_URI"]
+  -
+    type: normal
+    name: coredns-test-build-release
+    title: Build, Test and Release the CoreDNS Binary
+    sequencing: sequence
+    actions:
+      -
+        name: build-coredns
+        title: Build CoreDNS
+        jobs:
+          -
+            type: component
+            kubectl: coredns/coredns-build.yaml
+            endpoint: docker.io/containerops/cncf-demo-coredns:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "coredns=https://github.com/coredns/coredns.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
+            output: []
+      -
+        name: test-coredns
+        title: Test CoreDNS
+        jobs:
+          -
+            type: component
+            kubectl: coredns/coredns-test.yaml
+            endpoint: docker.io/containerops/cncf-demo-coredns:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "coredns=https://github.com/coredns/coredns.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
+            output: []
+      -
+        name: release-coredns
+        title: Release CoreDNS
+        jobs:
+          -
+            type: component
+            kubectl: coredns/coredns-release.yaml
+            endpoint: docker.io/containerops/cncf-demo-coredns:latest
+            resources:
+              cpu: 0
+              memory: 0
+            timeout: 0
+            environments:
+              - CO_DATA: "coredns=https://github.com/coredns/coredns.git action=release release=test.opshub.sh/containerops/cncf-demo/demo"
+            output: ["CO_COREDNS_URI"]
+  -
+    type: normal
+    name: k8s-test-build-release
+    title: Build, Test and Release the Kubernetes Binary
+    sequencing: sequence
+    actions:
+      -
+        name: build-kubernetes
+        title: Build Kubernetes
+        jobs:
+          -
+            type: component
+            kubectl: kubernetes/kubernetes-build.yaml
+            endpoint: docker.io/containerops/cncf-demo-kubernetes:latest
+            resources:
+              cpu: 2
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "kubernetes=https://github.com/kubernetes/kubernetes.git action=build release=test.opshub.sh/containerops/cncf-demo/demo"
+            output: []
+      -
+        name: release-kubernetes
+        title: Release Kubernetes
+        jobs:
+          -
+            type: component
+            kubectl: kubernetes/kubernetes-release.yaml
+            endpoint: docker.io/containerops/cncf-demo-kubernetes:latest
+            resources:
+              cpu: 2
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "kubernetes=https://github.com/kubernetes/kubernetes.git action=release release=test.opshub.sh/containerops/cncf-demo/demo"
+            output: ["CO_APIEXTENSIONS-APISERVER_URI", "CO_CLOUD-CONTROLLER-MANAGER_URI", "CO_CONVERSION-GEN_URI", "CO_DEEPCOPY-GEN_URI", "CO_DEFAULTER-GEN_URI", "CO_E2E.TEST_URI", "CO_E2E_NODE.TEST_URI", "CO_GENDOCS_URI", "CO_GENFEDDOCS_URI", "CO_GENKUBEDOCS_URI", "CO_GENMAN_URI", "CO_GENSWAGGERTYPEDOCS_URI", "CO_GENYAML_URI", "CO_GINKGO_URI", "CO_GKE-CERTIFICATES-CONTROLLER_URI", "CO_GO-BINDATA_URI", "CO_HYPERKUBE_URI", "CO_KUBE-AGGREGATOR_URI", "CO_KUBE-APISERVER_URI", "CO_KUBE-CONTROLLER-MANAGER_URI", "CO_KUBE-PROXY_URI", "CO_KUBE-SCHEDULER_URI", "CO_KUBEADM_URI", "CO_KUBECTL_URI", "CO_KUBEFED_URI", "CO_KUBELET_URI", "CO_KUBEMARK_URI", "CO_LINKCHECK_URI", "CO_MUNGEDOCS_URI", "CO_OPENAPI-GEN_URI", "CO_TESTSTALE_URI"]
+      -
+        name: test-kubernetes
+        title: Test Kubernetes
+        jobs:
+          -
+            type: component
+            kubectl: kubernetes/kubernetes-test.yaml
+            endpoint: docker.io/containerops/cncf-demo-kubernetes:latest
+            resources:
+              cpu: 2
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "kubernetes=https://github.com/kubernetes/kubernetes.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
+            output: []
+  -
+    type: end
+    name: end
+    title: End

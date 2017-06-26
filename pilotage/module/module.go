@@ -17,22 +17,30 @@ limitations under the License.
 package module
 
 const (
+	// Flow Run Model
 	RunModelCli    = "CLI"
 	RunModelDaemon = "DAEMON"
+
+	// Stage Type
+	StageTypeStart  = "start"
+	StageTypeEnd    = "end"
+	StageTypeNormal = "normal"
+	StageTypePause  = "pause"
+
+	// Action Type
+	StageTypeSequencing = "sequence"
+	StageTypeParallel   = "parallel"
 )
 
 // Flow is DevOps orchestration flow struct.
 type Flow struct {
-	// Not read file or database and it's a runtime value.
-	Model string `json:"model" yaml:"model"`
-	// The top level of flow
-	Name    string `json:"name" yaml:"name"`
-	Title   string `json:"title" yaml:"title"`
-	Version int64  `json:"version" yaml:"version"`
-	Tag     string `json:"tag" yaml:"tag"`
-	Timeout int64  `json:"timeout" yaml:"timeout"`
-	// The Stages
-	Stages []Stage `json:"stages" yaml:"stages"`
+	Model   string  `json:"model" yaml:"model"`
+	Name    string  `json:"name" yaml:"name"`
+	Title   string  `json:"title" yaml:"title"`
+	Version int64   `json:"version" yaml:"version"`
+	Tag     string  `json:"tag" yaml:"tag"`
+	Timeout int64   `json:"timeout" yaml:"timeout"`
+	Stages  []Stage `json:"stages" yaml:"stages"`
 }
 
 // Stage is
@@ -41,7 +49,7 @@ type Stage struct {
 	Name       string   `json:"name" yaml:"name"`
 	Title      string   `json:"title" yaml:"title"`
 	Sequencing string   `json:"sequencing" yaml:"sequencing"`
-	Actions    []Action `json:"action" yaml:"action"`
+	Actions    []Action `json:"actions" yaml:"actions"`
 }
 
 // Action is
