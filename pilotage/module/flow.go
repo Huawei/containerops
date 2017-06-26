@@ -16,12 +16,34 @@ limitations under the License.
 
 package module
 
+import (
+	"fmt"
+	"io/ioutil"
+
+	"gopkg.in/yaml.v2"
+)
+
 // Run
-func (f *Flow) Run() error {
+func (f *Flow) Run(verbose bool) error {
+
 	return nil
 }
 
 // ExecuteFlowFromFile
 func (f *Flow) ExecuteFlowFromFile(flowFile string, verbose bool) error {
+	f.Model = RunModelCli
+
+	if data, err := ioutil.ReadFile(flowFile); err != nil {
+		fmt.Println("Read ", flowFile, " error: ", err.Error())
+		return err
+	} else {
+		if err := yaml.Unmarshal(data, &f); err != nil {
+			fmt.Println("Unmarshal the flow file error:", err.Error())
+			return err
+		} else {
+			f.Run(verbose)
+		}
+	}
+
 	return nil
 }
