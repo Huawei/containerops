@@ -20,9 +20,11 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
+	"regexp"
 	"time"
 
+	"bufio"
+	"github.com/mitchellh/colorstring"
 	"gopkg.in/yaml.v2"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -33,18 +35,18 @@ import (
 )
 
 // ExecuteFlowFromFile
-func (f *Flow) ExecuteFlowFromFile(flowFile string, verbose bool) error {
+func (f *Flow) ExecuteFlowFromFile(flowFile string, verbose, timestamp bool) error {
 	f.Model = RunModelCli
 
 	if data, err := ioutil.ReadFile(flowFile); err != nil {
-		fmt.Println("Read ", flowFile, " error: ", err.Error())
+		colorstring.Println(fmt.Sprintf("[red]Read orchestration flow file %s error: %s", flowFile, err.Error()))
 		return err
 	} else {
 		if err := yaml.Unmarshal(data, &f); err != nil {
-			fmt.Println("Unmarshal the flow file error:", err.Error())
+			colorstring.Println(fmt.Sprintf("[red]Unmarshal the flow file error: %s", err.Error()))
 			return err
 		} else {
-			f.LocalRun(verbose)
+			f.LocalRun(verbose, timestamp)
 		}
 	}
 
@@ -52,67 +54,109 @@ func (f *Flow) ExecuteFlowFromFile(flowFile string, verbose bool) error {
 }
 
 // LocalRun
-func (f *Flow) LocalRun(verbose bool) error {
-	for _, stage := range f.Stages {
+func (f *Flow) LocalRun(verbose, timestamp bool) error {
+	// Print Flow Title
+	colorstring.Println(fmt.Sprintf("[magenta]The [light_green]\"%s\" [magenta]is running:", f.Title))
+	colorstring.Println("")
+
+	colorstring.Println(fmt.Sprintf("[magenta]Version Number: [cyan]%d", f.Version))
+	colorstring.Println(fmt.Sprintf("[magenta]Tag: [cyan]%s", f.Tag))
+	if f.Timeout == 0 {
+		colorstring.Println("[magenta]Timeout: [cyan]Unlimited")
+	} else {
+		colorstring.Println(fmt.Sprintf("[magenta]Timeout: [cyan]%d", f.Timeout))
+	}
+
+	colorstring.Println("")
+
+	for key, stage := range f.Stages {
+		colorstring.Println(fmt.Sprintf("[magenta]Stage Number: [cyan]%d", key))
+
 		switch stage.T {
 		case StageTypeStart:
-			fmt.Println(fmt.Sprintf("Start Stage: %s", stage.Title))
-			fmt.Println(fmt.Sprintf("Running Orchestration flow now."))
+
+			colorstring.Println("[magenta]Start Stage: [cyan]cli mode don't need trigger.")
+
 		case StageTypeNormal:
-			fmt.Println(fmt.Sprintf("Normal Stage: %s", stage.Title))
+			colorstring.Println(fmt.Sprintf("[magenta]Stage: [cyan]%s", stage.Title))
+			colorstring.Println(fmt.Sprintf("[magenta]Stage Sequencing: [cyan]%s", stage.Sequencing))
+			colorstring.Println("")
 
 			switch stage.Sequencing {
 			case StageTypeParallel:
-				if err := stage.ParallelRun(); err != nil {
+				if err := stage.ParallelRun(verbose, timestamp); err != nil {
 					return err
 				}
 			case StageTypeSequencing:
-				if err := stage.SequencingRun(); err != nil {
+				if err := stage.SequencingRun(verbose, timestamp); err != nil {
 					return err
 				}
 			default:
 				return fmt.Errorf("Unknown sequencing type.")
 			}
 		case StageTypePause:
-			fmt.Println(fmt.Sprintf("Pause Stage: %s", stage.Title))
+			//fmt.Println(fmt.Sprintf("Pause Stage: %s", stage.Title))
 		case StageTypeEnd:
-			fmt.Println(fmt.Sprintf("End Stage: %s", stage.Title))
+			colorstring.Println("[magenta]End Stage: [cyan]Flow execute end.")
 		}
+
+		colorstring.Println("")
+		colorstring.Println("")
 	}
 
 	return nil
 }
 
 // SequencingRun
-func (s *Stage) SequencingRun() error {
-	for _, action := range s.Actions {
-		fmt.Println(action.Name)
-		if result, err := action.Run(); err != nil {
+func (s *Stage) SequencingRun(verbose, timestamp bool) error {
+
+	for key, action := range s.Actions {
+		colorstring.Println(fmt.Sprintf("[magenta]\tAction Number: [cyan]%d", key))
+		colorstring.Println(fmt.Sprintf("[magenta]\tAction: [cyan]%s", action.Title))
+
+		if result, err := action.Run(verbose, timestamp); err != nil {
 			return err
 		} else if result == false {
-			return fmt.Errorf("Action execute error.")
+			colorstring.Println(fmt.Sprintf("[magenta]Job End: [cyan]%s", time.Now().String()))
+			colorstring.Println(fmt.Sprintf("[magenta]Action Result: [cyan]%s", "failure"))
 		} else if result == true {
-			fmt.Println("Action execute successfully.")
+			colorstring.Println(fmt.Sprintf("[magenta]Job End: [cyan]%s", time.Now().String()))
+			colorstring.Println(fmt.Sprintf("[magenta]Action Result: [cyan]%s", "successfully"))
 		}
+
+		colorstring.Println("")
 	}
 
 	return nil
 }
 
 // ParallelRun
-func (s *Stage) ParallelRun() error {
+func (s *Stage) ParallelRun(verbose, timestamp bool) error {
 	return nil
 }
 
-func (a *Action) Run() (bool, error) {
-	for _, job := range a.Jobs {
-		job.Run(a.Name)
+func (a *Action) Run(verbose, timestamp bool) (bool, error) {
+
+	for key, job := range a.Jobs {
+		colorstring.Println(fmt.Sprintf("[magenta]\t\tJob: [cyan]%d", key))
+		colorstring.Println(fmt.Sprintf("[magenta]\t\tJob Type: [cyan]%s", job.T))
+		colorstring.Println(fmt.Sprintf("[magenta]\t\tJob Verbose: [cyan]%t", verbose))
+		colorstring.Println(fmt.Sprintf("[magenta]\t\tJob Timestamp: [cyan]%t", timestamp))
+		colorstring.Println(fmt.Sprintf("[magenta]\t\tJob Start: [cyan]%s", time.Now().String()))
+		colorstring.Println("[magenta]\t\tJob Running:")
+
+		if result, err := job.Run(a.Name, verbose, timestamp); err != nil {
+			return false, err
+		} else {
+			return result, nil
+		}
+
 	}
 
 	return true, nil
 }
 
-func (j *Job) Run(name string) (bool, error) {
+func (j *Job) Run(name string, verbose, timestamp bool) (bool, error) {
 	if config, err := clientcmd.BuildConfigFromFlags("", "/Users/meaglith/.kube/config"); err != nil {
 		return false, err
 	} else {
@@ -160,17 +204,39 @@ func (j *Job) Run(name string) (bool, error) {
 
 			req := p.GetLogs(name, &apiv1.PodLogOptions{
 				Follow:     true,
-				Timestamps: true,
+				Timestamps: timestamp,
 			})
 
 			if read, err := req.Stream(); err != nil {
 				return false, err
 			} else {
-				io.Copy(os.Stdout, read)
+
+				reader := bufio.NewReader(read)
+				for {
+					line, err := reader.ReadString('\n')
+
+					if err != nil {
+						if err == io.EOF {
+							colorPrint(line, verbose)
+							break
+						}
+						return false, nil
+					}
+
+					colorPrint(line, verbose)
+				}
 			}
 
 		}
 	}
 
 	return true, nil
+}
+
+func colorPrint(line string, verbose bool) {
+	if has, _ := regexp.Match("CO_RESULT = false", []byte(line)); has == true {
+		colorstring.Print(fmt.Sprintf("[red]\t\t\t %s", line))
+	} else {
+		colorstring.Print(fmt.Sprintf("[green]\t\t\t %s", line))
+	}
 }

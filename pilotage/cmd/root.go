@@ -33,9 +33,9 @@ var RootCmd = &cobra.Command{
 	Use:   "pilotage",
 	Short: "pilotage is a DevOps orchestration engine.",
 	Long: `Pilotage is the core module of ContainerOps. And it is the engine DevOps Orchestration.
-It has two models of running: cli and daemon. The cli model reads a file of orchestration
+It has two modes of running: cli and daemon. The cli mode reads a file of orchestration
 flow and executes it. It uses the kubectl of local connecting the Kubernetes cluster and
-collecting logs.The daemon model is HTTPS server and exposes APIs interacting with Web UI.
+collecting logs.The daemon mode is HTTPS server and exposes APIs interacting with Web UI.
 And UI has editor and monitor for orchestration flow.
 `,
 }
