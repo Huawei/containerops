@@ -25,12 +25,12 @@ stages:
   -
     type: normal
     name: prometheus-test-build-release
-    title: Build, Test and Release the Prometheus Binary
+    title: Building, testing Prometheus project, compile then upload to Dockyard artifact repository.
     sequencing: sequence
     actions:
       -
         name: build-prometheus
-        title: Build Prometheus
+        title: Build Prometheus project with "make build"
         jobs:
           -
             type: component
@@ -45,7 +45,7 @@ stages:
             output: []
       -
         name: test-prometheus
-        title: Test Prometheus
+        title: Test Prometheus project with "make test"
         jobs:
           -
             type: component
@@ -60,7 +60,7 @@ stages:
             output: []
       -
         name: release-prometheus
-        title: Release Prometheus
+        title: Compile Prometheus project with "make build", then upload to artifact repository
         jobs:
           -
             type: component
@@ -76,12 +76,12 @@ stages:
   -
     type: normal
     name: coredns-test-build-release
-    title: Build, Test and Release the CoreDNS Binary
+    title: Building, testing CoreDNS project, compile then upload to Dockyard artifact repository.
     sequencing: sequence
     actions:
       -
         name: build-coredns
-        title: Build CoreDNS
+        title: Build CoreDNS project with "make coredns"
         jobs:
           -
             type: component
@@ -96,7 +96,7 @@ stages:
             output: []
       -
         name: test-coredns
-        title: Test CoreDNS
+        title: Test CoreDNS project with "make test"
         jobs:
           -
             type: component
@@ -111,7 +111,7 @@ stages:
             output: []
       -
         name: release-coredns
-        title: Release CoreDNS
+        title: Compile CoreDNS project with "make coredns", then upload to artifact repository
         jobs:
           -
             type: component
@@ -127,12 +127,12 @@ stages:
   -
     type: normal
     name: k8s-test-build-release
-    title: Build, Test and Release the Kubernetes Binary
+    title: Building, testing Kubernetes project using Bazel, compile then upload to Dockyard artifact repository.
     sequencing: sequence
     actions:
       -
         name: build-kubernetes
-        title: Build Kubernetes
+        title: Build Kubernetes project with "make bazel-build"
         jobs:
           -
             type: component
@@ -147,7 +147,7 @@ stages:
             output: []
       -
         name: release-kubernetes
-        title: Release Kubernetes
+        title: Compile Kubernetes project with "make all", then upload all binaries to artifact repository
         jobs:
           -
             type: component
@@ -162,7 +162,7 @@ stages:
             output: ["CO_APIEXTENSIONS-APISERVER_URI", "CO_CLOUD-CONTROLLER-MANAGER_URI", "CO_CONVERSION-GEN_URI", "CO_DEEPCOPY-GEN_URI", "CO_DEFAULTER-GEN_URI", "CO_E2E.TEST_URI", "CO_E2E_NODE.TEST_URI", "CO_GENDOCS_URI", "CO_GENFEDDOCS_URI", "CO_GENKUBEDOCS_URI", "CO_GENMAN_URI", "CO_GENSWAGGERTYPEDOCS_URI", "CO_GENYAML_URI", "CO_GINKGO_URI", "CO_GKE-CERTIFICATES-CONTROLLER_URI", "CO_GO-BINDATA_URI", "CO_HYPERKUBE_URI", "CO_KUBE-AGGREGATOR_URI", "CO_KUBE-APISERVER_URI", "CO_KUBE-CONTROLLER-MANAGER_URI", "CO_KUBE-PROXY_URI", "CO_KUBE-SCHEDULER_URI", "CO_KUBEADM_URI", "CO_KUBECTL_URI", "CO_KUBEFED_URI", "CO_KUBELET_URI", "CO_KUBEMARK_URI", "CO_LINKCHECK_URI", "CO_MUNGEDOCS_URI", "CO_OPENAPI-GEN_URI", "CO_TESTSTALE_URI"]
       -
         name: test-kubernetes
-        title: Test Kubernetes
+        title: Test Kubernetes project with "make bazel-test"
         jobs:
           -
             type: component

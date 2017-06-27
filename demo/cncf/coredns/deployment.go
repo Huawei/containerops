@@ -17,10 +17,13 @@ limitations under the License.
 package main
 
 import (
+	"bufio"
+	"fmt"
 	"io"
-	"os"
+	"regexp"
 	"time"
 
+	"github.com/mitchellh/colorstring"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -46,17 +49,17 @@ func main() {
 						APIVersion: "v1",
 					},
 					ObjectMeta: metav1.ObjectMeta{
-						Name: "cncf-demo-coredns-test",
+						Name: "cncf-demo-coredns-release",
 					},
 					Spec: apiv1.PodSpec{
 						Containers: []apiv1.Container{
 							{
-								Name:  "cncf-demo-coredns-test",
+								Name:  "cncf-demo-coredns-release",
 								Image: "docker.io/containerops/cncf-demo-coredns:latest",
 								Env: []apiv1.EnvVar{
 									{
 										Name:  "CO_DATA",
-										Value: "coredns=https://github.com/coredns/coredns.git action=test release=test.opshub.sh/containerops/cncf-demo/demo",
+										Value: "coredns=https://github.com/coredns/coredns.git action=release release=test.opshub.sh/containerops/cncf-demo/demo",
 									},
 								},
 								Resources: apiv1.ResourceRequirements{
@@ -76,15 +79,42 @@ func main() {
 
 			time.Sleep(time.Second * 5)
 
-			req := p.GetLogs("cncf-demo-coredns-test", &apiv1.PodLogOptions{
+			req := p.GetLogs("cncf-demo-coredns-release", &apiv1.PodLogOptions{
 				Follow:     true,
-				Timestamps: true,
+				Timestamps: false,
 			})
 
 			if read, err := req.Stream(); err != nil {
 				panic(err.Error())
 			} else {
-				io.Copy(os.Stdout, read)
+
+				reader := bufio.NewReader(read)
+				for {
+					line, err := reader.ReadString('\n')
+					if err != nil {
+						if err == io.EOF {
+							if has, _ := regexp.Match("[COUT]", []byte(line)); has == true {
+								if has, _ := regexp.Match("CO_RESULT = false", []byte(line)); has == true {
+									colorstring.Print(fmt.Sprintf("[red] %s", line))
+								} else {
+									colorstring.Print(fmt.Sprintf("[green] %s", line))
+								}
+							}
+
+							break
+						}
+						panic(err)
+					}
+
+					if has, _ := regexp.Match("[COUT]", []byte(line)); has == true {
+						if has, _ := regexp.Match("CO_RESULT = false", []byte(line)); has == true {
+							colorstring.Print(fmt.Sprintf("[red] %s", line))
+						} else {
+							colorstring.Print(fmt.Sprintf("[green] %s", line))
+						}
+					}
+
+				}
 			}
 
 		}

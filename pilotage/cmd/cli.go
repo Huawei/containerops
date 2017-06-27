@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mitchellh/colorstring"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -27,18 +28,18 @@ import (
 	"github.com/Huawei/containerops/pilotage/module"
 )
 
-var verbose bool
+var verbose, timestamp bool
 
 var cliCmd = &cobra.Command{
 	Use:   "cli",
 	Short: "pilotage cli command",
-	Long: `Pilotage cli model runs orchestration flow in local. It uses the kubectl command interacting
+	Long: `Pilotage cli mode runs orchestration flow in local. It uses the kubectl command interacting
 with Kubernetes master which create pod and get logs. The kubectl install and config document:
 
 https://kubernetes.io/docs/user-guide/kubectl-overview
 
-1. The cli model doesn't have trigger.
-2. The cli model doesn't have database, never save result and log.'`,
+1. The cli mode doesn't have trigger.
+2. The cli mode doesn't have database, never save result and log.'`,
 }
 
 var runCmd = &cobra.Command{
@@ -57,27 +58,30 @@ func init() {
 	cliCmd.AddCommand(runCmd)
 
 	RootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "When verbose is true, the engine will print all logs.")
+	RootCmd.PersistentFlags().BoolVar(&timestamp, "timestamp", false, "Show logs with timestamp. ")
+
 	viper.BindPFlag("verbose", RootCmd.Flags().Lookup("verbose"))
+	viper.BindPFlag("timestamp", RootCmd.Flags().Lookup("timestamp"))
 }
 
 // Run orchestration flow from a flow definition file.
 func runFlow(cmd *cobra.Command, args []string) {
 	if len(args) <= 0 {
-		fmt.Println("The orchestration flow file is required.")
+		colorstring.Println("[red]The orchestration flow file is required.")
 		os.Exit(1)
 	}
 
 	flowFile := args[0]
 
 	if utils.IsFileExist(flowFile) == false {
-		fmt.Println("The orchestration flow file is not exist.")
+		colorstring.Println("[red]The orchestration flow file is not exist.")
 		os.Exit(1)
 	}
 
 	flow := new(module.Flow)
 
-	if err := flow.ExecuteFlowFromFile(flowFile, verbose); err != nil {
-		fmt.Println("Execute orchestration flow error: ", err.Error())
+	if err := flow.ExecuteFlowFromFile(flowFile, verbose, timestamp); err != nil {
+		colorstring.Println(fmt.Sprintf("[red]Execute orchestration flow error: %s", err.Error()))
 		os.Exit(1)
 	}
 
