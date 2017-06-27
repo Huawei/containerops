@@ -118,10 +118,10 @@ func (s *Stage) SequencingRun(verbose, timestamp bool) error {
 			return err
 		} else if result == false {
 			colorstring.Println(fmt.Sprintf("[magenta]Job End: [cyan]%s", time.Now().String()))
-			colorstring.Println(fmt.Sprintf("[magenta]Action Result: [cyan]%s", "failure"))
+			colorstring.Println(fmt.Sprintf("[magenta]\tAction Result: [cyan]%s", "failure"))
 		} else if result == true {
 			colorstring.Println(fmt.Sprintf("[magenta]Job End: [cyan]%s", time.Now().String()))
-			colorstring.Println(fmt.Sprintf("[magenta]Action Result: [cyan]%s", "successfully"))
+			colorstring.Println(fmt.Sprintf("[magenta]\tAction Result: [cyan]%s", "successfully"))
 		}
 
 		colorstring.Println("")
