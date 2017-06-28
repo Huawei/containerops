@@ -112,16 +112,16 @@ func (r *DockerV2) Get(namespace, repository string) error {
 	return nil
 }
 
+var dockerv2Mutex sync.Mutex
+
 // Put is
 func (r *DockerV2) Put(namespace, repository string) error {
 	r.Namespace, r.Repository = namespace, repository
 
+	dockerv2Mutex.Lock()
+	defer dockerv2Mutex.Unlock()
+
 	tx := DB.Begin()
-
-	mutex := &sync.Mutex{}
-	mutex.Lock()
-	defer mutex.Unlock()
-
 	if err := tx.Debug().Where("namespace = ? AND repository = ? ", namespace, repository).FirstOrCreate(&r).Error; err != nil {
 		tx.Rollback()
 		return err
