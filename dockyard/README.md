@@ -31,9 +31,9 @@ Now all the tables are created, you can start the daemon by:
 ```
 
 #### The config file
-Dockyard reads the configs from a `.toml` file. You can specify the config file path with option `-c` or `--config`:
+Dockyard reads the configs from a `.toml` file. You can specify the config file path with option or `--config`:
 ``` bash
-./dockyard daemon start -c PATH_TO_CONFIG
+./dockyard daemon start --config PATH_TO_CONFIG
 ```
 
 If the path is not given, dockyard will take the default path `./conf/runtime.toml`
@@ -70,4 +70,27 @@ You can also override the address and port by passing command line arguments:
 For more details of the command line arguments, just type the sub command without any action:
 ```
 ./dockyard daemon
+```
+
+### Put dockyard behind a proxy server
+You might put dockyard behind a proxy server(like Nginx, Caddy etc.), because of the design of docker registry API, you'll have to take care of the header forwarding, you should pass the `scheme` and `host` headers to dockyard, or dockyard might not work as expected. 
+
+What's more, since most of the proxy servers would have a default request body size limit, it's better to make it larger.
+
+The example of a nginx config:
+```
+    server {
+      listen    443;
+      server_name    containerops.io;
+      ssl on;
+      ssl_certificate ssl/containerops.crt;
+      ssl_certificate_key ssl/containerops.key;
+
+      client_max_body_size 200M;  # Set it as you wish
+      location / {
+        proxy_pass    http://unix:/var/run/dockyard.socket;
+        proxy_set_header X-Forwarded-Proto $scheme; # This is essential for nginx!
+        proxy_set_header Host $http_host;  # This is essential for nginx!
+      }
+    }
 ```
