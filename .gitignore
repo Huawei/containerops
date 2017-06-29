@@ -48,12 +48,10 @@ docs/.jekyll-metadata
 docs/_posts/
 docs/pdf/
 
-# dockyard
-dockyard/dockyard
-
 # IDEs and editors
 .idea
 .idea/*
+.vscode/*
 
 pilotage/.idea
 pilotage/.idea/*

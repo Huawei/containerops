@@ -1,0 +1,19 @@
+@import "../material.variables";
+@import "../mixins/bi-app/bi-app-ltr";
+@import "../app.variables";
+@import "../mixins";
+
+.my-drop-zone {
+  min-height: 32px;
+  margin-bottom: $gutter;
+  padding: ($gutter/2);
+  border: dashed 1px mat-color($foreground, divider);
+  background-color: white;
+  @include rounded($border-radius-base);
+}
+
+.app-dark :host /deep/ {
+  .my-drop-zone {
+    background: mat-color($dark-background, card);
+  }
+}

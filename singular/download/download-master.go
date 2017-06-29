@@ -1,5 +1,5 @@
 /*
-Copyright 2014 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
+Copyright 2016 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package download
 import (
 	"fmt"
 
-	cmd "github.com/Huawei/containerops/singular/cmd"
 	"github.com/Huawei/containerops/singular/init_config"
 )
 
@@ -27,10 +26,10 @@ func Master_Download(ip string) {
 
 	var fileslist = init_config.Get_files()
 	for key, url := range fileslist {
-		cmd.ExecCMDparams("wget", []string{"-P", "/tmp/", "-c", url})
+		ExecCMDparams("wget", []string{"-P", "/tmp/", "-c", url})
 		fmt.Printf("%s\n\n", key)
 	}
 	//scp -r ./config/. root@138.68.14.193:/tmp/
-	cmd.LocalExecCMDparams("scp", []string{"-r", "./config/.", init_config.User + "@" + ip + ":" + "/tmp/config/"})
+	LocalExecCMDparams("scp", []string{"-r", "./config/.", init_config.User + "@" + ip + ":" + "/tmp/config/"})
 
 }

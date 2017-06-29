@@ -1,0 +1,40 @@
+$md-fab-size: 56px !default;
+$md-fab-padding: 16px !default;
+
+[md-raised-button], [md-fab], [md-mini-fab], [md-button], [md-icon-button] {
+  border-radius: $border-radius-base;
+  font-weight: $font-weight-base;
+  &[md-button-sm] {
+    font-size: 13px;
+    line-height: 30px;
+    padding: 0 8px;
+  }
+}
+
+[md-icon-button] {
+  &[md-button-sm] {
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    md-icon {
+      font-size: 20px;
+      line-height: 20px;
+    }
+  }
+}
+
+@mixin md-fab-position($spot, $top: auto, $right: auto, $bottom: auto, $left: auto) {
+  [md-fab].mat-fab-#{$spot} {
+    top: $top;
+    right: $right;
+    bottom: $bottom;
+    left: $left;
+    position: fixed;
+  }
+}
+
+$md-fab-pos-offset: ($md-fab-size - $md-fab-padding) / 2;
+@include md-fab-position(bottom-right, auto, $md-fab-pos-offset, 1rem, auto);
+@include md-fab-position(bottom-left, auto, auto, -25px, $md-fab-pos-offset);
+@include md-fab-position(top-right, $md-fab-pos-offset, $md-fab-pos-offset, auto, auto);
+@include md-fab-position(top-left, $md-fab-pos-offset, auto, auto, $md-fab-pos-offset);

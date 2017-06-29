@@ -1,5 +1,5 @@
 /*
-Copyright 2014 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
+Copyright 2016 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,13 +21,27 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
+	"github.com/Huawei/containerops/common"
 )
 
-// RootCmd is root cmd of dockyard.
+var cfgFile string
+
+// RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "dockyard",
 	Short: "dockyard is a container and artifact repository",
 	Long:  `Dockyard is a container and artifact repository storing and distributing container image, software artifact and virtual images of KVM or XEN.`,
+}
+
+// init()
+func init() {
+	cobra.OnInitialize(initConfig)
+
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Configuration file path")
+
+	viper.BindPFlag("config", RootCmd.Flags().Lookup("config"))
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -39,7 +53,10 @@ func Execute() {
 	}
 }
 
-// init()
-func init() {
-
+// initConfig reads in config file and ENV variables if set.
+func initConfig() {
+	if err := common.SetConfig(cfgFile); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }

@@ -1,5 +1,5 @@
 /*
-Copyright 2014 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
+Copyright 2016 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,71 +17,74 @@ limitations under the License.
 package model
 
 import (
+	"sync"
 	"time"
 )
 
-//DockerV2
+// DockerV2
 type DockerV2 struct {
-	ID            int64      `json:"id" gorm:"primary_key"`
-	Namespace     string     `json:"namespace" sql:"not null;type:varchar(255)"  gorm:"unique_index:dockerv2_repository"`
-	Repository    string     `json:"repository" sql:"not null;type:varchar(255)"  gorm:"unique_index:dockerv2_repository"`
-	SchemaVersion string     `json:"schema_version" sql:"not null;type:varchar(255)"`
-	Manifests     string     `json:"manifests" sql:"null;type:text"`
-	Agent         string     `json:"agent" sql:"null;type:text"`
-	Short         string     `json:"short" sql:"null;type:text"`
-	Description   string     `json:"description" sql:"null;type:text"`
-	Size          int64      `json:"size" sql:"default:0"`
-	Locked        bool       `json:"locked" sql:"default:false"`
-	CreatedAt     time.Time  `json:"create_at" sql:""`
-	UpdatedAt     time.Time  `json:"update_at" sql:""`
-	DeletedAt     *time.Time `json:"delete_at" sql:"index"`
+	ID            int64      `json:"id" gorm:"column:id;primary_key"`
+	Namespace     string     `json:"namespace" sql:"not null;type:varchar(255)"  gorm:"column:namespace;unique_index:dockerv2_repository"`
+	Repository    string     `json:"repository" sql:"not null;type:varchar(255)"  gorm:"column:repository;unique_index:dockerv2_repository"`
+	SchemaVersion string     `json:"schema_version" sql:"not null;type:varchar(255)" gorm:"column:schema_version"`
+	Manifests     string     `json:"manifests" sql:"null;type:text" gorm:"column:manifests"`
+	Agent         string     `json:"agent" sql:"null;type:text" gorm:"column:agent"`
+	Short         string     `json:"short" sql:"null;type:text" gorm:"column:short"`
+	Description   string     `json:"description" sql:"null;type:text" gorm:"column:description"`
+	Size          int64      `json:"size" sql:"default:0" gorm:"column:size"`
+	Locked        bool       `json:"locked" sql:"default:false" gorm:"column:locked"`
+	CreatedAt     time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
+	UpdatedAt     time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
+	DeletedAt     *time.Time `json:"delete_at" sql:"index" gorm:"column:delete_at"`
 }
 
-//TableName is
+// TableName is
 func (r *DockerV2) TableName() string {
 	return "docker_v2"
 }
 
-//DockerImageV2 is
+// DockerImageV2 is
 type DockerImageV2 struct {
-	ID              int64      `json:"id" gorm:"primary_key"`
-	ImageID         string     `json:"image_id" sql:"null;type:varchar(255)"`
-	BlobSum         string     `json:"blob_sum" sql:"null;type:varchar(255)"`
-	V1Compatibility string     `json:"v1_compatibility" sql:"null;type:text"`
-	Path            string     `json:"path" sql:"null;type:text"`
-	OSS             string     `json:"oss" sql:"null;type:text"`
-	Size            int64      `json:"size" sql:"default:0"`
-	Locked          bool       `json:"locked" sql:"default:false"`
-	CreatedAt       time.Time  `json:"create_at" sql:""`
-	UpdatedAt       time.Time  `json:"update_at" sql:""`
-	DeletedAt       *time.Time `json:"delete_at" sql:"index"`
+	ID              int64      `json:"id" gorm:"primary_key" gorm:"column:id"`
+	ImageID         string     `json:"image_id" sql:"null;type:varchar(255)" gorm:"column:image_id"`
+	BlobSum         string     `json:"blob_sum" sql:"null;type:varchar(255)" gorm:"column:blob_sum"`
+	V1Compatibility string     `json:"v1_compatibility" sql:"null;type:text" gorm:"column:v1_compatibility"`
+	Path            string     `json:"path" sql:"null;type:text" gorm:"column:path"`
+	OSS             string     `json:"oss" sql:"null;type:text" gorm:"column:oss"`
+	Size            int64      `json:"size" sql:"default:0" gorm:"column:size"`
+	Locked          bool       `json:"locked" sql:"default:false" gorm:"column:locked"`
+	CreatedAt       time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
+	UpdatedAt       time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
+	DeletedAt       *time.Time `json:"delete_at" sql:"index" gorm:"column:delete_at"`
 }
 
-//TableName is
+// TableName is
 func (i *DockerImageV2) TableName() string {
 	return "docker_image_v2"
 }
 
-//DockerTagV2 is
+// DockerTagV2 is
 type DockerTagV2 struct {
-	ID            int64      `json:"id" gorm:"primary_key"`
-	DockerV2      int64      `json:"docker_v2" sql:"not null;default:0"`
-	Tag           string     `json:"tag" sql:"not null;type:varchar(255)"`
-	ImageID       string     `json:"image_id" sql:"not null;type:varchar(255)"`
-	Manifest      string     `json:"manifest" sql:"null;type:text"`
-	SchemaVersion string     `json:"schema_version" sql:"not null;type:varchar(255)"`
-	CreatedAt     time.Time  `json:"create_at" sql:""`
-	UpdatedAt     time.Time  `json:"update_at" sql:""`
-	DeletedAt     *time.Time `json:"delete_at" sql:"index"`
+	ID            int64      `json:"id" gorm:"primary_key" gorm:"column:id"`
+	DockerV2      int64      `json:"docker_v2" sql:"not null;default:0" gorm:"column:docker_v2"`
+	Tag           string     `json:"tag" sql:"not null;type:varchar(255)" gorm:"column:tag"`
+	ImageID       string     `json:"image_id" sql:"not null;type:varchar(255)" gorm:"column:image_id"`
+	Manifest      string     `json:"manifest" sql:"null;type:text" gorm:"column:manifest"`
+	SchemaVersion string     `json:"schema_version" sql:"not null;type:varchar(255)" gorm:"column:schema_version"`
+	CreatedAt     time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
+	UpdatedAt     time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
+	DeletedAt     *time.Time `json:"delete_at" sql:"index" gorm:"column:delete_at"`
 }
 
-//TableName is
+// TableName is
 func (t *DockerTagV2) TableName() string {
 	return "docker_tag_v2"
 }
 
-//GetTags return tas data of repository.
+// GetTags return tas data of repository.
 func (r *DockerV2) GetTags(namespace, repository string) ([]string, error) {
+	r.Namespace, r.Repository = namespace, repository
+
 	if err := DB.Debug().Where("namespace = ? AND repository = ?", namespace, repository).First(&r).Error; err != nil {
 		return []string{}, err
 	} else {
@@ -100,7 +103,7 @@ func (r *DockerV2) GetTags(namespace, repository string) ([]string, error) {
 	}
 }
 
-//Get is
+// Get is
 func (r *DockerV2) Get(namespace, repository string) error {
 	if err := DB.Debug().Where("namespace = ? AND repository =? ", namespace, repository).First(&r).Error; err != nil {
 		return err
@@ -109,12 +112,16 @@ func (r *DockerV2) Get(namespace, repository string) error {
 	return nil
 }
 
-//Put is
+var dockerv2Mutex sync.Mutex
+
+// Put is
 func (r *DockerV2) Put(namespace, repository string) error {
 	r.Namespace, r.Repository = namespace, repository
 
-	tx := DB.Begin()
+	dockerv2Mutex.Lock()
+	defer dockerv2Mutex.Unlock()
 
+	tx := DB.Begin()
 	if err := tx.Debug().Where("namespace = ? AND repository = ? ", namespace, repository).FirstOrCreate(&r).Error; err != nil {
 		tx.Rollback()
 		return err
@@ -124,7 +131,7 @@ func (r *DockerV2) Put(namespace, repository string) error {
 	return nil
 }
 
-//PutAgent is
+// PutAgent is
 func (r *DockerV2) PutAgent(namespace, repository, agent, version string) error {
 	r.Namespace, r.Repository = namespace, repository
 
@@ -144,7 +151,7 @@ func (r *DockerV2) PutAgent(namespace, repository, agent, version string) error 
 	return nil
 }
 
-//Get is
+// Get is
 func (i *DockerImageV2) Get(blobsum string) error {
 	i.BlobSum = blobsum
 
@@ -155,13 +162,13 @@ func (i *DockerImageV2) Get(blobsum string) error {
 	return nil
 }
 
-//Put is
+// Put is
 func (i *DockerImageV2) Put(tarsum, path string, size int64) error {
 	i.BlobSum, i.Path, i.Size = tarsum, path, size
 
 	tx := DB.Begin()
 
-	if err := tx.Debug().Where("blob_sum = ? ", tarsum).FirstOrCreate(&i).Error; err != nil {
+	if err := tx.Debug().Where("blob_sum = ? ", tarsum).FirstOrCreate(i).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -170,7 +177,7 @@ func (i *DockerImageV2) Put(tarsum, path string, size int64) error {
 	return nil
 }
 
-//Get is get DockerTagV2 data
+// Get is get DockerTagV2 data
 func (t *DockerTagV2) Get(namespace, repository, tag string) (*DockerTagV2, error) {
 	r := new(DockerV2)
 
@@ -185,7 +192,7 @@ func (t *DockerTagV2) Get(namespace, repository, tag string) (*DockerTagV2, erro
 	return t, nil
 }
 
-//Put is
+// Put is
 func (t *DockerTagV2) Put(namespace, repository, tag, imageID, manifest, schema string) error {
 	r := new(DockerV2)
 

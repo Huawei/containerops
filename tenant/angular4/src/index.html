@@ -1,14 +1,33 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>Angular4</title>
   <base href="/">
-
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ContainerOps - DevOps Orchestration</title>
+
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <link href="assets/vendor/pace/themes/green/pace-theme-flash.css" rel="stylesheet" />
+  <link href="//fonts.googleapis.com/css?family=Roboto:300,400,700|Material+Icons" rel="stylesheet" />
+
+  <script type="text/javascript">
+    window.paceOptions = {
+      document: true,
+      eventLag: true,
+      restartOnPushState: true,
+      restartOnRequestAfter: true,
+      ajax: {
+        trackMethods: [ 'POST','GET']
+      }
+    };
+  </script>
+  <script src="assets/vendor/pace/pace.js"></script>
 </head>
 <body>
-  <app-root>Loading...</app-root>
+  <app-root>
+    <div class="loading"></div>
+  </app-root>
 </body>
 </html>

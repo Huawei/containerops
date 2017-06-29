@@ -8,121 +8,128 @@ $ singular
 Usage: singular [OPTIONS] COMMAND [arg...]
        singular [ --help | -v | --version ]
 
-The kubernetes deployment and operations tools.
-To automatically deply kubernetes, you could simply follow below steps:
+Singular, the Kubernetes deployment and operations tools.
+```
+#### To automatically deploy Kubernetes, you could simply follow below steps:
+### Before You Start
+Before using the singular, you need to tell it about your API Server Key and public cloud credentials.
 
 ```
+$ singular config 
+Welcome to singular!
+Which one is your cloud compute provider: 
+    [1] DigitalOcean 
+    [2] Amazon Web Services
+    [3] Google Cloud Platfrom
+Input item number : 1
+
+DigitalOcean is your provider.
+Please input your Cloud API Access Key. 
+
+API Server Key ID : 6f267**********************321D34
+API Server key is pass validation from cloud server.
+Input your SSHkey path.Default is "~/.ssh/singular.pub"
+
+Cloud SSHkey Path : /etc/singular/rsd_custom_name.pub
+Generated Certificate Authority SSHkey and certificate.
+Created SSHkey and certificate successfully. 
+Setting up SSH keys on your cloud account.
+Now,You can create new virtual machine  with an SSH key already set on them.
+Congratulations, Let us get deployd up and running and build your container cluster !
+
+```
+
 ### Getting Started
 
-##### 1）  Configure cluster size and node with singular, a yaml file will be generated.
-```
-$ singular config master --count 2 --mSize 512 --region sfo --slug buntu-17-04-x64
-NAME                   STATUS     MSize     REGION 
-ubuntu-master-1        Ready      512M        sfo   
-ubuntu-master-2        Ready      512M        sfo   
-$ singular config node   --count 3 --mSize 1024 --region sfo --slug buntu-17-04-x64
-NAME                   STATUS     AGE     REGION       
-ubuntu-minion-1        Ready      1024M      sfo   
-ubuntu-minion-2        Ready      1024M      sfo   
-ubuntu-minion-3        Ready      1024M      sfo   
-
-```
-##### 2）  By calling call the public cloud API, singular can build your vm node and retrieve the node information list.
-```
-$ singular create master 
-NAME                   STATUS     PROGRESS          IP
-ubuntu-master-1        Ready      100%        138.68.14.197
-ubuntu-master-2        Ready      100%        138.68.14.198
-ubuntu-master-3        NoReady     80%              -
-```
-##### 3）  According the list, singular can download kubernetes binary files to each node, and start deployment with the yaml file generated in step 1.
-```
-$ singular deploy master 
-NAME                 Donwload      Deploy       STATUS
-ubuntu-master-1        100%         100%        SUCCEED
-ubuntu-master-2        100%         100%        FAILED
-ubuntu-master-3        80%          0%            -
 ```
 
-Note:
-You could manually configure yaml file, and then execute setup to deploy and install. However, without the configuration file, part of information will be lost after singular destroyed, such as the path for api key and cert.
-### Precondition
-Before using a singular, you need to tell it about your AWS credentials. You can do this in several steps:
+$ singular deploy k8s 
+Let us start to deploy kubernetes cluster wish singular!
+Nodes configuration：
+Number of Master in cluster : 3
+Number of Node in cluster : 3
 
- 
-Note: api server key is required for authentication while call api.
-For example:
- 
-##### 1）  Register an account for public cloud, and retrieve api server key and put it into the yaml file.
-Note: api server key is required for authentication while call api.
-For example:  
-  
-```
-$ singular apikey  6f2671de0d70ee5048379d16c0d0405df4a720ced263ffb35f67aded4834f321
-[singular] API Server key is ready.
+Master[3]/Node[3]. Now, set virtual machine size :
+[1] 2CPUs 4GB  Memory  60GB SSDdisk  4TB transfer
+[2] 4CPUs 8GB  Memory  80GB SSDdisk  5TB transfer
+[3] 8CPUs 16GB Memory 160GB SSDdisk  6TB transfer
+Input item number : 1
+
+The Nodes Size same as Mastes[Yes/no]:n
+Node's virtual machine size :
+[1] 2CPUs 4GB  Memory  60GB SSDdisk  4TB transfer
+[2] 4CPUs 8GB  Memory  80GB SSDdisk  5TB transfer
+[3] 8CPUs 16GB Memory 160GB SSDdisk  6TB transfer
+Input item number : 2
+
+Done. At last, select virtual machine region:
+[1]New York [2]San Francisco [3]Singapore [4]Frankfurt 
+Input item number : 2
+
+Based on your selection, generate a list for you. 
+
+---------------------------------------------------------
+| HOST NAME                      | Price /Monthly &Hour |
+---------------------------------------------------------
+| k8s-master-ubuntu-4gb-NYC1-01  | $40/mo  $0.060 /hour |
+| k8s-master-ubuntu-4gb-NYC1-02  | $40/mo  $0.060 /hour |
+| k8s-master-ubuntu-4gb-NYC1-03  | $40/mo  $0.060 /hour |     
+| k8s-node-ubuntu-8gb-NYC1-04    | $80/mo  $0.119 /hour |
+| k8s-node-ubuntu-8gb-NYC1-05    | $80/mo  $0.119 /hour |
+| k8s-node-ubuntu-8gb-NYC1-06    | $80/mo  $0.119 /hour |
+---------------------------------------------------------
+Add up $360/mo or $0.537/hour.
+Are you sure you want to continue creating?[Yes/no]:y
+This will download and install the official compiler of kubernetes for the Cluster.
+
+---------------------------------------------------------------
+| NAME           		|    STATUS   |      IP       | 
+---------------------------------------------------------------
+| k8s-master-ubuntu-4gb-NYC1-01 | Success     | 138.68.14.191 | 
+| k8s-master-ubuntu-4gb-NYC1-02 | Installing  | 138.68.14.192 |  
+| k8s-master-ubuntu-4gb-NYC1-03 | installing  | 138.68.14.193 |   
+| k8s-node-ubuntu-8gb-NYC1-04   | Downloading | 138.68.14.197 |   
+| k8s-node-ubuntu-8gb-NYC1-05   | VM Created  | 138.68.14.198 | 
+| k8s-node-ubuntu-8gb-NYC1-06   | VM Creating |        -      | 
+---------------------------------------------------------------
+Kubernetes is installed now. Great!
+
 ```
 
-##### 2）  Singular can generates the ssh certificate key pair locally and automatically deploys the public key into vm. Then you can operate the virtual machine without a password. 
-Note:Each step of the virtual machine operation depends on if your local private key matches virtual machine public key. It is more secure compared to the use of account password
-    
-```
-$ singular cerpath  ./usr/singular/
-$ singular cerkey 
-[singular] Generated Certificate Authority key and certificate.
-[singular] Created keys and certificates in "/usr/singular/"
-```
-### DESCRIPTION COMMAND & OPTION
-    
+
+### DESCRIPTION COMMAND & OPTION    
 ```
 Available Commands:
-config   Config  Configure your nodes of kubernetes cluster
-deploy  To start a new kubernetes cluster deploying and running each services
-cluster  Get kubernetes cluster information and status
-cerkey
+config      Configure your APIkey and API Server key and SSH certification of Kubernetes cluster with the wizard.
+deploy      To start a new Kubernetes cluster deploying and running each service.
 options:
-		--apikey	APIkey you have generated to access the public cloud API.
-		--cerkey	Generated key-certificate pairs could help to access to the linux server    without the need to type password.
-					by using Generated key-certificate pairs, you could access to the linux server without typing password.
-		--cerpath	Without CApath option ,the default value is /etc/.singular/id_rsa.pub
-					Or you could type your custom path for generate file id_rsa and id_rsa.pub
-		--master|slave                       Create master or slave nodes
-		--security                           Generate kubernetes certificate
-		--privtenet       					 Privte network for your cluster
-		--count =3   <value>		    	 Number of nodes in cluster
-        --mSize =512	 <1024|2048|>        Node memory Size
-        --region =sfo    sfo|nyc			 Cluster's localization of the region
-        --slug=ubuntu-17-04-x64  <value>     System version
-        --pull             Download Kubernetes binaries without install.               
-        --config=~/etc/.singular/config.yaml      setting custom singular path of config.
-        
+--config=~/etc/singular/config.yaml  setting custom singular path of config.
+--security                           Generate Kubernetes certificate
+--master-number Master nodes number of kubernetes cluster
+--node-number   Slaves nodes number of kubernetes cluster
+--mSize         Memory size of virtual machine
+--region        Location region of virtual machine
+--storage       Storage volume region of virtual machine
+```
+Example:
+```
+$ singular deploy cluster --master-number 2 --node-number 3 --mSize 4 --region sfo --storage 100
 ```
 ## Using singular with a configuration file
-##### It’s possible to configure singulary with a configuration file instead of command line flags, and some more advanced features may only be available as configuration file options. 
 
-###Sample  Configuration
+### Sample Configuration
 
 ```
 cluster_config:
-    User:     "singular_user"
-    Token:     ""
-    EtcdNet: "/kube/network"
-    Security: "yes"
+	SSHkey: ""
+	APIkey: ""
+	EtcdNet: "/kube/network"
+	Security: "True"
+	Private networking:"True"
+        Region: "sfo2"
 
 vm_config:
-    MSize:     "1024mb"
-    Region:     "sfo2"
-    Slug:     "ubuntu-17-04-x64"
-    Fingerprint:      "ee:81:d0:59:ab:09:1c:ff:52:dd:11:f8:bd:a6:7f:a8"
-cluster_download:
-    cloud_controller_manager : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/cloud-controller-manager"
-    hyperkube : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/hyperkube"
-    kube_aggregator : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kube-aggregator"
-    kube_apiserver : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kube-apiserver"
-    kube_controller_manager : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kube-controller-manager"
-    kube_proxy : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kube-proxy"
-    kube_scheduler : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kube-scheduler"
-    kubeadm : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kubeadm"
-    kubectl : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kubectl"
-    kubefed : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kubefed"
-    kubelet : "https://storage.googleapis.com/containerops-release/kubernetes/1.6.2/kubelet"
+    Memory Size(G): "8"
+    System Version: "ubuntu-17-04-x64"
+    Storage Volume:"100"
 ```

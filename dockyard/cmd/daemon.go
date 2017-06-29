@@ -1,5 +1,5 @@
 /*
-Copyright 2014 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
+Copyright 2016 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,30 +17,36 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
+	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/macaron.v1"
 
 	"github.com/Huawei/containerops/common"
+	"github.com/Huawei/containerops/common/utils"
+	"github.com/Huawei/containerops/dockyard/model"
 	"github.com/Huawei/containerops/dockyard/web"
 )
 
-var address string
-var port int64
+var addressOption string
+var portOption int
 
-// webCmd is subcommand which start/stop/monitor Dockyard's REST API daemon.
+// webCmd is sub command which start/stop/monitor Dockyard's REST API daemon.
 var daemonCmd = &cobra.Command{
 	Use:   "daemon",
-	Short: "Web subcommand start/stop/monitor Dockyard's REST API daemon.",
+	Short: "Web sub command start/stop/monitor Dockyard's REST API daemon.",
 	Long:  ``,
 }
 
-// start Dockyard deamon subcommand
+// start Dockyard deamon sub command
 var startDaemonCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Start Dockyard's REST API daemon.",
@@ -48,7 +54,7 @@ var startDaemonCmd = &cobra.Command{
 	Run:   startDeamon,
 }
 
-// stop Dockyard deamon subcommand
+// stop Dockyard deamon sub command
 var stopDaemonCmd = &cobra.Command{
 	Use:   "stop",
 	Short: "stop Dockyard's REST API daemon.",
@@ -56,7 +62,7 @@ var stopDaemonCmd = &cobra.Command{
 	Run:   stopDaemon,
 }
 
-// monitor Dockyard deamon subcommand
+// monitor Dockyard deamon sub command
 var monitorDeamonCmd = &cobra.Command{
 	Use:   "monitor",
 	Short: "monitor Dockyard's REST API daemon.",
@@ -68,58 +74,82 @@ var monitorDeamonCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(daemonCmd)
 
-	// Add start subcommand
+	// Add start sub command
 	daemonCmd.AddCommand(startDaemonCmd)
-	startDaemonCmd.Flags().StringVarP(&address, "address", "a", "0.0.0.0", "http or https listen address.")
-	startDaemonCmd.Flags().Int64VarP(&port, "port", "p", 80, "the port of http.")
+	startDaemonCmd.Flags().StringVarP(&addressOption, "address", "a", "", "http or https listen address.")
+	startDaemonCmd.Flags().IntVarP(&portOption, "port", "p", 0, "the port of http.")
 
-	// Add stop subcommand
+	// Add stop sub command
 	daemonCmd.AddCommand(stopDaemonCmd)
-	// Add daemon subcommand
+	// Add daemon sub command
 	daemonCmd.AddCommand(monitorDeamonCmd)
 }
 
 // startDeamon() start Dockyard's REST API daemon.
 func startDeamon(cmd *cobra.Command, args []string) {
+	model.OpenDatabase(&common.Database)
 	m := macaron.New()
 
 	// Set Macaron Web Middleware And Routers
-	web.SetDockyardMacaron(m)
+	web.SetDockyardMacaron(m, cfgFile)
 
-	listenMode := "https"
-	switch listenMode {
-	case "http":
-		listenaddr := fmt.Sprintf("%s:%d", address, port)
-		if err := http.ListenAndServe(listenaddr, m); err != nil {
-			fmt.Printf("Start Dockyard http service error: %v\n", err.Error())
-		}
-		break
-	case "https":
-		listenaddr := fmt.Sprintf("%s:443", address)
-		server := &http.Server{Addr: listenaddr, TLSConfig: &tls.Config{MinVersion: tls.VersionTLS10}, Handler: m}
-		if err := server.ListenAndServeTLS("httpscertfile", "httpskeyfile"); err != nil {
-			fmt.Printf("Start Dockyard https service error: %v\n", err.Error())
-		}
-		break
-	case "unix":
-		listenaddr := fmt.Sprintf("%s", address)
-		if common.IsFileExist(listenaddr) {
-			os.Remove(listenaddr)
-		}
+	var server *http.Server
+	stopChan := make(chan os.Signal)
 
-		if listener, err := net.Listen("unix", listenaddr); err != nil {
-			fmt.Printf("Start Dockyard unix socket error: %v\n", err.Error())
+	signal.Notify(stopChan, os.Interrupt)
 
-		} else {
-			server := &http.Server{Handler: m}
-			if err := server.Serve(listener); err != nil {
-				fmt.Printf("Start Dockyard unix socket error: %v\n", err.Error())
-			}
-		}
-		break
-	default:
-		break
+	address := common.Web.Address
+	if addressOption != "" {
+		address = addressOption
 	}
+	port := common.Web.Port
+	if portOption != 0 {
+		port = portOption
+	}
+
+	go func() {
+		switch common.Web.Mode {
+		case "https":
+			listenAddr := fmt.Sprintf("%s:%d", address, port)
+			server = &http.Server{Addr: listenAddr, TLSConfig: &tls.Config{MinVersion: tls.VersionTLS10}, Handler: m}
+			if err := server.ListenAndServeTLS(common.Web.Cert, common.Web.Key); err != nil {
+				log.Errorf("Start Dockyard https service error: %s\n", err.Error())
+			}
+
+			break
+		case "unix":
+			listenAddr := fmt.Sprintf("%s", address)
+			if utils.IsFileExist(listenAddr) {
+				os.Remove(listenAddr)
+			}
+
+			if listener, err := net.Listen("unix", listenAddr); err != nil {
+				log.Errorf("Start Dockyard unix socket error: %s\n", err.Error())
+			} else {
+				server = &http.Server{Handler: m}
+				if err := server.Serve(listener); err != nil {
+					log.Errorf("Start Dockyard unix socket error: %s\n", err.Error())
+				}
+			}
+			break
+		default:
+			log.Fatalf("Invalid listen mode: %s\n", common.Web.Mode)
+			os.Exit(1)
+			break
+		}
+	}()
+
+	// Graceful shutdown
+	<-stopChan // wait for SIGINT
+	log.Errorln("Shutting down server...")
+
+	if server != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		server.Shutdown(ctx)
+	}
+
+	log.Errorln("Server gracefully stopped")
 }
 
 // stopDaemon() stop Dockyard's REST API daemon.

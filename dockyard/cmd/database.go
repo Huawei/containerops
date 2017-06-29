@@ -1,5 +1,5 @@
 /*
-Copyright 2014 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
+Copyright 2016 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,36 +19,37 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/dockyard/model"
 )
 
-// databasecmd is subcommand which migrate/backup/restore Dockyard's database.
+// databasecmd is sub command which migrate/backup/restore Dockyard's database.
 var databaseCmd = &cobra.Command{
 	Use:   "database",
 	Short: "Database sub command migrate/backup/restore Dockyard's database.",
 	Long:  ``,
 }
 
-// migrateDatabaseCmd is subcommand migrate Dockyard's database.
+// migrateDatabaseCmd is sub command migrate Dockyard's database.
 var migrateDatabaseCmd = &cobra.Command{
 	Use:   "migrate",
-	Short: "migrate subcommand migrate Dockyard's database.",
+	Short: "migrate sub command migrate Dockyard's database.",
 	Long:  ``,
 	Run:   migrateDatabase,
 }
 
-// backupDatabaseCmd is subcommand backup Dockyard's database.
+// backupDatabaseCmd is sub command backup Dockyard's database.
 var backupDatabaseCmd = &cobra.Command{
 	Use:   "backup",
-	Short: "backup subcommand backup Dockyard's database.",
+	Short: "backup sub command backup Dockyard's database.",
 	Long:  ``,
 	Run:   backupDatabase,
 }
 
-// restoreDatabaseCmd is subcommand restore Dockyard's database.
+// restoreDatabaseCmd is sub command restore Dockyard's database.
 var restoreDatabaseCmd = &cobra.Command{
 	Use:   "restore",
-	Short: "restore subcommand restore Dockyard's database.",
+	Short: "restore sub command restore Dockyard's database.",
 	Long:  ``,
 	Run:   restoreDatabase,
 }
@@ -64,6 +65,7 @@ func init() {
 
 // migrateDatabase is auto-migrate database of Dockyard.
 func migrateDatabase(cmd *cobra.Command, args []string) {
+	model.OpenDatabase(&common.Database)
 	model.Migrate()
 }
 

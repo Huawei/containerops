@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+ name: cncf-demo-prometheus-build
+spec:
+ containers:
+ - name: cncf-demo-prometheus-build
+   image: docker.io/containerops/cncf-demo-prometheus:latest
+   env:
+   - name: CO_DATA
+     value: "prometheus=https://github.com/prometheus/prometheus.git action=build release=test.opshub.sh/containerops/cncf-demo/demo"
+   resources:
+     requests:
+       cpu: 2
+       memory: 4G
+ restartPolicy: Never

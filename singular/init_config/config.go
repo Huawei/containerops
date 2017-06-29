@@ -17,9 +17,13 @@ limitations under the License.
 package init_config
 
 import (
+	"example/pilotage/cmd"
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+
+	"github.com/fsnotify/fsnotify"
+	"github.com/spf13/viper"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -44,6 +48,32 @@ var Slug string = "ubuntu-17-04-x64"
 var Fingerprint string = "ee:81:d0:59:ab:09:1c:ff:52:dd:11:f8:bd:a6:7f:d8"
 
 var fileslist = make(map[string]string)
+
+func init() {
+	//viper.SetDefault("ContentDir", "content")
+
+	viper.SetConfigType("yaml") // name of config file (without extension)
+
+	viper.SetConfigName("init")                                                                                  // name of config file (without extension)
+	viper.AddConfigPath("/Users/dean/Documents/gopath/src/github.com/Huawei/containerops/singular/init_config/") // optionally look for config in the working directory
+	//	viper.
+	err := viper.ReadInConfig() // Find and read the config file
+	if err != nil {             // Handle errors reading the config file
+		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+	}
+	cmd.Execute()
+	viper.WatchConfig()
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		fmt.Println("Config file changed:", e.Name)
+	})
+}
+
+func SetAPIkey(apikey string) {
+
+	// check string length
+	fmt.Printf("[singular] API Server key is ready.  %s\n", apikey)
+	//viper
+}
 
 func Get_files() map[string]string {
 

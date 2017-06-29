@@ -1,5 +1,5 @@
 /*
-Copyright 2014 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
+Copyright 2016 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,10 +17,14 @@ limitations under the License.
 package model
 
 import (
+	"fmt"
 	"os"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/jinzhu/gorm"
+
+	"github.com/Huawei/containerops/common"
+	"github.com/Huawei/containerops/common/model"
 )
 
 var (
@@ -33,10 +37,14 @@ func init() {
 }
 
 // OpenDatabase is
-func OpenDatabase() {
+func OpenDatabase(dbconfig *common.DatabaseConfig) {
 	var err error
-	if DB, err = gorm.Open("database.driver", "database.uri"); err != nil {
-		log.Fatal("Initlization database connection error.")
+
+	driver, host, port, user, password, db := dbconfig.Driver, dbconfig.Host, dbconfig.Port, dbconfig.User, dbconfig.Password, dbconfig.Name
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=True&loc=Local", user, password, host, port, db)
+	if DB, err = gorm.Open(driver, dsn); err != nil {
+		log.Fatal("Initlization database connection error.", err)
 		os.Exit(1)
 	} else {
 		DB.DB()
@@ -49,9 +57,14 @@ func OpenDatabase() {
 
 // Migrate is
 func Migrate() {
-	OpenDatabase()
-
+	// Docker V2 Require Table
 	DB.AutoMigrate(&DockerV2{}, &DockerImageV2{}, &DockerTagV2{})
+
+	// Binary V1 Require Table
+	DB.AutoMigrate(&BinaryV1{}, &BinaryFileV1{})
+
+	// Label V1 Require Table
+	DB.AutoMigrate(&model.LabelV1{})
 
 	log.Info("Auto Migrate Dockyard Database Structs Done.")
 }
