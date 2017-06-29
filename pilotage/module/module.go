@@ -1,5 +1,5 @@
 /*
-Copyright 2014 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
+Copyright 2016 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,97 +16,62 @@ limitations under the License.
 
 package module
 
-import (
-	"errors"
-	"strings"
+const (
+	// Flow Run Model
+	RunModelCli    = "CLI"
+	RunModelDaemon = "DAEMON"
 
-	log "github.com/Sirupsen/logrus"
+	// Stage Type
+	StageTypeStart  = "start"
+	StageTypeEnd    = "end"
+	StageTypeNormal = "normal"
+	StageTypePause  = "pause"
+
+	// Action Type
+	StageTypeSequencing = "sequence"
+	StageTypeParallel   = "parallel"
 )
 
-func describeJSON(jsonObj map[string]interface{}, path string) ([]map[string]string, error) {
-	resultList := make([]map[string]string, 0)
-
-	for key, value := range jsonObj {
-		temp := make(map[string]string)
-
-		typeStr := ""
-		switch value.(type) {
-		case string:
-			typeStr = "string"
-		case float64:
-			typeStr = "float64"
-		case bool:
-			typeStr = "boolean"
-		case []interface{}:
-			typeStr = "array"
-		case map[string]interface{}:
-			typeStr = "object"
-			childResult, err := describeJSON(value.(map[string]interface{}), temp["path"])
-			if err != nil {
-				return nil, err
-			}
-
-			resultList = append(resultList, childResult...)
-		}
-
-		temp["key"] = key
-		temp["path"] = path + "." + key
-		temp["type"] = typeStr
-
-		resultList = append(resultList, temp)
-	}
-
-	return resultList, nil
+// Flow is DevOps orchestration flow struct.
+type Flow struct {
+	Model   string  `json:"model" yaml:"model"`
+	Name    string  `json:"name" yaml:"name"`
+	Title   string  `json:"title" yaml:"title"`
+	Version int64   `json:"version" yaml:"version"`
+	Tag     string  `json:"tag" yaml:"tag"`
+	Timeout int64   `json:"timeout" yaml:"timeout"`
+	Stages  []Stage `json:"stages" yaml:"stages"`
 }
 
-// getJsonDataByPath is get a value from a map by give path
-func getJsonDataByPath(path string, data map[string]interface{}) (interface{}, error) {
-	depth := len(strings.Split(path, "."))
-	if depth == 1 {
-		if info, ok := data[path]; !ok {
-			log.Error("[module's getJsonDataByPath]:error when get data from action,action's key not exist :" + path)
-			return "", nil
-		} else {
-			return info, nil
-		}
-	}
-
-	childDataInterface, ok := data[strings.Split(path, ".")[0]]
-	if !ok {
-		log.Error("error when get data from action,action's key not exist :" + path)
-		return "", nil
-	}
-	childData, ok := childDataInterface.(map[string]interface{})
-	if !ok {
-		log.Error("[module's getJsonDataByPath]:error when get data from output, want a json,got:", childDataInterface)
-		return nil, errors.New("child data is not a json!")
-	}
-
-	childPath := strings.Join(strings.Split(path, ".")[1:], ".")
-	return getJsonDataByPath(childPath, childData)
+// Stage is
+type Stage struct {
+	T          string   `json:"type" yaml:"type"`
+	Name       string   `json:"name" yaml:"name"`
+	Title      string   `json:"title" yaml:"title"`
+	Sequencing string   `json:"sequencing" yaml:"sequencing"`
+	Actions    []Action `json:"actions" yaml:"actions"`
 }
 
-// setDataToMapByPath is set a data to a map by give path ,if parent path not exist,it will auto creat
-func setDataToMapByPath(data interface{}, result map[string]interface{}, path string) {
-	depth := len(strings.Split(path, "."))
-	if depth == 1 {
-		result[path] = data
-		return
-	}
+// Action is
+type Action struct {
+	Name  string `json:"name" yaml:"name"`
+	Title string `json:"title" yaml:"title"`
+	Jobs  []Job  `json:"jobs" yaml:"jobs"`
+}
 
-	currentPath := strings.Split(path, ".")[0]
-	currentMap := make(map[string]interface{})
-	if _, ok := result[currentPath]; !ok {
-		result[currentPath] = currentMap
-	}
+// Job is
+type Job struct {
+	T            string              `json:"type" yaml:"type"`
+	Kubectl      string              `json:"kubectl" yaml:"kubectl"`
+	Endpoint     string              `json:"endpoint" yaml:"endpoint"`
+	Timeout      string              `json:"timeout" yaml:"timeout"`
+	Resources    Resource            `json:"resources" yaml:"resources"`
+	Environments []map[string]string `json:"environments" yaml:"environments"`
+	Output       []string            `json:"output" yaml:"output"`
+}
 
-	var ok bool
-	currentMap, ok = result[currentPath].(map[string]interface{})
-	if !ok {
-		return
-	}
-
-	childPath := strings.Join(strings.Split(path, ".")[1:], ".")
-	setDataToMapByPath(data, currentMap, childPath)
-	return
+// Resources is
+type Resource struct {
+	CPU    string `json:"cpu" yaml:"cpu"`
+	Memory string `json:"memory" yaml:"memory"`
 }

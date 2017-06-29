@@ -1,4 +1,4 @@
-# Copyright 2014 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
+# Copyright 2016 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM  phusion/baseimage:0.9.21
+FROM docker.io/phusion/baseimage:0.9.21
 MAINTAINER Quanyi Ma <maquanyi@huawei.com>
+
+RUN apt-get update && apt-get install -y git make
 
 ARG go_version
 ENV GO_VERSION ${go_version}

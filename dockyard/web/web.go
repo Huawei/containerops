@@ -1,5 +1,5 @@
 /*
-Copyright 2014 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
+Copyright 2016 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,11 +19,15 @@ package web
 import (
 	"gopkg.in/macaron.v1"
 
+	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/dockyard/middleware"
 	"github.com/Huawei/containerops/dockyard/router"
 )
 
-func SetDockyardMacaron(m *macaron.Macaron) {
+func SetDockyardMacaron(m *macaron.Macaron, config string) {
+	//Setting Config
+	common.SetConfig(config)
+
 	//Setting Middleware
 	middleware.SetMiddlewares(m)
 

@@ -1,4 +1,4 @@
-# Copyright 2014 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
+# Copyright 2016 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,5 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM containerops/golang:1.8.1
+FROM docker.io/containerops/golang:1.8.3
 MAINTAINER Quanyi Ma <genedna@gmail.com>
+
+RUN mkdir -p $GOPATH/github.com/Huawei/containerops
+ADD ./k8s.go $GOPATH/github.com/Huawei/containerops
+WORKDIR $GOPATH/github.com/Huawei/containerops
+RUN go build k8s.go

@@ -1,0 +1,57 @@
+@import "../material.variables";
+@import "../mixins/bi-app/bi-app-ltr";
+@import "../app.variables";
+@import "../mixins";
+
+:host /deep/ {
+  .pricing-plan {
+    text-align: center;
+    cursor: default;
+    margin-bottom: 22px;
+    .mat-list[dense] .mat-list-item .mat-list-item-content, .mat-nav-list[dense] .mat-list-item .mat-list-item-content {
+      display: inline-flex;
+    }
+  }
+  .plan-price {
+    font-size: 2.5rem;
+    font-weight: 900;
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .plan-price-symbol {
+    font-size: 1rem;
+    vertical-align: super;
+  }
+  .plan-price-period {
+    font-size: 0.8125rem;
+    display: inline-block;
+    padding: 0;
+    opacity: .7;
+  }
+  .plan-title {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    overflow: hidden;
+    margin-bottom: $gutter;
+    white-space: nowrap;
+    letter-spacing: .01rem;
+    text-transform: uppercase;
+    text-overflow: ellipsis;
+  }
+  .plan-features {
+    line-height: 2.5;
+    margin: 0;
+    padding: $gutter;
+    list-style: none;
+    li {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+  .switch-center {
+    margin: 0 auto;
+  }
+}

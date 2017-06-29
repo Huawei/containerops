@@ -1,5 +1,5 @@
 /*
-Copyright 2014 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
+Copyright 2016 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,14 +22,19 @@ import (
 	"github.com/Huawei/containerops/dockyard/handler"
 )
 
-//SetRouters is setting REST API interface with handler function.
+// SetRouters is setting REST API interface with handler function.
 func SetRouters(m *macaron.Macaron) {
-	//Docker Registry V2
+	// Create Repository
+	m.Group("/v1", func() {
+		m.Post("/:namespace/:repository/:type", handler.PostRepositoryV1Handler)
+	})
+
+	// Docker Registry V2
 	m.Group("/v2", func() {
 		m.Get("/", handler.GetPingV2Handler)
 		m.Get("/_catalog", handler.GetCatalogV2Handler)
 
-		//user mode: /namespace/repository:tag
+		// User mode: /namespace/repository:tag
 		m.Head("/:namespace/:repository/blobs/:digest", handler.HeadBlobsV2Handler)
 		m.Post("/:namespace/:repository/blobs/uploads", handler.PostBlobsV2Handler)
 		m.Patch("/:namespace/:repository/blobs/uploads/:uuid", handler.PatchBlobsV2Handler)
@@ -39,12 +44,24 @@ func SetRouters(m *macaron.Macaron) {
 		m.Get("/:namespace/:repository/tags/list", handler.GetTagsListV2Handler)
 		m.Get("/:namespace/:repository/manifests/:tag", handler.GetManifestsV2Handler)
 		m.Delete("/:namespace/:repository/blobs/:digest", handler.DeleteBlobsV2Handler)
-		m.Delete("/:namespace/:repository/:blobs/:uuid", handler.DeleteBlobsUUUIDV2Handler)
+		m.Delete("/:namespace/:repository/:blobs/:uuid", handler.DeleteBlobsUUIDV2Handler)
 		m.Delete("/:namespace/:repository/manifests/:reference", handler.DeleteManifestsV2Handler)
 
-		//library mode: /repository:tag
-		//m.Get("/:repository/blobs/:digest", handler.GetBlobsV2LibraryHandler)
-		//m.Get("/:repository/tags/list", handler.GetTagsListV2LibraryHandler)
-		//m.Get("/:repository/manifests/:tag", handler.GetManifestsV2LibraryHandler)
+		// Library mode: /repository:tag
+		m.Get("/:repository/blobs/:digest", handler.GetBlobsV2LibraryHandler)
+		m.Get("/:repository/tags/list", handler.GetTagsListV2LibraryHandler)
+		m.Get("/:repository/manifests/:tag", handler.GetManifestsV2LibraryHandler)
 	})
+
+	// Binary File
+	m.Group("/binary", func() {
+		// V1 Version
+		m.Group("/v1", func() {
+			m.Put("/:namespace/:repository/binary/:binary/:tag", handler.PostBinaryV1Handler)
+			m.Get("/:namespace/:repository/binary/:binary/:tag", handler.GetBinaryV1Handler)
+			m.Put("/:namespace/:repository/binary/:binary/:tag/:label", handler.PutBinaryLabelV1Handler)
+			m.Delete("/:namespace/:repository/binary/:binary/:tag", handler.DeleteBinaryV1Handler)
+		})
+	})
+
 }

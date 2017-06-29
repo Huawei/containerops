@@ -1,0 +1,72 @@
+/* $error-pages
+ ------------------------------------------*/
+.session {
+  position: relative;
+  z-index: 4000;
+  min-height: 100vh;
+  @include flexbox;
+  @include flex-direction(column);
+}
+
+.session-content {
+  padding: 40px $gutter;
+  @include flexbox;
+  @include align-items(center);
+  @include justify-content(center);
+  @include flex(1 0 auto);
+  @include flex-direction(column);
+  min-height: 100%;
+}
+
+.session-wrapper {
+  @include flex(none);
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.lockscreen-avatar {
+  position: relative;
+  display: block;
+  margin: -75px auto 0!important;
+}
+
+.lockscreen-wrapper {
+  @include flex(none);
+  max-width: 280px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.error-title {
+  font-size: 150px;
+  line-height: 1.2;
+  font-weight: 900;
+  display: inline-table;
+  position: relative;
+  background: mat-color($primary);
+  color: #fff;
+  padding: 0 $gutter;
+  border-radius: 8px;
+  cursor: pointer;
+  margin: 0 0 $gutter;
+  &:after {
+    top: 100%;
+    left: 50%;
+    border: solid transparent;
+    content: '';
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+    border-color: rgba(0, 0, 0, 0);
+    border-top-color: mat-color($primary);
+    border-width: 8px;
+    margin-left: -8px;
+  }
+}
+
+.error-subtitle {
+  font-size: 32px;
+  font-weight: 300;
+}

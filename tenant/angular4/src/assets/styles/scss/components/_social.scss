@@ -1,0 +1,57 @@
+@import "../material.variables";
+@import "../mixins/bi-app/bi-app-ltr";
+@import "../app.variables";
+@import "../mixins";
+
+:host /deep/ {
+md-list.profile-list md-list-item .mat-list-item-content {
+  padding: 0!important;
+  font-size: 13px!important;
+}
+
+.profile-post {
+  textarea {
+    border: 0;
+    width: 100%;
+    padding: 8px;
+    outline: 0;
+    border-radius: $border-radius-base $border-radius-base 0 0 ;
+    font-size: $font-size-base;
+  }
+}
+
+.activity-stream {
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 42px;
+    bottom: 0;
+    left: 42px;
+    width: 1px;
+    background-color: mat-color($foreground, divider);
+  }
+  .mat-card {
+    background-color: transparent;
+  }
+  .mat-card-content {
+    padding-top: 0;
+    padding-left: 78px;
+  }
+}
+
+}
+
+
+[dir="rtl"] :host /deep/ {
+  .activity-stream {
+    &::before {
+      left: auto;
+      right: 42px;
+    }
+    .mat-card-content {
+      padding-left: o;
+      padding-right: 78px;
+    }
+  }
+}

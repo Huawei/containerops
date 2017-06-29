@@ -34,6 +34,18 @@ The ContainerOps is a DevOps orchestration platform, and its architecture is mic
 * **logarithm** - The log service collect from platform.
 * **dashboard** - The dashboard UI.
 
+### Database
+
+The components of ContainerOps all need SQL database support, we suggest use TiDB/TiKV for distribute deployment. For debug, you could create a database in your localhost.
+
+```sql
+GRANT USAGE ON *.* TO 'containerops'@'localhost' IDENTIFIED BY 'containerops' WITH GRANT OPTION;
+CREATE DATABASE `containerops` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+GRANT ALL PRIVILEGES ON containerops.* TO containerops@localhost IDENTIFIED BY 'containerops';
+FLUSH PRIVILEGES;
+
+```
+
 ### Contribute
 
 If you interest the ContainerOps and want to get involved in developing. Getting start with this reading: 

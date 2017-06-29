@@ -1,0 +1,15 @@
+{
+  "HOME": "Home",
+  "PROJECT": "Project",
+  "REPOSITORIES": "Reposiotries",
+  "REPOSHUB": "Hub",
+  "REPOSGIT": "Git",
+  "REPOSBINARY": "Binary",
+  "REPOSDOCKER": "Docker Image",
+  "REPOSACI": "ACI Image",
+  "ORCHESTRATION": "Orchestration",
+  "FLOWOVERVIEW": "Overview",
+  "FLOWOSTATUS": "Status",
+  "SYSSETTING": "System Setting",
+  "DOCS": "docs"
+}

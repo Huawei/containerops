@@ -1,5 +1,5 @@
 /*
-Copyright 2014 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
+Copyright 2016 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import (
 )
 
 //setRespHeaders is set Resp header value.
-//TODO: Add a config option for provide Docker Registry V1.
 func setRespHeaders() macaron.Handler {
 	return func(ctx *macaron.Context) {
 		//Docker Registry V2

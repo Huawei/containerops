@@ -1,5 +1,5 @@
 /*
-Copyright 2014 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
+Copyright 2016 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,21 +16,9 @@ limitations under the License.
 
 package main
 
-import (
-	"github.com/Huawei/containerops/singular/cmd"
-	"github.com/Huawei/containerops/singular/deploy"
-	"github.com/Huawei/containerops/singular/download"
-	"github.com/Huawei/containerops/singular/vm"
-)
+import "github.com/Huawei/containerops/singular/cmd"
 
 func main() {
 
 	cmd.Execute()
-	// create vmlist
-	vm.CreateVMs()
-	//vm.CreateNewVM("lidian-unbantu-wk-master")
-	//get iplist while
-	download.Download_main()
-	deploy.DeployNodes()
-
 }
