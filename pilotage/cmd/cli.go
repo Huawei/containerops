@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mitchellh/colorstring"
+	. "github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 
 	"github.com/Huawei/containerops/common/utils"
@@ -59,21 +59,21 @@ func init() {
 // Run orchestration flow from a flow definition file.
 func runCliFlow(cmd *cobra.Command, args []string) {
 	if len(args) <= 0 {
-		colorstring.Println("[red]The orchestration flow file is required.")
+		cmd.Println(Red("The orchestration flow file is required."))
 		os.Exit(1)
 	}
 
 	flowFile := args[0]
 
 	if utils.IsFileExist(flowFile) == false {
-		colorstring.Println("[red]The orchestration flow file is not exist.")
+		cmd.Println(Red("The orchestration flow file is not exist."))
 		os.Exit(1)
 	}
 
 	flow := new(module.Flow)
 
 	if err := flow.ExecuteFlowFromFile(flowFile, verbose, timestamp); err != nil {
-		colorstring.Println(fmt.Sprintf("[red]Execute orchestration flow error: %s", err.Error()))
+		cmd.Println(fmt.Sprintf("[red]Execute orchestration flow error: %s", err.Error()))
 		os.Exit(1)
 	}
 
