@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: cncf/demo-for-cncf-ci
+uri: cncf/demo-for-cncf-ci/build-test-release-deploy
 title: Demo For Cloud Native Computing Foundation CI Working Group
 version: 4
 tag: latest

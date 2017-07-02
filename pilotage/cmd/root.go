@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 
+	. "github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -58,7 +59,7 @@ func init() {
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		fmt.Println(Red(err))
 		os.Exit(-1)
 	}
 }
@@ -66,7 +67,7 @@ func Execute() {
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if err := common.SetConfig(cfgFile); err != nil {
-		fmt.Println(err)
+		fmt.Println(Red(err))
 		os.Exit(1)
 	}
 }

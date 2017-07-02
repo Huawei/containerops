@@ -16,6 +16,12 @@ limitations under the License.
 
 package module
 
+import (
+	"encoding/json"
+
+	"gopkg.in/yaml.v2"
+)
+
 const (
 	// Flow Run Model
 	RunModelCli    = "CLI"
@@ -35,12 +41,20 @@ const (
 // Flow is DevOps orchestration flow struct.
 type Flow struct {
 	Model   string  `json:"model" yaml:"model"`
-	Name    string  `json:"name" yaml:"name"`
+	URI     string  `json:"uri" yaml:"uri"`
 	Title   string  `json:"title" yaml:"title"`
 	Version int64   `json:"version" yaml:"version"`
 	Tag     string  `json:"tag" yaml:"tag"`
 	Timeout int64   `json:"timeout" yaml:"timeout"`
 	Stages  []Stage `json:"stages" yaml:"stages"`
+}
+
+func (f *Flow) JSON() ([]byte, error) {
+	return json.Marshal(f)
+}
+
+func (f *Flow) YAML() ([]byte, error) {
+	return yaml.Marshal(f)
 }
 
 // Stage is
