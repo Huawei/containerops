@@ -27,6 +27,7 @@ import (
 )
 
 var cfgFile string
+var verbose, timestamp bool
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -45,7 +46,12 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Configuration file path")
+	RootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "When verbose is true, the engine will print all logs.")
+	RootCmd.PersistentFlags().BoolVar(&timestamp, "timestamp", false, "Show logs with timestamp. ")
+
 	viper.BindPFlag("config", RootCmd.Flags().Lookup("config"))
+	viper.BindPFlag("verbose", RootCmd.Flags().Lookup("verbose"))
+	viper.BindPFlag("timestamp", RootCmd.Flags().Lookup("timestamp"))
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
