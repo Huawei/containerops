@@ -22,17 +22,14 @@ import (
 
 	"github.com/mitchellh/colorstring"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/Huawei/containerops/common/utils"
 	"github.com/Huawei/containerops/pilotage/module"
 )
 
-var verbose, timestamp bool
-
 var cliCmd = &cobra.Command{
 	Use:   "cli",
-	Short: "pilotage cli command",
+	Short: "pilotage cli mode",
 	Long: `Pilotage cli mode runs orchestration flow in local. It uses the kubectl command interacting
 with Kubernetes master which create pod and get logs. The kubectl install and config document:
 
@@ -42,11 +39,11 @@ https://kubernetes.io/docs/user-guide/kubectl-overview
 2. The cli mode doesn't have database, never save result and log.'`,
 }
 
-var runCmd = &cobra.Command{
+var runCliCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Run a orchestration flow.",
 	Long:  ``,
-	Run:   runFlow,
+	Run:   runCliFlow,
 }
 
 // init()
@@ -55,17 +52,12 @@ func init() {
 	RootCmd.AddCommand(cliCmd)
 
 	//Add run sub command to cli.
-	cliCmd.AddCommand(runCmd)
+	cliCmd.AddCommand(runCliCmd)
 
-	RootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "When verbose is true, the engine will print all logs.")
-	RootCmd.PersistentFlags().BoolVar(&timestamp, "timestamp", false, "Show logs with timestamp. ")
-
-	viper.BindPFlag("verbose", RootCmd.Flags().Lookup("verbose"))
-	viper.BindPFlag("timestamp", RootCmd.Flags().Lookup("timestamp"))
 }
 
 // Run orchestration flow from a flow definition file.
-func runFlow(cmd *cobra.Command, args []string) {
+func runCliFlow(cmd *cobra.Command, args []string) {
 	if len(args) <= 0 {
 		colorstring.Println("[red]The orchestration flow file is required.")
 		os.Exit(1)
