@@ -16,45 +16,41 @@ limitations under the License.
 
 package module
 
-import (
-	"encoding/json"
-
-	"gopkg.in/yaml.v2"
-)
-
 const (
 	// Flow Run Model
-	RunModelCli    = "CLI"
-	RunModelDaemon = "DAEMON"
+	CliRun      = "CliRun"
+	DaemonRun   = "DaemonRun"
+	DaemonStart = "DaemonStart"
 
 	// Stage Type
-	StageTypeStart  = "start"
-	StageTypeEnd    = "end"
-	StageTypeNormal = "normal"
-	StageTypePause  = "pause"
+	StartStage  = "start"
+	EndStage    = "end"
+	NormalStage = "normal"
+	PauseStage  = "pause"
 
 	// Action Type
-	StageTypeSequencing = "sequence"
-	StageTypeParallel   = "parallel"
+	Sequencing = "sequence"
+	Parallel   = "parallel"
+
+	// Result Type
+	Cancel  = "cancel"
+	Pending = "pending"
+	Running = "running"
+	Failure = "failure"
+	Success = "success"
 )
 
 // Flow is DevOps orchestration flow struct.
 type Flow struct {
-	Model   string  `json:"model" yaml:"model"`
+	Model   string  `json:"-" yaml:"-"`
 	URI     string  `json:"uri" yaml:"uri"`
+	Number  int64   `json:",omitempty" yaml:",omitempty"`
 	Title   string  `json:"title" yaml:"title"`
 	Version int64   `json:"version" yaml:"version"`
 	Tag     string  `json:"tag" yaml:"tag"`
 	Timeout int64   `json:"timeout" yaml:"timeout"`
-	Stages  []Stage `json:"stages" yaml:"stages"`
-}
-
-func (f *Flow) JSON() ([]byte, error) {
-	return json.Marshal(f)
-}
-
-func (f *Flow) YAML() ([]byte, error) {
-	return yaml.Marshal(f)
+	Stages  []Stage `json:",omitempty" yaml:",omitempty"`
+	Status  string  `json:",omitempty" yaml:",omitempty"`
 }
 
 // Stage is
@@ -62,15 +58,17 @@ type Stage struct {
 	T          string   `json:"type" yaml:"type"`
 	Name       string   `json:"name" yaml:"name"`
 	Title      string   `json:"title" yaml:"title"`
-	Sequencing string   `json:"sequencing" yaml:"sequencing"`
-	Actions    []Action `json:"actions" yaml:"actions"`
+	Sequencing string   `json:",omitempty" yaml:",omitempty"`
+	Actions    []Action `json:",omitempty" yaml:",omitempty"`
+	Status     string   `json:",omitempty" yaml:",omitempty"`
 }
 
 // Action is
 type Action struct {
-	Name  string `json:"name" yaml:"name"`
-	Title string `json:"title" yaml:"title"`
-	Jobs  []Job  `json:"jobs" yaml:"jobs"`
+	Name   string `json:"name" yaml:"name"`
+	Title  string `json:"title" yaml:"title"`
+	Jobs   []Job  `json:",omitempty" yaml:",omitempty"`
+	Status string `json:",omitempty" yaml:",omitempty"`
 }
 
 // Job is
@@ -81,7 +79,9 @@ type Job struct {
 	Timeout      string              `json:"timeout" yaml:"timeout"`
 	Resources    Resource            `json:"resources" yaml:"resources"`
 	Environments []map[string]string `json:"environments" yaml:"environments"`
-	Output       []string            `json:"output" yaml:"output"`
+	Output       []string            `json:",omitempty" yaml:",omitempty"`
+	Log          []string            `json:",omitempty" yaml:",omitempty"`
+	Status       string              `json:",omitempty" yaml:",omitempty"` // pending/running/failure/success
 }
 
 // Resources is

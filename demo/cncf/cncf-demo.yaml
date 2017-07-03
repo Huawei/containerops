@@ -42,7 +42,6 @@ stages:
             timeout: 0
             environments:
               - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=build release=test.opshub.sh/containerops/cncf-demo/demo"
-            output: []
       -
         name: test-prometheus
         title: Test Prometheus project with "make test"
@@ -57,7 +56,6 @@ stages:
             timeout: 0
             environments:
               - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
-            output: []
       -
         name: release-prometheus
         title: Compile Prometheus project with "make build", then upload to artifact repository
@@ -93,7 +91,6 @@ stages:
             timeout: 0
             environments:
               - CO_DATA: "coredns=https://github.com/coredns/coredns.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
-            output: []
       -
         name: test-coredns
         title: Test CoreDNS project with "make test"
@@ -108,7 +105,6 @@ stages:
             timeout: 0
             environments:
               - CO_DATA: "coredns=https://github.com/coredns/coredns.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
-            output: []
       -
         name: release-coredns
         title: Compile CoreDNS project with "make coredns", then upload to artifact repository
@@ -144,7 +140,6 @@ stages:
             timeout: 0
             environments:
               - CO_DATA: "kubernetes=https://github.com/kubernetes/kubernetes.git action=build release=test.opshub.sh/containerops/cncf-demo/demo"
-            output: []
       -
         name: release-kubernetes
         title: Compile Kubernetes project with "make all", then upload all binaries to artifact repository
@@ -174,7 +169,6 @@ stages:
             timeout: 0
             environments:
               - CO_DATA: "kubernetes=https://github.com/kubernetes/kubernetes.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
-            output: []
   -
     type: end
     name: end
