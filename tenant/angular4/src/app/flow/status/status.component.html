@@ -1,1 +1,22 @@
 <div class="d3-design" #design></div>
+<md-card>
+  <md-card-title>Tab Group Demo - Dynamic Tabs</md-card-title>
+  <md-card-content>
+    <md-card>
+      <md-tab-group md-dynamic-height>
+        <md-tab *ngFor="let tab of tabs" [disabled]="tab.disabled">
+          <ng-template md-tab-label>{{tab.label}}</ng-template>
+          <md-card-content>
+            <p class="mb-1">{{tab.content}}</p>
+            <div *ngIf="tab.extraContent" class="mb-1">
+              Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Etiam porta sem malesuada magna mollis euismod. Vestibulum id ligula porta felis euismod semper. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit.
+            </div>
+            <md-input-container>
+              <input mdInput placeholder="Tab Label" [(ngModel)]="tab.label">
+            </md-input-container>
+          </md-card-content>
+        </md-tab>
+      </md-tab-group>
+    </md-card>
+  </md-card-content>
+</md-card>

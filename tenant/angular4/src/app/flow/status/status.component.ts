@@ -55,6 +55,23 @@ export class StatusComponent implements OnInit {
 
   private workflowObj: workflow.Workflow;
 
+  tabs = [{
+    label: 'Tab 1',
+    content: 'This is the body of the first tab'
+  }, {
+    label: 'Tab 2',
+    disabled: true,
+    content: 'This is the body of the second tab'
+  }, {
+    label: 'Tab 3',
+    extraContent: true,
+    content: 'This is the body of the third tab'
+  }, {
+    label: 'Tab 4',
+    content: 'This is the body of the fourth tab'
+  }];
+
+
   ngOnInit() {
     this.http.get('http://localhost:4200/assets/debug/cncf-demo-runtime.yaml')
       .toPromise()
@@ -64,8 +81,8 @@ export class StatusComponent implements OnInit {
         this.host = D3.select(this.htmlElement);
         this.host.html('');
         this.svg = this.host.append('svg');
-        this.svgWidth = this.htmlElement.offsetWidth;
-        this.svgHeight = (this.htmlElement.parentElement.parentElement.offsetHeight) / 2 ;
+        this.svgWidth = 1600;//this.htmlElement.offsetWidth;
+        this.svgHeight = 500;//(this.htmlElement.parentElement.parentElement.offsetHeight) / 2 ;
         this.svg.attr('width', this.svgWidth).attr('height', this.svgHeight);
 
         this.stageGroup = this.svg.append('g');
@@ -153,42 +170,74 @@ export class StatusComponent implements OnInit {
             .attr('fill', '#000000')
             .attr('fill-opacity', '0');
 
-          let mX, mY, lX, lY, c1x, c1y, c2x, c2y, c3x, c3y, elX, elY, actionLinePath;
+          // let mX, mY, lX, lY, c1x, c1y, c2x, c2y, c3x, c3y, elX, elY, actionLinePath;
+          //
+          // mX = 202 + 50 + (240 * stageIndex);
+          // mY = 40;
+          // lX = 202 + 50 + (240 * stageIndex);
+          // lY = 75 + 50 + (150 * actionIndex) + 30;
+          //
+          // c1x = 202 + 50 + (240 * stageIndex);
+          // c1y = 83 + 50 + (150 * actionIndex) + 30;
+          //
+          // c2x = 195 + 50 + (240 * stageIndex);
+          // c2y = 90 + 50 + (150 * actionIndex) + 30;
+          //
+          // c3x = 187 + 50 + (240 * stageIndex);
+          // c3y = 90 + 50 + (150 * actionIndex) + 30;
+          //
+          // elX = 150 + 70 + (240 * stageIndex);
+          // elY = 90 + 50 + (150 * actionIndex) + 30;
+          //
+          // actionLinePath = 'M' + mX + ',' + mY
+          //   + ' L' + lX + ',' + lY
+          //   + ' C' + c1x + ',' + c1y + ' ' + c2x + ',' + c2y + ' ' + c3x + ',' + c3y
+          //   + ' L' + elX + ',' + elY ;
+          //
+          // this.actionGroups.get(actionGroupName).append('path')
+          //   .attr('d', actionLinePath)
+          //   // .attr('d', 'M202,15 L202,75 C202,83 195,90 187,90 L150,90' )
+          //   .attr('stroke', '#adadad')
+          //   .attr('stroke-width', '1')
+          //   .attr('fill', '#000000')
+          //   .attr('fill-opacity', '0');
 
-          mX = 202 + 60 + (240 * stageIndex);
-          mY = 40;
-          lX = 202 + 60 + (240 * stageIndex);
-          lY = 75 + 50 + (150 * actionIndex) + 30;
-
-          c1x = 202 + 60 + (240 * stageIndex);
-          c1y = 83 + 50 + (150 * actionIndex) + 30;
-
-          c2x = 195 + 60 + (240 * stageIndex);
-          c2y = 90 + 50 + (150 * actionIndex) + 30;
-
-          c3x = 187 + 60 + (240 * stageIndex);
-          c3y = 90 + 50 + (150 * actionIndex) + 30;
-
-          elX = 150 + 60 + 10 + (240 * stageIndex);
-          elY = 90 + 50 + (150 * actionIndex) + 30;
-
-          actionLinePath = 'M' + mX + ',' + mY
-            + ' L' + lX + ',' + lY
-            + ' C' + c1x + ',' + c1y + ' ' + c2x + ',' + c2y + ' ' + c3x + ',' + c3y
-            + ' L' + elX + ',' + elY ;
+          let amX, amY, alX, alY, actionLinkPath;
+          amX = 140 * (stageIndex + 1) + (stageIndex * 100) + 20;
+          amY = 150 + (150 * actionIndex);
+          alX = 140 * (stageIndex + 1) + (stageIndex * 100) + 20;
+          alY = 150 + (150 * actionIndex) - (actionIndex === 0 ? 90 : 110);
+          actionLinkPath = 'M' + amX + ',' + amY
+            + ' L' + alX + ',' + alY;
 
           this.actionGroups.get(actionGroupName).append('path')
-            .attr('d', actionLinePath)
-            // .attr('d', 'M202,15 L202,75 C202,83 195,90 187,90 L150,90' )
+            .attr('d', actionLinkPath)
+            // .attr('d', 'M202,15 L202,75' )
             .attr('stroke', '#adadad')
             .attr('stroke-width', '1')
             .attr('fill', '#000000')
             .attr('fill-opacity', '0');
 
-
           // Draw Job
           // console.log(actionValue.action.jobs);
           actionValue.jobs.forEach((jobValue, jobIndex) => {
+
+            let jobColor = '#000000';
+            switch (jobValue.status) {
+              case 'pending' :
+                jobColor = '#000000';
+                break;
+              case 'running' :
+                jobColor = '#ffff00';
+                break;
+              case 'failure' :
+                jobColor = '#ff0000';
+                break;
+              case 'successfully' :
+                jobColor = '#00ff00';
+                break;
+            };
+
 
             const jobGroupName = stageValue.name + '-' + actionValue.name + '-job';
             this.jobGroups.set(jobGroupName, this.svg.append('g'));
@@ -202,33 +251,33 @@ export class StatusComponent implements OnInit {
               .attr('ry', 2)
               .attr('stroke', '#000000')
               .attr('stroke-width', '1')
-              .attr('fill', '#000000')
-              .attr('fill-opacity', '0');
+              .attr('fill', jobColor);
+              // .attr('fill-opacity', '0');
           });
 
 
         });
       }
 
-      // Draw Action line
-      // <path fill-opacity="0" stroke="#ff0000"  d="
-      // M202,15
-      // L202,75
-      // C202,83 195,90 187,90
-      // L150,90" />
-      // <path fill-opacity="0" stroke="#ff0000"  d="
-      // M202,75
-      // L202,125
-      // C202,133 195,140 187,140
-      // L150,140" />
-
-
-
+      // var zoom = D3.zoom()
+      //   .scaleExtent([1, 100])
+      //   .on('zoom', this.zoomFn);
+      // this.stageGroup.call(zoom);
 
       // Draw Action to Stage line
 
+
+
     });
 
+
   }
+
+  // zoomFn(): void {
+  //   console.log(D3.event.transform.x);
+  //   this.stageGroup
+  //     .attr('transform', 'translate(' + D3.event.transform.x + ',' + D3.event.transform.y + ') scale(' + D3.event.transform.k + ')');
+  // }
+
 
 }
