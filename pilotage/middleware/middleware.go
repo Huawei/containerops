@@ -34,7 +34,7 @@ import (
 func SetRunDaemonMiddlewares(m *macaron.Macaron, cfgFile, flowFile string) {
 	flow := new(module.Flow)
 
-	if err := flow.ExecuteFlowFromFile(flowFile, false, false); err != nil {
+	if err := flow.ExecuteFlowFromFile(flowFile, module.DaemonRun, false, false); err != nil {
 		fmt.Println(Red("Parse flow file error: "), err.Error())
 		os.Exit(1)
 	}
@@ -42,6 +42,7 @@ func SetRunDaemonMiddlewares(m *macaron.Macaron, cfgFile, flowFile string) {
 	// Init the flow and set into context.
 	m.Use(func(ctx *macaron.Context) {
 		ctx.Data["flow"] = flow
+		ctx.Data["mode"] = module.DaemonRun
 	})
 
 	//
@@ -52,5 +53,9 @@ func SetRunDaemonMiddlewares(m *macaron.Macaron, cfgFile, flowFile string) {
 }
 
 func SetStartDaemonMiddlewares(m *macaron.Macaron, cfgFile string) {
-
+	// Nil flow and set into context.
+	m.Use(func(ctx *macaron.Context) {
+		ctx.Data["flow"] = nil
+		ctx.Data["mode"] = module.DaemonStart
+	})
 }
