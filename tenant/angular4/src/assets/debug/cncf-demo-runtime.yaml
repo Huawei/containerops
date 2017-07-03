@@ -59,6 +59,7 @@ stages:
             environments:
               - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
             output: []
+            status: failure #pending/running/failure/successfully
           -
             type: component
             kubectl: prometheus/prometheus-test.yaml
@@ -70,6 +71,7 @@ stages:
             environments:
               - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
             output: []
+            status: pending #pending/running/failure/successfully
           -
             type: component
             kubectl: prometheus/prometheus-test.yaml
@@ -81,6 +83,7 @@ stages:
             environments:
               - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
             output: []
+            status: successfully #pending/running/failure/successfully
           -
             type: component
             kubectl: prometheus/prometheus-test.yaml
@@ -92,6 +95,7 @@ stages:
             environments:
               - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
             output: []
+            status: failure #pending/running/failure/successfully
       -
         name: release-prometheus
         title: Compile Prometheus project with "make build", then upload to artifact repository
@@ -107,6 +111,7 @@ stages:
             environments:
               - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=release release=test.opshub.sh/containerops/cncf-demo/demo"
             output: ["CO_PROMETHEUS_URI", "CO_PROMTOOL_URI"]
+            status: successfully #pending/running/failure/successfully
   -
     type: normal
     name: coredns-test-build-release

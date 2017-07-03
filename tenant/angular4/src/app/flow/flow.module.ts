@@ -15,8 +15,21 @@ limitations under the License.
 */
 
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { Observable } from 'rxjs/Observable';
+
+import 'hammerjs';
+
+import {
+  FullscreenOverlayContainer,
+  MaterialModule,
+  MdNativeDateModule,
+  MdSelectionModule,
+  OverlayContainer
+} from '@angular/material';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { FlowRoutes } from './flow.routing';
 
@@ -26,7 +39,16 @@ import { StatusComponent } from './status/status.component';
 @NgModule({
   imports: [
     CommonModule,
-    RouterModule.forChild(FlowRoutes)
+    RouterModule.forChild(FlowRoutes),
+    MaterialModule,
+    MdNativeDateModule,
+    MdSelectionModule,
+    FormsModule,
+    ReactiveFormsModule,
+    FlexLayoutModule
+  ],
+  providers: [
+    {provide: OverlayContainer, useClass: FullscreenOverlayContainer}
   ],
   declarations: [OverviewComponent, StatusComponent]
 })
