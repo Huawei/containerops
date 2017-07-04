@@ -70,7 +70,6 @@ stages:
             timeout: 0
             environments:
               - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=release release=test.opshub.sh/containerops/cncf-demo/demo"
-            output: ["CO_PROMETHEUS_URI", "CO_PROMTOOL_URI"]
   -
     type: normal
     name: coredns-test-build-release
@@ -119,7 +118,6 @@ stages:
             timeout: 0
             environments:
               - CO_DATA: "coredns=https://github.com/coredns/coredns.git action=release release=test.opshub.sh/containerops/cncf-demo/demo"
-            output: ["CO_COREDNS_URI"]
   -
     type: normal
     name: k8s-test-build-release
@@ -154,7 +152,6 @@ stages:
             timeout: 0
             environments:
               - CO_DATA: "kubernetes=https://github.com/kubernetes/kubernetes.git action=release release=test.opshub.sh/containerops/cncf-demo/demo"
-            output: ["CO_APIEXTENSIONS-APISERVER_URI", "CO_CLOUD-CONTROLLER-MANAGER_URI", "CO_CONVERSION-GEN_URI", "CO_DEEPCOPY-GEN_URI", "CO_DEFAULTER-GEN_URI", "CO_E2E.TEST_URI", "CO_E2E_NODE.TEST_URI", "CO_GENDOCS_URI", "CO_GENFEDDOCS_URI", "CO_GENKUBEDOCS_URI", "CO_GENMAN_URI", "CO_GENSWAGGERTYPEDOCS_URI", "CO_GENYAML_URI", "CO_GINKGO_URI", "CO_GKE-CERTIFICATES-CONTROLLER_URI", "CO_GO-BINDATA_URI", "CO_HYPERKUBE_URI", "CO_KUBE-AGGREGATOR_URI", "CO_KUBE-APISERVER_URI", "CO_KUBE-CONTROLLER-MANAGER_URI", "CO_KUBE-PROXY_URI", "CO_KUBE-SCHEDULER_URI", "CO_KUBEADM_URI", "CO_KUBECTL_URI", "CO_KUBEFED_URI", "CO_KUBELET_URI", "CO_KUBEMARK_URI", "CO_LINKCHECK_URI", "CO_MUNGEDOCS_URI", "CO_OPENAPI-GEN_URI", "CO_TESTSTALE_URI"]
       -
         name: test-kubernetes
         title: Test Kubernetes project with "make bazel-test"

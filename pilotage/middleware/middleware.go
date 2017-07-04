@@ -34,10 +34,14 @@ import (
 func SetRunDaemonMiddlewares(m *macaron.Macaron, cfgFile, flowFile string) {
 	flow := new(module.Flow)
 
-	if err := flow.ExecuteFlowFromFile(flowFile, module.DaemonRun, false, false); err != nil {
+	if err := flow.ParseFlowFromFile(flowFile, module.DaemonRun, true, true); err != nil {
 		fmt.Println(Red("Parse flow file error: "), err.Error())
 		os.Exit(1)
 	}
+
+	go func() {
+		flow.LocalRun(true, true)
+	}()
 
 	// Init the flow and set into context.
 	m.Use(func(ctx *macaron.Context) {
