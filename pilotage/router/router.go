@@ -27,7 +27,6 @@ func SetRunDaemonRouters(m *macaron.Macaron) {
 	m.Group("/flow", func() {
 		m.Group("/v1", func() {
 			m.Get("/:namespace/:repository/:flow/:tag/:number/runtime/:type", handler.GetFlowRuntime)
-			m.Get("/:namespace/:repository/:flow/:tag/:number/:job/log", handler.GetFlowJobLog)
 		})
 	})
 }
