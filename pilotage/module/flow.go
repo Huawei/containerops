@@ -29,6 +29,7 @@ import (
 	homeDir "github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v2"
 
+	"github.com/Huawei/containerops/common/utils"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -44,7 +45,6 @@ func (f *Flow) JSON() ([]byte, error) {
 
 //
 func (f *Flow) YAML() ([]byte, error) {
-	fmt.Println(f)
 	return yaml.Marshal(f)
 }
 
@@ -96,8 +96,10 @@ func (f *Flow) LocalRun(verbose, timestamp bool) error {
 	f.Status = Running
 	f.Log(fmt.Sprintf("Flow [%s] status change to %s", f.URI, f.Status), verbose, timestamp)
 
-	for key, stage := range f.Stages {
-		f.Log(fmt.Sprintf("The Number [%d] stage is running: %s", key, stage.Title), verbose, timestamp)
+	for i, _ := range f.Stages {
+		stage := &f.Stages[i]
+
+		f.Log(fmt.Sprintf("The Number [%d] stage is running: %s", i, stage.Title), verbose, timestamp)
 
 		switch stage.T {
 		case StartStage:
@@ -110,7 +112,7 @@ func (f *Flow) LocalRun(verbose, timestamp bool) error {
 				if status, err := stage.SequencingRun(verbose, timestamp); err != nil {
 					f.Status = Failure
 					f.Log(fmt.Sprintf("Stage [%s] run error: %s", stage.Name, err.Error()), verbose, timestamp)
-				} else if status != Success {
+				} else {
 					f.Status = status
 				}
 			default:
@@ -149,13 +151,15 @@ func (s *Stage) SequencingRun(verbose, timestamp bool) (string, error) {
 	s.Status = Running
 	s.Log(fmt.Sprintf("Stage [%s] status change to %s", s.Name, s.Status), verbose, timestamp)
 
-	for key, action := range s.Actions {
-		s.Log(fmt.Sprintf("The Number [%d] action is running: %s", key, s.Title), verbose, timestamp)
+	for i, _ := range s.Actions {
+		action := &s.Actions[i]
+
+		s.Log(fmt.Sprintf("The Number [%d] action is running: %s", i, s.Title), verbose, timestamp)
 
 		if status, err := action.Run(verbose, timestamp); err != nil {
 			s.Status = Failure
 			s.Log(fmt.Sprintf("Action [%s] run error: %s", action.Name, err.Error()), verbose, timestamp)
-		} else if status != Success {
+		} else {
 			s.Status = status
 		}
 
@@ -184,13 +188,15 @@ func (a *Action) Run(verbose, timestamp bool) (string, error) {
 	a.Status = Running
 	a.Log(fmt.Sprintf("Action [%s] status change to %s", a.Name, a.Status), verbose, timestamp)
 
-	for key, job := range a.Jobs {
-		a.Log(fmt.Sprintf("The Number [%d] job is running: %s", key, a.Title), verbose, timestamp)
+	for i, _ := range a.Jobs {
+		job := &a.Jobs[i]
+
+		a.Log(fmt.Sprintf("The Number [%d] job is running: %s", i, a.Title), verbose, timestamp)
 
 		if status, err := job.Run(a.Name, verbose, timestamp); err != nil {
 			a.Status = Failure
-			a.Log(fmt.Sprintf("Job [%d] run error: %s", key, err.Error()), verbose, timestamp)
-		} else if status != Success {
+			a.Log(fmt.Sprintf("Job [%d] run error: %s", i, err.Error()), verbose, timestamp)
+		} else {
 			a.Status = status
 		}
 
@@ -205,11 +211,11 @@ func (a *Action) Run(verbose, timestamp bool) (string, error) {
 
 // TODO filter the log print with different color.
 func (j *Job) Log(log string, verbose, timestamp bool) {
-	j.Logs = append(j.Logs, map[string]string{time.Now().String(): log})
+	j.Logs = append(j.Logs, map[string]string{time.Now().String(): strings.TrimSpace(log)})
 
 	if verbose == true {
 		if timestamp == true {
-			fmt.Println(Cyan(fmt.Sprintf("[%s] %s", time.Now().String(), log)))
+			fmt.Println(Cyan(fmt.Sprintf("[%s] %s", time.Now().String(), strings.TrimSpace(log))))
 		} else {
 			fmt.Println(Cyan(log))
 		}
@@ -218,6 +224,8 @@ func (j *Job) Log(log string, verbose, timestamp bool) {
 
 func (j *Job) Run(name string, verbose, timestamp bool) (string, error) {
 	home, _ := homeDir.Dir()
+
+	randomContainerName := fmt.Sprintf("%s-%s", name, utils.RandomString(10))
 
 	if config, err := clientcmd.BuildConfigFromFlags("", fmt.Sprintf("%s/.kube/config", home)); err != nil {
 		return Failure, err
@@ -234,12 +242,12 @@ func (j *Job) Run(name string, verbose, timestamp bool) (string, error) {
 						APIVersion: "v1",
 					},
 					ObjectMeta: metav1.ObjectMeta{
-						Name: name,
+						Name: randomContainerName,
 					},
 					Spec: apiv1.PodSpec{
 						Containers: []apiv1.Container{
 							{
-								Name:  name,
+								Name:  randomContainerName,
 								Image: j.Endpoint,
 								Env: []apiv1.EnvVar{
 									{
@@ -264,7 +272,7 @@ func (j *Job) Run(name string, verbose, timestamp bool) (string, error) {
 
 			time.Sleep(time.Second * 5)
 
-			req := p.GetLogs(name, &apiv1.PodLogOptions{
+			req := p.GetLogs(randomContainerName, &apiv1.PodLogOptions{
 				Follow:     true,
 				Timestamps: false,
 			})
@@ -278,7 +286,6 @@ func (j *Job) Run(name string, verbose, timestamp bool) (string, error) {
 
 					if err != nil {
 						if err == io.EOF {
-							j.Log(line, verbose, timestamp)
 							break
 						}
 
