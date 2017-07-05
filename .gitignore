@@ -26,8 +26,8 @@ tenant/*/src/main.js
 tenant/*/src/main.js.map
 tenant/node_modules
 tenant/bower_components
-tenant/*/node_modules 
-tenant/*/bower_components 
+tenant/*/node_modules
+tenant/*/bower_components
 tenant/*、npm-debug.log
 
 # pilotage
@@ -36,6 +36,9 @@ pilotage/conf
 pilotage/cert
 pilotage/log/*
 pilotage/data/*
+pilotage/pilotage
+pilotage/vendor
+pilotage/vendor/*
 
 #singular
 singular/singular
