@@ -60,14 +60,13 @@ export class StatusComponent implements OnInit {
     content: 'This is the body of the first tab'
   }, {
     label: 'Tab 2',
-    disabled: true,
     content: 'This is the body of the second tab'
   }, {
     label: 'Tab 3',
     extraContent: true,
     content: 'This is the body of the third tab'
   }, {
-    label: 'Tab 4',
+    label: 'Tab this',
     content: 'This is the body of the fourth tab'
   }];
 
