@@ -29,13 +29,14 @@ import (
 	homeDir "github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v2"
 
-	"github.com/Huawei/containerops/common/utils"
+	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	apiv1 "k8s.io/client-go/pkg/api/v1"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/tools/clientcmd"
+
+	"github.com/Huawei/containerops/common/utils"
 )
 
 // JSON export flow data without
