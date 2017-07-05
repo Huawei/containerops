@@ -18,12 +18,61 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"gopkg.in/macaron.v1"
+
+	"github.com/Huawei/containerops/pilotage/module"
 )
 
-func GetFlowDefinition(ctx *macaron.Context) (int, []byte) {
+// GetFlowRuntime is return flow runtime status and logs.
+func GetFlowRuntime(ctx *macaron.Context) (int, []byte) {
+	switch ctx.Data["mode"] {
+	case module.DaemonRun:
+		if f := ctx.Data["flow"].(*module.Flow); f != nil {
+			t := ctx.Params("type")
+
+			switch t {
+			case "json":
+				if data, err := f.JSON(); err != nil {
+					result, _ := json.Marshal(map[string]string{
+						"message": fmt.Sprintf("Get flow JSON definition error: %s", err.Error())})
+					return http.StatusBadRequest, result
+				} else {
+					return http.StatusOK, data
+				}
+			case "yaml":
+				if data, err := f.YAML(); err != nil {
+					result, _ := json.Marshal(map[string]string{
+						"message": fmt.Sprintf("Get flow YAML definition error: %s", err.Error())})
+					return http.StatusBadRequest, result
+				} else {
+					return http.StatusOK, data
+				}
+			default:
+				result, _ := json.Marshal(map[string]string{
+					"message": fmt.Sprintf("Unsupport definition type: %s", ctx.Data["mode"])})
+				return http.StatusBadRequest, result
+			}
+		} else {
+			result, _ := json.Marshal(map[string]string{"message": "No flow data"})
+			return http.StatusBadRequest, result
+		}
+	case module.DaemonStart:
+		// TODO
+	default:
+		result, _ := json.Marshal(map[string]string{
+			"message": fmt.Sprintf("Unsupport engine run mode: %s", ctx.Data["mode"])})
+		return http.StatusBadRequest, result
+	}
+
+	result, _ := json.Marshal(map[string]string{})
+	return http.StatusOK, result
+}
+
+// GetFlowJobLog is return log of a Job
+func GetFlowJobLog(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result
 }

@@ -72,9 +72,11 @@ func runCliFlow(cmd *cobra.Command, args []string) {
 
 	flow := new(module.Flow)
 
-	if err := flow.ExecuteFlowFromFile(flowFile, verbose, timestamp); err != nil {
+	if err := flow.ParseFlowFromFile(flowFile, module.CliRun, verbose, timestamp); err != nil {
 		cmd.Println(fmt.Sprintf("[red]Execute orchestration flow error: %s", err.Error()))
 		os.Exit(1)
 	}
+
+	flow.LocalRun(verbose, timestamp)
 
 }
