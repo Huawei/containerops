@@ -41,7 +41,7 @@ stages:
               memory: 4G
             timeout: 0
             environments:
-              - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=build release=test.opshub.sh/containerops/cncf-demo/demo"
+              - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=build release=hub.opshub.sh/containerops/cncf-demo/demo"
       -
         name: test-prometheus
         title: Test Prometheus project with "make test"
@@ -55,7 +55,7 @@ stages:
               memory: 4G
             timeout: 0
             environments:
-              - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
+              - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=test release=hub.opshub.sh/containerops/cncf-demo/demo"
       -
         name: release-prometheus
         title: Compile Prometheus project with "make build", then upload to artifact repository
@@ -69,7 +69,7 @@ stages:
               memory: 4G
             timeout: 0
             environments:
-              - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=release release=test.opshub.sh/containerops/cncf-demo/demo"
+              - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=release release=hub.opshub.sh/containerops/cncf-demo/demo"
   -
     type: normal
     name: coredns-test-build-release
@@ -89,7 +89,7 @@ stages:
               memory: 4G
             timeout: 0
             environments:
-              - CO_DATA: "coredns=https://github.com/coredns/coredns.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
+              - CO_DATA: "coredns=https://github.com/coredns/coredns.git action=test release=hub.opshub.sh/containerops/cncf-demo/demo"
       -
         name: test-coredns
         title: Test CoreDNS project with "make test"
@@ -103,7 +103,7 @@ stages:
               memory: 4G
             timeout: 0
             environments:
-              - CO_DATA: "coredns=https://github.com/coredns/coredns.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
+              - CO_DATA: "coredns=https://github.com/coredns/coredns.git action=test release=hub.opshub.sh/containerops/cncf-demo/demo"
       -
         name: release-coredns
         title: Compile CoreDNS project with "make coredns", then upload to artifact repository
@@ -117,7 +117,7 @@ stages:
               memory: 0
             timeout: 0
             environments:
-              - CO_DATA: "coredns=https://github.com/coredns/coredns.git action=release release=test.opshub.sh/containerops/cncf-demo/demo"
+              - CO_DATA: "coredns=https://github.com/coredns/coredns.git action=release release=hub.opshub.sh/containerops/cncf-demo/demo"
   -
     type: normal
     name: k8s-test-build-release
@@ -137,7 +137,7 @@ stages:
               memory: 8G
             timeout: 0
             environments:
-              - CO_DATA: "kubernetes=https://github.com/kubernetes/kubernetes.git action=build release=test.opshub.sh/containerops/cncf-demo/demo"
+              - CO_DATA: "kubernetes=https://github.com/kubernetes/kubernetes.git action=build release=hub.opshub.sh/containerops/cncf-demo/demo"
       -
         name: release-kubernetes
         title: Compile Kubernetes project with "make all", then upload all binaries to artifact repository
@@ -151,7 +151,7 @@ stages:
               memory: 8G
             timeout: 0
             environments:
-              - CO_DATA: "kubernetes=https://github.com/kubernetes/kubernetes.git action=release release=test.opshub.sh/containerops/cncf-demo/demo"
+              - CO_DATA: "kubernetes=https://github.com/kubernetes/kubernetes.git action=release release=hub.opshub.sh/containerops/cncf-demo/demo"
       -
         name: test-kubernetes
         title: Test Kubernetes project with "make bazel-test"
@@ -165,7 +165,7 @@ stages:
               memory: 8G
             timeout: 0
             environments:
-              - CO_DATA: "kubernetes=https://github.com/kubernetes/kubernetes.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
+              - CO_DATA: "kubernetes=https://github.com/kubernetes/kubernetes.git action=test release=hub.opshub.sh/containerops/cncf-demo/demo"
   -
     type: end
     name: end
