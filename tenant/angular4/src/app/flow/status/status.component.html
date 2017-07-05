@@ -1,22 +1,68 @@
 <div class="d3-design" #design></div>
-<md-card>
-  <md-card-title>Tab Group Demo - Dynamic Tabs</md-card-title>
-  <md-card-content>
-    <md-card>
-      <md-tab-group md-dynamic-height>
-        <md-tab *ngFor="let tab of tabs" [disabled]="tab.disabled">
-          <ng-template md-tab-label>{{tab.label}}</ng-template>
-          <md-card-content>
-            <p class="mb-1">{{tab.content}}</p>
-            <div *ngIf="tab.extraContent" class="mb-1">
-              Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Etiam porta sem malesuada magna mollis euismod. Vestibulum id ligula porta felis euismod semper. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit.
-            </div>
-            <md-input-container>
-              <input mdInput placeholder="Tab Label" [(ngModel)]="tab.label">
-            </md-input-container>
-          </md-card-content>
-        </md-tab>
-      </md-tab-group>
+<br/><br/>
+<div fxLayout="row" fxLayoutWrap="wrap">
+  <div fxFlex.gt-sm="75%" fxFlex="100">
+    <md-card style="color:cyan;  background-color: #000000">
+      <md-card-title style="color:cyan; font-size:20px; background-color: #000000">Log</md-card-title>
+      <md-card-subtitle style="color:cyan; font-size:18px; background-color: #000000" >Stories posted todayStories posted todayStories posted todayStories posted todayStories posted<br>
+        todayStories posted todayStories posted todayStories posted todayStories posted todayStories posted todayStories<br>
+        posted todayStories posted todayStories posted todayStories posted todayStories posted todayStories posted<br>
+        todayStories posted todayStories posted todayStories posted todayStories posted todayStories<br>
+        posted todayStories posted todayStories posted todayStories posted today</md-card-subtitle>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <hr>
     </md-card>
-  </md-card-content>
-</md-card>
+  </div>
+  <div fxFlex.gt-sm="25%" fxFlex="100">
+      <md-card>
+        <md-card-title>Run Info</md-card-title>
+            <md-card-content>
+              <md-input-container>
+                <input mdInput placeholder="Tab Label" value="tab.label">
+              </md-input-container>
+              <md-input-container>
+                <input mdInput placeholder="Tab Label" value="tab.label">
+              </md-input-container><br/>
+              <md-input-container>
+                <input mdInput placeholder="Tab Label" value="tab.label">
+              </md-input-container>
+              <md-input-container>
+                <input mdInput placeholder="Tab Label" value="tab.label">
+              </md-input-container><br/>
+              <md-input-container>
+                <input mdInput placeholder="Tab Label" value="tab.label">
+              </md-input-container>
+              <md-input-container>
+                <input mdInput placeholder="Tab Label" value="tab.label">
+              </md-input-container><br/>
+              <md-input-container>
+                <input mdInput placeholder="Tab Label" value="tab.label">
+              </md-input-container>
+              <md-input-container>
+                <input mdInput placeholder="Tab Label" value="tab.label">
+              </md-input-container><br/>
+              <md-input-container>
+                <input mdInput placeholder="Tab Label" value="tab.label">
+              </md-input-container>
+              <md-input-container>
+                <input mdInput placeholder="Tab Label" value="tab.label">
+              </md-input-container><br/>
+              <md-input-container>
+                <input mdInput placeholder="Tab Label" value="tab.label">
+              </md-input-container>
+              <md-input-container>
+                <input mdInput placeholder="Tab Label" value="tab.label">
+              </md-input-container><br/>
+            </md-card-content>
+      </md-card>
+  </div>
+</div>
