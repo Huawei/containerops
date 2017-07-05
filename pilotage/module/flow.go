@@ -268,9 +268,11 @@ func (j *Job) Run(name string, verbose, timestamp bool) (string, error) {
 					},
 				},
 			); err != nil {
+				j.Status = Failure
 				return Failure, err
 			}
 
+			j.Status = Pending
 			time.Sleep(time.Second * 5)
 
 			req := p.GetLogs(randomContainerName, &apiv1.PodLogOptions{
@@ -290,14 +292,16 @@ func (j *Job) Run(name string, verbose, timestamp bool) (string, error) {
 							break
 						}
 
+						j.Status = Failure
 						return Failure, nil
 					}
-
+					j.Status = Running
 					j.Log(line, verbose, timestamp)
 				}
 			}
 		}
 	}
 
+	j.Status = Success
 	return Success, nil
 }
