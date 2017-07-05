@@ -1,16 +1,16 @@
 ## Build, Test And Release Kubernetes With Bazel
 
 ```bash
-docker build -t docker.io/containerops/cncf-demo-kubernetes .
+docker build -t hub.opshub.sh/containerops/cncf-demo-kubernetes .
 ```
 
 
 ```bash
-docker run --env CO_DATA="kubernetes=https://github.com/kubernetes/kubernetes.git action=build release=hub.opshub.sh/containerops/cncf-demo/demo" docker.io/containerops/cncf-demo-kubernetes:latest
+docker run --env CO_DATA="kubernetes=https://github.com/kubernetes/kubernetes.git action=build release=hub.opshub.sh/containerops/cncf-demo/demo" hub.opshub.sh/containerops/cncf-demo-kubernetes:latest
 ```
 
 ```dockerfile
-FROM docker.io/containerops/bazel:latest
+FROM hub.opshub.sh/containerops/bazel:latest
 MAINTAINER Quanyi Ma <genedna@gmail.com>
 
 USER root
