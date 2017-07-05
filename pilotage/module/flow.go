@@ -17,15 +17,19 @@ limitations under the License.
 package module
 
 import (
+	"bufio"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"regexp"
+	"strings"
 	"time"
 
-	"bufio"
-	"github.com/mitchellh/colorstring"
+	. "github.com/logrusorgru/aurora"
+	homeDir "github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v2"
+
+	"github.com/Huawei/containerops/common/utils"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -34,134 +38,200 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-// ExecuteFlowFromFile
-func (f *Flow) ExecuteFlowFromFile(flowFile string, verbose, timestamp bool) error {
-	f.Model = RunModelCli
+// JSON export flow data without
+func (f *Flow) JSON() ([]byte, error) {
+	return json.Marshal(&f)
+}
+
+//
+func (f *Flow) YAML() ([]byte, error) {
+	return yaml.Marshal(f)
+}
+
+//
+func (f *Flow) URIs() (namespace, repository, name string, err error) {
+	array := strings.Split(f.URI, "/")
+	if len(array) != 3 {
+		return "", "", "", fmt.Errorf("Invalid flow URI: %s", f.URI)
+	}
+
+	namespace, repository, name = array[0], array[1], array[2]
+	return namespace, repository, name, nil
+}
+
+// TODO filter the log print with different color.
+func (f *Flow) Log(log string, verbose, timestamp bool) {
+	f.Logs = append(f.Logs, map[string]string{time.Now().String(): log})
+
+	if verbose == true {
+		if timestamp == true {
+			fmt.Println(Cyan(fmt.Sprintf("[%s] %s", time.Now().String(), log)))
+		} else {
+			fmt.Println(Cyan(log))
+		}
+	}
+}
+
+// ParseFlowFromFile is init flow definition from a file.
+// It's only used in CliRun or DaemonRun, and run with local kubectl.
+func (f *Flow) ParseFlowFromFile(flowFile, runMode string, verbose, timestamp bool) error {
+	// Init flow properties
+	f.Model, f.Number, f.Status = runMode, 1, Pending
 
 	if data, err := ioutil.ReadFile(flowFile); err != nil {
-		colorstring.Println(fmt.Sprintf("[red]Read orchestration flow file %s error: %s", flowFile, err.Error()))
+		f.Log(fmt.Sprintf("Read orchestration flow file %s error: %s", flowFile, err.Error()), verbose, timestamp)
 		return err
 	} else {
 		if err := yaml.Unmarshal(data, &f); err != nil {
-			colorstring.Println(fmt.Sprintf("[red]Unmarshal the flow file error: %s", err.Error()))
+			f.Log(fmt.Sprintf("Unmarshal the flow file error: %s", err.Error()), verbose, timestamp)
 			return err
-		} else {
-			f.LocalRun(verbose, timestamp)
 		}
 	}
 
 	return nil
 }
 
-// LocalRun
+// LocalRun is run flow using Kubectl in the local.
 func (f *Flow) LocalRun(verbose, timestamp bool) error {
-	// Print Flow Title
-	colorstring.Println(fmt.Sprintf("[magenta]The [light_green]\"%s\" [magenta]is running:", f.Title))
-	colorstring.Println("")
+	f.Status = Running
+	f.Log(fmt.Sprintf("Flow [%s] status change to %s", f.URI, f.Status), verbose, timestamp)
 
-	colorstring.Println(fmt.Sprintf("[magenta]Version Number: [cyan]%d", f.Version))
-	colorstring.Println(fmt.Sprintf("[magenta]Tag: [cyan]%s", f.Tag))
-	if f.Timeout == 0 {
-		colorstring.Println("[magenta]Timeout: [cyan]Unlimited")
-	} else {
-		colorstring.Println(fmt.Sprintf("[magenta]Timeout: [cyan]%d", f.Timeout))
-	}
+	for i, _ := range f.Stages {
+		stage := &f.Stages[i]
 
-	colorstring.Println("")
-
-	for key, stage := range f.Stages {
-		colorstring.Println(fmt.Sprintf("[magenta]Stage Number: [cyan]%d", key))
+		f.Log(fmt.Sprintf("The Number [%d] stage is running: %s", i, stage.Title), verbose, timestamp)
 
 		switch stage.T {
-		case StageTypeStart:
-
-			colorstring.Println("[magenta]Start Stage: [cyan]cli mode don't need trigger.")
-
-		case StageTypeNormal:
-			colorstring.Println(fmt.Sprintf("[magenta]Stage: [cyan]%s", stage.Title))
-			colorstring.Println(fmt.Sprintf("[magenta]Stage Sequencing: [cyan]%s", stage.Sequencing))
-			colorstring.Println("")
-
+		case StartStage:
+			f.Log("Start stage don't need any trigger in cli or daemon run mode.", verbose, timestamp)
+		case NormalStage:
 			switch stage.Sequencing {
-			case StageTypeParallel:
-				if err := stage.ParallelRun(verbose, timestamp); err != nil {
-					return err
-				}
-			case StageTypeSequencing:
-				if err := stage.SequencingRun(verbose, timestamp); err != nil {
-					return err
+			case Parallel:
+				// TODO Parallel running
+			case Sequencing:
+				if status, err := stage.SequencingRun(verbose, timestamp); err != nil {
+					f.Status = Failure
+					f.Log(fmt.Sprintf("Stage [%s] run error: %s", stage.Name, err.Error()), verbose, timestamp)
+				} else {
+					f.Status = status
 				}
 			default:
-				return fmt.Errorf("Unknown sequencing type.")
+				f.Status = Failure
+				f.Log(fmt.Sprintf("Stage [%s] has unknown sequencing type: %s", stage.Name, stage.T), verbose, timestamp)
 			}
-		case StageTypePause:
-			//fmt.Println(fmt.Sprintf("Pause Stage: %s", stage.Title))
-		case StageTypeEnd:
-			colorstring.Println("[magenta]End Stage: [cyan]Flow execute end.")
+		case PauseStage:
+			// TODO Pause running
+		case EndStage:
+			f.Log("End stage don't trigger any other flow.", verbose, timestamp)
 		}
 
-		colorstring.Println("")
-		colorstring.Println("")
+		// if status is failure or cancel, break the for loop.
+		if f.Status == Failure || f.Status == Cancel {
+			break
+		}
 	}
 
 	return nil
 }
 
-// SequencingRun
-func (s *Stage) SequencingRun(verbose, timestamp bool) error {
+// TODO filter the log print with different color.
+func (s *Stage) Log(log string, verbose, timestamp bool) {
+	s.Logs = append(s.Logs, map[string]string{time.Now().String(): log})
 
-	for key, action := range s.Actions {
-		colorstring.Println(fmt.Sprintf("[magenta]\tAction Number: [cyan]%d", key))
-		colorstring.Println(fmt.Sprintf("[magenta]\tAction: [cyan]%s", action.Title))
-
-		if result, err := action.Run(verbose, timestamp); err != nil {
-			return err
-		} else if result == false {
-			colorstring.Println(fmt.Sprintf("[magenta]Job End: [cyan]%s", time.Now().String()))
-			colorstring.Println(fmt.Sprintf("[magenta]\tAction Result: [cyan]%s", "failure"))
-		} else if result == true {
-			colorstring.Println(fmt.Sprintf("[magenta]Job End: [cyan]%s", time.Now().String()))
-			colorstring.Println(fmt.Sprintf("[magenta]\tAction Result: [cyan]%s", "successfully"))
-		}
-
-		colorstring.Println("")
-	}
-
-	return nil
-}
-
-// ParallelRun
-func (s *Stage) ParallelRun(verbose, timestamp bool) error {
-	return nil
-}
-
-func (a *Action) Run(verbose, timestamp bool) (bool, error) {
-
-	for key, job := range a.Jobs {
-		colorstring.Println(fmt.Sprintf("[magenta]\t\tJob: [cyan]%d", key))
-		colorstring.Println(fmt.Sprintf("[magenta]\t\tJob Type: [cyan]%s", job.T))
-		colorstring.Println(fmt.Sprintf("[magenta]\t\tJob Verbose: [cyan]%t", verbose))
-		colorstring.Println(fmt.Sprintf("[magenta]\t\tJob Timestamp: [cyan]%t", timestamp))
-		colorstring.Println(fmt.Sprintf("[magenta]\t\tJob Start: [cyan]%s", time.Now().String()))
-		colorstring.Println("[magenta]\t\tJob Running:")
-
-		if result, err := job.Run(a.Name, verbose, timestamp); err != nil {
-			return false, err
+	if verbose == true {
+		if timestamp == true {
+			fmt.Println(Cyan(fmt.Sprintf("[%s] %s", time.Now().String(), log)))
 		} else {
-			return result, nil
+			fmt.Println(Cyan(log))
+		}
+	}
+}
+
+func (s *Stage) SequencingRun(verbose, timestamp bool) (string, error) {
+	s.Status = Running
+	s.Log(fmt.Sprintf("Stage [%s] status change to %s", s.Name, s.Status), verbose, timestamp)
+
+	for i, _ := range s.Actions {
+		action := &s.Actions[i]
+
+		s.Log(fmt.Sprintf("The Number [%d] action is running: %s", i, s.Title), verbose, timestamp)
+
+		if status, err := action.Run(verbose, timestamp); err != nil {
+			s.Status = Failure
+			s.Log(fmt.Sprintf("Action [%s] run error: %s", action.Name, err.Error()), verbose, timestamp)
+		} else {
+			s.Status = status
+		}
+
+		if s.Status == Failure || s.Status == Cancel {
+			break
+		}
+	}
+
+	return s.Status, nil
+}
+
+// TODO filter the log print with different color.
+func (a *Action) Log(log string, verbose, timestamp bool) {
+	a.Logs = append(a.Logs, map[string]string{time.Now().String(): log})
+
+	if verbose == true {
+		if timestamp == true {
+			fmt.Println(Cyan(fmt.Sprintf("[%s] %s", time.Now().String(), log)))
+		} else {
+			fmt.Println(Cyan(log))
+		}
+	}
+}
+
+func (a *Action) Run(verbose, timestamp bool) (string, error) {
+	a.Status = Running
+	a.Log(fmt.Sprintf("Action [%s] status change to %s", a.Name, a.Status), verbose, timestamp)
+
+	for i, _ := range a.Jobs {
+		job := &a.Jobs[i]
+
+		a.Log(fmt.Sprintf("The Number [%d] job is running: %s", i, a.Title), verbose, timestamp)
+
+		if status, err := job.Run(a.Name, verbose, timestamp); err != nil {
+			a.Status = Failure
+			a.Log(fmt.Sprintf("Job [%d] run error: %s", i, err.Error()), verbose, timestamp)
+		} else {
+			a.Status = status
+		}
+
+		if a.Status == Failure || a.Status == Cancel {
+			break
 		}
 
 	}
 
-	return true, nil
+	return a.Status, nil
 }
 
-func (j *Job) Run(name string, verbose, timestamp bool) (bool, error) {
-	if config, err := clientcmd.BuildConfigFromFlags("", "/Users/meaglith/.kube/config"); err != nil {
-		return false, err
+// TODO filter the log print with different color.
+func (j *Job) Log(log string, verbose, timestamp bool) {
+	j.Logs = append(j.Logs, map[string]string{time.Now().String(): strings.TrimSpace(log)})
+
+	if verbose == true {
+		if timestamp == true {
+			fmt.Println(Cyan(fmt.Sprintf("[%s] %s", time.Now().String(), strings.TrimSpace(log))))
+		} else {
+			fmt.Println(Cyan(log))
+		}
+	}
+}
+
+func (j *Job) Run(name string, verbose, timestamp bool) (string, error) {
+	home, _ := homeDir.Dir()
+
+	randomContainerName := fmt.Sprintf("%s-%s", name, utils.RandomString(10))
+
+	if config, err := clientcmd.BuildConfigFromFlags("", fmt.Sprintf("%s/.kube/config", home)); err != nil {
+		return Failure, err
 	} else {
 		if clientSet, err := kubernetes.NewForConfig(config); err != nil {
-			return false, err
+			return Failure, err
 		} else {
 			p := clientSet.CoreV1Client.Pods(apiv1.NamespaceDefault)
 
@@ -172,12 +242,12 @@ func (j *Job) Run(name string, verbose, timestamp bool) (bool, error) {
 						APIVersion: "v1",
 					},
 					ObjectMeta: metav1.ObjectMeta{
-						Name: name,
+						Name: randomContainerName,
 					},
 					Spec: apiv1.PodSpec{
 						Containers: []apiv1.Container{
 							{
-								Name:  name,
+								Name:  randomContainerName,
 								Image: j.Endpoint,
 								Env: []apiv1.EnvVar{
 									{
@@ -197,46 +267,36 @@ func (j *Job) Run(name string, verbose, timestamp bool) (bool, error) {
 					},
 				},
 			); err != nil {
-				return false, err
+				return Failure, err
 			}
 
 			time.Sleep(time.Second * 5)
 
-			req := p.GetLogs(name, &apiv1.PodLogOptions{
+			req := p.GetLogs(randomContainerName, &apiv1.PodLogOptions{
 				Follow:     true,
-				Timestamps: timestamp,
+				Timestamps: false,
 			})
 
 			if read, err := req.Stream(); err != nil {
-				return false, err
+				// TODO Parse ContainerCreating error
 			} else {
-
 				reader := bufio.NewReader(read)
 				for {
 					line, err := reader.ReadString('\n')
 
 					if err != nil {
 						if err == io.EOF {
-							colorPrint(line, verbose)
 							break
 						}
-						return false, nil
+
+						return Failure, nil
 					}
 
-					colorPrint(line, verbose)
+					j.Log(line, verbose, timestamp)
 				}
 			}
-
 		}
 	}
 
-	return true, nil
-}
-
-func colorPrint(line string, verbose bool) {
-	if has, _ := regexp.Match("CO_RESULT = false", []byte(line)); has == true {
-		colorstring.Print(fmt.Sprintf("[red]\t\t\t %s", line))
-	} else {
-		colorstring.Print(fmt.Sprintf("[green]\t\t\t %s", line))
-	}
+	return Success, nil
 }
