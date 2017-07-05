@@ -19,10 +19,10 @@ metadata:
 spec:
  containers:
  - name: cncf-demo-coredns-test
-   image: docker.io/containerops/cncf-demo-coredns:latest
+   image: hub.opshub.sh/containerops/cncf-demo-coredns:latest
    env:
    - name: CO_DATA
-     value: "coredns=https://github.com/coredns/coredns.git action=test release=test.opshub.sh/containerops/cncf-demo/demo"
+     value: "coredns=https://github.com/coredns/coredns.git action=test release=hub.opshub.sh/containerops/cncf-demo/demo"
    resources:
      requests:
        cpu: 2
