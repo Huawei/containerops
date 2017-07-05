@@ -62,7 +62,7 @@ func (f *Flow) URIs() (namespace, repository, name string, err error) {
 
 // TODO filter the log print with different color.
 func (f *Flow) Log(log string, verbose, timestamp bool) {
-	f.Logs = append(f.Logs, map[string]string{time.Now().String(): log})
+	f.Logs = append(f.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
 
 	if verbose == true {
 		if timestamp == true {
@@ -137,7 +137,7 @@ func (f *Flow) LocalRun(verbose, timestamp bool) error {
 
 // TODO filter the log print with different color.
 func (s *Stage) Log(log string, verbose, timestamp bool) {
-	s.Logs = append(s.Logs, map[string]string{time.Now().String(): log})
+	s.Logs = append(s.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
 
 	if verbose == true {
 		if timestamp == true {
@@ -174,7 +174,7 @@ func (s *Stage) SequencingRun(verbose, timestamp bool) (string, error) {
 
 // TODO filter the log print with different color.
 func (a *Action) Log(log string, verbose, timestamp bool) {
-	a.Logs = append(a.Logs, map[string]string{time.Now().String(): log})
+	a.Logs = append(a.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
 
 	if verbose == true {
 		if timestamp == true {
@@ -212,7 +212,7 @@ func (a *Action) Run(verbose, timestamp bool) (string, error) {
 
 // TODO filter the log print with different color.
 func (j *Job) Log(log string, verbose, timestamp bool) {
-	j.Logs = append(j.Logs, map[string]string{time.Now().String(): strings.TrimSpace(log)})
+	j.Logs = append(j.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
 
 	if verbose == true {
 		if timestamp == true {
