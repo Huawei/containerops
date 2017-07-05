@@ -29,13 +29,14 @@ import (
 	homeDir "github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v2"
 
-	"github.com/Huawei/containerops/common/utils"
+	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	apiv1 "k8s.io/client-go/pkg/api/v1"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/tools/clientcmd"
+
+	"github.com/Huawei/containerops/common/utils"
 )
 
 // JSON export flow data without
@@ -61,7 +62,7 @@ func (f *Flow) URIs() (namespace, repository, name string, err error) {
 
 // TODO filter the log print with different color.
 func (f *Flow) Log(log string, verbose, timestamp bool) {
-	f.Logs = append(f.Logs, map[string]string{time.Now().String(): log})
+	f.Logs = append(f.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
 
 	if verbose == true {
 		if timestamp == true {
@@ -136,7 +137,7 @@ func (f *Flow) LocalRun(verbose, timestamp bool) error {
 
 // TODO filter the log print with different color.
 func (s *Stage) Log(log string, verbose, timestamp bool) {
-	s.Logs = append(s.Logs, map[string]string{time.Now().String(): log})
+	s.Logs = append(s.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
 
 	if verbose == true {
 		if timestamp == true {
@@ -173,7 +174,7 @@ func (s *Stage) SequencingRun(verbose, timestamp bool) (string, error) {
 
 // TODO filter the log print with different color.
 func (a *Action) Log(log string, verbose, timestamp bool) {
-	a.Logs = append(a.Logs, map[string]string{time.Now().String(): log})
+	a.Logs = append(a.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
 
 	if verbose == true {
 		if timestamp == true {
@@ -211,7 +212,7 @@ func (a *Action) Run(verbose, timestamp bool) (string, error) {
 
 // TODO filter the log print with different color.
 func (j *Job) Log(log string, verbose, timestamp bool) {
-	j.Logs = append(j.Logs, map[string]string{time.Now().String(): strings.TrimSpace(log)})
+	j.Logs = append(j.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
 
 	if verbose == true {
 		if timestamp == true {
@@ -267,9 +268,11 @@ func (j *Job) Run(name string, verbose, timestamp bool) (string, error) {
 					},
 				},
 			); err != nil {
+				j.Status = Failure
 				return Failure, err
 			}
 
+			j.Status = Pending
 			time.Sleep(time.Second * 5)
 
 			req := p.GetLogs(randomContainerName, &apiv1.PodLogOptions{
@@ -289,14 +292,16 @@ func (j *Job) Run(name string, verbose, timestamp bool) (string, error) {
 							break
 						}
 
+						j.Status = Failure
 						return Failure, nil
 					}
-
+					j.Status = Running
 					j.Log(line, verbose, timestamp)
 				}
 			}
 		}
 	}
 
+	j.Status = Success
 	return Success, nil
 }
