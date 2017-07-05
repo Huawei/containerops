@@ -57,6 +57,8 @@ export class StatusComponent implements OnInit, AfterViewInit, OnDestroy {
   private refreshInterval: any;
   private refreshIntervalHttp: any;
 
+  nowLogs: Array<string>;
+
 
   tabs = [{
     label: 'Tab 1',
@@ -222,9 +224,9 @@ export class StatusComponent implements OnInit, AfterViewInit, OnDestroy {
           // console.log(actionValue.action.jobs);
           actionValue.jobs.forEach((jobValue, jobIndex) => {
 
-            console.log('=====jobValue.status=====');
-            console.log(jobValue.status);
-            console.log('=========================');
+            // console.log('=====jobValue.status=====');
+            // console.log(jobValue.status);
+            // console.log('=========================');
             let jobColor = '#000000';
             switch (jobValue.status) {
               case 'pending' :
@@ -236,7 +238,7 @@ export class StatusComponent implements OnInit, AfterViewInit, OnDestroy {
               case 'failure' :
                 jobColor = '#ff0000';
                 break;
-              case 'successfully' :
+              case 'success' :
                 jobColor = '#00ff00';
                 break;
             };
@@ -260,6 +262,14 @@ export class StatusComponent implements OnInit, AfterViewInit, OnDestroy {
                 const index = t[0].id.split('::');
                 // console.log(index);
                 const josInfo = this.workflowObj.stages[index[0]].actions[index[1]].jobs[index[2]];
+
+                if (josInfo.logs) {
+                  this.nowLogs = josInfo.logs;
+                }else {
+                  this.nowLogs = null;
+                }
+
+                // console.log(josInfo.logs[0]);
                 // let nowLog = '';
                 // // josInfo['logs'][0].map((logv, logk) => {
                 // //   nowLog += logv + logk;

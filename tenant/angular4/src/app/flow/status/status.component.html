@@ -2,24 +2,11 @@
 <br/><br/>
 <div fxLayout="row" fxLayoutWrap="wrap">
   <div fxFlex.gt-sm="75%" fxFlex="100">
-    <md-card style="color:cyan;  background-color: #000000">
+    <md-card style="color:cyan;  background-color: #000000; min-height: 500px; max-height:500px; overflow: scroll; ">
       <md-card-title style="color:cyan; font-size:20px; background-color: #000000">Log</md-card-title>
-      <md-card-subtitle style="color:cyan; font-size:18px; background-color: #000000" >Stories posted todayStories posted todayStories posted todayStories posted todayStories posted<br>
-        todayStories posted todayStories posted todayStories posted todayStories posted todayStories posted todayStories<br>
-        posted todayStories posted todayStories posted todayStories posted todayStories posted todayStories posted<br>
-        todayStories posted todayStories posted todayStories posted todayStories posted todayStories<br>
-        posted todayStories posted todayStories posted todayStories posted today</md-card-subtitle>
-      <br>
-      <br>
-      <br>
-      <br>
-      <br>
-      <br>
-      <br>
-      <br>
-      <br>
-      <br>
-      <hr>
+        <md-card-content style="color:cyan; font-size:18px; background-color: #000000;" >
+          <label *ngFor="let log of nowLogs"> {{log}}<br/></label>
+        </md-card-content>
     </md-card>
   </div>
   <div fxFlex.gt-sm="25%" fxFlex="100">
