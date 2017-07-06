@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 
 import { Http, Response } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
@@ -36,7 +36,7 @@ const stageSequencingParallel = 'parallel';
   templateUrl: './status.component.html',
   styleUrls: ['./status.component.scss']
 })
-export class StatusComponent implements OnInit {
+export class StatusComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('design') element: ElementRef;
   constructor(private http: Http) {};
 
@@ -54,6 +54,11 @@ export class StatusComponent implements OnInit {
 
 
   private workflowObj: workflow.Workflow;
+  private refreshInterval: any;
+  private refreshIntervalHttp: any;
+
+  nowLogs: Array<string>;
+
 
   tabs = [{
     label: 'Tab 1',
@@ -72,7 +77,8 @@ export class StatusComponent implements OnInit {
 
 
   ngOnInit() {
-    this.http.get('http://localhost:4200/assets/debug/cncf-demo-runtime.yaml')
+    this.refreshIntervalHttp = this.http;
+    this.http.get('http://localhost:4200/flow/v1/cncf/cncf-demo/aaa/latest/1/runtime/yaml')
       .toPromise()
       .then(response => yaml.load(response.text()))
       .then(wfObj => {
@@ -95,10 +101,9 @@ export class StatusComponent implements OnInit {
   }
 
   drawWorkflow(wfObj: any): void {
-
+    this.workflowObj = wfObj;
     wfObj.stages.forEach((stageValue, stageIndex) => {
       // console.log(stageValue);
-      // console.log('-----------------');
       let stageImageUrl = '';
 
       switch (stageValue.type) {
@@ -154,8 +159,6 @@ export class StatusComponent implements OnInit {
           // console.log( jobRowCount + ':' + jobColCount);
 
           const actonXBase = 140 * (stageIndex + 1) + (stageIndex * 100);
-
-          // console.log(actonXBase / 16 * jobColCount);
 
           this.actionGroups.get(actionGroupName).append('rect')
             .attr('x', actonXBase - 40 )
@@ -221,6 +224,9 @@ export class StatusComponent implements OnInit {
           // console.log(actionValue.action.jobs);
           actionValue.jobs.forEach((jobValue, jobIndex) => {
 
+            // console.log('=====jobValue.status=====');
+            // console.log(jobValue.status);
+            // console.log('=========================');
             let jobColor = '#000000';
             switch (jobValue.status) {
               case 'pending' :
@@ -232,7 +238,7 @@ export class StatusComponent implements OnInit {
               case 'failure' :
                 jobColor = '#ff0000';
                 break;
-              case 'successfully' :
+              case 'success' :
                 jobColor = '#00ff00';
                 break;
             };
@@ -250,7 +256,26 @@ export class StatusComponent implements OnInit {
               .attr('ry', 2)
               .attr('stroke', '#000000')
               .attr('stroke-width', '1')
-              .attr('fill', jobColor);
+              .attr('fill', jobColor)
+              .attr('id', stageIndex + '::' + actionIndex + '::' + jobIndex)
+              .on('click', (d, i, t) => {
+                const index = t[0].id.split('::');
+                // console.log(index);
+                const josInfo = this.workflowObj.stages[index[0]].actions[index[1]].jobs[index[2]];
+
+                if (josInfo.logs) {
+                  this.nowLogs = josInfo.logs;
+                }else {
+                  this.nowLogs = null;
+                }
+
+                // console.log(josInfo.logs[0]);
+                // let nowLog = '';
+                // // josInfo['logs'][0].map((logv, logk) => {
+                // //   nowLog += logv + logk;
+                // // });
+                // console.log(nowLog);
+              });
               // .attr('fill-opacity', '0');
           });
 
@@ -258,25 +283,42 @@ export class StatusComponent implements OnInit {
         });
       }
 
-      // var zoom = D3.zoom()
-      //   .scaleExtent([1, 100])
-      //   .on('zoom', this.zoomFn);
-      // this.stageGroup.call(zoom);
-
-      // Draw Action to Stage line
-
-
-
     });
 
 
   }
 
-  // zoomFn(): void {
-  //   console.log(D3.event.transform.x);
-  //   this.stageGroup
-  //     .attr('transform', 'translate(' + D3.event.transform.x + ',' + D3.event.transform.y + ') scale(' + D3.event.transform.k + ')');
-  // }
+  ngAfterViewInit() {
+    this.refreshInterval = setInterval(() => {
+      this.svg.remove();
 
+      this.htmlElement = this.element.nativeElement;
+      this.host = D3.select(this.htmlElement);
+      this.host.html('');
+      this.svg = this.host.append('svg');
+      this.svgWidth = 1600;//this.htmlElement.offsetWidth;
+      this.svgHeight = 500;//(this.htmlElement.parentElement.parentElement.offsetHeight) / 2 ;
+      this.svg.attr('width', this.svgWidth).attr('height', this.svgHeight);
 
+      this.stageGroup = this.svg.append('g');
+      this.stageGroup.attr('id', 'stageGroup');
+
+      this.stageLineGroup = this.svg.append('g');
+      this.stageLineGroup.attr('id', 'stageLineGroup');
+
+      this.http.get('http://localhost:4200/flow/v1/cncf/cncf-demo/aaa/latest/1/runtime/yaml')
+        .toPromise()
+        .then(response => yaml.load(response.text()))
+        .then(wfObj => {
+          this.drawWorkflow(wfObj);
+          return;
+        });
+    }, 10000);
+  }
+
+  ngOnDestroy() {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+    }
+  }
 }
