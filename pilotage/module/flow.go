@@ -110,7 +110,7 @@ func (f *Flow) LocalRun(verbose, timestamp bool) error {
 			case Parallel:
 				// TODO Parallel running
 			case Sequencing:
-				if status, err := stage.SequencingRun(verbose, timestamp); err != nil {
+				if status, err := stage.SequencingRun(verbose, timestamp, f); err != nil {
 					f.Status = Failure
 					f.Log(fmt.Sprintf("Stage [%s] run error: %s", stage.Name, err.Error()), verbose, timestamp)
 				} else {
@@ -148,18 +148,24 @@ func (s *Stage) Log(log string, verbose, timestamp bool) {
 	}
 }
 
-func (s *Stage) SequencingRun(verbose, timestamp bool) (string, error) {
+func (s *Stage) SequencingRun(verbose, timestamp bool, f *Flow) (string, error) {
 	s.Status = Running
-	s.Log(fmt.Sprintf("Stage [%s] status change to %s", s.Name, s.Status), verbose, timestamp)
+
+	s.Log(fmt.Sprintf("Stage [%s] status change to %s", s.Name, s.Status), false, timestamp)
+	f.Log(fmt.Sprintf("Stage [%s] status change to %s", s.Name, s.Status), verbose, timestamp)
 
 	for i, _ := range s.Actions {
 		action := &s.Actions[i]
 
-		s.Log(fmt.Sprintf("The Number [%d] action is running: %s", i, s.Title), verbose, timestamp)
+		s.Log(fmt.Sprintf("The Number [%d] action is running: %s", i, s.Title), false, timestamp)
+		f.Log(fmt.Sprintf("The Number [%d] action is running: %s", i, s.Title), verbose, timestamp)
 
-		if status, err := action.Run(verbose, timestamp); err != nil {
+		if status, err := action.Run(verbose, timestamp, f); err != nil {
 			s.Status = Failure
-			s.Log(fmt.Sprintf("Action [%s] run error: %s", action.Name, err.Error()), verbose, timestamp)
+
+			s.Log(fmt.Sprintf("Action [%s] run error: %s", action.Name, err.Error()), false, timestamp)
+			f.Log(fmt.Sprintf("Action [%s] run error: %s", action.Name, err.Error()), verbose, timestamp)
+
 		} else {
 			s.Status = status
 		}
@@ -185,18 +191,24 @@ func (a *Action) Log(log string, verbose, timestamp bool) {
 	}
 }
 
-func (a *Action) Run(verbose, timestamp bool) (string, error) {
+func (a *Action) Run(verbose, timestamp bool, f *Flow) (string, error) {
 	a.Status = Running
-	a.Log(fmt.Sprintf("Action [%s] status change to %s", a.Name, a.Status), verbose, timestamp)
+
+	a.Log(fmt.Sprintf("Action [%s] status change to %s", a.Name, a.Status), false, timestamp)
+	f.Log(fmt.Sprintf("Action [%s] status change to %s", a.Name, a.Status), verbose, timestamp)
 
 	for i, _ := range a.Jobs {
 		job := &a.Jobs[i]
 
-		a.Log(fmt.Sprintf("The Number [%d] job is running: %s", i, a.Title), verbose, timestamp)
+		a.Log(fmt.Sprintf("The Number [%d] job is running: %s", i, a.Title), false, timestamp)
+		f.Log(fmt.Sprintf("The Number [%d] job is running: %s", i, a.Title), verbose, timestamp)
 
-		if status, err := job.Run(a.Name, verbose, timestamp); err != nil {
+		if status, err := job.Run(a.Name, verbose, timestamp, f); err != nil {
 			a.Status = Failure
-			a.Log(fmt.Sprintf("Job [%d] run error: %s", i, err.Error()), verbose, timestamp)
+
+			a.Log(fmt.Sprintf("Job [%d] run error: %s", i, err.Error()), false, timestamp)
+			f.Log(fmt.Sprintf("Job [%d] run error: %s", i, err.Error()), verbose, timestamp)
+
 		} else {
 			a.Status = status
 		}
@@ -223,7 +235,7 @@ func (j *Job) Log(log string, verbose, timestamp bool) {
 	}
 }
 
-func (j *Job) Run(name string, verbose, timestamp bool) (string, error) {
+func (j *Job) Run(name string, verbose, timestamp bool, f *Flow) (string, error) {
 	home, _ := homeDir.Dir()
 
 	randomContainerName := fmt.Sprintf("%s-%s", name, utils.RandomString(10))
@@ -296,7 +308,9 @@ func (j *Job) Run(name string, verbose, timestamp bool) (string, error) {
 						return Failure, nil
 					}
 					j.Status = Running
-					j.Log(line, verbose, timestamp)
+
+					j.Log(line, false, timestamp)
+					f.Log(line, verbose, timestamp)
 				}
 			}
 		}

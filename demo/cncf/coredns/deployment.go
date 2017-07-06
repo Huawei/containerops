@@ -24,10 +24,10 @@ import (
 	"time"
 
 	"github.com/mitchellh/colorstring"
+	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	apiv1 "k8s.io/client-go/pkg/api/v1"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/tools/clientcmd"
 )
@@ -55,11 +55,11 @@ func main() {
 						Containers: []apiv1.Container{
 							{
 								Name:  "cncf-demo-coredns-release",
-								Image: "docker.io/containerops/cncf-demo-coredns:latest",
+								Image: "hub.opshub.sh/containerops/cncf-demo-coredns:latest",
 								Env: []apiv1.EnvVar{
 									{
 										Name:  "CO_DATA",
-										Value: "coredns=https://github.com/coredns/coredns.git action=release release=test.opshub.sh/containerops/cncf-demo/demo",
+										Value: "coredns=https://github.com/coredns/coredns.git action=release release=hub.opshub.sh/containerops/cncf-demo/demo",
 									},
 								},
 								Resources: apiv1.ResourceRequirements{

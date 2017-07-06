@@ -1,7 +1,7 @@
-## Default-java(jdk/jre) Docker Image
+## Default Java(jdk/jre) Docker Image
 
 ### How to build the image?
 
 ```bash
-docker build -t containerops/java-default .
+docker build -t hub.opshub.sh/containerops/java .
 ```
