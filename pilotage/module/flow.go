@@ -66,7 +66,7 @@ func (f *Flow) Log(log string, verbose, timestamp bool) {
 
 	if verbose == true {
 		if timestamp == true {
-			fmt.Println(Cyan(fmt.Sprintf("[%s] %s", time.Now().String(), log)))
+			fmt.Println(Cyan(fmt.Sprintf("[%s] %s", time.Now().String(), strings.TrimSpace(log))))
 		} else {
 			fmt.Println(Cyan(log))
 		}
@@ -141,7 +141,7 @@ func (s *Stage) Log(log string, verbose, timestamp bool) {
 
 	if verbose == true {
 		if timestamp == true {
-			fmt.Println(Cyan(fmt.Sprintf("[%s] %s", time.Now().String(), log)))
+			fmt.Println(Cyan(fmt.Sprintf("[%s] %s", time.Now().String(), strings.TrimSpace(log))))
 		} else {
 			fmt.Println(Cyan(log))
 		}
@@ -184,7 +184,7 @@ func (a *Action) Log(log string, verbose, timestamp bool) {
 
 	if verbose == true {
 		if timestamp == true {
-			fmt.Println(Cyan(fmt.Sprintf("[%s] %s", time.Now().String(), log)))
+			fmt.Println(Cyan(fmt.Sprintf("[%s] %s", time.Now().String(), strings.TrimSpace(log))))
 		} else {
 			fmt.Println(Cyan(log))
 		}
