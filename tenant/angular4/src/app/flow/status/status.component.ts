@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild} from '@angular/core';
 
 import { Http, Response } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
@@ -58,6 +58,9 @@ export class StatusComponent implements OnInit, AfterViewInit, OnDestroy {
   private refreshIntervalHttp: any;
 
   nowLogs: Array<string>;
+  jobInfo: any;
+  environmentsKeys: any;
+  outputDataKeys: any;
 
 
   tabs = [{
@@ -221,12 +224,8 @@ export class StatusComponent implements OnInit, AfterViewInit, OnDestroy {
             .attr('fill-opacity', '0');
 
           // Draw Job
-          // console.log(actionValue.action.jobs);
           actionValue.jobs.forEach((jobValue, jobIndex) => {
 
-            // console.log('=====jobValue.status=====');
-            // console.log(jobValue.status);
-            // console.log('=========================');
             let jobColor = '#000000';
             switch (jobValue.status) {
               case 'pending' :
@@ -242,7 +241,6 @@ export class StatusComponent implements OnInit, AfterViewInit, OnDestroy {
                 jobColor = '#00ff00';
                 break;
             };
-
 
             const jobGroupName = stageValue.name + '-' + actionValue.name + '-job';
             this.jobGroups.set(jobGroupName, this.svg.append('g'));
@@ -260,23 +258,17 @@ export class StatusComponent implements OnInit, AfterViewInit, OnDestroy {
               .attr('id', stageIndex + '::' + actionIndex + '::' + jobIndex)
               .on('click', (d, i, t) => {
                 const index = t[0].id.split('::');
-                // console.log(index);
-                const josInfo = this.workflowObj.stages[index[0]].actions[index[1]].jobs[index[2]];
+                this.jobInfo = this.workflowObj.stages[index[0]].actions[index[1]].jobs[index[2]];
 
-                if (josInfo.logs) {
-                  this.nowLogs = josInfo.logs;
+                if (this.jobInfo.logs) {
+                  this.nowLogs = this.jobInfo.logs;
+                  this.environmentsKeys = Object.keys(this.jobInfo.environments[0]);
+                  console.log(this.environmentsKeys);
                 }else {
                   this.nowLogs = null;
                 }
 
-                // console.log(josInfo.logs[0]);
-                // let nowLog = '';
-                // // josInfo['logs'][0].map((logv, logk) => {
-                // //   nowLog += logv + logk;
-                // // });
-                // console.log(nowLog);
               });
-              // .attr('fill-opacity', '0');
           });
 
 
