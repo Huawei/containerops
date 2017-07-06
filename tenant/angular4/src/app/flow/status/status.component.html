@@ -1,55 +1,62 @@
 <div class="d3-design" #design></div>
 <br/><br/>
 <div fxLayout="row" fxLayoutWrap="wrap">
-  <div fxFlex.gt-sm="75%" fxFlex="100">
-    <md-card style="color:cyan;  background-color: #000000; min-height: 500px; max-height:500px; overflow: scroll; ">
+  <div fxFlex.gt-sm="66.6%" fxFlex="100">
+    <md-card style="color:cyan;  background-color: #000000; min-height: 500px; max-height:500px; overflow: auto; overflow-x: hidden; overflow-y: auto;">
       <md-card-title style="color:cyan; font-size:20px; background-color: #000000">Log</md-card-title>
         <md-card-content style="color:cyan; font-size:18px; background-color: #000000;" >
           <label *ngFor="let log of nowLogs"> {{log}}<br/></label>
         </md-card-content>
+
     </md-card>
   </div>
-  <div fxFlex.gt-sm="25%" fxFlex="100">
-      <md-card>
-        <md-card-title>Run Info</md-card-title>
+  <div fxFlex.gt-sm="33.3%" fxFlex="100" >
+      <md-card style="min-height: 500px; max-height:500px; overflow: auto; overflow-x: hidden; overflow-y: auto;">
+        <md-tab-group md-dynamic-height>
+          <md-tab>
+            <ng-template md-tab-label>Config</ng-template>
+            <md-card-content *ngIf="jobInfo">
+              <!--<md-input-container *ngFor="let key of jobInfoKey" style="width: 100%; ">-->
+                <!--<input mdInput placeholder="{{key}}" value="{{jobInfo[key]}}" >-->
+              <!--</md-input-container>-->
+              <md-input-container style="width: 100%; ">
+                <input mdInput placeholder="type" value="{{jobInfo.type}}" >
+              </md-input-container>
+              <md-input-container style="width: 100%; ">
+                <input mdInput placeholder="kubectl" value="{{jobInfo.kubectl}}" >
+              </md-input-container>
+              <md-input-container style="width: 100%; ">
+                <input mdInput placeholder="endpoint" value="{{jobInfo.endpoint}}" >
+              </md-input-container>
+              <md-input-container style="width: 100%; ">
+                <input mdInput placeholder="status" value="{{jobInfo.status}}" >
+              </md-input-container>
+              <md-input-container style="width: 100%; ">
+                <input mdInput placeholder="timeout" value="{{jobInfo.timeout}}" >
+              </md-input-container>
+            </md-card-content>
+          </md-tab>
+          <md-tab>
+            <ng-template md-tab-label>Environments Data</ng-template>
+            <md-input-container *ngFor="let key of environmentsKeys" style="width: 100%; ">
+              <input mdInput placeholder="{{key}}" value="{{jobInfo.environments[key]}}" >
+            </md-input-container>
+          </md-tab>
+          <md-tab>
+            <ng-template md-tab-label>Output Data</ng-template>
             <md-card-content>
               <md-input-container>
-                <input mdInput placeholder="Tab Label" value="tab.label">
+                <input mdInput placeholder="OutputKey" value="OutputValue">
               </md-input-container>
               <md-input-container>
-                <input mdInput placeholder="Tab Label" value="tab.label">
-              </md-input-container><br/>
-              <md-input-container>
-                <input mdInput placeholder="Tab Label" value="tab.label">
+                <input mdInput placeholder="OutputKey" value="OutputValue">
               </md-input-container>
               <md-input-container>
-                <input mdInput placeholder="Tab Label" value="tab.label">
-              </md-input-container><br/>
-              <md-input-container>
-                <input mdInput placeholder="Tab Label" value="tab.label">
+                <input mdInput placeholder="OutputKey" value="OutputValue">
               </md-input-container>
-              <md-input-container>
-                <input mdInput placeholder="Tab Label" value="tab.label">
-              </md-input-container><br/>
-              <md-input-container>
-                <input mdInput placeholder="Tab Label" value="tab.label">
-              </md-input-container>
-              <md-input-container>
-                <input mdInput placeholder="Tab Label" value="tab.label">
-              </md-input-container><br/>
-              <md-input-container>
-                <input mdInput placeholder="Tab Label" value="tab.label">
-              </md-input-container>
-              <md-input-container>
-                <input mdInput placeholder="Tab Label" value="tab.label">
-              </md-input-container><br/>
-              <md-input-container>
-                <input mdInput placeholder="Tab Label" value="tab.label">
-              </md-input-container>
-              <md-input-container>
-                <input mdInput placeholder="Tab Label" value="tab.label">
-              </md-input-container><br/>
             </md-card-content>
+          </md-tab>
+        </md-tab-group>
       </md-card>
   </div>
 </div>
