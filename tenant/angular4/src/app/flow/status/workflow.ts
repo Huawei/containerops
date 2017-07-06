@@ -42,5 +42,6 @@ export class Job {
   environments: Array<any>;
   resources: Array<any>;
   timeout: number;
+  logs: Array<string>;
   type: string;
 }
