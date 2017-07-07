@@ -42,7 +42,7 @@ export class Action {
 export class Job {
   endpoint: string;
   environments: Array<any>;
-  resources: Array<any>;
+  resources: any;
   timeout: number;
   logs: Array<string>;
   type: string;

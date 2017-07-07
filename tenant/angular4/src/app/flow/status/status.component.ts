@@ -268,12 +268,13 @@ export class StatusComponent implements OnInit, AfterViewInit, OnDestroy {
                 if (this.nowShowJob.logs) {
                   this.nowLogs = this.nowShowJob.logs;
                   this.environmentsKeys = Object.keys(this.nowShowJob.environments[0]);
-                  console.log(this.nowShowJob.environments[0][this.environmentsKeys]);
+                  // console.log(this.nowShowJob.environments[0][this.environmentsKeys]);
                 }else {
                   this.nowLogs = null;
                 }
                 // this.nowShowJob = null;
                 // this.nowLogs = this.workflowObj.logs;
+                console.log(this.nowShowJob);
                 console.log('***************');
 
               });
