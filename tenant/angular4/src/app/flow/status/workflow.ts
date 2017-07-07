@@ -15,11 +15,13 @@
  */
 
 export class Workflow {
-  name: string;
+  uri: string;
   tag: string;
   timeout: number;
   title: string;
   version: number;
+  status: string;
+  logs: Array<string>;
   stages: Array<Stage>;
 }
 

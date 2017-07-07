@@ -53,30 +53,26 @@ export class StatusComponent implements OnInit, AfterViewInit, OnDestroy {
   private jobGroups: Map<string, D3.Selection> = new Map();
 
 
-  private workflowObj: workflow.Workflow;
   private refreshInterval: any;
   private refreshIntervalHttp: any;
 
+
+  workflowObj: workflow.Workflow;
+  flowLogs: Array<string>;
+
+  nowShowJob: any = null;
+  jobLogs: Array<string>;
+  jobResourcesKeys: Array<string>;
+  jobResourcesMap: Map<string, string>;
+  jobEnvironmentsKeys: Array<string>;
+  jobEnvironmentsMap: Map<string, string>;
+  jobOutputKeys: Array<string>;
+  jobOutputMap: Map<string, string>;
+
   nowLogs: Array<string>;
-  jobInfo: any;
+  // jobInfo: any;
   environmentsKeys: any;
   outputDataKeys: any;
-
-
-  tabs = [{
-    label: 'Tab 1',
-    content: 'This is the body of the first tab'
-  }, {
-    label: 'Tab 2',
-    content: 'This is the body of the second tab'
-  }, {
-    label: 'Tab 3',
-    extraContent: true,
-    content: 'This is the body of the third tab'
-  }, {
-    label: 'Tab this',
-    content: 'This is the body of the fourth tab'
-  }];
 
 
   ngOnInit() {
@@ -105,8 +101,18 @@ export class StatusComponent implements OnInit, AfterViewInit, OnDestroy {
 
   drawWorkflow(wfObj: any): void {
     this.workflowObj = wfObj;
+
+    // this.svg.on('click', (d, i, t) => {
+    //   this.nowShowJob = null;
+    //   this.nowLogs = this.workflowObj.logs;
+    //   console.log('============');
+    // });
+
+    if (this.nowShowJob === null) {
+      this.nowLogs = this.workflowObj.logs;
+    }
+
     wfObj.stages.forEach((stageValue, stageIndex) => {
-      // console.log(stageValue);
       let stageImageUrl = '';
 
       switch (stageValue.type) {
@@ -145,10 +151,8 @@ export class StatusComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       // Draw Action
-
       if (stageValue.actions) {
-        let jobRowCount, jobColCount: number;
-
+        let jobRowCount: number;
 
         const actionGroupName = stageValue.name +  '-Actions';
         this.actionGroups.set(actionGroupName, this.svg.append('g'));
@@ -258,15 +262,19 @@ export class StatusComponent implements OnInit, AfterViewInit, OnDestroy {
               .attr('id', stageIndex + '::' + actionIndex + '::' + jobIndex)
               .on('click', (d, i, t) => {
                 const index = t[0].id.split('::');
-                this.jobInfo = this.workflowObj.stages[index[0]].actions[index[1]].jobs[index[2]];
 
-                if (this.jobInfo.logs) {
-                  this.nowLogs = this.jobInfo.logs;
-                  this.environmentsKeys = Object.keys(this.jobInfo.environments[0]);
-                  console.log(this.environmentsKeys);
+                this.nowShowJob = this.workflowObj.stages[index[0]].actions[index[1]].jobs[index[2]];
+
+                if (this.nowShowJob.logs) {
+                  this.nowLogs = this.nowShowJob.logs;
+                  this.environmentsKeys = Object.keys(this.nowShowJob.environments[0]);
+                  console.log(this.nowShowJob.environments[0][this.environmentsKeys]);
                 }else {
                   this.nowLogs = null;
                 }
+                // this.nowShowJob = null;
+                // this.nowLogs = this.workflowObj.logs;
+                console.log('***************');
 
               });
           });
@@ -281,6 +289,7 @@ export class StatusComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
+
     this.refreshInterval = setInterval(() => {
       this.svg.remove();
 
@@ -288,8 +297,8 @@ export class StatusComponent implements OnInit, AfterViewInit, OnDestroy {
       this.host = D3.select(this.htmlElement);
       this.host.html('');
       this.svg = this.host.append('svg');
-      this.svgWidth = 1600;//this.htmlElement.offsetWidth;
-      this.svgHeight = 500;//(this.htmlElement.parentElement.parentElement.offsetHeight) / 2 ;
+      this.svgWidth = 1600; //this.htmlElement.offsetWidth;
+      this.svgHeight = 500; //(this.htmlElement.parentElement.parentElement.offsetHeight) / 2 ;
       this.svg.attr('width', this.svgWidth).attr('height', this.svgHeight);
 
       this.stageGroup = this.svg.append('g');
