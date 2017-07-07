@@ -7,56 +7,94 @@
         <md-card-content style="color:cyan; font-size:18px; background-color: #000000;" >
           <label *ngFor="let log of nowLogs"> {{log}}<br/></label>
         </md-card-content>
-
     </md-card>
   </div>
-  <div fxFlex.gt-sm="33.3%" fxFlex="100" >
+
+  <div *ngIf="nowShowJob;then job_content else flow_content">here is ignored</div>
+
+  <ng-template #flow_content>
+    <div fxFlex.gt-sm="33.3%" fxFlex="100" >
+      <md-card style="min-height: 500px; max-height:500px; overflow: auto; overflow-x: hidden; overflow-y: auto;">
+        <md-tab-group md-dynamic-height>
+          <md-tab>
+            <ng-template md-tab-label>Flow Config</ng-template>
+            <md-card-content *ngIf="workflowObj">
+              <md-input-container style="width: 100%; ">
+                <input mdInput placeholder="URI" value="{{workflowObj.uri}}" >
+              </md-input-container>
+              <md-input-container style="width: 100%; ">
+                <input mdInput placeholder="tag" value="{{workflowObj.tag}}" >
+              </md-input-container>
+              <md-input-container style="width: 100%; ">
+                <input mdInput placeholder="title" value="{{workflowObj.title}}" >
+              </md-input-container>
+              <md-input-container style="width: 100%; ">
+                <input mdInput placeholder="status" value="{{workflowObj.status}}" >
+              </md-input-container>
+              <md-input-container style="width: 100%; ">
+                <input mdInput placeholder="version" value="{{workflowObj.version}}" >
+              </md-input-container>
+              <md-input-container style="width: 100%; ">
+                <input mdInput placeholder="timeout" value="{{workflowObj.timeout}}" >
+              </md-input-container>
+            </md-card-content>
+          </md-tab>
+        </md-tab-group>
+      </md-card>
+    </div>
+  </ng-template>
+  <ng-template #job_content>
+    <div fxFlex.gt-sm="33.3%" fxFlex="100" >
       <md-card style="min-height: 500px; max-height:500px; overflow: auto; overflow-x: hidden; overflow-y: auto;">
         <md-tab-group md-dynamic-height>
           <md-tab>
             <ng-template md-tab-label>Config</ng-template>
-            <md-card-content *ngIf="jobInfo">
+            <md-card-content *ngIf="nowShowJob">
               <!--<md-input-container *ngFor="let key of jobInfoKey" style="width: 100%; ">-->
-                <!--<input mdInput placeholder="{{key}}" value="{{jobInfo[key]}}" >-->
+              <!--<input mdInput placeholder="{{key}}" value="{{jobInfo[key]}}" >-->
               <!--</md-input-container>-->
               <md-input-container style="width: 100%; ">
-                <input mdInput placeholder="type" value="{{jobInfo.type}}" >
+                <input mdInput placeholder="type" value="{{nowShowJob.type}}" >
               </md-input-container>
               <md-input-container style="width: 100%; ">
-                <input mdInput placeholder="kubectl" value="{{jobInfo.kubectl}}" >
+                <input mdInput placeholder="kubectl" value="{{nowShowJob.kubectl}}" >
               </md-input-container>
               <md-input-container style="width: 100%; ">
-                <input mdInput placeholder="endpoint" value="{{jobInfo.endpoint}}" >
+                <input mdInput placeholder="endpoint" value="{{nowShowJob.endpoint}}" >
               </md-input-container>
               <md-input-container style="width: 100%; ">
-                <input mdInput placeholder="status" value="{{jobInfo.status}}" >
+                <input mdInput placeholder="status" value="{{nowShowJob.status}}" >
               </md-input-container>
               <md-input-container style="width: 100%; ">
-                <input mdInput placeholder="timeout" value="{{jobInfo.timeout}}" >
+                <input mdInput placeholder="timeout" value="{{nowShowJob.timeout}}" >
               </md-input-container>
             </md-card-content>
           </md-tab>
           <md-tab>
             <ng-template md-tab-label>Environments Data</ng-template>
-            <md-input-container *ngFor="let key of environmentsKeys" style="width: 100%; ">
-              <input mdInput placeholder="{{key}}" value="{{jobInfo.environments[key]}}" >
-            </md-input-container>
+            <md-card-content>
+              <md-input-container *ngFor="let key of environmentsKeys" style="width: 100%; ">
+                <input mdInput placeholder="{{key}}" value="{{nowShowJob.environments[0][key]}}" >
+              </md-input-container>
+            </md-card-content>
           </md-tab>
           <md-tab>
             <ng-template md-tab-label>Output Data</ng-template>
             <md-card-content>
-              <md-input-container>
+              <md-input-container style="width: 100%; ">
                 <input mdInput placeholder="OutputKey" value="OutputValue">
               </md-input-container>
-              <md-input-container>
+              <md-input-container style="width: 100%; ">
                 <input mdInput placeholder="OutputKey" value="OutputValue">
               </md-input-container>
-              <md-input-container>
+              <md-input-container style="width: 100%; ">
                 <input mdInput placeholder="OutputKey" value="OutputValue">
               </md-input-container>
             </md-card-content>
           </md-tab>
         </md-tab-group>
       </md-card>
-  </div>
+    </div>
+  </ng-template>
+
 </div>
