@@ -1,42 +1,31 @@
-# Copyright 2016 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-# 
-#     http://www.apache.org/licenses/LICENSE-2.0
+# NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-FROM debian:jessie
+# PLEASE DO NOT EDIT IT DIRECTLY.
+#
 
-#FROM docker.io/phusion/baseimage:0.9.21
-MAINTAINER Dian Li <lidian1@huawei.com>
+#FROM debian:jessie
+FROM docker.io/phusion/baseimage:0.9.21
 
 # persistent / runtime deps
 ENV PHPIZE_DEPS \
 		autoconf \
-		dpkg-dev \
 		file \
 		g++ \
 		gcc \
 		libc-dev \
-		libpcre3-dev \
 		make \
 		pkg-config \
 		re2c
-#RUN apt-get update && apt-get install -y \
-#		$PHPIZE_DEPS \
-#		ca-certificates \
-#		curl \
-#		libedit2 \
-#		libsqlite3-0 \
-#		libxml2 \
-#		xz-utils \
-#	--no-install-recommends && rm -r /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+		$PHPIZE_DEPS \
+		ca-certificates \
+		curl \
+		libedit2 \
+		libsqlite3-0 \
+		libxml2 \
+		xz-utils \
+	--no-install-recommends && rm -r /var/lib/apt/lists/*
 
 ENV PHP_INI_DIR /usr/local/etc/php
 RUN mkdir -p $PHP_INI_DIR/conf.d
@@ -54,29 +43,25 @@ ENV PHP_CFLAGS="-fstack-protector-strong -fpic -fpie -O2"
 ENV PHP_CPPFLAGS="$PHP_CFLAGS"
 ENV PHP_LDFLAGS="-Wl,-O1 -Wl,--hash-style=both -pie"
 
-ENV GPG_KEYS A917B1ECDA84AEC2B568FED6F50ABC807BD5DCD0 528995BFEDFBA7191D46839EF9BA0ADA31CBD89E
+#ENV GPG_KEYS A917B1ECDA84AEC2B568FED6F50ABC807BD5DCD0 528995BFEDFBA7191D46839EF9BA0ADA31CBD89E
 
-#ENV PHP_URL="https://secure.php.net/get/php-7.1.5.tar.xz/from/this/mirror" PHP_ASC_URL="https://secure.php.net/get/php-7.1.5.tar.xz.asc/from/this/mirror"
-#ENV PHP_SHA256="d149a3c396c45611f5dc6bf14be190f464897145a76a8e5851cf18ff7094f6ac" PHP_MD5="fb0702321c7aceac68c82b8c7a10d196"
-
-#############################
 ARG php_version
 ENV PHP_VERSION ${php_version}
 RUN echo "PHP version found: $PHP_VERSION"
-COPY php-${PHP_VERSION}.sha256 /tmp/
-RUN echo "export PHP_SHA256=$(cat /tmp/php-{PHP_VERSION}.sha256)" >> /etc/profile.d/php.sh &&\
-	echo "export PHP_MD5=$(cat /tmp/php-{PHP_VERSION}.md5)" >> /etc/profile.d/php.sh 
+ENV PHP_URL="https://secure.php.net/get/php-${PHP_VERSION}.tar.xz/from/this/mirror" 
 
-ENV PHP_URL="https://secure.php.net/get/php-${PHP_VERSION}.tar.xz/from/this/mirror" PHP_ASC_URL="https://secure.php.net/get/php-${PHP_VERSION}.tar.xz.asc/from/this/mirror"
+COPY php-${PHP_VERSION}.sha256 /tmp/
+
+#ENV PHP_VERSION 7.1.4
+#ENV PHP_URL="https://secure.php.net/get/php-7.1.4.tar.xz/from/this/mirror" PHP_ASC_URL="https://secure.php.net/get/php-7.1.4.tar.xz.asc/from/this/mirror"
+#ENV PHP_SHA256="71514386adf3e963df087c2044a0b3747900b8b1fc8da3a99f0a0ae9180d300b" PHP_MD5="a74c13f8779349872b365e6732e8c98e"
 
 RUN set -xe; \
 	\
 	fetchDeps=' \
 		wget \
 	'; \
-	PHP_SHA256 =$(cat /tmp/php-$PHP_VERSION.sha256);\
 	apt-get update; \
-    apt-get install -y git make; \
 	apt-get install -y --no-install-recommends $fetchDeps; \
 	rm -rf /var/lib/apt/lists/*; \
 	\
@@ -85,22 +70,24 @@ RUN set -xe; \
 	\
 	wget -O php.tar.xz "$PHP_URL"; \
 	\
+	\ 	
+	PHP_SHA256=$(cat /tmp/php-$PHP_VERSION.sha256); \
 	if [ -n "$PHP_SHA256" ]; then \
 		echo "$PHP_SHA256 *php.tar.xz" | sha256sum -c -; \
 	fi; \
-	if [ -n "$PHP_MD5" ]; then \
-		echo "$PHP_MD5 *php.tar.xz" | md5sum -c -; \
-	fi; \
-	\
-	if [ -n "$PHP_ASC_URL" ]; then \
-		wget -O php.tar.xz.asc "$PHP_ASC_URL"; \
-		export GNUPGHOME="$(mktemp -d)"; \
-		for key in $GPG_KEYS; do \
-			gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
-		done; \
-		gpg --batch --verify php.tar.xz.asc php.tar.xz; \
-		rm -r "$GNUPGHOME"; \
-	fi; \
+	#if [ -n "$PHP_MD5" ]; then \
+	#	echo "$PHP_MD5 *php.tar.xz" | md5sum -c -; \
+	#fi; \
+	#\
+	#if [ -n "$PHP_ASC_URL" ]; then \
+	#	wget -O php.tar.xz.asc "$PHP_ASC_URL"; \
+	#	export GNUPGHOME="$(mktemp -d)"; \
+	#	for key in $GPG_KEYS; do \
+	#		gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
+	#	done; \
+	#	gpg --batch --verify php.tar.xz.asc php.tar.xz; \
+	#	rm -r "$GNUPGHOME"; \
+	#fi; \
 	\
 	apt-get purge -y --auto-remove $fetchDeps
 
@@ -122,9 +109,7 @@ RUN set -xe \
 		LDFLAGS="$PHP_LDFLAGS" \
 	&& docker-php-source extract \
 	&& cd /usr/src/php \
-	&& gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
 	&& ./configure \
-		--build="$gnuArch" \
 		--with-config-file-path="$PHP_INI_DIR" \
 		--with-config-file-scan-dir="$PHP_INI_DIR/conf.d" \
 		\
@@ -142,24 +127,14 @@ RUN set -xe \
 		--with-openssl \
 		--with-zlib \
 		\
-# bundled pcre is too old for s390x (which isn't exactly a good sign)
-# /usr/src/php/ext/pcre/pcrelib/pcre_jit_compile.c:65:2: error: #error Unsupported architecture
-		--with-pcre-regex=/usr \
-		--with-libdir="lib/$gnuArch" \
-		\
 		$PHP_EXTRA_CONFIGURE_ARGS \
 	&& make -j "$(nproc)" \
 	&& make install \
 	&& { find /usr/local/bin /usr/local/sbin -type f -executable -exec strip --strip-all '{}' + || true; } \
 	&& make clean \
-	&& cd / \
 	&& docker-php-source delete \
 	\
-	&& apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false $buildDeps \
-	\
-# https://github.com/docker-library/php/issues/443
-	&& pecl update-channels \
-	&& rm -rf /tmp/pear ~/.pearrc
+	&& apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false $buildDeps
 
 COPY docker-php-ext-* docker-php-entrypoint /usr/local/bin/
 
