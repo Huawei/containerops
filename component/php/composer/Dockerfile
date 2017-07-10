@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM php:7.1-cli
+FROM containerops/php:7.1.4
 MAINTAINER Yang Bin <yangkghjh@gmail.com>
 
 USER root
