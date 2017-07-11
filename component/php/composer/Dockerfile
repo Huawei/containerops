@@ -34,4 +34,4 @@ RUN php -r "copy('https://install.phpcomposer.com/installer', 'composer-setup.ph
     php composer-setup.php; \
     php -r "unlink('composer-setup.php');"; \
     mv composer.phar /usr/local/bin/composer; \
-    apt-get install -y --no-install-recommends unzip; \
+    apt-get install -y --no-install-recommends unzip;
