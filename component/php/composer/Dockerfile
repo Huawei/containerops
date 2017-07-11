@@ -30,7 +30,8 @@ ENV PATH $PATH:$GOROOT/bin:$GOPATH:/bin:$GOPATH/src/github.com/Huawei/containero
 
 RUN apt-get update && apt-get install -y git
 
-RUN php -r "copy('https://install.phpcomposer.com/installer', 'composer-setup.php');" \
-    php composer-setup.php \
-    php -r "unlink('composer-setup.php');" \
-    mv composer.phar /usr/local/bin/composer
+RUN php -r "copy('https://install.phpcomposer.com/installer', 'composer-setup.php');"; \
+    php composer-setup.php; \
+    php -r "unlink('composer-setup.php');"; \
+    mv composer.phar /usr/local/bin/composer; \
+    apt-get install -y --no-install-recommends unzip; \
