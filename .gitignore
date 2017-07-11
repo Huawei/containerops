@@ -40,17 +40,6 @@ pilotage/pilotage
 pilotage/vendor
 pilotage/vendor/*
 
-#singular
-singular/singular
-singular/.vscode
-
-# docs
-docs/_site
-docs/.sass-cache
-docs/.jekyll-metadata
-docs/_posts/
-docs/pdf/
-
 # IDEs and editors
 .idea
 .idea/*
