@@ -10,15 +10,13 @@ docker build -t containerops/php:7.1.4 --build-arg php_version=7.1.4  .
 2.build composer base image
 
 ```bash
-cd component/php/composer
-docker build -t containerops/composer:latest .
+docker build -t containerops/composer:latest -f Base/composer/Dockerfile .
 ```
 
 3.build component image
 
 ```bash
-cd component/php/component-composer
-docker build -t containerops/component-composer:latest .
+docker build -t containerops/component-composer:latest -f Dependence/component-composer/Dockerfile  .
 ```
 
 4.run component

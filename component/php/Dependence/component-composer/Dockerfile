@@ -20,9 +20,9 @@ RUN adduser composer sudoRUN echo 'composer:composer' | chpasswd
 USER composer
 
 RUN mkdir -p $GOPATH/src/github.com/Huawei/containerops
-ADD codes/*.go $GOPATH/src/github.com/Huawei/containerops/
+ADD /src/ $GOPATH/src/github.com/Huawei/containerops/
 
 WORKDIR $GOPATH/src/github.com/Huawei/containerops
-RUN go build component-composer.go
+RUN go build component/component-composer.go
 
 CMD component-composer
