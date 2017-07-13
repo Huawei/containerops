@@ -16,9 +16,20 @@ limitations under the License.
 
 package main
 
-import "github.com/Huawei/containerops/singular/cmd"
+import (
+	"fmt"
+	"os"
+
+	"github.com/Huawei/containerops/singular/cmd"
+)
+
+func init() {
+
+}
 
 func main() {
-
-	cmd.Execute()
+	if err := cmd.RootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
