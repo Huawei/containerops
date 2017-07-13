@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM php:7.1-cli
+FROM containerops/php:7.1.4
 MAINTAINER Yang Bin <yangkghjh@gmail.com>
 
 USER root
@@ -30,7 +30,8 @@ ENV PATH $PATH:$GOROOT/bin:$GOPATH:/bin:$GOPATH/src/github.com/Huawei/containero
 
 RUN apt-get update && apt-get install -y git
 
-RUN php -r "copy('https://install.phpcomposer.com/installer', 'composer-setup.php');" \
-    php composer-setup.php \
-    php -r "unlink('composer-setup.php');" \
-    mv composer.phar /usr/local/bin/composer
+RUN php -r "copy('https://install.phpcomposer.com/installer', 'composer-setup.php');"; \
+    php composer-setup.php; \
+    php -r "unlink('composer-setup.php');"; \
+    mv composer.phar /usr/local/bin/composer; \
+    apt-get install -y --no-install-recommends unzip;
