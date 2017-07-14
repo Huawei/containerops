@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+ name: cncf-demo-composer-build
+spec:
+ containers:
+ - name: cncf-demo-composer-build
+   image: hub.opshub.sh/containerops/component-composer:latest
+   env:
+   - name: CO_DATA
+     value: "git-url=https://github.com/TIGERB/easy-php.git action=install"
+   resources:
+     requests:
+       cpu: 4
+       memory: 8G
+ restartPolicy: Never
