@@ -25,4 +25,4 @@ ADD /src/ $GOPATH/src/github.com/Huawei/containerops/
 WORKDIR $GOPATH/src/github.com/Huawei/containerops
 RUN go build component/component-composer.go
 
-CMD component-composer
+CMD ./component-composer
