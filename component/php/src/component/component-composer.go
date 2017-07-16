@@ -20,39 +20,35 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 	"os/exec"
+	"util/git"
+	"util/input"
 )
-
-type CO_DATA struct {
-    gitUrl string
-	action string
-}
 
 func main() {
 	// Get the CO_DATA from environment parameter "CO_DATA"
 	data := os.Getenv("CO_DATA")
-	if len(data) == 0 {
-		fmt.Fprintf(os.Stderr, "[COUT] %s\n", "The CO_DATA value is null.")
+	keys := []string{
+		"git-url",
+		"action",
+	}
+	codata := map[string]string{}
+
+	if err := input.HandleInput(data, keys, codata); err != nil {
+		fmt.Fprintf(os.Stderr, "[COUT] Handle input error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 		os.Exit(1)
 	}
 
-	// Handle with CO_DATA
-	codata, err := handleCO_DATA(data)
-	if err != nil {
-		os.Exit(1)
-	}
+	basePath := "./workspace"
 
-	basePath := "./projects"
-
-	if err := gitClone(codata.gitUrl, basePath); err != nil {
-		fmt.Fprintf(os.Stderr, "[COUT] Clone the kubernetes repository error: %s\n", err.Error())
+	if err := git.Clone(codata["git-url"], basePath); err != nil {
+		fmt.Fprintf(os.Stderr, "[COUT] Clone the repository error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 		os.Exit(1)
 	}
 
-	switch codata.action {
+	switch codata["action"] {
 		case "install": 
 			cmd := exec.Command("composer", "install")
 			cmd.Dir = basePath
@@ -65,48 +61,11 @@ func main() {
 				os.Exit(1)
 			}
 		default:
-			fmt.Fprintf(os.Stderr, "[COUT] No such action: %s\n", codata.action)
+			fmt.Fprintf(os.Stderr, "[COUT] No such action: %s\n", codata["action"])
 			fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 			os.Exit(1)
 	}
 
 	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "true")
 	os.Exit(0)
-}
-
-func handleCO_DATA(data string) (codata CO_DATA, err error) {
-	files := strings.Fields(data)
-	if len(files) == 0 {
-		return codata, fmt.Errorf("CO_DATA value is null\n")
-	}
-
-	for _, v := range files {
-		s := strings.Split(v, "=")
-		key, value := s[0], s[1]
-
-		switch key {
-		case "git-url": 
-			codata.gitUrl = value
-		case "action":
-			codata.action = value
-		default:
-			fmt.Fprintf(os.Stdout, "[COUT] Unknown Parameter: [%s]\n", key)
-		}
-	}
-
-	return codata, nil;
-}
-
-func gitClone(repo, dest string) error {
-	cmd := exec.Command("git", "clone", repo, dest)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "[COUT] Git clone error: %s\n", err.Error())
-		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
-		os.Exit(1)
-	}
-
-	return nil
 }

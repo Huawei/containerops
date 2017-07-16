@@ -1,0 +1,12 @@
+version: "0.1"
+services:
+  test1:
+    image: 'containerops/composer:latest'
+    command: 
+    container_name: test1
+    environment:
+      - "TZ=Asia/Shanghai"
+    ports:
+      - "10000-10001:10000-10001"
+    volumes:
+      - ../../src:/var/opt/gopath/src
