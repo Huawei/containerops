@@ -16,15 +16,40 @@ limitations under the License.
 
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"fmt"
+	"os"
+
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
+	"github.com/Huawei/containerops/common"
+)
+
+var cfgFile string
 
 // RootCmd is
 var RootCmd = &cobra.Command{
 	Use:   "singular",
-	Short: "The distribution system ops tool",
-	Long:  ``,
+	Short: "Singular is deploy and operation tools for ContainerOps platform.",
+	Long: `Singular design for deploy and operation ContainerOps platform,
+mostly focus on Kubernetes, Prometheus, others in the Cloud Native technology stack.
+We are trying to deploy stack cross cloud, OpenStack, bare metals. `,
 }
 
+// init()
 func init() {
+	cobra.OnInitialize(initConfig)
 
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Configuration file path")
+
+	viper.BindPFlag("config", RootCmd.Flags().Lookup("config"))
+}
+
+// initConfig reads in config file and ENV variables if set.
+func initConfig() {
+	if err := common.SetConfig(cfgFile); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
