@@ -54,7 +54,7 @@ func main() {
 	}
 	exclude := fmt.Sprintf("--exclude=%v", codata["exclude"])
 
-	cmd := exec.Command("phpmetrics", codata["path"], exclude,"--report-violations=/tmp/report.xml")
+	cmd := exec.Command("/home/composer/.composer/vendor/bin/phpmetrics", codata["path"], exclude,"--report-violations=/tmp/report.xml")
 	cmd.Dir = basePath
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

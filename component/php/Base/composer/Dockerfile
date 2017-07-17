@@ -17,16 +17,16 @@ MAINTAINER Yang Bin <yangkghjh@gmail.com>
 
 USER root
 
-# RUN curl -sSL https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz -o /tmp/go.tar.gz && \
-#     echo "1862f4c3d3907e59b04a757cfda0ea7aa9ef39274af99a784f5be843c80c6772  /tmp/go.tar.gz" | sha256sum -c - && \
-#     tar -C /var/opt -xzf /tmp/go.tar.gz && \
-#     rm /tmp/go.tar.gz && \
-#     mkdir -p /var/opt/gopath && \
-#     chmod -R 777 /var/opt/gopath
+RUN curl -sSL https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz -o /tmp/go.tar.gz && \
+    echo "1862f4c3d3907e59b04a757cfda0ea7aa9ef39274af99a784f5be843c80c6772  /tmp/go.tar.gz" | sha256sum -c - && \
+    tar -C /var/opt -xzf /tmp/go.tar.gz && \
+    rm /tmp/go.tar.gz && \
+    mkdir -p /var/opt/gopath && \
+    chmod -R 777 /var/opt/gopath
 
-# ENV GOROOT /var/opt/go
-# ENV GOPATH /var/opt/gopath
-# ENV PATH $PATH:$GOROOT/bin:$GOPATH:/bin:$GOPATH/src/github.com/Huawei/containerops
+ENV GOROOT /var/opt/go
+ENV GOPATH /var/opt/gopath
+ENV PATH $PATH:$GOROOT/bin:$GOPATH:/bin:$GOPATH/src/github.com/Huawei/containerops
 
 RUN apt-get update && apt-get install -y git php-mongodb
 

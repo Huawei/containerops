@@ -19,13 +19,15 @@ RUN useradd --create-home --no-log-init --shell /bin/bash composer
 RUN adduser composer sudoRUN echo 'composer:composer' | chpasswd
 USER composer
 
-RUN composer global require "phpmetrics/phpmetrics"; \
-    export PATH=~/.composer/vendor/bin:$PATH;
+RUN composer global require "phpmetrics/phpmetrics" \
+    && export PATH=~/.composer/vendor/bin:$PATH;
 
-RUN mkdir -p $GOPATH/src/github.com/Huawei/containerops
-ADD /src/ $GOPATH/src/github.com/Huawei/containerops/
+USER root
 
-WORKDIR $GOPATH/src/github.com/Huawei/containerops
+RUN mkdir -p $GOPATH/src
+ADD /src/ $GOPATH/src
+
+WORKDIR $GOPATH/src
 RUN go build component/phpmetrics.go
 
 CMD ./phpmetrics

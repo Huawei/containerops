@@ -19,10 +19,10 @@ RUN useradd --create-home --no-log-init --shell /bin/bash composer
 RUN adduser composer sudoRUN echo 'composer:composer' | chpasswd
 USER composer
 
-RUN mkdir -p $GOPATH/src/github.com/Huawei/containerops
-ADD /src/ $GOPATH/src/github.com/Huawei/containerops/
+RUN mkdir -p $GOPATH/src
+ADD /src/ $GOPATH/src
 
-WORKDIR $GOPATH/src/github.com/Huawei/containerops
+WORKDIR $GOPATH/src
 RUN go build component/component-composer.go
 
 CMD ./component-composer
