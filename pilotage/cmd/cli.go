@@ -58,21 +58,14 @@ func init() {
 
 // Run orchestration flow from a flow definition file.
 func runCliFlow(cmd *cobra.Command, args []string) {
-	if len(args) <= 0 {
+	if len(args) <= 0 || utils.IsFileExist(args[0]) == false {
 		cmd.Println(Red("The orchestration flow file is required."))
-		os.Exit(1)
-	}
-
-	flowFile := args[0]
-
-	if utils.IsFileExist(flowFile) == false {
-		cmd.Println(Red("The orchestration flow file is not exist."))
 		os.Exit(1)
 	}
 
 	flow := new(module.Flow)
 
-	if err := flow.ParseFlowFromFile(flowFile, module.CliRun, verbose, timestamp); err != nil {
+	if err := flow.ParseFlowFromFile(args[0], module.CliRun, verbose, timestamp); err != nil {
 		cmd.Println(fmt.Sprintf("[red]Execute orchestration flow error: %s", err.Error()))
 		os.Exit(1)
 	}

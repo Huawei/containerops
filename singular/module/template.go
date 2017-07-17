@@ -14,18 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cmd
+package module
 
-import "github.com/spf13/cobra"
-
-var configCmd = &cobra.Command{
-	Use:   "config",
-	Short: "manage Singular configurations",
-	Long: `Singular manage deploy templates, systemd template files and
-access tokens and others in the config file and config folders.`,
+type DeployTemplate struct {
 }
 
-// init()
-func init() {
-	RootCmd.AddCommand(configCmd)
+func (dt *DeployTemplate) ParseFromFile(template string) error {
+	return nil
 }

@@ -67,6 +67,10 @@ func SetConfig(cfgFile string) error {
 		return err
 	}
 
+	if err := setSingularConfig(viper.GetStringMap("singular")); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -84,15 +88,15 @@ password = "containerops_database"
 db = "containerops_password"
 
 # 2. Configurations for HTTPS or Unix Socket
-#   2.1 If multi modules deploy in one node, there should have a proxy like Caddy or Nginx.
-#       Each module use with Unix Socket type,  configurations look like this:
-#
-#           [web]
-#           mode = "unix"
-#           address = "/var/run/${module}.socket"
-#
-#   2.2 If module deploys in one node alone, it only supports HTTPS model and must have the SSL
-#       certification files.
+   2.1 If multi modules deploy in one node, there should have a proxy like Caddy or Nginx.
+       Each module use with Unix Socket type,  configurations look like this:
+
+           [web]
+           mode = "unix"
+           address = "/var/run/${module}.socket"
+
+   2.2 If module deploys in one node alone, it only supports HTTPS model and must have the SSL
+       certification files.
 
 [web]
 domain = "opshub.sh"
@@ -113,6 +117,11 @@ binaryv1 = "/tmp/binaryv1" # path for binary files of Dockyard Binary V1 Protoco
 
 [warship]
 domain = "hub.opshub.sh"
+
+# 5. Configurations for Singular modules.
+
+[singular]
+
 */
 
 type DatabaseConfig struct {
@@ -142,10 +151,14 @@ type WarshipConfig struct {
 	Domain string
 }
 
+type SingularConfig struct {
+}
+
 var Database DatabaseConfig
 var Web WebConfig
 var Storage StorageConfig
 var Warship WarshipConfig
+var Singular SingularConfig
 
 func setDatabaseConfig(config map[string]interface{}) error {
 	bs, err := json.Marshal(&config)
@@ -162,12 +175,7 @@ func setWebConfig(config map[string]interface{}) error {
 		return err
 	}
 
-	err = json.Unmarshal(bs, &Web)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return json.Unmarshal(bs, &Web)
 }
 
 func setStorageConfig(config map[string]interface{}) error {
@@ -176,12 +184,7 @@ func setStorageConfig(config map[string]interface{}) error {
 		return err
 	}
 
-	err = json.Unmarshal(bs, &Storage)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return json.Unmarshal(bs, &Storage)
 }
 
 func setWarshipConfig(config map[string]interface{}) error {
@@ -190,10 +193,14 @@ func setWarshipConfig(config map[string]interface{}) error {
 		return err
 	}
 
-	err = json.Unmarshal(bs, &Warship)
+	return json.Unmarshal(bs, &Singular)
+}
+
+func setSingularConfig(config map[string]interface{}) error {
+	bs, err := json.Marshal(&config)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return json.Unmarshal(bs, &Singular)
 }
