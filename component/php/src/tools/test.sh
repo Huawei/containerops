@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export CO_DATA="git-url=http://192.168.123.201/yangkghjh/easy-php.git exclude=public"
+export CO_DATA="git-url=http://192.168.123.201/yangkghjh/easy-php.git"
 
 echo "Testing $1"
 

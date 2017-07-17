@@ -27,10 +27,10 @@ import (
 
 const (
 	basePath string = "./workspace"
-	// baseCommand string = "phpcpd"
-	baseCommand string = "/home/composer/.composer/vendor/bin/phpcpd"
-	reportPath string = "/tmp/PMD-CPD.xml"
-	reportFormat string = "XML_REPORT"
+	// baseCommand string = "phpmd"
+	baseCommand string = "/home/composer/.composer/vendor/bin/phpmd"
+	reportPath string = "/tmp/phpmd.xml"
+	reportFormat string = "REPORT"
 )
 
 func main() {
@@ -38,13 +38,15 @@ func main() {
 	keys := []string{
 		"git-url",
 		"path",
+		"formats",
+		"ruleset",
 		"exclude",
-		"names",
-		"names-exclude",
-		"regexps-exclude",
-		"min-lines",
-		"min-tokens",
+		"minimumpriority",
+		"suffixes",
+		"strict",
+		"ignore-violations-on-exit",
 	}
+
 	codata := map[string]string{}
 
 	if err := input.HandleInput(data, keys, codata); err != nil {
@@ -64,15 +66,18 @@ func main() {
 	if codata["path"] == "" {
 		codata["path"] = "."
 	}
-	command = fmt.Sprintf("%s %s", command, codata["path"])
+	if codata["formats"] == "" {
+		codata["formats"] = "xml"
+	}
+	if codata["ruleset"] == "" {
+		codata["ruleset"] = "cleancode,codesize,controversial,design,naming,unusedcode"
+	}
+	command = fmt.Sprintf("%s %s %s %s", command, codata["path"], codata["formats"], codata["ruleset"])
 
 	params := []string{
-		"names",
-		"names-exclude",
-		"regexps-exclude",
+		"minimumpriority",
 		"exclude",
-		"min-lines",
-		"min-tokens",
+		"suffixes",
 	}
 
 	for _, param := range params {
@@ -81,11 +86,22 @@ func main() {
 		}
 	}
 
-	command = fmt.Sprintf("%s --log-pmd=%s", command, reportPath)
+	params_bool := []string{
+		"minimumpriority",
+		"strict",
+		"ignore-violations-on-exit",
+	}
+
+	for _, param := range params_bool {
+		if codata[param] == "true" {
+			command = fmt.Sprintf("%s --%s %s", command, param, codata[param])
+		}
+	}
+
+	command = fmt.Sprintf("%s --reportfile %s", command, reportPath)
 
 	if err := cmd.RunCommand(command, basePath); err != nil {
-		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
-		os.Exit(1)
+		
 	}
 
 	file.StdoutAll(reportPath, reportFormat)
