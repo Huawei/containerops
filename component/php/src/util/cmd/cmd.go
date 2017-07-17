@@ -25,7 +25,6 @@ import (
 
 func RunCommand(command string, basePath string) error {
 	list := strings.Split(command, " ")
-	fmt.Printf("list: %v", list)
 	cmd := exec.Command(list[0], list[1:]...)
 
 	cmd.Dir = basePath

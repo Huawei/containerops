@@ -58,7 +58,7 @@ func ReadLine(filePth string, hookfn func([]byte)) error {
 	return nil
 }
 
-func StdoutAll(filePth string) {
-	fmt.Fprintf(os.Stdout, "[COUT] XML_REPORT = ")
+func StdoutAll(filePth string, title string) {
+	fmt.Fprintf(os.Stdout, "[COUT] %s = ", title)
 	ReadLine(filePth, processLine)
 }

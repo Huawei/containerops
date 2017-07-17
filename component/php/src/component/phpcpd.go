@@ -27,9 +27,9 @@ import (
 
 const (
 	basePath string = "./workspace"
-	// baseCommand string = "phploc"
-	baseCommand string = "/home/composer/.composer/vendor/bin/phploc"
-	reportPath string = "/tmp/report.xml"
+	// baseCommand string = "phpcpd"
+	baseCommand string = "/home/composer/.composer/vendor/bin/phpcpd"
+	reportPath string = "/tmp/PMD-CPD.xml"
 	reportFormat string = "XML_REPORT"
 )
 
@@ -42,6 +42,9 @@ func main() {
 		"names",
 		"names-exclude",
 		"count-tests",
+		"regexps-exclude",
+		"min-lines",
+		"min-tokens",
 	}
 	codata := map[string]string{}
 
@@ -64,23 +67,22 @@ func main() {
 	}
 	command = fmt.Sprintf("%s %s", command, codata["path"])
 
-	if codata["exclude"] != "" {
-		command = fmt.Sprintf("%s --exclude=%s", command, codata["exclude"])
+	params := []string{
+		"names",
+		"names-exclude",
+		"regexps-exclude",
+		"exclude",
+		"min-lines",
+		"min-tokens",
 	}
 
-	if codata["names"] != "" {
-		command = fmt.Sprintf("%s --names=%v", command, codata["names"])
+	for _, param := range params {
+		if codata[param] != "" {
+			command = fmt.Sprintf("%s --%s=%s", command, param, codata[param])
+		}
 	}
 
-	if codata["names-exclude"] != "" {
-		command = fmt.Sprintf("%s --names-exclude=%v", command, codata["names-exclude"])
-	}
-	
-	if codata["count_tests"] != "true" {
-		command = fmt.Sprintf("%s --count-tests", command)
-	}
-
-	command = fmt.Sprintf("%s --log-xml=%s", command, reportPath)
+	command = fmt.Sprintf("%s --log-pmd=%s", command, reportPath)
 
 	if err := cmd.RunCommand(command, basePath); err != nil {
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")

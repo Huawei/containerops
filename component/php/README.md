@@ -19,6 +19,7 @@ docker build -t containerops/composer:latest -f Base/composer/Dockerfile .
 docker build -t containerops/component-composer:latest -f Dependence/component-composer/Dockerfile  .
 docker build -t containerops/phpmetrics:latest -f Analysis/phpmetrics/Dockerfile  .
 docker build -t containerops/phploc:latest -f Analysis/phploc/Dockerfile  .
+docker build -t containerops/phpcpd:latest -f Analysis/phpcpd/Dockerfile  .
 ```
 
 4.run component
@@ -27,4 +28,5 @@ docker build -t containerops/phploc:latest -f Analysis/phploc/Dockerfile  .
 docker run --env CO_DATA="git-url=https://github.com/TIGERB/easy-php.git action=install" containerops/component-composer:latest 
 docker run --env CO_DATA="git-url=http://192.168.123.201/yangkghjh/easy-php.git" containerops/phpmetrics:latest
 docker run --env CO_DATA="git-url=http://192.168.123.201/yangkghjh/easy-php.git exclude=public" containerops/phploc:latest
+docker run --env CO_DATA="git-url=http://192.168.123.201/yangkghjh/easy-php.git" containerops/phpcpd:latest
 ```
