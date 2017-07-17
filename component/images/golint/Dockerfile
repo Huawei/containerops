@@ -13,23 +13,12 @@
 # limitations under the License.
 
 # base image: ubuntu uname:3.13.0-24-generic #47-Ubuntu SMP Fri May 2 23:30:00 UTC 2014 x86_64 x86_64 x86_64 GNU/Linux
-FROM docker.io/phusion/baseimage:0.9.21
+FROM containerops/golang:1.8.1
 MAINTAINER thomas.tan <tanhaijun@huawei.com>
 
 RUN apt-get update && apt-get install -y git zip unzip
-RUN curl -sSL https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz -o /tmp/go.tar.gz && \
-  echo "1862f4c3d3907e59b04a757cfda0ea7aa9ef39274af99a784f5be843c80c6772  /tmp/go.tar.gz" | sha256sum -c - && \
-  tar -C /var/opt -xzf /tmp/go.tar.gz && \
-  rm /tmp/go.tar.gz && \
-  mkdir -p /var/opt/gopath && \
-  chmod -R 777 /var/opt/gopath
 
-
-
-ENV GOROOT /var/opt/go
-ENV GOPATH /var/opt/gopath
-
-# install gotools
+# install gotools dep by golint
 RUN curl -sSL https://github.com/golang/tools/archive/master.zip -o /tmp/gotool.zip && \
   unzip -o -d  /tmp /tmp/gotool.zip && \
   mkdir -p $GOPATH/src/golang.org/x/tools && \
@@ -52,13 +41,11 @@ WORKDIR $GOPATH/src/github.com/golang/lint/golint
 RUN go build ./
 
 
-# start golint component
+# Build golint component
 RUN mkdir -p $GOPATH/src/github.com/Huawei/containerops/
 ADD src/copsgolint.go $GOPATH/src/github.com/Huawei/containerops/
 
 WORKDIR $GOPATH/src/github.com/Huawei/containerops
 RUN go build -o copsgolint copsgolint.go
-
-# WORKDIR $GOPATH/src/github.com/golang/lint/golint
 
 CMD copsgolint
