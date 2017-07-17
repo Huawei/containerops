@@ -31,7 +31,7 @@ func init() {
 // main()
 func main() {
 	if err := cmd.RootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		fmt.Fprintf(os.Stderr, err.Error())
 		os.Exit(1)
 	}
 }

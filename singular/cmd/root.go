@@ -27,6 +27,7 @@ import (
 )
 
 var cfgFile string
+var verbose, timestamp bool
 
 // RootCmd is
 var RootCmd = &cobra.Command{
@@ -44,6 +45,8 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Configuration file path")
 
 	viper.BindPFlag("config", RootCmd.Flags().Lookup("config"))
+	viper.BindPFlag("verbose", RootCmd.Flags().Lookup("verbose"))
+	viper.BindPFlag("timestamp", RootCmd.Flags().Lookup("timestamp"))
 }
 
 // initConfig reads in config file and ENV variables if set.

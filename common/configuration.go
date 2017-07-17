@@ -125,26 +125,26 @@ domain = "hub.opshub.sh"
 */
 
 type DatabaseConfig struct {
-	Driver   string `json:"driver"`
-	Host     string `json:"host"`
-	Port     int    `json:"port"`
-	User     string `json:"user"`
-	Password string `json:"password"`
-	Name     string `json:"db"`
+	Driver   string `json:"driver" yaml:"driver"`
+	Host     string `json:"host" yaml:"host"`
+	Port     int    `json:"port" yaml:"port"`
+	User     string `json:"user" yaml:"user"`
+	Password string `json:"password" yaml:"password"`
+	Name     string `json:"db" yaml:"db"`
 }
 
 type WebConfig struct {
-	Domain  string `json:"domain" description:"Listen domain, the official domain is *.osphub.sh"`
-	Mode    string `json:"mode" description:"Listen mode, 'https' or 'unix'"`
-	Address string `json:"address" description:"The host address when mode is 'https', or socket file path when mode is 'unix'"`
-	Port    int    `json:"port"`
-	Key     string `json:"key"`
-	Cert    string `json:"cert"`
+	Domain  string `json:"domain" yaml:"domain"`
+	Mode    string `json:"mode" yaml:"mode"`
+	Address string `json:"address" yaml:"address"`
+	Port    int    `json:"port" yaml:"port"`
+	Key     string `json:"key" yaml:"key"`
+	Cert    string `json:"cert" yaml:"cert"`
 }
 
 type StorageConfig struct {
-	DockerV2 string `json:"dockerv2" description:"Docker V2 images path in the host."`
-	BinaryV1 string `json:"binaryv1" description:"Binary V1 files path in the host"`
+	DockerV2 string `json:"dockerv2" yaml:"dockerv2"`
+	BinaryV1 string `json:"binaryv1" yaml:"binaryv1"`
 }
 
 type WarshipConfig struct {
@@ -152,6 +152,8 @@ type WarshipConfig struct {
 }
 
 type SingularConfig struct {
+	Provider string `json:"provider" yaml:"provider"`
+	Token    string `json:"token" yaml:"token"`
 }
 
 var Database DatabaseConfig
