@@ -15,3 +15,29 @@ limitations under the License.
 */
 
 package module
+
+type Deployment struct {
+	URI     string   `json:"uri" yaml:"uri"`
+	Title   string   `json:"title" yaml:"title"`
+	Version int64    `json:"version" yaml:"version"`
+	Tag     string   `json:"tag" yaml:"tag"`
+	Service Service  `json:"service" yaml:"service"`
+	Infra   Infra    `json:"Infra" yaml:"yaml"`
+	Logs    []string `json:"logs,omitempty" yaml:"logs,omitempty"`
+}
+
+type Service struct {
+	Provider string `json:"provider" yaml:"provider"`
+	Token    string `json:"token" yaml:"token"`
+}
+
+type Infra struct {
+	Etcd       Etcd       `json:"etcd" yaml:"etcd"`
+	Kubernetes Kubernetes `json:"kubernetes" yaml:"kubernetes"`
+}
+
+type Etcd struct {
+}
+
+type Kubernetes struct {
+}

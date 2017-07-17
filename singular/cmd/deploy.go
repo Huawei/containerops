@@ -23,6 +23,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/Huawei/containerops/common/utils"
+	"github.com/Huawei/containerops/singular/module"
 )
 
 var deployCmd = &cobra.Command{
@@ -50,7 +51,20 @@ func init() {
 // Deploy the Cloud Native stack with a template file.
 func templateRun(cmd *cobra.Command, args []string) {
 	if len(args) <= 0 || utils.IsFileExist(args[0]) == false {
-		fmt.Println("The template file is required.")
+		fmt.Fprintf(os.Stderr, "The template file is required.\n")
+		os.Exit(1)
+	}
+
+	template := args[0]
+	d := new(module.Deployment)
+
+	if err := d.ParseFromFile(template, verbose, timestamp); err != nil {
+		fmt.Fprintf(os.Stderr, "Parse deploy template error: %s\n", err.Error())
+		os.Exit(1)
+	}
+
+	if err := d.Deploy(); err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		os.Exit(1)
 	}
 
