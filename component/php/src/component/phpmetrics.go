@@ -22,6 +22,7 @@ import (
 	"os/exec"
 	"util/git"
 	"util/input"
+	"util/file"
 )
 
 func main() {
@@ -29,7 +30,8 @@ func main() {
 	data := os.Getenv("CO_DATA")
 	keys := []string{
 		"git-url",
-		"action",
+		"path",
+		"exclude",
 	}
 	codata := map[string]string{}
 
@@ -47,23 +49,23 @@ func main() {
 		os.Exit(1)
 	}
 
-	switch codata["action"] {
-		case "install": 
-			cmd := exec.Command("composer", "install")
-			cmd.Dir = basePath
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-
-			if err := cmd.Run(); err != nil {
-				fmt.Fprintf(os.Stderr, "[COUT] Composer install error: %s\n", err.Error())
-				fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
-				os.Exit(1)
-			}
-		default:
-			fmt.Fprintf(os.Stderr, "[COUT] No such action: %s\n", codata["action"])
-			fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
-			os.Exit(1)
+	if codata["path"] == "" {
+		codata["path"] = "."
 	}
+	exclude := fmt.Sprintf("--exclude=%v", codata["exclude"])
+
+	cmd := exec.Command("phpmetrics", codata["path"], exclude,"--report-violations=/tmp/report.xml")
+	cmd.Dir = basePath
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "[COUT] Create report error: %s\n", err.Error())
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+		os.Exit(1)
+	}
+
+	file.StdoutAll("/tmp/report.xml")
 
 	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "true")
 	os.Exit(0)
