@@ -50,6 +50,7 @@ func init() {
 	RootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "When verbose is true, the engine will print all logs.")
 	RootCmd.PersistentFlags().BoolVar(&timestamp, "timestamp", false, "Show logs with timestamp. ")
 
+	// Add global flags
 	viper.BindPFlag("config", RootCmd.Flags().Lookup("config"))
 	viper.BindPFlag("verbose", RootCmd.Flags().Lookup("verbose"))
 	viper.BindPFlag("timestamp", RootCmd.Flags().Lookup("timestamp"))
