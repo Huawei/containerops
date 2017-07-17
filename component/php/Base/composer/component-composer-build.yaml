@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-uri: cncf/demo-for-cncf-ci/composer-build-test
-title: Building, demo php project with composer
+#<namespace>/<repository>/<flow>
+uri: containerops/component/php-composer-build-test
+title: Component for php project with composer
 version: 1
 tag: latest
 timeout: 0
@@ -24,12 +25,12 @@ stages:
     title: Start
   -
     type: normal
-    name: demo-composer-build
-    title: Building, demo php project with composer
+    name: component-composer-build
+    title: Component, Building php project with composer
     sequencing: sequence
     actions:
       -
-        name: build-action
+        name: build-composer
         title: Build php project with "composer"
         jobs:
           -

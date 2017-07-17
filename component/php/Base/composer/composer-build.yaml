@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
- name: cncf-demo-composer-build
+ name: containerops-component-php-composer
 spec:
  containers:
  - name: cncf-demo-composer-build
