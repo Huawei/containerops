@@ -27,9 +27,9 @@ import (
 
 const (
 	basePath string = "./workspace"
-	// baseCommand string = "phpmd"
-	baseCommand string = "/home/composer/.composer/vendor/bin/phpmd"
-	reportPath string = "/tmp/phpmd.xml"
+	// baseCommand string = "phpcs"
+	baseCommand string = "/home/composer/.composer/vendor/bin/phpcs"
+	reportPath string = "/tmp/phpcs.xml"
 	reportFormat string = "REPORT"
 )
 
@@ -37,14 +37,21 @@ func main() {
 	data := os.Getenv("CO_DATA")
 	keys := []string{
 		"git-url",
-		"path",
-		"formats",
-		"ruleset",
+		"report",
+		"basepath",
+		"bootstrap",
+		"severity",
+		"error-severity",
+		"warning-severity",
+		"standard",
+		"sniffs",
 		"exclude",
-		"minimumpriority",
-		"suffixes",
-		"strict",
-		"ignore-violations-on-exit",
+		"encoding",
+		"parallel",
+		"generator",
+		"extensions",
+		"ignore",
+		"file",
 	}
 
 	codata := map[string]string{}
@@ -63,21 +70,26 @@ func main() {
 
 	command := baseCommand
 
-	if codata["path"] == "" {
-		codata["path"] = "."
+	if codata["file"] == "" {
+		codata["file"] = "."
 	}
-	if codata["formats"] == "" {
-		codata["formats"] = "xml"
-	}
-	if codata["ruleset"] == "" {
-		codata["ruleset"] = "cleancode,codesize,controversial,design,naming,unusedcode"
-	}
-	command = fmt.Sprintf("%s %s %s %s", command, codata["path"], codata["formats"], codata["ruleset"])
+	command = fmt.Sprintf("%s %s ", command, codata["file"])
 
 	params := []string{
-		"minimumpriority",
-		"exclude",
-		"suffixes",
+		"report",
+		"basepath",
+		"bootstrap",
+		"severity",
+		"error-severity",
+		"warning-severity",
+		"standard",
+		"sniffs",
+		"encoding",
+		"parallel",
+		"generator",
+		"extensions",
+		"ignore",
+		"file-list",
 	}
 
 	for _, param := range params {
@@ -87,21 +99,20 @@ func main() {
 	}
 
 	params_bool := []string{
-		"minimumpriority",
-		"strict",
-		"ignore-violations-on-exit",
+		"ignore-annotations",
 	}
 
 	for _, param := range params_bool {
 		if codata[param] == "true" {
-			command = fmt.Sprintf("%s --%s", command, param)
+			command = fmt.Sprintf("%s --%s ", command, param)
 		}
 	}
 
-	command = fmt.Sprintf("%s --reportfile %s", command, reportPath)
+	command = fmt.Sprintf("%s --report-file=%s", command, reportPath)
 
 	if err := cmd.RunCommand(command, basePath); err != nil {
-		
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+		os.Exit(1)
 	}
 
 	file.StdoutAll(reportPath, reportFormat)
