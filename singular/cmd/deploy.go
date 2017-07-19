@@ -21,10 +21,13 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/Huawei/containerops/common/utils"
 	"github.com/Huawei/containerops/singular/module"
 )
+
+var privateKey, publicKey string
 
 var deployCmd = &cobra.Command{
 	Use:   "deploy",
@@ -46,10 +49,17 @@ func init() {
 
 	// Add sub command.
 	deployCmd.AddCommand(templateCmd)
+
+	templateCmd.Flags().StringVarP(&privateKey, "private-key", "i", "", "ssh identity file")
+	templateCmd.Flags().StringVarP(&publicKey, "public-key", "p", "", "ssh public identity file")
+
+	viper.BindPFlag("private-key", templateCmd.Flags().Lookup("private-key"))
+	viper.BindPFlag("public-key", templateCmd.Flags().Lookup("public-key"))
 }
 
 // Deploy the Cloud Native stack with a template file.
 func templateRun(cmd *cobra.Command, args []string) {
+
 	if len(args) <= 0 || utils.IsFileExist(args[0]) == false {
 		fmt.Fprintf(os.Stderr, "The template file is required.\n")
 		os.Exit(1)

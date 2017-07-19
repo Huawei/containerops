@@ -16,6 +16,7 @@ limitations under the License.
 
 package module
 
+// Deployment is
 type Deployment struct {
 	URI     string   `json:"uri" yaml:"uri"`
 	Title   string   `json:"title" yaml:"title"`
@@ -26,18 +27,22 @@ type Deployment struct {
 	Logs    []string `json:"logs,omitempty" yaml:"logs,omitempty"`
 }
 
+// Service is
 type Service struct {
 	Provider string `json:"provider" yaml:"provider"`
 	Token    string `json:"token" yaml:"token"`
 }
 
+// Infra is
 type Infra struct {
 	Etcd       Etcd       `json:"etcd" yaml:"etcd"`
 	Kubernetes Kubernetes `json:"kubernetes" yaml:"kubernetes"`
 }
 
+// Etcd is
 type Etcd struct {
 }
 
+// Kubernetes is
 type Kubernetes struct {
 }

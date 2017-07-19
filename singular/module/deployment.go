@@ -92,7 +92,7 @@ func (d *Deployment) Deploy() error {
 // CheckServiceAuth
 func (d *Deployment) CheckServiceAuth() error {
 	if d.Service.Provider == "" || d.Service.Token == "" {
-		if common.Singular.Provider == "" || common.Singular.Provider == "" {
+		if common.Singular.Provider == "" || common.Singular.Token == "" {
 			return fmt.Errorf("Should provide infra service and auth token in %s", "deploy template, or configuration file")
 		} else {
 			d.Service.Provider, d.Service.Token = common.Singular.Provider, common.Singular.Token
