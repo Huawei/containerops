@@ -18,11 +18,12 @@ package service
 
 import (
 	"fmt"
+	"io/ioutil"
 
 	"github.com/digitalocean/godo"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
-	"io/ioutil"
+	"time"
 )
 
 type DigitalOcean struct {
@@ -32,7 +33,8 @@ type DigitalOcean struct {
 	Image  string `json:"image" yaml:"image"`
 
 	// Runtime Properties
-	client *godo.Client
+	client   *godo.Client
+	Droplets map[string]int
 }
 
 type TokenSource struct {
@@ -77,44 +79,67 @@ func (do *DigitalOcean) UpdateSSHKey(publicFile string) error {
 }
 
 func (do *DigitalOcean) CreateDroplet(nodes int, fingerprint string) error {
-	droplets := []string{}
+	names := []string{}
 
 	for i := 0; i < nodes; i++ {
 		droplet := fmt.Sprintf("singular-node-%d", i+1)
-		droplets = append(droplets, droplet)
+		names = append(names, droplet)
 	}
 
 	sshFingerprint := godo.DropletCreateSSHKey{
 		Fingerprint: fingerprint,
 	}
 
-	for _, value := range droplets {
-		createRequest := &godo.DropletCreateRequest{
-			Name:   value,
-			Region: do.Region,
-			Size:   do.Size,
-			Image: godo.DropletCreateImage{
-				Slug: do.Image,
-			},
-			SSHKeys:           []godo.DropletCreateSSHKey{sshFingerprint},
-			Backups:           false,
-			IPv6:              false,
-			PrivateNetworking: false,
-			Monitoring:        true,
-			Tags:              []string{value, "singular", "containerops"},
-			UserData:          "",
+	createRequest := &godo.DropletMultiCreateRequest{
+		Names:  names,
+		Region: do.Region,
+		Size:   do.Size,
+		Image: godo.DropletCreateImage{
+			Slug: do.Image,
+		},
+		SSHKeys:           []godo.DropletCreateSSHKey{sshFingerprint},
+		Backups:           false,
+		IPv6:              false,
+		PrivateNetworking: false,
+		Monitoring:        true,
+		Tags:              []string{"singular", "containerops"},
+		UserData:          "",
+	}
+
+	ctx := context.TODO()
+
+	droplets, _, err := do.client.Droplets.CreateMultiple(ctx, createRequest)
+
+	if err != nil {
+		fmt.Printf("Something bad happened: %s\n\n", err)
+		return err
+	}
+
+	time.Sleep(10 * time.Second)
+
+	do.Droplets = map[string]int{}
+
+	for {
+		for _, value := range droplets {
+			ctx := context.TODO()
+			droplet, _, err := do.client.Droplets.Get(ctx, value.ID)
+
+			if err != nil {
+				fmt.Printf("Something bad happened: %s\n\n", err)
+				return err
+			}
+
+			if len(droplet.Networks.V4) > 0 {
+				v4 := droplet.Networks.V4[0]
+				do.Droplets[v4.IPAddress] = droplet.ID
+			}
 		}
 
-		ctx := context.TODO()
-
-		droplet, _, err := do.client.Droplets.Create(ctx, createRequest)
-
-		if err != nil {
-			fmt.Printf("Something bad happened: %s\n\n", err)
-			return err
+		if len(do.Droplets) == nodes {
+			break
 		}
 
-		fmt.Println(droplet)
+		time.Sleep(5 * time.Second)
 	}
 
 	return nil
