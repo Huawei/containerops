@@ -61,7 +61,7 @@ func init() {
 func templateRun(cmd *cobra.Command, args []string) {
 
 	if len(args) <= 0 || utils.IsFileExist(args[0]) == false {
-		fmt.Fprintf(os.Stderr, "The template file is required.\n")
+		fmt.Fprintf(os.Stderr, "The deploy template file is required, %s\n", "see https://github.com/Huawei/containerops/singular for more detail.")
 		os.Exit(1)
 	}
 
@@ -69,6 +69,15 @@ func templateRun(cmd *cobra.Command, args []string) {
 	d := new(module.Deployment)
 
 	if err := d.ParseFromFile(template, verbose, timestamp); err != nil {
+		fmt.Fprintf(os.Stderr, "Parse deploy template error: %s\n", err.Error())
+		os.Exit(1)
+	}
+
+	if privateKey != "" && publicKey != "" {
+		d.Tools.SSH.Private, d.Tools.SSH.Public = privateKey, publicKey
+	}
+
+	if err := d.Check(); err != nil {
 		fmt.Fprintf(os.Stderr, "Parse deploy template error: %s\n", err.Error())
 		os.Exit(1)
 	}

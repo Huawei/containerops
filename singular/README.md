@@ -20,12 +20,12 @@ service:
   provider: digitalocean
   token: b516a521b14d86e59c5bb8893
   region: sfo2
-  size: 4G
+  size: 4gb
   image: ubuntu-17-04-x64
 tools:
   ssh:
-    id-rsa: $HOME/.containerops/ssh/id-rsa
-    id-rsa.pub: $HOME/.containerops/ssh/id-rsa.pub
+    private: $HOME/.containerops/ssh/id-rsa
+    public: $HOME/.containerops/ssh/id-rsa.pub
 infra:
   etcd:
     version: 3.2.2

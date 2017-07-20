@@ -18,19 +18,39 @@ package module
 
 // Deployment is
 type Deployment struct {
-	URI     string   `json:"uri" yaml:"uri"`
-	Title   string   `json:"title" yaml:"title"`
-	Version int64    `json:"version" yaml:"version"`
-	Tag     string   `json:"tag" yaml:"tag"`
-	Service Service  `json:"service" yaml:"service"`
-	Infra   Infra    `json:"Infra" yaml:"yaml"`
-	Logs    []string `json:"logs,omitempty" yaml:"logs,omitempty"`
+	// Decode from template file or interaction
+	URI     string  `json:"uri" yaml:"uri"`
+	Title   string  `json:"title" yaml:"title"`
+	Version int64   `json:"version" yaml:"version"`
+	Tag     string  `json:"tag" yaml:"tag"`
+	Nodes   int     `json:"nodes" yaml:"nodes"`
+	Service Service `json:"service" yaml:"service"`
+	Tools   Tools   `json:"tools" yaml:"tools"`
+	Infra   Infra   `json:"Infra" yaml:"yaml"`
+	// Runtime Properties
+	Logs      []string `json:"logs,omitempty" yaml:"logs,omitempty"`
+	Config    string   `json:"-" yaml:"-"` //SSL, SSH, Systemd template files folder. default: $HOME/.containerops/singular
+	Verbose   bool     `json:"-" yaml:"-"`
+	Timestamp bool     `json:"-" yaml:"-"`
 }
 
 // Service is
 type Service struct {
 	Provider string `json:"provider" yaml:"provider"`
 	Token    string `json:"token" yaml:"token"`
+	Region   string `json:"region" yaml:"region"`
+	Size     string `json:"size" yaml:"size"`
+	Image    string `json:"image" yaml:"image"`
+}
+
+type Tools struct {
+	SSH SSH `json:"ssh" yaml:"ssh"`
+}
+
+type SSH struct {
+	Private     string `json:"private" yaml:"private"`
+	Public      string `json:"public" yaml:"public"`
+	Fingerprint string `json:"fingerprint" yaml:"fingerprint"`
 }
 
 // Infra is
