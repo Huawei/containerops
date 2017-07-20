@@ -43,6 +43,8 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Configuration file path")
+	RootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "When verbose is true, the engine will print all logs.")
+	RootCmd.PersistentFlags().BoolVar(&timestamp, "timestamp", false, "Show logs with timestamp. ")
 
 	viper.BindPFlag("config", RootCmd.Flags().Lookup("config"))
 	viper.BindPFlag("verbose", RootCmd.Flags().Lookup("verbose"))
