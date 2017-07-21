@@ -19,22 +19,22 @@ package service
 import (
 	"fmt"
 	"io/ioutil"
+	"time"
 
 	"github.com/digitalocean/godo"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
-	"time"
 )
 
 type DigitalOcean struct {
-	Token  string `json:"token" yaml:"token"`
-	Region string `json:"region" yaml:"region"`
-	Size   string `json:"size" yaml:"size"`
-	Image  string `json:"image" yaml:"image"`
+	Token    string         `json:"token" yaml:"token"`
+	Region   string         `json:"region" yaml:"region"`
+	Size     string         `json:"size" yaml:"size"`
+	Image    string         `json:"image" yaml:"image"`
+	Droplets map[string]int `json:"droplets,omitempty" yaml:"droplets,omitempty"`
 
 	// Runtime Properties
-	client   *godo.Client
-	Droplets map[string]int
+	client *godo.Client
 }
 
 type TokenSource struct {
