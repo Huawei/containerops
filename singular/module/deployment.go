@@ -69,6 +69,14 @@ func (d *Deployment) Log(log string) {
 	}
 }
 
+func (d *Deployment) Output(key, value string) {
+	if d.Outputs == nil {
+		d.Outputs = map[string]interface{}{}
+	}
+
+	d.Outputs[key] = value
+}
+
 // ParseFromFile
 func (d *Deployment) ParseFromFile(t string, verbose, timestamp bool) error {
 	if data, err := ioutil.ReadFile(t); err != nil {
@@ -136,7 +144,7 @@ func (d *Deployment) CheckSSHKey() error {
 	return nil
 }
 
-// Deploy Sequence: Preparing SSH Key files -> Preparing VM -> Preparing SSL Key files -> Deploy Etcd
+// Deploy Sequence: Preparing SSH Key files -> Preparing VM -> Preparing SSL root Key files -> Deploy Etcd
 //   -> Deploy flannel -> Deploy k8s Master -> Deploy k8s node -> TODO Deploy other...
 func (d *Deployment) Deploy() error {
 	// Preparing SSH Keys
@@ -144,6 +152,9 @@ func (d *Deployment) Deploy() error {
 		if public, private, fingerprint, err := CreateSSHKeyFiles(d.Config); err != nil {
 			return err
 		} else {
+			d.Log(fmt.Sprintf(
+				"Generate SSH key files successfully, fingerprint is %s\nPublic key file @ %s\nPrivate key file @ %s",
+				fingerprint, public, private))
 			d.Tools.SSH.Public, d.Tools.SSH.Private, d.Tools.SSH.Fingerprint = public, private, fingerprint
 		}
 	}
@@ -154,19 +165,80 @@ func (d *Deployment) Deploy() error {
 		do.Token = d.Service.Token
 		do.Region, do.Size, do.Image = d.Service.Region, d.Service.Size, d.Service.Image
 
+		// Init DigitalOcean API client.
 		do.InitClient()
 
+		// Upload ssh public key
 		if err := do.UpdateSSHKey(d.Tools.SSH.Public); err != nil {
 			return err
 		}
 
+		// Create DigitalOcean Droplets
 		if err := do.CreateDroplet(d.Nodes, d.Tools.SSH.Fingerprint); err != nil {
 			return err
 		}
+
+		i := 0
+		for key, _ := range do.Droplets {
+			d.Log(fmt.Sprintf("Node %d created successfully, IP: %s", i, key))
+			d.Output(fmt.Sprintf("NODE_%d", i), key)
+			i += 1
+		}
+
+		// Generate CA Root files
+		if roots, err := GenerateCARootFiles(d.Config); err != nil {
+			return err
+		} else {
+			d.Log("CA Root files generated successfully")
+			for key, value := range roots {
+				d.Output(key, value)
+			}
+		}
+
+		for _, value := range d.Infras {
+			switch value.Name {
+			case "etcd":
+				if err := d.DeployEtcd(); err != nil {
+					return err
+				}
+			case "flannel":
+				if err := d.DeployFlannel(); err != nil {
+					return err
+				}
+			case "docker":
+				if err := d.DeployDocker(); err != nil {
+					return err
+				}
+			case "kubernetes":
+				if err := d.DeployKubernetes(); err != nil {
+					return err
+				}
+			default:
+				return fmt.Errorf("Unsupport infrastruction software: %s", value)
+			}
+
+		}
+
 	default:
 		return fmt.Errorf("Unsupport service provide: %s", d.Service.Provider)
 
 	}
 
+	return nil
+}
+
+func (d *Deployment) DeployEtcd() error {
+	return nil
+}
+
+func (d *Deployment) DeployFlannel() error {
+	return nil
+}
+
+func (d *Deployment) DeployDocker() error {
+	return nil
+}
+
+func (d *Deployment) DeployKubernetes() error {
 	return nil
 }

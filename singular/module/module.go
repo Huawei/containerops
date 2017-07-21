@@ -26,12 +26,13 @@ type Deployment struct {
 	Nodes   int     `json:"nodes" yaml:"nodes"`
 	Service Service `json:"service" yaml:"service"`
 	Tools   Tools   `json:"tools" yaml:"tools"`
-	Infra   Infra   `json:"Infra" yaml:"yaml"`
+	Infras  []Infra `json:"infras" yaml:"infras"`
 	// Runtime Properties
-	Logs      []string `json:"logs,omitempty" yaml:"logs,omitempty"`
-	Config    string   `json:"-" yaml:"-"` //SSL, SSH, Systemd template files folder. default: $HOME/.containerops/singular
-	Verbose   bool     `json:"-" yaml:"-"`
-	Timestamp bool     `json:"-" yaml:"-"`
+	Logs      []string               `json:"logs,omitempty" yaml:"logs,omitempty"`
+	Config    string                 `json:"-" yaml:"-"` //SSL, SSH, Systemd template files folder. default: $HOME/.containerops/singular
+	Verbose   bool                   `json:"-" yaml:"-"`
+	Timestamp bool                   `json:"-" yaml:"-"`
+	Outputs   map[string]interface{} `json:"-" yaml:"-"`
 }
 
 // Service is
@@ -43,26 +44,39 @@ type Service struct {
 	Image    string `json:"image" yaml:"image"`
 }
 
+// Tools is
 type Tools struct {
 	SSH SSH `json:"ssh" yaml:"ssh"`
 }
 
+// SSH is
 type SSH struct {
 	Private     string `json:"private" yaml:"private"`
 	Public      string `json:"public" yaml:"public"`
 	Fingerprint string `json:"fingerprint" yaml:"fingerprint"`
 }
 
-// Infra is
+// Service is
 type Infra struct {
-	Etcd       Etcd       `json:"etcd" yaml:"etcd"`
-	Kubernetes Kubernetes `json:"kubernetes" yaml:"kubernetes"`
+	Name       string      `json:"name" yaml:"name"`
+	Version    string      `json:"version" yaml:"version" `
+	Nodes      Nodes       `json:"nodes" yaml:"nodes"`
+	Components []Component `json:"components" yaml:"components"`
 }
 
-// Etcd is
-type Etcd struct {
+// Nodes is
+type Nodes struct {
+	Master int `json:"master" yaml:"master"`
+	Node   int `json:"node" yaml:"node"`
 }
 
-// Kubernetes is
-type Kubernetes struct {
+// Component is
+type Component struct {
+	Binary  string `json:"binary" yaml:"binary"`
+	URL     string `json:"url" yaml:"url"`
+	Package bool   `json:"package" yaml:"package"`
+	Systemd string `json:"systemd" yaml:"systemd"`
+	CA      string `json:"ca" yaml:"ca"`
+	Before  string `json:"before" yaml:"before"`
+	After   string `json:"after" yaml:"after"`
 }

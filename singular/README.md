@@ -26,94 +26,129 @@ tools:
   ssh:
     private: $HOME/.containerops/ssh/id-rsa
     public: $HOME/.containerops/ssh/id-rsa.pub
-infra:
-  etcd:
+infras:
+  -
+    name: etcd
     version: 3.2.2
+    nodes:
+      master: 3
+      node: 0
     components:
-      etcd:
+      -   
+        binary: etcd
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/etcd/3.2.2
         package: false
         systemd: etcd-3.2.2
         ca: etcd-3.2.2
-      etcdctl:
+      - 
+        binary: etcdctl
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/etcdctl/3.2.2
-        package: false
-    nodes: 3
-  flannel:
+        package: false    
+  -
+    name: flannel
     version: 0.7.1
+    nodes:
+      master: 3
+      node: 0
+    dependencies:
+      - etcd
     components:
-      flanneld:
+      -
+        binary: flanneld
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/flanneld/0.7.1
         package: false
         systemd: flannel-0.7.1
         ca: flannel-0.7.1
-        before: "etcdctl --endpoints={{.EtcdEndpoints}} --ca-file={{.CaPemFile}} --cert-file={{.FlanneldPemFile}} --key-file={{.FlanneldKeyFile}}"
-      scripts:
+        before: "etcdctl --endpoints={{.EtcdEndpoints}} --ca-file={{.CAPemFile}} --cert-file={{.FlanneldPemFile}} --key-file={{.FlanneldKeyFile}}"
+      - 
+        binary: mk-docker-opts.sh
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/mk-docker-opts.sh/0.7.1
         package: false
-    nodes: 0
-  kubernetes:
-    version: 1.6.7
-    components:
-      kube-apiserver:
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-apiserver/1.6.7
-        package: false
-        systemd: kube-apiserver-1.6.7
-        ca: kubernetes-1.6.7
-      kube-controller-manager:
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-controller-manager/1.6.7
-        package: false
-        systemd: kube-controller-manager-1.6.7
-        ca: kubernetes-1.6.7
-      kube-scheduler:
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-scheduler/1.6.7
-        package: false
-        systemd: kube-scheduler-1.6.7
-      kubectl:
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kubectl/1.6.7
-        package: false
-      kubelet:
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kubelet/1.6.7
-        package: false
-        systemd: kubelet-1.6.7
-      kube-proxy:
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-proxy/1.6.7
-        package: false
-        systemd: kube-proxy-1.6.7
-        ca: kube-proxy-1.6.7
-    nodes:
-      master: 1
-      node: 3
-    package: false
-  docker:
+  -
+    name: docker
     version: 1.7.04.0-ce
+    nodes:
+      master: 3
+      node: 0
+    dependencies:
+      - flannel      
     components:
-      docker:
+      -
+        binary: docker
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker/17.04.0-ce
         package: false
         systemd: docker-1.7.04.0-ce
         before: "apt update && apt dist-upgrade && apt install -y bridge-utils aufs-tools cgroupfs-mount libltdl7 && systemctl stop ufw && systemctl disable ufw && iptables -F && iptables -X && iptables -F -t nat && iptables -X -t nat"
         after: "iptables -P FORWARD ACCEPT"
-      dockerd:
+      - 
+        binary: dockerd
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/dockerd/17.04.0-ce
         package: false
-      docker-init:
+      -
+        binary: docker-init
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-init/17.04.0-ce
         package: false
-      docker-proxy:
+      -
+        binary: docker-proxy
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-proxy/17.04.0-ce
         package: false
-      docker-runc:
+      -
+        binary: docker-runc
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-runc/17.04.0-ce
         package: false
-      docker-containerd:
+      -
+        binary: docker-containerd
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-containerd/17.04.0-ce
         package: false
-      docker-containerd-ctr:
+      -
+        binary: docker-containerd-ctr
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-containerd-ctr/17.04.0-ce
         package: false
-      docker-containerd-shim:
+      -
+        binary: docker-containerd-shim
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-containerd-shim/17.04.0-ce
         package: false
-    nodes: 0
+  -   
+    name: kubernetes
+    version: 1.6.7
+    nodes:
+      master: 1
+      node: 3
+    dependencies:
+      - etcd
+      - flannel
+      - docker
+    components:
+      -
+        binary: kube-apiserver
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-apiserver/1.6.7
+        package: false
+        systemd: kube-apiserver-1.6.7
+        ca: kubernetes-1.6.7
+      - 
+        binary: kube-controller-manager
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-controller-manager/1.6.7
+        package: false
+        systemd: kube-controller-manager-1.6.7
+        ca: kubernetes-1.6.7
+      - 
+        binary: kube-scheduler
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-scheduler/1.6.7
+        package: false
+        systemd: kube-scheduler-1.6.7
+      -
+        binary: kubectl
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kubectl/1.6.7
+        package: false
+      -
+        bianry: kubelet
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kubelet/1.6.7
+        package: false
+        systemd: kubelet-1.6.7
+      -
+        binary: kube-proxy
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-proxy/1.6.7
+        package: false
+        systemd: kube-proxy-1.6.7
+        ca: kube-proxy-1.6.7    
 ```
