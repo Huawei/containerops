@@ -21,13 +21,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
-	"net"
 	"os"
 	"path"
 	"strings"
 	"text/template"
-	"time"
 
 	"github.com/cloudflare/cfssl/cli"
 	"github.com/cloudflare/cfssl/cli/genkey"
@@ -35,7 +32,6 @@ import (
 	"github.com/cloudflare/cfssl/csr"
 	"github.com/cloudflare/cfssl/initca"
 	"github.com/cloudflare/cfssl/signer"
-	"golang.org/x/crypto/ssh"
 
 	"github.com/Huawei/containerops/common/utils"
 	t "github.com/Huawei/containerops/singular/module/template"
@@ -189,7 +185,7 @@ func GenerateEtcdFiles(src string, nodes map[string]string, etcdEndpoints string
 		err = ioutil.WriteFile(path.Join(base, ip, "etcd-key.pem"), key, 0600)
 		err = ioutil.WriteFile(path.Join(base, ip, "etcd.csr"), csrBytes, 0600)
 		err = ioutil.WriteFile(path.Join(base, ip, "etcd.pem"), cert, 0600)
-		err = ioutil.WriteFile(path.Join(base, ip, "etcd.service"), serviceTpFileBytes, 0600)
+		err = ioutil.WriteFile(path.Join(base, ip, "etcd.service"), serviceTpFileBytes, 0700)
 
 		if err != nil {
 			return err
@@ -200,88 +196,68 @@ func GenerateEtcdFiles(src string, nodes map[string]string, etcdEndpoints string
 	return nil
 }
 
+func UploadCARootFiles(src string, files map[string]string, ip string) error {
+	key := path.Join(src, "ssh", "id_rsa")
+
+	initCmd := []string{
+		"mkdir -p /etc/kubernetes/ssl",
+		"mkdir -p /etc/etcd/ssl",
+		"mkdir -p /var/lib/etcd",
+		"systemctl stop ufw",
+		"systemctl disable ufw",
+		//"apt-get update",
+		//"apt-get dist-upgrade",
+		"apt-get install -y bridge-utils htop denyhosts python-pip aufs-tools cgroupfs-mount libltdl7",
+		"pip install --upgrade pip",
+		"pip install glances",
+	}
+
+	if err := utils.SSHCommand("root", key, ip, 22, strings.Join(initCmd, " && "), os.Stdout, os.Stderr); err != nil {
+		return err
+	}
+
+	for _, f := range files {
+		if err := utils.SSHScp("root", key, ip, 22, f, path.Join("/etc/kubernetes/ssl", path.Base(f)), os.Stdout, os.Stderr); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func UploadEtcdCAFiles(src string, nodes map[string]string) error {
 	base := path.Join(src, "ssl", "etcd")
+	key := path.Join(src, "ssh", "id_rsa")
+
 	if utils.IsDirExist(base) == false {
 		return fmt.Errorf("Locate etcd folders %s error.", base)
 	}
 
 	for _, ip := range nodes {
 
-		time.Sleep(10 * time.Second)
+		var err error
 
-		initCmd := []string{
-			"mkdir -p /etc/kubernetes/ssl",
-			"mkdir -p /etc/etcd/ssl",
-			"mkdir -p /var/lib/etcd",
-			"systemctl stop ufw",
-			"systemctl disable ufw",
-			"apt-get update",
-			"apt-get dist-upgrade",
-			"apt-get install -y bridge-utils htop denyhosts python-pip aufs-tools cgroupfs-mount libltdl7",
-			"pip install --upgrade pip",
-			"pip install glances",
-		}
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "etcd-csr.json"), "/etc/etcd/ssl/etcd-csr.json", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "etcd-key.pem"), "/etc/etcd/ssl/etcd-key.pem", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "etcd.csr"), "/etc/etcd/ssl/etcd.csr", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "etcd.pem"), "/etc/etcd/ssl/etcd.pem", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "etcd.service"), "/etc/systemd/system/etcd.service", os.Stdout, os.Stderr)
 
-		session, err := connect("root", "", ip, 22)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			return err
 		}
-		defer session.Close()
-
-		session.Stdout = os.Stdout
-		session.Stderr = os.Stderr
-		session.Run(strings.Join(initCmd, " && "))
-
 	}
 
 	return nil
 }
 
-func PublicKeyFile(file string) ssh.AuthMethod {
-	buffer, err := ioutil.ReadFile(file)
-	if err != nil {
-		return nil
+func StartEtcdCluster(key string, nodes map[string]string) error {
+	cmd := "systemctl daemon-reload && systemctl enable etcd && systemctl start --no-block etcd"
+
+	for _, ip := range nodes {
+		utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr)
 	}
 
-	key, err := ssh.ParsePrivateKey(buffer)
-	if err != nil {
-		return nil
-	}
-	return ssh.PublicKeys(key)
-}
-
-func connect(user, password, host string, port int) (*ssh.Session, error) {
-	var (
-		addr         string
-		clientConfig *ssh.ClientConfig
-		client       *ssh.Client
-		session      *ssh.Session
-		err          error
-	)
-
-	clientConfig = &ssh.ClientConfig{
-		User: user,
-		Auth: []ssh.AuthMethod{
-			PublicKeyFile("/home/meaglith/.containerops/singular/ssh/id_rsa"),
-		},
-		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
-			return nil
-		},
-		Timeout: 0,
-	}
-
-	// connet to ssh
-	addr = fmt.Sprintf("%s:%d", host, port)
-
-	if client, err = ssh.Dial("tcp", addr, clientConfig); err != nil {
-		return nil, err
-	}
-
-	// create session
-	if session, err = client.NewSession(); err != nil {
-		return nil, err
-	}
-
-	return session, nil
+	return nil
 }
