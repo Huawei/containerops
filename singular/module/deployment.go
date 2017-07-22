@@ -185,14 +185,25 @@ func (d *Deployment) Deploy() error {
 			i += 1
 		}
 
+		fmt.Println(Cyan("Waiting 60 seconds for preparing droplets..."))
+		time.Sleep(60 * time.Second)
+
 		// Generate CA Root files
 		if roots, err := GenerateCARootFiles(d.Config); err != nil {
 			return err
 		} else {
 			d.Log("CA Root files generated successfully")
+
 			for key, value := range roots {
 				d.Output(key, value)
 			}
+
+			for ip, _ := range do.Droplets {
+				if err := UploadCARootFiles(d.Config, roots, ip); err != nil {
+					return err
+				}
+			}
+
 		}
 
 		for _, infra := range d.Infras {
@@ -256,6 +267,35 @@ func (d *Deployment) DeployEtcd(infra Infra) error {
 		if err := UploadEtcdCAFiles(d.Config, etcdNodes); err != nil {
 			return err
 		}
+
+		for _, c := range infra.Components {
+			if err := d.DownloadBinaryFile(c.Binary, c.URL, etcdNodes); err != nil {
+				return err
+			}
+		}
+
+		if err := StartEtcdCluster(d.Tools.SSH.Private, etcdNodes); err != nil {
+			return err
+		}
+
+	}
+
+	return nil
+}
+
+func (d *Deployment) DownloadBinaryFile(file, url string, nodes map[string]string) error {
+	for _, ip := range nodes {
+		downloadCmd := fmt.Sprintf("curl %s -o /usr/local/bin/%s", url, file)
+		chmodCmd := fmt.Sprintf("chmod +x /usr/local/bin/%s", file)
+
+		if err := utils.SSHCommand("root", d.Tools.SSH.Private, ip, 22, downloadCmd, os.Stdout, os.Stderr); err != nil {
+			return err
+		}
+
+		if err := utils.SSHCommand("root", d.Tools.SSH.Private, ip, 22, chmodCmd, os.Stdout, os.Stderr); err != nil {
+			return err
+		}
+
 	}
 
 	return nil
