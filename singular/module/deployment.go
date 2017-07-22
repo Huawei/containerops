@@ -195,26 +195,26 @@ func (d *Deployment) Deploy() error {
 			}
 		}
 
-		for _, value := range d.Infras {
-			switch value.Name {
+		for _, infra := range d.Infras {
+			switch infra.Name {
 			case "etcd":
-				if err := d.DeployEtcd(); err != nil {
+				if err := d.DeployEtcd(infra); err != nil {
 					return err
 				}
 			case "flannel":
-				if err := d.DeployFlannel(); err != nil {
+				if err := d.DeployFlannel(infra); err != nil {
 					return err
 				}
 			case "docker":
-				if err := d.DeployDocker(); err != nil {
+				if err := d.DeployDocker(infra); err != nil {
 					return err
 				}
 			case "kubernetes":
-				if err := d.DeployKubernetes(); err != nil {
+				if err := d.DeployKubernetes(infra); err != nil {
 					return err
 				}
 			default:
-				return fmt.Errorf("Unsupport infrastruction software: %s", value)
+				return fmt.Errorf("Unsupport infrastruction software: %s", infra)
 			}
 
 		}
@@ -227,18 +227,48 @@ func (d *Deployment) Deploy() error {
 	return nil
 }
 
-func (d *Deployment) DeployEtcd() error {
+// DeployEtcd is function deployment etcd cluster.
+// Notes:
+//   1. Only count master nodes in etcd deploy process.
+//   2.
+func (d *Deployment) DeployEtcd(infra Infra) error {
+	if infra.Nodes.Master > d.Nodes {
+		return fmt.Errorf("Deploy %s nodes more than %d", infra.Name, d.Nodes)
+	}
+
+	etcdNodes := map[string]string{}
+	etcdEndpoints, etcdAdminEndpoints := []string{}, []string{}
+
+	for i := 0; i < infra.Nodes.Master; i++ {
+		etcdNodes[fmt.Sprintf("etcd-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
+		etcdEndpoints = append(etcdEndpoints,
+			fmt.Sprintf("https://%s:2379", d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)))
+		etcdAdminEndpoints = append(etcdAdminEndpoints,
+			fmt.Sprintf("%s=https://%s:2380", fmt.Sprintf("etcd-node-%d", i),
+				d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)))
+	}
+
+	d.Output("EtcdEndpoints", strings.Join(etcdEndpoints, ","))
+
+	if err := GenerateEtcdFiles(d.Config, etcdNodes, strings.Join(etcdAdminEndpoints, ","), "etcd-3.2.2"); err != nil {
+		return err
+	} else {
+		if err := UploadEtcdCAFiles(d.Config, etcdNodes); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
-func (d *Deployment) DeployFlannel() error {
+func (d *Deployment) DeployFlannel(infra Infra) error {
 	return nil
 }
 
-func (d *Deployment) DeployDocker() error {
+func (d *Deployment) DeployDocker(infra Infra) error {
 	return nil
 }
 
-func (d *Deployment) DeployKubernetes() error {
+func (d *Deployment) DeployKubernetes(infra Infra) error {
 	return nil
 }
