@@ -71,6 +71,10 @@ func SetConfig(cfgFile string) error {
 		return err
 	}
 
+	if err := setAssemblingConfig(viper.GetStringMap("assembling")); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -156,11 +160,23 @@ type SingularConfig struct {
 	Token    string `json:"token" yaml:"token"`
 }
 
+type AssemblingConfig struct {
+	Domain           string `json:"domain" description:"Listen domain, the official domain is *.osphub.sh"`
+	Mode             string `json:"mode" description:"Listen mode, 'https' or 'unix'"`
+	Address          string `json:"address" description:"The host address when mode is 'https', or socket file path when mode is 'unix'"`
+	Port             int    `json:"port"`
+	Key              string `json:"key"`
+	Cert             string `json:"cert"`
+	DockerDamonImage string `json:"docker_daemon_image" description:"Image with a docker daemon, providing Docker Engine APIs"`
+	KubeConfig       string `json:"kubeconfig" description:"The address of k8s api server"`
+}
+
 var Database DatabaseConfig
 var Web WebConfig
 var Storage StorageConfig
 var Warship WarshipConfig
 var Singular SingularConfig
+var Assembling AssemblingConfig
 
 func setDatabaseConfig(config map[string]interface{}) error {
 	bs, err := json.Marshal(&config)
@@ -205,4 +221,18 @@ func setSingularConfig(config map[string]interface{}) error {
 	}
 
 	return json.Unmarshal(bs, &Singular)
+}
+
+func setAssemblingConfig(config map[string]interface{}) error {
+	bs, err := json.Marshal(&config)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(bs, &Assembling)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
