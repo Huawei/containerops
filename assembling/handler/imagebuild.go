@@ -34,6 +34,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
+
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/tools/clientcmd"
@@ -44,9 +46,9 @@ import (
 )
 
 func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
-	// TODO image, repository, registry, tag pattern validation with regex
+	// TODO image, namespace, registry, tag pattern validation with regex
 	registry := mctx.Req.Request.FormValue("registry")
-	repository := mctx.Req.Request.FormValue("repository")
+	namespace := mctx.Req.Request.FormValue("namespace")
 	image := mctx.Req.Request.FormValue("image")
 	tag := mctx.Req.Request.FormValue("tag")
 
@@ -60,31 +62,28 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	podName := fmt.Sprintf("containerops-build-pod-%s", buildId)
 	serviceName := fmt.Sprintf("containerops-build-svc-%s", buildId)
 
-	nodePort, err := createNodePort(serviceClient, serviceName, buildId)
-	if err != nil {
-		log.Errorf("Failed to create pod: %s", err.Error())
-		return http.StatusInternalServerError, []byte("{}")
-	}
-
-	if len(nodePort.Spec.Ports) == 0 {
-		log.Error("Build nodeport has no ports specified")
-		return http.StatusInternalServerError, []byte("{}")
-	}
-	servicePort := nodePort.Spec.Ports[0].NodePort
-	defer deleteNodePort(serviceClient, serviceName)
-
-	pod, err := createPod(podClient, podName, buildId)
+	_, err = createPod(podClient, podName, buildId)
 	if err != nil {
 		log.Errorf("Failed to create pod: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
 	defer deletePod(podClient, podName)
 
-	dockerDaemonHost := fmt.Sprintf("%s:%d", pod.Status.HostIP, servicePort)
+	nodeBalancer, err := createNodeBalancer(serviceClient, serviceName, buildId)
+	if err != nil {
+		log.Errorf("Failed to create pod: %s", err.Error())
+		return http.StatusInternalServerError, []byte("{}")
+	}
+
+	servicePort := 2375
+	defer deleteNodeBalancer(serviceClient, serviceName)
+
+	serviceIP := nodeBalancer.Status.LoadBalancer.Ingress[0].IP
+	dockerDaemonHost := fmt.Sprintf("%s:%d", serviceIP, servicePort)
 	ctx, dockerClient := initDockerCli(dockerDaemonHost)
 
 	tarfile, err := createTarFile(mctx.Req.Request.Body)
-	if err := buildImage(ctx, dockerClient, registry, repository, image, tag, tarfile); err != nil {
+	if err := buildImage(ctx, dockerClient, registry, namespace, image, tag, tarfile); err != nil {
 		log.Errorf("Failed to build image: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
@@ -92,12 +91,12 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	// TODO Support pushing to registries that need authorization
 	authStr, _ := generateAuthStr("", "")
 
-	if err := pushImage(ctx, dockerClient, registry, repository, image, tag, authStr); err != nil {
+	if err := pushImage(ctx, dockerClient, registry, namespace, image, tag, authStr); err != nil {
 		log.Errorf("Failed to push image: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
 
-	builtImage := fmt.Sprintf("%s/%s/%s:%s", registry, repository, image, tag)
+	builtImage := fmt.Sprintf("%s/%s/%s:%s", registry, namespace, image, tag)
 	return http.StatusOK, []byte(fmt.Sprintf("{\"endpoint\":\"%s\"}", builtImage))
 }
 
@@ -157,7 +156,7 @@ func createPod(podClient v1.PodInterface, podName, buildId string) (*corev1.Pod,
 		},
 	}
 
-	// Create Deployment
+	// Create pod
 	_, err := podClient.Create(pod)
 	if err != nil {
 		return nil, err
@@ -197,7 +196,7 @@ func initDockerCli(registryHost string) (context.Context, *client.Client) {
 	var httpClient *http.Client
 	buildClientHeaders := map[string]string{"Content-Type": "application/tar"}
 
-	targetUrl := fmt.Sprintf("https://%s", registryHost)
+	targetUrl := fmt.Sprintf("http://%s", registryHost)
 	cli, err := client.NewClient(targetUrl, "v1.27", httpClient, buildClientHeaders)
 	if err != nil {
 		panic(err)
@@ -234,8 +233,8 @@ func createTarFile(dockerfile io.Reader) (io.Reader, error) {
 	return bytes.NewReader(tarBuf.Bytes()), nil
 }
 
-func buildImage(ctx context.Context, cli *client.Client, host, repository, imageName, tag string, tarFileReader io.Reader) error {
-	targetTag := fmt.Sprintf("%s/%s/%s:%s", host, repository, imageName, tag)
+func buildImage(ctx context.Context, cli *client.Client, host, namespace, imageName, tag string, tarFileReader io.Reader) error {
+	targetTag := fmt.Sprintf("%s/%s/%s:%s", host, namespace, imageName, tag)
 	buildOptions := types.ImageBuildOptions{
 		Tags: []string{targetTag},
 	}
@@ -251,11 +250,11 @@ func buildImage(ctx context.Context, cli *client.Client, host, repository, image
 	return nil
 }
 
-func pushImage(ctx context.Context, cli *client.Client, host, repository, imageName, tag, authStr string) error {
+func pushImage(ctx context.Context, cli *client.Client, host, namespace, imageName, tag, authStr string) error {
 	imagePushOptions := types.ImagePushOptions{
 		RegistryAuth: authStr,
 	}
-	targetTag := fmt.Sprintf("%s/%s/%s:%s", host, repository, imageName, tag)
+	targetTag := fmt.Sprintf("%s/%s/%s:%s", host, namespace, imageName, tag)
 
 	pushResult, err := cli.ImagePush(ctx, targetTag, imagePushOptions)
 	if err != nil {
@@ -268,13 +267,13 @@ func pushImage(ctx context.Context, cli *client.Client, host, repository, imageN
 	return nil
 }
 
-func createNodePort(serviceClient v1.ServiceInterface, serviceName, buildId string) (*corev1.Service, error) {
+func createNodeBalancer(serviceClient v1.ServiceInterface, serviceName, buildId string) (*corev1.Service, error) {
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: serviceName,
 		},
 		Spec: corev1.ServiceSpec{
-			Type: corev1.ServiceTypeNodePort,
+			Type: corev1.ServiceTypeLoadBalancer,
 			Ports: []corev1.ServicePort{
 				corev1.ServicePort{
 					Port: 2375,
@@ -286,16 +285,32 @@ func createNodePort(serviceClient v1.ServiceInterface, serviceName, buildId stri
 		},
 	}
 
-	// Create NodePort
-	nodePort, err := serviceClient.Create(svc)
+	// Create NodeBalancer
+	_, err := serviceClient.Create(svc)
 	if err != nil {
 		return nil, err
 	}
 
-	return nodePort, nil
+	var nodeBalancer *corev1.Service
+	var e error
+	start := time.Now()
+
+	for {
+		nodeBalancer, e = serviceClient.Get(serviceName, metav1.GetOptions{})
+		if e != nil || len(nodeBalancer.Status.LoadBalancer.Ingress) != 0 {
+			break
+		}
+		time.Sleep(time.Second * 3)
+		if time.Since(start).Seconds() > 180 {
+			nodeBalancer, e = nil, fmt.Errorf("NodeBalancer creation timeout")
+			break
+		}
+	}
+
+	return nodeBalancer, nil
 }
 
-func deleteNodePort(serviceClient v1.ServiceInterface, serviceName string) error {
+func deleteNodeBalancer(serviceClient v1.ServiceInterface, serviceName string) error {
 	deletePolicy := metav1.DeletePropagationForeground
 	if err := serviceClient.Delete(serviceName, &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
