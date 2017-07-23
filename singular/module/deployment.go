@@ -261,7 +261,7 @@ func (d *Deployment) DeployEtcd(infra Infra) error {
 
 	d.Output("EtcdEndpoints", strings.Join(etcdEndpoints, ","))
 
-	if err := GenerateEtcdFiles(d.Config, etcdNodes, strings.Join(etcdAdminEndpoints, ","), "etcd-3.2.2"); err != nil {
+	if err := GenerateEtcdFiles(d.Config, etcdNodes, strings.Join(etcdAdminEndpoints, ","), infra.Version); err != nil {
 		return err
 	} else {
 		if err := UploadEtcdCAFiles(d.Config, etcdNodes); err != nil {
@@ -302,6 +302,37 @@ func (d *Deployment) DownloadBinaryFile(file, url string, nodes map[string]strin
 }
 
 func (d *Deployment) DeployFlannel(infra Infra) error {
+	// TODO check flanneld notes
+
+	flanneldNodes := map[string]string{}
+	for i := 0; i < infra.Nodes.Master; i++ {
+		flanneldNodes[fmt.Sprintf("flanneld-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
+	}
+
+	if err := GenerateFlanneldFiles(d.Config, flanneldNodes, d.Outputs["EtcdEndpoints"].(string), infra.Version); err != nil {
+		return err
+	} else {
+		if err := UploadFlanneldCAFiles(d.Config, flanneldNodes); err != nil {
+			return err
+		}
+
+		for i, c := range infra.Components {
+			if err := d.DownloadBinaryFile(c.Binary, c.URL, flanneldNodes); err != nil {
+				return err
+			}
+
+			if c.Before != "" && i == 0 {
+				if err := BeforeFlanneldExecute(d.Tools.SSH.Private, d.Outputs[fmt.Sprintf("NODE_%d", i)].(string), c.Before, d.Outputs["EtcdEndpoints"].(string)); err != nil {
+					return err
+				}
+			}
+		}
+
+		if err := StartFlanneldCluster(d.Tools.SSH.Private, flanneldNodes); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

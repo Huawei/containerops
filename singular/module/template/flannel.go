@@ -16,30 +16,11 @@ limitations under the License.
 
 package template
 
-var Root = map[string]string{
-	"ca-config": `
+var FlanneldCATemplate = map[string]string{
+	"flannel-0.7.1": `
 {
-  "signing": {
-    "default": {
-      "expiry": "8760h"
-    },
-    "profiles": {
-      "kubernetes": {
-        "usages": [
-          "signing",
-          "key encipherment",
-          "server auth",
-          "client auth"
-        ],
-        "expiry": "8760h"
-      }
-    }
-  }
-}
-	`,
-	"ca-csr": `
-{
-  "CN": "kubernetes",
+  "CN": "flanneld",
+  "hosts": [],
   "key": {
     "algo": "rsa",
     "size": 4096
@@ -54,5 +35,32 @@ var Root = map[string]string{
     }
   ]
 }
-	`,
+`,
+}
+
+var FlanneldSystemdTemplate = map[string]string{
+	"flannel-0.7.1": `
+[Unit]
+Description=Flanneld overlay address etcd agent
+After=network.target
+After=network-online.target
+Wants=network-online.target
+After=etcd.service
+Before=docker.service
+
+[Service]
+Type=notify
+ExecStart=/usr/local/bin/flanneld \
+  -etcd-cafile=/etc/kubernetes/ssl/ca.pem \
+  -etcd-certfile=/etc/flanneld/ssl/flanneld.pem \
+  -etcd-keyfile=/etc/flanneld/ssl/flanneld-key.pem \
+  -etcd-endpoints={{.Nodes}} \
+  -etcd-prefix=/kubernetes/network
+ExecStartPost=/usr/local/bin/mk-docker-opts.sh -k DOCKER_NETWORK_OPTIONS -d /run/flannel/docker
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+RequiredBy=docker.service
+`,
 }

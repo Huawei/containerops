@@ -26,7 +26,7 @@ var EtcdCATemplate = map[string]string{
 	],
 	"key": {
 		"algo": "rsa",
-		"size": 2048
+		"size": 4096
 	},
 	"names": [
 		{
