@@ -7,6 +7,7 @@ docker build -t hub.opshub.sh/containerops/cncf-demo-singular .
 
 ```bash
 docker run --env CO_DATA="\
+	action=release \
 	token=435a054fb1f81e439a63a608eddb67208a66cb11d6b7abeaa3d89aac777d4d1d \
 	kube_apiserver_url=https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-apiserver/1.6.7 \
 	kube_controllermanager_url=https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-controller-manager/1.6.7 \
