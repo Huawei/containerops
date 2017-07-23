@@ -20,7 +20,9 @@ var FlanneldCATemplate = map[string]string{
 	"flannel-0.7.1": `
 {
   "CN": "flanneld",
-  "hosts": [],
+  "hosts": [
+    "{{.IP}}"
+  ],
   "key": {
     "algo": "rsa",
     "size": 4096

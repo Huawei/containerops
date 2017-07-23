@@ -302,8 +302,6 @@ func (d *Deployment) DownloadBinaryFile(file, url string, nodes map[string]strin
 }
 
 func (d *Deployment) DeployFlannel(infra Infra) error {
-	// TODO check flanneld notes
-
 	flanneldNodes := map[string]string{}
 	for i := 0; i < infra.Nodes.Master; i++ {
 		flanneldNodes[fmt.Sprintf("flanneld-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
@@ -337,6 +335,46 @@ func (d *Deployment) DeployFlannel(infra Infra) error {
 }
 
 func (d *Deployment) DeployDocker(infra Infra) error {
+	dockerNodes := map[string]string{}
+	for i := 0; i < infra.Nodes.Master; i++ {
+		dockerNodes[fmt.Sprintf("docker-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
+	}
+
+	if err := GenerateDockerFiles(d.Config, dockerNodes, infra.Version); err != nil {
+		return err
+	} else {
+		if err := UploadDockerCAFiles(d.Config, dockerNodes); err != nil {
+			return err
+		}
+
+		for i, c := range infra.Components {
+			if err := d.DownloadBinaryFile(c.Binary, c.URL, dockerNodes); err != nil {
+				return err
+			}
+
+			if c.Before != "" {
+				if err := BeforeDockerExecute(d.Tools.SSH.Private, d.Outputs[fmt.Sprintf("NODE_%d", i)].(string), c.Before); err != nil {
+					return err
+				}
+			}
+		}
+
+		for i, _ := range dockerNodes {
+			if err := StartDockerDaemon(d.Tools.SSH.Private, d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)); err != nil {
+				return err
+			}
+		}
+
+		for i, c := range infra.Components {
+			if c.After != "" {
+				if err := AfterDockerExecute(d.Tools.SSH.Private, d.Outputs[fmt.Sprintf("NODE_%d", i)].(string), c.After); err != nil {
+					return err
+				}
+			}
+		}
+
+	}
+
 	return nil
 }
 

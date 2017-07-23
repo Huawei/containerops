@@ -224,7 +224,7 @@ func GenerateFlanneldFiles(src string, nodes map[string]string, etcdEndpoints st
 
 		sslTp := template.New("flanneld-csr")
 		sslTp, _ = sslTp.Parse(t.FlanneldCATemplate[version])
-		sslTp.Execute(&tpl, nil)
+		sslTp.Execute(&tpl, node)
 		csrFileBytes := tpl.Bytes()
 
 		req := csr.CertificateRequest{
@@ -299,9 +299,7 @@ func UploadCARootFiles(src string, files map[string]string, ip string) error {
 		"mkdir -p /var/lib/etcd",
 		"systemctl stop ufw",
 		"systemctl disable ufw",
-		//"apt-get update",
-		//"apt-get dist-upgrade",
-		"apt-get install -y bridge-utils htop denyhosts python-pip aufs-tools cgroupfs-mount libltdl7",
+		"apt-get install -y htop denyhosts python-pip",
 		"pip install --upgrade pip",
 		"pip install glances",
 	}
@@ -338,7 +336,6 @@ func UploadEtcdCAFiles(src string, nodes map[string]string) error {
 		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "etcd.service"), "/etc/systemd/system/etcd.service", os.Stdout, os.Stderr)
 
 		if err != nil {
-			fmt.Println(err)
 			return err
 		}
 	}
@@ -380,7 +377,6 @@ func UploadFlanneldCAFiles(src string, nodes map[string]string) error {
 		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "flanneld.service"), "/etc/systemd/system/flanneld.service", os.Stdout, os.Stderr)
 
 		if err != nil {
-			fmt.Println(err)
 			return err
 		}
 	}
@@ -410,6 +406,94 @@ func StartFlanneldCluster(key string, nodes map[string]string) error {
 
 	for _, ip := range nodes {
 		utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr)
+	}
+
+	return nil
+}
+
+func GenerateDockerFiles(src string, nodes map[string]string, version string) error {
+	base := path.Join(src, "ssl", "docker")
+	if utils.IsDirExist(base) == true {
+		os.RemoveAll(base)
+	}
+
+	os.MkdirAll(base, os.ModePerm)
+
+	for _, ip := range nodes {
+		if utils.IsDirExist(path.Join(base, ip)) == false {
+			os.MkdirAll(path.Join(base, ip), os.ModePerm)
+		}
+
+		var serviceTpl bytes.Buffer
+		var err error
+
+		serviceTp := template.New("docker-systemd")
+		serviceTp, err = serviceTp.Parse(t.DockerSystemdTemplate[version])
+		serviceTp.Execute(&serviceTpl, nil)
+		serviceTpFileBytes := serviceTpl.Bytes()
+
+		err = ioutil.WriteFile(path.Join(base, ip, "docker.service"), serviceTpFileBytes, 0700)
+
+		if err != nil {
+			return err
+		}
+
+	}
+
+	return nil
+}
+
+func UploadDockerCAFiles(src string, nodes map[string]string) error {
+	base := path.Join(src, "ssl", "docker")
+	key := path.Join(src, "ssh", "id_rsa")
+
+	if utils.IsDirExist(base) == false {
+		return fmt.Errorf("Locate docker folders %s error.", base)
+	}
+
+	for _, ip := range nodes {
+
+		var err error
+
+		initCmd := []string{
+			"apt-get update",
+			"apt-get dist-upgrade",
+			"apt-get install -y bridge-utils aufs-tools cgroupfs-mount libltdl7",
+		}
+
+		err = utils.SSHCommand("root", key, ip, 22, strings.Join(initCmd, " && "), os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "docker.service"), "/etc/systemd/system/docker.service", os.Stdout, os.Stderr)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func BeforeDockerExecute(key, ip, cmd string) error {
+	if err := utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func StartDockerDaemon(key, ip string) error {
+	cmd := "systemctl daemon-reload && systemctl enable docker && systemctl start --no-block docker"
+
+	if err := utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func AfterDockerExecute(key, ip, cmd string) error {
+
+	if err := utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr); err != nil {
+		return err
 	}
 
 	return nil
