@@ -25,6 +25,14 @@ import (
 	"util/file"
 )
 
+const (
+	basePath string = "./workspace"
+	// baseCommand string = "phpmetrics"
+	baseCommand string = "/home/composer/.composer/vendor/bin/phpmetrics"
+	reportPath string = "/tmp/phpmetrics.xml"
+	reportFormat string = "REPORT"
+)
+
 func main() {
 	// Get the CO_DATA from environment parameter "CO_DATA"
 	data := os.Getenv("CO_DATA")
@@ -41,8 +49,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	basePath := "./workspace"
-
 	if err := git.Clone(codata["git-url"], basePath); err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Clone the repository error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
@@ -54,7 +60,7 @@ func main() {
 	}
 	exclude := fmt.Sprintf("--exclude=%v", codata["exclude"])
 
-	cmd := exec.Command("/home/composer/.composer/vendor/bin/phpmetrics", codata["path"], exclude,"--report-violations=/tmp/report.xml")
+	cmd := exec.Command(baseCommand, codata["path"], exclude,"--report-violations=/tmp/report.xml")
 	cmd.Dir = basePath
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -65,7 +71,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	file.StdoutAll("/tmp/report.xml")
+	file.StdoutAll(reportPath, reportFormat)
 
 	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "true")
 	os.Exit(0)
