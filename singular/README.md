@@ -59,7 +59,7 @@ infras:
         package: false
         systemd: flannel-0.7.1
         ca: flannel-0.7.1
-        before: "etcdctl --endpoints={{.EtcdEndpoints}} --ca-file={{.CAPemFile}} --cert-file={{.FlanneldPemFile}} --key-file={{.FlanneldKeyFile}}"
+        before: "etcdctl --endpoints={{.EtcdEndpoints}} --ca-file={{.CAPemFile}} --cert-file={{.FlanneldPemFile}} --key-file={{.FlanneldKeyFile}} set /kubernetes/network/config '{\"Network\":\"'172.30.0.0/16'\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\"}}'"
       - 
         binary: mk-docker-opts.sh
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/mk-docker-opts.sh/0.7.1

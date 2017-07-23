@@ -196,6 +196,100 @@ func GenerateEtcdFiles(src string, nodes map[string]string, etcdEndpoints string
 	return nil
 }
 
+func GenerateFlanneldFiles(src string, nodes map[string]string, etcdEndpoints string, version string) error {
+	base := path.Join(src, "ssl", "flanneld")
+	if utils.IsDirExist(base) == true {
+		os.RemoveAll(base)
+	}
+
+	os.MkdirAll(base, os.ModePerm)
+
+	caFile := path.Join(src, "ssl", "root", "ca.pem")
+	caKeyFile := path.Join(src, "ssl", "root", "ca-key.pem")
+	configFile := path.Join(src, "ssl", "root", "ca-config.json")
+
+	for name, ip := range nodes {
+		if utils.IsDirExist(path.Join(base, ip)) == false {
+			os.MkdirAll(path.Join(base, ip), os.ModePerm)
+		}
+
+		node := EtcdEndpoint{
+			IP:    ip,
+			Name:  name,
+			Nodes: etcdEndpoints,
+		}
+
+		var tpl bytes.Buffer
+		var err error
+
+		sslTp := template.New("flanneld-csr")
+		sslTp, _ = sslTp.Parse(t.FlanneldCATemplate[version])
+		sslTp.Execute(&tpl, nil)
+		csrFileBytes := tpl.Bytes()
+
+		req := csr.CertificateRequest{
+			KeyRequest: csr.NewBasicKeyRequest(),
+		}
+
+		err = json.Unmarshal(csrFileBytes, &req)
+		if err != nil {
+			return err
+		}
+
+		var key, csrBytes []byte
+		g := &csr.Generator{Validator: genkey.Validator}
+		csrBytes, key, err = g.ProcessRequest(&req)
+		if err != nil {
+			return err
+		}
+
+		c := cli.Config{
+			CAFile:     caFile,
+			CAKeyFile:  caKeyFile,
+			ConfigFile: configFile,
+			Profile:    "kubernetes",
+			Hostname:   "",
+		}
+
+		s, err := sign.SignerFromConfig(c)
+		if err != nil {
+			return err
+		}
+
+		var cert []byte
+		signReq := signer.SignRequest{
+			Request: string(csrBytes),
+			Hosts:   signer.SplitHosts(c.Hostname),
+			Profile: c.Profile,
+		}
+
+		cert, err = s.Sign(signReq)
+		if err != nil {
+			return err
+		}
+
+		var serviceTpl bytes.Buffer
+
+		serviceTp := template.New("flanneld-systemd")
+		serviceTp, _ = serviceTp.Parse(t.FlanneldSystemdTemplate[version])
+		serviceTp.Execute(&serviceTpl, node)
+		serviceTpFileBytes := serviceTpl.Bytes()
+
+		err = ioutil.WriteFile(path.Join(base, ip, "flanneld-csr.json"), csrFileBytes, 0600)
+		err = ioutil.WriteFile(path.Join(base, ip, "flanneld-key.pem"), key, 0600)
+		err = ioutil.WriteFile(path.Join(base, ip, "flanneld.csr"), csrBytes, 0600)
+		err = ioutil.WriteFile(path.Join(base, ip, "flanneld.pem"), cert, 0600)
+		err = ioutil.WriteFile(path.Join(base, ip, "flanneld.service"), serviceTpFileBytes, 0700)
+
+		if err != nil {
+			return err
+		}
+
+	}
+
+	return nil
+}
+
 func UploadCARootFiles(src string, files map[string]string, ip string) error {
 	key := path.Join(src, "ssh", "id_rsa")
 
@@ -254,6 +348,65 @@ func UploadEtcdCAFiles(src string, nodes map[string]string) error {
 
 func StartEtcdCluster(key string, nodes map[string]string) error {
 	cmd := "systemctl daemon-reload && systemctl enable etcd && systemctl start --no-block etcd"
+
+	for _, ip := range nodes {
+		utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr)
+	}
+
+	return nil
+}
+
+func UploadFlanneldCAFiles(src string, nodes map[string]string) error {
+	base := path.Join(src, "ssl", "flanneld")
+	key := path.Join(src, "ssh", "id_rsa")
+
+	if utils.IsDirExist(base) == false {
+		return fmt.Errorf("Locate flanneld folders %s error.", base)
+	}
+
+	for _, ip := range nodes {
+
+		var err error
+
+		initCmd := []string{
+			"mkdir -p /etc/flanneld/ssl",
+		}
+
+		err = utils.SSHCommand("root", key, ip, 22, initCmd[0], os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "flanneld-csr.json"), "/etc/flanneld/ssl/flanneld-csr.json", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "flanneld-key.pem"), "/etc/flanneld/ssl/flanneld-key.pem", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "flanneld.csr"), "/etc/flanneld/ssl/flanneld.csr", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "flanneld.pem"), "/etc/flanneld/ssl/flanneld.pem", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "flanneld.service"), "/etc/systemd/system/flanneld.service", os.Stdout, os.Stderr)
+
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func BeforeFlanneldExecute(key, ip, tplString, etcdEndpoints string) error {
+	node := EtcdEndpoint{
+		Nodes: etcdEndpoints,
+	}
+
+	var tpl bytes.Buffer
+
+	sslTp := template.New("before")
+	sslTp, _ = sslTp.Parse(tplString)
+	sslTp.Execute(&tpl, node)
+	cmd := string(tpl.Bytes()[:])
+
+	utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr)
+
+	return nil
+}
+
+func StartFlanneldCluster(key string, nodes map[string]string) error {
+	cmd := "systemctl daemon-reload && systemctl enable flanneld && systemctl start --no-block flanneld"
 
 	for _, ip := range nodes {
 		utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr)
