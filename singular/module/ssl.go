@@ -196,6 +196,74 @@ func GenerateEtcdFiles(src string, nodes map[string]string, etcdEndpoints string
 	return nil
 }
 
+func GenerateAdminCAFiles(src string) error {
+	base := path.Join(src, "kubectl")
+
+	caFile := path.Join(src, "ssl", "root", "ca.pem")
+	caKeyFile := path.Join(src, "ssl", "root", "ca-key.pem")
+	configFile := path.Join(src, "ssl", "root", "ca-config.json")
+
+	var tpl bytes.Buffer
+	var err error
+
+	sslTp := template.New("admin-csr")
+	sslTp, _ = sslTp.Parse(t.AdminCATemplate)
+	sslTp.Execute(&tpl, nil)
+	csrFileBytes := tpl.Bytes()
+
+	req := csr.CertificateRequest{
+		KeyRequest: csr.NewBasicKeyRequest(),
+	}
+
+	err = json.Unmarshal(csrFileBytes, &req)
+	if err != nil {
+		return err
+	}
+
+	var key, csrBytes []byte
+	g := &csr.Generator{Validator: genkey.Validator}
+	csrBytes, key, err = g.ProcessRequest(&req)
+	if err != nil {
+		return err
+	}
+
+	c := cli.Config{
+		CAFile:     caFile,
+		CAKeyFile:  caKeyFile,
+		ConfigFile: configFile,
+		Profile:    "kubernetes",
+		Hostname:   "",
+	}
+
+	s, err := sign.SignerFromConfig(c)
+	if err != nil {
+		return err
+	}
+
+	var cert []byte
+	signReq := signer.SignRequest{
+		Request: string(csrBytes),
+		Hosts:   signer.SplitHosts(c.Hostname),
+		Profile: c.Profile,
+	}
+
+	cert, err = s.Sign(signReq)
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(path.Join(base, "admin-csr.json"), csrFileBytes, 0600)
+	err = ioutil.WriteFile(path.Join(base, "admin-key.pem"), key, 0600)
+	err = ioutil.WriteFile(path.Join(base, "admin.csr"), csrBytes, 0600)
+	err = ioutil.WriteFile(path.Join(base, "admin.pem"), cert, 0600)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func GenerateFlanneldFiles(src string, nodes map[string]string, etcdEndpoints string, version string) error {
 	base := path.Join(src, "ssl", "flanneld")
 	if utils.IsDirExist(base) == true {
