@@ -167,38 +167,43 @@ func (d *Deployment) Deploy() error {
 
 		// Init DigitalOcean API client.
 		do.InitClient()
+		d.Log("Init DigitalOcean API client.")
 
 		// Upload ssh public key
 		if err := do.UpdateSSHKey(d.Tools.SSH.Public); err != nil {
 			return err
 		}
+		d.Log("Uploaded SSH public key to the DigitalOcean.")
 
+		d.Log("Creating Droplet in DigitalOcean.")
 		// Create DigitalOcean Droplets
 		if err := do.CreateDroplet(d.Nodes, d.Tools.SSH.Fingerprint); err != nil {
 			return err
 		}
 
+		d.Log("Created Droplets successfully: ")
 		i := 0
 		for key, _ := range do.Droplets {
-			d.Log(fmt.Sprintf("Node %d created successfully, IP: %s", i, key))
+			d.Log(fmt.Sprintf("Node %d ip: %s", i, key))
 			d.Output(fmt.Sprintf("NODE_%d", i), key)
 			i += 1
 		}
 
-		fmt.Println(Cyan("Waiting 60 seconds for preparing droplets..."))
+		fmt.Println(Red("Waiting 60 seconds for preparing droplets..."))
 		time.Sleep(60 * time.Second)
 
 		// Generate CA Root files
 		if roots, err := GenerateCARootFiles(d.Config); err != nil {
 			return err
 		} else {
-			d.Log("CA Root files generated successfully")
+			d.Log("CA Root files generated successfully.")
 
 			for key, value := range roots {
 				d.Output(key, value)
 			}
 
 			for ip, _ := range do.Droplets {
+				d.Log(fmt.Sprintf("Upload SSL Root files to Droplet[%s] and init environments.", ip))
 				if err := UploadCARootFiles(d.Config, roots, ip); err != nil {
 					return err
 				}
@@ -209,6 +214,7 @@ func (d *Deployment) Deploy() error {
 		for _, infra := range d.Infras {
 			switch infra.Name {
 			case "etcd":
+				d.Log("Deploying etcd clusters.")
 				if err := d.DeployEtcd(infra); err != nil {
 					return err
 				}
@@ -260,20 +266,25 @@ func (d *Deployment) DeployEtcd(infra Infra) error {
 	}
 
 	d.Output("EtcdEndpoints", strings.Join(etcdEndpoints, ","))
+	d.Log(fmt.Sprintf("Generating Etcd endpoints environment variable [%s], value is\n [%s]", "EtcdEndpoints", strings.Join(etcdEndpoints, ",")))
 
+	d.Log(fmt.Sprintf("Generating SSL files and systemd service file for Etcd cluster."))
 	if err := GenerateEtcdFiles(d.Config, etcdNodes, strings.Join(etcdAdminEndpoints, ","), infra.Version); err != nil {
 		return err
 	} else {
+		d.Log(fmt.Sprintf("Uploading SSL files to nodes of Etcd Cluster."))
 		if err := UploadEtcdCAFiles(d.Config, etcdNodes); err != nil {
 			return err
 		}
 
+		d.Log(fmt.Sprintf("Downloading Etcd binary files to nodes of Etcd Cluster."))
 		for _, c := range infra.Components {
 			if err := d.DownloadBinaryFile(c.Binary, c.URL, etcdNodes); err != nil {
 				return err
 			}
 		}
 
+		d.Log(fmt.Sprintf("Staring Etcd Cluster."))
 		if err := StartEtcdCluster(d.Tools.SSH.Private, etcdNodes); err != nil {
 			return err
 		}
@@ -288,10 +299,12 @@ func (d *Deployment) DownloadBinaryFile(file, url string, nodes map[string]strin
 		downloadCmd := fmt.Sprintf("curl %s -o /usr/local/bin/%s", url, file)
 		chmodCmd := fmt.Sprintf("chmod +x /usr/local/bin/%s", file)
 
+		d.Log(fmt.Sprintf("Downloading %s to Node[%s]", file, ip))
 		if err := utils.SSHCommand("root", d.Tools.SSH.Private, ip, 22, downloadCmd, os.Stdout, os.Stderr); err != nil {
 			return err
 		}
 
+		d.Log(fmt.Sprintf("Change %s mode in Node[%s]", file, ip))
 		if err := utils.SSHCommand("root", d.Tools.SSH.Private, ip, 22, chmodCmd, os.Stdout, os.Stderr); err != nil {
 			return err
 		}
@@ -307,25 +320,30 @@ func (d *Deployment) DeployFlannel(infra Infra) error {
 		flanneldNodes[fmt.Sprintf("flanneld-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
 	}
 
+	d.Log(fmt.Sprintf("Generating SSL files and systemd service file for Flanneld."))
 	if err := GenerateFlanneldFiles(d.Config, flanneldNodes, d.Outputs["EtcdEndpoints"].(string), infra.Version); err != nil {
 		return err
 	} else {
+		d.Log(fmt.Sprintf("Uploading SSL files and systemd service to nodes of Flanneld."))
 		if err := UploadFlanneldCAFiles(d.Config, flanneldNodes); err != nil {
 			return err
 		}
 
 		for i, c := range infra.Components {
+			d.Log(fmt.Sprintf("Downloading Flanneld binary files to Nodes."))
 			if err := d.DownloadBinaryFile(c.Binary, c.URL, flanneldNodes); err != nil {
 				return err
 			}
 
 			if c.Before != "" && i == 0 {
+				d.Log(fmt.Sprintf("Execute Flanneld before scripts: %s", c.Before))
 				if err := BeforeFlanneldExecute(d.Tools.SSH.Private, d.Outputs[fmt.Sprintf("NODE_%d", i)].(string), c.Before, d.Outputs["EtcdEndpoints"].(string)); err != nil {
 					return err
 				}
 			}
 		}
 
+		d.Log(fmt.Sprintf("Staring Flanneld Service."))
 		if err := StartFlanneldCluster(d.Tools.SSH.Private, flanneldNodes); err != nil {
 			return err
 		}
@@ -340,35 +358,45 @@ func (d *Deployment) DeployDocker(infra Infra) error {
 		dockerNodes[fmt.Sprintf("docker-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
 	}
 
+	d.Log(fmt.Sprintf("Generating SSL files and systemd service file for Docker."))
 	if err := GenerateDockerFiles(d.Config, dockerNodes, infra.Version); err != nil {
 		return err
 	} else {
+		d.Log(fmt.Sprintf("Uploading SSL files and systemd service to nodes of Docker."))
 		if err := UploadDockerCAFiles(d.Config, dockerNodes); err != nil {
 			return err
 		}
 
-		for i, c := range infra.Components {
+		for _, c := range infra.Components {
+			d.Log(fmt.Sprintf("Downloading Docker binary files to Nodes."))
 			if err := d.DownloadBinaryFile(c.Binary, c.URL, dockerNodes); err != nil {
 				return err
 			}
 
 			if c.Before != "" {
-				if err := BeforeDockerExecute(d.Tools.SSH.Private, d.Outputs[fmt.Sprintf("NODE_%d", i)].(string), c.Before); err != nil {
-					return err
+				for _, ip := range dockerNodes {
+					d.Log(fmt.Sprintf("Execute Docker before scripts: %s in %s", ip, c.Before))
+					if err := BeforeDockerExecute(d.Tools.SSH.Private, ip, c.Before); err != nil {
+						return err
+					}
 				}
 			}
 		}
 
-		for i, _ := range dockerNodes {
-			if err := StartDockerDaemon(d.Tools.SSH.Private, d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)); err != nil {
+		for _, ip := range dockerNodes {
+			d.Log(fmt.Sprintf("Start Docker in %s", ip))
+			if err := StartDockerDaemon(d.Tools.SSH.Private, ip); err != nil {
 				return err
 			}
 		}
 
-		for i, c := range infra.Components {
+		for _, c := range infra.Components {
 			if c.After != "" {
-				if err := AfterDockerExecute(d.Tools.SSH.Private, d.Outputs[fmt.Sprintf("NODE_%d", i)].(string), c.After); err != nil {
-					return err
+				for _, ip := range dockerNodes {
+					d.Log(fmt.Sprintf("Execute Docker After scripts: %s in %s", c.After, ip))
+					if err := AfterDockerExecute(d.Tools.SSH.Private, ip, c.After); err != nil {
+						return err
+					}
 				}
 			}
 		}
