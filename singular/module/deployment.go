@@ -21,6 +21,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
+	"path"
 	"strings"
 	"time"
 
@@ -153,8 +155,7 @@ func (d *Deployment) Deploy() error {
 			return err
 		} else {
 			d.Log(fmt.Sprintf(
-				"Generate SSH key files successfully, fingerprint is %s\nPublic key file @ %s\nPrivate key file @ %s",
-				fingerprint, public, private))
+				"Generate SSH key files successfully, fingerprint is %s", fingerprint))
 			d.Tools.SSH.Public, d.Tools.SSH.Private, d.Tools.SSH.Fingerprint = public, private, fingerprint
 		}
 	}
@@ -214,18 +215,18 @@ func (d *Deployment) Deploy() error {
 		for _, infra := range d.Infras {
 			switch infra.Name {
 			case "etcd":
-				d.Log("Deploying etcd clusters.")
-				if err := d.DeployEtcd(infra); err != nil {
-					return err
-				}
+				//d.Log("Deploying etcd clusters.")
+				//if err := d.DeployEtcd(infra); err != nil {
+				//	return err
+				//}
 			case "flannel":
-				if err := d.DeployFlannel(infra); err != nil {
-					return err
-				}
+				//if err := d.DeployFlannel(infra); err != nil {
+				//	return err
+				//}
 			case "docker":
-				if err := d.DeployDocker(infra); err != nil {
-					return err
-				}
+				//if err := d.DeployDocker(infra); err != nil {
+				//	return err
+				//}
 			case "kubernetes":
 				if err := d.DeployKubernetes(infra); err != nil {
 					return err
@@ -406,6 +407,81 @@ func (d *Deployment) DeployDocker(infra Infra) error {
 	return nil
 }
 
+// DeployKubernetes is function deployment Kubernetes cluster include master and nodes.
+// Notes:
+//   1. Kubernetes master cluster IP.
+//   2. Set kubectl config files.
+//   3. Deploy Kubernetes master.
+//   4. Deploy Kubernetes nodes.
 func (d *Deployment) DeployKubernetes(infra Infra) error {
+	// TODO Now singular only support one master and multiple nodes architect.
+	// TODO So we decide the Kubernetes master IP is NODE_0 .
+	master_ip := d.Outputs[fmt.Sprintf("NODE_%d", 0)].(string)
+	d.Output("MASTER_IP", master_ip)
+	d.Output("KUBE_APISERVER", fmt.Sprintf("https://%s:6443", master_ip))
+
+	for _, c := range infra.Components {
+		if c.Binary == "kubectl" {
+			if utils.IsDirExist(path.Join(d.Config, "kubectl")) == true {
+				os.RemoveAll(path.Join(d.Config, "kubectl"))
+			}
+
+			os.MkdirAll(path.Join(d.Config, "kubectl"), os.ModePerm)
+
+			cmdDownload := exec.Command("curl", c.URL, "-o", fmt.Sprintf("%s/kubectl/kubectl", d.Config))
+			cmdDownload.Stdout, cmdDownload.Stderr = os.Stdout, os.Stderr
+			if err := cmdDownload.Run(); err != nil {
+				return err
+			}
+
+			cmdChmod := exec.Command("chmod", "+x", fmt.Sprintf("%s/kubectl/kubectl", d.Config))
+			cmdChmod.Stdout, cmdChmod.Stderr = os.Stdout, os.Stderr
+			if err := cmdChmod.Run(); err != nil {
+				return err
+			}
+
+			if err := GenerateAdminCAFiles(d.Config); err != nil {
+				return err
+			}
+
+			cmdSetCluster := exec.Command(path.Join(d.Config, "kubectl", "kubectl"), "config", "set-cluster", "kubernetes",
+				fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "kubectl", "config")),
+				fmt.Sprintf("--certificate-authority=%s", path.Join(d.Config, "ssl", "root", "ca.pem")),
+				"--embed-certs=true",
+				fmt.Sprintf("--server=%s", d.Outputs["KUBE_APISERVER"].(string)))
+			cmdSetCluster.Stdout, cmdSetCluster.Stderr = os.Stdout, os.Stderr
+			if err := cmdSetCluster.Run(); err != nil {
+				return err
+			}
+
+			cmdSetCredentials := exec.Command(path.Join(d.Config, "kubectl", "kubectl"), "config", "set-credentials", "admin",
+				fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "kubectl", "config")),
+				fmt.Sprintf("--client-certificate=%s", path.Join(d.Config, "kubectl", "admin.pem")),
+				"--embed-certs=true",
+				fmt.Sprintf("--client-key=%s", path.Join(d.Config, "kubectl", "admin-key.pem")))
+			cmdSetCredentials.Stdout, cmdSetCredentials.Stderr = os.Stdout, os.Stderr
+			if err := cmdSetCredentials.Run(); err != nil {
+				return err
+			}
+
+			cmdSetContext := exec.Command(path.Join(d.Config, "kubectl", "kubectl"), "config", "set-context", "kubernetes",
+				fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "kubectl", "config")),
+				"--cluster=kubernetes", "--user=admin")
+			cmdSetContext.Stdout, cmdSetContext.Stderr = os.Stdout, os.Stderr
+			if err := cmdSetContext.Run(); err != nil {
+				return err
+			}
+
+			cmdUseContext := exec.Command(path.Join(d.Config, "kubectl", "kubectl"), "config", "use-context",
+				fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "kubectl", "config")),
+				"kubernetes")
+			cmdUseContext.Stdout, cmdUseContext.Stderr = os.Stdout, os.Stderr
+			if err := cmdUseContext.Run(); err != nil {
+				return err
+			}
+
+		}
+	}
+
 	return nil
 }
