@@ -33,6 +33,7 @@ import (
 	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/common/utils"
 	"github.com/Huawei/containerops/singular/module/service"
+	t "github.com/Huawei/containerops/singular/module/template"
 )
 
 // JSON export deployment data
@@ -215,18 +216,17 @@ func (d *Deployment) Deploy() error {
 		for _, infra := range d.Infras {
 			switch infra.Name {
 			case "etcd":
-				//d.Log("Deploying etcd clusters.")
-				//if err := d.DeployEtcd(infra); err != nil {
-				//	return err
-				//}
+				if err := d.DeployEtcd(infra); err != nil {
+					return err
+				}
 			case "flannel":
-				//if err := d.DeployFlannel(infra); err != nil {
-				//	return err
-				//}
+				if err := d.DeployFlannel(infra); err != nil {
+					return err
+				}
 			case "docker":
-				//if err := d.DeployDocker(infra); err != nil {
-				//	return err
-				//}
+				if err := d.DeployDocker(infra); err != nil {
+					return err
+				}
 			case "kubernetes":
 				if err := d.DeployKubernetes(infra); err != nil {
 					return err
@@ -250,6 +250,8 @@ func (d *Deployment) Deploy() error {
 //   1. Only count master nodes in etcd deploy process.
 //   2.
 func (d *Deployment) DeployEtcd(infra Infra) error {
+	d.Log("Deploying etcd clusters.")
+
 	if infra.Nodes.Master > d.Nodes {
 		return fmt.Errorf("Deploy %s nodes more than %d", infra.Name, d.Nodes)
 	}
@@ -416,9 +418,23 @@ func (d *Deployment) DeployDocker(infra Infra) error {
 func (d *Deployment) DeployKubernetes(infra Infra) error {
 	// TODO Now singular only support one master and multiple nodes architect.
 	// TODO So we decide the Kubernetes master IP is NODE_0 .
-	master_ip := d.Outputs[fmt.Sprintf("NODE_%d", 0)].(string)
-	d.Output("MASTER_IP", master_ip)
-	d.Output("KUBE_APISERVER", fmt.Sprintf("https://%s:6443", master_ip))
+	masterIp := d.Outputs[fmt.Sprintf("NODE_%d", 0)].(string)
+	etcdEndpoints := d.Outputs["EtcdEndpoints"].(string)
+
+	d.Output("MASTER_IP", masterIp)
+	d.Output("KUBE_APISERVER", fmt.Sprintf("https://%s:6443", masterIp))
+
+	kubeNodes := map[string]string{}
+	for i := 0; i < infra.Nodes.Master; i++ {
+		kubeNodes[fmt.Sprintf("kube-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
+	}
+
+	for _, c := range infra.Components {
+		d.Log(fmt.Sprintf("Download %s binary files", c.Binary))
+		if err := d.DownloadBinaryFile(c.Binary, c.URL, kubeNodes); err != nil {
+			return err
+		}
+	}
 
 	for _, c := range infra.Components {
 		if c.Binary == "kubectl" {
@@ -428,6 +444,7 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 
 			os.MkdirAll(path.Join(d.Config, "kubectl"), os.ModePerm)
 
+			d.Log("Downloading kubectl binary file")
 			cmdDownload := exec.Command("curl", c.URL, "-o", fmt.Sprintf("%s/kubectl/kubectl", d.Config))
 			cmdDownload.Stdout, cmdDownload.Stderr = os.Stdout, os.Stderr
 			if err := cmdDownload.Run(); err != nil {
@@ -440,10 +457,12 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 				return err
 			}
 
+			d.Log("Genearate kubernetes admin ca files")
 			if err := GenerateAdminCAFiles(d.Config); err != nil {
 				return err
 			}
 
+			d.Log("Generate kubectl config file")
 			cmdSetCluster := exec.Command(path.Join(d.Config, "kubectl", "kubectl"), "config", "set-cluster", "kubernetes",
 				fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "kubectl", "config")),
 				fmt.Sprintf("--certificate-authority=%s", path.Join(d.Config, "ssl", "root", "ca.pem")),
@@ -480,6 +499,189 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 				return err
 			}
 
+			d.Log("Upload kubectl config file to Kubernetes nodes")
+			if err := UploadKubeConfigFiles(d.Config, kubeNodes); err != nil {
+				return err
+			}
+		}
+
+		if c.Binary == "kube-apiserver" {
+			d.Log("Generate Kuberentes Token API file")
+			if err := GenerateTokenFile(d.Config); err != nil {
+				return err
+			}
+
+			d.Log("Generate Kubernetes SSL files and systemd service file")
+			if err := GenerateKuberAPIServerCAFiles(d.Config, masterIp, etcdEndpoints, infra.Version); err != nil {
+				return err
+			}
+
+			d.Log("Upload Kubernetes Token file")
+			if err := UploadTokenFiles(d.Config, masterIp); err != nil {
+				return err
+			}
+
+			d.Log("Upload Kubernetes API Server SSL files and systemd service file")
+			if err := UploadKubeAPIServerCAFiles(d.Config, masterIp); err != nil {
+				return err
+			}
+
+			d.Log("Start Kubernetes API Server")
+			if err := StartKubeAPIServer(d.Config, masterIp); err != nil {
+				return err
+			}
+
+		}
+
+		if c.Binary == "kube-controller-manager" {
+			d.Log("Generate Kube-controller-manager systemd service file")
+			if err := GenerateKuberControllerManagerFiles(d.Config, masterIp, etcdEndpoints, infra.Version); err != nil {
+				return err
+			}
+
+			d.Log("Upload Kuber-controller-manager systemd service file")
+			if err := UploadKuberControllerFiles(d.Config, masterIp); err != nil {
+				return err
+			}
+
+			d.Log("Start Kube-controller-manager")
+			if err := StartKuberController(d.Config, masterIp); err != nil {
+				return err
+			}
+		}
+
+		if c.Binary == "kube-scheduler" {
+			d.Log("Generate Kube-scheduler systemd service file")
+			if err := GenerateKuberSchedulerManagerFiles(d.Config, masterIp, etcdEndpoints, infra.Version); err != nil {
+				return err
+			}
+
+			d.Log("Upload Kuber-scheduler systemd service file")
+			if err := UploadKuberSchedulerManagerFiles(d.Config, masterIp); err != nil {
+				return err
+			}
+
+			d.Log("Start Kube-scheduler")
+			if err := StartKuberSchedulerManager(d.Config, masterIp); err != nil {
+				return err
+			}
+		}
+
+		if c.Binary == "kubelet" {
+			d.Log("Generate bootstrap.kubeconfig config file")
+			cmdSetCluster := exec.Command(path.Join(d.Config, "kubectl", "kubectl"), "config", "set-cluster", "kubernetes",
+				fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "kubectl", "bootstrap.kubeconfig")),
+				fmt.Sprintf("--certificate-authority=%s", path.Join(d.Config, "ssl", "root", "ca.pem")),
+				"--embed-certs=true",
+				fmt.Sprintf("--server=%s", d.Outputs["KUBE_APISERVER"].(string)))
+			cmdSetCluster.Stdout, cmdSetCluster.Stderr = os.Stdout, os.Stderr
+			if err := cmdSetCluster.Run(); err != nil {
+				return err
+			}
+
+			cmdSetCredentials := exec.Command(path.Join(d.Config, "kubectl", "kubectl"), "config", "set-credentials", "kubelet-bootstrap",
+				fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "kubectl", "bootstrap.kubeconfig")),
+				fmt.Sprintf("--token=%s", t.BooststrapToken))
+			cmdSetCredentials.Stdout, cmdSetCredentials.Stderr = os.Stdout, os.Stderr
+			if err := cmdSetCredentials.Run(); err != nil {
+				return err
+			}
+
+			cmdSetContext := exec.Command(path.Join(d.Config, "kubectl", "kubectl"), "config", "set-context", "default",
+				fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "kubectl", "bootstrap.kubeconfig")),
+				"--cluster=kubernetes", "--user=kubelet-bootstrap")
+			cmdSetContext.Stdout, cmdSetContext.Stderr = os.Stdout, os.Stderr
+			if err := cmdSetContext.Run(); err != nil {
+				return err
+			}
+
+			cmdUseContext := exec.Command(path.Join(d.Config, "kubectl", "kubectl"), "config", "use-context",
+				fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "kubectl", "bootstrap.kubeconfig")),
+				"default")
+			cmdUseContext.Stdout, cmdUseContext.Stderr = os.Stdout, os.Stderr
+			if err := cmdUseContext.Run(); err != nil {
+				return err
+			}
+
+			d.Log("Upload bootstrap.kubeconfig to all nodes")
+			if err := UploadBootstrapFile(d.Config, kubeNodes); err != nil {
+				return err
+			}
+
+			d.Log("Generate Kubelete Systemd template file")
+			if err := GenerateKubeleteSystemdFile(d.Config, kubeNodes, infra.Version); err != nil {
+				return err
+			}
+
+			d.Log("Upload Kubelete Systemd file")
+			if err := UploadKubeleteFile(d.Config, kubeNodes); err != nil {
+				return err
+			}
+
+			d.Log("Start Kubelete Service")
+			if err := StartKubelet(d.Config, kubeNodes); err != nil {
+				return err
+			}
+
+			//TODO
+
+		}
+
+		if c.Binary == "kube-proxy" {
+			d.Log("Generate Kube Proxy Systemd template file")
+			if err := GenerateKubeProxyFiles(d.Config, kubeNodes, infra.Version); err != nil {
+				return err
+			}
+
+			for _, ip := range kubeNodes {
+				d.Log("Generate kube proxy config file")
+				cmdSetCluster := exec.Command(path.Join(d.Config, "kubectl", "kubectl"), "config", "set-cluster", "kubernetes",
+					fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "kubernetes", ip, "kube-proxy.kubeconfig")),
+					fmt.Sprintf("--certificate-authority=%s", path.Join(d.Config, "ssl", "root", "ca.pem")),
+					"--embed-certs=true",
+					fmt.Sprintf("--server=%s", d.Outputs["KUBE_APISERVER"].(string)))
+				cmdSetCluster.Stdout, cmdSetCluster.Stderr = os.Stdout, os.Stderr
+				if err := cmdSetCluster.Run(); err != nil {
+					return err
+				}
+
+				cmdSetCredentials := exec.Command(path.Join(d.Config, "kubectl", "kubectl"), "config", "set-credentials", "kube-proxy",
+					fmt.Sprintf("--client-certificate=%s", path.Join(d.Config, "kubernetes", ip, "kube-proxy.pem")),
+					fmt.Sprintf("--client-key=%s", path.Join(d.Config, "kubernetes", ip, "kube-proxy-key.pem")),
+					"--embed-certs=true",
+					fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "kubernetes", ip, "kube-proxy.kubeconfig")),
+				)
+				cmdSetCredentials.Stdout, cmdSetCredentials.Stderr = os.Stdout, os.Stderr
+				if err := cmdSetCredentials.Run(); err != nil {
+					return err
+				}
+
+				cmdSetContext := exec.Command(path.Join(d.Config, "kubectl", "kubectl"), "config", "set-context", "default",
+					fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "kubernetes", ip, "kube-proxy.kubeconfig")),
+					"--cluster=kubernetes", "--user=kube-proxy")
+				cmdSetContext.Stdout, cmdSetContext.Stderr = os.Stdout, os.Stderr
+				if err := cmdSetContext.Run(); err != nil {
+					return err
+				}
+
+				cmdUseContext := exec.Command(path.Join(d.Config, "kubectl", "kubectl"), "config", "use-context",
+					fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "kubectl", "config")),
+					"default")
+				cmdUseContext.Stdout, cmdUseContext.Stderr = os.Stdout, os.Stderr
+				if err := cmdUseContext.Run(); err != nil {
+					return err
+				}
+			}
+
+			d.Log("Upload Kubelete Systemd file")
+			if err := UploadKubeProxyFiles(d.Config, kubeNodes); err != nil {
+				return err
+			}
+
+			d.Log("Start Kubelete Service")
+			if err := StartKubeProxy(d.Config, kubeNodes); err != nil {
+				return err
+			}
 		}
 	}
 
