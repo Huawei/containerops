@@ -19,11 +19,11 @@ Output result:
 [COUT] CO_TEST = coderepo=https://github.com/haijunTan/pyhello.git
 Cloning into '/var/opt/gopath/src/tmp'...
 ------------------------------
-[COUT] Start lint file：/var/opt/gopath/src/tmp/pylinttest/pylintnowarning.py
-[COUT] Pylint table1 isn't any warning
-[COUT] End lint file：/var/opt/gopath/src/tmp/pylinttest/pylintnowarning.py end
+[COUT] Start lint file：pylinttest/pylintnowarning.py
+[COUT] pylinttest/pylintnowarning.py isn't any warning
+[COUT] End lint file：pylinttest/pylintnowarning.py end
 ------------------------------
-[COUT] Start lint file：/var/opt/gopath/src/tmp/pylinttest/pylinttest.py
+[COUT] Start lint file：pylinttest/pylinttest.py
 ************* Module pylinttest
 W:  3, 0: Found indentation with tabs instead of spaces (mixed-indentation)
 C:  3, 0: Unnecessary parens after 'print' keyword (superfluous-parens)
@@ -35,9 +35,9 @@ C:  2, 0: Missing function docstring (missing-docstring)
 C:  5, 0: Missing function docstring (missing-docstring)
 C:  7, 1: Invalid variable name "x" (invalid-name)
 W:  7, 1: Unused variable 'x' (unused-variable)
-[COUT] End lint file：/var/opt/gopath/src/tmp/pylinttest/pylinttest.py end
+[COUT] End lint file：pylinttest/pylinttest.py end
 ------------------------------
-[COUT] Start lint file：/var/opt/gopath/src/tmp/pylinttest/pylinttest1.py
+[COUT] Start lint file：pylinttest/pylinttest1.py
 ************* Module pylinttest1
 W:  3, 0: Found indentation with tabs instead of spaces (mixed-indentation)
 C:  3, 0: Unnecessary parens after 'print' keyword (superfluous-parens)
@@ -53,6 +53,6 @@ W:  4, 1: Unused variable 'unusevary' (unused-variable)
 C:  6, 0: Missing function docstring (missing-docstring)
 C:  9, 0: Missing function docstring (missing-docstring)
 W: 10, 1: Unused variable 'unusevarx' (unused-variable)
-[COUT] End lint file：/var/opt/gopath/src/tmp/pylinttest/pylinttest1.py end
+[COUT] End lint file：pylinttest/pylinttest1.py end
 [COUT] CO_RESULT = true
 ```
