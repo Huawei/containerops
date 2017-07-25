@@ -566,3 +566,460 @@ func AfterDockerExecute(key, ip, cmd string) error {
 
 	return nil
 }
+
+func UploadKubeConfigFiles(src string, nodes map[string]string) error {
+	key := path.Join(src, "ssh", "id_rsa")
+	config := path.Join(src, "kubectl", "config")
+
+	for _, ip := range nodes {
+		var err error
+
+		err = utils.SSHCommand("root", key, ip, 22, "mkdir -p /root/.kube", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, config, "/root/.kube/config", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(src, "kubectl", "admin.csr"), "/etc/kubernetes/ssl/admin.csr", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(src, "kubectl", "admin-csr.json"), "/etc/kubernetes/ssl/admin-csr.json", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(src, "kubectl", "admin-key.pem"), "/etc/kubernetes/ssl/admin-key.pem", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(src, "kubectl", "admin.pem"), "/etc/kubernetes/ssl/admin.pem", os.Stdout, os.Stderr)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+type KubeMaster struct {
+	MasterIP string
+	Nodes    string
+}
+
+func GenerateKuberAPIServerCAFiles(src string, masterIP, etcdEndpoints string, version string) error {
+	base := path.Join(src, "ssl", "kubernetes")
+	if utils.IsDirExist(base) == true {
+		os.RemoveAll(base)
+	}
+
+	os.MkdirAll(base, os.ModePerm)
+
+	caFile := path.Join(src, "ssl", "root", "ca.pem")
+	caKeyFile := path.Join(src, "ssl", "root", "ca-key.pem")
+	configFile := path.Join(src, "ssl", "root", "ca-config.json")
+
+	master := KubeMaster{
+		MasterIP: masterIP,
+		Nodes:    etcdEndpoints,
+	}
+
+	var tpl bytes.Buffer
+	var err error
+
+	sslTp := template.New("kube-csr")
+	sslTp, _ = sslTp.Parse(t.KubernetesCATemplate[version])
+	sslTp.Execute(&tpl, master)
+	csrFileBytes := tpl.Bytes()
+
+	req := csr.CertificateRequest{
+		KeyRequest: csr.NewBasicKeyRequest(),
+	}
+
+	err = json.Unmarshal(csrFileBytes, &req)
+	if err != nil {
+		return err
+	}
+
+	var key, csrBytes []byte
+	g := &csr.Generator{Validator: genkey.Validator}
+	csrBytes, key, err = g.ProcessRequest(&req)
+	if err != nil {
+		return err
+	}
+
+	c := cli.Config{
+		CAFile:     caFile,
+		CAKeyFile:  caKeyFile,
+		ConfigFile: configFile,
+		Profile:    "kubernetes",
+		Hostname:   "",
+	}
+
+	s, err := sign.SignerFromConfig(c)
+	if err != nil {
+		return err
+	}
+
+	var cert []byte
+	signReq := signer.SignRequest{
+		Request: string(csrBytes),
+		Hosts:   signer.SplitHosts(c.Hostname),
+		Profile: c.Profile,
+	}
+
+	cert, err = s.Sign(signReq)
+	if err != nil {
+		return err
+	}
+
+	var serviceTpl bytes.Buffer
+
+	serviceTp := template.New("kube-systemd")
+	serviceTp, _ = serviceTp.Parse(t.KubernetesAPIServerSystemdTemplate[version])
+	serviceTp.Execute(&serviceTpl, master)
+	serviceTpFileBytes := serviceTpl.Bytes()
+
+	err = ioutil.WriteFile(path.Join(base, "kubernetes-csr.json"), csrFileBytes, 0600)
+	err = ioutil.WriteFile(path.Join(base, "kubernetes-key.pem"), key, 0600)
+	err = ioutil.WriteFile(path.Join(base, "kubernetes.csr"), csrBytes, 0600)
+	err = ioutil.WriteFile(path.Join(base, "kubernetes.pem"), cert, 0600)
+	err = ioutil.WriteFile(path.Join(base, "kube-apiserver.service"), serviceTpFileBytes, 0700)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UploadKubeAPIServerCAFiles(src, ip string) error {
+	base := path.Join(src, "ssl", "kubernetes")
+	key := path.Join(src, "ssh", "id_rsa")
+
+	var err error
+
+	err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kubernetes-csr.json"), "/etc/kubernetes/ssl/kubernetes-csr.json", os.Stdout, os.Stderr)
+	err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kubernetes-key.pem"), "/etc/kubernetes/ssl/kubernetes-key.pem", os.Stdout, os.Stderr)
+	err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kubernetes.csr"), "/etc/kubernetes/ssl/kubernetes.csr", os.Stdout, os.Stderr)
+	err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kubernetes.pem"), "/etc/kubernetes/ssl/kubernetes.pem", os.Stdout, os.Stderr)
+	err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kube-apiserver.service"), "/etc/systemd/system/kube-apiserver.service", os.Stdout, os.Stderr)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func StartKubeAPIServer(src, ip string) error {
+	key := path.Join(src, "ssh", "id_rsa")
+
+	cmd := "systemctl daemon-reload && systemctl enable kube-apiserver && systemctl start --no-block kube-apiserver"
+
+	if err := utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GenerateKuberControllerManagerFiles(src string, masterIP, etcdEndpoints string, version string) error {
+	base := path.Join(src, "ssl", "kubernetes")
+
+	master := KubeMaster{
+		MasterIP: masterIP,
+		Nodes:    etcdEndpoints,
+	}
+
+	var serviceTpl bytes.Buffer
+
+	serviceTp := template.New("kube-control-systemd")
+	serviceTp, _ = serviceTp.Parse(t.KubernetesControllerManagerSystemdTemplate[version])
+	serviceTp.Execute(&serviceTpl, master)
+	serviceTpFileBytes := serviceTpl.Bytes()
+
+	if err := ioutil.WriteFile(path.Join(base, "kube-controller-manager.service"), serviceTpFileBytes, 0700); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UploadKuberControllerFiles(src, ip string) error {
+	base := path.Join(src, "ssl", "kubernetes")
+	key := path.Join(src, "ssh", "id_rsa")
+
+	if err := utils.SSHScp("root", key, ip, 22, path.Join(base, "kube-controller-manager.service"), "/etc/systemd/system/kube-controller-manager.service", os.Stdout, os.Stderr); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func StartKuberController(src, ip string) error {
+	key := path.Join(src, "ssh", "id_rsa")
+
+	cmd := "systemctl daemon-reload && systemctl enable kube-controller-manager && systemctl start --no-block kube-controller-manager"
+
+	if err := utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GenerateKuberSchedulerManagerFiles(src string, masterIP, etcdEndpoints string, version string) error {
+	base := path.Join(src, "ssl", "kubernetes")
+
+	master := KubeMaster{
+		MasterIP: masterIP,
+		Nodes:    etcdEndpoints,
+	}
+
+	var serviceTpl bytes.Buffer
+
+	serviceTp := template.New("kube-scheduler-systemd")
+	serviceTp, _ = serviceTp.Parse(t.KubernetesSchedulerSystemdTemplate[version])
+	serviceTp.Execute(&serviceTpl, master)
+	serviceTpFileBytes := serviceTpl.Bytes()
+
+	if err := ioutil.WriteFile(path.Join(base, "kube-scheduler.service"), serviceTpFileBytes, 0700); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UploadKuberSchedulerManagerFiles(src, ip string) error {
+	base := path.Join(src, "ssl", "kubernetes")
+	key := path.Join(src, "ssh", "id_rsa")
+
+	if err := utils.SSHScp("root", key, ip, 22, path.Join(base, "kube-scheduler.service"), "/etc/systemd/system/kube-scheduler.service", os.Stdout, os.Stderr); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func StartKuberSchedulerManager(src, ip string) error {
+	key := path.Join(src, "ssh", "id_rsa")
+
+	cmd := "systemctl daemon-reload && systemctl enable kube-scheduler && systemctl start --no-block kube-scheduler"
+
+	if err := utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UploadBootstrapFile(src string, nodes map[string]string) error {
+	config := path.Join(src, "kubectl", "bootstrap.kubeconfig")
+	key := path.Join(src, "ssh", "id_rsa")
+
+	for _, ip := range nodes {
+		if err := utils.SSHScp("root", key, ip, 22, config, "/etc/kubernetes/bootstrap.kubeconfig", os.Stdout, os.Stderr); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func GenerateKubeleteSystemdFile(src string, nodes map[string]string, version string) error {
+	for _, ip := range nodes {
+		kubeNode := map[string]string{
+			"IP": ip,
+		}
+
+		base := path.Join(src, "ssl", "kubernetes", ip)
+		if utils.IsDirExist(base) == true {
+			os.RemoveAll(base)
+		}
+
+		os.MkdirAll(base, os.ModePerm)
+
+		var serviceTpl bytes.Buffer
+
+		serviceTp := template.New("kubelete-systemd")
+		serviceTp, _ = serviceTp.Parse(t.KubeletSystemdTemplate[version])
+		serviceTp.Execute(&serviceTpl, kubeNode)
+		serviceTpFileBytes := serviceTpl.Bytes()
+
+		if err := ioutil.WriteFile(path.Join(base, "kubelet.service"), serviceTpFileBytes, 0700); err != nil {
+			return err
+		}
+
+	}
+	return nil
+}
+
+func UploadKubeleteFile(src string, nodes map[string]string) error {
+	key := path.Join(src, "ssh", "id_rsa")
+
+	for _, ip := range nodes {
+		file := path.Join(src, "ssl", "kubernetes", ip, "kubelet.service")
+
+		if err := utils.SSHScp("root", key, ip, 22, file, "/etc/systemd/system/kubelet.service", os.Stdout, os.Stderr); err != nil {
+			return err
+		}
+
+	}
+
+	return nil
+}
+
+func StartKubelet(src string, nodes map[string]string) error {
+	key := path.Join(src, "ssh", "id_rsa")
+
+	for _, ip := range nodes {
+		if err := utils.SSHCommand("root", key, ip, 22, "kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap", os.Stdout, os.Stderr); err != nil {
+			return err
+		}
+
+		cmd := "systemctl daemon-reload && systemctl enable kubelet && systemctl start --no-block kubelet"
+
+		if err := utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func GenerateTokenFile(src string) error {
+
+	var tokenTpl bytes.Buffer
+
+	tokenTp := template.New("token")
+	tokenTp, _ = tokenTp.Parse("{{.Token}},kubelet-bootstrap,10001,\"system:kubelet-bootstrap\"")
+	tokenTp.Execute(&tokenTpl, map[string]string{"Token": t.BooststrapToken})
+	tokenTpFileBytes := tokenTpl.Bytes()
+
+	if err := ioutil.WriteFile(path.Join(src, "kubectl", "token.csv"), tokenTpFileBytes, 0700); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UploadTokenFiles(src, ip string) error {
+	file := path.Join(src, "kubectl", "token.csv")
+	key := path.Join(src, "ssh", "id_rsa")
+
+	if err := utils.SSHScp("root", key, ip, 22, file, "/etc/kubernetes/token.csv", os.Stdout, os.Stderr); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GenerateKubeProxyFiles(src string, nodes map[string]string, version string) error {
+	base := path.Join(src, "ssl", "kubernetes")
+
+	caFile := path.Join(src, "ssl", "root", "ca.pem")
+	caKeyFile := path.Join(src, "ssl", "root", "ca-key.pem")
+	configFile := path.Join(src, "ssl", "root", "ca-config.json")
+
+	for _, ip := range nodes {
+		if utils.IsDirExist(path.Join(base, ip)) == false {
+			os.MkdirAll(path.Join(base, ip), os.ModePerm)
+		}
+
+		var tpl bytes.Buffer
+		var err error
+
+		sslTp := template.New("proxy-csr")
+		sslTp, _ = sslTp.Parse(t.KubeProxyCATemplate[version])
+		sslTp.Execute(&tpl, nil)
+		csrFileBytes := tpl.Bytes()
+
+		req := csr.CertificateRequest{
+			KeyRequest: csr.NewBasicKeyRequest(),
+		}
+
+		err = json.Unmarshal(csrFileBytes, &req)
+		if err != nil {
+			return err
+		}
+
+		var key, csrBytes []byte
+		g := &csr.Generator{Validator: genkey.Validator}
+		csrBytes, key, err = g.ProcessRequest(&req)
+		if err != nil {
+			return err
+		}
+
+		c := cli.Config{
+			CAFile:     caFile,
+			CAKeyFile:  caKeyFile,
+			ConfigFile: configFile,
+			Profile:    "kubernetes",
+			Hostname:   "",
+		}
+
+		s, err := sign.SignerFromConfig(c)
+		if err != nil {
+			return err
+		}
+
+		var cert []byte
+		signReq := signer.SignRequest{
+			Request: string(csrBytes),
+			Hosts:   signer.SplitHosts(c.Hostname),
+			Profile: c.Profile,
+		}
+
+		cert, err = s.Sign(signReq)
+		if err != nil {
+			return err
+		}
+
+		var serviceTpl bytes.Buffer
+
+		serviceTp := template.New("proxy-systemd")
+		serviceTp, _ = serviceTp.Parse(t.KubeProxySystemdTemplate[version])
+		serviceTp.Execute(&serviceTpl, map[string]string{"IP": ip})
+		serviceTpFileBytes := serviceTpl.Bytes()
+
+		err = ioutil.WriteFile(path.Join(base, ip, "kube-proxy-csr.json"), csrFileBytes, 0600)
+		err = ioutil.WriteFile(path.Join(base, ip, "kube-proxy-key.pem"), key, 0600)
+		err = ioutil.WriteFile(path.Join(base, ip, "kube-proxy.csr"), csrBytes, 0600)
+		err = ioutil.WriteFile(path.Join(base, ip, "kube-proxy.pem"), cert, 0600)
+		err = ioutil.WriteFile(path.Join(base, ip, "kube-proxy.service"), serviceTpFileBytes, 0700)
+
+		if err != nil {
+			return err
+		}
+
+	}
+
+	return nil
+}
+
+func UploadKubeProxyFiles(src string, nodes map[string]string) error {
+	key := path.Join(src, "ssh", "id_rsa")
+	base := path.Join(src, "ssl", "kubernetes")
+
+	for _, ip := range nodes {
+		var err error
+
+		err = utils.SSHCommand("root", key, ip, 22, "mkdir -p /var/lib/kube-proxy", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kube-proxy-csr.json"), "/etc/kubernetes/ssl/kube-proxy-csr.json", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kube-proxy-key.pem"), "/etc/kubernetes/ssl/kube-proxy-key.pem", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kube-proxy.csr"), "/etc/kubernetes/ssl/kube-proxy.csr", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kube-proxy.pem"), "/etc/kubernetes/ssl/kube-proxy.pem", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kube-proxy.service"), "/etc/systemd/system/kube-proxy.service", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kube-proxy.kubeconfig"), "/etc/kubernetes/kube-proxy.kubeconfig", os.Stdout, os.Stderr)
+
+		if err != nil {
+			return err
+		}
+
+	}
+
+	return nil
+}
+
+func StartKubeProxy(src string, nodes map[string]string) error {
+	key := path.Join(src, "ssh", "id_rsa")
+
+	for _, ip := range nodes {
+		cmd := "systemctl daemon-reload && systemctl enable kube-proxy && systemctl start --no-block kube-proxy"
+
+		if err := utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr); err != nil {
+			return err
+		}
+
+	}
+
+	return nil
+}

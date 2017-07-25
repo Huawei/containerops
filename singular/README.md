@@ -141,7 +141,7 @@ infras:
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kubectl/1.6.7
         package: false
       -
-        bianry: kubelet
+        binary: kubelet
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kubelet/1.6.7
         package: false
         systemd: kubelet-1.6.7
