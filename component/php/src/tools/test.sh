@@ -1,9 +1,13 @@
 #!/bin/bash
 
-export CO_DATA="git-url=http://192.168.123.201/yangkghjh/PHP_CodeSniffer.git report=full standard=phpcs.xml.dist"
+function phar()
+{
+    export CO_DATA="git-url=https://github.com/SegmentFault/phar-sample.git entry-file=build.php"
+    go run component/phar.go
+}
 
 echo "Testing $1"
 
-go run component/$1.go
+"$1"
 
 rm -rf ./workspace
