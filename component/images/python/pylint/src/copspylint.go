@@ -79,6 +79,16 @@ func getFilelist(path string)(pyfilelist [] string, err error) {
   return pyfilelist, nil
 }
 
+//lint source file save in dir:path.Join(os.Getenv("GOPATH"), "src","tmp")
+//just show the Path after "GOPATH/src/tmp/"  for user
+func userOrigFilePath(lintfilepath string) (originFilePath string){
+	start := strings.Index(lintfilepath,"tmp")
+	len := len(lintfilepath)
+	rstring := []rune(lintfilepath)
+	// start is frist "tmp/" start Site,so we plus 4,get path after tmp/
+	return string(rstring[start+4:len])
+}
+
 //execute pylint
 func execPylint(path string) error{
 	//get all python source files needed linted
@@ -98,15 +108,15 @@ func execPylint(path string) error{
 	//lint every python source file
 	for _, table1 := range pyfilelist {
 		fmt.Fprintf(os.Stdout, "------------------------------\n")
-		fmt.Fprintf(os.Stdout, "[COUT] Start lint file：%s\n",table1)
+		fmt.Fprintf(os.Stdout, "[COUT] Start lint file：%s\n", userOrigFilePath(table1))
 		cmdpylint := exec.Command("pylint", "--rcfile=" + rcfile, table1)
 		cmdpylint.Stdout = os.Stdout
 		cmdpylint.Stderr = os.Stderr
-		//pylint err return nil when source code hasn't any warrning or err. 
+		//pylint err return nil when source code hasn't any warrning or err.
 		if err := cmdpylint.Run(); err == nil {
-			fmt.Fprintf(os.Stderr, "[COUT] Pylint table1 isn't any warning\n")
+			fmt.Fprintf(os.Stderr, "[COUT] %s isn't any warning\n", userOrigFilePath(table1))
 		}
-		fmt.Fprintf(os.Stdout, "[COUT] End lint file：%s end\n", table1)
+		fmt.Fprintf(os.Stdout, "[COUT] End lint file：%s end\n", userOrigFilePath(table1))
 	}
 
 	return nil
