@@ -211,7 +211,7 @@ func setWarshipConfig(config map[string]interface{}) error {
 		return err
 	}
 
-	return json.Unmarshal(bs, &Singular)
+	return json.Unmarshal(bs, &Warship)
 }
 
 func setSingularConfig(config map[string]interface{}) error {
