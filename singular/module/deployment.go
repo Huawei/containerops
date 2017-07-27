@@ -424,14 +424,19 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 	d.Output("MASTER_IP", masterIp)
 	d.Output("KUBE_APISERVER", fmt.Sprintf("https://%s:6443", masterIp))
 
-	kubeNodes := map[string]string{}
+	kubeMasterNodes := map[string]string{}
 	for i := 0; i < infra.Nodes.Master; i++ {
-		kubeNodes[fmt.Sprintf("kube-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
+		kubeMasterNodes[fmt.Sprintf("kube-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
+	}
+
+	kubeSlaveNodes := map[string]string{}
+	for i := 0; i < infra.Nodes.Node; i++ {
+		kubeSlaveNodes[fmt.Sprintf("kube-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
 	}
 
 	for _, c := range infra.Components {
 		d.Log(fmt.Sprintf("Download %s binary files", c.Binary))
-		if err := d.DownloadBinaryFile(c.Binary, c.URL, kubeNodes); err != nil {
+		if err := d.DownloadBinaryFile(c.Binary, c.URL, kubeSlaveNodes); err != nil {
 			return err
 		}
 	}
@@ -500,7 +505,7 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 			}
 
 			d.Log("Upload kubectl config file to Kubernetes nodes")
-			if err := UploadKubeConfigFiles(d.Config, kubeNodes); err != nil {
+			if err := UploadKubeConfigFiles(d.Config, kubeSlaveNodes); err != nil {
 				return err
 			}
 		}
@@ -604,39 +609,47 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 			}
 
 			d.Log("Upload bootstrap.kubeconfig to all nodes")
-			if err := UploadBootstrapFile(d.Config, kubeNodes); err != nil {
+			if err := UploadBootstrapFile(d.Config, kubeSlaveNodes); err != nil {
 				return err
 			}
 
+			d.Log("Set Kubelet Clusterrolebinding")
+			if err := SetKubeletClusterrolebinding(d.Config, d.Outputs[fmt.Sprintf("NODE_%d", 0)].(string)); err != nil {
+				return nil
+			}
+
 			d.Log("Generate Kubelete Systemd template file")
-			if err := GenerateKubeleteSystemdFile(d.Config, kubeNodes, infra.Version); err != nil {
+			if err := GenerateKubeletSystemdFile(d.Config, kubeSlaveNodes, infra.Version); err != nil {
 				return err
 			}
 
 			d.Log("Upload Kubelete Systemd file")
-			if err := UploadKubeleteFile(d.Config, kubeNodes); err != nil {
+			if err := UploadKubeletFile(d.Config, kubeSlaveNodes); err != nil {
 				return err
 			}
 
 			d.Log("Start Kubelete Service")
-			if err := StartKubelet(d.Config, kubeNodes); err != nil {
+			if err := StartKubelet(d.Config, kubeSlaveNodes); err != nil {
 				return err
 			}
 
-			//TODO
-
+			time.Sleep(10 * time.Second)
+			d.Log("Time wait 10 seconds for certificate approve")
+			if err := KubeletCertificateApprove(d.Config, d.Outputs[fmt.Sprintf("NODE_%d", 0)].(string)); err != nil {
+				return err
+			}
 		}
 
 		if c.Binary == "kube-proxy" {
 			d.Log("Generate Kube Proxy Systemd template file")
-			if err := GenerateKubeProxyFiles(d.Config, kubeNodes, infra.Version); err != nil {
+			if err := GenerateKubeProxyFiles(d.Config, kubeSlaveNodes, infra.Version); err != nil {
 				return err
 			}
 
-			for _, ip := range kubeNodes {
+			for _, ip := range kubeSlaveNodes {
 				d.Log("Generate kube proxy config file")
 				cmdSetCluster := exec.Command(path.Join(d.Config, "kubectl", "kubectl"), "config", "set-cluster", "kubernetes",
-					fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "kubernetes", ip, "kube-proxy.kubeconfig")),
+					fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "ssl", "kubernetes", ip, "kube-proxy.kubeconfig")),
 					fmt.Sprintf("--certificate-authority=%s", path.Join(d.Config, "ssl", "root", "ca.pem")),
 					"--embed-certs=true",
 					fmt.Sprintf("--server=%s", d.Outputs["KUBE_APISERVER"].(string)))
@@ -646,10 +659,10 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 				}
 
 				cmdSetCredentials := exec.Command(path.Join(d.Config, "kubectl", "kubectl"), "config", "set-credentials", "kube-proxy",
-					fmt.Sprintf("--client-certificate=%s", path.Join(d.Config, "kubernetes", ip, "kube-proxy.pem")),
-					fmt.Sprintf("--client-key=%s", path.Join(d.Config, "kubernetes", ip, "kube-proxy-key.pem")),
+					fmt.Sprintf("--client-certificate=%s", path.Join(d.Config, "ssl", "kubernetes", ip, "kube-proxy.pem")),
+					fmt.Sprintf("--client-key=%s", path.Join(d.Config, "ssl", "kubernetes", ip, "kube-proxy-key.pem")),
 					"--embed-certs=true",
-					fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "kubernetes", ip, "kube-proxy.kubeconfig")),
+					fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "ssl", "kubernetes", ip, "kube-proxy.kubeconfig")),
 				)
 				cmdSetCredentials.Stdout, cmdSetCredentials.Stderr = os.Stdout, os.Stderr
 				if err := cmdSetCredentials.Run(); err != nil {
@@ -657,7 +670,7 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 				}
 
 				cmdSetContext := exec.Command(path.Join(d.Config, "kubectl", "kubectl"), "config", "set-context", "default",
-					fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "kubernetes", ip, "kube-proxy.kubeconfig")),
+					fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "ssl", "kubernetes", ip, "kube-proxy.kubeconfig")),
 					"--cluster=kubernetes", "--user=kube-proxy")
 				cmdSetContext.Stdout, cmdSetContext.Stderr = os.Stdout, os.Stderr
 				if err := cmdSetContext.Run(); err != nil {
@@ -665,7 +678,7 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 				}
 
 				cmdUseContext := exec.Command(path.Join(d.Config, "kubectl", "kubectl"), "config", "use-context",
-					fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "kubectl", "config")),
+					fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "ssl", "kubernetes", ip, "kube-proxy.kubeconfig")),
 					"default")
 				cmdUseContext.Stdout, cmdUseContext.Stderr = os.Stdout, os.Stderr
 				if err := cmdUseContext.Run(); err != nil {
@@ -673,13 +686,13 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 				}
 			}
 
-			d.Log("Upload Kubelete Systemd file")
-			if err := UploadKubeProxyFiles(d.Config, kubeNodes); err != nil {
+			d.Log("Upload kube-proxy Systemd file")
+			if err := UploadKubeProxyFiles(d.Config, kubeSlaveNodes); err != nil {
 				return err
 			}
 
-			d.Log("Start Kubelete Service")
-			if err := StartKubeProxy(d.Config, kubeNodes); err != nil {
+			d.Log("Start kube-proxy Service")
+			if err := StartKubeProxy(d.Config, kubeSlaveNodes); err != nil {
 				return err
 			}
 		}
