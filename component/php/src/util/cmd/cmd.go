@@ -32,7 +32,7 @@ func RunCommand(command string, basePath string) error {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "[COUT] Run command error %s\n[COUT] Error msg: %s\n", command, err.Error())
+		fmt.Fprintf(os.Stderr, "[COUT] Run command error: %s\n[COUT] Error msg: %s\n", command, err.Error())
 		
 		return err
 	}

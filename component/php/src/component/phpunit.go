@@ -21,23 +21,31 @@ import (
 	"os"
 	"util/git"
 	"util/input"
+	"util/file"
 	"util/cmd"
 )
 
 const (
 	basePath string = "./workspace"
-	// baseCommand string = "/usr/local/bin/php"
-	baseCommand string = "php -f"
+	// baseCommand string = "phpunit"
+	baseCommand string = "/home/composer/.composer/vendor/bin/phpunit"
 	composerCommand string = "/usr/local/bin/composer"
+	// coveragePath string = "/tmp/coverage.xml"
+	// coverageFormat string = "COVERAGE REPORT"
+	reportPath string = "/tmp/report.xml"
+	reportFormat string = "TEST REPORT"
 )
 
 func main() {
 	data := os.Getenv("CO_DATA")
 	keys := []string{
 		"git-url",
-		"entry-file",
 		"composer",
+		"bootstrap",
+		"include-path",
+		"configuration",
 	}
+
 	codata := map[string]string{}
 
 	if err := input.HandleInput(data, keys, codata); err != nil {
@@ -52,14 +60,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	command := baseCommand
-
-	if codata["entry-file"] == "" {
-		fmt.Fprintf(os.Stderr, "[COUT] Entry file could not be null.\n")
-		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
-	}
-	command = fmt.Sprintf("%s %s", command, codata["entry-file"])
-
 	if codata["composer"] == "true" {
 		composer_command := fmt.Sprintf("%s %s", composerCommand, "install")
 
@@ -70,10 +70,30 @@ func main() {
 		}
 	}
 
+	command := baseCommand
+
+	params := []string{
+		"bootstrap",
+		"include-path",
+		"configuration",
+	}
+
+	for _, param := range params {
+		if codata[param] != "" {
+			command = fmt.Sprintf("%s --%s %s", command, param, codata[param])
+		}
+	}
+
+	// command = fmt.Sprintf("%s --coverage-clover %s", command, coveragePath)
+	command = fmt.Sprintf("%s --log-junit %s", command, reportPath)
+
 	if err := cmd.RunCommand(command, basePath); err != nil {
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 		os.Exit(1)
 	}
+
+	file.StdoutAll(reportPath, reportFormat)
+	// file.StdoutAll(coveragePath, coverageFormat)
 
 	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "true")
 	os.Exit(0)
