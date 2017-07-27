@@ -526,6 +526,7 @@ func UploadDockerCAFiles(src string, nodes map[string]string) error {
 		initCmd := []string{
 			"apt-get update",
 			"apt-get dist-upgrade",
+			"apt-get -y autoremove",
 			"apt-get install -y bridge-utils aufs-tools cgroupfs-mount libltdl7",
 		}
 
@@ -814,7 +815,7 @@ func UploadBootstrapFile(src string, nodes map[string]string) error {
 	return nil
 }
 
-func GenerateKubeleteSystemdFile(src string, nodes map[string]string, version string) error {
+func GenerateKubeletSystemdFile(src string, nodes map[string]string, version string) error {
 	for _, ip := range nodes {
 		kubeNode := map[string]string{
 			"IP": ip,
@@ -837,17 +838,19 @@ func GenerateKubeleteSystemdFile(src string, nodes map[string]string, version st
 		if err := ioutil.WriteFile(path.Join(base, "kubelet.service"), serviceTpFileBytes, 0700); err != nil {
 			return err
 		}
-
 	}
 	return nil
 }
 
-func UploadKubeleteFile(src string, nodes map[string]string) error {
+func UploadKubeletFile(src string, nodes map[string]string) error {
 	key := path.Join(src, "ssh", "id_rsa")
 
 	for _, ip := range nodes {
 		file := path.Join(src, "ssl", "kubernetes", ip, "kubelet.service")
 
+		if err := utils.SSHCommand("root", key, ip, 22, "mkdir -p /var/lib/kubelet", os.Stdout, os.Stderr); err != nil {
+			return err
+		}
 		if err := utils.SSHScp("root", key, ip, 22, file, "/etc/systemd/system/kubelet.service", os.Stdout, os.Stderr); err != nil {
 			return err
 		}
@@ -857,13 +860,30 @@ func UploadKubeleteFile(src string, nodes map[string]string) error {
 	return nil
 }
 
+func SetKubeletClusterrolebinding(src, ip string) error {
+	key := path.Join(src, "ssh", "id_rsa")
+
+	if err := utils.SSHCommand("root", key, ip, 22, "kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap", os.Stdout, os.Stderr); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func KubeletCertificateApprove(src, ip string) error {
+	key := path.Join(src, "ssh", "id_rsa")
+
+	if err := utils.SSHCommand("root", key, ip, 22, "kubectl certificate approve `kubectl get csr -o name`", os.Stdout, os.Stderr); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func StartKubelet(src string, nodes map[string]string) error {
 	key := path.Join(src, "ssh", "id_rsa")
 
 	for _, ip := range nodes {
-		if err := utils.SSHCommand("root", key, ip, 22, "kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap", os.Stdout, os.Stderr); err != nil {
-			return err
-		}
 
 		cmd := "systemctl daemon-reload && systemctl enable kubelet && systemctl start --no-block kubelet"
 
@@ -876,6 +896,9 @@ func StartKubelet(src string, nodes map[string]string) error {
 }
 
 func GenerateTokenFile(src string) error {
+	if utils.IsDirExist(path.Join(src, "kubectl")) == false {
+		os.MkdirAll(path.Join(src, "kubectl"), os.ModePerm)
+	}
 
 	var tokenTpl bytes.Buffer
 
@@ -993,12 +1016,12 @@ func UploadKubeProxyFiles(src string, nodes map[string]string) error {
 		var err error
 
 		err = utils.SSHCommand("root", key, ip, 22, "mkdir -p /var/lib/kube-proxy", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kube-proxy-csr.json"), "/etc/kubernetes/ssl/kube-proxy-csr.json", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kube-proxy-key.pem"), "/etc/kubernetes/ssl/kube-proxy-key.pem", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kube-proxy.csr"), "/etc/kubernetes/ssl/kube-proxy.csr", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kube-proxy.pem"), "/etc/kubernetes/ssl/kube-proxy.pem", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kube-proxy.service"), "/etc/systemd/system/kube-proxy.service", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kube-proxy.kubeconfig"), "/etc/kubernetes/kube-proxy.kubeconfig", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "kube-proxy-csr.json"), "/etc/kubernetes/ssl/kube-proxy-csr.json", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "kube-proxy-key.pem"), "/etc/kubernetes/ssl/kube-proxy-key.pem", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "kube-proxy.csr"), "/etc/kubernetes/ssl/kube-proxy.csr", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "kube-proxy.pem"), "/etc/kubernetes/ssl/kube-proxy.pem", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "kube-proxy.service"), "/etc/systemd/system/kube-proxy.service", os.Stdout, os.Stderr)
+		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "kube-proxy.kubeconfig"), "/etc/kubernetes/kube-proxy.kubeconfig", os.Stdout, os.Stderr)
 
 		if err != nil {
 			return err
