@@ -28,10 +28,12 @@ def flake8(file_name):
         passed = False
 
     out = str(r.stdout, 'utf-8').strip().split('\n')
-    out = list(map(parse_flake8_result, out))
-    out = list(filter(lambda x: x, out))
+    for o in out:
+        o = parse_flake8_result(o)
+        if o:
+            print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(o)))
 
-    return out, passed
+    return passed
 
 
 def parse_flake8_result(line):
@@ -85,18 +87,13 @@ def main():
         return
 
     all_true = True
-    output = []
 
     for root, dirs, files in os.walk(REPO_PATH):
         for file_name in files:
             if file_name.endswith('.py'):
-                out, m = flake8(os.path.join(root, file_name))
-                for o in out:
-                    output.append(o)
+                o = flake8(os.path.join(root, file_name))
+                all_true = all_true and o
 
-                all_true = all_true and m
-
-    print('[COUT] CO_JSON_CONTENT = {}'.format(json.dumps(output)))
     print("[COUT] CO_RESULT = false")
 
 main()
