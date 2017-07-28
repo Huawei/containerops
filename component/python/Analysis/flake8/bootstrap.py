@@ -94,6 +94,9 @@ def main():
                 o = flake8(os.path.join(root, file_name))
                 all_true = all_true and o
 
-    print("[COUT] CO_RESULT = false")
+    if all_true:
+        print("[COUT] CO_RESULT = true")
+    else:
+        print("[COUT] CO_RESULT = false")
 
 main()
