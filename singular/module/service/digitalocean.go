@@ -26,6 +26,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// DigitalOcean struct use for manage create/delete DigitalOcean droplets.
 type DigitalOcean struct {
 	Token    string         `json:"token" yaml:"token"`
 	Region   string         `json:"region" yaml:"region"`
