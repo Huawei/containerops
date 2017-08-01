@@ -89,6 +89,41 @@ func userOrigFilePath(lintfilepath string) (originFilePath string){
 	return string(rstring[start+4:len])
 }
 
+func userInputLintConfsave2Rcfile(lintparameter string) error{
+	// via bash script save lint config to rcfile(pylint.conf)
+	rcfile := os.Getenv("LINTCONFFILE")
+	tmpbashfile := path.Join(os.Getenv("GOPATH"), "src","tmp","savelintconf.sh")
+	//bashfiel :="./savelintconf.sh"
+	//generate-bash script file
+	file, err := os.OpenFile(tmpbashfile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0666)
+  if err != nil {
+		fmt.Fprintf(os.Stderr, "[COUT] Save user input parameters err = %s\n", err.Error())
+		os.Exit(1)
+  }
+  defer file.Close()
+	byteSlice := []byte("#!/bin/sh\n"+
+	                    "pylint " + lintparameter + " --rcfile=./pylint.conf --generate-rcfile > "+ rcfile + "\n")
+  _, err = file.Write(byteSlice)
+  if err != nil {
+		fmt.Fprintf(os.Stderr, "[COUT] Savelint parameters generate-bash script file error = %s\n", err.Error())
+		os.Exit(1)
+  }
+  cmd := exec.Command("sh", tmpbashfile)
+  cmd.Stdout = os.Stdout
+  cmd.Stderr = os.Stderr
+  if err := cmd.Run(); err != nil {
+    fmt.Fprintf(os.Stderr, "[COUT] Run generate-bash script error: %s\n", err.Error())
+    fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+		os.Exit(1)
+  }
+	//del tmp bash script file
+	if err := os.Remove(tmpbashfile);err != nil{
+		fmt.Fprintf(os.Stdout, "[COUT] Rmove tmp  bash script warrning: %s\n", err.Error())
+	}
+
+	return nil
+}
+
 //execute pylint
 func execPylint(path string) error{
 	//get all python source files needed linted
@@ -133,26 +168,40 @@ func main() {
 	fmt.Fprintf(os.Stdout, "[COUT] CO_TEST = %s\n", repodata)
 
 	//Parse the CO_CODERPO, get the lintcode repository URI and action
-	if codeRepo, err := parseReopEnv(repodata); err != nil {
+	codeRepo, err := parseReopEnv(repodata)
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_CODERPO error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 		os.Exit(1)
-	} else {
-		//Create the base path within GOPATH.
-		basePath := path.Join(os.Getenv("GOPATH"), "src","tmp")
-		//Clone the git repository
-		if err := gitClone(codeRepo, basePath); err != nil {
-			fmt.Fprintf(os.Stderr, "[COUT] Clone the code repository error: %s\n", err.Error())
-			fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
-			os.Exit(1)
-		}
+	}
+	//Create the base path within GOPATH.
+	basePath := path.Join(os.Getenv("GOPATH"), "src","tmp")
+	//Clone the git repository
+	if err := gitClone(codeRepo, basePath); err != nil {
+		fmt.Fprintf(os.Stderr, "[COUT] Clone the code repository error: %s\n", err.Error())
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+		os.Exit(1)
+	}
 
-		//Execute pylint
-		if err := execPylint(basePath); err != nil{
-			fmt.Fprintf(os.Stderr, "[COUT] Exec pylint error: %s\n", err.Error())
+	//Get the CO_CODERPO from environment parameter "CO_CODERPO"
+	lintparameterdata := os.Getenv("CO_LINTPARA")
+	if len(lintparameterdata) == 0 {
+		fmt.Fprintf(os.Stdout, "[COUT] User the default pylint prameter\n")
+	}else{
+		fmt.Fprintf(os.Stdout, "[COUT] Get input pylint prameter is \"%s\",and other is default\n", lintparameterdata)
+		// Save  Save user input lintparameter to rcfile(pylint.conf)
+		if err := userInputLintConfsave2Rcfile(lintparameterdata); err !=nil{
+			fmt.Fprintf(os.Stderr, "[COUT] Save user input lintparameter error: %s\n", err.Error())
 			fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 			os.Exit(1)
 		}
+	}
+
+	//Execute pylint
+	if err := execPylint(basePath); err != nil{
+		fmt.Fprintf(os.Stderr, "[COUT] Exec pylint error: %s\n", err.Error())
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+		os.Exit(1)
 	}
 
 	//Print result

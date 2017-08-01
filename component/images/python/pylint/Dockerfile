@@ -26,7 +26,6 @@ ADD src/pylint.conf $GOPATH/src/github.com/Huawei/containerops/
 ENV PATH /user/bin:$GOPATH/src/github.com/Huawei/containerops:$PATH
 
 # defualut pylint.conf generate by cmd "pylint --generate-rcfile > pylint.conf"
-# and modify set reoprts=no
 ENV LINTCONFFILE $GOPATH/src/github.com/Huawei/containerops/pylint.conf
 
 WORKDIR $GOPATH/src/github.com/Huawei/containerops
