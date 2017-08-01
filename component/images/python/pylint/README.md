@@ -1,4 +1,4 @@
-## Build, Release pylint component
+## Build pylint component
 
 ```bash
 docker build -t containerops/pylint .
@@ -7,23 +7,25 @@ docker build -t containerops/pylint .
 
 ## Set pylint parameter
 ```bash
-The default pylint prameter in contianerops/component/images/python/pylint/src/pylint.conf.   
+1.The default pylint prameter in contianerops/component/images/python/pylint/src/pylint.conf.   
 You can modify it befor build the component.
+2.You can modify the lint parameter via set the environment variable "CO_LINTPARA" by run the componet
 ```
 
 ## Run and test pylint component
 ```bash
-docker run --env CO_CODERPO="coderepo=https://github.com/haijunTan/pyhello.git"  containerops/pylint:latest
+docker run --env CO_CODERPO="coderepo=https://github.com/haijunTan/pyhello.git" --evn  --env CO_LINTPARA="--reports=no" containerops/pylint:latest
 
 Output result:
 [COUT] CO_TEST = coderepo=https://github.com/haijunTan/pyhello.git
 Cloning into '/var/opt/gopath/src/tmp'...
+[COUT] Get input pylint prameter is "--reports=no",and other is default
 ------------------------------
 [COUT] Start lint file：pylinttest/pylintnowarning.py
-[COUT] pylinttest/pylintnowarning.py isn't any warning
 [COUT] End lint file：pylinttest/pylintnowarning.py end
 ------------------------------
 [COUT] Start lint file：pylinttest/pylinttest.py
+[COUT] pylinttest/pylintnowarning.py isn't any warning
 ************* Module pylinttest
 W:  3, 0: Found indentation with tabs instead of spaces (mixed-indentation)
 C:  3, 0: Unnecessary parens after 'print' keyword (superfluous-parens)
