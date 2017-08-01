@@ -14,7 +14,7 @@ You can modify it befor build the component.
 
 ## Run and test pylint component
 ```bash
-docker run --env CO_CODERPO="coderepo=https://github.com/haijunTan/pyhello.git" --evn  --env CO_LINTPARA="--reports=no" containerops/pylint:latest
+docker run --env CO_CODERPO="coderepo=https://github.com/haijunTan/pyhello.git" --evn CO_LINTPARA="--reports=no" containerops/pylint:latest
 
 Output result:
 [COUT] CO_TEST = coderepo=https://github.com/haijunTan/pyhello.git
