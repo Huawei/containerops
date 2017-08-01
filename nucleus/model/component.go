@@ -38,7 +38,7 @@ const (
 )
 
 //The Component is a container image encapsulated DevOps program written in any programming language like Bush, Python or Ruby.
-type Component struct {
+type ComponentV1 struct {
 	ID           int64      `json:"id" gorm:"primary_key"`                                                                    //
 	Namespace    string     `json:"namespace" gorm:"not null;type:varchar(128);unique_index:idx_component_namespace_version"` // Namespace is User or Organization name, the regex grammar is "/[a-z0-9]+(?:[-][a-z0-9]+){6,127}/". The User or Organization have 1:n relationships with components. If the component only creates, update or delete by the system administrator, we call it is a library. And the field value is "LIBRARY."
 	Name         string     `json:"name" gorm:"not null;type:varchar(128);unique_index:idx_component_namespace_version"`      // The Component name, the regex grammar is "/[a-z0-9]+(?:[-][a-z0-9]+){6,127}/".
@@ -62,6 +62,6 @@ type Component struct {
 }
 
 //TableName is return the table name of Component in database.
-func (c *Component) TableName() string {
-	return "component"
+func (c *ComponentV1) TableName() string {
+	return "component_v1"
 }
