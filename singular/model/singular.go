@@ -39,7 +39,7 @@ type DeploymentV1 struct {
 	SingularV1 int64      `json:"singular_v1" yaml:"singular_v1" sql:"not null;default:0" gorm:"column:singular_v1;unique_index:singular_deployment"`
 	Tag        string     `json:"tag" yaml:"tag" sql:"not null;type:varchar(255)" gorm:"column:tag;unique_index:singular_deployment"`
 	Version    int64      `json:"version" yaml:"version" sql:"not null;default:0" gorm:"column:version;unique_index:singular_deployment"`
-	Service    string     `json:"service" yaml:"service" sql:"not null;type:varchar(255)" gorm:"column:service"`
+	Service    string     `json:"service" yaml:"service" sql:"not null;type:varchar(255)" gorm:"column:service;unique_index:singular_deployment"`
 	Result     bool       `json:"result" yaml:"result" sql:"not null" gorm:"column:result"`
 	Log        string     `json:"log" yaml:"log" sql:"null;type:text" gorm:"column:log"`
 	CreatedAt  time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`

@@ -33,7 +33,7 @@ import (
 	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/common/utils"
 	"github.com/Huawei/containerops/singular/module/service"
-	t "github.com/Huawei/containerops/singular/module/template"
+	"github.com/Huawei/containerops/singular/module/template"
 )
 
 // JSON export deployment data
@@ -586,7 +586,7 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 
 			cmdSetCredentials := exec.Command(path.Join(d.Config, "kubectl", "kubectl"), "config", "set-credentials", "kubelet-bootstrap",
 				fmt.Sprintf("--kubeconfig=%s", path.Join(d.Config, "kubectl", "bootstrap.kubeconfig")),
-				fmt.Sprintf("--token=%s", t.BooststrapToken))
+				fmt.Sprintf("--token=%s", template.BooststrapToken))
 			cmdSetCredentials.Stdout, cmdSetCredentials.Stderr = os.Stdout, os.Stderr
 			if err := cmdSetCredentials.Run(); err != nil {
 				return err
