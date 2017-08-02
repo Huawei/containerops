@@ -465,7 +465,7 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 				return err
 			}
 
-			d.Log("Genearate kubernetes admin ca files")
+			d.Log("Generate kubernetes admin ca files")
 			if err := GenerateAdminCAFiles(d.Config); err != nil {
 				return err
 			}
