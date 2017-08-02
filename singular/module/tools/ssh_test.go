@@ -36,7 +36,7 @@ func TestSSHKeys(t *testing.T) {
 	if publicKeyFile, privateKeyFile, fingerprint, err := GenerateSSHKeyFiles("/tmp"); err != nil {
 		t.Errorf("Generate ssh key files error: %s", err.Error())
 	} else {
-		if f, err := OpenSSHKeyFiles(publicKeyFile, privateKeyFile); err != nil {
+		if _, _, f, err := OpenSSHKeyFiles(publicKeyFile, privateKeyFile); err != nil {
 			t.Errorf("Open ssh key files error: %s", err.Error())
 		} else {
 			if f != fingerprint {
@@ -64,7 +64,7 @@ func TestSSHKeyWithoutPublicKeyFile(t *testing.T) {
 			t.Error(err)
 		}
 
-		if f, err := OpenSSHKeyFiles("", privateKeyFile); err != nil {
+		if _, _, f, err := OpenSSHKeyFiles("", privateKeyFile); err != nil {
 			t.Errorf("Open ssh key files error: %s", err.Error())
 		} else {
 			if f != fingerprint {
