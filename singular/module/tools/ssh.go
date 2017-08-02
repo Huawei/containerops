@@ -99,9 +99,9 @@ func GenerateSSHKeyFiles(basePath string) (string, string, string, error) {
 
 // OpenSSHKeyFiles open ssh public and private key files to valid.
 // Then return the fingerprint.
-func OpenSSHKeyFiles(publicFile, privateFile string) (string, error) {
+func OpenSSHKeyFiles(publicFile, privateFile string) (string, string, string, error) {
 	if utils.IsFileExist(privateFile) == false {
-		return "", fmt.Errorf("Private key file not exist")
+		return "", "", "", fmt.Errorf("Private key file not exist")
 	}
 
 	var privateByte, publicData []byte
@@ -112,14 +112,14 @@ func OpenSSHKeyFiles(publicFile, privateFile string) (string, error) {
 	// Read private key file
 	privateByte, err = ioutil.ReadFile(privateFile)
 	if err != nil {
-		return "", fmt.Errorf("Read privateFile key file error, %s", err.Error())
+		return "", "", "", fmt.Errorf("Read privateFile key file error, %s", err.Error())
 	}
 	// Decode file byte[]
 	blockPrivate, _ := pem.Decode(privateByte)
 	rsaPrivate, err := x509.ParsePKCS1PrivateKey(blockPrivate.Bytes)
 
 	if rsaPrivate.Validate() != nil {
-		return "", fmt.Errorf("Valid privateFile key error")
+		return "", "", "", fmt.Errorf("Valid privateFile key error")
 	}
 
 	// Get fingerprint from private key
@@ -133,12 +133,12 @@ func OpenSSHKeyFiles(publicFile, privateFile string) (string, error) {
 		// Read public key file, and return fingerprint.
 		publicData, err = ioutil.ReadFile(publicFile)
 		if err != nil {
-			return "", fmt.Errorf("Read public file key file error, %s", err.Error())
+			return "", "", "", fmt.Errorf("Read public file key file error, %s", err.Error())
 		}
 
 		publicKey, _, _, _, err = ssh.ParseAuthorizedKey(publicData)
 		if err != nil {
-			return "", fmt.Errorf("Parse ssh public file key error")
+			return "", "", "", fmt.Errorf("Parse ssh public file key error")
 		}
 
 		fingerprint = ssh.FingerprintLegacyMD5(publicKey)
@@ -148,7 +148,7 @@ func OpenSSHKeyFiles(publicFile, privateFile string) (string, error) {
 		publicFile := path.Join(path.Dir(privateFile), PublicFileName)
 
 		if err := ioutil.WriteFile(publicFile, publicSSHKey, 0600); err != nil {
-			return "", err
+			return "", "", "", err
 		}
 
 		fingerprint = f
@@ -156,8 +156,8 @@ func OpenSSHKeyFiles(publicFile, privateFile string) (string, error) {
 
 	// If different fingerprint form public key and private key, will return error.
 	if f != fingerprint {
-		return "", fmt.Errorf("Public and Private key is not pair.")
+		return "", "", "", fmt.Errorf("Public and Private key is not pair.")
 	}
 
-	return fingerprint, nil
+	return publicFile, privateFile, fingerprint, nil
 }

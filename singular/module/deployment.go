@@ -34,6 +34,7 @@ import (
 	"github.com/Huawei/containerops/common/utils"
 	"github.com/Huawei/containerops/singular/module/service"
 	"github.com/Huawei/containerops/singular/module/template"
+	"github.com/Huawei/containerops/singular/module/tools"
 )
 
 // JSON export deployment data
@@ -150,14 +151,16 @@ func (d *Deployment) CheckSSHKey() error {
 // Deploy Sequence: Preparing SSH Key files -> Preparing VM -> Preparing SSL root Key files -> Deploy Etcd
 //   -> Deploy flannel -> Deploy k8s Master -> Deploy k8s node -> TODO Deploy other...
 func (d *Deployment) Deploy() error {
+	var err error
+
 	// Preparing SSH Keys
-	if d.Tools.SSH.Public == "" || d.Tools.SSH.Private == "" {
-		if public, private, fingerprint, err := CreateSSHKeyFiles(d.Config); err != nil {
+	if d.Tools.SSH.Private != "" {
+		if d.Tools.SSH.Public, d.Tools.SSH.Private, d.Tools.SSH.Fingerprint, err = tools.OpenSSHKeyFiles(d.Tools.SSH.Public, d.Tools.SSH.Private); err != nil {
 			return err
-		} else {
-			d.Log(fmt.Sprintf(
-				"Generate SSH key files successfully, fingerprint is %s", fingerprint))
-			d.Tools.SSH.Public, d.Tools.SSH.Private, d.Tools.SSH.Fingerprint = public, private, fingerprint
+		}
+	} else {
+		if d.Tools.SSH.Public, d.Tools.SSH.Private, d.Tools.SSH.Fingerprint, err = tools.GenerateSSHKeyFiles(d.Config); err != nil {
+			return err
 		}
 	}
 
