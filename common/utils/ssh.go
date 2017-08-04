@@ -27,6 +27,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+// PublicKeyFile parse private key file, and return ssh.AuthMethod.
 func PublicKeyFile(file string) ssh.AuthMethod {
 	buffer, err := ioutil.ReadFile(file)
 	if err != nil {
@@ -40,39 +41,7 @@ func PublicKeyFile(file string) ssh.AuthMethod {
 	return ssh.PublicKeys(key)
 }
 
-func SSHConnect(user, privateKey, host string, port int) (*ssh.Session, *ssh.Client, error) {
-	var (
-		addr         string
-		clientConfig *ssh.ClientConfig
-		client       *ssh.Client
-		session      *ssh.Session
-		err          error
-	)
-
-	clientConfig = &ssh.ClientConfig{
-		User: user,
-		Auth: []ssh.AuthMethod{
-			PublicKeyFile(privateKey),
-		},
-		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
-			return nil
-		},
-		Timeout: 0,
-	}
-
-	addr = fmt.Sprintf("%s:%d", host, port)
-
-	if client, err = ssh.Dial("tcp", addr, clientConfig); err != nil {
-		return nil, nil, err
-	}
-
-	if session, err = client.NewSession(); err != nil {
-		return nil, nil, err
-	}
-
-	return session, nil, nil
-}
-
+// SSHCommand execute command from SSH connect in the remote host.
 func SSHCommand(user, privateKey, host string, port int, command string, stdout, stderr io.Writer) error {
 	var (
 		addr         string
@@ -119,7 +88,8 @@ func SSHCommand(user, privateKey, host string, port int, command string, stdout,
 	return nil
 }
 
-func SSHScp(user, privateKey, host string, port int, src, dest string, stdout, stderr io.Writer) error {
+// SSHScp copy local file to remote dest using scp command.
+func SSHScp(user, privateKey, host string, port int, src, dest string) error {
 	var (
 		addr         string
 		clientConfig *ssh.ClientConfig

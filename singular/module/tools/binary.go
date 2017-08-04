@@ -17,11 +17,12 @@ limitations under the License.
 package tools
 
 import (
-	"net/url"
-
 	"fmt"
+	"net/url"
+	"os"
+
 	"github.com/Huawei/containerops/common/utils"
-	"github.com/Huawei/containerops/singular/module"
+	//"github.com/Huawei/containerops/singular/module"
 )
 
 const (
@@ -33,17 +34,17 @@ const (
 // If the src is URL, execute curl command in the host.
 // If the src is local file, execute scp command upload to the host.
 //
-func DownloadComponent(src, dest, host string, config module.SSH) error {
+func DownloadComponent(src, dest, host, private string) error {
 	if _, err := url.Parse(src); err != nil {
 		if utils.IsFileExist(src) == true {
-			if err := uploadBinary(src, dest, host, config); err != nil {
+			if err := uploadBinary(src, dest, host, private); err != nil {
 				return err
 			}
 		} else {
 			return fmt.Errorf("Invalid src format, neither URL or local path.")
 		}
 	} else {
-		if err := downloadBinary(src, dest, host, config); err != nil {
+		if err := downloadBinary(src, dest, host, private); err != nil {
 			return err
 		}
 	}
@@ -51,10 +52,19 @@ func DownloadComponent(src, dest, host string, config module.SSH) error {
 	return nil
 }
 
-func downloadBinary(src, dest, host string, config module.SSH) error {
+func downloadBinary(src, dest, host, private string) error {
+	cmd := fmt.Sprintf("curl %s -o %s", src, dest)
+	if err := utils.SSHCommand(DefaultSSHUser, private, host, DefaultSSHPort, cmd, os.Stdout, os.Stderr); err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func uploadBinary(file, dest, host string, config module.SSH) error {
+func uploadBinary(file, dest, host, private string) error {
+	if err := utils.SSHScp(DefaultSSHUser, private, host, DefaultSSHPort, file, dest); err != nil {
+		return err
+	}
+
 	return nil
 }
