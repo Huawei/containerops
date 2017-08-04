@@ -302,11 +302,10 @@ func (d *Deployment) DeployEtcd(infra Infra) error {
 
 func (d *Deployment) DownloadBinaryFile(file, url string, nodes map[string]string) error {
 	for _, ip := range nodes {
-		downloadCmd := fmt.Sprintf("curl %s -o /usr/local/bin/%s", url, file)
 		chmodCmd := fmt.Sprintf("chmod +x /usr/local/bin/%s", file)
 
 		d.Log(fmt.Sprintf("Downloading %s to Node[%s]", file, ip))
-		if err := utils.SSHCommand("root", d.Tools.SSH.Private, ip, 22, downloadCmd, os.Stdout, os.Stderr); err != nil {
+		if err := tools.DownloadComponent(url, fmt.Sprintf("/usr/local/bin/%s", file), ip, d.Tools.SSH.Private); err != nil {
 			return err
 		}
 

@@ -18,18 +18,16 @@ package module
 
 // Deployment is
 type Deployment struct {
-	// Decode from template file or interaction
-	URI     string  `json:"uri" yaml:"uri"`
-	Title   string  `json:"title" yaml:"title"`
-	Version int64   `json:"version" yaml:"version"`
-	Tag     string  `json:"tag" yaml:"tag"`
-	Nodes   int     `json:"nodes" yaml:"nodes"`
-	Service Service `json:"service" yaml:"service"`
-	Tools   Tools   `json:"tools" yaml:"tools"`
-	Infras  []Infra `json:"infras" yaml:"infras"`
-	// Runtime Properties
+	URI       string                 `json:"uri" yaml:"uri"`
+	Title     string                 `json:"title" yaml:"title"`
+	Version   int64                  `json:"version" yaml:"version"`
+	Tag       string                 `json:"tag" yaml:"tag"`
+	Nodes     int                    `json:"nodes" yaml:"nodes"`
+	Service   Service                `json:"service" yaml:"service"`
+	Tools     Tools                  `json:"tools" yaml:"tools"`
+	Infras    []Infra                `json:"infras" yaml:"infras"`
 	Logs      []string               `json:"logs,omitempty" yaml:"logs,omitempty"`
-	Config    string                 `json:"-" yaml:"-"` //SSL, SSH, Systemd template files folder. default: $HOME/.containerops/singular
+	Config    string                 `json:"-" yaml:"-"`
 	Verbose   bool                   `json:"-" yaml:"-"`
 	Timestamp bool                   `json:"-" yaml:"-"`
 	Outputs   map[string]interface{} `json:"-" yaml:"-"`
@@ -56,7 +54,7 @@ type SSH struct {
 	Fingerprint string `json:"fingerprint" yaml:"fingerprint"`
 }
 
-// Service is
+// Infra is
 type Infra struct {
 	Name       string      `json:"name" yaml:"name"`
 	Version    string      `json:"version" yaml:"version" `

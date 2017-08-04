@@ -35,6 +35,7 @@ import (
 
 	"github.com/Huawei/containerops/common/utils"
 	t "github.com/Huawei/containerops/singular/module/template"
+	"github.com/Huawei/containerops/singular/module/tools"
 )
 
 func GenerateCARootFiles(src string) (map[string]string, error) {
@@ -377,7 +378,7 @@ func UploadCARootFiles(src string, files map[string]string, ip string) error {
 	}
 
 	for _, f := range files {
-		if err := utils.SSHScp("root", key, ip, 22, f, path.Join("/etc/kubernetes/ssl", path.Base(f)), os.Stdout, os.Stderr); err != nil {
+		if err := tools.DownloadComponent(f, path.Join("/etc/kubernetes/ssl", path.Base(f)), ip, key); err != nil {
 			return err
 		}
 	}
@@ -397,11 +398,11 @@ func UploadEtcdCAFiles(src string, nodes map[string]string) error {
 
 		var err error
 
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "etcd-csr.json"), "/etc/etcd/ssl/etcd-csr.json", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "etcd-key.pem"), "/etc/etcd/ssl/etcd-key.pem", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "etcd.csr"), "/etc/etcd/ssl/etcd.csr", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "etcd.pem"), "/etc/etcd/ssl/etcd.pem", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "etcd.service"), "/etc/systemd/system/etcd.service", os.Stdout, os.Stderr)
+		err = tools.DownloadComponent(path.Join(base, ip, "etcd-csr.json"), "/etc/etcd/ssl/etcd-csr.json", ip, key)
+		err = tools.DownloadComponent(path.Join(base, ip, "etcd-key.pem"), "/etc/etcd/ssl/etcd-key.pem", ip, key)
+		err = tools.DownloadComponent(path.Join(base, ip, "etcd.csr"), "/etc/etcd/ssl/etcd.csr", ip, key)
+		err = tools.DownloadComponent(path.Join(base, ip, "etcd.pem"), "/etc/etcd/ssl/etcd.pem", ip, key)
+		err = tools.DownloadComponent(path.Join(base, ip, "etcd.service"), "/etc/systemd/system/etcd.service", ip, key)
 
 		if err != nil {
 			return err
@@ -438,11 +439,11 @@ func UploadFlanneldCAFiles(src string, nodes map[string]string) error {
 		}
 
 		err = utils.SSHCommand("root", key, ip, 22, initCmd[0], os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "flanneld-csr.json"), "/etc/flanneld/ssl/flanneld-csr.json", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "flanneld-key.pem"), "/etc/flanneld/ssl/flanneld-key.pem", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "flanneld.csr"), "/etc/flanneld/ssl/flanneld.csr", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "flanneld.pem"), "/etc/flanneld/ssl/flanneld.pem", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "flanneld.service"), "/etc/systemd/system/flanneld.service", os.Stdout, os.Stderr)
+		err = tools.DownloadComponent(path.Join(base, ip, "flanneld-csr.json"), "/etc/flanneld/ssl/flanneld-csr.json", ip, key)
+		err = tools.DownloadComponent(path.Join(base, ip, "flanneld-key.pem"), "/etc/flanneld/ssl/flanneld-key.pem", ip, key)
+		err = tools.DownloadComponent(path.Join(base, ip, "flanneld.csr"), "/etc/flanneld/ssl/flanneld.csr", ip, key)
+		err = tools.DownloadComponent(path.Join(base, ip, "flanneld.pem"), "/etc/flanneld/ssl/flanneld.pem", ip, key)
+		err = tools.DownloadComponent(path.Join(base, ip, "flanneld.service"), "/etc/systemd/system/flanneld.service", ip, key)
 
 		if err != nil {
 			return err
@@ -531,7 +532,7 @@ func UploadDockerCAFiles(src string, nodes map[string]string) error {
 		}
 
 		err = utils.SSHCommand("root", key, ip, 22, strings.Join(initCmd, " && "), os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "docker.service"), "/etc/systemd/system/docker.service", os.Stdout, os.Stderr)
+		err = tools.DownloadComponent(path.Join(base, ip, "docker.service"), "/etc/systemd/system/docker.service", ip, key)
 
 		if err != nil {
 			return err
@@ -576,11 +577,11 @@ func UploadKubeConfigFiles(src string, nodes map[string]string) error {
 		var err error
 
 		err = utils.SSHCommand("root", key, ip, 22, "mkdir -p /root/.kube", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, config, "/root/.kube/config", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(src, "kubectl", "admin.csr"), "/etc/kubernetes/ssl/admin.csr", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(src, "kubectl", "admin-csr.json"), "/etc/kubernetes/ssl/admin-csr.json", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(src, "kubectl", "admin-key.pem"), "/etc/kubernetes/ssl/admin-key.pem", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(src, "kubectl", "admin.pem"), "/etc/kubernetes/ssl/admin.pem", os.Stdout, os.Stderr)
+		err = tools.DownloadComponent(config, "/root/.kube/config", ip, key)
+		err = tools.DownloadComponent(path.Join(src, "kubectl", "admin.csr"), "/etc/kubernetes/ssl/admin.csr", ip, key)
+		err = tools.DownloadComponent(path.Join(src, "kubectl", "admin-csr.json"), "/etc/kubernetes/ssl/admin-csr.json", ip, key)
+		err = tools.DownloadComponent(path.Join(src, "kubectl", "admin-key.pem"), "/etc/kubernetes/ssl/admin-key.pem", ip, key)
+		err = tools.DownloadComponent(path.Join(src, "kubectl", "admin.pem"), "/etc/kubernetes/ssl/admin.pem", ip, key)
 
 		if err != nil {
 			return err
@@ -687,11 +688,11 @@ func UploadKubeAPIServerCAFiles(src, ip string) error {
 
 	var err error
 
-	err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kubernetes-csr.json"), "/etc/kubernetes/ssl/kubernetes-csr.json", os.Stdout, os.Stderr)
-	err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kubernetes-key.pem"), "/etc/kubernetes/ssl/kubernetes-key.pem", os.Stdout, os.Stderr)
-	err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kubernetes.csr"), "/etc/kubernetes/ssl/kubernetes.csr", os.Stdout, os.Stderr)
-	err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kubernetes.pem"), "/etc/kubernetes/ssl/kubernetes.pem", os.Stdout, os.Stderr)
-	err = utils.SSHScp("root", key, ip, 22, path.Join(base, "kube-apiserver.service"), "/etc/systemd/system/kube-apiserver.service", os.Stdout, os.Stderr)
+	err = tools.DownloadComponent(path.Join(base, "kubernetes-csr.json"), "/etc/kubernetes/ssl/kubernetes-csr.json", ip, key)
+	err = tools.DownloadComponent(path.Join(base, "kubernetes-key.pem"), "/etc/kubernetes/ssl/kubernetes-key.pem", ip, key)
+	err = tools.DownloadComponent(path.Join(base, "kubernetes.csr"), "/etc/kubernetes/ssl/kubernetes.csr", ip, key)
+	err = tools.DownloadComponent(path.Join(base, "kubernetes.pem"), "/etc/kubernetes/ssl/kubernetes.pem", ip, key)
+	err = tools.DownloadComponent(path.Join(base, "kube-apiserver.service"), "/etc/systemd/system/kube-apiserver.service", ip, key)
 
 	if err != nil {
 		return err
@@ -738,7 +739,7 @@ func UploadKuberControllerFiles(src, ip string) error {
 	base := path.Join(src, "ssl", "kubernetes")
 	key := path.Join(src, "ssh", "id_rsa")
 
-	if err := utils.SSHScp("root", key, ip, 22, path.Join(base, "kube-controller-manager.service"), "/etc/systemd/system/kube-controller-manager.service", os.Stdout, os.Stderr); err != nil {
+	if err := tools.DownloadComponent(path.Join(base, "kube-controller-manager.service"), "/etc/systemd/system/kube-controller-manager.service", ip, key); err != nil {
 		return err
 	}
 
@@ -783,7 +784,7 @@ func UploadKuberSchedulerManagerFiles(src, ip string) error {
 	base := path.Join(src, "ssl", "kubernetes")
 	key := path.Join(src, "ssh", "id_rsa")
 
-	if err := utils.SSHScp("root", key, ip, 22, path.Join(base, "kube-scheduler.service"), "/etc/systemd/system/kube-scheduler.service", os.Stdout, os.Stderr); err != nil {
+	if err := tools.DownloadComponent(path.Join(base, "kube-scheduler.service"), "/etc/systemd/system/kube-scheduler.service", ip, key); err != nil {
 		return err
 	}
 
@@ -807,7 +808,7 @@ func UploadBootstrapFile(src string, nodes map[string]string) error {
 	key := path.Join(src, "ssh", "id_rsa")
 
 	for _, ip := range nodes {
-		if err := utils.SSHScp("root", key, ip, 22, config, "/etc/kubernetes/bootstrap.kubeconfig", os.Stdout, os.Stderr); err != nil {
+		if err := tools.DownloadComponent(config, "/etc/kubernetes/bootstrap.kubeconfig", ip, key); err != nil {
 			return err
 		}
 	}
@@ -851,7 +852,8 @@ func UploadKubeletFile(src string, nodes map[string]string) error {
 		if err := utils.SSHCommand("root", key, ip, 22, "mkdir -p /var/lib/kubelet", os.Stdout, os.Stderr); err != nil {
 			return err
 		}
-		if err := utils.SSHScp("root", key, ip, 22, file, "/etc/systemd/system/kubelet.service", os.Stdout, os.Stderr); err != nil {
+
+		if err := tools.DownloadComponent(file, "/etc/systemd/system/kubelet.service", ip, key); err != nil {
 			return err
 		}
 
@@ -918,7 +920,7 @@ func UploadTokenFiles(src, ip string) error {
 	file := path.Join(src, "kubectl", "token.csv")
 	key := path.Join(src, "ssh", "id_rsa")
 
-	if err := utils.SSHScp("root", key, ip, 22, file, "/etc/kubernetes/token.csv", os.Stdout, os.Stderr); err != nil {
+	if err := tools.DownloadComponent(file, "/etc/kubernetes/token.csv", ip, key); err != nil {
 		return err
 	}
 
@@ -1016,12 +1018,12 @@ func UploadKubeProxyFiles(src string, nodes map[string]string) error {
 		var err error
 
 		err = utils.SSHCommand("root", key, ip, 22, "mkdir -p /var/lib/kube-proxy", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "kube-proxy-csr.json"), "/etc/kubernetes/ssl/kube-proxy-csr.json", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "kube-proxy-key.pem"), "/etc/kubernetes/ssl/kube-proxy-key.pem", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "kube-proxy.csr"), "/etc/kubernetes/ssl/kube-proxy.csr", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "kube-proxy.pem"), "/etc/kubernetes/ssl/kube-proxy.pem", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "kube-proxy.service"), "/etc/systemd/system/kube-proxy.service", os.Stdout, os.Stderr)
-		err = utils.SSHScp("root", key, ip, 22, path.Join(base, ip, "kube-proxy.kubeconfig"), "/etc/kubernetes/kube-proxy.kubeconfig", os.Stdout, os.Stderr)
+		err = tools.DownloadComponent(path.Join(base, ip, "kube-proxy-csr.json"), "/etc/kubernetes/ssl/kube-proxy-csr.json", ip, key)
+		err = tools.DownloadComponent(path.Join(base, ip, "kube-proxy-key.pem"), "/etc/kubernetes/ssl/kube-proxy-key.pem", ip, key)
+		err = tools.DownloadComponent(path.Join(base, ip, "kube-proxy.csr"), "/etc/kubernetes/ssl/kube-proxy.csr", ip, key)
+		err = tools.DownloadComponent(path.Join(base, ip, "kube-proxy.pem"), "/etc/kubernetes/ssl/kube-proxy.pem", ip, key)
+		err = tools.DownloadComponent(path.Join(base, ip, "kube-proxy.service"), "/etc/systemd/system/kube-proxy.service", ip, key)
+		err = tools.DownloadComponent(path.Join(base, ip, "kube-proxy.kubeconfig"), "/etc/kubernetes/kube-proxy.kubeconfig", ip, key)
 
 		if err != nil {
 			return err
