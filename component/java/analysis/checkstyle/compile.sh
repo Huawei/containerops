@@ -1,5 +1,19 @@
 #!/bin/bash
 
+exec 2>/tmp/error_out
+function STOUT(){
+    echo "[COUT] $@"
+    $@ | awk '{print "[COUT]", $0}'
+    if [ "`cat /tmp/error_out`" = "" ]
+    then
+        return 0
+    else
+        awk '{print "[COUT]", $0}' /tmp/error_out
+        echo '' > /tmp/error_out
+        return 1
+    fi
+}
+
 declare -A map=(
     ["git-url"]="" 
     ["out-put-type"]=""
@@ -44,19 +58,12 @@ then
     map["report-path"]="build/reports/checkstyle"
 fi
 
-git clone ${map["git-url"]} 2>&1 | awk '{print "[COUT] CO_RESULT =", $0}'
-if [ "$?" -ne "0" ]
-then
-    printf "[COUT] CO_RESULT = %s\n" "false"
-    exit
-fi
-
+STOUT git clone ${map["git-url"]}
 pdir=`echo ${map["git-url"]} | awk -F '/' '{print $NF}' | awk -F '.' '{print $1}'`
-
 cd ./$pdir
 if [ ! -f "build.gradle" ]
 then
-    printf "[COUT] CO_RESULT = file build.gradle not found! \n"
+    printf "[COUT] file build.gradle not found! \n"
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi 
@@ -64,21 +71,21 @@ fi
 havecheckstyle=`echo gradle -q tasks --all | grep checkstyle`
 if [ "$havecheckstyle" = "" ]
 then
-    echo -e "\napply plugin: 'checkstyle'" >> build.gradle 2>&1 | awk '{print "[COUT] CO_RESULT =", $0}'
-    mkdir -p ./config/checkstyle 2>&1 | awk '{print "[COUT] CO_RESULT =", $0}'
-    cp /root/checkstyle.xml ./config/checkstyle/ 2>&1 | awk '{print "[COUT] CO_RESULT =", $0}'
+    echo -e "\napply plugin: 'checkstyle'" >> build.gradle
+    mkdir -p ./config/checkstyle
+    cp /root/checkstyle.xml ./config/checkstyle/
 fi
 
-gradle checkstyleMain 2>&1 | awk '{print "[COUT] CO_RESULT =", $0}'
-gradle checkstyleTest 2>&1 | awk '{print "[COUT] CO_RESULT =", $0}'
+STOUT gradle checkstyleMain
+STOUT gradle checkstyleTest
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then
-    cat ${map["report-path"]}/main.xml 2>&1 | awk '{print "[COUT] CO_RESULT =", $0}'
-    cat ${map["report-path"]}/test.xml 2>&1 | awk '{print "[COUT] CO_RESULT =", $0}'
+    STOUT cat ${map["report-path"]}/main.xml
+    STOUT cat ${map["report-path"]}/test.xml
 else
-    java -jar /root/convert.jar ${map["report-path"]}/main.xml ${map["out-put-type"]} 2>&1 | awk '{print "[COUT] CO_RESULT =", $0}'
-    java -jar /root/convert.jar ${map["report-path"]}/test.xml ${map["out-put-type"]} 2>&1 | awk '{print "[COUT] CO_RESULT =", $0}'
+    STOUT java -jar /root/convert.jar ${map["report-path"]}/main.xml ${map["out-put-type"]}
+    STOUT java -jar /root/convert.jar ${map["report-path"]}/test.xml ${map["out-put-type"]}
 fi
 
 if [ "$?" -eq "0" ]
