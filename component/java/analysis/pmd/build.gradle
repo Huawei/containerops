@@ -4,12 +4,11 @@ version ''
 apply plugin : 'java'  
 apply plugin: 'application'
 
-mainClassName="JsonParse"   
+mainClassName="Convert"
 repositories {  
      mavenCentral()  
 }
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.11'
     compile "org.json:json:20170516"
     compile "com.fasterxml.jackson.core:jackson-core:2.8.6"
     compile "com.fasterxml.jackson.core:jackson-databind:2.8.6"
@@ -29,7 +28,7 @@ jar {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } 
     }
     manifest {
-        attributes 'Main-Class': 'JsonParse'
+        attributes 'Main-Class': 'Convert'
     }
 }
 

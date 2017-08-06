@@ -8,7 +8,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.*;
 import java.util.Map;
 
-public class JsonParse {
+public class Convert {
 
     public static void main(String args[]){
         if(args==null){
