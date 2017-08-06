@@ -18,9 +18,8 @@ RUN gradle build && \
     rm -rf /root/convert
 
 WORKDIR /root
-COPY ./javadoc.conf /root/javadoc.conf
+COPY ./testng.conf /root/testng.conf
 COPY ./compile.sh /root/compile.sh
 RUN chmod 777 /root/compile.sh
 
-#CMD /bin/bash
 CMD /root/compile.sh
