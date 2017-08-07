@@ -5,8 +5,10 @@ function STOUT(){
     if [ "$?" -eq "0" ]
     then
         cat /tmp/standard_out | awk '{print "[COUT]", $0}'
+        cat /tmp/error_out | awk '{print "[COUT]", $0}' >&2
         return 0
     else
+        cat /tmp/standard_out | awk '{print "[COUT]", $0}'
         cat /tmp/error_out | awk '{print "[COUT]", $0}' >&2
         return 1
     fi
@@ -59,3 +61,4 @@ then
 else
     printf "[COUT] CO_RESULT = %s\n" "false"
 fi
+exit
