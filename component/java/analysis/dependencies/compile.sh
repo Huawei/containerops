@@ -1,15 +1,13 @@
 #!/bin/bash
 
-exec 2>/tmp/error_out
 function STOUT(){
-    echo "[COUT] $@"
-    $@ | awk '{print "[COUT]", $0}'
-    if [ "`cat /tmp/error_out`" = "" ]
+    $@ 1>/tmp/standard_out 2>/tmp/error_out
+    if [ "$?" -eq "0" ]
     then
+        cat /tmp/standard_out | awk '{print "[COUT]", $0}'
         return 0
     else
-        awk '{print "[COUT]", $0}' /tmp/error_out
-        echo '' > /tmp/error_out
+        cat /tmp/error_out | awk '{print "[COUT]", $0}' >&2
         return 1
     fi
 }
@@ -30,10 +28,6 @@ do
         fi
     done
 done
-if [ "$?" -ne "0" ]
-then
-    printf "[COUT] CO_RESULT = %s\n" "false"
-fi
 
 if [ "" = "${map["git-url"]}" ]
 then
@@ -43,6 +37,11 @@ then
 fi
 
 STOUT git clone ${map["git-url"]}
+if [ "$?" -ne "0" ]
+then
+    printf "[COUT] CO_RESULT = %s\n" "false"
+    exit
+fi
 pdir=`echo ${map["git-url"]} | awk -F '/' '{print $NF}' | awk -F '.' '{print $1}'`
 cd ./$pdir
 if [ ! -f "build.gradle" ]
@@ -57,4 +56,6 @@ STOUT gradle dependencies
 if [ "$?" -eq "0" ]
 then
     printf "[COUT] CO_RESULT = %s\n" "true"
+else
+    printf "[COUT] CO_RESULT = %s\n" "false"
 fi
