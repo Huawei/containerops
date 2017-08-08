@@ -1,0 +1,19 @@
+[database]
+driver = "mysql"
+host = "127.0.0.1"
+port = "3306"
+user = "root"
+password = "containerops"
+db = 'singular_site'
+
+[web]
+# Listen on https port
+#mode = 'https'
+#address = "127.0.0.1"
+#port = 443
+#cert = "PATH_TO_CERT_FILE"
+#key = "PATH_TO_KEY_FILE"
+# Listen on Unix socket
+# Listen on unix socket, only address is needed
+mode = "unix"
+address = "/home/lance/.containerops/run/singular_website.socket"
