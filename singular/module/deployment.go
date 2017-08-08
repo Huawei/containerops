@@ -210,7 +210,7 @@ func (d *Deployment) Deploy() error {
 
 			for ip, _ := range do.Droplets {
 				d.Log(fmt.Sprintf("Upload SSL Root files to Droplet[%s] and init environments.", ip))
-				if err := UploadCARootFiles(d.Config, roots, ip); err != nil {
+				if err := UploadCARootFiles(d.Tools.SSH.Private, roots, ip); err != nil {
 					return err
 				}
 			}
@@ -280,7 +280,7 @@ func (d *Deployment) DeployEtcd(infra Infra) error {
 		return err
 	} else {
 		d.Log(fmt.Sprintf("Uploading SSL files to nodes of Etcd Cluster."))
-		if err := UploadEtcdCAFiles(d.Config, etcdNodes); err != nil {
+		if err := UploadEtcdCAFiles(d.Config, d.Tools.SSH.Private, etcdNodes); err != nil {
 			return err
 		}
 
@@ -331,7 +331,7 @@ func (d *Deployment) DeployFlannel(infra Infra) error {
 		return err
 	} else {
 		d.Log(fmt.Sprintf("Uploading SSL files and systemd service to nodes of Flanneld."))
-		if err := UploadFlanneldCAFiles(d.Config, flanneldNodes); err != nil {
+		if err := UploadFlanneldCAFiles(d.Config, d.Tools.SSH.Private, flanneldNodes); err != nil {
 			return err
 		}
 
@@ -369,7 +369,7 @@ func (d *Deployment) DeployDocker(infra Infra) error {
 		return err
 	} else {
 		d.Log(fmt.Sprintf("Uploading SSL files and systemd service to nodes of Docker."))
-		if err := UploadDockerCAFiles(d.Config, dockerNodes); err != nil {
+		if err := UploadDockerCAFiles(d.Config, d.Tools.SSH.Private, dockerNodes); err != nil {
 			return err
 		}
 
@@ -523,7 +523,7 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 			}
 
 			d.Log("Upload kubectl config file to Kubernetes nodes")
-			if err := UploadKubeConfigFiles(d.Config, kubeSlaveNodes); err != nil {
+			if err := UploadKubeConfigFiles(d.Config, d.Tools.SSH.Private, kubeSlaveNodes); err != nil {
 				return err
 			}
 		}
@@ -540,17 +540,17 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 			}
 
 			d.Log("Upload Kubernetes Token file")
-			if err := UploadTokenFiles(d.Config, masterIp); err != nil {
+			if err := UploadTokenFiles(d.Config, d.Tools.SSH.Private, masterIp); err != nil {
 				return err
 			}
 
 			d.Log("Upload Kubernetes API Server SSL files and systemd service file")
-			if err := UploadKubeAPIServerCAFiles(d.Config, masterIp); err != nil {
+			if err := UploadKubeAPIServerCAFiles(d.Config, d.Tools.SSH.Private, masterIp); err != nil {
 				return err
 			}
 
 			d.Log("Start Kubernetes API Server")
-			if err := StartKubeAPIServer(d.Config, masterIp); err != nil {
+			if err := StartKubeAPIServer(d.Tools.SSH.Private, masterIp); err != nil {
 				return err
 			}
 
@@ -563,12 +563,12 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 			}
 
 			d.Log("Upload Kuber-controller-manager systemd service file")
-			if err := UploadKuberControllerFiles(d.Config, masterIp); err != nil {
+			if err := UploadKuberControllerFiles(d.Config, d.Tools.SSH.Private, masterIp); err != nil {
 				return err
 			}
 
 			d.Log("Start Kube-controller-manager")
-			if err := StartKuberController(d.Config, masterIp); err != nil {
+			if err := StartKuberController(d.Tools.SSH.Private, masterIp); err != nil {
 				return err
 			}
 		}
@@ -580,12 +580,12 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 			}
 
 			d.Log("Upload Kuber-scheduler systemd service file")
-			if err := UploadKuberSchedulerManagerFiles(d.Config, masterIp); err != nil {
+			if err := UploadKuberSchedulerManagerFiles(d.Config, d.Tools.SSH.Private, masterIp); err != nil {
 				return err
 			}
 
 			d.Log("Start Kube-scheduler")
-			if err := StartKuberSchedulerManager(d.Config, masterIp); err != nil {
+			if err := StartKuberSchedulerManager(d.Tools.SSH.Private, masterIp); err != nil {
 				return err
 			}
 		}
@@ -627,12 +627,12 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 			}
 
 			d.Log("Upload bootstrap.kubeconfig to all nodes")
-			if err := UploadBootstrapFile(d.Config, kubeSlaveNodes); err != nil {
+			if err := UploadBootstrapFile(d.Config, d.Tools.SSH.Private, kubeSlaveNodes); err != nil {
 				return err
 			}
 
 			d.Log("Set Kubelet Clusterrolebinding")
-			if err := SetKubeletClusterrolebinding(d.Config, d.Outputs[fmt.Sprintf("NODE_%d", 0)].(string)); err != nil {
+			if err := SetKubeletClusterrolebinding(d.Tools.SSH.Private, d.Outputs[fmt.Sprintf("NODE_%d", 0)].(string)); err != nil {
 				return nil
 			}
 
@@ -642,18 +642,18 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 			}
 
 			d.Log("Upload Kubelete Systemd file")
-			if err := UploadKubeletFile(d.Config, kubeSlaveNodes); err != nil {
+			if err := UploadKubeletFile(d.Config, d.Tools.SSH.Private, kubeSlaveNodes); err != nil {
 				return err
 			}
 
 			d.Log("Start Kubelete Service")
-			if err := StartKubelet(d.Config, kubeSlaveNodes); err != nil {
+			if err := StartKubelet(d.Tools.SSH.Private, kubeSlaveNodes); err != nil {
 				return err
 			}
 
 			time.Sleep(10 * time.Second)
 			d.Log("Time wait 10 seconds for certificate approve")
-			if err := KubeletCertificateApprove(d.Config, d.Outputs[fmt.Sprintf("NODE_%d", 0)].(string)); err != nil {
+			if err := KubeletCertificateApprove(d.Tools.SSH.Private, d.Outputs[fmt.Sprintf("NODE_%d", 0)].(string)); err != nil {
 				return err
 			}
 		}
@@ -705,12 +705,12 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 			}
 
 			d.Log("Upload kube-proxy Systemd file")
-			if err := UploadKubeProxyFiles(d.Config, kubeSlaveNodes); err != nil {
+			if err := UploadKubeProxyFiles(d.Config, d.Tools.SSH.Private, kubeSlaveNodes); err != nil {
 				return err
 			}
 
 			d.Log("Start kube-proxy Service")
-			if err := StartKubeProxy(d.Config, kubeSlaveNodes); err != nil {
+			if err := StartKubeProxy(d.Tools.SSH.Private, kubeSlaveNodes); err != nil {
 				return err
 			}
 		}
