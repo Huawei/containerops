@@ -22,7 +22,6 @@ import (
 	"os"
 
 	"github.com/Huawei/containerops/common/utils"
-	//"github.com/Huawei/containerops/singular/module"
 )
 
 const (
@@ -35,18 +34,23 @@ const (
 // If the src is local file, execute scp command upload to the host.
 //
 func DownloadComponent(src, dest, host, private string) error {
-	if _, err := url.Parse(src); err != nil {
-		if utils.IsFileExist(src) == true {
-			if err := uploadBinary(src, dest, host, private); err != nil {
-				return err
+	if u, err := url.Parse(src); err != nil {
+		return fmt.Errorf("Invalid src format, neither URL or local path.")
+	} else {
+		if u.Scheme == "" {
+			if utils.IsFileExist(src) == true {
+				if err := uploadBinary(src, dest, host, private); err != nil {
+					return err
+				}
+			} else {
+				return fmt.Errorf("The file not exist")
 			}
 		} else {
-			return fmt.Errorf("Invalid src format, neither URL or local path.")
+			if err := downloadBinary(src, dest, host, private); err != nil {
+				return err
+			}
 		}
-	} else {
-		if err := downloadBinary(src, dest, host, private); err != nil {
-			return err
-		}
+
 	}
 
 	return nil

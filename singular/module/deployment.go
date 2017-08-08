@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"os/exec"
 	"path"
@@ -452,10 +453,25 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 			os.MkdirAll(path.Join(d.Config, "kubectl"), os.ModePerm)
 
 			d.Log("Downloading kubectl binary file")
-			cmdDownload := exec.Command("curl", c.URL, "-o", fmt.Sprintf("%s/kubectl/kubectl", d.Config))
-			cmdDownload.Stdout, cmdDownload.Stderr = os.Stdout, os.Stderr
-			if err := cmdDownload.Run(); err != nil {
+
+			if a, err := url.Parse(c.URL); err != nil {
 				return err
+			} else {
+				if a.Scheme == "" {
+					cmdCopy := exec.Command("cp", c.URL, fmt.Sprintf("%s/kubectl/kubectl", d.Config))
+
+					cmdCopy.Stdout, cmdCopy.Stderr = os.Stdout, os.Stderr
+					if err := cmdCopy.Run(); err != nil {
+						return err
+					}
+				} else {
+					cmdDownload := exec.Command("curl", c.URL, "-o", fmt.Sprintf("%s/kubectl/kubectl", d.Config))
+
+					cmdDownload.Stdout, cmdDownload.Stderr = os.Stdout, os.Stderr
+					if err := cmdDownload.Run(); err != nil {
+						return err
+					}
+				}
 			}
 
 			cmdChmod := exec.Command("chmod", "+x", fmt.Sprintf("%s/kubectl/kubectl", d.Config))
