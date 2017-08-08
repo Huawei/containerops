@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="public/css/materialize.min.css" media="screen,projection" />
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+</head>
+
+<body>
+    <header class="page-footer blue" style="padding-top:10px; padding-left:20px;">
+        <div class="container" style="padding-bottom:10px">
+            <h2>Singular Deployments</h2>
+        </div>
+    </header>
+    <div class="container">
+        <ul class="collection">
+            {{range .}}
+			<a href="./detail?deployment_id={{.ID}}" class="collection-item" target="_blank">
+                <li class="collection-item avatar">
+					<i class="material-icons circle {{.StatusColor}}">{{.StatusIcon}}</i>
+                    <span class="title">Components: {{ component_names .Components }} </span>
+                    <div class="row" style="margin-top: 10px">
+                        {{range .Components}}
+                        <div class="col">
+                            <img src="{{.ImageSrc}}" alt="{{.Alt}}" style="width:{{.Width}}px; height:{{.Height}}px">
+                        </div>
+                        {{end}}
+                    </div>
+                </li>
+            </a>
+            {{end}}
+        </ul>
+    </div>
+    <footer class="page-footer blue" style="padding-bottom: 38px">
+		<div class="container">
+			<span class="right">
+				<a class="grey-text text-lighten-4" href="https://github.com/Huawei/containerops">
+					<img src="public/icons/github.svg" style="width:20px; height:20px" />
+					<div class="right" style="margin-left: 5px"> ContainerOps </div>
+				</a>
+			</span>
+		</div>
+	</footer>
+	<!--Import jQuery before materialize.js-->
+	<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="public/js/materialize.min.js"></script>
+</body>
+
+</html>
