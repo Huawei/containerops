@@ -359,9 +359,7 @@ func GenerateFlanneldFiles(src string, nodes map[string]string, etcdEndpoints st
 	return nil
 }
 
-func UploadCARootFiles(src string, files map[string]string, ip string) error {
-	key := path.Join(src, "ssh", "id_rsa")
-
+func UploadCARootFiles(key string, files map[string]string, ip string) error {
 	initCmd := []string{
 		"mkdir -p /etc/kubernetes/ssl",
 		"mkdir -p /etc/etcd/ssl",
@@ -386,9 +384,8 @@ func UploadCARootFiles(src string, files map[string]string, ip string) error {
 	return nil
 }
 
-func UploadEtcdCAFiles(src string, nodes map[string]string) error {
+func UploadEtcdCAFiles(src, key string, nodes map[string]string) error {
 	base := path.Join(src, "ssl", "etcd")
-	key := path.Join(src, "ssh", "id_rsa")
 
 	if utils.IsDirExist(base) == false {
 		return fmt.Errorf("Locate etcd folders %s error.", base)
@@ -422,9 +419,8 @@ func StartEtcdCluster(key string, nodes map[string]string) error {
 	return nil
 }
 
-func UploadFlanneldCAFiles(src string, nodes map[string]string) error {
+func UploadFlanneldCAFiles(src, key string, nodes map[string]string) error {
 	base := path.Join(src, "ssl", "flanneld")
-	key := path.Join(src, "ssh", "id_rsa")
 
 	if utils.IsDirExist(base) == false {
 		return fmt.Errorf("Locate flanneld folders %s error.", base)
@@ -512,9 +508,8 @@ func GenerateDockerFiles(src string, nodes map[string]string, version string) er
 	return nil
 }
 
-func UploadDockerCAFiles(src string, nodes map[string]string) error {
+func UploadDockerCAFiles(src, key string, nodes map[string]string) error {
 	base := path.Join(src, "ssl", "docker")
-	key := path.Join(src, "ssh", "id_rsa")
 
 	if utils.IsDirExist(base) == false {
 		return fmt.Errorf("Locate docker folders %s error.", base)
@@ -561,7 +556,6 @@ func StartDockerDaemon(key, ip string) error {
 }
 
 func AfterDockerExecute(key, ip, cmd string) error {
-
 	if err := utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr); err != nil {
 		return err
 	}
@@ -569,8 +563,7 @@ func AfterDockerExecute(key, ip, cmd string) error {
 	return nil
 }
 
-func UploadKubeConfigFiles(src string, nodes map[string]string) error {
-	key := path.Join(src, "ssh", "id_rsa")
+func UploadKubeConfigFiles(src, key string, nodes map[string]string) error {
 	config := path.Join(src, "kubectl", "config")
 
 	for _, ip := range nodes {
@@ -682,9 +675,8 @@ func GenerateKuberAPIServerCAFiles(src string, masterIP, etcdEndpoints string, v
 	return nil
 }
 
-func UploadKubeAPIServerCAFiles(src, ip string) error {
+func UploadKubeAPIServerCAFiles(src, key, ip string) error {
 	base := path.Join(src, "ssl", "kubernetes")
-	key := path.Join(src, "ssh", "id_rsa")
 
 	var err error
 
@@ -701,9 +693,7 @@ func UploadKubeAPIServerCAFiles(src, ip string) error {
 	return nil
 }
 
-func StartKubeAPIServer(src, ip string) error {
-	key := path.Join(src, "ssh", "id_rsa")
-
+func StartKubeAPIServer(key, ip string) error {
 	cmd := "systemctl daemon-reload && systemctl enable kube-apiserver && systemctl start --no-block kube-apiserver"
 
 	if err := utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr); err != nil {
@@ -735,9 +725,8 @@ func GenerateKuberControllerManagerFiles(src string, masterIP, etcdEndpoints str
 	return nil
 }
 
-func UploadKuberControllerFiles(src, ip string) error {
+func UploadKuberControllerFiles(src, key, ip string) error {
 	base := path.Join(src, "ssl", "kubernetes")
-	key := path.Join(src, "ssh", "id_rsa")
 
 	if err := tools.DownloadComponent(path.Join(base, "kube-controller-manager.service"), "/etc/systemd/system/kube-controller-manager.service", ip, key); err != nil {
 		return err
@@ -746,9 +735,7 @@ func UploadKuberControllerFiles(src, ip string) error {
 	return nil
 }
 
-func StartKuberController(src, ip string) error {
-	key := path.Join(src, "ssh", "id_rsa")
-
+func StartKuberController(key, ip string) error {
 	cmd := "systemctl daemon-reload && systemctl enable kube-controller-manager && systemctl start --no-block kube-controller-manager"
 
 	if err := utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr); err != nil {
@@ -780,9 +767,8 @@ func GenerateKuberSchedulerManagerFiles(src string, masterIP, etcdEndpoints stri
 	return nil
 }
 
-func UploadKuberSchedulerManagerFiles(src, ip string) error {
+func UploadKuberSchedulerManagerFiles(src, key, ip string) error {
 	base := path.Join(src, "ssl", "kubernetes")
-	key := path.Join(src, "ssh", "id_rsa")
 
 	if err := tools.DownloadComponent(path.Join(base, "kube-scheduler.service"), "/etc/systemd/system/kube-scheduler.service", ip, key); err != nil {
 		return err
@@ -791,9 +777,7 @@ func UploadKuberSchedulerManagerFiles(src, ip string) error {
 	return nil
 }
 
-func StartKuberSchedulerManager(src, ip string) error {
-	key := path.Join(src, "ssh", "id_rsa")
-
+func StartKuberSchedulerManager(key, ip string) error {
 	cmd := "systemctl daemon-reload && systemctl enable kube-scheduler && systemctl start --no-block kube-scheduler"
 
 	if err := utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr); err != nil {
@@ -803,9 +787,8 @@ func StartKuberSchedulerManager(src, ip string) error {
 	return nil
 }
 
-func UploadBootstrapFile(src string, nodes map[string]string) error {
+func UploadBootstrapFile(src, key string, nodes map[string]string) error {
 	config := path.Join(src, "kubectl", "bootstrap.kubeconfig")
-	key := path.Join(src, "ssh", "id_rsa")
 
 	for _, ip := range nodes {
 		if err := tools.DownloadComponent(config, "/etc/kubernetes/bootstrap.kubeconfig", ip, key); err != nil {
@@ -843,9 +826,7 @@ func GenerateKubeletSystemdFile(src string, nodes map[string]string, version str
 	return nil
 }
 
-func UploadKubeletFile(src string, nodes map[string]string) error {
-	key := path.Join(src, "ssh", "id_rsa")
-
+func UploadKubeletFile(src, key string, nodes map[string]string) error {
 	for _, ip := range nodes {
 		file := path.Join(src, "ssl", "kubernetes", ip, "kubelet.service")
 
@@ -862,9 +843,7 @@ func UploadKubeletFile(src string, nodes map[string]string) error {
 	return nil
 }
 
-func SetKubeletClusterrolebinding(src, ip string) error {
-	key := path.Join(src, "ssh", "id_rsa")
-
+func SetKubeletClusterrolebinding(key, ip string) error {
 	if err := utils.SSHCommand("root", key, ip, 22, "kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap", os.Stdout, os.Stderr); err != nil {
 		return err
 	}
@@ -872,9 +851,7 @@ func SetKubeletClusterrolebinding(src, ip string) error {
 	return nil
 }
 
-func KubeletCertificateApprove(src, ip string) error {
-	key := path.Join(src, "ssh", "id_rsa")
-
+func KubeletCertificateApprove(key, ip string) error {
 	if err := utils.SSHCommand("root", key, ip, 22, "kubectl certificate approve `kubectl get csr -o name`", os.Stdout, os.Stderr); err != nil {
 		return err
 	}
@@ -882,9 +859,7 @@ func KubeletCertificateApprove(src, ip string) error {
 	return nil
 }
 
-func StartKubelet(src string, nodes map[string]string) error {
-	key := path.Join(src, "ssh", "id_rsa")
-
+func StartKubelet(key string, nodes map[string]string) error {
 	for _, ip := range nodes {
 
 		cmd := "systemctl daemon-reload && systemctl enable kubelet && systemctl start --no-block kubelet"
@@ -916,9 +891,8 @@ func GenerateTokenFile(src string) error {
 	return nil
 }
 
-func UploadTokenFiles(src, ip string) error {
+func UploadTokenFiles(src, key, ip string) error {
 	file := path.Join(src, "kubectl", "token.csv")
-	key := path.Join(src, "ssh", "id_rsa")
 
 	if err := tools.DownloadComponent(file, "/etc/kubernetes/token.csv", ip, key); err != nil {
 		return err
@@ -1010,8 +984,7 @@ func GenerateKubeProxyFiles(src string, nodes map[string]string, version string)
 	return nil
 }
 
-func UploadKubeProxyFiles(src string, nodes map[string]string) error {
-	key := path.Join(src, "ssh", "id_rsa")
+func UploadKubeProxyFiles(src, key string, nodes map[string]string) error {
 	base := path.Join(src, "ssl", "kubernetes")
 
 	for _, ip := range nodes {
@@ -1034,9 +1007,7 @@ func UploadKubeProxyFiles(src string, nodes map[string]string) error {
 	return nil
 }
 
-func StartKubeProxy(src string, nodes map[string]string) error {
-	key := path.Join(src, "ssh", "id_rsa")
-
+func StartKubeProxy(key string, nodes map[string]string) error {
 	for _, ip := range nodes {
 		cmd := "systemctl daemon-reload && systemctl enable kube-proxy && systemctl start --no-block kube-proxy"
 
