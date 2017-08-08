@@ -31,8 +31,8 @@ service:
   image: ubuntu-17-04-x64
 tools:
   ssh:
-    private: $HOME/.containerops/ssh/id-rsa
-    public: $HOME/.containerops/ssh/id-rsa.pub
+    private: $HOME/.containerops/ssh/id_rsa
+    public: $HOME/.containerops/ssh/id_rsa.pub
 infras:
   -
     name: etcd
@@ -41,16 +41,16 @@ infras:
       master: 3
       node: 0
     components:
-      -   
+      -
         binary: etcd
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/etcd/3.2.2
         package: false
         systemd: etcd-3.2.2
         ca: etcd-3.2.2
-      - 
+      -
         binary: etcdctl
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/etcdctl/3.2.2
-        package: false    
+        package: false
   -
     name: flannel
     version: 0.7.1
@@ -67,7 +67,7 @@ infras:
         systemd: flannel-0.7.1
         ca: flannel-0.7.1
         before: "etcdctl --endpoints={{.EtcdEndpoints}} --ca-file={{.CAPemFile}} --cert-file={{.FlanneldPemFile}} --key-file={{.FlanneldKeyFile}} set /kubernetes/network/config '{\"Network\":\"'172.30.0.0/16'\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\"}}'"
-      - 
+      -
         binary: mk-docker-opts.sh
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/mk-docker-opts.sh/0.7.1
         package: false
@@ -78,7 +78,7 @@ infras:
       master: 3
       node: 0
     dependencies:
-      - flannel      
+      - flannel
     components:
       -
         binary: docker
@@ -87,7 +87,7 @@ infras:
         systemd: docker-1.7.04.0-ce
         before: "apt update && apt dist-upgrade && apt install -y bridge-utils aufs-tools cgroupfs-mount libltdl7 && systemctl stop ufw && systemctl disable ufw && iptables -F && iptables -X && iptables -F -t nat && iptables -X -t nat"
         after: "iptables -P FORWARD ACCEPT"
-      - 
+      -
         binary: dockerd
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/dockerd/17.04.0-ce
         package: false
@@ -115,7 +115,7 @@ infras:
         binary: docker-containerd-shim
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-containerd-shim/17.04.0-ce
         package: false
-  -   
+  -
     name: kubernetes
     version: 1.6.7
     nodes:
@@ -132,13 +132,13 @@ infras:
         package: false
         systemd: kube-apiserver-1.6.7
         ca: kubernetes-1.6.7
-      - 
+      -
         binary: kube-controller-manager
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-controller-manager/1.6.7
         package: false
         systemd: kube-controller-manager-1.6.7
         ca: kubernetes-1.6.7
-      - 
+      -
         binary: kube-scheduler
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-scheduler/1.6.7
         package: false
@@ -157,5 +157,5 @@ infras:
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-proxy/1.6.7
         package: false
         systemd: kube-proxy-1.6.7
-        ca: kube-proxy-1.6.7    
+        ca: kube-proxy-1.6.7
 ```
