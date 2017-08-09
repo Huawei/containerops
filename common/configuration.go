@@ -161,14 +161,14 @@ type SingularConfig struct {
 }
 
 type AssemblingConfig struct {
-	Domain           string `json:"domain" description:"Listen domain, the official domain is *.osphub.sh"`
-	Mode             string `json:"mode" description:"Listen mode, 'https' or 'unix'"`
-	Address          string `json:"address" description:"The host address when mode is 'https', or socket file path when mode is 'unix'"`
-	Port             int    `json:"port"`
-	Key              string `json:"key"`
-	Cert             string `json:"cert"`
-	DockerDamonImage string `json:"docker_daemon_image" description:"Image with a docker daemon, providing Docker Engine APIs"`
-	KubeConfig       string `json:"kubeconfig" description:"The address of k8s api server"`
+	Domain            string `json:"domain" description:"Listen domain, the official domain is *.osphub.sh"`
+	Mode              string `json:"mode" description:"Listen mode, 'https' or 'unix'"`
+	Address           string `json:"address" description:"The host address when mode is 'https', or socket file path when mode is 'unix'"`
+	Port              int    `json:"port"`
+	Key               string `json:"key"`
+	Cert              string `json:"cert"`
+	DockerDaemonImage string `json:"docker_daemon_image" description:"Image with a docker daemon, providing Docker Engine APIs"`
+	KubeConfig        string `json:"kubeconfig" description:"The address of k8s api server"`
 }
 
 var Database DatabaseConfig
