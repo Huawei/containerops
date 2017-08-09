@@ -20,9 +20,9 @@ package module
 type Deployment struct {
 	URI       string                 `json:"uri" yaml:"uri"`
 	Title     string                 `json:"title" yaml:"title"`
-	Version   int64                  `json:"version" yaml:"version"`
+	Version   int                    `json:"version" yaml:"version"`
 	Tag       string                 `json:"tag" yaml:"tag"`
-	Nodes     int                    `json:"nodes" yaml:"nodes"`
+	Nodes     []Node                 `json:"nodes" yaml:"nodes"`
 	Service   Service                `json:"service" yaml:"service"`
 	Tools     Tools                  `json:"tools" yaml:"tools"`
 	Infras    []Infra                `json:"infras" yaml:"infras"`
@@ -33,6 +33,12 @@ type Deployment struct {
 	Outputs   map[string]interface{} `json:"-" yaml:"-"`
 }
 
+// Node is
+type Node struct {
+	IP   string `json:"ip" yaml:"ip"`
+	User string `json:"user" yaml:"user"`
+}
+
 // Service is
 type Service struct {
 	Provider string `json:"provider" yaml:"provider"`
@@ -40,6 +46,7 @@ type Service struct {
 	Region   string `json:"region" yaml:"region"`
 	Size     string `json:"size" yaml:"size"`
 	Image    string `json:"image" yaml:"image"`
+	Nodes    int    `json:"nodes" yaml:"nodes"`
 }
 
 // Tools is
@@ -58,14 +65,9 @@ type SSH struct {
 type Infra struct {
 	Name       string      `json:"name" yaml:"name"`
 	Version    string      `json:"version" yaml:"version" `
-	Nodes      Nodes       `json:"nodes" yaml:"nodes"`
+	Master     int         `json:"master" yaml:"master"`
+	Minion     int         `json:"minion" yaml:"minion"`
 	Components []Component `json:"components" yaml:"components"`
-}
-
-// Nodes is
-type Nodes struct {
-	Master int `json:"master" yaml:"master"`
-	Node   int `json:"node" yaml:"node"`
 }
 
 // Component is

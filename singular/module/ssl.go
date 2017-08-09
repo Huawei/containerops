@@ -366,9 +366,6 @@ func UploadCARootFiles(key string, files map[string]string, ip string) error {
 		"mkdir -p /var/lib/etcd",
 		"systemctl stop ufw",
 		"systemctl disable ufw",
-		"apt-get install -y htop denyhosts python-pip",
-		"pip install --upgrade pip",
-		"pip install glances",
 	}
 
 	if err := utils.SSHCommand("root", key, ip, 22, strings.Join(initCmd, " && "), os.Stdout, os.Stderr); err != nil {
