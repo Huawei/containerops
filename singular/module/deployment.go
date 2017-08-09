@@ -121,7 +121,10 @@ func (d *Deployment) InitConfigPath(path string) error {
 // Check Sequence: CheckServiceAuth -> TODO Check Other?
 func (d *Deployment) Check() error {
 	if err := d.CheckServiceAuth(); err != nil {
-		return fmt.Errorf("check template or configuration error: %s ", err.Error())
+		fmt.Println(d.Nodes)
+		if len(d.Nodes) == 0 {
+			return err
+		}
 	}
 
 	return nil
@@ -165,39 +168,48 @@ func (d *Deployment) Deploy() error {
 		}
 	}
 
-	switch d.Service.Provider {
-	case "digitalocean":
-		do := new(service.DigitalOcean)
-		do.Token = d.Service.Token
-		do.Region, do.Size, do.Image = d.Service.Region, d.Service.Size, d.Service.Image
+	fmt.Println(d.Service)
+	fmt.Println(d.Service.Provider)
 
-		// Init DigitalOcean API client.
-		do.InitClient()
-		d.Log("Init DigitalOcean API client.")
+	if d.Service.Provider != "" {
+		switch d.Service.Provider {
+		case "digitalocean":
+			do := new(service.DigitalOcean)
+			do.Token = d.Service.Token
+			do.Region, do.Size, do.Image = d.Service.Region, d.Service.Size, d.Service.Image
 
-		// Upload ssh public key
-		if err := do.UpdateSSHKey(d.Tools.SSH.Public); err != nil {
-			return err
+			// Init DigitalOcean API client.
+			do.InitClient()
+			d.Log("Init DigitalOcean API client.")
+
+			// Upload ssh public key
+			if err := do.UpdateSSHKey(d.Tools.SSH.Public); err != nil {
+				return err
+			}
+			d.Log("Uploaded SSH public key to the DigitalOcean.")
+
+			d.Log("Creating Droplet in DigitalOcean.")
+			// Create DigitalOcean Droplets
+			if err := do.CreateDroplet(d.Service.Nodes, d.Tools.SSH.Fingerprint); err != nil {
+				return err
+			}
+
+			d.Log("Created Droplets successfully: ")
+
+			for ip, _ := range do.Droplets {
+				node := Node{IP: ip, User: "root"}
+				d.Nodes = append(d.Nodes, node)
+
+			}
+
+			fmt.Println(Red("Waiting 60 seconds for preparing droplets..."))
+			time.Sleep(60 * time.Second)
+		default:
+			return fmt.Errorf("Unsupport service provide: %s", d.Service.Provider)
 		}
-		d.Log("Uploaded SSH public key to the DigitalOcean.")
+	}
 
-		d.Log("Creating Droplet in DigitalOcean.")
-		// Create DigitalOcean Droplets
-		if err := do.CreateDroplet(d.Nodes, d.Tools.SSH.Fingerprint); err != nil {
-			return err
-		}
-
-		d.Log("Created Droplets successfully: ")
-		i := 0
-		for key, _ := range do.Droplets {
-			d.Log(fmt.Sprintf("Node %d ip: %s", i, key))
-			d.Output(fmt.Sprintf("NODE_%d", i), key)
-			i += 1
-		}
-
-		fmt.Println(Red("Waiting 60 seconds for preparing droplets..."))
-		time.Sleep(60 * time.Second)
-
+	if len(d.Nodes) > 0 {
 		// Generate CA Root files
 		if roots, err := GenerateCARootFiles(d.Config); err != nil {
 			return err
@@ -208,13 +220,17 @@ func (d *Deployment) Deploy() error {
 				d.Output(key, value)
 			}
 
-			for ip, _ := range do.Droplets {
-				d.Log(fmt.Sprintf("Upload SSL Root files to Droplet[%s] and init environments.", ip))
-				if err := UploadCARootFiles(d.Tools.SSH.Private, roots, ip); err != nil {
+			i := 0
+			for _, node := range d.Nodes {
+				d.Log(fmt.Sprintf("Node %d ip: %s", i, node.IP))
+				d.Output(fmt.Sprintf("NODE_%d", i), node.IP)
+				i += 1
+
+				d.Log(fmt.Sprintf("Upload SSL Root files to Droplet[%s] and init environments.", node.IP))
+				if err := UploadCARootFiles(d.Tools.SSH.Private, roots, node.IP); err != nil {
 					return err
 				}
 			}
-
 		}
 
 		for _, infra := range d.Infras {
@@ -238,12 +254,7 @@ func (d *Deployment) Deploy() error {
 			default:
 				return fmt.Errorf("Unsupport infrastruction software: %s", infra)
 			}
-
 		}
-
-	default:
-		return fmt.Errorf("Unsupport service provide: %s", d.Service.Provider)
-
 	}
 
 	return nil
@@ -256,14 +267,14 @@ func (d *Deployment) Deploy() error {
 func (d *Deployment) DeployEtcd(infra Infra) error {
 	d.Log("Deploying etcd clusters.")
 
-	if infra.Nodes.Master > d.Nodes {
+	if infra.Master > len(d.Nodes) {
 		return fmt.Errorf("Deploy %s nodes more than %d", infra.Name, d.Nodes)
 	}
 
 	etcdNodes := map[string]string{}
 	etcdEndpoints, etcdAdminEndpoints := []string{}, []string{}
 
-	for i := 0; i < infra.Nodes.Master; i++ {
+	for i := 0; i < infra.Master; i++ {
 		etcdNodes[fmt.Sprintf("etcd-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
 		etcdEndpoints = append(etcdEndpoints,
 			fmt.Sprintf("https://%s:2379", d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)))
@@ -322,7 +333,7 @@ func (d *Deployment) DownloadBinaryFile(file, url string, nodes map[string]strin
 
 func (d *Deployment) DeployFlannel(infra Infra) error {
 	flanneldNodes := map[string]string{}
-	for i := 0; i < infra.Nodes.Master; i++ {
+	for i := 0; i < infra.Master; i++ {
 		flanneldNodes[fmt.Sprintf("flanneld-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
 	}
 
@@ -360,7 +371,7 @@ func (d *Deployment) DeployFlannel(infra Infra) error {
 
 func (d *Deployment) DeployDocker(infra Infra) error {
 	dockerNodes := map[string]string{}
-	for i := 0; i < infra.Nodes.Master; i++ {
+	for i := 0; i < infra.Master; i++ {
 		dockerNodes[fmt.Sprintf("docker-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
 	}
 
@@ -428,12 +439,12 @@ func (d *Deployment) DeployKubernetes(infra Infra) error {
 	d.Output("KUBE_APISERVER", fmt.Sprintf("https://%s:6443", masterIp))
 
 	kubeMasterNodes := map[string]string{}
-	for i := 0; i < infra.Nodes.Master; i++ {
+	for i := 0; i < infra.Master; i++ {
 		kubeMasterNodes[fmt.Sprintf("kube-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
 	}
 
 	kubeSlaveNodes := map[string]string{}
-	for i := 0; i < infra.Nodes.Node; i++ {
+	for i := 0; i < infra.Minion; i++ {
 		kubeSlaveNodes[fmt.Sprintf("kube-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
 	}
 
