@@ -143,7 +143,7 @@ func createPod(podClient v1.PodInterface, podName, buildId string) (*corev1.Pod,
 			Containers: []corev1.Container{
 				{
 					Name:  "docker-dind",
-					Image: common.Assembling.DockerDamonImage,
+					Image: common.Assembling.DockerDaemonImage,
 					// Reservation for Args
 					Args: []string{},
 					SecurityContext: &corev1.SecurityContext{
