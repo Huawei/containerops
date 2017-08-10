@@ -44,7 +44,7 @@ def pip_install(file_name):
 
 
 def pdoc(mod):
-    r = subprocess.run('pdoc --html-dir /tmp/output --html {}'.format(mod), shell=True)
+    r = subprocess.run('pdoc --html-dir /tmp/output --html {} --all-submodules'.format(mod), shell=True)
 
     if r.returncode != 0:
         print("[COUT] pdoc error", file=sys.stderr)

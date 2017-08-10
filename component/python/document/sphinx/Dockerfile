@@ -17,7 +17,7 @@ MAINTAINER Li Meng Jun <lmjubuntu@gmail.com>
 
 RUN apt-get update && apt-get install -y python3-pip git curl python make
 
-RUN pip3 install sphinx six
+RUN pip3 install sphinx six pyyaml
 
 ADD bootstrap.py /usr/local/bin/bootstrap.py
 
