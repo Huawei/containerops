@@ -3,7 +3,7 @@
 import subprocess
 import os
 import sys
-import json
+import yaml
 
 REPO_PATH = 'git-repo'
 
@@ -31,7 +31,9 @@ def pylama(file_name):
     for o in out:
         o = parse_pylama_result(o)
         if o:
-            print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(o)))
+            lines = yaml.safe_dump([o])
+            for line in lines.split('\n'):
+                print('[COUT] CO_YAML_CONTENT {}'.format(line))
 
     return passed
 
