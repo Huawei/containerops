@@ -42,7 +42,7 @@ fi
 
 if [[ "${map["out-put-type"]}" =~ ^(xml|json|yaml)$ ]]
 then
-    printf "[COUT] out-put-type: %s\n" "${map["out-put-type"]}"
+    printf "[COUT] out-put-type: %s\n" "${map["out-put-type"]}" 1>/dev/null 2>&1
 else
     printf "[COUT] Handle input error: %s\n" "out-put-type should be one of xml,json,yaml"
     printf "[COUT] CO_RESULT = %s\n" "false"
@@ -71,7 +71,7 @@ fi
 
 cat /root/testng.conf >> build.gradle
 
-STOUT gradle test
+gradle test 1>/dev/null 2>&1
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then

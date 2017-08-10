@@ -16,6 +16,7 @@ function STOUT(){
 
 declare -A map=(
     ["git-url"]="" 
+    ["target"]=""
 )
 data=$(echo $CO_DATA |awk '{print}')
 for i in ${data[@]}
@@ -38,6 +39,11 @@ then
     exit
 fi
 
+if [ "" = "${map["target"]}" ]
+then
+ printf "[COUT] no target input\n"
+fi
+
 STOUT git clone ${map["git-url"]}
 if [ "$?" -ne "0" ]
 then
@@ -48,25 +54,28 @@ pdir=`echo ${map["git-url"]} | awk -F '/' '{print $NF}' | awk -F '.' '{print $1}
 cd ./$pdir
 if [ ! -f "build.gradle" ]
 then
-    printf "[COUT] CO_RESULT = file build.gradle not found! \n"
+    printf "[COUT] file build.gradle not found! \n"
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
-fi
+fi 
 
-havedr=`echo gradle -q tasks --all | grep dependencyReport`
-if [ "$havedr" = "" ]
+havewar=`echo gradle -q tasks --all | grep web:war`
+if [ "$havewar" = "" ]
 then
-    echo -e "\napply plugin: 'project-report'" >> build.gradle
+    echo -e "\napply plugin: 'war'" >> build.gradle
 fi
 
-gradle dependencyReport 1>/dev/null 2>&1
+STOUT gradle web:war
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
 
-STOUT cat build/reports/project/dependencies.txt
+if [ "" = "${map["target"]}" ]
+then
+    printf "[COUT] upload war to target :%s\n" "${map["target"]}"
+fi
 
 if [ "$?" -eq "0" ]
 then

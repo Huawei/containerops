@@ -42,7 +42,7 @@ fi
 
 if [[ "${map["out-put-type"]}" =~ ^(xml|json|yaml)$ ]]
 then
-    printf "[COUT] out-put-type: %s\n" "${map["out-put-type"]}"
+    printf "[COUT] out-put-type: %s\n" "${map["out-put-type"]}" 1>/dev/null
 else
     printf "[COUT] Handle input error: %s\n" "out-put-type should be one of xml,json,yaml"
     printf "[COUT] CO_RESULT = %s\n" "false"
@@ -75,8 +75,8 @@ then
     echo -e "\napply plugin: 'jdepend'" >> build.gradle
 fi
 
-STOUT gradle jdependMain
-STOUT gradle jdependTest
+gradle jdependMain 1>/dev/null 2>&1
+gradle jdependTest 1>/dev/null 2>&1
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then

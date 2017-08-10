@@ -42,7 +42,7 @@ fi
 
 if [[ "${map["out-put-type"]}" =~ ^(xml|json|yaml)$ ]]
 then
-    printf "[COUT] out-put-type: %s\n" "${map["out-put-type"]}"
+    printf "[COUT] out-put-type: %s\n" "${map["out-put-type"]}" 1>/dev/null
 else
     printf "[COUT] Handle input error: %s\n" "out-put-type should be one of xml,json,yaml"
     printf "[COUT] CO_RESULT = %s\n" "false"
@@ -73,9 +73,9 @@ havecpd=`echo gradle -q tasks --all | grep cpd | awk '{print $1}'`
 if [ "$havecpd" = "" ]
 then
     cat /root/cpd.conf >> build.gradle
-    STOUT gradle cpdCheck
+    gradle cpdCheck 1>/dev/null 2>&1
 else
-    STOUT gradle $havecpd
+    gradle $havecpd 1>/dev/null 2>&1
 fi
 
 if [ "${map["out-put-type"]}" = "xml" ]

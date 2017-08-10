@@ -6,7 +6,6 @@ function STOUT(){
     then
         cat /tmp/standard_out | awk '{print "[COUT]", $0}'
         cat /tmp/error_out | awk '{print "[COUT]", $0}' >&2
-
         return 0
     else
         cat /tmp/standard_out | awk '{print "[COUT]", $0}'
@@ -43,7 +42,7 @@ fi
 
 if [[ "${map["out-put-type"]}" =~ ^(xml|json|yaml)$ ]]
 then
-    printf "[COUT] out-put-type: %s\n" "${map["out-put-type"]}"
+    printf "[COUT] out-put-type: %s\n" "${map["out-put-type"]}" 1>/dev/null
 else
     printf "[COUT] Handle input error: %s\n" "out-put-type should be one of xml,json,yaml"
     printf "[COUT] CO_RESULT = %s\n" "false"
@@ -79,13 +78,13 @@ then
     cp /root/checkstyle.xml ./config/checkstyle/
 fi
 
-STOUT gradle checkstyleMain
+gradle checkstyleMain 1>/dev/null 2>&1
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
-STOUT gradle checkstyleTest
+gradle checkstyleTest 1>/dev/null 2>&1
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] CO_RESULT = %s\n" "false"

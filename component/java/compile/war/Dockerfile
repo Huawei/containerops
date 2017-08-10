@@ -18,7 +18,6 @@ RUN gradle build && \
     rm -rf /root/convert
 
 WORKDIR /root
-COPY ./checkstyle.xml /root/checkstyle.xml
 COPY ./compile.sh /root/compile.sh
 RUN chmod 777 /root/compile.sh
 

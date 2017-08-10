@@ -42,7 +42,7 @@ fi
 
 if [[ "${map["out-put-type"]}" =~ ^(xml|json|yaml)$ ]]
 then
-    printf "[COUT] out-put-type: %s\n" "${map["out-put-type"]}"
+    printf "[COUT] out-put-type: %s\n" "${map["out-put-type"]}" 1>/dev/null
 else
     printf "[COUT] Handle input error: %s\n" "out-put-type should be one of xml,json,yaml"
     printf "[COUT] CO_RESULT = %s\n" "false"
@@ -76,8 +76,8 @@ then
     cat /root/pmd.conf >> build.gradle
 fi
 
-STOUT gradle pmdMain
-STOUT gradle pmdTest
+gradle pmdMain 1>/dev/null 2>&1
+gradle pmdTest 1>/dev/null 2>&1
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then
