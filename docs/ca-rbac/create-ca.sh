@@ -6,11 +6,8 @@ mkdir root-ca
 
 cat > ./root-ca/root-ca-csr.json <<EOF
 {
-  "CN": "etcd-peer-00",
-  "hosts": [
-    "127.0.0.1",
-    "${ETCD_PEER_00_IP}"
-  ],
+  "CN": "containerops",
+  "hosts": [],
   "key": {
     "algo": "rsa",
     "size": 2048
@@ -20,7 +17,7 @@ cat > ./root-ca/root-ca-csr.json <<EOF
       "C": "CN",
       "ST": "BeiJing",
       "L": "BeiJing",
-      "O": "k8s",
+      "O": "containerops",
       "OU": "System"
     }
   ]
@@ -53,7 +50,7 @@ cat > ./etcd-ca/etcd-peer-00-csr.json <<EOF
       "C": "CN",
       "ST": "BeiJing",
       "L": "BeiJing",
-      "O": "k8s",
+      "O": "containerops",
       "OU": "System"
     }
   ]
@@ -81,7 +78,7 @@ cat > ./etcd-ca/etcd-peer-01-csr.json <<EOF
       "C": "CN",
       "ST": "BeiJing",
       "L": "BeiJing",
-      "O": "k8s",
+      "O": "containerops",
       "OU": "System"
     }
   ]
@@ -109,7 +106,7 @@ cat > ./etcd-ca/etcd-peer-02-csr.json <<EOF
       "C": "CN",
       "ST": "BeiJing",
       "L": "BeiJing",
-      "O": "k8s",
+      "O": "containerops",
       "OU": "System"
     }
   ]
@@ -136,7 +133,7 @@ cat > ./etcd-ca/etcd-server00.json <<EOF
           "C": "CN",
           "ST": "BeiJing",
           "L": "BeiJing",
-          "O": "k8s",
+          "O": "containerops",
           "OU": "System"
         }
     ]
@@ -164,7 +161,7 @@ cat > ./etcd-ca/etcd-server01.json <<EOF
           "C": "CN",
           "ST": "BeiJing",
           "L": "BeiJing",
-          "O": "k8s",
+          "O": "containerops",
           "OU": "System"
         }
     ]
@@ -192,7 +189,7 @@ cat > ./etcd-ca/etcd-server02.json <<EOF
           "C": "CN",
           "ST": "BeiJing",
           "L": "BeiJing",
-          "O": "k8s",
+          "O": "containerops",
           "OU": "System"
         }
     ]
@@ -221,7 +218,7 @@ cat > ./etcd-ca/etcd-client.json <<EOF
           "C": "CN",
           "ST": "BeiJing",
           "L": "BeiJing",
-          "O": "k8s",
+          "O": "containerops",
           "OU": "System"
         }
     ]
@@ -252,7 +249,7 @@ cat > ./flannel-ca/flannel.json <<EOF
       "C": "CN",
       "ST": "BeiJing",
       "L": "BeiJing",
-      "O": "k8s",
+      "O": "containerops",
       "OU": "System"
     }
   ]
@@ -286,7 +283,7 @@ cat > ./kubernetes-ca/kubernetes-admin.json <<EOF
       "C": "CN",
       "ST": "BeiJing",
       "L": "BeiJing",
-      "O": "k8s",
+      "O": "system:masters",
       "OU": "System"
     }
   ]
@@ -327,7 +324,7 @@ cat > ./kubernetes-ca/kubernetes-api-server.json <<EOF
       "C": "CN",
       "ST": "BeiJing",
       "L": "BeiJing",
-      "O": "k8s",
+      "O": "containerops",
       "OU": "System"
     }
   ]
@@ -359,7 +356,7 @@ cfssl gencert \
           "C": "CN",
           "ST": "BeiJing",
           "L": "BeiJing",
-          "O": "k8s",
+          "O": "containerops",
           "OU": "System"
         }
       ]
@@ -391,7 +388,7 @@ cat > ./kubernetes-ca/kubernetes-scheduler.json <<EOF
       "C": "CN",
       "ST": "BeiJing",
       "L": "BeiJing",
-      "O": "k8s",
+      "O": "containerops",
       "OU": "System"
     }
   ]
@@ -411,4 +408,3 @@ cfssl gencert \
 #----------------------------------------------------------
 #----------------------------------------------------------
 #----------------------------------------------------------
-
