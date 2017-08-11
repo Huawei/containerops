@@ -20,4 +20,17 @@ CA Design
 
 
 
-del crew k8s  docs. Signed-off-by: Fanliang Meng <mengfanliang@huawei.com>
+Signed-off-by: Fanliang Meng <mengfanliang@huawei.com>
+
+curl  \
+--cert ./shell/kubernetes-ca/kubernetes-admin.pem \
+--key ./shell/kubernetes-ca/kubernetes-admin-key.pem \
+--cacert ./shell/root-ca/root-ca.pem \
+https://10.138.48.164:6443/api/v1/endpoints
+
+./bin/kubernetes/client/kubectl \
+--certificate-authority="./shell/root-ca/root-ca.pem" \
+--client-certificate="./shell/kubernetes-ca/kubernetes-admin.pem" \
+--client-key="./shell/kubernetes-ca/kubernetes-admin-key.pem" \
+--server="https://10.138.48.164:6443" \
+get svc
