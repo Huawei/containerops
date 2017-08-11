@@ -1,0 +1,98 @@
+{
+  "signing":{
+    "default":{
+      "expiry":"43800h"
+    },
+    "profiles":{
+      "server":{
+        "expiry":"43800h",
+        "usages":[
+          "signing",
+          "key encipherment",
+          "server auth"
+        ]
+      },
+      "etcd-server":{
+        "expiry":"43800h",
+        "usages":[
+          "signing",
+          "key encipherment",
+          "server auth",
+          "client auth"
+        ]
+      },
+      "etcd-client":{
+        "expiry":"43800h",
+        "usages":[
+          "signing",
+          "key encipherment",
+          "server auth",
+          "client auth"
+        ]
+      },
+      "etcd-peer":{
+        "expiry":"43800h",
+        "usages":[
+          "signing",
+          "key encipherment",
+          "server auth",
+          "client auth"
+        ]
+      },
+      "flannel":{
+        "expiry":"43800h",
+        "usages":[
+          "signing",
+          "key encipherment",
+          "server auth",
+          "client auth"
+        ]
+      },
+      "kubernetes-admin":{
+        "expiry":"43800h",
+        "usages":[
+          "signing",
+          "key encipherment",
+          "server auth",
+          "client auth"
+        ]
+      },
+      "kubernetes-api-server":{
+        "expiry":"43800h",
+        "usages":[
+          "signing",
+          "key encipherment",
+          "server auth",
+          "client auth"
+        ]
+      },
+      "kubernetes-controller-manager":{
+        "expiry":"43800h",
+        "usages":[
+          "signing",
+          "key encipherment",
+          "server auth",
+          "client auth"
+        ]
+      },
+      "kubernetes-scheduler":{
+        "expiry":"43800h",
+        "usages":[
+          "signing",
+          "key encipherment",
+          "server auth",
+          "client auth"
+        ]
+      },
+      "kubernetes-node":{
+        "expiry":"43800h",
+        "usages":[
+          "signing",
+          "key encipherment",
+          "server auth",
+          "client auth"
+        ]
+      }
+    }
+  }
+}
