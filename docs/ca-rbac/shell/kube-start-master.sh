@@ -45,6 +45,8 @@ export kube_bootstrap_tokens_filename="k8s-bootstrap-token"
 
 ../bin/kubernetes/server/kube-apiserver \
 --apiserver-count=3 \
+--insecure-bind-address=${NODE_IP_00} \
+--insecure-port=18080 \
 --advertise-address=${INTERNAL_IP} \
 --etcd-servers=${ETCD_ENDPOINTS} \
 --etcd-cafile=./root-ca/root-ca.pem \
