@@ -43,16 +43,16 @@ export kube_bootstrap_tokens_filename="k8s-bootstrap-token"
 
 #cat > ./start.kube.sh <<EOF
 
-./bin/kubernetes/server/kube-apiserver \
+../bin/kubernetes/server/kube-apiserver \
 --apiserver-count=3 \
 --advertise-address=${INTERNAL_IP} \
 --etcd-servers=${ETCD_ENDPOINTS} \
---etcd-cafile=/opt/ca/root-ca/root-ca.pem \
---etcd-certfile=/opt/ca/etcd-ca/etcd-client.pem \
---etcd-keyfile=/opt/ca/etcd-ca/etcd-client-key.pem \
+--etcd-cafile=./root-ca/root-ca.pem \
+--etcd-certfile=./etcd-ca/etcd-client.pem \
+--etcd-keyfile=./etcd-ca/etcd-client-key.pem \
 --storage-backend=etcd3 \
 --experimental-bootstrap-token-auth=true \
---token-auth-file=/opt/ca/bin/kubernetes/${kube_bootstrap_tokens_filename} \
+--token-auth-file=./${kube_bootstrap_tokens_filename} \
 --authorization-mode=RBAC \
 --kubelet-https=true \
 --service-cluster-ip-range=${SERVICE_CIDR} \

@@ -34,7 +34,7 @@ export ETCD_NODE_IPS="${ETCD_NODE_IP_00},${ETCD_NODE_IP_01},${ETCD_NODE_IP_02}"
 # etcd 集群间通信的IP和端口
 export ETCD_NODES=${ETCD_NODE_NAME_00}=https://${ETCD_NODE_IP_00}:2380,${ETCD_NODE_NAME_01}=https://${ETCD_NODE_IP_01}:2380,${ETCD_NODE_NAME_02}=https://${ETCD_NODE_IP_02}:2380
 #---------------------------------------------------------------------------------
-./bin/etcd/etcd \
+../bin/etcd/etcd \
   --name=${ETCD_NODE_NAME} \
   --cert-file=${ETCD_SERVER_CA_PREFIX}${NOW_ETCD_NODE_SUFFIX}.pem \
   --key-file=${ETCD_SERVER_CA_PREFIX}${NOW_ETCD_NODE_SUFFIX}-key.pem \
