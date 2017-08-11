@@ -1,14 +1,14 @@
 
-docker build -t containerops/analysis/java_gradle_checkstyle -f analysis/checkstyle/Dockerfile
-docker build -t containerops/analysis/java_gradle_cpd -f analysis/cpd/Dockerfile
-docker build -t containerops/analysis/java_gradle_dependencies -f analysis/dependencies/Dockerfile
-docker build -t containerops/analysis/java_gradle_findbugs -f analysis/findbugs/Dockerfile
-docker build -t containerops/analysis/java_gradle_jdepend -f analysis/jdepend/Dockerfile
-docker build -t containerops/analysis/java_gradle_pmd -f analysis/pmd/Dockerfile
+docker build -t containerops/analysis/java_gradle_checkstyle analysis/checkstyle
+docker build -t containerops/analysis/java_gradle_cpd analysis/cpd
+docker build -t containerops/analysis/java_gradle_dependencies analysis/dependencies
+docker build -t containerops/analysis/java_gradle_findbugs analysis/findbugs
+docker build -t containerops/analysis/java_gradle_jdepend analysis/jdepend
+docker build -t containerops/analysis/java_gradle_pmd analysis/pmd
 
-docker build -t containerops/test/java_gradle_jacoco -f test/jacoco/Dockerfile
-docker build -t containerops/test/java_gradle_junit -f test/junit/Dockerfile
-docker build -t containerops/test/java_gradle_testng -f test/testng/Dockerfile
+docker build -t containerops/test/java_gradle_jacoco test/jacoco
+docker build -t containerops/test/java_gradle_junit test/junit
+docker build -t containerops/test/java_gradle_testng test/testng
 
 
 docker run --rm --env CO_DATA="git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json" containerops/analysis/java_gradle_checkstyle
