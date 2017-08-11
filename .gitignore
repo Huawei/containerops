@@ -50,6 +50,9 @@ docs/.sass-cache
 docs/.jekyll-metadata
 docs/_posts/
 docs/pdf/
+docs/ca-rbac/bin/
+docs/ca-rbac/shell/data/
+docs/ca-rbac/shell/*-ca/
 
 # IDEs and editors
 .idea
