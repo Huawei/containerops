@@ -53,12 +53,14 @@ def pdoc(mod):
     return True
 
 
-def echo_json(dir_name):
-    r = subprocess.run('find /tmp/output -name "*.html" | while read F;do echo -n \'CO_XML_CONTENT \'; cat $F; echo; done'.format(REPO_PATH, dir_name), shell=True)
-
-    if r.returncode != 0:
-        print("[COUT] echo json failed", file=sys.stderr)
-        return False
+def echo_xml():
+    for root, dirs, files in os.walk('/tmp/output'):
+        for file_name in files:
+            if file_name.endswith('.html'):
+                with open(os.path.join(root, file_name), 'r') as f:
+                    for line in f.readlines():
+                        line = line.rstrip()
+                        print('[COUT] CO_XML_CONTENT {}'.format(line))
 
     return True
 
@@ -118,15 +120,13 @@ def main():
         pip_install(file_name)
 
 
-    if not pdoc(entry_mod):
-        print("[COUT] CO_RESULT = false")
-        return
+    out = pdoc(entry_mod)
+    echo_xml()
 
-    if not echo_json(entry_mod):
+    if out:
+        print("[COUT] CO_RESULT = true")
+    else:
         print("[COUT] CO_RESULT = false")
-        return
-
-    print("[COUT] CO_RESULT = true")
 
 
 main()
