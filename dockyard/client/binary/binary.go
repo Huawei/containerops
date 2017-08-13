@@ -33,7 +33,7 @@ func UploadBinaryFile(filePath, domain, namespace, repository, tag string) error
 
 		if req, err := http.NewRequest(http.MethodPut,
 			fmt.Sprintf("https://%s/binary/v1/%s/%s/binary/%s/%s",
-				domain, namespace, repository, filepath.Base(filePath), tag), f); err != nil {
+				domain, namespace, repository, tag, filepath.Base(filePath)), f); err != nil {
 			return err
 		} else {
 			req.Header.Set("Content-Type", "text/plain")
@@ -73,7 +73,7 @@ func DownloadBinaryFile(domain, namespace, repository, filename, tag, filePath s
 		defer f.Close()
 
 		if resp, err := http.Get(fmt.Sprintf("https://%s/binary/v1/%s/%s/binary/%s/%s",
-			domain, namespace, repository, filename, tag)); err != nil {
+			domain, namespace, repository, tag, filename)); err != nil {
 			return err
 		} else {
 			defer resp.Body.Close()

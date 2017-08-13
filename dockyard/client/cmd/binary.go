@@ -19,6 +19,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -29,10 +30,10 @@ import (
 
 var binaryCmd = &cobra.Command{
 	Use:   "binary",
-	Short: "Upload or download file with Dockyard service",
-	Long: `Use binary sub command to upload or download binary file from Dockyard service.
+	Short: "Upload or download binary file from repository build by Dockyard service",
+	Long: `Use binary sub command to upload or download binary file from repository build by Dockyard service.
 
-Upload file to a repository of Dockyard:
+Upload file to a repository:
 	
   warship binary upload --domain hub.opshub.sh /tmp/warship containerops/cncf-demo/stichers
 	
@@ -40,18 +41,18 @@ Upload file to a repository of Dockyard:
 	
 Download file from repository of Dockyard:
 
-  warship binary download --domain hub.opshub.sh containerops/cncf-demo/warship/strichers
+  warship binary download --domain hub.opshub.sh containerops/cncf-demo/strichers/warship
   
-  The download URI pattern is <namespace>/<repository>/<filename>/<tag>
+  The download URI pattern is <namespace>/<repository>/<tag>/<filename>
 `,
 }
 
 var uplaodCmd = &cobra.Command{
 	Use:   "upload",
-	Short: "Upload file to Dockyard service, `warship binary upload --domain hub.opshub.sh <filename> <namespace>/<repository>/<tag>`",
+	Short: "Upload file to repository build by Dockyard service, `warship binary upload --domain hub.opshub.sh <filename> <namespace>/<repository>/<tag>`",
 	Long: `Upload file to a repository of Dockyard:
 	
-warship binary upload --domain hub.opshub.sh  /tmp/warship hub.opshub.sh/containerops/cncf-demo/stichers
+warship binary upload --domain hub.opshub.sh  /tmp/warship containerops/cncf-demo/stichers
 
 The upload URI pattern is <namespace>/<repository>/<tag>`,
 	Run: uploadBinary,
@@ -59,12 +60,12 @@ The upload URI pattern is <namespace>/<repository>/<tag>`,
 
 var downloadCmd = &cobra.Command{
 	Use:   "download",
-	Short: "Download file form Dockyard service, `warship binary download <namespace>/<repository>/<filename>/<tag> <filename>",
+	Short: "Download file form repository build by Dockyard service, `warship binary download <namespace>/<repository>/<tag>/<filename> <path>",
 	Long: `Download file from repository of Dockyard:
 
-warship binary download --domain hub.opshub.sh  containerops/cncf-demo/warship/strichers /tmp/warship
+warship binary download --domain hub.opshub.sh  containerops/cncf-demo/strichers/warship /tmp
 
-The download URI pattern is <namespace>/<repository>/<filename>/<tag>`,
+The download URI pattern is <namespace>/<repository>/<tag>/<filename>`,
 	Run: downloadBinary,
 }
 
@@ -79,7 +80,7 @@ func init() {
 }
 
 // Upload binary to Dockyard service.
-// curl -i -X PUT -T <filename> -H "Content-Type: text/plain"  https://hub.opshub.sh/binary/v1/:namespace/:repository/binary/:binary/:tag
+// curl -i -X PUT -T <filename> -H "Content-Type: text/plain"  https://hub.opshub.sh/binary/v1/:namespace/:repository/binary/:tag/:binary
 func uploadBinary(cmd *cobra.Command, args []string) {
 	if domain == "" {
 		domain = common.Warship.Domain
@@ -114,11 +115,11 @@ func downloadBinary(cmd *cobra.Command, args []string) {
 	}
 
 	namespace := strings.Split(args[0], "/")[0]
-	repsitory := strings.Split(args[0], "/")[1]
-	filename := strings.Split(args[0], "/")[2]
-	tag := strings.Split(args[0], "/")[3]
+	repository := strings.Split(args[0], "/")[1]
+	tag := strings.Split(args[0], "/")[2]
+	filename := strings.Split(args[0], "/")[3]
 
-	if err := binary.DownloadBinaryFile(domain, namespace, repsitory, filename, tag, args[1]); err != nil {
+	if err := binary.DownloadBinaryFile(domain, namespace, repository, filename, tag, path.Join(args[1], filename)); err != nil {
 		fmt.Println("Download file error: ", err.Error())
 		os.Exit(1)
 	}
