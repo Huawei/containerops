@@ -51,7 +51,7 @@ var startDaemonCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Start Singular's REST API daemon.",
 	Long:  ``,
-	Run:   startDeamon,
+	Run:   startDaemon,
 }
 
 // stop Singular daemon sub command
@@ -85,8 +85,8 @@ func init() {
 	daemonCmd.AddCommand(monitorDaemonCmd)
 }
 
-// startDeamon() start Singular's REST API daemon.
-func startDeamon(cmd *cobra.Command, args []string) {
+// startDaemon() start Singular's REST API daemon.
+func startDaemon(cmd *cobra.Command, args []string) {
 	model.OpenDatabase(&common.Database)
 	m := macaron.New()
 
@@ -156,7 +156,7 @@ func stopDaemon(cmd *cobra.Command, args []string) {
 
 }
 
-// monitorDaemon() monitor Singular's REST API deamon.
+// monitorDaemon() monitor Singular's REST API daemon.
 func monitorDaemon(cmd *cobra.Command, args []string) {
 
 }

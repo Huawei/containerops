@@ -61,7 +61,7 @@ func init() {
 func templateRun(cmd *cobra.Command, args []string) {
 
 	if len(args) <= 0 || utils.IsFileExist(args[0]) == false {
-		fmt.Fprintf(os.Stderr, "The deploy template file is required, %s\n", "see https://github.com/Huawei/containerops/singular for more detail.")
+		fmt.Fprintf(os.Stderr, "The deploy template file is required, %s\n", "see https://github.com/Huawei/containerops for more detail.")
 		os.Exit(1)
 	}
 
