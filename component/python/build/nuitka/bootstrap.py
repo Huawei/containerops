@@ -20,24 +20,51 @@ def git_clone(url):
         return False
 
 
-def setup(path):
-    file_name = os.path.basename(path)
-    dir_name = os.path.dirname(path)
-    r = subprocess.run('cd {}; python3 {} install'.format(dir_name, file_name),
-                       shell=True)
+def get_pip_cmd(version):
+    if version == 'py3k' or version == 'python3':
+        return 'pip3'
 
-    if r.returncode != 0:
-        print("[COUT] install dependences failed: {}".format(path), file=sys.stderr)
+    return 'pip'
+
+
+def get_python_cmd(version):
+    if version == 'py3k' or version == 'python3':
+        return 'python3'
+
+    return 'python'
+
+
+def init_env(version):
+    subprocess.run([get_pip_cmd(version), 'install', 'nuitka'])
+
+
+def validate_version(version):
+    valid_version = ['python', 'python2', 'python3', 'py3k']
+    if version not in valid_version:
+        print("[COUT] Check version failed: the valid version is {}".format(valid_version), file=sys.stderr)
         return False
 
     return True
 
 
-def pip_install(file_name):
-    r = subprocess.run(['pip3', 'install', '-r', file_name])
+def setup(path, version='py3k'):
+    file_name = os.path.basename(path)
+    dir_name = os.path.dirname(path)
+    r = subprocess.run('cd {}; {} {} install'.format(dir_name, get_python_cmd(version), file_name),
+                       shell=True)
 
     if r.returncode != 0:
-        print("[COUT] install dependences failed: {}".format(path), file=sys.stderr)
+        print("[COUT] install dependences failed", file=sys.stderr)
+        return False
+
+    return True
+
+
+def pip_install(file_name, version='py3k'):
+    r = subprocess.run([get_pip_cmd(version), 'install', '-r', file_name])
+
+    if r.returncode != 0:
+        print("[COUT] install dependences failed", file=sys.stderr)
         return False
 
     return True
@@ -77,7 +104,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url', 'entry-file', 'upload']
+    validate = ['git-url', 'entry-file', 'upload', 'version']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -105,6 +132,14 @@ def main():
         print("[COUT] CO_RESULT = false")
         return
 
+    version = argv.get('version', 'py3k')
+
+    if not validate_version(version):
+        print("[COUT] CO_RESULT = false")
+        return
+
+    init_env(version)
+
     entry_file = argv.get('entry-file')
     if not entry_file:
         print("[COUT] The entry-file value is null", file=sys.stderr)
@@ -121,22 +156,24 @@ def main():
         return
 
     for file_name in glob.glob('{}/setup.py'.format(REPO_PATH)):
-        setup(file_name)
+        setup(file_name, version)
 
     for file_name in glob.glob('{}/*/setup.py'.format(REPO_PATH)):
-        setup(file_name)
+        setup(file_name, version)
 
     for file_name in glob.glob('{}/requirements.txt'.format(REPO_PATH)):
-        pip_install(file_name)
+        pip_install(file_name, version)
 
     for file_name in glob.glob('{}/*/requirements.txt'.format(REPO_PATH)):
-        pip_install(file_name)
+        pip_install(file_name, version)
 
     if not nuitka(entry_file):
         print("[COUT] CO_RESULT = false")
         return
 
-    if not upload_file(entry_file, upload):
+    out = upload_file(entry_file, upload)
+    print()
+    if not out:
         print("[COUT] CO_RESULT = false")
         return
 
