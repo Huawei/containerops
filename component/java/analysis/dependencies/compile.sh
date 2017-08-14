@@ -15,8 +15,7 @@ function STOUT(){
 }
 
 declare -A map=(
-    ["git-url"]=""
-    ["target"]=""
+    ["git-url"]="" 
 )
 data=$(echo $CO_DATA |awk '{print}')
 for i in ${data[@]}
@@ -39,13 +38,6 @@ then
     exit
 fi
 
-if [ "" = "${map["target"]}" ]
-then
-    printf "[COUT] Handle input error: %s\n" "target"
-    printf "[COUT] CO_RESULT = %s\n" "false"
-    exit
-fi
-
 STOUT git clone ${map["git-url"]}
 if [ "$?" -ne "0" ]
 then
@@ -61,28 +53,23 @@ then
     exit
 fi
 
-cat /root/javadoc.conf >> build.gradle
+havedr=`echo gradle -q tasks --all | grep dependencyReport`
+if [ "$havedr" = "" ]
+then
+    echo -e "\napply plugin: 'project-report'" >> build.gradle
+fi
 
-gradle javadoc 1>/dev/null  2>&1
+gradle dependencyReport 1>/dev/null 2>&1
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
 
-cd build/docs
-tar -zcvf /root/javadoc.tar javadoc 1>/dev/null 2>&1
-if [ "$?" -ne "0" ]
-then
-    printf "[COUT] CO_RESULT = %s\n" "false"
-    exit
-fi
-
-curl -i -X PUT -T /root/javadoc.tar -H "Content-Type: text/plain" https://hub.opshub.sh/binary/v1/lidian/test/binary/demo2/javadoc.tar 2>/dev/null | awk '{print "[COUT]", $0}'
+STOUT cat build/reports/project/dependencies.txt
 
 if [ "$?" -eq "0" ]
 then
-    printf "[COUT] download javadoc url : %s\n" https://hub.opshub.sh/binary/v1/lidian/test/binary/demo2/javadoc.tar
     printf "[COUT] CO_RESULT = %s\n" "true"
 else
     printf "[COUT] CO_RESULT = %s\n" "false"

@@ -11,7 +11,6 @@ RUN wget https://downloads.gradle.org/distributions/gradle-4.1-rc-1-bin.zip \
 ENV PATH /opt/gradle/gradle-4.1-rc-1/bin:$PATH
 
 WORKDIR /root
-COPY ./javadoc.conf /root/javadoc.conf
 COPY ./compile.sh /root/compile.sh
 RUN chmod 777 /root/compile.sh
 
