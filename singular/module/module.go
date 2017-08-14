@@ -18,19 +18,20 @@ package module
 
 // Deployment is
 type Deployment struct {
-	URI       string                 `json:"uri" yaml:"uri"`
-	Title     string                 `json:"title" yaml:"title"`
-	Version   int                    `json:"version" yaml:"version"`
-	Tag       string                 `json:"tag" yaml:"tag"`
-	Nodes     []Node                 `json:"nodes" yaml:"nodes"`
-	Service   Service                `json:"service" yaml:"service"`
-	Tools     Tools                  `json:"tools" yaml:"tools"`
-	Infras    []Infra                `json:"infras" yaml:"infras"`
-	Logs      []string               `json:"logs,omitempty" yaml:"logs,omitempty"`
-	Config    string                 `json:"-" yaml:"-"`
-	Verbose   bool                   `json:"-" yaml:"-"`
-	Timestamp bool                   `json:"-" yaml:"-"`
-	Outputs   map[string]interface{} `json:"-" yaml:"-"`
+	URI         string                 `json:"uri" yaml:"uri"`
+	Title       string                 `json:"title" yaml:"title"`
+	Version     int                    `json:"version" yaml:"version"`
+	Tag         string                 `json:"tag" yaml:"tag"`
+	Nodes       []Node                 `json:"nodes" yaml:"nodes"`
+	Service     Service                `json:"service" yaml:"service"`
+	Tools       Tools                  `json:"tools" yaml:"tools"`
+	Infras      []Infra                `json:"infras" yaml:"infras"`
+	Description string                 `json:"description" yaml:"description"`
+	Logs        []string               `json:"logs,omitempty" yaml:"logs,omitempty"`
+	Config      string                 `json:"-" yaml:"-"`
+	Verbose     bool                   `json:"-" yaml:"-"`
+	Timestamp   bool                   `json:"-" yaml:"-"`
+	Outputs     map[string]interface{} `json:"-" yaml:"-"`
 }
 
 // Node is
