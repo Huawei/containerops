@@ -37,7 +37,7 @@ def get_python_cmd(version):
 
 
 def init_env(version):
-    subprocess.run([get_pip_cmd(version), 'install', ' pybuilder', 'six'])
+    subprocess.run([get_pip_cmd(version), 'install', 'pybuilder', 'six'])
 
 
 def validate_version(version):
