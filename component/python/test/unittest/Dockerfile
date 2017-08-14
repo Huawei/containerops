@@ -15,9 +15,7 @@
 FROM docker.io/phusion/baseimage:0.9.21
 MAINTAINER Li Meng Jun <lmjubuntu@gmail.com>
 
-RUN apt-get update && apt-get install -y python3-pip git
-
-RUN pip3 install unittest-xml-reporting
+RUN apt-get update && apt-get install -y python3-pip git python-pip python
 
 ADD bootstrap.py /usr/local/bin/bootstrap.py
 ADD xmlrunner.py /root/xmlrunner
