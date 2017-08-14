@@ -15,9 +15,9 @@
 FROM docker.io/phusion/baseimage:0.9.21
 MAINTAINER Li Meng Jun <lmjubuntu@gmail.com>
 
-RUN apt-get update && apt-get install -y python3-pip git
+RUN apt-get update && apt-get install -y python3-pip git python-pip python
 
-RUN pip3 install pylint pyyaml
+RUN pip3 install pyyaml
 
 ADD bootstrap.py /usr/local/bin/bootstrap.py
 
