@@ -15,9 +15,7 @@
 FROM docker.io/phusion/baseimage:0.9.21
 MAINTAINER Li Meng Jun <lmjubuntu@gmail.com>
 
-RUN apt-get update && apt-get install -y python3-pip git
-
-RUN pip3 install memory_profiler pyyaml psutil
+RUN apt-get update && apt-get install -y python3-pip git python-pip python
 
 ADD bootstrap.py /usr/local/bin/bootstrap.py
 ADD memory_profiler.py /root/memory_profiler.py
