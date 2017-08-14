@@ -7,9 +7,14 @@ docker build -t containerops/pycallgraph .
 ## TEST
 
 ```bash
-docker run --rm -e CO_DATA='git-url=https://github.com/Lupino/python-aio-periodic.git entry-file=aio_periodic/utils.py upload=hub.opshub.sh/lidian/test/pycallgraph/v0.1' containerops/pycallgraph
+docker run --rm -e CO_DATA='git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=hub.opshub.sh/lidian/test/pycallgraph/v0.1' containerops/pycallgraph
 ```
 
-## Warning
+## TEST with deference python version
 
-This pycallgraph not stable on generate callgraph.
+`version` is one of `python`, `python2`, `python3`, `py3k`.
+default is `py3k`
+
+```bash
+docker run --rm -e CO_DATA='git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=hub.opshub.sh/lidian/test/pycallgraph/v0.1 version=python' containerops/pycallgraph
+```
