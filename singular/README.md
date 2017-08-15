@@ -20,7 +20,7 @@ When deploy infrastructures, **Singular** need to _SSH_ to virtual machine or ba
 ##### Deploy Command
 
 ```
-singular deploy template /tmp/deploy.yml
+singular deploy template /tmp/deploy.yml  --verbose true --timestamp true
 ```
 
 ##### Create Nodes In DigitalOcean And Deploy Kuberentes Cluster
