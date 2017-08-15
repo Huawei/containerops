@@ -72,31 +72,31 @@ then
     exit
 fi
 
-STOUT2 gradle war
+STOUT2 gradle ear
 if [ "$?" -ne "0" ]
 then
-    printf "[COUT] gradle war fail\n"
+    printf "[COUT] gradle ear fail\n"
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
 
-warpath=$(find `pwd` -name "*.war")
-if [ "$warpath" = "" ]
+earpath=$(find `pwd` -name "*.ear")
+if [ "$earpath" = "" ]
 then
-    printf "[COUT] can not find a war file after project build%s\n"
+    printf "[COUT] can not find a ear file after project build%s\n"
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
-echo $warpath
+echo $earpath
 
-STOUT curl -i -X PUT -T $warpath ${map["target"]}
+STOUT curl -i -X PUT -T $earpath ${map["target"]}
 
 if [ "$?" -eq "0" ]
 then
-    printf "[COUT] download war url : %s\n" ${map["target"]}
+    printf "[COUT] download ear url : %s\n" ${map["target"]}
     printf "[COUT] CO_RESULT = %s\n" "true"
 else
-    printf "[COUT] upload %s to %s fail %s\n" $warpath ${map["target"]}
+    printf "[COUT] upload %s to %s fail %s\n" $earpath ${map["target"]}
     printf "[COUT] CO_RESULT = %s\n" "false"
 fi
 exit
