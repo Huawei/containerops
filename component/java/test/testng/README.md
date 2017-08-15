@@ -12,7 +12,7 @@
 
 ## DETAIL BUILD
 ```bash
-docker build -t containerops/test/java_gradle_testng -f test/testng/Dockerfile
+docker build -t containerops/test/java_gradle_testng ./
 ```
 
 ## DETAIL RUN

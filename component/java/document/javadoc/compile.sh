@@ -13,6 +13,17 @@ function STOUT(){
         return 1
     fi
 }
+function STOUT2(){
+    $@ 1>/dev/null 2>/tmp/error_out
+    if [ "$?" -eq "0" ]
+    then
+        cat /tmp/error_out | awk '{print "[COUT]", $0}' >&2
+        return 0
+    else
+        cat /tmp/error_out | awk '{print "[COUT]", $0}' >&2
+        return 1
+    fi
+}
 
 declare -A map=(
     ["git-url"]=""
@@ -63,7 +74,7 @@ fi
 
 cat /root/javadoc.conf >> build.gradle
 
-gradle javadoc 1>/dev/null  2>&1
+STOUT2 gradle javadoc
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] CO_RESULT = %s\n" "false"
@@ -78,13 +89,14 @@ then
     exit
 fi
 
-curl -i -X PUT -T /root/javadoc.tar -H "Content-Type: text/plain" https://hub.opshub.sh/binary/v1/lidian/test/binary/demo2/javadoc.tar 2>/dev/null | awk '{print "[COUT]", $0}'
+STOUT curl -i -X PUT -T /root/javadoc.tar ${map["target"]} 2>/dev/null
 
 if [ "$?" -eq "0" ]
 then
-    printf "[COUT] download javadoc url : %s\n" https://hub.opshub.sh/binary/v1/lidian/test/binary/demo2/javadoc.tar
+    printf "[COUT] download javadoc url : %s\n" ${map["target"]}
     printf "[COUT] CO_RESULT = %s\n" "true"
 else
+    printf "[COUT] upload javadoc to %s fail %s\n" ${map["target"]}
     printf "[COUT] CO_RESULT = %s\n" "false"
 fi
 exit

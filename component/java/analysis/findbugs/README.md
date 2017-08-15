@@ -12,7 +12,7 @@
 
 ## DETAIL BUILD
 ```bash
-docker build -t containerops/analysis/java_gradle_findbugs -f analysis/findbugs/Dockerfile
+docker build -t containerops/analysis/java_gradle_findbugs ./
 ```
 
 ## DETAIL RUN

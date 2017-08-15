@@ -1,5 +1,4 @@
 #!/bin/bash
-
 function STOUT(){
     $@ 1>/tmp/standard_out 2>/tmp/error_out
     if [ "$?" -eq "0" ]
@@ -9,6 +8,18 @@ function STOUT(){
         return 0
     else
         cat /tmp/standard_out | awk '{print "[COUT]", $0}'
+        cat /tmp/error_out | awk '{print "[COUT]", $0}' >&2
+        return 1
+    fi
+}
+
+function STOUT2(){
+    $@ 1>/dev/null 2>/tmp/error_out
+    if [ "$?" -eq "0" ]
+    then
+        cat /tmp/error_out | awk '{print "[COUT]", $0}' >&2
+        return 0
+    else
         cat /tmp/error_out | awk '{print "[COUT]", $0}' >&2
         return 1
     fi
@@ -41,7 +52,9 @@ fi
 
 if [ "" = "${map["target"]}" ]
 then
- printf "[COUT] no target input\n"
+    printf "[COUT] no target input\n" "target"
+    printf "[COUT] CO_RESULT = %s\n" "false"
+    exit
 fi
 
 STOUT git clone ${map["git-url"]}
@@ -57,30 +70,33 @@ then
     printf "[COUT] file build.gradle not found! \n"
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
-fi 
-
-havewar=`echo gradle -q tasks --all | grep web:war`
-if [ "$havewar" = "" ]
-then
-    echo -e "\napply plugin: 'war'" >> build.gradle
 fi
 
-STOUT gradle web:war
+STOUT2 gradle war
 if [ "$?" -ne "0" ]
 then
+    printf "[COUT] gradle war fail\n"
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
 
-if [ "" = "${map["target"]}" ]
+warpath=$(find `pwd` -name "*.war")
+if [ "$warpath" = "" ]
 then
-    printf "[COUT] upload war to target :%s\n" "${map["target"]}"
+    printf "[COUT] can not find a war file after project build%s\n"
+    printf "[COUT] CO_RESULT = %s\n" "false"
+    exit
 fi
+echo $warpath
+
+STOUT curl -i -X PUT -T $warpath ${map["target"]}
 
 if [ "$?" -eq "0" ]
 then
+    printf "[COUT] download war url : %s\n" ${map["target"]}
     printf "[COUT] CO_RESULT = %s\n" "true"
 else
+    printf "[COUT] upload war to %s fail %s\n" ${map["target"]}
     printf "[COUT] CO_RESULT = %s\n" "false"
 fi
 exit

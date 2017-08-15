@@ -12,7 +12,7 @@
 
 ## DETAIL BUILD
 ```bash
-docker build -t containerops/analysis/java_gradle_checkstyle -f analysis/checkstyle/Dockerfile
+docker build -t containerops/analysis/java_gradle_checkstyle ./
 ```
 
 ## DETAIL RUN

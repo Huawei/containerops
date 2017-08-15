@@ -13,6 +13,17 @@ function STOUT(){
         return 1
     fi
 }
+function STOUT2(){
+    $@ 1>/dev/null 2>/tmp/error_out
+    if [ "$?" -eq "0" ]
+    then
+        cat /tmp/error_out | awk '{print "[COUT]", $0}' >&2
+        return 0
+    else
+        cat /tmp/error_out | awk '{print "[COUT]", $0}' >&2
+        return 1
+    fi
+}
 
 declare -A map=(
     ["git-url"]="" 
@@ -71,7 +82,7 @@ fi
 
 cat /root/testng.conf >> build.gradle
 
-gradle test 1>/dev/null 2>&1
+STOUT2 gradle test
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then

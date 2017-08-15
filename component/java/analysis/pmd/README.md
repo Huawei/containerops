@@ -12,7 +12,7 @@
 
 ## DETAIL BUILD
 ```bash
-docker build -t containerops/analysis/java_gradle_pmd -f analysis/pmd/Dockerfile
+docker build -t containerops/analysis/java_gradle_pmd ./
 ```
 
 ## DETAIL RUN

@@ -13,6 +13,17 @@ function STOUT(){
         return 1
     fi
 }
+function STOUT2(){
+    $@ 1>/dev/null 2>/tmp/error_out
+    if [ "$?" -eq "0" ]
+    then
+        cat /tmp/error_out | awk '{print "[COUT]", $0}' >&2
+        return 0
+    else
+        cat /tmp/error_out | awk '{print "[COUT]", $0}' >&2
+        return 1
+    fi
+}
 
 declare -A map=(
     ["git-url"]="" 
@@ -59,7 +70,7 @@ then
     echo -e "\napply plugin: 'project-report'" >> build.gradle
 fi
 
-gradle dependencyReport 1>/dev/null 2>&1
+STOUT2 gradle dependencyReport
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] CO_RESULT = %s\n" "false"
