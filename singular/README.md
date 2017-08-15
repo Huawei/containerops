@@ -20,7 +20,7 @@ When deploy infrastructures, **Singular** need to _SSH_ to virtual machine or ba
 ##### Deploy Command
 
 ```
-singular deploy template /tmp/deploy.yml
+singular deploy template /tmp/deploy.yml  --verbose true --timestamp true
 ```
 
 ##### Create Nodes In DigitalOcean And Deploy Kuberentes Cluster
@@ -43,91 +43,87 @@ tools:
 infras:
   -
     name: etcd
-    version: 3.2.2
-    nodes:
-      master: 3
-      node: 0
+    version: etcd-3.2.2
+    master: 3
+    minion: 0
     components:
       -
         binary: etcd
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/etcd/3.2.2
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/3.2.2/etcd
         package: false
         systemd: etcd-3.2.2
         ca: etcd-3.2.2
       -
         binary: etcdctl
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/etcdctl/3.2.2
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/3.2.2/etcdctl
         package: false
   -
     name: flannel
-    version: 0.7.1
-    nodes:
-      master: 3
-      node: 0
+    version: flannel-0.7.1
+    master: 3
+    minion: 0
     dependencies:
       - etcd
     components:
       -
         binary: flanneld
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/flanneld/0.7.1
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/0.7.1/flanneld
         package: false
         systemd: flannel-0.7.1
         ca: flannel-0.7.1
-        before: "etcdctl --endpoints={{.EtcdEndpoints}} --ca-file={{.CAPemFile}} --cert-file={{.FlanneldPemFile}} --key-file={{.FlanneldKeyFile}} set /kubernetes/network/config '{\"Network\":\"'172.30.0.0/16'\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\"}}'"
+        before: "etcdctl --endpoints={{.Nodes}} --ca-file=/etc/kubernetes/ssl/ca.pem --cert-file=/etc/flanneld/ssl/flanneld.pem --key-file=/etc/flanneld/ssl/flanneld-key.pem set /kubernetes/network/config '{\"Network\":\"'172.30.0.0/16'\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\"}}'"
       -
         binary: mk-docker-opts.sh
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/mk-docker-opts.sh/0.7.1
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/0.7.1/mk-docker-opts.sh
         package: false
   -
     name: docker
-    version: 1.7.04.0-ce
-    nodes:
-      master: 3
-      node: 0
+    version: docker-17.04.0-ce
+    master: 3
+    minion: 0
     dependencies:
       - flannel
     components:
       -
         binary: docker
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker/17.04.0-ce
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/docker
         package: false
-        systemd: docker-1.7.04.0-ce
-        before: "apt update && apt dist-upgrade && apt install -y bridge-utils aufs-tools cgroupfs-mount libltdl7 && systemctl stop ufw && systemctl disable ufw && iptables -F && iptables -X && iptables -F -t nat && iptables -X -t nat"
+        systemd: docker-17.04.0-ce
+        before: "iptables -F && iptables -X && iptables -F -t nat && iptables -X -t nat"
         after: "iptables -P FORWARD ACCEPT"
       -
         binary: dockerd
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/dockerd/17.04.0-ce
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/dockerd
         package: false
       -
         binary: docker-init
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-init/17.04.0-ce
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/docker-init
         package: false
       -
         binary: docker-proxy
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-proxy/17.04.0-ce
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/docker-proxy
         package: false
       -
         binary: docker-runc
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-runc/17.04.0-ce
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/docker-runc
         package: false
       -
         binary: docker-containerd
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-containerd/17.04.0-ce
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/docker-containerd
         package: false
       -
         binary: docker-containerd-ctr
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-containerd-ctr/17.04.0-ce
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/docker-containerd-ctr
         package: false
       -
         binary: docker-containerd-shim
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-containerd-shim/17.04.0-ce
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/docker-containerd-shim
         package: false
   -
     name: kubernetes
-    version: 1.6.7
-    nodes:
-      master: 1
-      node: 3
+    version: kubernetes-1.6.7
+    master: 1
+    minion: 3
     dependencies:
       - etcd
       - flannel
@@ -135,36 +131,37 @@ infras:
     components:
       -
         binary: kube-apiserver
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-apiserver/1.6.7
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/1.6.7/kube-apiserver
         package: false
         systemd: kube-apiserver-1.6.7
         ca: kubernetes-1.6.7
       -
         binary: kube-controller-manager
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-controller-manager/1.6.7
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/1.6.7/kube-controller-manager
         package: false
         systemd: kube-controller-manager-1.6.7
         ca: kubernetes-1.6.7
       -
         binary: kube-scheduler
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-scheduler/1.6.7
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/1.6.7/kube-scheduler
         package: false
         systemd: kube-scheduler-1.6.7
       -
         binary: kubectl
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kubectl/1.6.7
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/1.6.7/kubectl
         package: false
       -
         binary: kubelet
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kubelet/1.6.7
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/1.6.7/kubelet
         package: false
         systemd: kubelet-1.6.7
       -
         binary: kube-proxy
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-proxy/1.6.7
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/1.6.7/kube-proxy
         package: false
         systemd: kube-proxy-1.6.7
         ca: kube-proxy-1.6.7
+description: WIP
 ```
 
 ##### Using Bare Metals To Deploy Kubernetes Cluster
@@ -197,13 +194,13 @@ infras:
     components:
       -
         binary: etcd
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/etcd/3.2.2
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/3.2.2/etcd
         package: false
         systemd: etcd-3.2.2
         ca: etcd-3.2.2
       -
         binary: etcdctl
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/etcdctl/3.2.2
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/3.2.2/etcdctl
         package: false
   -
     name: flannel
@@ -215,14 +212,14 @@ infras:
     components:
       -
         binary: flanneld
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/flanneld/0.7.1
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/0.7.1/flanneld
         package: false
         systemd: flannel-0.7.1
         ca: flannel-0.7.1
         before: "etcdctl --endpoints={{.Nodes}} --ca-file=/etc/kubernetes/ssl/ca.pem --cert-file=/etc/flanneld/ssl/flanneld.pem --key-file=/etc/flanneld/ssl/flanneld-key.pem set /kubernetes/network/config '{\"Network\":\"'172.30.0.0/16'\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\"}}'"
-      - 
+      -
         binary: mk-docker-opts.sh
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/mk-docker-opts.sh/0.7.1
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/0.7.1/mk-docker-opts.sh
         package: false
   -
     name: docker
@@ -234,38 +231,38 @@ infras:
     components:
       -
         binary: docker
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker/17.04.0-ce
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/docker
         package: false
         systemd: docker-17.04.0-ce
         before: "iptables -F && iptables -X && iptables -F -t nat && iptables -X -t nat"
         after: "iptables -P FORWARD ACCEPT"
       -
         binary: dockerd
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/dockerd/17.04.0-ce
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/dockerd
         package: false
       -
         binary: docker-init
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-init/17.04.0-ce
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/docker-init
         package: false
       -
         binary: docker-proxy
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-proxy/17.04.0-ce
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/docker-proxy
         package: false
       -
         binary: docker-runc
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-runc/17.04.0-ce
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/docker-runc
         package: false
       -
         binary: docker-containerd
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-containerd/17.04.0-ce
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/docker-containerd
         package: false
       -
         binary: docker-containerd-ctr
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-containerd-ctr/17.04.0-ce
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/docker-containerd-ctr
         package: false
       -
         binary: docker-containerd-shim
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/docker-containerd-shim/17.04.0-ce
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/docker-containerd-shim
         package: false
   -
     name: kubernetes
@@ -279,36 +276,37 @@ infras:
     components:
       -
         binary: kube-apiserver
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-apiserver/1.6.7
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/1.6.7/kube-apiserver
         package: false
         systemd: kube-apiserver-1.6.7
         ca: kubernetes-1.6.7
       -
         binary: kube-controller-manager
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-controller-manager/1.6.7
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/1.6.7/kube-controller-manager
         package: false
         systemd: kube-controller-manager-1.6.7
         ca: kubernetes-1.6.7
       -
         binary: kube-scheduler
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-scheduler/1.6.7
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/1.6.7/kube-scheduler
         package: false
         systemd: kube-scheduler-1.6.7
       -
         binary: kubectl
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kubectl/1.6.7
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/1.6.7/kubectl
         package: false
       -
         binary: kubelet
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kubelet/1.6.7
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/1.6.7/kubelet
         package: false
         systemd: kubelet-1.6.7
       -
         binary: kube-proxy
-        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/kube-proxy/1.6.7
+        url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/1.6.7/kube-proxy
         package: false
         systemd: kube-proxy-1.6.7
         ca: kube-proxy-1.6.7
+description: WIP
 ```
 
 ##### Using Local Binary Files To Deploy Kubernetes Clusters
@@ -450,5 +448,5 @@ infras:
         package: false
         systemd: kube-proxy-1.6.7
         ca: kube-proxy-1.6.7
-
+description: WIP
 ```
