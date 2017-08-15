@@ -36,7 +36,7 @@ func SetConfig(cfgFile string) error {
 			return fmt.Errorf("Read $HOME envrionment error: %s", err.Error())
 		}
 
-		// Search config in home directory with name "containerops" (without extension).
+		// Search config in home directory with name "containerops" (with extension .toml).
 		viper.SetConfigType("toml")
 		viper.SetConfigName("containerops")
 		viper.AddConfigPath("/etc/containerops/config")
