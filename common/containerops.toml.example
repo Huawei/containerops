@@ -1,0 +1,26 @@
+[database]
+driver = "mysql"
+host = "127.0.0.1"
+port = 3306
+user = "root"
+password = "containerops_database"
+db = "containerops_password"
+
+[web]
+domain = "opshub.sh"
+mode = "https"
+address = "127.0.0.1"
+port = 443
+cert = "PATH_TO_CERT_FILE"
+key = "PATH_TO_KEY_FILE"
+
+
+[storage]
+dockerv2 = "/tmp/dockerv2" # path for image files of Docker Distribution V2 Protocol
+binaryv1 = "/tmp/binaryv1" # path for binary files of Dockyard Binary V1 Protocol
+
+
+[warship]
+domain = "hub.opshub.sh"
+
+[singular]
