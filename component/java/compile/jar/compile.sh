@@ -72,31 +72,31 @@ then
     exit
 fi
 
-STOUT2 gradle war
+STOUT2 gradle jar
 if [ "$?" -ne "0" ]
 then
-    printf "[COUT] gradle war fail\n"
+    printf "[COUT] gradle jar fail\n"
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
 
-warpath=$(find `pwd` -name "*.war")
-if [ "$warpath" = "" ]
+jarpath=$(find `pwd` -name "*.jar")
+if [ "$jarpath" = "" ]
 then
-    printf "[COUT] can not find a war file after project build%s\n"
+    printf "[COUT] can not find a jar file after project build%s\n"
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
-echo $warpath
+echo $jarpath
 
-STOUT curl -i -X PUT -T $warpath ${map["target"]} 2>/dev/null
+STOUT curl -i -X PUT -T $jarpath ${map["target"]} 2>/dev/null
 
 if [ "$?" -eq "0" ]
 then
-    printf "[COUT] download war url : %s\n" ${map["target"]}
+    printf "[COUT] download jar url : %s\n" ${map["target"]}
     printf "[COUT] CO_RESULT = %s\n" "true"
 else
-    printf "[COUT] upload %s to %s fail %s\n" $warpath ${map["target"]}
+    printf "[COUT] upload %s to %s fail %s\n" $jarpath ${map["target"]}
     printf "[COUT] CO_RESULT = %s\n" "false"
 fi
 exit
