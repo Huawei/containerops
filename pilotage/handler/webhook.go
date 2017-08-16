@@ -14,29 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package router
+package handler
 
-import (
-	"gopkg.in/macaron.v1"
+import macaron "gopkg.in/macaron.v1"
 
-	"github.com/Huawei/containerops/pilotage/handler"
-)
-
-// SetRunDaemonRouters is
-func SetRunDaemonRouters(m *macaron.Macaron) {
-	m.Group("/flow", func() {
-		m.Group("/v1", func() {
-			m.Get("/:namespace/:repository/:flow/:tag/:number/runtime/:type", handler.GetFlowRuntime)
-		})
-	})
-	m.Post("/hook", handler.WebHook)
-}
-
-// SetStartDaemonRouters is
-func SetStartDaemonRouters(m *macaron.Macaron) {
-	m.Group("/flow", func() {
-		m.Group("/v1", func() {
-			m.Post("/:namespace/:repository/:flow/:tag/:type", handler.PostFlowRuntime)
-		})
-	})
+func WebHook(ctx *macaron.Context) (int, []byte) {
+	// TODO Run the flow:
+	// 1. Check if the singular changes
+	// 2. (if changed) Build new singular and push the binary to dockyard
+	// 3. ssh into the target server, update the singular service.
 }
