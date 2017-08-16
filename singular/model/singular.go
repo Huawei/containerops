@@ -52,7 +52,7 @@ func (d *DeploymentV1) TableName() string {
 }
 
 type InfraV1 struct {
-	ID           int64      `json:"id" yaml:"id"yaml:"id"  gorm:"column:id;primary_key"`
+	ID           int64      `json:"id" yaml:"id"  gorm:"column:id;primary_key"`
 	DeploymentV1 int64      `json:"deployment_v1" yaml:"deployment_v1" sql:"not null;default:0" gorm:"column:deployment_v1"`
 	Name         string     `json:"name" yaml:"name" sql:"not null;type:varchar(255)" gorm:"column:name"`
 	Version      string     `json:"version" yaml:"version" sql:"not null;type:varchar(255)" gorm:"column:version"`
@@ -69,7 +69,7 @@ func (i *InfraV1) TableName() string {
 }
 
 type ComponentV1 struct {
-	ID        int64      `json:"id" yaml:"id"yaml:"id"  gorm:"column:id;primary_key"`
+	ID        int64      `json:"id" yaml:"id"  gorm:"column:id;primary_key"`
 	InfraV1   int64      `json:"infra_v1" yaml:"infra_v1" sql:"not null;default:0" gorm:"column:infra_v1"`
 	Name      string     `json:"name" yaml:"name" sql:"not null;type:varchar(255)" gorm:"column:name"`
 	URL       string     `json:"url" yaml:"url" sql:"not null;type:text" gorm:"column:url"`
