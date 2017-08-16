@@ -78,16 +78,7 @@ def pycallgraph(file_name, upload):
         print("[COUT] pycallgraph error", file=sys.stderr)
         return False
 
-    parsed = upload.split('/')
-    host = parsed[0]
-    namespace = parsed[1]
-    repo = parsed[2]
-    binary = parsed[3]
-    tag = parsed[4]
-    url = 'https://{}/binary/v1/{}/{}/binary/{}/{}'.format(host, namespace,
-                                                           repo, binary, tag)
-
-    r1 = subprocess.run(['curl', '-XPUT', '-d', '@pycallgraph.png', url])
+    r1 = subprocess.run(['curl', '-XPUT', '-d', '@pycallgraph.png', upload])
     if r1.returncode != 0:
         print("[COUT] upload error", file=sys.stderr)
         return False

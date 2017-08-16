@@ -7,7 +7,7 @@ docker build -t containerops/pycallgraph .
 ## TEST
 
 ```bash
-docker run --rm -e CO_DATA='git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=hub.opshub.sh/lidian/test/pycallgraph/v0.1' containerops/pycallgraph
+docker run --rm -e CO_DATA='git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pycallgraph' containerops/pycallgraph
 ```
 
 ## TEST with deference python version
@@ -16,5 +16,5 @@ docker run --rm -e CO_DATA='git-url=https://github.com/Lupino/bpnn.git entry-fil
 default is `py3k`
 
 ```bash
-docker run --rm -e CO_DATA='git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=hub.opshub.sh/lidian/test/pycallgraph/v0.1 version=python' containerops/pycallgraph
+docker run --rm -e CO_DATA='git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pycallgraph version=python' containerops/pycallgraph
 ```

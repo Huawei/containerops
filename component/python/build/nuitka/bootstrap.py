@@ -71,17 +71,8 @@ def pip_install(file_name, version='py3k'):
 
 
 def upload_file(file_name, upload):
-    parsed = upload.split('/')
-    host = parsed[0]
-    namespace = parsed[1]
-    repo = parsed[2]
-    binary = parsed[3]
-    tag = parsed[4]
-    url = 'https://{}/binary/v1/{}/{}/binary/{}/{}'.format(host, namespace,
-                                                           repo, binary, tag)
-
     bn = os.path.basename(file_name)[:-3]
-    r1 = subprocess.run(['curl', '-XPUT', '-d', '@' + bn + '.exe', url])
+    r1 = subprocess.run(['curl', '-XPUT', '-d', '@' + bn + '.exe', upload])
     if r1.returncode != 0:
         print("[COUT] upload error", file=sys.stderr)
         return False

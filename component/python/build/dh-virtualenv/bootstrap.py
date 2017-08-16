@@ -21,18 +21,8 @@ def git_clone(url):
 
 
 def upload_file(upload):
-    parsed = upload.split('/')
-    host = parsed[0]
-    namespace = parsed[1]
-    repo = parsed[2]
-    binary = parsed[3]
-    tag = parsed[4]
-    url = 'https://{}/binary/v1/{}/{}/binary/{}/{}'.format(host, namespace,
-                                                           repo, binary, tag)
-
-
     file_name = glob.glob('*.deb')[0]
-    r1 = subprocess.run(['curl', '-XPUT', '-d', '@' + file_name, url])
+    r1 = subprocess.run(['curl', '-XPUT', '-d', '@' + file_name, upload])
     if r1.returncode != 0:
         print("[COUT] upload error", file=sys.stderr)
         return False
