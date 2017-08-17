@@ -48,7 +48,7 @@ func main() {
 		return
 	}
 
-	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT=true")
+	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT=true\n")
 	fmt.Fprintf(os.Stdout, "[COUT] CO_URL=%s\n", url)
 }
 

@@ -1,0 +1,7 @@
+FROM daocloud.io/golang
+
+ADD ./codes /
+WORKDIR /
+RUN go build -o /usr/local/bin/cobuild co_build.go
+RUN mkdir -p $GOPATH/src/github.com/Huawei/
+CMD cobuild

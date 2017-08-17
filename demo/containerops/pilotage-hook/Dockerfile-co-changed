@@ -1,0 +1,6 @@
+FROM daocloud.io/golang
+ADD ./codes /
+WORKDIR /
+RUN go build -o /usr/local/bin/is_co_changed code_changed.go
+RUN mkdir -p $GOPATH/src/github.com/Huawei/
+CMD is_co_changed
