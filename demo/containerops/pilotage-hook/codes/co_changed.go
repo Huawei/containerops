@@ -32,7 +32,7 @@ func main() {
 
 	changed, err := diff(target)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA error: %s\n", err.Error())
+		fmt.Fprintf(os.Stderr, "[COUT] Failed to compare merges: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
 		os.Exit(1)
 		return
@@ -104,6 +104,7 @@ func diff(target string) (bool, error) {
 	prevMergeCommit := parts[0]
 
 	diffCmd := exec.Command("git", "diff", fmt.Sprintf("%s..%s", prevMergeCommit, lastMergeCommit), "--name-only")
+	diffCmd.Dir = fmt.Sprintf("%s/containerops/%s/", repoParentPath, target)
 	buf.Reset()
 	diffCmd.Stdout = &buf
 	diffCmd.Stderr = &buf
