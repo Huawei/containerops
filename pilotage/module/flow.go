@@ -33,7 +33,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	//_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/Huawei/containerops/common/utils"
@@ -108,7 +108,12 @@ func (f *Flow) LocalRun(verbose, timestamp bool) error {
 		case NormalStage:
 			switch stage.Sequencing {
 			case Parallel:
-				// TODO Parallel running
+				if status, err := stage.ParallelRun(verbose, timestamp, f); err != nil {
+					f.Status = Failure
+					f.Log(fmt.Sprintf("Stage [%s] run error: %s", stage.Name, err.Error()), verbose, timestamp)
+				} else {
+					f.Status = status
+				}
 			case Sequencing:
 				if status, err := stage.SequencingRun(verbose, timestamp, f); err != nil {
 					f.Status = Failure
@@ -175,6 +180,48 @@ func (s *Stage) SequencingRun(verbose, timestamp bool, f *Flow) (string, error) 
 		}
 	}
 
+	return s.Status, nil
+}
+
+func (s *Stage) ParallelRun(verbose, timestamp bool, f *Flow) (string, error) {
+	s.Status = Running
+
+	s.Log(fmt.Sprintf("Stage [%s] status change to %s", s.Name, s.Status), false, timestamp)
+	f.Log(fmt.Sprintf("Stage [%s] status change to %s", s.Name, s.Status), verbose, timestamp)
+
+	resultChan := make(chan string)
+	defer close(resultChan)
+	count := 0
+	for i, _ := range s.Actions {
+		go func(index int) {
+			action := &s.Actions[index]
+			var tempStaus string
+
+			s.Log(fmt.Sprintf("The Number [%d] action is running: %s", index, s.Title), false, timestamp)
+			f.Log(fmt.Sprintf("The Number [%d] action is running: %s", index, s.Title), verbose, timestamp)
+
+			if status, err := action.Run(verbose, timestamp, f); err != nil {
+				tempStaus = Failure
+
+				s.Log(fmt.Sprintf("Action [%s] run error: %s", action.Name, err.Error()), false, timestamp)
+				f.Log(fmt.Sprintf("Action [%s] run error: %s", action.Name, err.Error()), verbose, timestamp)
+			} else {
+				tempStaus = status
+			}
+			resultChan <- tempStaus
+
+		}(i)
+	}
+
+	for {
+		if result, ok := <-resultChan; ok {
+			count++
+			s.Status = result
+			if result == Failure || result == Cancel || count == len(s.Actions) {
+				return s.Status, nil
+			}
+		}
+	}
 	return s.Status, nil
 }
 
