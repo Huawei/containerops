@@ -18,10 +18,13 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"io/ioutil"
+	"net"
 	"os"
 	"strings"
 
-	common "github.com/Huawei/containerops/common/utils"
+	"golang.org/x/crypto/ssh"
 )
 
 func main() {
@@ -72,5 +75,64 @@ func parseEnv(env string) (target, url, sshKey string, err error) {
 
 func update(target, url, key string) error {
 	cmd := fmt.Sprintf("/var/containerops/scripts/%s/deploy.sh '%s'", target, url)
-	return common.SSHCommand("root", key, "hub.opshub.sh", 22, cmd, os.Stdout, os.Stderr)
+	return sshCommand("root", key, "hub.opshub.sh", 22, cmd, os.Stdout, os.Stderr)
+}
+
+func sshCommand(user, privateKey, host string, port int, command string, stdout, stderr io.Writer) error {
+	var (
+		addr         string
+		clientConfig *ssh.ClientConfig
+		client       *ssh.Client
+		session      *ssh.Session
+		err          error
+	)
+
+	clientConfig = &ssh.ClientConfig{
+		User: user,
+		Auth: []ssh.AuthMethod{
+			publicKeyFile(privateKey),
+		},
+		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
+			return nil
+		},
+		Timeout: 0,
+	}
+
+	addr = fmt.Sprintf("%s:%d", host, port)
+
+	if client, err = ssh.Dial("tcp", addr, clientConfig); err != nil {
+		return err
+	}
+
+	if session, err = client.NewSession(); err != nil {
+		return err
+	}
+	defer session.Close()
+
+	if err != nil {
+		return err
+	}
+
+	session.Stdout = stdout
+	session.Stderr = stderr
+
+	err = session.Run(command)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func publicKeyFile(file string) ssh.AuthMethod {
+	buffer, err := ioutil.ReadFile(file)
+	if err != nil {
+		return nil
+	}
+
+	key, err := ssh.ParsePrivateKey(buffer)
+	if err != nil {
+		return nil
+	}
+	return ssh.PublicKeys(key)
 }

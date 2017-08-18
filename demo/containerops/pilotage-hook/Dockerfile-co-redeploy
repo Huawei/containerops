@@ -15,11 +15,11 @@
 FROM hub.opshub.sh/containerops/golang:1.8.3
 MAINTAINER Zhen Ju<juzhen@huawei.com>
 
-
-ADD ./codes/co_build.go /
+ADD ./codes/co_redeploy.go /
 ADD ./codes/common.go /
 
+RUN go get -v golang.org/x/crypto/ssh
 WORKDIR /
-RUN go build -o /usr/local/bin/cobuild common.go co_build.go
+RUN go build -o /usr/local/bin/coredeploy common.go co_redeploy.go
 RUN mkdir -p $GOPATH/src/github.com/Huawei/
-CMD cobuild
+CMD coredeploy

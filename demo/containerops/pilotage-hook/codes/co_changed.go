@@ -42,29 +42,6 @@ func main() {
 	fmt.Fprintf(os.Stdout, fmt.Sprintf("[COUT] CO_CHANGED=%t", changed))
 }
 
-func getGitRepoParentPath() (string, error) {
-	gopath := os.Getenv("GOPATH")
-	if gopath == "" {
-		return "", fmt.Errorf("Failed to get $GOPATH")
-	}
-	repoParentPath := fmt.Sprintf("%s/src/github.com/Huawei", gopath)
-	return repoParentPath, nil
-}
-
-func clone() error {
-	repoParentPath, err := getGitRepoParentPath()
-	if err != nil {
-		return err
-	}
-
-	cmd := exec.Command("git", "clone", "https://github.com/Huawei/containerops")
-	cmd.Dir = repoParentPath
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	return cmd.Run()
-}
-
 func diff(target string) (bool, error) {
 	repoParentPath, err := getGitRepoParentPath()
 	if err != nil {
