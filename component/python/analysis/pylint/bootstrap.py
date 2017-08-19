@@ -4,6 +4,7 @@ import subprocess
 import os
 import sys
 import json
+import yaml
 
 REPO_PATH = 'git-repo'
 
@@ -19,8 +20,32 @@ def git_clone(url):
         return False
 
 
-def pylint(file_name):
-    r = subprocess.run(['pylint', '-f', 'json', file_name], stdout=subprocess.PIPE)
+def get_pip_cmd(version):
+    if version == 'py3k' or version == 'python3':
+        return 'pip3'
+
+    return 'pip'
+
+
+def init_env(version):
+    subprocess.run([get_pip_cmd(version), 'install', 'pylint'])
+
+
+def validate_version(version):
+    valid_version = ['python', 'python2', 'python3', 'py3k']
+    if version not in valid_version:
+        print("[COUT] Check version failed: the valid version is {}".format(valid_version), file=sys.stderr)
+        return False
+
+    return True
+
+
+def pylint(file_name, rcfile):
+    if rcfile:
+        rcfile = '--rcfile={}/{}'.format(REPO_PATH, rcfile)
+    else:
+        rcfile = '--rcfile=/root/.pylintrc'
+    r = subprocess.run(['pylint', '-f', 'json', rcfile, file_name], stdout=subprocess.PIPE)
 
     passed = True
     if (r.returncode != 0):
@@ -29,7 +54,9 @@ def pylint(file_name):
     out = str(r.stdout, 'utf-8').strip()
     for o in json.loads(out):
         o['path'] = trim_repo_path(o['path'])
-        print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(o)))
+        lines = yaml.safe_dump([o])
+        for line in lines.split('\n'):
+            print('[COUT] CO_YAML_CONTENT {}'.format(line))
 
     return passed
 
@@ -43,7 +70,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url']
+    validate = ['git-url', 'rcfile', 'version']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -71,6 +98,16 @@ def main():
         print("[COUT] CO_RESULT = false")
         return
 
+    version = argv.get('version', 'py3k')
+
+    if not validate_version(version):
+        print("[COUT] CO_RESULT = false")
+        return
+
+    init_env(version)
+
+    rcfile = argv.get('rcfile')
+
     if not git_clone(git_url):
         return
 
@@ -79,7 +116,7 @@ def main():
     for root, dirs, files in os.walk(REPO_PATH):
         for file_name in files:
             if file_name.endswith('.py'):
-                o = pylint(os.path.join(root, file_name))
+                o = pylint(os.path.join(root, file_name), rcfile)
                 all_true = all_true and o
 
     if all_true:

@@ -20,10 +20,37 @@ def git_clone(url):
         return False
 
 
-def setup(path):
+def get_pip_cmd(version):
+    if version == 'py3k' or version == 'python3':
+        return 'pip3'
+
+    return 'pip'
+
+
+def get_python_cmd(version):
+    if version == 'py3k' or version == 'python3':
+        return 'python3'
+
+    return 'python'
+
+
+def init_env(version):
+    subprocess.run([get_pip_cmd(version), 'install', 'pycallgraph'])
+
+
+def validate_version(version):
+    valid_version = ['python', 'python2', 'python3', 'py3k']
+    if version not in valid_version:
+        print("[COUT] Check version failed: the valid version is {}".format(valid_version), file=sys.stderr)
+        return False
+
+    return True
+
+
+def setup(path, version='py3k'):
     file_name = os.path.basename(path)
     dir_name = os.path.dirname(path)
-    r = subprocess.run('cd {}; python3 {} install'.format(dir_name, file_name),
+    r = subprocess.run('cd {}; {} {} install'.format(dir_name, get_python_cmd(version), file_name),
                        shell=True)
 
     if r.returncode != 0:
@@ -33,8 +60,8 @@ def setup(path):
     return True
 
 
-def pip_install(file_name):
-    r = subprocess.run(['pip3', 'install', '-r', file_name])
+def pip_install(file_name, version='py3k'):
+    r = subprocess.run([get_pip_cmd(version), 'install', '-r', file_name])
 
     if r.returncode != 0:
         print("[COUT] install dependences failed", file=sys.stderr)
@@ -51,16 +78,7 @@ def pycallgraph(file_name, upload):
         print("[COUT] pycallgraph error", file=sys.stderr)
         return False
 
-    parsed = upload.split('/')
-    host = parsed[0]
-    namespace = parsed[1]
-    repo = parsed[2]
-    binary = parsed[3]
-    tag = parsed[4]
-    url = 'https://{}/binary/v1/{}/{}/binary/{}/{}'.format(host, namespace,
-                                                           repo, binary, tag)
-
-    r1 = subprocess.run(['curl', '-XPUT', '-d', '@pycallgraph.png', url])
+    r1 = subprocess.run(['curl', '-XPUT', '-d', '@pycallgraph.png', upload])
     if r1.returncode != 0:
         print("[COUT] upload error", file=sys.stderr)
         return False
@@ -72,7 +90,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url', 'entry-file', 'upload']
+    validate = ['git-url', 'entry-file', 'upload', 'version']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -100,6 +118,14 @@ def main():
         print("[COUT] CO_RESULT = false")
         return
 
+    version = argv.get('version', 'py3k')
+
+    if not validate_version(version):
+        print("[COUT] CO_RESULT = false")
+        return
+
+    init_env(version)
+
     entry_file = argv.get('entry-file')
     if not entry_file:
         print("[COUT] The entry-file value is null", file=sys.stderr)
@@ -116,16 +142,16 @@ def main():
         return
 
     for file_name in glob.glob('./*/setup.py'):
-        setup(file_name)
+        setup(file_name, version)
 
     for file_name in glob.glob('./*/*/setup.py'):
-        setup(file_name)
+        setup(file_name, version)
 
     for file_name in glob.glob('./*/requirements.txt'):
-        pip_install(file_name)
+        pip_install(file_name, version)
 
     for file_name in glob.glob('./*/*/requirements.txt'):
-        pip_install(file_name)
+        pip_install(file_name, version)
 
     out = pycallgraph(entry_file, upload)
     print()
