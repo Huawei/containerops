@@ -91,9 +91,9 @@ fi
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then
-    STOUT cat ${map["report-path"]}
+    cat ${map["report-path"]}
 else
-    STOUT java -jar /root/convert.jar ${map["report-path"]} ${map["out-put-type"]}
+    java -jar /root/convert.jar ${map["report-path"]} ${map["out-put-type"]}
 fi
 
 printf "[COUT] CO_RESULT = %s\n" "true"

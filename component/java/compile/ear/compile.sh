@@ -89,7 +89,7 @@ then
 fi
 echo $earpath
 
-STOUT curl -i -X PUT -T $earpath ${map["target"]} 2>/dev/null
+curl -i -X PUT -T $earpath ${map["target"]} 2>/dev/null
 
 if [ "$?" -eq "0" ]
 then

@@ -89,7 +89,7 @@ then
 fi
 echo $jarpath
 
-STOUT curl -i -X PUT -T $jarpath ${map["target"]} 2>/dev/null
+curl -i -X PUT -T $jarpath ${map["target"]} 2>/dev/null
 
 if [ "$?" -eq "0" ]
 then

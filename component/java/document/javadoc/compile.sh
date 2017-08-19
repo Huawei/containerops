@@ -89,7 +89,7 @@ then
     exit
 fi
 
-STOUT curl -i -X PUT -T /root/javadoc.tar ${map["target"]} 2>/dev/null
+curl -i -X PUT -T /root/javadoc.tar ${map["target"]} 2>/dev/null
 
 if [ "$?" -eq "0" ]
 then

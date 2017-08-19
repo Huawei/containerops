@@ -77,7 +77,7 @@ then
     exit
 fi
 
-STOUT cat build/reports/project/dependencies.txt
+cat build/reports/project/dependencies.txt
 
 if [ "$?" -eq "0" ]
 then

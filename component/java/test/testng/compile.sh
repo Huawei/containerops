@@ -90,7 +90,7 @@ then
     do
         if test -f $file
         then
-            STOUT cat $file
+            cat $file
         fi
     done
 else
@@ -98,7 +98,7 @@ else
     do
         if test -f $file
         then
-            STOUT java -jar /root/convert.jar $file ${map["out-put-type"]}
+            java -jar /root/convert.jar $file ${map["out-put-type"]}
         fi
     done
 fi
