@@ -3,7 +3,7 @@
 import subprocess
 import os
 import sys
-import json
+import yaml
 
 REPO_PATH = 'git-repo'
 
@@ -19,6 +19,26 @@ def git_clone(url):
         return False
 
 
+def get_pip_cmd(version):
+    if version == 'py3k' or version == 'python3':
+        return 'pip3'
+
+    return 'pip'
+
+
+def init_env(version):
+    subprocess.run([get_pip_cmd(version), 'install', 'pylama'])
+
+
+def validate_version(version):
+    valid_version = ['python', 'python2', 'python3', 'py3k']
+    if version not in valid_version:
+        print("[COUT] Check version failed: the valid version is {}".format(valid_version), file=sys.stderr)
+        return False
+
+    return True
+
+
 def pylama(file_name):
     r = subprocess.run(['pylama', file_name], stderr=subprocess.PIPE,
                        stdout=subprocess.PIPE)
@@ -31,7 +51,9 @@ def pylama(file_name):
     for o in out:
         o = parse_pylama_result(o)
         if o:
-            print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(o)))
+            lines = yaml.safe_dump([o])
+            for line in lines.split('\n'):
+                print('[COUT] CO_YAML_CONTENT {}'.format(line))
 
     return passed
 
@@ -51,7 +73,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url']
+    validate = ['git-url', 'version']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -78,6 +100,14 @@ def main():
         print("[COUT] The git-url value is null", file=sys.stderr)
         print("[COUT] CO_RESULT = false")
         return
+
+    version = argv.get('version', 'py3k')
+
+    if not validate_version(version):
+        print("[COUT] CO_RESULT = false")
+        return
+
+    init_env(version)
 
     if not git_clone(git_url):
         return
