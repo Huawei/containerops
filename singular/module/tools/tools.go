@@ -21,6 +21,11 @@ const (
 	ServiceFilesFolder = "service"
 	SettingFilesFolder = "setting"
 
+	// Systemd server location
+	SytemdServerPath = "/etc/systemd/system"
+	// Default binary location
+	BinarySerrverPath = "/usr/local/bin"
+
 	// Service Etcd Files Folder Name
 	ServiceEtcdFolder = "etcd"
 	ServiceEtcdFile   = "etcd.service"

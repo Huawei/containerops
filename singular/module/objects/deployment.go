@@ -31,6 +31,7 @@ import (
 	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/common/utils"
 	"github.com/Huawei/containerops/singular/module/tools"
+	"path"
 )
 
 // Deployment is Singular base struct.
@@ -74,10 +75,10 @@ func (d *Deployment) ParseFromFile(t string, verbose, timestamp bool, output str
 
 func (d *Deployment) DownloadBinaryFile(file, url string, nodes map[string]string) error {
 	for _, ip := range nodes {
-		chmodCmd := fmt.Sprintf("chmod +x /usr/local/bin/%s", file)
+		chmodCmd := fmt.Sprintf("chmod +x %s", path.Join(tools.BinarySerrverPath, file))
 
 		d.Log(fmt.Sprintf("Downloading %s to Node[%s]", file, ip))
-		if err := tools.DownloadComponent(url, fmt.Sprintf("/usr/local/bin/%s", file), ip, d.Tools.SSH.Private, tools.DefaultSSHUser); err != nil {
+		if err := tools.DownloadComponent(url, path.Join(tools.BinarySerrverPath, file), ip, d.Tools.SSH.Private, tools.DefaultSSHUser); err != nil {
 			return err
 		}
 

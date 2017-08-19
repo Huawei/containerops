@@ -40,6 +40,8 @@ import (
 
 const (
 	EtcdMinimalNodes = 2
+	EtcdServerConfig = "/etc/etcd"
+	EtcdServerSSL    = "ssl"
 )
 
 type EtcdEndpoint struct {
@@ -101,7 +103,7 @@ func DeployEtcdCluster(d *objects.Deployment, infra *objects.Infra) error {
 		return err
 	} else {
 		d.Log(fmt.Sprintf("Uploading SSL files to nodes of Etcd Cluster."))
-		if err := uploadEtcdCAFiles(d.Config, d.Tools.SSH.Private, etcdNodes, tools.DefaultSSHUser); err != nil {
+		if err := uploadEtcdFiles(d.Config, d.Tools.SSH.Private, etcdNodes, tools.DefaultSSHUser); err != nil {
 			return err
 		}
 
@@ -113,7 +115,7 @@ func DeployEtcdCluster(d *objects.Deployment, infra *objects.Infra) error {
 		}
 
 		d.Log(fmt.Sprintf("Staring Etcd Cluster."))
-		if err := StartEtcdCluster(d.Tools.SSH.Private, etcdNodes); err != nil {
+		if err := startEtcdCluster(d.Tools.SSH.Private, etcdNodes); err != nil {
 			return err
 		}
 
@@ -122,7 +124,7 @@ func DeployEtcdCluster(d *objects.Deployment, infra *objects.Infra) error {
 	return nil
 }
 
-// Generate Etcd CA Files
+// Generate Etcd CA SSL and Systemd service Files
 func generateEtcdFiles(src string, nodes map[string]string, etcdEndpoints string, version string) error {
 	// If ca file exist, remove it.
 	sslBase := path.Join(src, tools.CAFilesFolder, tools.CAEtcdFolder)
@@ -164,11 +166,13 @@ func generateEtcdFiles(src string, nodes map[string]string, etcdEndpoints string
 			Nodes: etcdEndpoints,
 		}
 
-		if err := generateEtcdSSLFile(caFile, caKeyFile, configFile, node, version, sslBase, ip); err != nil {
+		// Generate Etcd SSL files
+		if err := generateEtcdSSLFiles(caFile, caKeyFile, configFile, node, version, sslBase, ip); err != nil {
 			return err
 		}
 
-		if err := generateEtcdService(node, version, serviceBase, ip); err != nil {
+		// Generate Etcd Systemd File
+		if err := generateEtcdServiceFile(node, version, serviceBase, ip); err != nil {
 			return err
 		}
 	}
@@ -176,7 +180,8 @@ func generateEtcdFiles(src string, nodes map[string]string, etcdEndpoints string
 	return nil
 }
 
-func generateEtcdSSLFile(caFile, caKeyFile, configFile string, node EtcdEndpoint, version, base, ip string) error {
+// generateEtcdSSLFiles generate ssl file with node information.
+func generateEtcdSSLFiles(caFile, caKeyFile, configFile string, node EtcdEndpoint, version, base, ip string) error {
 	var tpl bytes.Buffer
 	var err error
 
@@ -241,7 +246,8 @@ func generateEtcdSSLFile(caFile, caKeyFile, configFile string, node EtcdEndpoint
 	return nil
 }
 
-func generateEtcdService(node EtcdEndpoint, version, base, ip string) error {
+// generateEtcdServiceFile generate systemd service file
+func generateEtcdServiceFile(node EtcdEndpoint, version, base, ip string) error {
 	var serviceTpl bytes.Buffer
 
 	serviceTp := template.New("etcd-systemd")
@@ -256,7 +262,8 @@ func generateEtcdService(node EtcdEndpoint, version, base, ip string) error {
 	return nil
 }
 
-func uploadEtcdCAFiles(src, key string, nodes map[string]string, user string) error {
+// upload Etcd SSL files and systemd file to nodes
+func uploadEtcdFiles(src, key string, nodes map[string]string, user string) error {
 	sslBase := path.Join(src, tools.CAFilesFolder, tools.CAEtcdFolder)
 	serviceBase := path.Join(src, tools.ServiceFilesFolder, tools.ServiceEtcdFolder)
 
@@ -265,14 +272,16 @@ func uploadEtcdCAFiles(src, key string, nodes map[string]string, user string) er
 	}
 
 	for _, ip := range nodes {
-
 		var err error
 
-		err = tools.DownloadComponent(path.Join(sslBase, ip, tools.CAEtcdCSRConfigFile), "/etc/etcd/ssl/etcd-csr.json", ip, key, user)
-		err = tools.DownloadComponent(path.Join(sslBase, ip, tools.CAEtcdKeyPemFile), "/etc/etcd/ssl/etcd-key.pem", ip, key, user)
-		err = tools.DownloadComponent(path.Join(sslBase, ip, tools.CAEtcdCSRFile), "/etc/etcd/ssl/etcd.csr", ip, key, user)
-		err = tools.DownloadComponent(path.Join(sslBase, ip, tools.CAEtcdPemFile), "/etc/etcd/ssl/etcd.pem", ip, key, user)
-		err = tools.DownloadComponent(path.Join(sslBase, ip, tools.ServiceEtcdFile), "/etc/systemd/system/etcd.service", ip, key, user)
+		// Upload SSL files
+		err = tools.DownloadComponent(path.Join(sslBase, ip, tools.CAEtcdCSRConfigFile), path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdCSRConfigFile), ip, key, user)
+		err = tools.DownloadComponent(path.Join(sslBase, ip, tools.CAEtcdKeyPemFile), path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdKeyPemFile), ip, key, user)
+		err = tools.DownloadComponent(path.Join(sslBase, ip, tools.CAEtcdCSRFile), path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdCSRFile), ip, key, user)
+		err = tools.DownloadComponent(path.Join(sslBase, ip, tools.CAEtcdPemFile), path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdPemFile), ip, key, user)
+
+		// Upload Service file
+		err = tools.DownloadComponent(path.Join(serviceBase, ip, tools.ServiceEtcdFile), path.Join(tools.SytemdServerPath, tools.ServiceEtcdFile), ip, key, user)
 
 		if err != nil {
 			return err
@@ -282,7 +291,7 @@ func uploadEtcdCAFiles(src, key string, nodes map[string]string, user string) er
 	return nil
 }
 
-func StartEtcdCluster(key string, nodes map[string]string) error {
+func startEtcdCluster(key string, nodes map[string]string) error {
 	cmd := "systemctl daemon-reload && systemctl enable etcd && systemctl start --no-block etcd"
 
 	for _, ip := range nodes {
