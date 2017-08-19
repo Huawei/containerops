@@ -26,6 +26,10 @@ import (
 	"golang.org/x/oauth2"
 )
 
+const (
+	DORootUser = "root"
+)
+
 // DigitalOcean struct use for manage create/delete DigitalOcean droplets.
 type DigitalOcean struct {
 	Token    string         `json:"token" yaml:"token"`
@@ -38,10 +42,12 @@ type DigitalOcean struct {
 	client *godo.Client
 }
 
+// TokenSource is access token of DigitalOcean
 type TokenSource struct {
 	AccessToken string
 }
 
+//
 func (t *TokenSource) Token() (*oauth2.Token, error) {
 	token := &oauth2.Token{
 		AccessToken: t.AccessToken,
@@ -60,8 +66,8 @@ func (do *DigitalOcean) InitClient() error {
 	return nil
 }
 
+// TODO Customize SSH key name.
 func (do *DigitalOcean) UpdateSSHKey(publicFile string) error {
-
 	if public, err := ioutil.ReadFile(publicFile); err != nil {
 		return err
 	} else {
@@ -79,6 +85,7 @@ func (do *DigitalOcean) UpdateSSHKey(publicFile string) error {
 	return nil
 }
 
+// TODO Customize Droplet name and tag.
 func (do *DigitalOcean) CreateDroplet(nodes int, fingerprint string) error {
 	names := []string{}
 
@@ -119,7 +126,6 @@ func (do *DigitalOcean) CreateDroplet(nodes int, fingerprint string) error {
 	time.Sleep(10 * time.Second)
 
 	do.Droplets = map[string]int{}
-
 	for {
 		for _, value := range droplets {
 			ctx := context.TODO()
