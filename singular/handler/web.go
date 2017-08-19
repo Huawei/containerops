@@ -17,13 +17,67 @@ limitations under the License.
 package handler
 
 import (
-	"encoding/json"
+	"html/template"
 	"net/http"
+	"strconv"
+
+	"github.com/Huawei/containerops/singular/controller"
+	"github.com/cloudflare/cfssl/log"
 
 	"gopkg.in/macaron.v1"
 )
 
-func GetIndexPageV1Handler(ctx *macaron.Context) (int, []byte) {
-	result, _ := json.Marshal(map[string]string{})
-	return http.StatusCreated, result
+func GetIndexPageV1Handler(ctx *macaron.Context) {
+	funcs := template.FuncMap{
+		"component_names": controller.StringifyComponentsNames,
+	}
+
+	deployments, err := controller.GetHtmlDeploymentList()
+	if err != nil {
+		log.Errorf("Failed to get deployment list: %s", err.Error())
+		ctx.Resp.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// The template's name should be the same with file name
+	listTmpl, err := template.New("list.template").Funcs(funcs).ParseFiles("./templates/list.template")
+	if err != nil {
+		log.Error(err)
+		ctx.Resp.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = listTmpl.Execute(ctx.Resp, deployments)
+	if err != nil {
+		log.Error(err)
+		// w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func GetDetailPageV1Handler(ctx *macaron.Context) {
+	// Get the deployment information
+	deployment_id := ctx.Req.FormValue("deployment_id")
+	deploymentID, _ := strconv.Atoi(deployment_id)
+	deployment := controller.GetHtmlDeploymentDetail(deploymentID)
+	if deployment == nil {
+		ctx.Resp.WriteHeader(http.StatusNotFound)
+		ctx.Resp.Write([]byte("Deployment not found"))
+		return
+	}
+
+	// The template's name should be the same with file name
+	listTmpl, err := template.New("detail.template").ParseFiles("./templates/detail.template")
+	if err != nil {
+		log.Error(err)
+		ctx.Resp.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = listTmpl.Execute(ctx.Resp, deployment)
+	if err != nil {
+		log.Error(err)
+		// w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
