@@ -25,9 +25,10 @@ import (
 
 	"github.com/Huawei/containerops/common/utils"
 	"github.com/Huawei/containerops/singular/module"
+	"github.com/Huawei/containerops/singular/module/objects"
 )
 
-var privateKey, publicKey string
+var privateKey, publicKey, output string
 var db bool
 
 var deployCmd = &cobra.Command{
@@ -53,30 +54,34 @@ func init() {
 
 	templateCmd.Flags().StringVarP(&privateKey, "private-key", "i", "", "ssh identity file")
 	templateCmd.Flags().StringVarP(&publicKey, "public-key", "p", "", "ssh public identity file")
+	templateCmd.Flags().StringVarP(&output, "output", "o", "", "output data folder")
 	templateCmd.Flags().BoolVarP(&db, "db", "d", false, "save deploy data in database.")
 
 	viper.BindPFlag("private-key", templateCmd.Flags().Lookup("private-key"))
 	viper.BindPFlag("public-key", templateCmd.Flags().Lookup("public-key"))
+	viper.BindPFlag("output", templateCmd.Flags().Lookup("output"))
 	viper.BindPFlag("db", templateCmd.Flags().Lookup("db"))
 }
 
 // Deploy the Cloud Native stack with a template file.
 func templateRun(cmd *cobra.Command, args []string) {
-
+	// Check deploy template file.
 	if len(args) <= 0 || utils.IsFileExist(args[0]) == false {
 		fmt.Fprintf(os.Stderr, "The deploy template file is required, %s\n", "see https://github.com/Huawei/containerops for more detail.")
 		os.Exit(1)
 	}
 
 	template := args[0]
-	d := new(module.Deployment)
+	d := new(objects.Deployment)
 
-	if err := d.ParseFromFile(template, verbose, timestamp); err != nil {
+	// Read template file and parse.
+	if err := d.ParseFromFile(template, verbose, timestamp, output); err != nil {
 		fmt.Fprintf(os.Stderr, "Parse deploy template error: %s\n", err.Error())
 		os.Exit(1)
 	}
 
-	if privateKey != "" && publicKey != "" {
+	// Set private key file.
+	if privateKey != "" {
 		d.Tools.SSH.Private, d.Tools.SSH.Public = privateKey, publicKey
 	}
 
@@ -85,7 +90,7 @@ func templateRun(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	if err := d.Deploy(); err != nil {
+	if err := module.DeployInfraStacks(d, db); err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		os.Exit(1)
 	}
