@@ -14,17 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package router
+package model
 
-import (
-	"gopkg.in/macaron.v1"
+import "html/template"
 
-	"github.com/Huawei/containerops/singular/handler"
-)
+type HtmlDeployment struct {
+	ID          int64
+	InfraName   string
+	InfraLogo   string
+	InfraLog    template.HTML
+	Components  []HtmlComponent
+	StatusIcon  string
+	StatusColor string
+}
 
-// SetRouters is setting REST API interface with handler function.
-func SetRouters(m *macaron.Macaron) {
-	m.Get("/", handler.GetIndexPageV1Handler)
-	m.Get("/detail", handler.GetDetailPageV1Handler)
-
+type HtmlComponent struct {
+	Name          string
+	Log           template.HTML
+	ImageSrc, Alt string
+	Width, Height int
 }
