@@ -166,17 +166,17 @@ func DeployInfraStacks(d *objects.Deployment, db bool) error {
 			switch infra.Name {
 			case InfraEtcd:
 				// Deploy Etcd Cluster
-				if err := infras.DeployEtcdCluster(d, &infra); err != nil {
+				if err := infras.DeployEtcdInCluster(d, &infra); err != nil {
 					return err
 				}
 			case InfraFlannel:
 				if err := infras.DeployFlannelInCluster(d, &infra); err != nil {
 					return err
 				}
-			//case InfraDocker:
-			//	if err := d.DeployDocker(infra); err != nil {
-			//		return err
-			//	}
+			case InfraDocker:
+				if err := infras.DeployDockerInCluster(d, &infra); err != nil {
+					return err
+				}
 			//case InfraKubernetes:
 			//	if err := d.DeployKubernetes(infra); err != nil {
 			//		return err
@@ -190,36 +190,6 @@ func DeployInfraStacks(d *objects.Deployment, db bool) error {
 
 	return err
 }
-
-//func (d *objects.Deployment) Deploy(db bool) error {
-
-// Deploy infra
-//for _, infra := range d.Infras {
-//	switch infra.Name {
-//	case InfraEtcd:
-//		if err := infras.DeployEtcd(&d, infra); err != nil {
-//			return err
-//		}
-//	case InfraFlannel:
-//		if err := d.DeployFlannel(infra); err != nil {
-//			return err
-//		}
-//	case InfraDocker:
-//		if err := d.DeployDocker(infra); err != nil {
-//			return err
-//		}
-//	case InfraKubernetes:
-//		if err := d.DeployKubernetes(infra); err != nil {
-//			return err
-//		}
-//	default:
-//		return fmt.Errorf("Unsupport infrastruction software: %s", infra)
-//	}
-//}
-//	}
-//
-//	return nil
-//}
 
 //
 //func (d *Deployment) DeployDocker(infra Infra) error {

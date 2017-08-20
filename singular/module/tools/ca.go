@@ -57,6 +57,10 @@ const (
 	CAFlanneldKeyPemFile    = "flanneld-key.pem"
 	CAFlanneldCSRFile       = "flanneld.csr"
 	CAFlanneldPemFile       = "flanneld.pem"
+
+	// CA Docker Files Folder name
+	CADockerFolder = "docker"
+
 )
 
 // GenerateCARootFiles generate root files from template.
