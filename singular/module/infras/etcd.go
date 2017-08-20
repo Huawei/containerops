@@ -55,11 +55,11 @@ type EtcdEndpoint struct {
 	Nodes string
 }
 
-// DeployEtcdCluster deploy etcd cluster.
+// DeployEtcdInCluster deploy etcd cluster.
 // Notes:
 //   1. Only count master nodes in etcd deploy process.
 //   2.
-func DeployEtcdCluster(d *objects.Deployment, infra *objects.Infra) error {
+func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra) error {
 	infra.Log("Deploying etcd clusters.")
 
 	// Check master node number.

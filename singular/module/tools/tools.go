@@ -24,7 +24,7 @@ const (
 	// Systemd server location
 	SytemdServerPath = "/etc/systemd/system"
 	// Default binary location
-	BinarySerrverPath = "/usr/local/bin"
+	BinaryServerPath = "/usr/local/bin"
 
 	// Service Etcd Files Folder Name
 	ServiceEtcdFolder = "etcd"
@@ -33,4 +33,8 @@ const (
 	// Service Flannel files Folder Name
 	ServiceFlanneldFolder = "flanneld"
 	ServiceFlanneldFile   = "flanneld.service"
+
+	// Service Docker files Folder Name
+	ServiceDockerFolder = "docker"
+	ServiceDockerFile   = "docker.service"
 )

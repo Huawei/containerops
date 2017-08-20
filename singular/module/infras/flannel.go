@@ -23,7 +23,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	//"strings"
 	"text/template"
 
 	"github.com/cloudflare/cfssl/cli"
