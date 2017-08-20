@@ -5,7 +5,6 @@ import os
 import sys
 import glob
 import json
-import yaml
 
 REPO_PATH = 'git-repo'
 
