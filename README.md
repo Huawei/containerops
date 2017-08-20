@@ -25,9 +25,9 @@ The ContainerOps is a DevOps orchestration platform, and its architecture is mic
 * **scaffold** - The orchestration engine UI.
 * **joints** - The orchestration engine UI of AngularJS version 1. 
 * **tenant** - The UI of containerops.sh.
-* **crew** - It's a RABC service.
+* **crew** - It's a RBAC service.
 * **dockyard** - It's a artifact & container repository.
-* **assembling** - It's a aritfact & container build service.
+* **assembling** - It's a artifact & container build service.
 * **scaler** - The third service manage service.
 * **nucleus** - The component manage service.
 * **singular** - The deployment and operations tools.
