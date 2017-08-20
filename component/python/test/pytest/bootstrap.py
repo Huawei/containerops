@@ -80,10 +80,9 @@ def pytest(file_name):
 
 
 def echo_xml():
-    with open('/tmp/output.xml', 'r') as f:
-        for line in f.readlines():
-            line = line.rstrip()
-            print('[COUT] CO_XML_CONTENT {}'.format(line))
+    with open('/tmp/output.xml', 'rb') as f:
+        data = f.read()
+        print('[COUT] CO_XML_CONTENT {}'.format(str(data)[1:]))
 
     return True
 

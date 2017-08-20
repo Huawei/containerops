@@ -4,7 +4,7 @@ import subprocess
 import os
 import sys
 import glob
-import yaml
+import json
 import line_profiler as profiler
 
 REPO_PATH = 'git-repo'
@@ -79,9 +79,8 @@ def line_profiler(file_name):
         passed = False
 
     st = profiler.load_stats('{}/{}.lprof'.format(REPO_PATH, file_name))
-    lines = yaml.safe_dump({ 'timings': st.timings, 'unit': st.unit })
-    for line in lines.split('\n'):
-        print('[COUT] CO_YAML_CONTENT {}'.format(line))
+    out = { 'timings': st.timings, 'unit': st.unit }
+    print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(out)))
 
     return passed
 

@@ -34,7 +34,7 @@ def get_python_cmd(version):
 
 
 def init_env(version):
-    subprocess.run([get_pip_cmd(version), 'install', 'memory_profiler', 'pyyaml', 'psutil'])
+    subprocess.run([get_pip_cmd(version), 'install', 'memory_profiler', 'psutil'])
 
 
 def validate_version(version):
