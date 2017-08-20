@@ -20,6 +20,7 @@ const (
 	// Service files folder
 	ServiceFilesFolder = "service"
 	SettingFilesFolder = "setting"
+	KubectlFileFolder  = "kubectl"
 
 	// Systemd server location
 	SytemdServerPath = "/etc/systemd/system"
@@ -37,4 +38,8 @@ const (
 	// Service Docker files Folder Name
 	ServiceDockerFolder = "docker"
 	ServiceDockerFile   = "docker.service"
+
+	// Kubectl files Folder Name
+	KubectlFile       = "kubectl"
+	KubectlConfigFile = "config"
 )

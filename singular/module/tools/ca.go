@@ -61,6 +61,12 @@ const (
 	// CA Docker Files Folder name
 	CADockerFolder = "docker"
 
+	// Kubernetes admin Files
+	CAKubernetes             = "kubernetes"
+	CAKubeAdminCSRConfigFile = "admin-csr.json"
+	CAKubeAdminKeyPemFile    = "admin-key.pem"
+	CAKubeAdminCSRFile       = "admin.csr"
+	CAKubeAdminPemFile       = "admin.pem"
 )
 
 // GenerateCARootFiles generate root files from template.
