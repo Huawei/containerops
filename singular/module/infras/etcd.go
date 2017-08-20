@@ -39,18 +39,23 @@ import (
 )
 
 const (
+	// EtcdMinimalNodes is minimal etcd nodes number.
 	EtcdMinimalNodes = 2
+	// EtcdServerConfig is etcd config location in the node.
 	EtcdServerConfig = "/etc/etcd"
-	EtcdServerSSL    = "ssl"
+	// EtcdServerSSL is the etcd ssl files folder name in the node.
+	// Full path is /etc/etcd/ssl
+	EtcdServerSSL = "ssl"
 )
 
+// EtcdEndpoint is the etcd node struct.
 type EtcdEndpoint struct {
 	IP    string
 	Name  string
 	Nodes string
 }
 
-// DeployEtcd deploy etcd cluster.
+// DeployEtcdCluster deploy etcd cluster.
 // Notes:
 //   1. Only count master nodes in etcd deploy process.
 //   2.
@@ -59,11 +64,11 @@ func DeployEtcdCluster(d *objects.Deployment, infra *objects.Infra) error {
 
 	// Check master node number.
 	if infra.Master > len(d.Nodes) {
-		return fmt.Errorf("Deploy %s nodes more than %d", infra.Name, d.Nodes)
+		return fmt.Errorf("deploy %s nodes more than %d", infra.Name, len(d.Nodes))
 	}
 
 	if infra.Master < EtcdMinimalNodes {
-		return fmt.Errorf("Etcd node no less than %d nodes.", EtcdMinimalNodes)
+		return fmt.Errorf("etcd node no less than %d nodes", EtcdMinimalNodes)
 	}
 
 	// Init nodes, endpoints and adminEndpoints parameters.
@@ -101,24 +106,23 @@ func DeployEtcdCluster(d *objects.Deployment, infra *objects.Infra) error {
 	// Generate Etcd CA Files
 	if err := generateEtcdFiles(d.Config, etcdNodes, strings.Join(etcdPeerEndpoints, ","), infra.Version); err != nil {
 		return err
-	} else {
-		d.Log(fmt.Sprintf("Uploading SSL files to nodes of Etcd Cluster."))
-		if err := uploadEtcdFiles(d.Config, d.Tools.SSH.Private, etcdNodes, tools.DefaultSSHUser); err != nil {
+	}
+
+	d.Log(fmt.Sprintf("Uploading SSL files to nodes of Etcd Cluster."))
+	if err := uploadEtcdFiles(d.Config, d.Tools.SSH.Private, etcdNodes, tools.DefaultSSHUser); err != nil {
+		return err
+	}
+
+	d.Log(fmt.Sprintf("Downloading Etcd binary files to nodes of Etcd Cluster."))
+	for _, c := range infra.Components {
+		if err := d.DownloadBinaryFile(c.Binary, c.URL, etcdNodes); err != nil {
 			return err
 		}
+	}
 
-		d.Log(fmt.Sprintf("Downloading Etcd binary files to nodes of Etcd Cluster."))
-		for _, c := range infra.Components {
-			if err := d.DownloadBinaryFile(c.Binary, c.URL, etcdNodes); err != nil {
-				return err
-			}
-		}
-
-		d.Log(fmt.Sprintf("Staring Etcd Cluster."))
-		if err := startEtcdCluster(d.Tools.SSH.Private, etcdNodes); err != nil {
-			return err
-		}
-
+	d.Log(fmt.Sprintf("Staring Etcd Cluster."))
+	if err := startEtcdCluster(d.Tools.SSH.Private, etcdNodes); err != nil {
+		return err
 	}
 
 	return nil
@@ -268,7 +272,7 @@ func uploadEtcdFiles(src, key string, nodes map[string]string, user string) erro
 	serviceBase := path.Join(src, tools.ServiceFilesFolder, tools.ServiceEtcdFolder)
 
 	if utils.IsDirExist(sslBase) == false || utils.IsDirExist(serviceBase) {
-		return fmt.Errorf("Locate etcd folders %s error.", sslBase)
+		return fmt.Errorf("Locate etcd folders %s or %s error", sslBase, serviceBase)
 	}
 
 	for _, ip := range nodes {

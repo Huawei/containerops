@@ -50,6 +50,13 @@ const (
 	CAEtcdKeyPemFile    = "etcd-key.pem"
 	CAEtcdCSRFile       = "etcd.csr"
 	CAEtcdPemFile       = "etcd.pem"
+
+	// CA Flannel Files Folder name
+	CAFlanneldFolder        = "flanneld"
+	CAFlanneldCSRConfigFile = "flanneld-csr.json"
+	CAFlanneldKeyPemFile    = "flanneld-key.pem"
+	CAFlanneldCSRFile       = "flanneld.csr"
+	CAFlanneldPemFile       = "flanneld.pem"
 )
 
 // GenerateCARootFiles generate root files from template.
