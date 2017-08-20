@@ -5,6 +5,7 @@ import os
 import sys
 import glob
 from bs4 import BeautifulSoup
+import json
 
 REPO_PATH = 'git-repo'
 
@@ -87,7 +88,7 @@ def echo_json():
             if file_name.endswith('.html'):
                 with open(os.path.join(root, file_name), 'r') as f:
                     data = f.read()
-                    soup = BeautifulSoup(data)
+                    soup = BeautifulSoup(data, 'html.parser')
                     title = soup.find('title').text
                     body = soup.find('body').renderContents()
                     print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps({
