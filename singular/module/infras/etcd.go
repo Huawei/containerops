@@ -45,7 +45,7 @@ const (
 	EtcdServerConfig = "/etc/etcd"
 	// EtcdServerSSL is the etcd ssl files folder name in the node.
 	// Full path is /etc/etcd/ssl
-	EtcdServerSSL    = "ssl"
+	EtcdServerSSL = "ssl"
 )
 
 // EtcdEndpoint is the etcd node struct.
@@ -106,7 +106,7 @@ func DeployEtcdCluster(d *objects.Deployment, infra *objects.Infra) error {
 	// Generate Etcd CA Files
 	if err := generateEtcdFiles(d.Config, etcdNodes, strings.Join(etcdPeerEndpoints, ","), infra.Version); err != nil {
 		return err
-	} 
+	}
 
 	d.Log(fmt.Sprintf("Uploading SSL files to nodes of Etcd Cluster."))
 	if err := uploadEtcdFiles(d.Config, d.Tools.SSH.Private, etcdNodes, tools.DefaultSSHUser); err != nil {
@@ -272,7 +272,7 @@ func uploadEtcdFiles(src, key string, nodes map[string]string, user string) erro
 	serviceBase := path.Join(src, tools.ServiceFilesFolder, tools.ServiceEtcdFolder)
 
 	if utils.IsDirExist(sslBase) == false || utils.IsDirExist(serviceBase) {
-		return fmt.Errorf("Locate etcd folders %s error", sslBase)
+		return fmt.Errorf("Locate etcd folders %s or %s error", sslBase, serviceBase)
 	}
 
 	for _, ip := range nodes {

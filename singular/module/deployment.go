@@ -169,10 +169,10 @@ func DeployInfraStacks(d *objects.Deployment, db bool) error {
 				if err := infras.DeployEtcdCluster(d, &infra); err != nil {
 					return err
 				}
-			//case InfraFlannel:
-			//	if err := d.DeployFlannel(infra); err != nil {
-			//		return err
-			//	}
+			case InfraFlannel:
+				if err := infras.DeployFlannelInCluster(d, &infra); err != nil {
+					return err
+				}
 			//case InfraDocker:
 			//	if err := d.DeployDocker(infra); err != nil {
 			//		return err
@@ -221,44 +221,6 @@ func DeployInfraStacks(d *objects.Deployment, db bool) error {
 //	return nil
 //}
 
-//
-//func (d *Deployment) DeployFlannel(infra Infra) error {
-//	flanneldNodes := map[string]string{}
-//	for i := 0; i < infra.Master; i++ {
-//		flanneldNodes[fmt.Sprintf("flanneld-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
-//	}
-//
-//	d.Log(fmt.Sprintf("Generating SSL files and systemd service file for Flanneld."))
-//	if err := GenerateFlanneldFiles(d.Config, flanneldNodes, d.Outputs["EtcdEndpoints"].(string), infra.Version); err != nil {
-//		return err
-//	} else {
-//		d.Log(fmt.Sprintf("Uploading SSL files and systemd service to nodes of Flanneld."))
-//		if err := UploadFlanneldCAFiles(d.Config, d.Tools.SSH.Private, flanneldNodes); err != nil {
-//			return err
-//		}
-//
-//		for i, c := range infra.Components {
-//			d.Log(fmt.Sprintf("Downloading Flanneld binary files to Nodes."))
-//			if err := d.DownloadBinaryFile(c.Binary, c.URL, flanneldNodes); err != nil {
-//				return err
-//			}
-//
-//			if c.Before != "" && i == 0 {
-//				d.Log(fmt.Sprintf("Execute Flanneld before scripts: %s", c.Before))
-//				if err := BeforeFlanneldExecute(d.Tools.SSH.Private, d.Outputs[fmt.Sprintf("NODE_%d", i)].(string), c.Before, d.Outputs["EtcdEndpoints"].(string)); err != nil {
-//					return err
-//				}
-//			}
-//		}
-//
-//		d.Log(fmt.Sprintf("Staring Flanneld Service."))
-//		if err := StartFlanneldCluster(d.Tools.SSH.Private, flanneldNodes); err != nil {
-//			return err
-//		}
-//	}
-//
-//	return nil
-//}
 //
 //func (d *Deployment) DeployDocker(infra Infra) error {
 //	dockerNodes := map[string]string{}

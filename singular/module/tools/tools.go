@@ -29,4 +29,8 @@ const (
 	// Service Etcd Files Folder Name
 	ServiceEtcdFolder = "etcd"
 	ServiceEtcdFile   = "etcd.service"
+
+	// Service Flannel files Folder Name
+	ServiceFlanneldFolder = "flanneld"
+	ServiceFlanneldFile   = "flanneld.service"
 )
