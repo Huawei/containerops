@@ -1,8 +1,8 @@
-## Java Gradle Checkstyle Component
+## Java Gradle Cpd Component
 
 ### What's the Component?
 
-This image is java runtime image, used for find theDuplicate code 
+This image is java runtime image, used for find the Duplicate code 
 
 ### Learn how to build it?
 
