@@ -18,7 +18,7 @@ docker run \
     --env CO_DATA=" \
     git-url=https://github.com/rominirani/GradleWebAppSample.git \
     target=https://hub.opshub.sh/binary/v1/containerops/component/binary/2.2.4/web.war" \
-    huawei/compile/java_gradle_war
+    containerops/compile/java_gradle_war
 ```
 
 ### Parameters 
