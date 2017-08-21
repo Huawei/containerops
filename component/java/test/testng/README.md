@@ -24,7 +24,7 @@ docker run \
 ### Parameters 
 - `git-url` where your code is located
 - `out-put-type`  xml,yaml,json
-- `report-path`   not required,if you defined the junit reports path
+- `report-path`   not required,if you defined the testng reports path
 ### Versions 1.0.0
 
 
