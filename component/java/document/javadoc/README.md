@@ -2,7 +2,7 @@
 
 ### What's the Component?
 
-This image is java runtime image, used for generate a javadoc compressed file
+This image is java runtime image, used for generate a javadoc compressed file, and upload it to the target
 
 ### Learn how to build it?
 
@@ -23,7 +23,7 @@ docker run \
 
 ### Parameters 
 - `git-url` where your code is located
-- `target`  where your package file to upload, curl -i -X PUT -T file target
+- `target`  where you want the file to upload, curl -i -X PUT -T file target
 ### Versions 1.0.0
 
 
