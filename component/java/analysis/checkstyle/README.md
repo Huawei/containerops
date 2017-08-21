@@ -8,15 +8,19 @@ Checkstyle is a development tool to help programmers write Java code that adhere
 
 ### Learn how to build it?
 
-Use the `docker build` command build the image, and your project must build with gradle 
+Use the `docker build` command build the image, and your project must build with gradle
 
 ```
 docker build -t containerops/analysis/java_gradle_checkstyle ./
 ```
 ### Component Usage
 ```
-docker run --rm --env CO_DATA="git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json" containerops/analysis/java_gradle_checkstyle
-
+docker run \
+    --rm \
+    --env CO_DATA=" \
+    git-url=https://github.com/vanniuner/gradle-demo.git \
+    out-put-type=json" 
+    containerops/analysis/java_gradle_checkstyle \
 ```
 
 ### Parameters 
