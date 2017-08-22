@@ -61,32 +61,27 @@ func DeployFlannelInCluster(d *objects.Deployment, infra *objects.Infra) error {
 	}
 
 	//Generate flannel systemd and CA ssl files.
-	d.Log(fmt.Sprintf("Generating SSL files and systemd service file for Flanneld."))
 	if err := generateFlanneldFiles(d.Config, flanneldNodes, d.Outputs["EtcdEndpoints"].(string), infra.Version); err != nil {
 		return err
 	}
 
 	//Upload Flanneld files
-	d.Log(fmt.Sprintf("Uploading SSL files and systemd service to nodes of Flanneld."))
 	if err := uploadFlanneldFiles(d.Config, d.Tools.SSH.Private, flanneldNodes, tools.DefaultSSHUser); err != nil {
 		return err
 	}
 
 	for i, c := range infra.Components {
-		d.Log(fmt.Sprintf("Downloading Flanneld binary files to Nodes."))
 		if err := d.DownloadBinaryFile(c.Binary, c.URL, flanneldNodes); err != nil {
 			return err
 		}
 
 		if c.Before != "" && i == 0 {
-			d.Log(fmt.Sprintf("Execute Flanneld before scripts: %s", c.Before))
 			if err := beforeFlanneldExecute(d.Tools.SSH.Private, d.Outputs[fmt.Sprintf("NODE_%d", i)].(string), c.Before, d.Outputs["EtcdEndpoints"].(string)); err != nil {
 				return err
 			}
 		}
 	}
 
-	d.Log(fmt.Sprintf("Staring Flanneld Service."))
 	if err := startFlanneldInCluster(d.Tools.SSH.Private, flanneldNodes); err != nil {
 		return err
 	}
@@ -231,7 +226,7 @@ func uploadFlanneldFiles(src, key string, nodes map[string]string, user string) 
 	serviceBase := path.Join(src, tools.ServiceFilesFolder, tools.ServiceFlanneldFolder)
 
 	if utils.IsDirExist(sslBase) == false || utils.IsDirExist(serviceBase) == false {
-		return fmt.Errorf("Locate flanneld folders %s or  error", sslBase, serviceBase)
+		return fmt.Errorf("locate flanneld folders %s or %s error", sslBase, serviceBase)
 	}
 
 	for _, ip := range nodes {

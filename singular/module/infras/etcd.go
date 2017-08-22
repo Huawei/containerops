@@ -60,8 +60,6 @@ type EtcdEndpoint struct {
 //   1. Only count master nodes in etcd deploy process.
 //   2.
 func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra) error {
-	infra.Log("Deploying etcd clusters.")
-
 	// Check master node number.
 	if infra.Master > len(d.Nodes) {
 		return fmt.Errorf("deploy %s nodes more than %d", infra.Name, len(d.Nodes))
@@ -99,28 +97,21 @@ func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra) error {
 	infra.Output("EtcdEndpoints", strings.Join(etcdEndpoints, ","))
 	infra.Output("EtcdPeerEndpoints", strings.Join(etcdPeerEndpoints, ","))
 
-	// d.Log and infra.log
-	infra.Log(fmt.Sprintf("Generating Etcd endpoints environment variable [%s], value is\n [%s]", "EtcdEndpoints", strings.Join(etcdEndpoints, ",")))
-	infra.Log(fmt.Sprintf("Generating SSL files and systemd service file for Etcd cluster."))
-
 	// Generate Etcd CA Files
 	if err := generateEtcdFiles(d.Config, etcdNodes, strings.Join(etcdPeerEndpoints, ","), infra.Version); err != nil {
 		return err
 	}
 
-	d.Log(fmt.Sprintf("Uploading SSL files to nodes of Etcd Cluster."))
 	if err := uploadEtcdFiles(d.Config, d.Tools.SSH.Private, etcdNodes, tools.DefaultSSHUser); err != nil {
 		return err
 	}
 
-	d.Log(fmt.Sprintf("Downloading Etcd binary files to nodes of Etcd Cluster."))
 	for _, c := range infra.Components {
 		if err := d.DownloadBinaryFile(c.Binary, c.URL, etcdNodes); err != nil {
 			return err
 		}
 	}
 
-	d.Log(fmt.Sprintf("Staring Etcd Cluster."))
 	if err := startEtcdCluster(d.Tools.SSH.Private, etcdNodes); err != nil {
 		return err
 	}
