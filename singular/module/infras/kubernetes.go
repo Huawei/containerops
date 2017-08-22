@@ -75,7 +75,6 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra) erro
 
 	// Download binary in master nodes
 	for _, c := range infra.Components {
-		d.Log(fmt.Sprintf("Download %s binary files in kubernetes master nodes", c.Binary))
 		if err := d.DownloadBinaryFile(c.Binary, c.URL, kubeMasterNodes); err != nil {
 			return err
 		}
@@ -83,7 +82,6 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra) erro
 
 	// Download binary in slave nodes
 	for _, c := range infra.Components {
-		d.Log(fmt.Sprintf("Download %s binary files in kubernetes slave nodes", c.Binary))
 		if err := d.DownloadBinaryFile(c.Binary, c.URL, kubeSlaveNodes); err != nil {
 			return err
 		}
@@ -128,32 +126,32 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra) erro
 			}
 		case "kube-controller-manager":
 			//Generate Kube-controller-manager systemd service file
-			if err := generateKuberControllerManagerFiles(d.Config, masterIP, etcdEndpoints, infra.Version); err != nil {
+			if err := generateKubeControllerManagerFiles(d.Config, masterIP, etcdEndpoints, infra.Version); err != nil {
 				return err
 			}
 
 			//Upload Kuber-controller-manager systemd service file
-			if err := uploadKuberControllerFiles(d.Config, d.Tools.SSH.Private, masterIP); err != nil {
+			if err := uploadKubeControllerFiles(d.Config, d.Tools.SSH.Private, masterIP); err != nil {
 				return err
 			}
 
 			//Start Kube-controller-manager
-			if err := startKuberController(d.Tools.SSH.Private, masterIP); err != nil {
+			if err := startKubeController(d.Tools.SSH.Private, masterIP); err != nil {
 				return err
 			}
 		case "kube-scheduler":
 			//Generate Kube-scheduler systemd service file
-			if err := generateKuberSchedulerManagerFiles(d.Config, masterIP, etcdEndpoints, infra.Version); err != nil {
+			if err := generateKubeSchedulerFiles(d.Config, masterIP, etcdEndpoints, infra.Version); err != nil {
 				return err
 			}
 
 			//Upload Kuber-scheduler systemd service file
-			if err := uploadKuberSchedulerManagerFiles(d.Config, d.Tools.SSH.Private, masterIP); err != nil {
+			if err := uploadKubeSchedulerFiles(d.Config, d.Tools.SSH.Private, masterIP); err != nil {
 				return err
 			}
 
 			//Start Kube-scheduler
-			if err := startKuberSchedulerManager(d.Tools.SSH.Private, masterIP); err != nil {
+			if err := startKubeScheduler(d.Tools.SSH.Private, masterIP); err != nil {
 				return err
 			}
 		case "kubelet":
@@ -161,33 +159,28 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra) erro
 				return err
 			}
 
-			d.Log("Upload bootstrap.kubeconfig to all nodes")
 			if err := uploadBootstrapFile(d.Config, d.Tools.SSH.Private, kubeSlaveNodes); err != nil {
 				return err
 			}
 
-			d.Log("Set Kubelet Clusterrolebinding")
 			if err := setKubeletClusterrolebinding(d.Tools.SSH.Private, d.Outputs[fmt.Sprintf("NODE_%d", 0)].(string)); err != nil {
 				return nil
 			}
 
-			d.Log("Generate Kubelete Systemd template file")
 			if err := generateKubeletSystemdFile(d.Config, kubeSlaveNodes, infra.Version); err != nil {
 				return err
 			}
 
-			d.Log("Upload Kubelete Systemd file")
 			if err := uploadKubeletFile(d.Config, d.Tools.SSH.Private, kubeSlaveNodes); err != nil {
 				return err
 			}
 
-			d.Log("Start Kubelete Service")
 			if err := startKubelet(d.Tools.SSH.Private, kubeSlaveNodes); err != nil {
 				return err
 			}
 
 			time.Sleep(10 * time.Second)
-			d.Log("Time wait 10 seconds for certificate approve")
+
 			if err := kubeletCertificateApprove(d.Tools.SSH.Private, d.Outputs[fmt.Sprintf("NODE_%d", 0)].(string)); err != nil {
 				return err
 			}
@@ -568,7 +561,7 @@ func startKubeAPIServer(key, ip string) error {
 	return nil
 }
 
-func generateKuberControllerManagerFiles(src string, masterIP, etcdEndpoints string, version string) error {
+func generateKubeControllerManagerFiles(src string, masterIP, etcdEndpoints string, version string) error {
 	base := path.Join(src, tools.CAFilesFolder, tools.CAKubernetesFolder)
 
 	master := KubeMaster{
@@ -590,7 +583,7 @@ func generateKuberControllerManagerFiles(src string, masterIP, etcdEndpoints str
 	return nil
 }
 
-func uploadKuberControllerFiles(src, key, ip string) error {
+func uploadKubeControllerFiles(src, key, ip string) error {
 	base := path.Join(src, tools.CAFilesFolder, tools.CAKubernetesFolder)
 
 	if err := tools.DownloadComponent(path.Join(base, "kube-controller-manager.service"), "/etc/systemd/system/kube-controller-manager.service", ip, key, tools.DefaultSSHUser); err != nil {
@@ -600,7 +593,7 @@ func uploadKuberControllerFiles(src, key, ip string) error {
 	return nil
 }
 
-func startKuberController(key, ip string) error {
+func startKubeController(key, ip string) error {
 	cmd := "systemctl daemon-reload && systemctl enable kube-controller-manager && systemctl start --no-block kube-controller-manager"
 
 	if err := utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr); err != nil {
@@ -610,7 +603,7 @@ func startKuberController(key, ip string) error {
 	return nil
 }
 
-func generateKuberSchedulerManagerFiles(src string, masterIP, etcdEndpoints string, version string) error {
+func generateKubeSchedulerFiles(src string, masterIP, etcdEndpoints string, version string) error {
 	base := path.Join(src, tools.CAFilesFolder, tools.CAKubernetesFolder)
 
 	master := KubeMaster{
@@ -632,7 +625,7 @@ func generateKuberSchedulerManagerFiles(src string, masterIP, etcdEndpoints stri
 	return nil
 }
 
-func uploadKuberSchedulerManagerFiles(src, key, ip string) error {
+func uploadKubeSchedulerFiles(src, key, ip string) error {
 	base := path.Join(src, tools.CAFilesFolder, tools.CAKubernetesFolder)
 
 	if err := tools.DownloadComponent(path.Join(base, "kube-scheduler.service"), "/etc/systemd/system/kube-scheduler.service", ip, key, tools.DefaultSSHUser); err != nil {
@@ -642,7 +635,7 @@ func uploadKuberSchedulerManagerFiles(src, key, ip string) error {
 	return nil
 }
 
-func startKuberSchedulerManager(key, ip string) error {
+func startKubeScheduler(key, ip string) error {
 	cmd := "systemctl daemon-reload && systemctl enable kube-scheduler && systemctl start --no-block kube-scheduler"
 
 	if err := utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr); err != nil {

@@ -30,36 +30,32 @@ import (
 	"github.com/Huawei/containerops/singular/module/tools"
 )
 
-// Deploy Docker in Cluster
+//DeployDockerInCluster deploy Docker in Cluster
 func DeployDockerInCluster(d *objects.Deployment, infra *objects.Infra) error {
 	dockerNodes := map[string]string{}
 	for i := 0; i < infra.Master; i++ {
 		dockerNodes[fmt.Sprintf("docker-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
 	}
 
-	// Generate Docker systemd file
-	d.Log(fmt.Sprintf("Generating SSL files and systemd service file for Docker."))
+	//Generate Docker systemd file
 	if err := generateDockerFiles(d.Config, dockerNodes, infra.Version); err != nil {
 		return err
 	}
 
-	// Upload Docker Systemd file
-	d.Log(fmt.Sprintf("Uploading SSL files and systemd service to nodes of Docker."))
+	//Upload Docker Systemd file
 	if err := uploadDockerFiles(d.Config, d.Tools.SSH.Private, dockerNodes, tools.DefaultSSHUser); err != nil {
 		return err
 	}
 
-	// Download Docker files
+	//Download Docker files
 	for _, c := range infra.Components {
-		d.Log(fmt.Sprintf("Downloading Docker binary files to Nodes."))
 		if err := d.DownloadBinaryFile(c.Binary, c.URL, dockerNodes); err != nil {
 			return err
 		}
 
-		// Run Docker before scripts
+		//Run Docker before scripts
 		if c.Before != "" {
 			for _, ip := range dockerNodes {
-				d.Log(fmt.Sprintf("Execute Docker before scripts: %s in %s", ip, c.Before))
 				if err := beforeDockerExecute(d.Tools.SSH.Private, ip, c.Before, tools.DefaultSSHUser); err != nil {
 					return err
 				}
@@ -67,19 +63,17 @@ func DeployDockerInCluster(d *objects.Deployment, infra *objects.Infra) error {
 		}
 	}
 
-	// Start Docker daemon
+	//Start Docker daemon
 	for _, ip := range dockerNodes {
-		d.Log(fmt.Sprintf("Start Docker in %s", ip))
 		if err := startDockerDaemon(d.Tools.SSH.Private, ip, tools.DefaultSSHUser); err != nil {
 			return err
 		}
 	}
 
-	// Run after script
+	//Run after script
 	for _, c := range infra.Components {
 		if c.After != "" {
 			for _, ip := range dockerNodes {
-				d.Log(fmt.Sprintf("Execute Docker After scripts: %s in %s", c.After, ip))
 				if err := afterDockerExecute(d.Tools.SSH.Private, ip, c.After, tools.DefaultSSHUser); err != nil {
 					return err
 				}
@@ -90,7 +84,7 @@ func DeployDockerInCluster(d *objects.Deployment, infra *objects.Infra) error {
 	return nil
 }
 
-// Generate Docker systemd file
+//generateDockerFiles generate Docker systemd service file.
 func generateDockerFiles(src string, nodes map[string]string, version string) error {
 	sslBase := path.Join(src, tools.CAFilesFolder, tools.CADockerFolder)
 	if utils.IsDirExist(sslBase) == true {

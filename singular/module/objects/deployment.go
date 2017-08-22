@@ -77,12 +77,10 @@ func (d *Deployment) DownloadBinaryFile(file, url string, nodes map[string]strin
 	for _, ip := range nodes {
 		chmodCmd := fmt.Sprintf("chmod +x %s", path.Join(tools.BinaryServerPath, file))
 
-		d.Log(fmt.Sprintf("Downloading %s to Node[%s]", file, ip))
 		if err := tools.DownloadComponent(url, path.Join(tools.BinaryServerPath, file), ip, d.Tools.SSH.Private, tools.DefaultSSHUser); err != nil {
 			return err
 		}
 
-		d.Log(fmt.Sprintf("Change %s mode in Node[%s]", file, ip))
 		if err := utils.SSHCommand("root", d.Tools.SSH.Private, ip, 22, chmodCmd, os.Stdout, os.Stderr); err != nil {
 			return err
 		}
@@ -107,7 +105,7 @@ func (d *Deployment) URIs() (namespace, repository, name string, err error) {
 	array := strings.Split(d.URI, "/")
 
 	if len(array) != 3 {
-		return "", "", "", fmt.Errorf("Invalid deployment URI: %s", d.URI)
+		return "", "", "", fmt.Errorf("invalid deployment URI: %s", d.URI)
 	}
 
 	namespace, repository, name = array[0], array[1], array[2]
