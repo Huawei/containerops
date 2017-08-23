@@ -4,6 +4,8 @@ import subprocess
 import os
 import sys
 import glob
+from bs4 import BeautifulSoup
+import json
 
 REPO_PATH = 'git-repo'
 
@@ -80,14 +82,18 @@ def pdoc(mod):
     return True
 
 
-def echo_xml():
+def echo_json():
     for root, dirs, files in os.walk('/tmp/output'):
         for file_name in files:
             if file_name.endswith('.html'):
                 with open(os.path.join(root, file_name), 'r') as f:
-                    for line in f.readlines():
-                        line = line.rstrip()
-                        print('[COUT] CO_XML_CONTENT {}'.format(line))
+                    data = f.read()
+                    soup = BeautifulSoup(data, 'html.parser')
+                    title = soup.find('title').text
+                    body = soup.find('body').renderContents()
+                    print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps({
+                        "title": title, "body": body, "file": file_name })))
+
 
     return True
 
@@ -156,7 +162,7 @@ def main():
 
 
     out = pdoc(entry_mod)
-    echo_xml()
+    echo_json()
 
     if out:
         print("[COUT] CO_RESULT = true")

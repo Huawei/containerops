@@ -45,6 +45,7 @@ def pip_install(file_name):
 
 def upload_file(upload):
     r1 = subprocess.run(['curl', '-XPUT', '-d', '@/tmp/output.tar.bz2', upload])
+    print()
     if r1.returncode != 0:
         print("[COUT] upload error", file=sys.stderr)
         return False

@@ -4,7 +4,6 @@ import subprocess
 import os
 import sys
 import json
-import yaml
 
 REPO_PATH = 'git-repo'
 
@@ -29,9 +28,7 @@ def coala(file_name, bears):
 
     out = str(r.stdout, 'utf-8').strip()
     out = json.loads(out)
-    lines = yaml.safe_dump(out['results'].get('cli', []))
-    for line in lines.split('\n'):
-        print('[COUT] CO_YAML_CONTENT {}'.format(line))
+    print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(out)))
 
     return passed
 

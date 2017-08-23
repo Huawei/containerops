@@ -18,7 +18,7 @@ import subprocess
 import logging
 import traceback
 from signal import SIGKILL
-import yaml
+import json
 
 
 # TODO: provide alternative when multiprocessing is not available
@@ -1223,6 +1223,5 @@ if __name__ == '__main__':
             prof.show_results(stream=out_file)
         else:
             ret = json_results(prof, precision=options.precision)
-            lines = yaml.safe_dump(ret)
-            for line in lines.split('\n'):
-                print('[COUT] CO_YAML_CONTENT {}'.format(line))
+            out = json.dumps(ret)
+            print('[COUT] CO_JSON_CONTENT {}'.format(out))

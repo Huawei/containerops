@@ -17,7 +17,7 @@ MAINTAINER Li Meng Jun <lmjubuntu@gmail.com>
 
 RUN apt-get update && apt-get install -y python3-pip git
 
-RUN pip3 install coala-bears pyyaml
+RUN pip3 install coala-bears
 
 ADD bootstrap.py /usr/local/bin/bootstrap.py
 

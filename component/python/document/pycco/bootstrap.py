@@ -5,7 +5,6 @@ import os
 import sys
 import json
 import pycco.main as pyccoLib
-import yaml
 
 REPO_PATH = 'git-repo'
 
@@ -27,9 +26,9 @@ def pycco(file_name):
     sections = pyccoLib.parse(code, language)
     pyccoLib.highlight(sections, language, outdir="docs")
 
-    lines = yaml.safe_dump({ 'file_path': trim_repo_path(file_name), 'sections': sections })
-    for line in lines.split('\n'):
-        print('[COUT] CO_YAML_CONTENT {}'.format(line))
+    data = { 'file_path': trim_repo_path(file_name), 'sections': sections }
+    print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
+
 
     return True
 

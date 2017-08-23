@@ -83,10 +83,9 @@ def echo_xml():
     for root, dirs, files in os.walk('/tmp/output'):
         for file_name in files:
             if file_name.endswith('.xml'):
-                with open(os.path.join(root, file_name), 'r') as f:
-                    for line in f.readlines():
-                        line = line.rstrip()
-                        print('[COUT] CO_XML_CONTENT {}'.format(line))
+                with open(os.path.join(root, file_name), 'rb') as f:
+                    data = f.read()
+                    print('[COUT] CO_XML_CONTENT {}'.format(str(data)[1:]))
 
     return True
 
