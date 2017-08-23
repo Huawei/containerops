@@ -26,6 +26,7 @@ def upload_file(upload):
     if r1.returncode != 0:
         print("[COUT] upload error", file=sys.stderr)
         return False
+    print()
     return True
 
 

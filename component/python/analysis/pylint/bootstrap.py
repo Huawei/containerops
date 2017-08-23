@@ -4,7 +4,6 @@ import subprocess
 import os
 import sys
 import json
-import yaml
 
 REPO_PATH = 'git-repo'
 
@@ -52,11 +51,14 @@ def pylint(file_name, rcfile):
         passed = False
 
     out = str(r.stdout, 'utf-8').strip()
+    retval = []
     for o in json.loads(out):
         o['path'] = trim_repo_path(o['path'])
-        lines = yaml.safe_dump([o])
-        for line in lines.split('\n'):
-            print('[COUT] CO_YAML_CONTENT {}'.format(line))
+        retval.append(o)
+
+    if len(retval) > 0:
+        print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps({
+            "results": { "cli": retval } })))
 
     return passed
 
