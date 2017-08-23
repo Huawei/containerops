@@ -3,6 +3,8 @@
 ### What's the Component?
 
 This image is java runtime image, used for generate a javadoc compressed file, and upload it to the target
+<br>
+<br> gradle javadoc
 
 ### Learn how to build it?
 
@@ -16,12 +18,14 @@ docker build -t containerops/document/java_gradle_javadoc ./
 docker run \
     --rm \
     --env CO_DATA=" \
+    version=gradle3 \ 
     git-url=https://github.com/vanniuner/gradle-demo.git \
     target=https://hub.opshub.sh/binary/v1/lidian/test/binary/1.1.0/javadoc.tar" \
     containerops/document/java_gradle_javadoc
 ```
 
 ### Parameters 
+- `version` gradle version available value: gradle3,gradle4
 - `git-url` where your code is located
 - `target`  where you want the file to upload, curl -i -X PUT -T file target
 ### Versions 1.0.0

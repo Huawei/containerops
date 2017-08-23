@@ -106,10 +106,10 @@ curl -i -X PUT -T $jarpath ${map["target"]} 2>/dev/null
 
 if [ "$?" -eq "0" ]
 then
-    printf "[COUT] download jar url : %s\n" ${map["target"]}
+    printf "\n[COUT] download jar url : %s\n" ${map["target"]}
     printf "[COUT] CO_RESULT = %s\n" "true"
 else
-    printf "[COUT] upload %s to %s fail %s\n" $jarpath ${map["target"]}
+    printf "\n[COUT] upload %s to %s fail %s\n" $jarpath ${map["target"]}
     printf "[COUT] CO_RESULT = %s\n" "false"
 fi
 exit
