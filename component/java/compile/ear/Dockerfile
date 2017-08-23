@@ -5,11 +5,16 @@ RUN apt-get update
 RUN apt-get install -y unzip tar openjdk-8-jdk wget git
 
 WORKDIR /opt/gradle
+RUN wget https://services.gradle.org/distributions/gradle-4.0-bin.zip \
+    && unzip gradle-4.0-bin.zip \
+    && rm -rf gradle-4.0-bin.zip
 RUN wget https://services.gradle.org/distributions/gradle-3.5-bin.zip \
     && unzip gradle-3.5-bin.zip \
     && rm -rf gradle-3.5-bin.zip
 
-ENV PATH /opt/gradle/gradle-3.5/bin:$PATH
+ENV gradle3 /opt/gradle/gradle-3.5/bin
+ENV gradle4 /opt/gradle/gradle-4.0/bin
+ENV PATH /opt/gradle/gradle-4.0/bin:/opt/gradle/gradle-3.5/bin:$PATH
 
 WORKDIR /root
 COPY ./compile.sh /root/compile.sh

@@ -28,6 +28,7 @@ function STOUT2(){
 declare -A map=(
     ["git-url"]="" 
     ["target"]=""
+    ["version"]=""
 )
 data=$(echo $CO_DATA |awk '{print}')
 for i in ${data[@]}
@@ -46,6 +47,18 @@ done
 if [ "" = "${map["git-url"]}" ]
 then
     printf "[COUT] Handle input error: %s\n" "git-url"
+    printf "[COUT] CO_RESULT = %s\n" "false"
+    exit
+fi
+
+if [ "${map["version"]}" = "gradle3" ]
+then
+    gradle_version=$gradle3/gradle
+elif [ "${map["version"]}" = "gradle4" ]
+then
+    gradle_version=$gradle4/gradle
+else
+    printf "[COUT] Handle input error: %s\n" "version should be one of gradle3,gradle4"
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
@@ -72,7 +85,7 @@ then
     exit
 fi
 
-STOUT2 gradle ear
+STOUT2 $gradle_version ear
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] gradle ear fail\n"

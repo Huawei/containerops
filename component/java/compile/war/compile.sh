@@ -50,6 +50,18 @@ then
     exit
 fi
 
+if [ "${map["version"]}" = "gradle3" ]
+then
+    gradle_version=$gradle3/gradle
+elif [ "${map["version"]}" = "gradle4" ]
+then
+    gradle_version=$gradle4/gradle
+else
+    printf "[COUT] Handle input error: %s\n" "version should be one of gradle3,gradle4"
+    printf "[COUT] CO_RESULT = %s\n" "false"
+    exit
+fi
+
 if [ "" = "${map["target"]}" ]
 then
     printf "[COUT] no target input\n" "target"
@@ -72,7 +84,7 @@ then
     exit
 fi
 
-STOUT2 gradle war
+STOUT2 $gradle_version war
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] gradle war fail\n"
