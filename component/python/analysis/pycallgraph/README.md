@@ -1,15 +1,27 @@
-## BUILD
+## Python pycallgraph code analysis Docker Component
+
+### What's the Component?
+[Python Call Graph](https://github.com/gak/pycallgraph) is a Python module that creates call graph visualizations for Python applications.
+
+### Learn how to build it?
+Use the `docker build` command build the image
 
 ```bash
 docker build -t containerops/pycallgraph .
 ```
 
-## TEST
+### Component Usage
 
 ```bash
-docker run --rm -e CO_DATA='git-url=https://github.com/Lupino/python-aio-periodic.git entry-file=aio_periodic/utils.py upload=hub.opshub.sh/lidian/test/pycallgraph/v0.1' containerops/pycallgraph
+docker run --rm -e CO_DATA='git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pycallgraph' containerops/pycallgraph
+# test with python2
+docker run --rm -e CO_DATA='git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pycallgraph version=python' containerops/pycallgraph
 ```
 
-## Warning
+### Parameters
+- `git-url` is the source git repo url
+- `version` is one of `python`, `python2`, `python3`, `py3k`.  default is `py3k`
+- `entry-file` is the entry file for pycallgraph
+- `upload` is the output image upload url with PUT method
 
-This pycallgraph not stable on generate callgraph.
+### Versions 1.0.0

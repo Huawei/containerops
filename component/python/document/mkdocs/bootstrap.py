@@ -3,6 +3,7 @@
 import subprocess
 import os
 import sys
+import json
 
 REPO_PATH = 'git-repo'
 
@@ -30,11 +31,11 @@ def mkdocs(dir_name):
 
 
 def echo_json(dir_name):
-    r = subprocess.run('cd {}/{}; find -name "*.json" | while read F;do echo -n \'CO_JSON_CONTENT \'; cat $F | tr -d \'\n\'; echo; done'.format(REPO_PATH, dir_name), shell=True)
-
-    if r.returncode != 0:
-        print("[COUT] echo json failed", file=sys.stderr)
-        return False
+    for root, dirs, files in os.walk('{}/{}'.format(REPO_PATH, dir_name)):
+        for file_name in files:
+            if file_name.endswith('.json'):
+                data = json.load(open(os.path.join(root, file_name)))
+                print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
 
     return True
 

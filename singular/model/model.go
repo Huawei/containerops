@@ -18,7 +18,6 @@ package model
 
 import (
 	"fmt"
-	"os"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/jinzhu/gorm"
@@ -38,7 +37,7 @@ func init() {
 }
 
 // OpenDatabase is
-func OpenDatabase(dbconfig *common.DatabaseConfig) {
+func OpenDatabase(dbconfig *common.DatabaseConfig) error {
 	var err error
 
 	driver, host, port, user, password, db := dbconfig.Driver, dbconfig.Host, dbconfig.Port, dbconfig.User, dbconfig.Password, dbconfig.Name
@@ -46,23 +45,35 @@ func OpenDatabase(dbconfig *common.DatabaseConfig) {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=True&loc=Local", user, password, host, port, db)
 	if DB, err = gorm.Open(driver, dsn); err != nil {
 		log.Fatal("Initialization database connection error.", err)
+<<<<<<< HEAD
 		os.Exit(1)
+=======
+		return err
+>>>>>>> upstream/master
 	} else {
-		DB.DB()
-		DB.DB().Ping()
+		if db := DB.DB(); db == nil {
+			return fmt.Errorf("database connection is invalid")
+		}
+
+		if err := DB.DB().Ping(); err != nil {
+			return err
+		}
+
 		DB.DB().SetMaxIdleConns(10)
 		DB.DB().SetMaxOpenConns(100)
 		DB.SingularTable(true)
 	}
+
+	return nil
 }
 
 // Migrate is
-func Migrate() {
+func Migrate() error {
 	// Singular Tables
 	DB.AutoMigrate(&SingularV1{}, &DeploymentV1{}, &InfraV1{}, &ComponentV1{})
 
 	// Label V1 Require Table
 	DB.AutoMigrate(&model.LabelV1{})
 
-	log.Info("Auto Migrate Singular Database Structs Done.")
+	return nil
 }

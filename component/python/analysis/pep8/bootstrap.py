@@ -19,6 +19,26 @@ def git_clone(url):
         return False
 
 
+def get_pip_cmd(version):
+    if version == 'py3k' or version == 'python3':
+        return 'pip3'
+
+    return 'pip'
+
+
+def init_env(version):
+    subprocess.run([get_pip_cmd(version), 'install', 'pep8'])
+
+
+def validate_version(version):
+    valid_version = ['python', 'python2', 'python3', 'py3k']
+    if version not in valid_version:
+        print("[COUT] Check version failed: the valid version is {}".format(valid_version), file=sys.stderr)
+        return False
+
+    return True
+
+
 def pep8(file_name):
     r = subprocess.run(['pep8', file_name], stderr=subprocess.PIPE,
                        stdout=subprocess.PIPE)
@@ -28,10 +48,15 @@ def pep8(file_name):
         passed = False
 
     out = str(r.stdout, 'utf-8').strip().split('\n')
+    retval = []
     for o in out:
         o = parse_pep8_result(o)
         if o:
-            print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(o)))
+            retval.append(o)
+
+    if len(retval) > 0:
+        print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps({
+            "results": { "cli": retval } })))
 
     return passed
 
@@ -51,7 +76,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url']
+    validate = ['git-url', 'version']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -78,6 +103,14 @@ def main():
         print("[COUT] The git-url value is null", file=sys.stderr)
         print("[COUT] CO_RESULT = false")
         return
+
+    version = argv.get('version', 'py3k')
+
+    if not validate_version(version):
+        print("[COUT] CO_RESULT = false")
+        return
+
+    init_env(version)
 
     if not git_clone(git_url):
         return

@@ -16,8 +16,13 @@ limitations under the License.
 
 package template
 
-var Root = map[string]string{
-	"ca-config": `
+const (
+	CARootConfig = "ca-config"
+	CARootCSR    = "ca-csr"
+)
+
+var CARootTemplate = map[string]string{
+	CARootConfig: `
 {
   "signing": {
     "default": {
@@ -36,8 +41,8 @@ var Root = map[string]string{
     }
   }
 }
-	`,
-	"ca-csr": `
+`,
+	CARootCSR: `
 {
   "CN": "kubernetes",
   "key": {
@@ -54,5 +59,5 @@ var Root = map[string]string{
     }
   ]
 }
-	`,
+`,
 }

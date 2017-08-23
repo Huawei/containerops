@@ -6,12 +6,15 @@ nodes:
   -
     ip: 138.68.226.204
     user: root
+    distro: ubuntu
   -
     ip: 138.68.247.128
     user: root
+    distro: ubuntu
   -
     ip: 165.227.4.126
     user: root
+    distro: ubuntu
 tools:
   ssh:
     private: /root/.ssh/id_rsa

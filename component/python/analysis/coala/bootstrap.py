@@ -28,8 +28,7 @@ def coala(file_name, bears):
 
     out = str(r.stdout, 'utf-8').strip()
     out = json.loads(out)
-    for o in out['results'].get('cli', []):
-        print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(o)))
+    print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(out)))
 
     return passed
 
