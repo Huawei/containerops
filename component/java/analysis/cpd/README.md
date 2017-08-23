@@ -8,7 +8,7 @@ This image is java runtime image, used for find the Duplicate code
 
 ### Learn how to build it?
 
-Use the `docker build` command build the image, and your project must build with gradle
+Use the `docker build` command build the image, and your project must build with gradle.
 
 ```
 docker build -t containerops/analysis/java_gradle_cpd ./

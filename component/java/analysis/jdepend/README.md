@@ -28,7 +28,7 @@ docker run \
 ### Parameters 
 - `version` gradle version available value: gradle3,gradle4
 - `git-url` where your code is located
-- `out-put-type`  xml,yaml,json
+- `out-put-type`  available value: xml,yaml,json
 - `report-path`   not required,if you defined reports path
 ### Versions 1.0.0
 
