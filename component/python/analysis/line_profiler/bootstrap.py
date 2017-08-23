@@ -4,8 +4,10 @@ import subprocess
 import os
 import sys
 import glob
-import yaml
+import json
 import line_profiler as profiler
+import linecache
+import inspect
 
 REPO_PATH = 'git-repo'
 
@@ -71,6 +73,70 @@ def pip_install(file_name, version='py3k'):
     return True
 
 
+def show_json(stats, unit):
+    """ Show text for the given timings.
+    """
+    retval = {}
+    retval['Timer unit'] = '%g s' % unit
+    retval['functions'] = []
+    for (fn, lineno, name), timings in sorted(stats.items()):
+        func = show_func(fn, lineno, name, stats[fn, lineno, name], unit)
+        if func:
+            retval['functions'].append(func)
+
+    return retval
+
+def show_func(filename, start_lineno, func_name, timings, unit):
+    """ Show results for a single function.
+    """
+
+    d = {}
+    total_time = 0.0
+    linenos = []
+    for lineno, nhits, time in timings:
+        total_time += time
+        linenos.append(lineno)
+
+    if total_time == 0:
+        return False
+
+    retval = {}
+
+    retval['Total time'] = "%g s" % (total_time * unit)
+    if os.path.exists(filename) or filename.startswith("<ipython-input-"):
+        retval['File'] = filename
+        retval['Function'] = '%s at line %s' % (func_name, start_lineno)
+        if os.path.exists(filename):
+            # Clear the cache to ensure that we get up-to-date results.
+            linecache.clearcache()
+        all_lines = linecache.getlines(filename)
+        sublines = inspect.getblock(all_lines[start_lineno-1:])
+    else:
+        # Fake empty lines so we can see the timings, if not the code.
+        nlines = max(linenos) - min(min(linenos), start_lineno) + 1
+        sublines = [''] * nlines
+
+    for lineno, nhits, time in timings:
+        d[lineno] = (nhits, time, '%5.1f' % (float(time) / nhits),
+            '%5.1f' % (100*time / total_time))
+    linenos = range(start_lineno, start_lineno + len(sublines))
+    empty = ('', '', '', '')
+    lines = []
+    for lineno, line in zip(linenos, sublines):
+        nhits, time, per_hit, percent = d.get(lineno, empty)
+        line = {
+                'Line #': lineno,
+                'Hits': nhits,
+                'Time': time,
+                'Per Hit': per_hit,
+                '% Time': percent,
+                'Line Contents': line.rstrip('\n').rstrip('\r')
+                }
+        lines.append(line)
+
+    retval['lines'] = lines
+    return retval
+
 def line_profiler(file_name):
     r = subprocess.run(['kernprof', '-l', os.path.join(REPO_PATH, file_name)], stdout=subprocess.PIPE)
 
@@ -79,9 +145,8 @@ def line_profiler(file_name):
         passed = False
 
     st = profiler.load_stats('{}/{}.lprof'.format(REPO_PATH, file_name))
-    lines = yaml.safe_dump({ 'timings': st.timings, 'unit': st.unit })
-    for line in lines.split('\n'):
-        print('[COUT] CO_YAML_CONTENT {}'.format(line))
+    out = show_json(st.timings, st.unit)
+    print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(out)))
 
     return passed
 

@@ -5,7 +5,6 @@ import os
 import sys
 import glob
 import json
-import yaml
 
 REPO_PATH = 'git-repo'
 
@@ -82,15 +81,13 @@ def mamba(file_name):
     return True
 
 
-def echo_yaml():
+def echo_json():
     file_name = '{}/.coverage'.format(REPO_PATH)
     data = open(file_name).read()
     idx = data.find('{')
     data = data[idx:]
     data = json.loads(data)
-    lines = yaml.safe_dump(data)
-    for line in lines.split('\n'):
-        print('[COUT] CO_YAML_CONTENT {}'.format(line))
+    print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
 
 
 def parse_argument():
@@ -163,7 +160,7 @@ def main():
 
 
     out = mamba(entry_file)
-    echo_yaml()
+    echo_json()
 
     if not out:
         print("[COUT] CO_RESULT = false")

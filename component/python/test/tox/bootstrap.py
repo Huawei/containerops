@@ -3,7 +3,6 @@
 import subprocess
 import os
 import sys
-import yaml
 import json
 
 REPO_PATH = 'git-repo'
@@ -53,11 +52,9 @@ def tox(file_name):
     return True
 
 
-def echo_yaml():
+def echo_json():
     data = json.load(open('/tmp/output.json'))
-    lines = yaml.safe_dump(data)
-    for line in lines.split('\n'):
-        print('[COUT] CO_YAML_CONTENT {}'.format(line))
+    print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
 
     return True
 
@@ -105,7 +102,7 @@ def main():
         return
 
     out = tox(entry_path)
-    echo_yaml()
+    echo_json()
 
     if not out:
         print("[COUT] CO_RESULT = false")

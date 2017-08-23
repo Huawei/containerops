@@ -5,7 +5,6 @@ import os
 import sys
 import glob
 import json
-import yaml
 
 REPO_PATH = 'git-repo'
 
@@ -90,15 +89,13 @@ def green(dir_name):
     return True
 
 
-def echo_yaml(dir_name):
+def echo_json(dir_name):
     file_name = '{}/.coverage'.format(get_dir_name(dir_name))
     data = open(file_name).read()
     idx = data.find('{')
     data = data[idx:]
     data = json.loads(data)
-    lines = yaml.safe_dump(data)
-    for line in lines.split('\n'):
-        print('[COUT] CO_YAML_CONTENT {}'.format(line))
+    print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
 
 
 def parse_argument():
@@ -171,7 +168,7 @@ def main():
 
     out = green(entry_path)
 
-    echo_yaml(entry_path)
+    echo_json(entry_path)
 
     if not out:
         print("[COUT] CO_RESULT = false")

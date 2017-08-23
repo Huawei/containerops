@@ -3,7 +3,6 @@
 import subprocess
 import os
 import sys
-import yaml
 import json
 
 REPO_PATH = 'git-repo'
@@ -31,14 +30,12 @@ def mkdocs(dir_name):
     return True
 
 
-def echo_yaml(dir_name):
+def echo_json(dir_name):
     for root, dirs, files in os.walk('{}/{}'.format(REPO_PATH, dir_name)):
         for file_name in files:
             if file_name.endswith('.json'):
                 data = json.load(open(os.path.join(root, file_name)))
-                lines = yaml.safe_dump(data)
-                for line in lines.split('\n'):
-                    print('[COUT] CO_YAML_CONTENT {}'.format(line))
+                print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
 
     return True
 
@@ -89,7 +86,7 @@ def main():
         print("[COUT] CO_RESULT = false")
         return
 
-    if not echo_yaml(entry_path):
+    if not echo_json(entry_path):
         print("[COUT] CO_RESULT = false")
         return
 

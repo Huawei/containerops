@@ -4,7 +4,6 @@ import subprocess
 import os
 import sys
 import glob
-import yaml
 import json
 
 REPO_PATH = 'git-repo'
@@ -87,7 +86,7 @@ def pybuilder(dir_name, task):
     return True
 
 
-def echo_yaml(dir_name):
+def echo_json(dir_name):
     if dir_name and dir_name != '.':
         dir_name = '{}/{}'.format(REPO_PATH, dir_name)
     else:
@@ -96,9 +95,7 @@ def echo_yaml(dir_name):
         for file_name in files:
             if file_name.endswith('.json'):
                 data = json.load(open(os.path.join(root, file_name)))
-                lines = yaml.safe_dump(data)
-                for line in lines.split('\n'):
-                    print('[COUT] CO_YAML_CONTENT {}'.format(line))
+                print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
 
     return True
 
@@ -110,10 +107,9 @@ def echo_xml(dir_name):
     for root, dirs, files in os.walk('{}/target'.format(dir_name)):
         for file_name in files:
             if file_name.endswith('.xml'):
-                with open(os.path.join(root, file_name), 'r') as f:
-                    for line in f.readlines():
-                        line = line.rstrip()
-                        print('[COUT] CO_XML_CONTENT {}'.format(line))
+                with open(os.path.join(root, file_name), 'rb') as f:
+                    data = f.read()
+                    print('[COUT] CO_XML_CONTENT {}'.format(str(data)[1:]))
 
     return True
 
@@ -178,7 +174,7 @@ def main():
         pip_install(file_name, version)
 
     out = pybuilder(entry_path, task)
-    echo_yaml(entry_path)
+    echo_json(entry_path)
     echo_xml(entry_path)
 
     if not out:

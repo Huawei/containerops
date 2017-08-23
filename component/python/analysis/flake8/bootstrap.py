@@ -3,7 +3,7 @@
 import subprocess
 import os
 import sys
-import yaml
+import json
 
 REPO_PATH = 'git-repo'
 
@@ -48,12 +48,16 @@ def flake8(file_name):
         passed = False
 
     out = str(r.stdout, 'utf-8').strip().split('\n')
+    retval = []
     for o in out:
         o = parse_flake8_result(o)
         if o:
-            lines = yaml.safe_dump([o])
-            for line in lines.split('\n'):
-                print('[COUT] CO_YAML_CONTENT {}'.format(line))
+            retval.append(o)
+
+
+    if len(retval) > 0:
+        print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps({
+            "results": { "cli": retval } })))
 
     return passed
 
