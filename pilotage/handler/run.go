@@ -22,8 +22,10 @@ import (
 	"net/http"
 
 	"gopkg.in/macaron.v1"
+	"gopkg.in/yaml.v2"
 
 	"github.com/Huawei/containerops/pilotage/module"
+	"time"
 )
 
 // GetFlowRuntime is return flow runtime status and logs.
@@ -69,6 +71,50 @@ func GetFlowRuntime(ctx *macaron.Context) (int, []byte) {
 
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result
+}
+
+type PostFlowResponse struct {
+	ID         string `json:"id"`
+	Namespace  string `json:"namespace"`
+	Repository string `json:"repository"`
+	Name       string `json:"name"`
+	Tag        string `json:"tag"`
+	Title      string `json:"title"`
+	Version    int64  `json:"version"`
+	Status     string `json:"status"`
+}
+
+func PostFlowRuntime(ctx *macaron.Context) (int, []byte) {
+	namespace := ctx.Params("namespace")
+	repository := ctx.Params("repository")
+	flowName := ctx.Params("flow")
+	data, _ := ctx.Req.Body().Bytes()
+
+	f := module.Flow{Number: 1, Status: module.Pending}
+	switch ctx.Params("type") {
+	case "json":
+		if err := json.Unmarshal(data, &f); err != nil {
+			f.Log(fmt.Sprintf("Unmarshal the flow file error: %s", err.Error()), true	, true)
+		}
+	case "yaml":
+		if err := yaml.Unmarshal(data, &f); err != nil {
+			f.Log(fmt.Sprintf("Unmarshal the flow file error: %s", err.Error()), true, true)
+		}
+	default:
+		result, _ := json.Marshal(map[string]string{
+			"message": fmt.Sprintf("Unsupport type: %s", ctx.Params("type"))})
+		return http.StatusBadRequest, result
+	}
+
+	go func() {
+		f.LocalRun(true, true)
+	}()
+	// Sleep one second to wait the init status change of flow
+	time.Sleep(1*time.Second)
+	resp := PostFlowResponse{Namespace: namespace, Repository: repository, Name: flowName, Tag: f.Tag,
+		Version: f.Version, Title: f.Title, Status: f.Status}
+	result, _ := json.Marshal(resp)
+	return http.StatusCreated, result
 }
 
 // GetFlowJobLog is return log of a Job
