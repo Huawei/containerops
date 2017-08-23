@@ -45,11 +45,7 @@ func OpenDatabase(dbconfig *common.DatabaseConfig) error {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=True&loc=Local", user, password, host, port, db)
 	if DB, err = gorm.Open(driver, dsn); err != nil {
 		log.Fatal("Initialization database connection error.", err)
-<<<<<<< HEAD
-		os.Exit(1)
-=======
 		return err
->>>>>>> upstream/master
 	} else {
 		if db := DB.DB(); db == nil {
 			return fmt.Errorf("database connection is invalid")
