@@ -50,7 +50,7 @@ pilotage daemon run cncf-demo.yaml
 
 Pilotage provides full daemon run mode with HTTPS support.
 
-pilotage daemon start --listen https
+pilotage daemon daemon --mode https
 
 Pilotage daemon run with database supported, and create, modify or run a flow.'`,
 }
@@ -74,11 +74,11 @@ func init() {
 	// Add cli daemon sub command.
 	RootCmd.AddCommand(daemonCmd)
 
-	daemonCmd.Flags().StringVarP(&addressOption, "address", "a", "0.0.0.0", "The daemon listen address.")
-	daemonCmd.Flags().StringVarP(&certFile, "cert", "c", "", "The cert file for HTTPS mode")
-	daemonCmd.Flags().StringVarP(&keyFile, "key", "k", "", "The key file for HTTPS mode")
-	daemonCmd.Flags().StringVarP(&webMode, "mode", "m", "http", "The http mode")
-	daemonCmd.Flags().IntVarP(&portOption, "port", "p", 8080, "The port of http.")
+	daemonCmd.PersistentFlags().StringVarP(&addressOption, "address", "a", "0.0.0.0", "The daemon listen address.")
+	daemonCmd.PersistentFlags().StringVarP(&certFile, "cert", "c", "", "The cert file for HTTPS mode")
+	daemonCmd.PersistentFlags().StringVarP(&keyFile, "key", "k", "", "The key file for HTTPS mode")
+	daemonCmd.PersistentFlags().StringVarP(&webMode, "mode", "m", "http", "The http mode")
+	daemonCmd.PersistentFlags().IntVarP(&portOption, "port", "p", 8080, "The port of http.")
 
 	viper.BindPFlag("address", daemonCmd.Flags().Lookup("address"))
 	viper.BindPFlag("cert", daemonCmd.Flags().Lookup("cert"))
