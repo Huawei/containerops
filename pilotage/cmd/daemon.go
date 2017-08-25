@@ -169,6 +169,8 @@ func runDaemonFlow(cmd *cobra.Command, args []string) {
 // startDaemonFlow is
 func startDaemonFlow(cmd *cobra.Command, args []string) {
 	model.OpenDatabase(&common.Database)
+	model.Migrate()
+
 	m := macaron.New()
 	middleware.SetStartDaemonMiddlewares(m, cfgFile)
 	router.SetStartDaemonRouters(m)

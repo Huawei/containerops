@@ -3,8 +3,8 @@ package model
 import "time"
 
 type ActionV1 struct {
-	ID       string
-	StageID  string
+	ID       int64
+	StageID  int64
 	Name     string
 	Title    string
 	Status   string
@@ -12,11 +12,11 @@ type ActionV1 struct {
 	UpdateAt time.Time
 }
 
-type ActionRecordV1 struct {
-	ID        string
-	ActionID  string
-	Number    int64
-	Result    string
-	StartTime time.Time
-	EndTime   time.Time
+type ActionDataV1 struct {
+	ID       int64
+	ActionID int64
+	Number   int64
+	Result   string
+	Start    time.Time
+	End      time.Time
 }

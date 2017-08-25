@@ -3,7 +3,8 @@ package model
 import "time"
 
 type JobV1 struct {
-	ID           string
+	ID           int64
+	ActionID     int64
 	Endpoint     string
 	Timeout      string
 	Status       string
@@ -12,13 +13,13 @@ type JobV1 struct {
 	UpdateAt     time.Time
 }
 
-type JobRecordV1 struct {
-	ID            string
-	JobID         string
+type JobDataV1 struct {
+	ID            int64
+	JobID         int64
 	Number        int64
 	Result        string
 	Outputs       string
 	Subscriptions string
-	StartTime     time.Time
-	EndTime       time.Time
+	Start         time.Time
+	End           time.Time
 }

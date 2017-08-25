@@ -1,14 +1,16 @@
 package model
 
-import "time"
+import (
+	"github.com/Huawei/containerops/pilotage/module"
+	"time"
+)
 
 type FlowV1 struct {
-	ID         string
+	ID         int64
 	Namespace  string
 	Repository string
 	Tag        string
 	Version    int64
-	Number     int64
 	Title      string
 	Timeout    int64
 	Content    string
@@ -16,12 +18,16 @@ type FlowV1 struct {
 	UpdateAt   time.Time
 }
 
+type FlowDataV1 struct {
+	ID     int64
+	FlowID int64
+	Number int64
+	Result string
+	Start  time.Time
+	End    time.Time
+}
 
-type FlowRecordV1 struct {
-	ID        string
-	FlowID    string
-	Number    int64
-	Result    string
-	StartTime time.Time
-	EndTime   time.Time
+func (f *FlowV1) Save(flow *module.Flow) error {
+
+	return nil
 }

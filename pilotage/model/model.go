@@ -32,4 +32,11 @@ func OpenDatabase(dbconfig *common.DatabaseConfig) {
 	}
 }
 
-
+// Migrate is
+func Migrate() {
+	DB.AutoMigrate(&FlowV1{}, &FlowDataV1{})
+	DB.AutoMigrate(&StageV1{}, &StageDataV1{})
+	DB.AutoMigrate(&ActionV1{}, &ActionDataV1{})
+	DB.AutoMigrate(&JobV1{}, &JobDataV1{})
+	DB.AutoMigrate(&LogV1{})
+}
