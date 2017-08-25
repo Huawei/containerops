@@ -11,13 +11,13 @@ docker build -t containerops/unittest .
 
 ### Component Usage
 ```bash
-docker run --rm -e CO_DATA='git-url=https://github.com/minhhh/regex.git entry-path=.' containerops/unittest
-docker run --rm -e CO_DATA='git-url=https://github.com/minhhh/regex.git entry-path=. version=python' containerops/unittest
+docker run --rm -e CO_DATA='git-url=https://github.com/minhhh/regex.git entry-module=test.test_regex' containerops/unittest
+docker run --rm -e CO_DATA='git-url=https://github.com/minhhh/regex.git entry-module=test.test_regex version=python' containerops/unittest
 ```
 
 ### Parameters
 - `git-url` is the source git repo url
 - `version` is one of `python`, `python2`, `python3`, `py3k`.  default is `py3k`
-- `entry-path` is the entry file or path for unittest
+- `entry-module` is the unittest module name you want to test
 
 ### Versions 1.0.0
