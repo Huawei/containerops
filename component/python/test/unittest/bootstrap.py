@@ -70,8 +70,10 @@ def pip_install(file_name, version='py3k'):
     return True
 
 
-def unittest(file_name, version='py3k'):
-    r = subprocess.run('cd {}/{};{} /root/xmlrunner'.format(REPO_PATH, file_name, get_python_cmd(version)), shell=True)
+def unittest(module, version='py3k'):
+    os.system('cp /root/xmlrunner {}'.format(REPO_PATH))
+    r = subprocess.run('cd {};{} xmlrunner {}'.format(REPO_PATH,
+        get_python_cmd(version), module), shell=True)
 
     if r.returncode != 0:
         return False
@@ -95,7 +97,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url', 'entry-path', 'version']
+    validate = ['git-url', 'entry-module', 'version']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -131,8 +133,8 @@ def main():
 
     init_env(version)
 
-    entry_path = argv.get('entry-path')
-    if not entry_path:
+    entry_module = argv.get('entry-module')
+    if not entry_module:
         print("[COUT] The entry-path value is null", file=sys.stderr)
         print("[COUT] CO_RESULT = false")
         return
@@ -159,7 +161,7 @@ def main():
         pip_install(file_name, version)
 
 
-    out = unittest(entry_path, version)
+    out = unittest(entry_module, version)
     echo_xml()
 
     if not out:
