@@ -38,6 +38,4 @@ func SetSingularMacaron(m *macaron.Macaron, config string) {
 
 	//Setting Router
 	router.SetRouters(m)
-
-	//
 }

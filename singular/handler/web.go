@@ -40,7 +40,7 @@ func GetIndexPageV1Handler(ctx *macaron.Context) {
 	}
 
 	// The template's name should be the same with file name
-	listTmpl, err := template.New("list.template").Funcs(funcs).ParseFiles("./templates/list.template")
+	listTmpl, err := template.New("list.html").Funcs(funcs).ParseFiles("./templates/list.html")
 	if err != nil {
 		log.Error(err)
 		ctx.Resp.WriteHeader(http.StatusInternalServerError)
@@ -50,7 +50,6 @@ func GetIndexPageV1Handler(ctx *macaron.Context) {
 	err = listTmpl.Execute(ctx.Resp, deployments)
 	if err != nil {
 		log.Error(err)
-		// w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
@@ -67,7 +66,7 @@ func GetDetailPageV1Handler(ctx *macaron.Context) {
 	}
 
 	// The template's name should be the same with file name
-	listTmpl, err := template.New("detail.template").ParseFiles("./templates/detail.template")
+	listTmpl, err := template.New("detail.html").ParseFiles("./templates/detail.html")
 	if err != nil {
 		log.Error(err)
 		ctx.Resp.WriteHeader(http.StatusInternalServerError)
@@ -77,7 +76,6 @@ func GetDetailPageV1Handler(ctx *macaron.Context) {
 	err = listTmpl.Execute(ctx.Resp, deployment)
 	if err != nil {
 		log.Error(err)
-		// w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
