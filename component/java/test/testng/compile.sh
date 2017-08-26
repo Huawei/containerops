@@ -29,6 +29,7 @@ declare -A map=(
     ["git-url"]="" 
     ["out-put-type"]=""
     ["report-path"]=""
+    ["version"]=""
 )
 data=$(echo $CO_DATA |awk '{print}')
 for i in ${data[@]}
@@ -60,6 +61,18 @@ else
     exit
 fi
 
+if [ "${map["version"]}" = "gradle3" ]
+then
+    gradle_version=$gradle3/gradle
+elif [ "${map["version"]}" = "gradle4" ]
+then
+    gradle_version=$gradle4/gradle
+else
+    printf "[COUT] Handle input error: %s\n" "version should be one of gradle3,gradle4"
+    printf "[COUT] CO_RESULT = %s\n" "false"
+    exit
+fi
+
 if [ "" = "${map["report-path"]}" ]
 then
     map["report-path"]="build/test-results/test"
@@ -82,7 +95,7 @@ fi
 
 cat /root/testng.conf >> build.gradle
 
-STOUT2 gradle test
+STOUT2 $gradle_version test
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then
