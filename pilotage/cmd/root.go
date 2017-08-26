@@ -25,6 +25,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/Huawei/containerops/common"
+	"github.com/Huawei/containerops/pilotage/config"
 )
 
 var cfgFile string
@@ -68,6 +69,11 @@ func Execute() {
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if err := common.SetConfig(cfgFile); err != nil {
+		fmt.Println(Red(err))
+		os.Exit(1)
+	}
+
+	if err := config.InitConfig(cfgFile); err != nil {
 		fmt.Println(Red(err))
 		os.Exit(1)
 	}
