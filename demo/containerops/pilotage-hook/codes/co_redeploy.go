@@ -19,7 +19,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"os"
 	"strings"
@@ -37,6 +36,12 @@ func main() {
 	}
 
 	target, url, key, err := parseEnv(data)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA: %s\n", err.Error())
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
+		fmt.Fprintf(os.Stdout, "Make sure the key is passed as the last variable without any quotes\n")
+		os.Exit(1)
+	}
 
 	err = update(target, url, key)
 	if err != nil {
@@ -49,13 +54,19 @@ func main() {
 }
 
 func parseEnv(env string) (target, url, sshKey string, err error) {
-	files := strings.Fields(env)
-	if len(files) == 0 {
+	// Extract variable 'key'
+	index := strings.Index(env, "key=")
+	sshKey = env[index+4:]
+	sshKey = strings.Replace(sshKey, "\\n", "\n", -1)
+
+	varsExceptKey := env[:index]
+	fields := strings.Fields(varsExceptKey)
+	if len(fields) == 0 {
 		err = fmt.Errorf("CO_DATA value is null\n")
 		return
 	}
 
-	for _, v := range files {
+	for _, v := range fields {
 		s := strings.Split(v, "=")
 		key, value := s[0], s[1]
 
@@ -64,12 +75,13 @@ func parseEnv(env string) (target, url, sshKey string, err error) {
 			target = value
 		case "url":
 			url = value
-		case "key":
-			sshKey = value
+		// case "key":
+		//     sshKey = value
 		default:
-			fmt.Fprintf(os.Stdout, "[COUT] Unknown Parameter: [%s]\n", s)
+			fmt.Fprintf(os.Stdout, "[COUT] Unknown Parameter: [%s]\n", v)
 		}
 	}
+
 	return
 }
 
@@ -124,15 +136,11 @@ func sshCommand(user, privateKey, host string, port int, command string, stdout,
 	return nil
 }
 
-func publicKeyFile(file string) ssh.AuthMethod {
-	buffer, err := ioutil.ReadFile(file)
-	if err != nil {
-		return nil
-	}
-
-	key, err := ssh.ParsePrivateKey(buffer)
+func publicKeyFile(keyContent string) ssh.AuthMethod {
+	key, err := ssh.ParsePrivateKey([]byte(keyContent))
 	if err != nil {
 		return nil
 	}
 	return ssh.PublicKeys(key)
+
 }

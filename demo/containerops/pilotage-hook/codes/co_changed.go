@@ -38,8 +38,8 @@ func main() {
 		return
 	}
 
-	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT=true")
-	fmt.Fprintf(os.Stdout, fmt.Sprintf("[COUT] CO_CHANGED=%t", changed))
+	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT=true\n")
+	fmt.Fprintf(os.Stdout, fmt.Sprintf("[COUT] CO_CHANGED=%t\n", changed))
 }
 
 func diff(target string) (bool, error) {
