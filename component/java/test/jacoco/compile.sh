@@ -29,6 +29,7 @@ declare -A map=(
     ["git-url"]="" 
     ["out-put-type"]=""
     ["report-path"]=""
+    ["version"]=""
 )
 data=$(echo $CO_DATA |awk '{print}')
 for i in ${data[@]}
@@ -60,6 +61,18 @@ else
     exit
 fi
 
+if [ "${map["version"]}" = "gradle3" ]
+then
+    gradle_version=$gradle3/gradle
+elif [ "${map["version"]}" = "gradle4" ]
+then
+    gradle_version=$gradle4/gradle
+else
+    printf "[COUT] Handle input error: %s\n" "version should be one of gradle3,gradle4"
+    printf "[COUT] CO_RESULT = %s\n" "false"
+    exit
+fi
+
 if [ "" = "${map["report-path"]}" ]
 then
     map["report-path"]="build/reports/jacoco/test/jacocoTestReport.xml"
@@ -86,8 +99,8 @@ then
     cat /root/jacoco.conf >> build.gradle
 fi
 
-STOUT2 gradle test
-STOUT2 gradle jacocoTestReport
+STOUT2 $gradle_version test
+STOUT2 $gradle_version jacocoTestReport
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then
@@ -98,8 +111,8 @@ fi
 
 if [ "$?" -eq "0" ]
 then
-    printf "[COUT] CO_RESULT = %s\n" "true"
+    printf "\n[COUT] CO_RESULT = %s\n" "true"
 else
-    printf "[COUT] CO_RESULT = %s\n" "false"
+    printf "\n[COUT] CO_RESULT = %s\n" "false"
 fi
 exit

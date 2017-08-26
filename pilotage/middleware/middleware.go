@@ -62,4 +62,10 @@ func SetStartDaemonMiddlewares(m *macaron.Macaron, cfgFile string) {
 		ctx.Data["flow"] = nil
 		ctx.Data["mode"] = module.DaemonStart
 	})
+
+	//
+	m.Use(macaron.Logger())
+
+	// Set recovery handler to returns a middleware that recovers from any panics
+	m.Use(macaron.Recovery())
 }

@@ -33,5 +33,9 @@ func SetRunDaemonRouters(m *macaron.Macaron) {
 
 // SetStartDaemonRouters is
 func SetStartDaemonRouters(m *macaron.Macaron) {
-
+	m.Group("/flow", func() {
+		m.Group("/v1", func() {
+			m.Post("/:namespace/:repository/:flow/:tag/:type", handler.PostFlowRuntime)
+		})
+	})
 }
