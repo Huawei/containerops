@@ -82,8 +82,12 @@ func DeployInfraStacks(d *objects.Deployment, db bool) error {
 				return err
 			}
 
+			// Prepare droplet prefix name and tags
+			namespace, repository, name, _ := d.URIs()
+			tags := []string{namespace, repository, name, fmt.Sprintf("version-%d", d.Version), d.Tag}
+
 			// Create DigitalOcean Droplets
-			if err := do.CreateDroplet(d.Service.Nodes, d.Tools.SSH.Fingerprint); err != nil {
+			if err := do.CreateDroplet(d.Service.Nodes, d.Tools.SSH.Fingerprint, fmt.Sprintf("%s-%s", namespace, repository), tags); err != nil {
 				return err
 			}
 

@@ -86,11 +86,11 @@ func (do *DigitalOcean) UpdateSSHKey(publicFile string) error {
 }
 
 // TODO Customize Droplet name and tag.
-func (do *DigitalOcean) CreateDroplet(nodes int, fingerprint string) error {
+func (do *DigitalOcean) CreateDroplet(nodes int, fingerprint, name string, tags []string) error {
 	names := []string{}
 
 	for i := 0; i < nodes; i++ {
-		droplet := fmt.Sprintf("singular-node-%d", i+1)
+		droplet := fmt.Sprintf("%s-node-%d", name, i+1)
 		names = append(names, droplet)
 	}
 
@@ -110,7 +110,7 @@ func (do *DigitalOcean) CreateDroplet(nodes int, fingerprint string) error {
 		IPv6:              false,
 		PrivateNetworking: false,
 		Monitoring:        true,
-		Tags:              []string{"singular", "containerops"},
+		Tags:              tags,
 		UserData:          "",
 	}
 
