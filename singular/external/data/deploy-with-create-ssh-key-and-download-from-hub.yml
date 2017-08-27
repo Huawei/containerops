@@ -8,6 +8,7 @@ service:
   region: sfo2
   size: 4gb
   image: ubuntu-17-04-x64
+  nodes: 4
 infras:
   -
     name: etcd

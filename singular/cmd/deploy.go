@@ -29,7 +29,7 @@ import (
 )
 
 var privateKey, publicKey, output string
-var db bool
+var db, delete bool
 
 var deployCmd = &cobra.Command{
 	Use:   "deploy",
@@ -56,11 +56,13 @@ func init() {
 	templateCmd.Flags().StringVarP(&publicKey, "public-key", "p", "", "ssh public identity file")
 	templateCmd.Flags().StringVarP(&output, "output", "o", "", "output data folder")
 	templateCmd.Flags().BoolVarP(&db, "db", "d", false, "save deploy data in database.")
+	templateCmd.Flags().BoolVarP(&delete, "delete", "r", false, "delete the nodes when deploy and test done.")
 
 	viper.BindPFlag("private-key", templateCmd.Flags().Lookup("private-key"))
 	viper.BindPFlag("public-key", templateCmd.Flags().Lookup("public-key"))
 	viper.BindPFlag("output", templateCmd.Flags().Lookup("output"))
 	viper.BindPFlag("db", templateCmd.Flags().Lookup("db"))
+	viper.BindPFlag("delete", templateCmd.Flags().Lookup("delete"))
 }
 
 // Deploy the Cloud Native stack with a template file.
