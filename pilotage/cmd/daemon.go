@@ -46,7 +46,7 @@ var daemonCmd = &cobra.Command{
 	Long: `Pilotage daemon will runs orchestration flow in a daemon mode which has Web GUI and REST API.
 It will provide endpoint for flow. Pilotage provides a simple mode running with flow YAML file.
 
-pilotage daemon run cncf-demo.yaml
+pilotage daemon run cncf-demo.yml
 
 Pilotage provides full daemon run mode with HTTPS support.
 

@@ -33,11 +33,11 @@ func WebHook(ctx *macaron.Context) (int, []byte) {
 	// 1. Check if the singular changes
 	// 2. (if changed) Build new singular and push the binary to dockyard
 	// 3. ssh into the target server, update the singular service.
-	// TODO Parameter validation
 	namespace := ctx.Params("namespace")
 	repository := ctx.Params("repository")
-	tag := ctx.Params("tag")
 	flowName := ctx.Params("flow")
+	tag := ctx.Params("tag")
+	// TODO Parameter validation
 
 	url := fmt.Sprintf("%s/flow/v1/%s/%s/%s/%s/%s", config.WebHook.Host, namespace, repository, flowName, tag, "yaml")
 

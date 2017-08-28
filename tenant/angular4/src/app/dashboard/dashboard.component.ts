@@ -43,7 +43,7 @@ export class DashboardComponent implements OnInit {
   private workflowObj: Object;
 
   getYaml() {
-    this.http.get('http://localhost:4200/assets/debug/cncf-demo.yaml').subscribe(data => this.extractData(data));
+    this.http.get('http://localhost:4200/assets/debug/cncf-demo.yml').subscribe(data => this.extractData(data));
   }
   private extractData(res: Response) {
     this.workflowObj = yaml.load(res.text());
