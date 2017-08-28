@@ -41,7 +41,7 @@ func SetStartDaemonRouters(m *macaron.Macaron) {
 
 	m.Group("/hook", func() {
 		m.Group("/v1", func() {
-			m.Post("/:namespace/:repository/:tag", handler.WebHook)
+			m.Post("/:namespace/:repository/:flow/:tag", handler.WebHook)
 		})
 	})
 }

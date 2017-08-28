@@ -37,7 +37,7 @@ func WebHook(ctx *macaron.Context) (int, []byte) {
 	namespace := ctx.Params("namespace")
 	repository := ctx.Params("repository")
 	tag := ctx.Params("tag")
-	flowName := fmt.Sprintf("%s-hook-flow", repository)
+	flowName := ctx.Params("flow")
 
 	url := fmt.Sprintf("%s/flow/v1/%s/%s/%s/%s/%s", config.WebHook.Host, namespace, repository, flowName, tag, "yaml")
 
