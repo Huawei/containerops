@@ -24,8 +24,9 @@ import (
 	"gopkg.in/macaron.v1"
 	"gopkg.in/yaml.v2"
 
-	"github.com/Huawei/containerops/pilotage/module"
 	"time"
+
+	"github.com/Huawei/containerops/pilotage/module"
 )
 
 // GetFlowRuntime is return flow runtime status and logs.
@@ -94,7 +95,7 @@ func PostFlowRuntime(ctx *macaron.Context) (int, []byte) {
 	switch ctx.Params("type") {
 	case "json":
 		if err := json.Unmarshal(data, &f); err != nil {
-			f.Log(fmt.Sprintf("Unmarshal the flow file error: %s", err.Error()), true	, true)
+			f.Log(fmt.Sprintf("Unmarshal the flow file error: %s", err.Error()), true, true)
 		}
 	case "yaml":
 		if err := yaml.Unmarshal(data, &f); err != nil {
@@ -110,7 +111,7 @@ func PostFlowRuntime(ctx *macaron.Context) (int, []byte) {
 		f.LocalRun(true, true)
 	}()
 	// Sleep one second to wait the init status change of flow
-	time.Sleep(1*time.Second)
+	time.Sleep(1 * time.Second)
 	resp := PostFlowResponse{Namespace: namespace, Repository: repository, Name: flowName, Tag: f.Tag,
 		Version: f.Version, Title: f.Title, Status: f.Status}
 	result, _ := json.Marshal(resp)

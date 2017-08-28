@@ -17,32 +17,56 @@ limitations under the License.
 package handler
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 
 	"github.com/Huawei/containerops/pilotage/config"
+	"github.com/Huawei/containerops/pilotage/module"
 	log "github.com/Sirupsen/logrus"
 	macaron "gopkg.in/macaron.v1"
 )
 
 func WebHook(ctx *macaron.Context) (int, []byte) {
-	// TODO Run the flow:
+	// Run the flow:
 	// 1. Check if the singular changes
 	// 2. (if changed) Build new singular and push the binary to dockyard
 	// 3. ssh into the target server, update the singular service.
-	url := fmt.Sprintf("%s/flow/v1/%s/%s/%s/%s/%s", config.WebHook.Host, config.WebHook.Namespace, config.WebHook.Repository, config.WebHook.Binary, config.WebHook.Tag, "yaml")
+	// TODO Parameter validation
+	namespace := ctx.Params("namespace")
+	repository := ctx.Params("repository")
+	tag := ctx.Params("tag")
+	flowName := fmt.Sprintf("%s-hook-flow", repository)
 
-	file, err := os.Open(config.WebHook.FlowFilePath)
+	url := fmt.Sprintf("%s/flow/v1/%s/%s/%s/%s/%s", config.WebHook.Host, namespace, repository, flowName, tag, "yaml")
+
+	flowYamlPath := fmt.Sprintf("%s/%s/%s/%s/flow.yaml", config.WebHook.FlowBaseDir, namespace, repository, tag)
+	f := &module.Flow{}
+	if err := f.ParseFlowFromFile(flowYamlPath, module.DaemonRun, false, true); err != nil {
+		log.Error(err)
+		return http.StatusInternalServerError, []byte("Failed to parse flow yaml file")
+	}
+
+	ns, repo, name, err := f.URIs()
 	if err != nil {
 		log.Error(err)
-		return http.StatusInternalServerError, []byte("Failed to read flow yaml file")
+		return http.StatusInternalServerError, []byte("Failed to validate flow URI")
 	}
-	defer file.Close()
+	if ns != namespace || repo != repository || name != flowName {
+		log.Error(err)
+		return http.StatusInternalServerError, []byte("Invalid flow URI")
+	}
+
+	yamlBytes, err := f.YAML()
+	if err != nil {
+		log.Error(err)
+		return http.StatusInternalServerError, []byte("Failed to yamlify flow")
+	}
+	bytesReader := bytes.NewReader(yamlBytes)
 
 	client := http.Client{}
-	req, _ := http.NewRequest(http.MethodPost, url, file)
+	req, _ := http.NewRequest(http.MethodPost, url, bytesReader)
 	res, err := client.Do(req)
 	if err != nil {
 		log.Error(err)
