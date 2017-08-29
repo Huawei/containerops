@@ -41,7 +41,7 @@ func PublicKeyFile(file string) ssh.AuthMethod {
 	return ssh.PublicKeys(key)
 }
 
-// SSHCommand execute command from SSH connect in the remote host.
+//SSHCommand execute command from SSH connect in the remote host.
 func SSHCommand(user, privateKey, host string, port int, command string, stdout, stderr io.Writer) error {
 	var (
 		addr         string
@@ -88,7 +88,7 @@ func SSHCommand(user, privateKey, host string, port int, command string, stdout,
 	return nil
 }
 
-// SSHScp copy local file to remote dest using scp command.
+//SSHScp copy local file to remote dest using scp command.
 func SSHScp(user, privateKey, host string, port int, src, dest string) error {
 	var (
 		addr         string

@@ -84,11 +84,11 @@ func (d *Deployment) ParseFromFile(t string, output string) error {
 	return nil
 }
 
-func (d *Deployment) DownloadBinaryFile(file, url string, nodes map[string]string) error {
+func (d *Deployment) DownloadBinaryFile(file, url string, nodes map[string]string, stdout io.Writer) error {
 	for _, ip := range nodes {
 		chmodCmd := fmt.Sprintf("chmod +x %s", path.Join(tools.BinaryServerPath, file))
 
-		if err := tools.DownloadComponent(url, path.Join(tools.BinaryServerPath, file), ip, d.Tools.SSH.Private, tools.DefaultSSHUser); err != nil {
+		if err := tools.DownloadComponent(url, path.Join(tools.BinaryServerPath, file), ip, d.Tools.SSH.Private, tools.DefaultSSHUser, stdout); err != nil {
 			return err
 		}
 

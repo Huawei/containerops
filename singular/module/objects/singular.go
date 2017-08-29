@@ -16,8 +16,31 @@ limitations under the License.
 
 package objects
 
+import (
+	"fmt"
+	"io"
+	"time"
+)
+
+type Logger interface {
+	WriteLog(log string, writer io.Writer) error
+}
+
+func WriteLog(obj Logger, log string, writer io.Writer, timestamp bool) error {
+	if timestamp == true {
+		log = fmt.Sprintf("[%d] %s", time.Now().Unix(), log)
+	}
+
+	if err := obj.WriteLog(log, writer); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Node is
 type Node struct {
+	ID     int    `json:"id" yaml:"id"`
 	IP     string `json:"ip" yaml:"ip"`
 	User   string `json:"user" yaml:"user"`
 	Distro string `json:"distro" yaml:"distro"`
@@ -55,4 +78,15 @@ type Component struct {
 	Before  string   `json:"before" yaml:"before"`
 	After   string   `json:"after" yaml:"after"`
 	Logs    []string `json:"logs,omitempty" yaml:"logs,omitempty"`
+}
+
+//WriteLog implement Logger interface.
+func (c *Component) WriteLog(log string, writer io.Writer) error {
+	c.Logs = append(c.Logs, log)
+
+	if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
+		return err
+	}
+
+	return nil
 }

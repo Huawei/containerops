@@ -19,7 +19,9 @@ package objects
 import (
 	"encoding/json"
 
+	"fmt"
 	"gopkg.in/yaml.v2"
+	"io"
 )
 
 // Infra is
@@ -32,6 +34,17 @@ type Infra struct {
 	Logs       []string               `json:"logs,omitempty" yaml:"logs,omitempty"`
 	Components []Component            `json:"components" yaml:"components"`
 	Outputs    map[string]interface{} `json:"-" yaml:"-"`
+}
+
+//WriteLog implement Logger interface.
+func (i *Infra) WriteLog(log string, writer io.Writer) error {
+	i.Logs = append(i.Logs, log)
+
+	if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // JSON export deployment data

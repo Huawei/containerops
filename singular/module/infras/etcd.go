@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path"
@@ -59,7 +60,7 @@ type EtcdEndpoint struct {
 // Notes:
 //   1. Only count master nodes in etcd deploy process.
 //   2.
-func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra) error {
+func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.Writer, timestamp bool) error {
 	// Check master node number.
 	if infra.Master > len(d.Nodes) {
 		return fmt.Errorf("deploy %s nodes more than %d", infra.Name, len(d.Nodes))
@@ -93,6 +94,9 @@ func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra) error {
 	d.Output("EtcdEndpoints", strings.Join(etcdEndpoints, ","))
 	d.Output("EtcdPeerEndpoints", strings.Join(etcdPeerEndpoints, ","))
 
+	objects.WriteLog(infra, d.Outputs["EtcdEndpoints"].(string), stdout, timestamp)
+	objects.WriteLog(infra, d.Outputs["EtcdPeerEndpoints"].(string), stdout, timestamp)
+
 	// Infra output
 	infra.Output("EtcdEndpoints", strings.Join(etcdEndpoints, ","))
 	infra.Output("EtcdPeerEndpoints", strings.Join(etcdPeerEndpoints, ","))
@@ -102,12 +106,12 @@ func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra) error {
 		return err
 	}
 
-	if err := uploadEtcdFiles(d.Config, d.Tools.SSH.Private, etcdNodes, tools.DefaultSSHUser); err != nil {
+	if err := uploadEtcdFiles(d.Config, d.Tools.SSH.Private, etcdNodes, tools.DefaultSSHUser, stdout); err != nil {
 		return err
 	}
 
 	for _, c := range infra.Components {
-		if err := d.DownloadBinaryFile(c.Binary, c.URL, etcdNodes); err != nil {
+		if err := d.DownloadBinaryFile(c.Binary, c.URL, etcdNodes, stdout); err != nil {
 			return err
 		}
 	}
@@ -258,7 +262,7 @@ func generateEtcdServiceFile(node EtcdEndpoint, version, base, ip string) error 
 }
 
 // upload Etcd SSL files and systemd file to nodes
-func uploadEtcdFiles(src, key string, nodes map[string]string, user string) error {
+func uploadEtcdFiles(src, key string, nodes map[string]string, user string, stdout io.Writer) error {
 	sslBase := path.Join(src, tools.CAFilesFolder, tools.CAEtcdFolder)
 	serviceBase := path.Join(src, tools.ServiceFilesFolder, tools.ServiceEtcdFolder)
 
@@ -270,13 +274,13 @@ func uploadEtcdFiles(src, key string, nodes map[string]string, user string) erro
 		var err error
 
 		// Upload SSL files
-		err = tools.DownloadComponent(path.Join(sslBase, ip, tools.CAEtcdCSRConfigFile), path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdCSRConfigFile), ip, key, user)
-		err = tools.DownloadComponent(path.Join(sslBase, ip, tools.CAEtcdKeyPemFile), path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdKeyPemFile), ip, key, user)
-		err = tools.DownloadComponent(path.Join(sslBase, ip, tools.CAEtcdCSRFile), path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdCSRFile), ip, key, user)
-		err = tools.DownloadComponent(path.Join(sslBase, ip, tools.CAEtcdPemFile), path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdPemFile), ip, key, user)
+		err = tools.DownloadComponent(path.Join(sslBase, ip, tools.CAEtcdCSRConfigFile), path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdCSRConfigFile), ip, key, user, stdout)
+		err = tools.DownloadComponent(path.Join(sslBase, ip, tools.CAEtcdKeyPemFile), path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdKeyPemFile), ip, key, user, stdout)
+		err = tools.DownloadComponent(path.Join(sslBase, ip, tools.CAEtcdCSRFile), path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdCSRFile), ip, key, user, stdout)
+		err = tools.DownloadComponent(path.Join(sslBase, ip, tools.CAEtcdPemFile), path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdPemFile), ip, key, user, stdout)
 
 		// Upload Service file
-		err = tools.DownloadComponent(path.Join(serviceBase, ip, tools.ServiceEtcdFile), path.Join(tools.SytemdServerPath, tools.ServiceEtcdFile), ip, key, user)
+		err = tools.DownloadComponent(path.Join(serviceBase, ip, tools.ServiceEtcdFile), path.Join(tools.SytemdServerPath, tools.ServiceEtcdFile), ip, key, user, stdout)
 
 		if err != nil {
 			return err

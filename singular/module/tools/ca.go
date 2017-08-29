@@ -19,6 +19,7 @@ package tools
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"os"
 	"path"
@@ -32,54 +33,54 @@ import (
 )
 
 const (
-	// CA files folder
+	//CA files folder
 	CAFilesFolder = "ssl"
 
-	// CA Root Files Folder Name
+	//CA Root Files Folder Name
 	CARootFilesFolder = "root"
-	// CA Root Files Const Name
+	//CA Root Files Const Name
 	CARootConfigFile    = "ca-config.json"
 	CARootCSRConfigFile = "ca-csr.json"
 	CARootPemFile       = "ca.pem"
 	CARootCSRFile       = "ca.csr"
 	CARootKeyFile       = "ca-key.pem"
 
-	// CA Etcd Files Folder Name
+	//CA Etcd Files Folder Name
 	CAEtcdFolder        = "etcd"
 	CAEtcdCSRConfigFile = "etcd-csr.json"
 	CAEtcdKeyPemFile    = "etcd-key.pem"
 	CAEtcdCSRFile       = "etcd.csr"
 	CAEtcdPemFile       = "etcd.pem"
 
-	// CA Flannel Files Folder name
+	//CA Flannel Files Folder name
 	CAFlanneldFolder        = "flanneld"
 	CAFlanneldCSRConfigFile = "flanneld-csr.json"
 	CAFlanneldKeyPemFile    = "flanneld-key.pem"
 	CAFlanneldCSRFile       = "flanneld.csr"
 	CAFlanneldPemFile       = "flanneld.pem"
 
-	// CA Docker Files Folder name
+	//CA Docker Files Folder name
 	CADockerFolder = "docker"
 
-	// Kubernetes admin Files
+	//Kubernetes admin Files
 	CAKubernetesFolder       = "kubernetes"
 	CAKubeAdminCSRConfigFile = "admin-csr.json"
 	CAKubeAdminKeyPemFile    = "admin-key.pem"
 	CAKubeAdminCSRFile       = "admin.csr"
 	CAKubeAdminPemFile       = "admin.pem"
-	// Kubernetes API Server Files
+	//Kubernetes API Server Files
 	CAKubeAPIServerCSRConfigFile = "kubernetes-csr.json"
-	CAKubeAPIServerKeyPemFile = "kubernetes-key.pem"
-	CAKubeAPIServerCSRFile = "kubernetes.csr"
-	CAKubeAPIServerPemFile = "kubernetes.pem"
+	CAKubeAPIServerKeyPemFile    = "kubernetes-key.pem"
+	CAKubeAPIServerCSRFile       = "kubernetes.csr"
+	CAKubeAPIServerPemFile       = "kubernetes.pem"
 )
 
-// GenerateCARootFiles generate root files from template.
+//GenerateCARootFiles generate root files from template.
 func GenerateCARootFiles(src string) (map[string]string, error) {
 	var caConfigTpl, caCsrTpl bytes.Buffer
 	var err error
 
-	// mkdir for ca root files
+	//mkdir for ca root files
 	base := path.Join(src, CAFilesFolder, CARootFilesFolder)
 	if utils.IsDirExist(base) == false {
 		os.MkdirAll(base, os.ModePerm)
@@ -93,7 +94,7 @@ func GenerateCARootFiles(src string) (map[string]string, error) {
 		CARootKeyFile:       path.Join(base, CARootKeyFile),
 	}
 
-	// Remove exist ca files
+	//Remove exist ca files
 	for _, value := range files {
 		if utils.IsDirExist(value) == true {
 			err = os.Remove(value)
@@ -103,7 +104,7 @@ func GenerateCARootFiles(src string) (map[string]string, error) {
 		}
 	}
 
-	// Generate ca-config.json
+	//Generate ca-config.json
 	caConfig := template.New("config")
 	caConfig, err = caConfig.Parse(t.CARootTemplate[t.CARootConfig])
 	caConfig.Execute(&caConfigTpl, nil)
@@ -112,7 +113,7 @@ func GenerateCARootFiles(src string) (map[string]string, error) {
 		return files, err
 	}
 
-	// Generate ca-csr.json
+	//Generate ca-csr.json
 	caCsr := template.New("csr")
 	caCsr, err = caCsr.Parse(t.CARootTemplate[t.CARootCSR])
 	caCsr.Execute(&caCsrTpl, nil)
@@ -130,7 +131,7 @@ func GenerateCARootFiles(src string) (map[string]string, error) {
 		return files, err
 	}
 
-	// Generate ca.pem, ca.csr, ca-key.pem files
+	//Generate ca.pem, ca.csr, ca-key.pem files
 	var key, csrPEM, cert []byte
 	cert, csrPEM, key, err = initca.New(&req)
 	err = ioutil.WriteFile(files[CARootPemFile], cert, 0600)
@@ -140,9 +141,10 @@ func GenerateCARootFiles(src string) (map[string]string, error) {
 	return files, err
 }
 
-func UploadCARootFiles(key string, files map[string]string, ip, user string) error {
+//UploadCARootFiles upload root ca files to the node.
+func UploadCARootFiles(key string, files map[string]string, ip, user string, stdout io.Writer) error {
 	for _, f := range files {
-		if err := DownloadComponent(f, path.Join("/etc/kubernetes/ssl", path.Base(f)), ip, key, DefaultSSHUser); err != nil {
+		if err := DownloadComponent(f, path.Join("/etc/kubernetes/ssl", path.Base(f)), ip, key, user, stdout); err != nil {
 			return err
 		}
 	}

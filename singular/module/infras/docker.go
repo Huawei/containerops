@@ -19,6 +19,7 @@ package infras
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path"
@@ -31,7 +32,7 @@ import (
 )
 
 //DeployDockerInCluster deploy Docker in Cluster
-func DeployDockerInCluster(d *objects.Deployment, infra *objects.Infra) error {
+func DeployDockerInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.Writer, timestamp bool) error {
 	dockerNodes := map[string]string{}
 	for i := 0; i < infra.Master; i++ {
 		dockerNodes[fmt.Sprintf("docker-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
@@ -43,13 +44,13 @@ func DeployDockerInCluster(d *objects.Deployment, infra *objects.Infra) error {
 	}
 
 	//Upload Docker Systemd file
-	if err := uploadDockerFiles(d.Config, d.Tools.SSH.Private, dockerNodes, tools.DefaultSSHUser); err != nil {
+	if err := uploadDockerFiles(d.Config, d.Tools.SSH.Private, dockerNodes, tools.DefaultSSHUser, stdout); err != nil {
 		return err
 	}
 
 	//Download Docker files
 	for _, c := range infra.Components {
-		if err := d.DownloadBinaryFile(c.Binary, c.URL, dockerNodes); err != nil {
+		if err := d.DownloadBinaryFile(c.Binary, c.URL, dockerNodes, stdout); err != nil {
 			return err
 		}
 
@@ -121,9 +122,9 @@ func generateDockerFiles(src string, nodes map[string]string, version string) er
 	return nil
 }
 
-// Upload docker systemd file
-// TODO apt-get install -y bridge-utils aufs-tools cgroupfs-mount libltdl7
-func uploadDockerFiles(src, key string, nodes map[string]string, user string) error {
+//Upload docker systemd file
+//TODO apt-get install -y bridge-utils aufs-tools cgroupfs-mount libltdl7
+func uploadDockerFiles(src, key string, nodes map[string]string, user string, stdout io.Writer) error {
 	sslBase := path.Join(src, tools.CAFilesFolder, tools.CADockerFolder)
 	serviceBase := path.Join(src, tools.ServiceFilesFolder, tools.ServiceDockerFolder)
 
@@ -132,7 +133,7 @@ func uploadDockerFiles(src, key string, nodes map[string]string, user string) er
 	}
 
 	for _, ip := range nodes {
-		if err := tools.DownloadComponent(path.Join(serviceBase, ip, tools.ServiceDockerFile), path.Join(tools.SytemdServerPath, tools.ServiceDockerFile), ip, key, user); err != nil {
+		if err := tools.DownloadComponent(path.Join(serviceBase, ip, tools.ServiceDockerFile), path.Join(tools.SytemdServerPath, tools.ServiceDockerFile), ip, key, user, stdout); err != nil {
 			return err
 		}
 	}
