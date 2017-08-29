@@ -23,11 +23,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Huawei/containerops/pilotage/model"
 	. "github.com/logrusorgru/aurora"
 	"gopkg.in/yaml.v2"
 )
 
-const(
+const (
 	// Flow Run Model
 	CliRun      = "CliRun"
 	DaemonRun   = "DaemonRun"
@@ -72,6 +73,9 @@ func (f *Flow) URIs() (namespace, repository, name string, err error) {
 // TODO filter the log print with different color.
 func (f *Flow) Log(log string, verbose, timestamp bool) {
 	f.Logs = append(f.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
+	l := new(model.LogV1)
+	//TODO fill in phaseID
+	l.Create(model.INFO, model.FLOW, 0, log)
 
 	if verbose == true {
 		if timestamp == true {
@@ -148,5 +152,3 @@ func (f *Flow) LocalRun(verbose, timestamp bool) error {
 
 	return nil
 }
-
-

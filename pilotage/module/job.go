@@ -1,11 +1,11 @@
 package module
 
 import (
-	"time"
 	"bufio"
-	"io"
 	"fmt"
+	"io"
 	"strings"
+	"time"
 
 	. "github.com/logrusorgru/aurora"
 	homeDir "github.com/mitchellh/go-homedir"
@@ -17,7 +17,9 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/tools/clientcmd"
 
-	"github.com/Huawei/containerops/common/utils")
+	"github.com/Huawei/containerops/common/utils"
+	"github.com/Huawei/containerops/pilotage/model"
+)
 
 // Job is
 type Job struct {
@@ -39,11 +41,12 @@ type Resource struct {
 	Memory string `json:"memory" yaml:"memory"`
 }
 
-
-
 // TODO filter the log print with different color.
 func (j *Job) Log(log string, verbose, timestamp bool) {
 	j.Logs = append(j.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
+	l := new(model.LogV1)
+	//TODO fill in phaseID
+	l.Create(model.INFO, model.JOB, 0, log)
 
 	if verbose == true {
 		if timestamp == true {
@@ -138,4 +141,3 @@ func (j *Job) Run(name string, verbose, timestamp bool, f *Flow) (string, error)
 	j.Status = Success
 	return Success, nil
 }
-

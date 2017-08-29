@@ -2,9 +2,10 @@ package module
 
 import (
 	"fmt"
-	"time"
 	"strings"
+	"time"
 
+	"github.com/Huawei/containerops/pilotage/model"
 	. "github.com/logrusorgru/aurora"
 )
 
@@ -13,7 +14,6 @@ const (
 	Sequencing = "sequence"
 	Parallel   = "parallel"
 )
-
 
 // Action is
 type Action struct {
@@ -24,10 +24,12 @@ type Action struct {
 	Logs   []string `json:"logs,omitempty" yaml:"logs,omitempty"`
 }
 
-
 // TODO filter the log print with different color.
 func (a *Action) Log(log string, verbose, timestamp bool) {
 	a.Logs = append(a.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
+	l := new(model.LogV1)
+	//TODO fill in phaseID
+	l.Create(model.INFO, model.ACTION, 0, log)
 
 	if verbose == true {
 		if timestamp == true {
@@ -68,4 +70,3 @@ func (a *Action) Run(verbose, timestamp bool, f *Flow) (string, error) {
 
 	return a.Status, nil
 }
-

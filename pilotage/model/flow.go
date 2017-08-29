@@ -1,14 +1,13 @@
 package model
 
 import (
-	"github.com/Huawei/containerops/pilotage/module"
 	"time"
 )
 
 type FlowV1 struct {
 	ID         int64     `json:"id" gorm:"primary_key" gorm:"column:id"`
 	Namespace  string    `json:"namespace" sql:"not null;type:varchar(255)" gorm:"column:namespace"`
-	Repository string    `json:"repository" sql:"not null;type:varchar(255)" gorm:"column:tag"`
+	Repository string    `json:"repository" sql:"not null;type:varchar(255)" gorm:"column:repository"`
 	Tag        string    `json:"tag" sql:"not null;type:varchar(255)" gorm:"column:tag"`
 	Version    int64     `json:"version" sql:"type:bigint(20)" gorm:"column:version"`
 	Title      string    `json:"title" sql:"type:text" gorm:"column:title"`
@@ -26,7 +25,6 @@ type FlowDataV1 struct {
 	Start  time.Time `json:"start" sql:"" gorm:"column:start"`
 	End    time.Time `json:"end" sql:"" gorm:"column:end"`
 }
-
 
 func (f *FlowV1) TableName() string {
 	return "flow_v1"

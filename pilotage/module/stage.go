@@ -2,13 +2,14 @@ package module
 
 import (
 	"fmt"
-	"time"
 	"strings"
+	"time"
 
+	"github.com/Huawei/containerops/pilotage/model"
 	. "github.com/logrusorgru/aurora"
 )
 
-const(
+const (
 	// Stage Type
 	StartStage  = "start"
 	EndStage    = "end"
@@ -27,10 +28,12 @@ type Stage struct {
 	Actions    []Action `json:"actions,omitempty" yaml:"actions,omitempty"`
 }
 
-
 // TODO filter the log print with different color.
 func (s *Stage) Log(log string, verbose, timestamp bool) {
 	s.Logs = append(s.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
+	l := new(model.LogV1)
+	//TODO fill in phaseID
+	l.Create(model.INFO, model.STAGE, 0, log)
 
 	if verbose == true {
 		if timestamp == true {
