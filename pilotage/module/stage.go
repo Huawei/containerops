@@ -19,6 +19,7 @@ const (
 
 // Stage is
 type Stage struct {
+	ID         int64    `json:"-" yaml:"-"`
 	T          string   `json:"type" yaml:"type"`
 	Name       string   `json:"name" yaml:"name"`
 	Title      string   `json:"title" yaml:"title"`
@@ -32,8 +33,7 @@ type Stage struct {
 func (s *Stage) Log(log string, verbose, timestamp bool) {
 	s.Logs = append(s.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
 	l := new(model.LogV1)
-	//TODO fill in phaseID
-	l.Create(model.INFO, model.STAGE, 0, log)
+	l.Create(model.INFO, model.STAGE, s.ID, log)
 
 	if verbose == true {
 		if timestamp == true {
@@ -49,6 +49,18 @@ func (s *Stage) SequencingRun(verbose, timestamp bool, f *Flow) (string, error) 
 
 	s.Log(fmt.Sprintf("Stage [%s] status change to %s", s.Name, s.Status), false, timestamp)
 	f.Log(fmt.Sprintf("Stage [%s] status change to %s", s.Name, s.Status), verbose, timestamp)
+
+	// Save Stage into database
+	stage := new(model.StageV1)
+	stageID, err := stage.Create(f.ID, s.T, s.Name, s.Title, s.Sequencing)
+	if err != nil {
+		s.Log(fmt.Sprintf("Save Stage [%s] error: %s", s.Name, err.Error()), false, timestamp)
+	}
+	s.ID = stageID
+
+	// Record stage data
+	stageData := new(model.StageDataV1)
+	startTime := time.Now()
 
 	for i, _ := range s.Actions {
 		action := &s.Actions[i]
@@ -71,6 +83,11 @@ func (s *Stage) SequencingRun(verbose, timestamp bool, f *Flow) (string, error) 
 		}
 	}
 
+	// TODO number increase
+	if err := stageData.Create(s.ID, 1, s.Status, startTime, time.Now()); err != nil {
+		s.Log(fmt.Sprintf("Save Stage Data [%s] error: %s", s.Name, err.Error()), false, timestamp)
+	}
+
 	return s.Status, nil
 }
 
@@ -79,6 +96,18 @@ func (s *Stage) ParallelRun(verbose, timestamp bool, f *Flow) (string, error) {
 
 	s.Log(fmt.Sprintf("Stage [%s] status change to %s", s.Name, s.Status), false, timestamp)
 	f.Log(fmt.Sprintf("Stage [%s] status change to %s", s.Name, s.Status), verbose, timestamp)
+
+	// Save Stage into database
+	stage := new(model.StageV1)
+	stageID, err := stage.Create(f.ID, s.T, s.Name, s.Title, s.Sequencing)
+	if err != nil {
+		s.Log(fmt.Sprintf("Save Stage [%s] error: %s", s.Name, err.Error()), false, timestamp)
+	}
+	s.ID = stageID
+
+	// Record stage data
+	stageData := new(model.StageDataV1)
+	startTime := time.Now()
 
 	resultChan := make(chan string)
 	defer close(resultChan)
@@ -113,5 +142,11 @@ func (s *Stage) ParallelRun(verbose, timestamp bool, f *Flow) (string, error) {
 			}
 		}
 	}
+
+	// TODO number increase
+	if err := stageData.Create(s.ID, 1, s.Status, startTime, time.Now()); err != nil {
+		s.Log(fmt.Sprintf("Save Stage Data [%s] error: %s", s.Name, err.Error()), false, timestamp)
+	}
+
 	return s.Status, nil
 }

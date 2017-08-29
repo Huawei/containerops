@@ -17,6 +17,7 @@ const (
 
 // Action is
 type Action struct {
+	ID     int64    `json:"-" yaml:"-"`
 	Name   string   `json:"name" yaml:"name"`
 	Title  string   `json:"title" yaml:"title"`
 	Status string   `json:"status,omitempty" yaml:"status,omitempty"`
@@ -28,8 +29,7 @@ type Action struct {
 func (a *Action) Log(log string, verbose, timestamp bool) {
 	a.Logs = append(a.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
 	l := new(model.LogV1)
-	//TODO fill in phaseID
-	l.Create(model.INFO, model.ACTION, 0, log)
+	l.Create(model.INFO, model.ACTION, a.ID, log)
 
 	if verbose == true {
 		if timestamp == true {
@@ -45,6 +45,19 @@ func (a *Action) Run(verbose, timestamp bool, f *Flow) (string, error) {
 
 	a.Log(fmt.Sprintf("Action [%s] status change to %s", a.Name, a.Status), false, timestamp)
 	f.Log(fmt.Sprintf("Action [%s] status change to %s", a.Name, a.Status), verbose, timestamp)
+
+	// Save Action into database
+	action := new(model.ActionV1)
+	//TODO save stageID, NOT flowID
+	actionID, err := action.Create(f.ID, a.Name, a.Title)
+	if err != nil {
+		a.Log(fmt.Sprintf("Save Action [%s] error: %s", a.Name, err.Error()), false, timestamp)
+	}
+	a.ID = actionID
+
+	// Record stage data
+	actionData := new(model.ActionDataV1)
+	startTime := time.Now()
 
 	for i, _ := range a.Jobs {
 		job := &a.Jobs[i]
@@ -66,6 +79,11 @@ func (a *Action) Run(verbose, timestamp bool, f *Flow) (string, error) {
 			break
 		}
 
+	}
+
+	// TODO number increase
+	if err := actionData.Create(a.ID, 1, a.Status, startTime, time.Now()); err != nil {
+		a.Log(fmt.Sprintf("Save Action Data [%s] error: %s", a.Name, err.Error()), false, timestamp)
 	}
 
 	return a.Status, nil
