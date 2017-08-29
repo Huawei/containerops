@@ -18,6 +18,7 @@ package module
 
 import (
 	"fmt"
+	"io"
 	"time"
 
 	"github.com/Huawei/containerops/common"
@@ -35,15 +36,22 @@ const (
 	InfraKubernetes = "kubernetes"
 )
 
-// Deploy Sequence: Preparing SSH Key files -> Preparing VM -> Preparing SSL root Key files -> Deploy Etcd
-//   -> Deploy flannel -> Deploy k8s Master -> Deploy k8s node -> TODO Deploy other...
-// Parameters:
+//Deploy Sequence:
+//   Preparing SSH Key files ->
+//   Preparing VM ->
+//   Preparing SSL root Key files ->
+//   Deploy Etcd ->
+//   Deploy flannel ->
+//   Deploy k8s Master ->
+//   Deploy k8s node ->
+//Parameters:
 //   db [bool] Save Deploy model and log in the database.
-func DeployInfraStacks(d *objects.Deployment, db bool) error {
+func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timestamp bool) error {
 	var err error
 
-	// Open Database Connection
+	//Open Database Connection and migrate table struct.
 	if db == true {
+		WriteLog(d, "Open database connection and migrate the table struct", stdout, timestamp)
 		if err := model.OpenDatabase(&common.Database); err != nil {
 			return err
 		}
@@ -53,8 +61,11 @@ func DeployInfraStacks(d *objects.Deployment, db bool) error {
 		}
 	}
 
-	// Preparing SSH Keys
+	//Preparing SSH Keys
 	if d.Tools.SSH.Private != "" {
+		WriteLog(d,
+			fmt.Sprintf("Calculate the public key and fingerprint using the private key file [%s]", d.Tools.SSH.Private),
+			stdout, timestamp)
 		if d.Tools.SSH.Public, d.Tools.SSH.Private, d.Tools.SSH.Fingerprint, err = tools.OpenSSHKeyFiles(d.Tools.SSH.Public, d.Tools.SSH.Private); err != nil {
 			return err
 		}
@@ -62,20 +73,28 @@ func DeployInfraStacks(d *objects.Deployment, db bool) error {
 		if d.Tools.SSH.Public, d.Tools.SSH.Private, d.Tools.SSH.Fingerprint, err = tools.GenerateSSHKeyFiles(d.Config); err != nil {
 			return err
 		}
+		WriteLog(d, fmt.Sprintf("Generate the SSH keys file [%s] for deploy cloud native stack", d.Tools.SSH.Private),
+			stdout, timestamp)
+
 	}
 
-	// Preparing VM from service provider like DigitalOcean, GCE, AWS, Azure ...
+	//Preparing VM from service provider like DigitalOcean, GCE, AWS, Azure ...
 	if d.Service.Provider != "" {
 		switch d.Service.Provider {
 		case "digitalocean":
+			WriteLog(d, "Create DigitalOcean droplets", stdout, timestamp)
+
+			WriteLog(d, "Init DigitalOcean client with token", stdout, timestamp)
 			do := new(service.DigitalOcean)
 			do.Token = d.Service.Token
 			do.Region, do.Size, do.Image = d.Service.Region, d.Service.Size, d.Service.Image
-
-			// TODO parse do.Image get distro
-
+			//TODO parse do.Image get distro
 			// Init DigitalOcean API client.
 			do.InitClient()
+
+			WriteLog(d,
+				fmt.Sprintf("Upload ssh public key file [%s] to DigitalOcean", d.Tools.SSH.Public),
+				stdout, timestamp)
 
 			// Upload ssh public key
 			if err := do.UpdateSSHKey(d.Tools.SSH.Public); err != nil {
@@ -92,7 +111,7 @@ func DeployInfraStacks(d *objects.Deployment, db bool) error {
 			}
 
 			// Export droplets IP
-			for ip, _ := range do.Droplets {
+			for ip := range do.Droplets {
 				node := objects.Node{
 					IP:     ip,
 					User:   service.DORootUser,

@@ -63,7 +63,7 @@ func initEnvironment(key, ip, user, distro string) error {
 		DistroCentOS: []string{},
 	}
 
-	if err := utils.SSHCommand(user, key, ip, 22, strings.Join(initCmd[distro], " && "), os.Stdout, os.Stderr); err != nil {
+	if err := utils.SSHCommand(user, key, ip, 22, strings.Join(initCmd[distro], " && "), nil, nil); err != nil {
 		return err
 	}
 

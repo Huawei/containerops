@@ -85,7 +85,6 @@ func (do *DigitalOcean) UpdateSSHKey(publicFile string) error {
 	return nil
 }
 
-// TODO Customize Droplet name and tag.
 func (do *DigitalOcean) CreateDroplet(nodes int, fingerprint, name string, tags []string) error {
 	names := []string{}
 

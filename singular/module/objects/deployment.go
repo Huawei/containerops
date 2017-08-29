@@ -19,13 +19,12 @@ package objects
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path"
 	"strings"
-	"time"
 
-	. "github.com/logrusorgru/aurora"
 	homeDir "github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v2"
 
@@ -34,8 +33,11 @@ import (
 	"github.com/Huawei/containerops/singular/module/tools"
 )
 
-// Deployment is Singular base struct.
+//Deployment is Singular base struct.
 type Deployment struct {
+	Namespace   string                 `json:"namespace" yaml:"namespace"`
+	Repository  string                 `json:"repository" yaml:"repository"`
+	Name        string                 `json:"name" yaml:"name"`
 	URI         string                 `json:"uri" yaml:"uri"`
 	Title       string                 `json:"title" yaml:"title"`
 	Version     int                    `json:"version" yaml:"version"`
@@ -48,24 +50,33 @@ type Deployment struct {
 	Short       string                 `json:"short" yaml:"short"`
 	Logs        []string               `json:"logs,omitempty" yaml:"logs,omitempty"`
 	Config      string                 `json:"-" yaml:"-"`
-	Verbose     bool                   `json:"-" yaml:"-"`
-	Timestamp   bool                   `json:"-" yaml:"-"`
 	Outputs     map[string]interface{} `json:"-" yaml:"-"`
 }
 
-// ParseFromFile parse deploy template and set some configs value.
-func (d *Deployment) ParseFromFile(t string, verbose, timestamp bool, output string) error {
+//WriteLog implement Logger interface.
+func (d *Deployment) WriteLog(log string, writer io.Writer) error {
+	d.Logs = append(d.Logs, log)
+
+	if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+//ParseFromFile parse deploy template and set some configs value.
+func (d *Deployment) ParseFromFile(t string, output string) error {
 	if data, err := ioutil.ReadFile(t); err != nil {
 		return err
 	} else {
-		// Unmarshal template
+		//Unmarshal template
 		if err := yaml.Unmarshal(data, &d); err != nil {
 			return err
 		}
 
-		// Set configs value
-		d.Verbose, d.Timestamp = verbose, timestamp
-		if err := d.InitConfigPath(output); err != nil {
+		//Set configs value
+		d.Namespace, d.Repository, d.Name, _ = d.URIs()
+		if d.Config, err = initConfigPath(d.Namespace, d.Repository, d.Name, output, d.Version); err != nil {
 			return err
 		}
 	}
@@ -84,23 +95,22 @@ func (d *Deployment) DownloadBinaryFile(file, url string, nodes map[string]strin
 		if err := utils.SSHCommand("root", d.Tools.SSH.Private, ip, 22, chmodCmd, os.Stdout, os.Stderr); err != nil {
 			return err
 		}
-
 	}
 
 	return nil
 }
 
-// JSON export deployment data
+//JSON export deployment data
 func (d *Deployment) JSON() ([]byte, error) {
 	return json.Marshal(&d)
 }
 
-//
+//YAML export deployment data
 func (d *Deployment) YAML() ([]byte, error) {
 	return yaml.Marshal(&d)
 }
 
-//
+//URIs return namespace, repository and deploy name of template.
 func (d *Deployment) URIs() (namespace, repository, name string, err error) {
 	array := strings.Split(d.URI, "/")
 
@@ -113,41 +123,12 @@ func (d *Deployment) URIs() (namespace, repository, name string, err error) {
 	return namespace, repository, name, nil
 }
 
-// TODO filter the log print with different color.
-func (d *Deployment) Log(log string) {
-	d.Logs = append(d.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
-
-	if d.Verbose == true {
-		if d.Timestamp == true {
-			fmt.Println(Cyan(fmt.Sprintf("[%s] %s", time.Now().String(), strings.TrimSpace(log))))
-		} else {
-			fmt.Println(Cyan(log))
-		}
-	}
-}
-
 func (d *Deployment) Output(key, value string) {
 	if d.Outputs == nil {
 		d.Outputs = map[string]interface{}{}
 	}
 
 	d.Outputs[key] = value
-}
-
-func (d *Deployment) InitConfigPath(path string) error {
-	if path == "" {
-		namespace, repository, name, _ := d.URIs()
-		home, _ := homeDir.Dir()
-		d.Config = fmt.Sprintf("%s/.containerops/singular/%s/%s/%s/%d", home, namespace, repository, name, d.Version)
-	}
-
-	if utils.IsDirExist(d.Config) == false {
-		if err := os.MkdirAll(d.Config, os.ModePerm); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 // Check Sequence: CheckServiceAuth -> TODO Check Other?
@@ -172,4 +153,26 @@ func (d *Deployment) CheckServiceAuth() error {
 	}
 
 	return nil
+}
+
+// initConfigPath init config files and log files folder.
+func initConfigPath(namespace, repository, name, path string, version int) (string, error) {
+	var config string
+
+	if path == "" {
+		home, _ := homeDir.Dir()
+		config = fmt.Sprintf("%s/.containerops/singular/%s/%s/%s/%d", home, namespace, repository, name, version)
+	} else {
+		config = path
+	}
+
+	if utils.IsDirExist(config) == true {
+		os.RemoveAll(config)
+	}
+
+	if err := os.MkdirAll(config, os.ModePerm); err != nil {
+		return "", err
+	}
+
+	return config, nil
 }

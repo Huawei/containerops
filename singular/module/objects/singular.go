@@ -47,11 +47,12 @@ type SSH struct {
 
 // Component is
 type Component struct {
-	Binary  string `json:"binary" yaml:"binary"`
-	URL     string `json:"url" yaml:"url"`
-	Package bool   `json:"package" yaml:"package"`
-	Systemd string `json:"systemd" yaml:"systemd"`
-	CA      string `json:"ca" yaml:"ca"`
-	Before  string `json:"before" yaml:"before"`
-	After   string `json:"after" yaml:"after"`
+	Binary  string   `json:"binary" yaml:"binary"`
+	URL     string   `json:"url" yaml:"url"`
+	Package bool     `json:"package" yaml:"package"`
+	Systemd string   `json:"systemd" yaml:"systemd"`
+	CA      string   `json:"ca" yaml:"ca"`
+	Before  string   `json:"before" yaml:"before"`
+	After   string   `json:"after" yaml:"after"`
+	Logs    []string `json:"logs,omitempty" yaml:"logs,omitempty"`
 }

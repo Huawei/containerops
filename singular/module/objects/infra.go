@@ -18,8 +18,6 @@ package objects
 
 import (
 	"encoding/json"
-	"fmt"
-	"time"
 
 	"gopkg.in/yaml.v2"
 )
@@ -44,11 +42,6 @@ func (i *Infra) JSON() ([]byte, error) {
 //
 func (i *Infra) YAML() ([]byte, error) {
 	return yaml.Marshal(&i)
-}
-
-//
-func (i *Infra) Log(log string) {
-	i.Logs = append(i.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
 }
 
 func (i *Infra) Output(key, value string) {
