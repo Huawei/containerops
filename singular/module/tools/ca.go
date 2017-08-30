@@ -144,7 +144,7 @@ func GenerateCARootFiles(src string) (map[string]string, error) {
 //UploadCARootFiles upload root ca files to the node.
 func UploadCARootFiles(key string, files map[string]string, ip, user string, stdout io.Writer) error {
 	for _, f := range files {
-		if err := DownloadComponent(f, path.Join("/etc/kubernetes/ssl", path.Base(f)), ip, key, user, stdout); err != nil {
+		if _, err := DownloadComponent(f, path.Join("/etc/kubernetes/ssl", path.Base(f)), ip, key, user, stdout); err != nil {
 			return err
 		}
 	}

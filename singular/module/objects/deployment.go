@@ -84,17 +84,20 @@ func (d *Deployment) ParseFromFile(t string, output string) error {
 	return nil
 }
 
-func (d *Deployment) DownloadBinaryFile(file, url string, nodes map[string]string, stdout io.Writer) error {
-	for _, ip := range nodes {
+//Download binary file and change mode +x
+func (d *Deployment) DownloadBinaryFile(file, url string, nodes []Node, stdout io.Writer, timestamp bool) error {
+	for _, node := range nodes {
+		if downloadCmd, err := tools.DownloadComponent(url, path.Join(tools.BinaryServerPath, file), node.IP, d.Tools.SSH.Private, tools.DefaultSSHUser, stdout); err != nil {
+			return err
+		} else {
+			WriteLog(fmt.Sprintf("%s exec in %s node", downloadCmd, node.IP), stdout, timestamp, d, &node)
+		}
+
 		chmodCmd := fmt.Sprintf("chmod +x %s", path.Join(tools.BinaryServerPath, file))
-
-		if err := tools.DownloadComponent(url, path.Join(tools.BinaryServerPath, file), ip, d.Tools.SSH.Private, tools.DefaultSSHUser, stdout); err != nil {
+		if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, chmodCmd, stdout, os.Stderr); err != nil {
 			return err
 		}
-
-		if err := utils.SSHCommand("root", d.Tools.SSH.Private, ip, 22, chmodCmd, os.Stdout, os.Stderr); err != nil {
-			return err
-		}
+		WriteLog(fmt.Sprintf("%s exec in %s node", chmodCmd, node.IP), stdout, timestamp, d, &node)
 	}
 
 	return nil
