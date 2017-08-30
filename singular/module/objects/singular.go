@@ -22,17 +22,21 @@ import (
 	"time"
 )
 
+//Logger is log interface for infra and other objects.
 type Logger interface {
 	WriteLog(log string, writer io.Writer) error
 }
 
-func WriteLog(obj Logger, log string, writer io.Writer, timestamp bool) error {
+//WriteLog is global log function for Singular.
+func WriteLog(log string, writer io.Writer, timestamp bool, objects ...Logger) error {
 	if timestamp == true {
 		log = fmt.Sprintf("[%d] %s", time.Now().Unix(), log)
 	}
 
-	if err := obj.WriteLog(log, writer); err != nil {
-		return err
+	for _, obj := range objects {
+		if err := obj.WriteLog(log, writer); err != nil {
+			return err
+		}
 	}
 
 	return nil

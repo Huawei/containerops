@@ -94,8 +94,8 @@ func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.
 	d.Output("EtcdEndpoints", strings.Join(etcdEndpoints, ","))
 	d.Output("EtcdPeerEndpoints", strings.Join(etcdPeerEndpoints, ","))
 
-	objects.WriteLog(infra, d.Outputs["EtcdEndpoints"].(string), stdout, timestamp)
-	objects.WriteLog(infra, d.Outputs["EtcdPeerEndpoints"].(string), stdout, timestamp)
+	objects.WriteLog(d.Outputs["EtcdEndpoints"].(string), stdout, timestamp, d, infra)
+	objects.WriteLog(d.Outputs["EtcdPeerEndpoints"].(string), stdout, timestamp, d, infra)
 
 	// Infra output
 	infra.Output("EtcdEndpoints", strings.Join(etcdEndpoints, ","))
