@@ -18,7 +18,9 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"os"
+	"path"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -29,7 +31,7 @@ import (
 )
 
 var privateKey, publicKey, output string
-var db, delete bool
+var db, del bool
 
 var deployCmd = &cobra.Command{
 	Use:   "deploy",
@@ -56,18 +58,18 @@ func init() {
 	templateCmd.Flags().StringVarP(&publicKey, "public-key", "p", "", "ssh public identity file")
 	templateCmd.Flags().StringVarP(&output, "output", "o", "", "output data folder")
 	templateCmd.Flags().BoolVarP(&db, "db", "d", false, "save deploy data in database.")
-	templateCmd.Flags().BoolVarP(&delete, "delete", "r", false, "delete the nodes when deploy and test done.")
+	templateCmd.Flags().BoolVarP(&del, "delete", "r", false, "del the nodes when deploy and test done.")
 
 	viper.BindPFlag("private-key", templateCmd.Flags().Lookup("private-key"))
 	viper.BindPFlag("public-key", templateCmd.Flags().Lookup("public-key"))
 	viper.BindPFlag("output", templateCmd.Flags().Lookup("output"))
 	viper.BindPFlag("db", templateCmd.Flags().Lookup("db"))
-	viper.BindPFlag("delete", templateCmd.Flags().Lookup("delete"))
+	viper.BindPFlag("delete", templateCmd.Flags().Lookup("del"))
 }
 
-// Deploy the Cloud Native stack with a template file.
+//Deploy the Cloud Native stack with a template file.
 func templateRun(cmd *cobra.Command, args []string) {
-	// Check deploy template file.
+	//Check deploy template file.
 	if len(args) <= 0 || utils.IsFileExist(args[0]) == false {
 		fmt.Fprintf(os.Stderr, "The deploy template file is required, %s\n", "see https://github.com/Huawei/containerops for more detail.")
 		os.Exit(1)
@@ -76,25 +78,40 @@ func templateRun(cmd *cobra.Command, args []string) {
 	template := args[0]
 	d := new(objects.Deployment)
 
-	// Read template file and parse.
-	if err := d.ParseFromFile(template, verbose, timestamp, output); err != nil {
+	//Read template file and parse.
+	if err := d.ParseFromFile(template, output); err != nil {
 		fmt.Fprintf(os.Stderr, "Parse deploy template error: %s\n", err.Error())
 		os.Exit(1)
 	}
 
-	// Set private key file.
+	//Set private key file path.
 	if privateKey != "" {
 		d.Tools.SSH.Private, d.Tools.SSH.Public = privateKey, publicKey
 	}
 
+	//The integrity checking of deploy template.
 	if err := d.Check(); err != nil {
 		fmt.Fprintf(os.Stderr, "Parse deploy template error: %s\n", err.Error())
 		os.Exit(1)
 	}
 
-	if err := module.DeployInfraStacks(d, db); err != nil {
+	//Set log and error io.Writer
+	var logWriters io.Writer
+
+	//Generate stdout/stderr io.Writer
+	stdoutFile, _ := os.Create(path.Join(d.Config, "deploy.log"))
+	defer stdoutFile.Close()
+
+	//Using MultiWriter log and error.
+	if verbose == true {
+		logWriters = io.MultiWriter(stdoutFile, os.Stdout)
+	} else {
+		logWriters = io.MultiWriter(stdoutFile)
+	}
+
+	//Deploy cloud native stack
+	if err := module.DeployInfraStacks(d, db, logWriters, timestamp); err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		os.Exit(1)
 	}
-
 }

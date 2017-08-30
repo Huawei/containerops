@@ -18,6 +18,7 @@ package service
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"time"
 
@@ -37,9 +38,21 @@ type DigitalOcean struct {
 	Size     string         `json:"size" yaml:"size"`
 	Image    string         `json:"image" yaml:"image"`
 	Droplets map[string]int `json:"droplets,omitempty" yaml:"droplets,omitempty"`
+	Logs     []string       `json:"logs,omitempty" yaml:"logs,omitempty"`
 
 	// Runtime Properties
 	client *godo.Client
+}
+
+//WriteLog implement Logger interface.
+func (d *DigitalOcean) WriteLog(log string, writer io.Writer) error {
+	d.Logs = append(d.Logs, log)
+
+	if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // TokenSource is access token of DigitalOcean
@@ -67,7 +80,7 @@ func (do *DigitalOcean) InitClient() error {
 }
 
 // TODO Customize SSH key name.
-func (do *DigitalOcean) UpdateSSHKey(publicFile string) error {
+func (do *DigitalOcean) UploadSSHKey(publicFile string) error {
 	if public, err := ioutil.ReadFile(publicFile); err != nil {
 		return err
 	} else {
@@ -85,7 +98,6 @@ func (do *DigitalOcean) UpdateSSHKey(publicFile string) error {
 	return nil
 }
 
-// TODO Customize Droplet name and tag.
 func (do *DigitalOcean) CreateDroplet(nodes int, fingerprint, name string, tags []string) error {
 	names := []string{}
 

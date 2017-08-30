@@ -16,11 +16,50 @@ limitations under the License.
 
 package objects
 
+import (
+	"fmt"
+	"io"
+	"time"
+)
+
+//Logger is log interface for infra and other objects.
+type Logger interface {
+	WriteLog(log string, writer io.Writer) error
+}
+
+//WriteLog is global log function for Singular.
+func WriteLog(log string, writer io.Writer, timestamp bool, objects ...Logger) error {
+	if timestamp == true {
+		log = fmt.Sprintf("[%d] %s", time.Now().Unix(), log)
+	}
+
+	for _, obj := range objects {
+		if err := obj.WriteLog(log, writer); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // Node is
 type Node struct {
-	IP     string `json:"ip" yaml:"ip"`
-	User   string `json:"user" yaml:"user"`
-	Distro string `json:"distro" yaml:"distro"`
+	ID     int      `json:"id" yaml:"id"`
+	IP     string   `json:"ip" yaml:"ip"`
+	User   string   `json:"user" yaml:"user"`
+	Distro string   `json:"distro" yaml:"distro"`
+	Logs   []string `json:"logs,omitempty" yaml:"logs,omitempty"`
+}
+
+//WriteLog implement Logger interface.
+func (n *Node) WriteLog(log string, writer io.Writer) error {
+	n.Logs = append(n.Logs, log)
+
+	if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Service is
@@ -47,11 +86,23 @@ type SSH struct {
 
 // Component is
 type Component struct {
-	Binary  string `json:"binary" yaml:"binary"`
-	URL     string `json:"url" yaml:"url"`
-	Package bool   `json:"package" yaml:"package"`
-	Systemd string `json:"systemd" yaml:"systemd"`
-	CA      string `json:"ca" yaml:"ca"`
-	Before  string `json:"before" yaml:"before"`
-	After   string `json:"after" yaml:"after"`
+	Binary  string   `json:"binary" yaml:"binary"`
+	URL     string   `json:"url" yaml:"url"`
+	Package bool     `json:"package" yaml:"package"`
+	Systemd string   `json:"systemd" yaml:"systemd"`
+	CA      string   `json:"ca" yaml:"ca"`
+	Before  string   `json:"before" yaml:"before"`
+	After   string   `json:"after" yaml:"after"`
+	Logs    []string `json:"logs,omitempty" yaml:"logs,omitempty"`
+}
+
+//WriteLog implement Logger interface.
+func (c *Component) WriteLog(log string, writer io.Writer) error {
+	c.Logs = append(c.Logs, log)
+
+	if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
+		return err
+	}
+
+	return nil
 }

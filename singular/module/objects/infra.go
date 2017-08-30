@@ -18,10 +18,10 @@ package objects
 
 import (
 	"encoding/json"
-	"fmt"
-	"time"
 
+	"fmt"
 	"gopkg.in/yaml.v2"
+	"io"
 )
 
 // Infra is
@@ -36,6 +36,17 @@ type Infra struct {
 	Outputs    map[string]interface{} `json:"-" yaml:"-"`
 }
 
+//WriteLog implement Logger interface.
+func (i *Infra) WriteLog(log string, writer io.Writer) error {
+	i.Logs = append(i.Logs, log)
+
+	if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // JSON export deployment data
 func (i *Infra) JSON() ([]byte, error) {
 	return json.Marshal(&i)
@@ -44,11 +55,6 @@ func (i *Infra) JSON() ([]byte, error) {
 //
 func (i *Infra) YAML() ([]byte, error) {
 	return yaml.Marshal(&i)
-}
-
-//
-func (i *Infra) Log(log string) {
-	i.Logs = append(i.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
 }
 
 func (i *Infra) Output(key, value string) {

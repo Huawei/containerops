@@ -17,6 +17,7 @@ limitations under the License.
 package tools
 
 import (
+	"io"
 	"os"
 	"strings"
 
@@ -28,33 +29,42 @@ const (
 	DistroCentOS = "centos"
 )
 
-func InitializationEnvironment(key, ip, user, distro string) error {
-	if err := initFolders(key, ip, user); err != nil {
-		return err
+//InitializationEnvironment init the environment of node.
+func InitializationEnvironment(key, ip, user, distro string, stdout io.Writer) ([]string, error) {
+	var commands []string
+
+	if cmd, err := initFolders(key, ip, user, stdout); err != nil {
+		return commands, err
+	} else {
+		commands = append(commands, strings.Join(cmd, " && "))
 	}
 
-	if err := initEnvironment(key, ip, user, distro); err != nil {
-		return err
+	if cmd, err := initEnvironment(key, ip, user, distro, stdout); err != nil {
+		return commands, err
+	} else {
+		commands = append(commands, strings.Join(cmd, " && "))
 	}
 
-	return nil
+	return commands, nil
 }
 
-func initFolders(key, ip, user string) error {
+//initFolders mkdir etc and data folder in the node.
+func initFolders(key, ip, user string, stdout io.Writer) ([]string, error) {
 	initCmd := []string{
 		"mkdir -p /etc/kubernetes/ssl",
 		"mkdir -p /etc/etcd/ssl",
 		"mkdir -p /var/lib/etcd",
 	}
 
-	if err := utils.SSHCommand(user, key, ip, 22, strings.Join(initCmd, " && "), os.Stdout, os.Stderr); err != nil {
-		return err
+	if err := utils.SSHCommand(user, key, ip, DefaultSSHPort, strings.Join(initCmd, " && "), stdout, os.Stderr); err != nil {
+		return initCmd, err
 	}
 
-	return nil
+	return initCmd, nil
 }
 
-func initEnvironment(key, ip, user, distro string) error {
+//initEnvironment init the environment of node for deployment Cloud Native stack.
+func initEnvironment(key, ip, user, distro string, stdout io.Writer) ([]string, error) {
 	initCmd := map[string][]string{
 		DistroUbuntu: []string{
 			"systemctl stop ufw",
@@ -63,9 +73,9 @@ func initEnvironment(key, ip, user, distro string) error {
 		DistroCentOS: []string{},
 	}
 
-	if err := utils.SSHCommand(user, key, ip, 22, strings.Join(initCmd[distro], " && "), os.Stdout, os.Stderr); err != nil {
-		return err
+	if err := utils.SSHCommand(user, key, ip, DefaultSSHPort, strings.Join(initCmd[distro], " && "), stdout, os.Stderr); err != nil {
+		return initCmd[distro], err
 	}
 
-	return nil
+	return initCmd[distro], nil
 }
