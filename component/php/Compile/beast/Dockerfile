@@ -18,6 +18,12 @@ MAINTAINER Yang Bin <yangkghjh@gmail.com>
 RUN mkdir -p /root/src
 ADD / /root/src
 
+WORKDIR /root
+RUN git clone https://github.com/liexusong/php-beast.git && \
+    cd php-beast/ && phpize && ./configure && \
+    make && make install
+ADD php.ini /usr/local/etc/php/php.ini
+
 WORKDIR /root/src
 
-CMD ./bin/containerops-php Composer
+CMD ./bin/containerops-php Beast

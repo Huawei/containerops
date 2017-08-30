@@ -15,9 +15,18 @@
 FROM hub.opshub.sh/binary/v1/containerops/component/binary/php:0.1
 MAINTAINER Yang Bin <yangkghjh@gmail.com>
 
+# RUN useradd --create-home --no-log-init --shell /bin/bash composer
+# RUN adduser composer sudoRUN echo 'composer:composer' | chpasswd
+# USER composer
+
+USER root
+
+RUN composer global require "sebastian/phpcpd";
+ENV PATH ~/.composer/vendor/bin:$PATH
+
 RUN mkdir -p /root/src
 ADD / /root/src
 
 WORKDIR /root/src
 
-CMD ./bin/containerops-php Composer
+CMD ./bin/containerops-php Phpcpd

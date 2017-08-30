@@ -20,4 +20,4 @@ ADD / /root/src
 
 WORKDIR /root/src
 
-CMD ./bin/containerops-php Composer
+CMD ./bin/containerops-php Cli
