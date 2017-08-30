@@ -118,7 +118,7 @@ func (f *Flow) LocalRun(verbose, timestamp bool) error {
 		f.Log(fmt.Sprintf("Parse Flow [%s] error: %s", f.URI, err.Error()), verbose, timestamp)
 	}
 	content, _ := f.JSON()
-	flowID, err := flow.Create(namespace, repository, name, f.Tag, f.Title, string(content), f.Version, f.Timeout)
+	flowID, err := flow.Put(namespace, repository, name, f.Tag, f.Title, string(content), f.Version, f.Timeout)
 	if err != nil {
 		f.Log(fmt.Sprintf("Save Flow [%s] error: %s", f.URI, err.Error()), verbose, timestamp)
 	}
@@ -139,14 +139,14 @@ func (f *Flow) LocalRun(verbose, timestamp bool) error {
 		case NormalStage:
 			switch stage.Sequencing {
 			case Parallel:
-				if status, err := stage.ParallelRun(verbose, timestamp, f); err != nil {
+				if status, err := stage.ParallelRun(verbose, timestamp, f, i); err != nil {
 					f.Status = Failure
 					f.Log(fmt.Sprintf("Stage [%s] run error: %s", stage.Name, err.Error()), verbose, timestamp)
 				} else {
 					f.Status = status
 				}
 			case Sequencing:
-				if status, err := stage.SequencingRun(verbose, timestamp, f); err != nil {
+				if status, err := stage.SequencingRun(verbose, timestamp, f, i); err != nil {
 					f.Status = Failure
 					f.Log(fmt.Sprintf("Stage [%s] run error: %s", stage.Name, err.Error()), verbose, timestamp)
 				} else {
@@ -168,8 +168,11 @@ func (f *Flow) LocalRun(verbose, timestamp bool) error {
 		}
 	}
 
-	// TODO number increase
-	if err := flowData.Create(f.ID, 1, f.Status, startTime, time.Now()); err != nil {
+	currentNumber, err := flowData.GetNumbers(flowID)
+	if err != nil {
+		f.Log(fmt.Sprintf("Get Flow Data [%s] Numbers error: %s", f.URI, err.Error()), verbose, timestamp)
+	}
+	if err := flowData.Put(f.ID, currentNumber+1, f.Status, startTime, time.Now()); err != nil {
 		f.Log(fmt.Sprintf("Save Flow Data [%s] error: %s", f.URI, err.Error()), verbose, timestamp)
 	}
 

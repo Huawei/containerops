@@ -40,7 +40,7 @@ func (a *Action) Log(log string, verbose, timestamp bool) {
 	}
 }
 
-func (a *Action) Run(verbose, timestamp bool, f *Flow) (string, error) {
+func (a *Action) Run(verbose, timestamp bool, f *Flow, stageIndex, actionIndex int) (string, error) {
 	a.Status = Running
 
 	a.Log(fmt.Sprintf("Action [%s] status change to %s", a.Name, a.Status), false, timestamp)
@@ -48,8 +48,7 @@ func (a *Action) Run(verbose, timestamp bool, f *Flow) (string, error) {
 
 	// Save Action into database
 	action := new(model.ActionV1)
-	//TODO save stageID, NOT flowID
-	actionID, err := action.Create(f.ID, a.Name, a.Title)
+	actionID, err := action.Put(f.Stages[stageIndex].ID, a.Name, a.Title)
 	if err != nil {
 		a.Log(fmt.Sprintf("Save Action [%s] error: %s", a.Name, err.Error()), false, timestamp)
 	}
@@ -64,8 +63,7 @@ func (a *Action) Run(verbose, timestamp bool, f *Flow) (string, error) {
 
 		a.Log(fmt.Sprintf("The Number [%d] job is running: %s", i, a.Title), false, timestamp)
 		f.Log(fmt.Sprintf("The Number [%d] job is running: %s", i, a.Title), verbose, timestamp)
-
-		if status, err := job.Run(a.Name, verbose, timestamp, f); err != nil {
+		if status, err := job.Run(a.Name, verbose, timestamp, f, stageIndex, actionIndex); err != nil {
 			a.Status = Failure
 
 			a.Log(fmt.Sprintf("Job [%d] run error: %s", i, err.Error()), false, timestamp)
@@ -81,8 +79,11 @@ func (a *Action) Run(verbose, timestamp bool, f *Flow) (string, error) {
 
 	}
 
-	// TODO number increase
-	if err := actionData.Create(a.ID, 1, a.Status, startTime, time.Now()); err != nil {
+	currentNumber, err := actionData.GetNumbers(a.ID)
+	if err != nil {
+		f.Log(fmt.Sprintf("Get action Data [%s] Numbers error: %s", a.Name, err.Error()), verbose, timestamp)
+	}
+	if err := actionData.Put(a.ID, currentNumber+1, a.Status, startTime, time.Now()); err != nil {
 		a.Log(fmt.Sprintf("Save Action Data [%s] error: %s", a.Name, err.Error()), false, timestamp)
 	}
 
