@@ -68,7 +68,7 @@ func (s *Stage) SequencingRun(verbose, timestamp bool, f *Flow, stageIndex int) 
 		s.Log(fmt.Sprintf("The Number [%d] action is running: %s", i, s.Title), false, timestamp)
 		f.Log(fmt.Sprintf("The Number [%d] action is running: %s", i, s.Title), verbose, timestamp)
 
-		if status, err := action.Run(verbose, timestamp, f, stageIndex,i); err != nil {
+		if status, err := action.Run(verbose, timestamp, f, stageIndex, i); err != nil {
 			s.Status = Failure
 
 			s.Log(fmt.Sprintf("Action [%s] run error: %s", action.Name, err.Error()), false, timestamp)
@@ -123,7 +123,7 @@ func (s *Stage) ParallelRun(verbose, timestamp bool, f *Flow, stageIndex int) (s
 			s.Log(fmt.Sprintf("The Number [%d] action is running: %s", index, s.Title), false, timestamp)
 			f.Log(fmt.Sprintf("The Number [%d] action is running: %s", index, s.Title), verbose, timestamp)
 
-			if status, err := action.Run(verbose, timestamp, f, stageIndex, i); err != nil {
+			if status, err := action.Run(verbose, timestamp, f, stageIndex, index); err != nil {
 				tempStaus = Failure
 
 				s.Log(fmt.Sprintf("Action [%s] run error: %s", action.Name, err.Error()), false, timestamp)
@@ -141,18 +141,18 @@ func (s *Stage) ParallelRun(verbose, timestamp bool, f *Flow, stageIndex int) (s
 			count++
 			s.Status = result
 			if result == Failure || result == Cancel || count == len(s.Actions) {
+
+				currentNumber, err := stageData.GetNumbers(stageID)
+				if err != nil {
+					s.Log(fmt.Sprintf("Get Stage Data [%s] Numbers error: %s", s.Name, err.Error()), verbose, timestamp)
+				}
+				if err := stageData.Put(s.ID, currentNumber+1, s.Status, startTime, time.Now()); err != nil {
+					s.Log(fmt.Sprintf("Save Stage Data [%s] error: %s", s.Name, err.Error()), false, timestamp)
+				}
+
 				return s.Status, nil
 			}
 		}
-	}
 
-	currentNumber, err := stageData.GetNumbers(stageID)
-	if err != nil {
-		s.Log(fmt.Sprintf("Get Stage Data [%s] Numbers error: %s", s.Name, err.Error()), verbose, timestamp)
 	}
-	if err := stageData.Put(s.ID, currentNumber+1, s.Status, startTime, time.Now()); err != nil {
-		s.Log(fmt.Sprintf("Save Stage Data [%s] error: %s", s.Name, err.Error()), false, timestamp)
-	}
-
-	return s.Status, nil
 }

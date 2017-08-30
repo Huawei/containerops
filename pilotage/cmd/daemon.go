@@ -95,6 +95,9 @@ func init() {
 
 // runDaemonFlow is
 func runDaemonFlow(cmd *cobra.Command, args []string) {
+	model.OpenDatabase(&common.Database)
+	model.Migrate()
+
 	if len(args) <= 0 || utils.IsFileExist(args[0]) == false {
 		cmd.Println(Red("The orchestration flow file is required."))
 		os.Exit(1)
