@@ -44,10 +44,22 @@ func WriteLog(log string, writer io.Writer, timestamp bool, objects ...Logger) e
 
 // Node is
 type Node struct {
-	ID     int    `json:"id" yaml:"id"`
-	IP     string `json:"ip" yaml:"ip"`
-	User   string `json:"user" yaml:"user"`
-	Distro string `json:"distro" yaml:"distro"`
+	ID     int      `json:"id" yaml:"id"`
+	IP     string   `json:"ip" yaml:"ip"`
+	User   string   `json:"user" yaml:"user"`
+	Distro string   `json:"distro" yaml:"distro"`
+	Logs   []string `json:"logs,omitempty" yaml:"logs,omitempty"`
+}
+
+//WriteLog implement Logger interface.
+func (n *Node) WriteLog(log string, writer io.Writer) error {
+	n.Logs = append(n.Logs, log)
+
+	if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Service is

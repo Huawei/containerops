@@ -40,28 +40,28 @@ import (
 )
 
 const (
-	// EtcdMinimalNodes is minimal etcd nodes number.
+	//EtcdMinimalNodes is minimal etcd nodes number.
 	EtcdMinimalNodes = 2
-	// EtcdServerConfig is etcd config location in the node.
+	//EtcdServerConfig is etcd config location in the node.
 	EtcdServerConfig = "/etc/etcd"
-	// EtcdServerSSL is the etcd ssl files folder name in the node.
-	// Full path is /etc/etcd/ssl
+	//EtcdServerSSL is the etcd ssl files folder name in the node.
+	//Full path is /etc/etcd/ssl
 	EtcdServerSSL = "ssl"
 )
 
-// EtcdEndpoint is the etcd node struct.
+//EtcdEndpoint is the etcd node struct.
 type EtcdEndpoint struct {
 	IP    string
 	Name  string
 	Nodes string
 }
 
-// DeployEtcdInCluster deploy etcd cluster.
-// Notes:
-//   1. Only count master nodes in etcd deploy process.
-//   2.
+//DeployEtcdInCluster deploy etcd cluster.
+//Notes:
+//  1. Only count master nodes in etcd deploy process.
+//  2.
 func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.Writer, timestamp bool) error {
-	// Check master node number.
+	//Check master node number.
 	if infra.Master > len(d.Nodes) {
 		return fmt.Errorf("deploy %s nodes more than %d", infra.Name, len(d.Nodes))
 	}
@@ -70,42 +70,45 @@ func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.
 		return fmt.Errorf("etcd node no less than %d nodes", EtcdMinimalNodes)
 	}
 
-	// Init nodes, endpoints and adminEndpoints parameters.
+	//Init nodes, endpoints and adminEndpoints parameters.
 	etcdNodes := map[string]string{}
 	etcdEndpoints, etcdPeerEndpoints := []string{}, []string{}
 
-	// Get nodes from outputs of Deployment to determine etcd cluster nodes.
-	// TODO Now just choose the first nodes of list. Should have a algorithm and filers determined.
+	//Get nodes from outputs of Deployment to determine etcd cluster nodes.
+	//TODO Now just choose the first nodes of list. Should have a algorithm and filers determined.
 	for i := 0; i < infra.Master; i++ {
-		// Etcd Notes
+		//Etcd Notes
 		etcdNodes[fmt.Sprintf("etcd-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
 
-		// Etcd endpoints for client
+		//Etcd endpoints for client
 		etcdEndpoints = append(etcdEndpoints,
 			fmt.Sprintf("https://%s:2379", d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)))
 
-		// Etcd admin endpoints for peer
+		//Etcd admin endpoints for peer
 		etcdPeerEndpoints = append(etcdPeerEndpoints,
 			fmt.Sprintf("%s=https://%s:2380", fmt.Sprintf("etcd-node-%d", i),
 				d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)))
 	}
 
-	// Deployment output
+	//Deployment output
 	d.Output("EtcdEndpoints", strings.Join(etcdEndpoints, ","))
 	d.Output("EtcdPeerEndpoints", strings.Join(etcdPeerEndpoints, ","))
+
+	//Infra output
+	infra.Output("EtcdEndpoints", strings.Join(etcdEndpoints, ","))
+	infra.Output("EtcdPeerEndpoints", strings.Join(etcdPeerEndpoints, ","))
 
 	objects.WriteLog(d.Outputs["EtcdEndpoints"].(string), stdout, timestamp, d, infra)
 	objects.WriteLog(d.Outputs["EtcdPeerEndpoints"].(string), stdout, timestamp, d, infra)
 
-	// Infra output
-	infra.Output("EtcdEndpoints", strings.Join(etcdEndpoints, ","))
-	infra.Output("EtcdPeerEndpoints", strings.Join(etcdPeerEndpoints, ","))
-
-	// Generate Etcd CA Files
-	if err := generateEtcdFiles(d.Config, etcdNodes, strings.Join(etcdPeerEndpoints, ","), infra.Version); err != nil {
+	//Generate Etcd CA/Systemd/Config Files
+	if files, err := generateEtcdFiles(d.Config, etcdNodes, strings.Join(etcdPeerEndpoints, ","), infra.Version); err != nil {
 		return err
+	} else {
+		objects.WriteLog(fmt.Sprintf("Etcd config files: [%v]", files), stdout, timestamp, d, infra)
 	}
 
+	//Upload Etcd files to node
 	if err := uploadEtcdFiles(d.Config, d.Tools.SSH.Private, etcdNodes, tools.DefaultSSHUser, stdout); err != nil {
 		return err
 	}
@@ -124,7 +127,9 @@ func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.
 }
 
 // Generate Etcd CA SSL and Systemd service Files
-func generateEtcdFiles(src string, nodes map[string]string, etcdEndpoints string, version string) error {
+func generateEtcdFiles(src string, nodes map[string]string, etcdEndpoints string, version string) (map[string]map[string]string, error) {
+	result := map[string]map[string]string{}
+
 	// If ca file exist, remove it.
 	sslBase := path.Join(src, tools.CAFilesFolder, tools.CAEtcdFolder)
 	if utils.IsDirExist(sslBase) == true {
@@ -148,7 +153,7 @@ func generateEtcdFiles(src string, nodes map[string]string, etcdEndpoints string
 	caKeyFile := path.Join(src, tools.CAFilesFolder, tools.CARootFilesFolder, tools.CARootKeyFile)
 	configFile := path.Join(src, tools.CAFilesFolder, tools.CARootFilesFolder, tools.CARootConfigFile)
 
-	// Loop etcd nodes and generate CA files.
+	// Loop Etcd nodes and generate CA files.
 	for name, ip := range nodes {
 		// Mkdir with node ip.
 		if utils.IsDirExist(path.Join(sslBase, ip)) == false {
@@ -166,23 +171,36 @@ func generateEtcdFiles(src string, nodes map[string]string, etcdEndpoints string
 		}
 
 		// Generate Etcd SSL files
-		if err := generateEtcdSSLFiles(caFile, caKeyFile, configFile, node, version, sslBase, ip); err != nil {
-			return err
+		if files, err := generateEtcdSSLFiles(caFile, caKeyFile, configFile, node, version, sslBase, ip); err != nil {
+			return result, err
+		} else {
+			for k, v := range files {
+				result[ip][k] = v
+			}
 		}
 
 		// Generate Etcd Systemd File
-		if err := generateEtcdServiceFile(node, version, serviceBase, ip); err != nil {
-			return err
+		if files, err := generateEtcdServiceFile(node, version, serviceBase, ip); err != nil {
+			for k, v := range files {
+				result[ip][k] = v
+			}
 		}
 	}
 
-	return nil
+	return result, nil
 }
 
 // generateEtcdSSLFiles generate ssl file with node information.
-func generateEtcdSSLFiles(caFile, caKeyFile, configFile string, node EtcdEndpoint, version, base, ip string) error {
+func generateEtcdSSLFiles(caFile, caKeyFile, configFile string, node EtcdEndpoint, version, base, ip string) (map[string]string, error) {
 	var tpl bytes.Buffer
 	var err error
+
+	files := map[string]string{
+		tools.CAEtcdCSRConfigFile: path.Join(base, ip, tools.CAEtcdCSRConfigFile),
+		tools.CAEtcdKeyPemFile:    path.Join(base, ip, tools.CAEtcdKeyPemFile),
+		tools.CAEtcdCSRFile:       path.Join(base, ip, tools.CAEtcdCSRFile),
+		tools.CAEtcdPemFile:       path.Join(base, ip, tools.CAEtcdPemFile),
+	}
 
 	// Generate csr file
 	sslTp := template.New("etcd-csr")
@@ -197,7 +215,7 @@ func generateEtcdSSLFiles(caFile, caKeyFile, configFile string, node EtcdEndpoin
 	// Unmarshal csr to certificate request
 	err = json.Unmarshal(csrFileBytes, &req)
 	if err != nil {
-		return err
+		return files, err
 	}
 
 	// Generate key file and others.
@@ -205,7 +223,7 @@ func generateEtcdSSLFiles(caFile, caKeyFile, configFile string, node EtcdEndpoin
 	g := &csr.Generator{Validator: genkey.Validator}
 	csrBytes, key, err = g.ProcessRequest(&req)
 	if err != nil {
-		return err
+		return files, err
 	}
 
 	c := cli.Config{
@@ -218,7 +236,7 @@ func generateEtcdSSLFiles(caFile, caKeyFile, configFile string, node EtcdEndpoin
 
 	s, err := sign.SignerFromConfig(c)
 	if err != nil {
-		return err
+		return files, err
 	}
 
 	var cert []byte
@@ -230,35 +248,38 @@ func generateEtcdSSLFiles(caFile, caKeyFile, configFile string, node EtcdEndpoin
 
 	cert, err = s.Sign(signReq)
 	if err != nil {
-		return err
+		return files, err
 	}
 
-	err = ioutil.WriteFile(path.Join(base, ip, tools.CAEtcdCSRConfigFile), csrFileBytes, 0600)
-	err = ioutil.WriteFile(path.Join(base, ip, tools.CAEtcdKeyPemFile), key, 0600)
-	err = ioutil.WriteFile(path.Join(base, ip, tools.CAEtcdCSRFile), csrBytes, 0600)
-	err = ioutil.WriteFile(path.Join(base, ip, tools.CAEtcdPemFile), cert, 0600)
+	err = ioutil.WriteFile(files[tools.CAEtcdCSRConfigFile], csrFileBytes, 0600)
+	err = ioutil.WriteFile(files[tools.CAEtcdKeyPemFile], key, 0600)
+	err = ioutil.WriteFile(files[tools.CAEtcdCSRFile], csrBytes, 0600)
+	err = ioutil.WriteFile(files[tools.CAEtcdPemFile], cert, 0600)
 
 	if err != nil {
-		return err
+		return files, err
 	}
 
-	return nil
+	return files, nil
 }
 
 // generateEtcdServiceFile generate systemd service file
-func generateEtcdServiceFile(node EtcdEndpoint, version, base, ip string) error {
+func generateEtcdServiceFile(node EtcdEndpoint, version, base, ip string) (map[string]string, error) {
 	var serviceTpl bytes.Buffer
+	files := map[string]string{}
+
+	files[tools.ServiceEtcdFile] = path.Join(base, ip, tools.ServiceEtcdFile)
 
 	serviceTp := template.New("etcd-systemd")
 	serviceTp, _ = serviceTp.Parse(t.EtcdSystemdTemplate[version])
 	serviceTp.Execute(&serviceTpl, node)
 	serviceTpFileBytes := serviceTpl.Bytes()
 
-	if err := ioutil.WriteFile(path.Join(base, ip, tools.ServiceEtcdFile), serviceTpFileBytes, 0700); err != nil {
-		return err
+	if err := ioutil.WriteFile(files[tools.ServiceEtcdFile], serviceTpFileBytes, 0700); err != nil {
+		return files, err
 	}
 
-	return nil
+	return files, nil
 }
 
 // upload Etcd SSL files and systemd file to nodes

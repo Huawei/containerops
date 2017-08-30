@@ -80,7 +80,7 @@ func (do *DigitalOcean) InitClient() error {
 }
 
 // TODO Customize SSH key name.
-func (do *DigitalOcean) UpdateSSHKey(publicFile string) error {
+func (do *DigitalOcean) UploadSSHKey(publicFile string) error {
 	if public, err := ioutil.ReadFile(publicFile); err != nil {
 		return err
 	} else {
