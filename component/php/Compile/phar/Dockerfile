@@ -15,9 +15,12 @@
 FROM hub.opshub.sh/binary/v1/containerops/component/binary/php:0.1
 MAINTAINER Yang Bin <yangkghjh@gmail.com>
 
+USER root
+
 RUN mkdir -p /root/src
 ADD / /root/src
+ADD php.ini /usr/local/etc/php/php.ini
 
 WORKDIR /root/src
 
-CMD ./bin/containerops-php Composer
+CMD ./bin/containerops-php Phars

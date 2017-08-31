@@ -15,9 +15,18 @@
 FROM hub.opshub.sh/binary/v1/containerops/component/binary/php:0.1
 MAINTAINER Yang Bin <yangkghjh@gmail.com>
 
+USER root
+
+RUN apt-get update && apt-get install -y libxslt-dev
+ADD xsl.so /usr/local/lib/php/extensions/no-debug-non-zts-20160303/xsl.so
+ADD php.ini /usr/local/etc/php/php.ini
+RUN composer global require "theseer/phpdox";
+ENV PATH ~/.composer/vendor/bin:$PATH
+RUN apt-get install -y php-xsl
+
 RUN mkdir -p /root/src
 ADD / /root/src
 
 WORKDIR /root/src
 
-CMD ./bin/containerops-php Composer
+CMD ./bin/containerops-php Phpdox

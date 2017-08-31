@@ -24,11 +24,7 @@ RUN curl -sSL https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz -
     mkdir -p /var/opt/gopath && \
     chmod -R 777 /var/opt/gopath
 
-ENV GOROOT /var/opt/go
-ENV GOPATH /var/opt/gopath
-ENV PATH $PATH:$GOROOT/bin:$GOPATH:/bin:$GOPATH/src/github.com/Huawei/containerops
-
-RUN apt-get update && apt-get install -y git
+RUN apt-get update && apt-get install -y git php-mongodb
 
 RUN php -r "copy('https://install.phpcomposer.com/installer', 'composer-setup.php');"; \
     php composer-setup.php; \

@@ -1,0 +1,20 @@
+#!/usr/local/bin/php
+<?php
+define("WORK_DIR", "./workspace");
+
+require_once("./src/util/Stdout.php");
+
+spl_autoload_register(function ($name) {
+    $util = ["Git", "Env"];
+    if (in_array($name, $util)) {
+        require_once("./src/util/$name.php");
+    }
+    else {
+        require_once("./src/component/$name.php");
+    }
+});
+
+$input = $argv[1];
+
+$input::exec(Env::load());
+?>
