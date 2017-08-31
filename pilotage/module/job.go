@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"sync"
 	"time"
 
 	. "github.com/logrusorgru/aurora"
@@ -22,6 +23,11 @@ import (
 	"github.com/Huawei/containerops/pilotage/model"
 )
 
+var (
+	Rlock         sync.RWMutex
+	GlobalOutputs map[string]string
+)
+
 // Job is
 type Job struct {
 	ID            int64               `json:"-" yaml:"-"`
@@ -34,7 +40,7 @@ type Job struct {
 	Resources     Resource            `json:"resources" yaml:"resources"`
 	Logs          []string            `json:"logs,omitempty" yaml:"logs,omitempty"`
 	Environments  []map[string]string `json:"environments" yaml:"environments"`
-	Outputs       []map[string]string `json:"outputs,omitempty" yaml:"outputs,omitempty"`
+	Outputs       []string            `json:"outputs,omitempty" yaml:"outputs,omitempty"`
 	Subscriptions []map[string]string `json:"subscriptions,omitempty" yaml:"subscriptions,omitempty"`
 }
 
@@ -44,12 +50,15 @@ type Resource struct {
 	Memory string `json:"memory" yaml:"memory"`
 }
 
+func init() {
+	GlobalOutputs = make(map[string]string)
+}
+
 // TODO filter the log print with different color.
 func (j *Job) Log(log string, verbose, timestamp bool) {
 	j.Logs = append(j.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
 	l := new(model.LogV1)
-	//TODO fill in phaseID
-	l.Create(model.INFO, model.JOB, 0, log)
+	l.Create(model.INFO, model.JOB, j.ID, log)
 
 	if verbose == true {
 		if timestamp == true {
@@ -68,8 +77,6 @@ func (j *Job) Run(name string, verbose, timestamp bool, f *Flow, stageIndex, act
 	environments, _ := json.Marshal(j.Environments)
 	outputs, _ := json.Marshal(j.Outputs)
 	subscriptions, _ := json.Marshal(j.Subscriptions)
-	//tmpjson,_:=f.JSON()
-	//fmt.Println(string(tmpjson))
 	jobID, err := job.Put(f.Stages[stageIndex].Actions[actionIndex].ID, j.Timeout, j.Name, j.T, j.Endpoint, string(resources), string(environments), string(outputs), string(subscriptions))
 	if err != nil {
 		j.Log(fmt.Sprintf("Save Job [%s] error: %s", j.Name, err.Error()), false, timestamp)
@@ -161,6 +168,10 @@ func (j *Job) Run(name string, verbose, timestamp bool, f *Flow, stageIndex, act
 						j.Status = Failure
 						return Failure, nil
 					}
+					if strings.Contains(line, "[COUT]") && len(j.Outputs) != 0 {
+						j.GetOutputs(f.Stages[stageIndex].Name, f.Stages[stageIndex].Actions[actionIndex].Name, line)
+					}
+
 					j.Status = Running
 
 					j.Log(line, false, timestamp)
@@ -173,6 +184,20 @@ func (j *Job) Run(name string, verbose, timestamp bool, f *Flow, stageIndex, act
 	j.Status = Success
 
 	return Success, nil
+}
+
+func (j *Job) GetOutputs(stageName, actionName, log string) error {
+	output := strings.TrimPrefix(log, "[COUT]")
+	splits := strings.Split(output, "=")
+	for _, o := range j.Outputs {
+		if strings.TrimSpace(o) == strings.TrimSpace(splits[0]) {
+			key := fmt.Sprintf("%s.%s.%s[%s]", stageName, actionName, j.Name, o)
+			Rlock.Lock()
+			GlobalOutputs[key] = strings.TrimSpace(splits[1])
+			Rlock.Unlock()
+		}
+	}
+	return nil
 }
 
 func (r *Resource) JSON() ([]byte, error) {
