@@ -44,11 +44,14 @@ func DeployDockerInCluster(d *objects.Deployment, infra *objects.Infra, stdout i
 	//Generate Docker systemd file
 	if files, err := generateDockerFiles(d.Config, nodes, infra.Version); err != nil {
 		return err
-	}
+	} else {
+		objects.WriteLog(fmt.Sprintf("Docker CA/Systemd/config files: [%v]", files), stdout, timestamp, d, infra)
+		objects.WriteLog(fmt.Sprintf("Upload Docker CA/Systemd/config files: [%v]", files), stdout, timestamp, d, infra)
 
-	//Upload Docker Systemd file
-	if err := uploadDockerFiles(d.Config, d.Tools.SSH.Private, nodes, tools.DefaultSSHUser, stdout); err != nil {
-		return err
+		//Upload Docker Systemd file
+		if err := uploadDockerFiles(files, d.Tools.SSH.Private, nodes, stdout, timestamp); err != nil {
+			return err
+		}
 	}
 
 	//Download Docker files
@@ -59,8 +62,8 @@ func DeployDockerInCluster(d *objects.Deployment, infra *objects.Infra, stdout i
 
 		//Run Docker before scripts
 		if c.Before != "" {
-			for _, ip := range nodes {
-				if err := beforeDockerExecute(d.Tools.SSH.Private, ip, c.Before, tools.DefaultSSHUser); err != nil {
+			for _, node := range nodes {
+				if err := beforeDockerExecute(d.Tools.SSH.Private, node.IP, c.Before, node.User); err != nil {
 					return err
 				}
 			}
@@ -68,8 +71,8 @@ func DeployDockerInCluster(d *objects.Deployment, infra *objects.Infra, stdout i
 	}
 
 	//Start Docker daemon
-	for _, ip := range nodes {
-		if err := startDockerDaemon(d.Tools.SSH.Private, ip, tools.DefaultSSHUser); err != nil {
+	for _, node := range nodes {
+		if err := startDockerDaemon(d.Tools.SSH.Private, node.IP, node.User); err != nil {
 			return err
 		}
 	}
@@ -77,8 +80,8 @@ func DeployDockerInCluster(d *objects.Deployment, infra *objects.Infra, stdout i
 	//Run after script
 	for _, c := range infra.Components {
 		if c.After != "" {
-			for _, ip := range nodes {
-				if err := afterDockerExecute(d.Tools.SSH.Private, ip, c.After, tools.DefaultSSHUser); err != nil {
+			for _, node := range nodes {
+				if err := afterDockerExecute(d.Tools.SSH.Private, node.IP, c.After, node.User); err != nil {
 					return err
 				}
 			}
@@ -89,8 +92,8 @@ func DeployDockerInCluster(d *objects.Deployment, infra *objects.Infra, stdout i
 }
 
 //generateDockerFiles generate Docker systemd service file.
-func generateDockerFiles(src string, nodes map[string]string, version string) (map[string]map[string]string, error) {
-	files := map[string]map[string]string{}
+func generateDockerFiles(src string, nodes []objects.Node, version string) (map[string]map[string]string, error) {
+	result := map[string]map[string]string{}
 
 	//Preparing the SSL folder
 	sslBase := path.Join(src, tools.CAFilesFolder, tools.CADockerFolder)
@@ -106,43 +109,52 @@ func generateDockerFiles(src string, nodes map[string]string, version string) (m
 	}
 	os.MkdirAll(serviceBase, os.ModePerm)
 
+	//Loop the nodes, generate Docker systemd service files
 	for _, node := range nodes {
-		if utils.IsDirExist(path.Join(serviceBase, )) == false {
-			os.MkdirAll(path.Join(serviceBase, ip), os.ModePerm)
+		if utils.IsDirExist(path.Join(serviceBase, node.IP)) == false {
+			os.MkdirAll(path.Join(serviceBase, node.IP), os.ModePerm)
+		}
+
+		if files, err := generateDockerServiceFile(version, path.Join(serviceBase, node.IP)); err != nil {
+			return result, err
+		} else {
+			for k, v := range files {
+				result[node.IP][k] = v
+			}
 		}
 	}
 
-	return files, nil
+	return result, nil
 }
 
-func generateDockerServiceFile(node EtcdEndpoint, version, base, ip string) (map[string]string, error) {
-
+//generateDockerServiceFile generate the Docker systemd file
+func generateDockerServiceFile(version, base string) (map[string]string, error) {
 	var serviceTpl bytes.Buffer
 	var err error
+
+	files := map[string]string{}
+	files[tools.ServiceDockerFile] = path.Join(base, tools.ServiceDockerFile)
 
 	serviceTp := template.New("docker-systemd")
 	serviceTp, err = serviceTp.Parse(t.DockerSystemdTemplate[version])
 	serviceTp.Execute(&serviceTpl, nil)
 	serviceTpFileBytes := serviceTpl.Bytes()
 
-	err = ioutil.WriteFile(path.Join(sslBase, ip, tools.ServiceDockerFile), serviceTpFileBytes, 0700)
+	err = ioutil.WriteFile(files[tools.ServiceDockerFile], serviceTpFileBytes, 0700)
 
 	return files, err
 }
 
 //Upload docker systemd file
 //TODO apt-get install -y bridge-utils aufs-tools cgroupfs-mount libltdl7
-func uploadDockerFiles(src, key string, nodes map[string]string, user string, stdout io.Writer) error {
-	sslBase := path.Join(src, tools.CAFilesFolder, tools.CADockerFolder)
-	serviceBase := path.Join(src, tools.ServiceFilesFolder, tools.ServiceDockerFolder)
-
-	if utils.IsDirExist(sslBase) == false || utils.IsDirExist(serviceBase) {
-		return fmt.Errorf("locate docker folders %s or %s error", sslBase, serviceBase)
-	}
-
-	for _, ip := range nodes {
-		if err := tools.DownloadComponent(path.Join(serviceBase, ip, tools.ServiceDockerFile), path.Join(tools.SytemdServerPath, tools.ServiceDockerFile), ip, key, user, stdout); err != nil {
+func uploadDockerFiles(files map[string]map[string]string, key string, nodes []objects.Node, stdout io.Writer, timestamp bool) error {
+	for _, node := range nodes {
+		if cmd, err := tools.DownloadComponent(files[node.IP][tools.ServiceDockerFile], path.Join(tools.SytemdServerPath, tools.ServiceDockerFile), node.IP, key, node.User, stdout); err != nil {
 			return err
+		} else {
+			objects.WriteLog(
+				fmt.Sprintf("upload %s to %s@%s with %s", files[node.IP][tools.CAEtcdCSRConfigFile], node.IP, path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdCSRConfigFile), cmd),
+				stdout, timestamp, &node)
 		}
 	}
 

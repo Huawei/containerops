@@ -63,27 +63,27 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 	d.Output("KUBE_APISERVER", fmt.Sprintf("https://%s:6443", masterIP))
 
 	// Master Nodes
-	kubeMasterNodes := map[string]string{}
+	kubeMasterNodes := []objects.Node{}
 	for i := 0; i < infra.Master; i++ {
-		kubeMasterNodes[fmt.Sprintf("kube-master-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
+		kubeMasterNodes = append(kubeMasterNodes, d.Nodes[i])
 	}
 
 	// Minion Nodes
-	kubeSlaveNodes := map[string]string{}
+	kubeSlaveNodes := []objects.Node{}
 	for i := 0; i < infra.Minion; i++ {
-		kubeSlaveNodes[fmt.Sprintf("kube-minion-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
+		kubeSlaveNodes = append(kubeSlaveNodes, d.Nodes[i])
 	}
 
 	// Download binary in master nodes
 	for _, c := range infra.Components {
-		if err := d.DownloadBinaryFile(c.Binary, c.URL, kubeMasterNodes, stdout); err != nil {
+		if err := d.DownloadBinaryFile(c.Binary, c.URL, kubeMasterNodes, stdout, timestamp); err != nil {
 			return err
 		}
 	}
 
 	// Download binary in slave nodes
 	for _, c := range infra.Components {
-		if err := d.DownloadBinaryFile(c.Binary, c.URL, kubeSlaveNodes, stdout); err != nil {
+		if err := d.DownloadBinaryFile(c.Binary, c.URL, kubeSlaveNodes, stdout, timestamp); err != nil {
 			return err
 		}
 	}
@@ -176,7 +176,7 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 				return err
 			}
 
-			if err := startKubelet(d.Tools.SSH.Private, kubeSlaveNodes); err != nil {
+			if err := startKubelet(d.Tools.SSH.Private, kubeSlaveNodes, stdout); err != nil {
 				return err
 			}
 
@@ -191,8 +191,8 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 				return err
 			}
 
-			for _, ip := range kubeSlaveNodes {
-				if err := generateKubeProxyConfigFile(d.Config, ip, masterIP); err != nil {
+			for _, node := range kubeSlaveNodes {
+				if err := generateKubeProxyConfigFile(d.Config, node.IP, masterIP); err != nil {
 					return err
 				}
 			}
@@ -384,20 +384,20 @@ func setKubeConfigFile(src, master string) error {
 }
 
 // Upload Kubectl config file and ca ssl files.
-func uploadKubeConfigFiles(src, key string, nodes map[string]string, stdout io.Writer) error {
+func uploadKubeConfigFiles(src, key string, nodes []objects.Node, stdout io.Writer) error {
 	base := path.Join(src, tools.KubectlFileFolder)
 	config := path.Join(src, tools.KubectlFileFolder, tools.KubectlConfigFile)
 
-	for _, ip := range nodes {
+	for _, node := range nodes {
 		var err error
 
-		err = utils.SSHCommand("root", key, ip, 22, "mkdir -p /root/.kube", stdout, os.Stderr)
+		err = utils.SSHCommand(node.User, key, node.IP, tools.DefaultSSHPort, "mkdir -p /root/.kube", stdout, os.Stderr)
 
-		err = tools.DownloadComponent(config, "/root/.kube/config", ip, key, tools.DefaultSSHUser, stdout)
-		err = tools.DownloadComponent(path.Join(base, tools.CAKubeAdminCSRConfigFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminCSRConfigFile), ip, key, tools.DefaultSSHUser, stdout)
-		err = tools.DownloadComponent(path.Join(base, tools.CAKubeAdminKeyPemFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminKeyPemFile), ip, key, tools.DefaultSSHUser, stdout)
-		err = tools.DownloadComponent(path.Join(base, tools.CAKubeAdminCSRFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminCSRFile), ip, key, tools.DefaultSSHUser, stdout)
-		err = tools.DownloadComponent(path.Join(base, tools.CAKubeAdminPemFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminPemFile), ip, key, tools.DefaultSSHUser, stdout)
+		_, err = tools.DownloadComponent(config, "/root/.kube/config", node.IP, key, node.User, stdout)
+		_, err = tools.DownloadComponent(path.Join(base, tools.CAKubeAdminCSRConfigFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminCSRConfigFile), node.IP, key, node.User, stdout)
+		_, err = tools.DownloadComponent(path.Join(base, tools.CAKubeAdminKeyPemFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminKeyPemFile), node.IP, key, node.User, stdout)
+		_, err = tools.DownloadComponent(path.Join(base, tools.CAKubeAdminCSRFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminCSRFile), node.IP, key, node.User, stdout)
+		_, err = tools.DownloadComponent(path.Join(base, tools.CAKubeAdminPemFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminPemFile), node.IP, key, node.User, stdout)
 
 		if err != nil {
 			return err
@@ -431,7 +431,7 @@ func generateTokenFile(src string) error {
 func uploadTokenFiles(src, key, ip string, stdout io.Writer) error {
 	file := path.Join(src, tools.KubectlFileFolder, tools.KubeTokenCSVFile)
 
-	if err := tools.DownloadComponent(file, path.Join(KubeServerConfig, tools.KubeTokenCSVFile), ip, key, tools.DefaultSSHUser, stdout); err != nil {
+	if _, err := tools.DownloadComponent(file, path.Join(KubeServerConfig, tools.KubeTokenCSVFile), ip, key, tools.DefaultSSHUser, stdout); err != nil {
 		return err
 	}
 
@@ -538,11 +538,11 @@ func uploadKubeAPIServerCAFiles(src, key, ip string, stdout io.Writer) error {
 
 	var err error
 
-	err = tools.DownloadComponent(path.Join(base, tools.CAKubeAPIServerCSRConfigFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAPIServerCSRConfigFile), ip, key, tools.DefaultSSHUser, stdout)
-	err = tools.DownloadComponent(path.Join(base, tools.CAKubeAPIServerKeyPemFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAPIServerKeyPemFile), ip, key, tools.DefaultSSHUser, stdout)
-	err = tools.DownloadComponent(path.Join(base, tools.CAKubeAPIServerCSRFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAPIServerCSRFile), ip, key, tools.DefaultSSHUser, stdout)
-	err = tools.DownloadComponent(path.Join(base, tools.CAKubeAPIServerPemFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAPIServerPemFile), ip, key, tools.DefaultSSHUser, stdout)
-	err = tools.DownloadComponent(path.Join(base, tools.KubeAPIServerSystemdFile), path.Join(tools.SytemdServerPath, tools.KubeAPIServerSystemdFile), ip, key, tools.DefaultSSHUser, stdout)
+	_, err = tools.DownloadComponent(path.Join(base, tools.CAKubeAPIServerCSRConfigFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAPIServerCSRConfigFile), ip, key, tools.DefaultSSHUser, stdout)
+	_, err = tools.DownloadComponent(path.Join(base, tools.CAKubeAPIServerKeyPemFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAPIServerKeyPemFile), ip, key, tools.DefaultSSHUser, stdout)
+	_, err = tools.DownloadComponent(path.Join(base, tools.CAKubeAPIServerCSRFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAPIServerCSRFile), ip, key, tools.DefaultSSHUser, stdout)
+	_, err = tools.DownloadComponent(path.Join(base, tools.CAKubeAPIServerPemFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAPIServerPemFile), ip, key, tools.DefaultSSHUser, stdout)
+	_, err = tools.DownloadComponent(path.Join(base, tools.KubeAPIServerSystemdFile), path.Join(tools.SytemdServerPath, tools.KubeAPIServerSystemdFile), ip, key, tools.DefaultSSHUser, stdout)
 
 	if err != nil {
 		return err
@@ -586,7 +586,7 @@ func generateKubeControllerManagerFiles(src string, masterIP, etcdEndpoints stri
 func uploadKubeControllerFiles(src, key, ip string, stdout io.Writer) error {
 	base := path.Join(src, tools.CAFilesFolder, tools.CAKubernetesFolder)
 
-	if err := tools.DownloadComponent(path.Join(base, "kube-controller-manager.service"), "/etc/systemd/system/kube-controller-manager.service", ip, key, tools.DefaultSSHUser, stdout); err != nil {
+	if _, err := tools.DownloadComponent(path.Join(base, "kube-controller-manager.service"), "/etc/systemd/system/kube-controller-manager.service", ip, key, tools.DefaultSSHUser, stdout); err != nil {
 		return err
 	}
 
@@ -628,7 +628,7 @@ func generateKubeSchedulerFiles(src string, masterIP, etcdEndpoints string, vers
 func uploadKubeSchedulerFiles(src, key, ip string, stdout io.Writer) error {
 	base := path.Join(src, tools.CAFilesFolder, tools.CAKubernetesFolder)
 
-	if err := tools.DownloadComponent(path.Join(base, "kube-scheduler.service"), "/etc/systemd/system/kube-scheduler.service", ip, key, tools.DefaultSSHUser, stdout); err != nil {
+	if _, err := tools.DownloadComponent(path.Join(base, "kube-scheduler.service"), "/etc/systemd/system/kube-scheduler.service", ip, key, tools.DefaultSSHUser, stdout); err != nil {
 		return err
 	}
 
@@ -684,11 +684,11 @@ func generateBootstrapFile(src, master string) error {
 	return nil
 }
 
-func uploadBootstrapFile(src, key string, nodes map[string]string, stdout io.Writer) error {
+func uploadBootstrapFile(src, key string, nodes []objects.Node, stdout io.Writer) error {
 	config := path.Join(src, "kubectl", "bootstrap.kubeconfig")
 
-	for _, ip := range nodes {
-		if err := tools.DownloadComponent(config, "/etc/kubernetes/bootstrap.kubeconfig", ip, key, tools.DefaultSSHUser, stdout); err != nil {
+	for _, node := range nodes {
+		if _, err := tools.DownloadComponent(config, "/etc/kubernetes/bootstrap.kubeconfig", node.IP, key, node.User, stdout); err != nil {
 			return err
 		}
 	}
@@ -696,13 +696,13 @@ func uploadBootstrapFile(src, key string, nodes map[string]string, stdout io.Wri
 	return nil
 }
 
-func generateKubeletSystemdFile(src string, nodes map[string]string, version string) error {
-	for _, ip := range nodes {
+func generateKubeletSystemdFile(src string, nodes []objects.Node, version string) error {
+	for _, node := range nodes {
 		kubeNode := map[string]string{
-			"IP": ip,
+			"IP": node.IP,
 		}
 
-		base := path.Join(src, tools.CAFilesFolder, tools.CAKubernetesFolder, ip)
+		base := path.Join(src, tools.CAFilesFolder, tools.CAKubernetesFolder, node.IP)
 		if utils.IsDirExist(base) == true {
 			os.RemoveAll(base)
 		}
@@ -723,15 +723,15 @@ func generateKubeletSystemdFile(src string, nodes map[string]string, version str
 	return nil
 }
 
-func uploadKubeletFile(src, key string, nodes map[string]string, stdout io.Writer) error {
-	for _, ip := range nodes {
-		file := path.Join(src, tools.CAFilesFolder, tools.CAKubernetesFolder, ip, "kubelet.service")
+func uploadKubeletFile(src, key string, nodes []objects.Node, stdout io.Writer) error {
+	for _, node := range nodes {
+		file := path.Join(src, tools.CAFilesFolder, tools.CAKubernetesFolder, node.IP, "kubelet.service")
 
-		if err := utils.SSHCommand("root", key, ip, 22, "mkdir -p /var/lib/kubelet", stdout, os.Stderr); err != nil {
+		if err := utils.SSHCommand(node.User, key, node.IP, tools.DefaultSSHPort, "mkdir -p /var/lib/kubelet", stdout, os.Stderr); err != nil {
 			return err
 		}
 
-		if err := tools.DownloadComponent(file, "/etc/systemd/system/kubelet.service", ip, key, tools.DefaultSSHUser, stdout); err != nil {
+		if _, err := tools.DownloadComponent(file, "/etc/systemd/system/kubelet.service", node.IP, key, node.User, stdout); err != nil {
 			return err
 		}
 
@@ -756,12 +756,11 @@ func kubeletCertificateApprove(key, ip string) error {
 	return nil
 }
 
-func startKubelet(key string, nodes map[string]string) error {
-	for _, ip := range nodes {
-
+func startKubelet(key string, nodes []objects.Node, stdout io.Writer) error {
+	for _, node := range nodes {
 		cmd := "systemctl daemon-reload && systemctl enable kubelet && systemctl start --no-block kubelet"
 
-		if err := utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr); err != nil {
+		if err := utils.SSHCommand(node.User, key, node.IP, tools.DefaultSSHPort, cmd, stdout, os.Stderr); err != nil {
 			return err
 		}
 	}
@@ -769,16 +768,16 @@ func startKubelet(key string, nodes map[string]string) error {
 	return nil
 }
 
-func generateKubeProxyFiles(src string, nodes map[string]string, version string) error {
+func generateKubeProxyFiles(src string, nodes []objects.Node, version string) error {
 	base := path.Join(src, tools.CAFilesFolder, tools.CAKubernetesFolder)
 
 	caFile := path.Join(src, tools.CAFilesFolder, tools.CARootFilesFolder, tools.CARootPemFile)
 	caKeyFile := path.Join(src, tools.CAFilesFolder, tools.CARootFilesFolder, tools.CARootKeyFile)
 	configFile := path.Join(src, tools.CAFilesFolder, tools.CARootFilesFolder, tools.CARootConfigFile)
 
-	for _, ip := range nodes {
-		if utils.IsDirExist(path.Join(base, ip)) == false {
-			os.MkdirAll(path.Join(base, ip), os.ModePerm)
+	for _, node := range nodes {
+		if utils.IsDirExist(path.Join(base, node.IP)) == false {
+			os.MkdirAll(path.Join(base, node.IP), os.ModePerm)
 		}
 
 		var tpl bytes.Buffer
@@ -834,14 +833,14 @@ func generateKubeProxyFiles(src string, nodes map[string]string, version string)
 
 		serviceTp := template.New("proxy-systemd")
 		serviceTp, _ = serviceTp.Parse(t.KubeProxySystemdTemplate[version])
-		serviceTp.Execute(&serviceTpl, map[string]string{"IP": ip})
+		serviceTp.Execute(&serviceTpl, map[string]string{"IP": node.IP})
 		serviceTpFileBytes := serviceTpl.Bytes()
 
-		err = ioutil.WriteFile(path.Join(base, ip, "kube-proxy-csr.json"), csrFileBytes, 0600)
-		err = ioutil.WriteFile(path.Join(base, ip, "kube-proxy-key.pem"), key, 0600)
-		err = ioutil.WriteFile(path.Join(base, ip, "kube-proxy.csr"), csrBytes, 0600)
-		err = ioutil.WriteFile(path.Join(base, ip, "kube-proxy.pem"), cert, 0600)
-		err = ioutil.WriteFile(path.Join(base, ip, "kube-proxy.service"), serviceTpFileBytes, 0700)
+		err = ioutil.WriteFile(path.Join(base, node.IP, "kube-proxy-csr.json"), csrFileBytes, 0600)
+		err = ioutil.WriteFile(path.Join(base, node.IP, "kube-proxy-key.pem"), key, 0600)
+		err = ioutil.WriteFile(path.Join(base, node.IP, "kube-proxy.csr"), csrBytes, 0600)
+		err = ioutil.WriteFile(path.Join(base, node.IP, "kube-proxy.pem"), cert, 0600)
+		err = ioutil.WriteFile(path.Join(base, node.IP, "kube-proxy.service"), serviceTpFileBytes, 0700)
 
 		if err != nil {
 			return err
@@ -852,19 +851,19 @@ func generateKubeProxyFiles(src string, nodes map[string]string, version string)
 	return nil
 }
 
-func uploadKubeProxyFiles(src, key string, nodes map[string]string, stdout io.Writer) error {
+func uploadKubeProxyFiles(src, key string, nodes []objects.Node, stdout io.Writer) error {
 	base := path.Join(src, tools.CAFilesFolder, tools.CAKubernetesFolder)
 
-	for _, ip := range nodes {
+	for _, node := range nodes {
 		var err error
 
-		err = utils.SSHCommand("root", key, ip, 22, "mkdir -p /var/lib/kube-proxy", stdout, os.Stderr)
-		err = tools.DownloadComponent(path.Join(base, ip, "kube-proxy-csr.json"), "/etc/kubernetes/ssl/kube-proxy-csr.json", ip, key, tools.DefaultSSHUser, stdout)
-		err = tools.DownloadComponent(path.Join(base, ip, "kube-proxy-key.pem"), "/etc/kubernetes/ssl/kube-proxy-key.pem", ip, key, tools.DefaultSSHUser, stdout)
-		err = tools.DownloadComponent(path.Join(base, ip, "kube-proxy.csr"), "/etc/kubernetes/ssl/kube-proxy.csr", ip, key, tools.DefaultSSHUser, stdout)
-		err = tools.DownloadComponent(path.Join(base, ip, "kube-proxy.pem"), "/etc/kubernetes/ssl/kube-proxy.pem", ip, key, tools.DefaultSSHUser, stdout)
-		err = tools.DownloadComponent(path.Join(base, ip, "kube-proxy.service"), "/etc/systemd/system/kube-proxy.service", ip, key, tools.DefaultSSHUser, stdout)
-		err = tools.DownloadComponent(path.Join(base, ip, "kube-proxy.kubeconfig"), "/etc/kubernetes/kube-proxy.kubeconfig", ip, key, tools.DefaultSSHUser, stdout)
+		err = utils.SSHCommand(node.User, key, node.IP, tools.DefaultSSHPort, "mkdir -p /var/lib/kube-proxy", stdout, os.Stderr)
+		_, err = tools.DownloadComponent(path.Join(base, node.IP, "kube-proxy-csr.json"), "/etc/kubernetes/ssl/kube-proxy-csr.json", node.IP, key, node.User, stdout)
+		_, err = tools.DownloadComponent(path.Join(base, node.IP, "kube-proxy-key.pem"), "/etc/kubernetes/ssl/kube-proxy-key.pem", node.IP, key, node.User, stdout)
+		_, err = tools.DownloadComponent(path.Join(base, node.IP, "kube-proxy.csr"), "/etc/kubernetes/ssl/kube-proxy.csr", node.IP, key, node.User, stdout)
+		_, err = tools.DownloadComponent(path.Join(base, node.IP, "kube-proxy.pem"), "/etc/kubernetes/ssl/kube-proxy.pem", node.IP, key, node.User, stdout)
+		_, err = tools.DownloadComponent(path.Join(base, node.IP, "kube-proxy.service"), "/etc/systemd/system/kube-proxy.service", node.IP, key, node.User, stdout)
+		_, err = tools.DownloadComponent(path.Join(base, node.IP, "kube-proxy.kubeconfig"), "/etc/kubernetes/kube-proxy.kubeconfig", node.IP, key, node.User, stdout)
 
 		if err != nil {
 			return err
@@ -875,11 +874,11 @@ func uploadKubeProxyFiles(src, key string, nodes map[string]string, stdout io.Wr
 	return nil
 }
 
-func startKubeProxy(key string, nodes map[string]string) error {
-	for _, ip := range nodes {
+func startKubeProxy(key string, nodes []objects.Node) error {
+	for _, node := range nodes {
 		cmd := "systemctl daemon-reload && systemctl enable kube-proxy && systemctl start --no-block kube-proxy"
 
-		if err := utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr); err != nil {
+		if err := utils.SSHCommand(node.User, key, node.IP, tools.DefaultSSHPort, cmd, os.Stdout, os.Stderr); err != nil {
 			return err
 		}
 

@@ -107,7 +107,7 @@ func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.
 		return err
 	} else {
 		objects.WriteLog(fmt.Sprintf("Etcd CA/Systemd/config files: [%v]", files), stdout, timestamp, d, infra)
-		objects.WriteLog(fmt.Sprintf("Upload CA/Systemd/config files: [%v]", files), stdout, timestamp, d, infra)
+		objects.WriteLog(fmt.Sprintf("Upload Etcd CA/Systemd/config files: [%v]", files), stdout, timestamp, d, infra)
 
 		//Upload Etcd files to node
 		if err := uploadEtcdFiles(files, d.Tools.SSH.Private, nodes, tools.DefaultSSHUser, stdout, timestamp); err != nil {
