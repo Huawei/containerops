@@ -46,42 +46,42 @@ const (
 	KubeServerSSL    = "ssl"
 )
 
-// DeployKubernetes is function deployment Kubernetes cluster include master and nodes.
-// Notes:
-//   1. Kubernetes master cluster IP.
-//   2. Set kubectl config files.
-//   3. Deploy Kubernetes master.
-//   4. Deploy Kubernetes nodes.
+//DeployKubernetes is function deployment Kubernetes cluster include master and nodes.
+//Notes:
+//  1. Kubernetes master cluster IP.
+//  2. Set kubectl config files.
+//  3. Deploy Kubernetes master.
+//  4. Deploy Kubernetes nodes.
 func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.Writer, timestamp bool) error {
-	// TODO Now singular only support one master and multiple nodes architect.
-	// TODO So we decide the Kubernetes master IP is NODE_0 .
+	//TODO Now singular only support one master and multiple nodes architect.
+	//TODO So we decide the Kubernetes master IP is NODE_0 .
 	masterIP := d.Outputs[fmt.Sprintf("NODE_%d", 0)].(string)
 	etcdEndpoints := d.Outputs["EtcdEndpoints"].(string)
 
-	// Master IP
+	//Master IP
 	d.Output("MASTER_IP", masterIP)
 	d.Output("KUBE_APISERVER", fmt.Sprintf("https://%s:6443", masterIP))
 
-	// Master Nodes
+	//Master Nodes
 	kubeMasterNodes := []objects.Node{}
 	for i := 0; i < infra.Master; i++ {
 		kubeMasterNodes = append(kubeMasterNodes, d.Nodes[i])
 	}
 
-	// Minion Nodes
+	//Minion Nodes
 	kubeSlaveNodes := []objects.Node{}
 	for i := 0; i < infra.Minion; i++ {
 		kubeSlaveNodes = append(kubeSlaveNodes, d.Nodes[i])
 	}
 
-	// Download binary in master nodes
+	//Download binary in master nodes
 	for _, c := range infra.Components {
 		if err := d.DownloadBinaryFile(c.Binary, c.URL, kubeMasterNodes, stdout, timestamp); err != nil {
 			return err
 		}
 	}
 
-	// Download binary in slave nodes
+	//Download binary in slave nodes
 	for _, c := range infra.Components {
 		if err := d.DownloadBinaryFile(c.Binary, c.URL, kubeSlaveNodes, stdout, timestamp); err != nil {
 			return err
@@ -92,7 +92,7 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 		switch c.Binary {
 		case "kubectl":
 			//Generate kubectl config file and CA SSL files.
-			if err := setKubectlFiles(d.Config, c.URL, masterIP); err != nil {
+			if err := setKubectlFiles(d, c.URL, masterIP, stdout, timestamp); err != nil {
 				return err
 			}
 
@@ -214,30 +214,29 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 	return nil
 }
 
-// setKubectlConfig download kubectl and set config file.
-func setKubectlFiles(src, link, master string) error {
+//setKubectlConfig download kubectl and set config file.
+func setKubectlFiles(d *objects.Deployment, link, master string, stdout io.Writer, timestamp bool) error {
 	//Make kubectl folder
-	if utils.IsDirExist(path.Join(src, tools.KubectlFileFolder)) == true {
-		os.RemoveAll(path.Join(src, tools.KubectlFileFolder))
+	if utils.IsDirExist(path.Join(d.Config, tools.KubectlFileFolder)) == true {
+		os.RemoveAll(path.Join(d.Config, tools.KubectlFileFolder))
 	}
-
-	os.MkdirAll(path.Join(src, tools.KubectlFileFolder), os.ModePerm)
+	os.MkdirAll(path.Join(d.Config, tools.KubectlFileFolder), os.ModePerm)
 
 	//Download or copy kubectl file
 	if a, err := url.Parse(link); err != nil {
 		return err
 	} else {
 		if a.Scheme == "" {
-			cmdCopy := exec.Command("cp", link, path.Join(src, tools.KubectlFileFolder, tools.KubectlFile))
-
-			cmdCopy.Stdout, cmdCopy.Stderr = os.Stdout, os.Stderr
+			cmdCopy := exec.Command("cp", link, path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlFile))
+			objects.WriteLog(fmt.Sprintf("%s", cmdCopy), stdout, timestamp, d)
+			cmdCopy.Stdout, cmdCopy.Stderr = stdout, os.Stderr
 			if err := cmdCopy.Run(); err != nil {
 				return err
 			}
 		} else {
-			cmdDownload := exec.Command("curl", link, "-o", path.Join(src, tools.KubectlFileFolder, tools.KubectlFile), src)
-
-			cmdDownload.Stdout, cmdDownload.Stderr = os.Stdout, os.Stderr
+			cmdDownload := exec.Command("curl", link, "-o", path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlFile), d.Config)
+			objects.WriteLog(fmt.Sprintf("%s", cmdDownload), stdout, timestamp, d)
+			cmdDownload.Stdout, cmdDownload.Stderr = stdout, os.Stderr
 			if err := cmdDownload.Run(); err != nil {
 				return err
 			}
@@ -245,28 +244,40 @@ func setKubectlFiles(src, link, master string) error {
 	}
 
 	//Change mode +x for kubectl
-	cmdChmod := exec.Command("chmod", "+x", path.Join(src, tools.KubectlFileFolder, tools.KubectlFile))
-	cmdChmod.Stdout, cmdChmod.Stderr = os.Stdout, os.Stderr
+	cmdChmod := exec.Command("chmod", "+x", path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlFile))
+	objects.WriteLog(fmt.Sprintf("%s", cmdChmod), stdout, timestamp, d)
+	cmdChmod.Stdout, cmdChmod.Stderr = stdout, os.Stderr
 	if err := cmdChmod.Run(); err != nil {
 		return err
 	}
 
 	//Generate Kubernetes admin CA files
-	if err := generateKubeAdminCAFiles(src); err != nil {
+	if files, err := generateKubeAdminCAFiles(d.Config); err != nil {
 		return err
+	} else {
+		objects.WriteLog(fmt.Sprintf("Kubernetes CA Admin files [%v]", files), stdout, timestamp, d)
 	}
 
 	//Generate kubectl config file
-	if err := setKubeConfigFile(src, master); err != nil {
+	if file, err := setKubeConfigFile(d.Config, master); err != nil {
 		return err
+	} else {
+		objects.WriteLog(fmt.Sprintf("kubectl config files [%s]", file), stdout, timestamp, d)
 	}
 
 	return nil
 }
 
 // Generate Kubernetes Admin CA files
-func generateKubeAdminCAFiles(src string) error {
+func generateKubeAdminCAFiles(src string) (map[string]string, error) {
 	base := path.Join(src, tools.KubectlFileFolder)
+
+	files := map[string]string{
+		tools.CAKubeAdminCSRConfigFile: path.Join(base, tools.CAKubeAdminCSRConfigFile),
+		tools.CAKubeAdminKeyPemFile:    path.Join(base, tools.CAKubeAdminKeyPemFile),
+		tools.CAKubeAdminCSRFile:       path.Join(base, tools.CAKubeAdminCSRFile),
+		tools.CAKubeAdminPemFile:       path.Join(base, tools.CAKubeAdminPemFile),
+	}
 
 	caFile := path.Join(src, tools.CAFilesFolder, tools.CARootFilesFolder, tools.CARootPemFile)
 	caKeyFile := path.Join(src, tools.CAFilesFolder, tools.CARootFilesFolder, tools.CARootKeyFile)
@@ -286,14 +297,14 @@ func generateKubeAdminCAFiles(src string) error {
 
 	err = json.Unmarshal(csrFileBytes, &req)
 	if err != nil {
-		return err
+		return files, err
 	}
 
 	var key, csrBytes []byte
 	g := &csr.Generator{Validator: genkey.Validator}
 	csrBytes, key, err = g.ProcessRequest(&req)
 	if err != nil {
-		return err
+		return files, err
 	}
 
 	c := cli.Config{
@@ -306,7 +317,7 @@ func generateKubeAdminCAFiles(src string) error {
 
 	s, err := sign.SignerFromConfig(c)
 	if err != nil {
-		return err
+		return files, err
 	}
 
 	var cert []byte
@@ -318,23 +329,23 @@ func generateKubeAdminCAFiles(src string) error {
 
 	cert, err = s.Sign(signReq)
 	if err != nil {
-		return err
+		return files, err
 	}
 
-	err = ioutil.WriteFile(path.Join(base, tools.CAKubeAdminCSRConfigFile), csrFileBytes, 0600)
-	err = ioutil.WriteFile(path.Join(base, tools.CAKubeAdminKeyPemFile), key, 0600)
-	err = ioutil.WriteFile(path.Join(base, tools.CAKubeAdminCSRFile), csrBytes, 0600)
-	err = ioutil.WriteFile(path.Join(base, tools.CAKubeAdminPemFile), cert, 0600)
+	err = ioutil.WriteFile(files[tools.CAKubeAdminCSRConfigFile], csrFileBytes, 0600)
+	err = ioutil.WriteFile(files[tools.CAKubeAdminKeyPemFile], key, 0600)
+	err = ioutil.WriteFile(files[tools.CAKubeAdminCSRFile], csrBytes, 0600)
+	err = ioutil.WriteFile(files[tools.CAKubeAdminPemFile], cert, 0600)
 
 	if err != nil {
-		return err
+		return files, err
 	}
 
-	return nil
+	return files, nil
 }
 
 // Generate kubectl config file
-func setKubeConfigFile(src, master string) error {
+func setKubeConfigFile(src, master string) (string, error) {
 	base := path.Join(src, tools.KubectlFileFolder)
 	adminPem := path.Join(base, tools.CAKubeAdminPemFile)
 	adminKey := path.Join(base, tools.CAKubeAdminKeyPemFile)
@@ -343,7 +354,6 @@ func setKubeConfigFile(src, master string) error {
 	config := path.Join(src, tools.KubectlFileFolder, tools.KubectlConfigFile)
 	caFile := path.Join(src, tools.CAFilesFolder, tools.CARootFilesFolder, tools.CARootPemFile)
 
-	//Generate kubectl config file
 	cmdSetCluster := exec.Command(kubectl, "config", "set-cluster", "kubernetes",
 		fmt.Sprintf("--kubeconfig=%s", config),
 		fmt.Sprintf("--certificate-authority=%s", caFile),
@@ -351,7 +361,7 @@ func setKubeConfigFile(src, master string) error {
 		fmt.Sprintf("--server=%s", master))
 	cmdSetCluster.Stdout, cmdSetCluster.Stderr = os.Stdout, os.Stderr
 	if err := cmdSetCluster.Run(); err != nil {
-		return err
+		return caFile, err
 	}
 
 	cmdSetCredentials := exec.Command(kubectl, "config", "set-credentials", "admin",
@@ -361,7 +371,7 @@ func setKubeConfigFile(src, master string) error {
 		fmt.Sprintf("--client-key=%s", adminKey))
 	cmdSetCredentials.Stdout, cmdSetCredentials.Stderr = os.Stdout, os.Stderr
 	if err := cmdSetCredentials.Run(); err != nil {
-		return err
+		return caFile, err
 	}
 
 	cmdSetContext := exec.Command(kubectl, "config", "set-context", "kubernetes",
@@ -369,7 +379,7 @@ func setKubeConfigFile(src, master string) error {
 		"--cluster=kubernetes", "--user=admin")
 	cmdSetContext.Stdout, cmdSetContext.Stderr = os.Stdout, os.Stderr
 	if err := cmdSetContext.Run(); err != nil {
-		return err
+		return caFile, err
 	}
 
 	cmdUseContext := exec.Command(kubectl, "config", "use-context",
@@ -377,10 +387,10 @@ func setKubeConfigFile(src, master string) error {
 		"kubernetes")
 	cmdUseContext.Stdout, cmdUseContext.Stderr = os.Stdout, os.Stderr
 	if err := cmdUseContext.Run(); err != nil {
-		return err
+		return caFile, err
 	}
 
-	return nil
+	return caFile, nil
 }
 
 // Upload Kubectl config file and ca ssl files.
