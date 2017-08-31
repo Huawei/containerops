@@ -23,7 +23,9 @@ import (
 	. "github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 
+	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/common/utils"
+	"github.com/Huawei/containerops/pilotage/model"
 	"github.com/Huawei/containerops/pilotage/module"
 )
 
@@ -58,6 +60,9 @@ func init() {
 
 // Run orchestration flow from a flow definition file.
 func runCliFlow(cmd *cobra.Command, args []string) {
+	model.OpenDatabase(&common.Database)
+	model.Migrate()
+
 	if len(args) <= 0 || utils.IsFileExist(args[0]) == false {
 		cmd.Println(Red("The orchestration flow file is required."))
 		os.Exit(1)

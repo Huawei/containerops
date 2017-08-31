@@ -1,11 +1,12 @@
 package module
 
 import (
-	"time"
 	"bufio"
-	"io"
+	"encoding/json"
 	"fmt"
+	"io"
 	"strings"
+	"time"
 
 	. "github.com/logrusorgru/aurora"
 	homeDir "github.com/mitchellh/go-homedir"
@@ -17,14 +18,18 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/tools/clientcmd"
 
-	"github.com/Huawei/containerops/common/utils")
+	"github.com/Huawei/containerops/common/utils"
+	"github.com/Huawei/containerops/pilotage/model"
+)
 
 // Job is
 type Job struct {
+	ID            int64               `json:"-" yaml:"-"`
 	T             string              `json:"type" yaml:"type"`
+	Name          string              `json:"name" yaml:"name,omitempty"`
 	Kubectl       string              `json:"kubectl" yaml:"kubectl"`
 	Endpoint      string              `json:"endpoint" yaml:"endpoint"`
-	Timeout       string              `json:"timeout" yaml:"timeout"`
+	Timeout       int64               `json:"timeout" yaml:"timeout"`
 	Status        string              `json:"status,omitempty" yaml:"status,omitempty"`
 	Resources     Resource            `json:"resources" yaml:"resources"`
 	Logs          []string            `json:"logs,omitempty" yaml:"logs,omitempty"`
@@ -39,11 +44,12 @@ type Resource struct {
 	Memory string `json:"memory" yaml:"memory"`
 }
 
-
-
 // TODO filter the log print with different color.
 func (j *Job) Log(log string, verbose, timestamp bool) {
 	j.Logs = append(j.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
+	l := new(model.LogV1)
+	//TODO fill in phaseID
+	l.Create(model.INFO, model.JOB, 0, log)
 
 	if verbose == true {
 		if timestamp == true {
@@ -54,7 +60,36 @@ func (j *Job) Log(log string, verbose, timestamp bool) {
 	}
 }
 
-func (j *Job) Run(name string, verbose, timestamp bool, f *Flow) (string, error) {
+func (j *Job) Run(name string, verbose, timestamp bool, f *Flow, stageIndex, actionIndex int) (string, error) {
+
+	// Save Job into database
+	job := new(model.JobV1)
+	resources, _ := j.Resources.JSON()
+	environments, _ := json.Marshal(j.Environments)
+	outputs, _ := json.Marshal(j.Outputs)
+	subscriptions, _ := json.Marshal(j.Subscriptions)
+	//tmpjson,_:=f.JSON()
+	//fmt.Println(string(tmpjson))
+	jobID, err := job.Put(f.Stages[stageIndex].Actions[actionIndex].ID, j.Timeout, j.Name, j.T, j.Endpoint, string(resources), string(environments), string(outputs), string(subscriptions))
+	if err != nil {
+		j.Log(fmt.Sprintf("Save Job [%s] error: %s", j.Name, err.Error()), false, timestamp)
+	}
+	j.ID = jobID
+
+	// Record Job data
+	jobData := new(model.JobDataV1)
+	startTime := time.Now()
+
+	defer func() {
+		currentNumber, err := jobData.GetNumbers(j.ID)
+		if err != nil {
+			j.Log(fmt.Sprintf("Get Job Data [%s] Numbers error: %s", j.Name, err.Error()), verbose, timestamp)
+		}
+		if err := jobData.Put(j.ID, currentNumber+1, j.Status, startTime, time.Now()); err != nil {
+			j.Log(fmt.Sprintf("Save Job Data [%s] error: %s", j.Name, err.Error()), false, timestamp)
+		}
+	}()
+
 	home, _ := homeDir.Dir()
 
 	randomContainerName := fmt.Sprintf("%s-%s", name, utils.RandomString(10))
@@ -136,6 +171,10 @@ func (j *Job) Run(name string, verbose, timestamp bool, f *Flow) (string, error)
 	}
 
 	j.Status = Success
+
 	return Success, nil
 }
 
+func (r *Resource) JSON() ([]byte, error) {
+	return json.Marshal(&r)
+}

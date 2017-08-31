@@ -25,9 +25,11 @@ import (
 
 	. "github.com/logrusorgru/aurora"
 	"gopkg.in/yaml.v2"
+
+	"github.com/Huawei/containerops/pilotage/model"
 )
 
-const(
+const (
 	// Flow Run Model
 	CliRun      = "CliRun"
 	DaemonRun   = "DaemonRun"
@@ -36,6 +38,7 @@ const(
 
 // Flow is DevOps orchestration flow struct.
 type Flow struct {
+	ID      int64    `json:"-" yaml:"-"`
 	Model   string   `json:"-" yaml:"-"`
 	URI     string   `json:"uri" yaml:"uri"`
 	Number  int64    `json:",omitempty" yaml:",omitempty"`
@@ -72,6 +75,8 @@ func (f *Flow) URIs() (namespace, repository, name string, err error) {
 // TODO filter the log print with different color.
 func (f *Flow) Log(log string, verbose, timestamp bool) {
 	f.Logs = append(f.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
+	l := new(model.LogV1)
+	l.Create(model.INFO, model.FLOW, f.ID, log)
 
 	if verbose == true {
 		if timestamp == true {
@@ -106,6 +111,23 @@ func (f *Flow) LocalRun(verbose, timestamp bool) error {
 	f.Status = Running
 	f.Log(fmt.Sprintf("Flow [%s] status change to %s", f.URI, f.Status), verbose, timestamp)
 
+	// Save flow info to database
+	flow := new(model.FlowV1)
+	namespace, repository, name, err := f.URIs()
+	if err != nil {
+		f.Log(fmt.Sprintf("Parse Flow [%s] error: %s", f.URI, err.Error()), verbose, timestamp)
+	}
+	content, _ := f.JSON()
+	flowID, err := flow.Put(namespace, repository, name, f.Tag, f.Title, string(content), f.Version, f.Timeout)
+	if err != nil {
+		f.Log(fmt.Sprintf("Save Flow [%s] error: %s", f.URI, err.Error()), verbose, timestamp)
+	}
+	f.ID = flowID
+
+	// Record flow data
+	flowData := new(model.FlowDataV1)
+	startTime := time.Now()
+
 	for i, _ := range f.Stages {
 		stage := &f.Stages[i]
 
@@ -117,14 +139,14 @@ func (f *Flow) LocalRun(verbose, timestamp bool) error {
 		case NormalStage:
 			switch stage.Sequencing {
 			case Parallel:
-				if status, err := stage.ParallelRun(verbose, timestamp, f); err != nil {
+				if status, err := stage.ParallelRun(verbose, timestamp, f, i); err != nil {
 					f.Status = Failure
 					f.Log(fmt.Sprintf("Stage [%s] run error: %s", stage.Name, err.Error()), verbose, timestamp)
 				} else {
 					f.Status = status
 				}
 			case Sequencing:
-				if status, err := stage.SequencingRun(verbose, timestamp, f); err != nil {
+				if status, err := stage.SequencingRun(verbose, timestamp, f, i); err != nil {
 					f.Status = Failure
 					f.Log(fmt.Sprintf("Stage [%s] run error: %s", stage.Name, err.Error()), verbose, timestamp)
 				} else {
@@ -146,7 +168,13 @@ func (f *Flow) LocalRun(verbose, timestamp bool) error {
 		}
 	}
 
+	currentNumber, err := flowData.GetNumbers(flowID)
+	if err != nil {
+		f.Log(fmt.Sprintf("Get Flow Data [%s] Numbers error: %s", f.URI, err.Error()), verbose, timestamp)
+	}
+	if err := flowData.Put(f.ID, currentNumber+1, f.Status, startTime, time.Now()); err != nil {
+		f.Log(fmt.Sprintf("Save Flow Data [%s] error: %s", f.URI, err.Error()), verbose, timestamp)
+	}
+
 	return nil
 }
-
-

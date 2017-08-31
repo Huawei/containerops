@@ -31,8 +31,10 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/macaron.v1"
 
+	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/common/utils"
 	"github.com/Huawei/containerops/pilotage/middleware"
+	"github.com/Huawei/containerops/pilotage/model"
 	"github.com/Huawei/containerops/pilotage/router"
 )
 
@@ -93,6 +95,9 @@ func init() {
 
 // runDaemonFlow is
 func runDaemonFlow(cmd *cobra.Command, args []string) {
+	model.OpenDatabase(&common.Database)
+	model.Migrate()
+
 	if len(args) <= 0 || utils.IsFileExist(args[0]) == false {
 		cmd.Println(Red("The orchestration flow file is required."))
 		os.Exit(1)
@@ -166,6 +171,9 @@ func runDaemonFlow(cmd *cobra.Command, args []string) {
 
 // startDaemonFlow is
 func startDaemonFlow(cmd *cobra.Command, args []string) {
+	model.OpenDatabase(&common.Database)
+	model.Migrate()
+
 	m := macaron.New()
 	middleware.SetStartDaemonMiddlewares(m, cfgFile)
 	router.SetStartDaemonRouters(m)
