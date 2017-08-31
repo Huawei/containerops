@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: cncf/demo-for-cncf-ci/build-test-release-deploy
+uri: cncf/demo-for-cncf-ci/build-test-release-deploy
 number: 33
 title: Demo For Cloud Native Computing Foundation CI Working Group
 version: 4
@@ -34,6 +34,7 @@ stages:
         title: Build Prometheus project with "make build"
         jobs:
           -
+            name: build-prometheus
             type: component
             kubectl: prometheus/prometheus-build.yaml
             endpoint: hub.opshub.sh/containerops/cncf-demo-prometheus:latest
@@ -49,6 +50,7 @@ stages:
         title: Test Prometheus project with "make test"
         jobs:
           -
+            name: test-prometheus
             type: component
             kubectl: prometheus/prometheus-test.yaml
             endpoint: hub.opshub.sh/containerops/cncf-demo-prometheus:latest
@@ -63,6 +65,7 @@ stages:
         title: Compile Prometheus project with "make build", then upload to artifact repository
         jobs:
           -
+            name: release-prometheus
             type: component
             kubectl: prometheus/prometheus-release.yaml
             endpoint: hub.opshub.sh/containerops/cncf-demo-prometheus:latest
@@ -84,6 +87,7 @@ stages:
         title: Build CoreDNS project with "make coredns"
         jobs:
           -
+            name: build-coredns
             type: component
             kubectl: coredns/coredns-build.yaml
             endpoint: hub.opshub.sh/containerops/cncf-demo-coredns:latest
@@ -98,6 +102,7 @@ stages:
         title: Test CoreDNS project with "make test"
         jobs:
           -
+            name: test-coredns
             type: component
             kubectl: coredns/coredns-test.yaml
             endpoint: hub.opshub.sh/containerops/cncf-demo-coredns:latest
@@ -112,6 +117,7 @@ stages:
         title: Compile CoreDNS project with "make coredns", then upload to artifact repository
         jobs:
           -
+            name: release-coredns
             type: component
             kubectl: coredns/coredns-release.yaml
             endpoint: hub.opshub.sh/containerops/cncf-demo-coredns:latest
@@ -133,6 +139,7 @@ stages:
         title: Build Kubernetes project with "make bazel-build"
         jobs:
           -
+            name: build-kubernetes
             type: component
             kubectl: kubernetes/kubernetes-build.yaml
             endpoint: hub.opshub.sh/containerops/cncf-demo-kubernetes:latest
@@ -143,12 +150,13 @@ stages:
             environments:
               - CO_DATA: "kubernetes=https://github.com/kubernetes/kubernetes.git action=build release=hub.opshub.sh/containerops/cncf-demo/demo"
             subscriptions: 
-              - release-coredns[CO_COREDNS_URI]: CO_COREDNS_URI
+              - coredns-test-build-release.release-coredns.release-coredns[CO_COREDNS_URI]: CO_COREDNS_URI
       -
         name: release-kubernetes
         title: Compile Kubernetes project with "make all", then upload all binaries to artifact repository
         jobs:
           -
+            name: release-kubernetes
             type: component
             kubectl: kubernetes/kubernetes-release.yaml
             endpoint: hub.opshub.sh/containerops/cncf-demo-kubernetes:latest
@@ -164,6 +172,7 @@ stages:
         title: Test Kubernetes project with "make bazel-test"
         jobs:
           -
+            name: test-kubernetes
             type: component
             kubectl: kubernetes/kubernetes-test.yaml
             endpoint: hub.opshub.sh/containerops/cncf-demo-kubernetes:latest
