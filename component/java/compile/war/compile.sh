@@ -28,6 +28,7 @@ function STOUT2(){
 declare -A map=(
     ["git-url"]="" 
     ["target"]=""
+    ["version"]=""
 )
 data=$(echo $CO_DATA |awk '{print}')
 for i in ${data[@]}
