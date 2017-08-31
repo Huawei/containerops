@@ -97,7 +97,7 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 			}
 
 			//Upload kubectl config file to Kubernetes nodes
-			if err := uploadKubeConfigFiles(d.Config, d.Tools.SSH.Private, kubeSlaveNodes, stdout); err != nil {
+			if err := uploadKubeConfigFiles(d, d.Tools.SSH.Private, kubeSlaveNodes, stdout, timestamp); err != nil {
 				return err
 			}
 		case "kube-apiserver":
@@ -394,20 +394,46 @@ func setKubeConfigFile(src, master string) (string, error) {
 }
 
 // Upload Kubectl config file and ca ssl files.
-func uploadKubeConfigFiles(src, key string, nodes []objects.Node, stdout io.Writer) error {
-	base := path.Join(src, tools.KubectlFileFolder)
-	config := path.Join(src, tools.KubectlFileFolder, tools.KubectlConfigFile)
+func uploadKubeConfigFiles(d *objects.Deployment, key string, nodes []objects.Node, stdout io.Writer, timestamp bool) error {
+	base := path.Join(d.Config, tools.KubectlFileFolder)
+	config := path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlConfigFile)
+
+	files := map[string]map[string]string{}
 
 	for _, node := range nodes {
 		var err error
+		var cmd, dest string
 
-		err = utils.SSHCommand(node.User, key, node.IP, tools.DefaultSSHPort, "mkdir -p /root/.kube", stdout, os.Stderr)
+		files[node.IP][tools.CAKubeAdminCSRConfigFile] = path.Join(base, tools.CAKubeAdminCSRConfigFile)
+		files[node.IP][tools.CAKubeAdminKeyPemFile] = path.Join(base, tools.CAKubeAdminKeyPemFile)
+		files[node.IP][tools.CAKubeAdminCSRFile] = path.Join(base, tools.CAKubeAdminCSRFile)
+		files[node.IP][tools.CAKubeAdminPemFile] = path.Join(base, tools.CAKubeAdminPemFile)
 
-		_, err = tools.DownloadComponent(config, "/root/.kube/config", node.IP, key, node.User, stdout)
-		_, err = tools.DownloadComponent(path.Join(base, tools.CAKubeAdminCSRConfigFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminCSRConfigFile), node.IP, key, node.User, stdout)
-		_, err = tools.DownloadComponent(path.Join(base, tools.CAKubeAdminKeyPemFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminKeyPemFile), node.IP, key, node.User, stdout)
-		_, err = tools.DownloadComponent(path.Join(base, tools.CAKubeAdminCSRFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminCSRFile), node.IP, key, node.User, stdout)
-		_, err = tools.DownloadComponent(path.Join(base, tools.CAKubeAdminPemFile), path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminPemFile), node.IP, key, node.User, stdout)
+		if node.User == tools.DefaultSSHUser {
+			cmd = fmt.Sprintf("mkdir -p /%s/.kube", tools.DefaultSSHUser)
+			dest = fmt.Sprintf("/%s/.kube/config", tools.DefaultSSHUser)
+		} else {
+			cmd = fmt.Sprintf("mkdir -p /home/%s/.kube", node.User)
+			dest = fmt.Sprintf("/home/%s/.kube", node.User)
+		}
+
+		err = utils.SSHCommand(node.User, key, node.IP, tools.DefaultSSHPort, cmd, stdout, os.Stderr)
+		objects.WriteLog(fmt.Sprintf("exec %s in %s node", cmd, node.IP), stdout, timestamp, d, &node)
+
+		cmd, err = tools.DownloadComponent(config, dest, node.IP, key, node.User, stdout)
+		objects.WriteLog(fmt.Sprintf("upload %s to %s node", cmd, node.IP), stdout, timestamp, d, &node)
+
+		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAKubeAdminCSRConfigFile], path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminCSRConfigFile), node.IP, key, node.User, stdout)
+		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[node.IP][tools.CAKubeAdminCSRConfigFile], node.IP), stdout, timestamp, d, &node)
+
+		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAKubeAdminKeyPemFile], path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminKeyPemFile), node.IP, key, node.User, stdout)
+		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[node.IP][tools.CAKubeAdminKeyPemFile], node.IP), stdout, timestamp, d, &node)
+
+		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAKubeAdminCSRFile], path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminCSRFile), node.IP, key, node.User, stdout)
+		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[node.IP][tools.CAKubeAdminCSRFile], node.IP), stdout, timestamp, d, &node)
+
+		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAKubeAdminPemFile], path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminPemFile), node.IP, key, node.User, stdout)
+		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[node.IP][tools.CAKubeAdminPemFile], node.IP), stdout, timestamp, d, &node)
 
 		if err != nil {
 			return err
