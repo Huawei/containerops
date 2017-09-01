@@ -24,7 +24,7 @@ import (
 )
 
 var (
-	Rlock         sync.RWMutex
+	RWlock        sync.RWMutex
 	GlobalOutputs map[string]string
 )
 
@@ -108,39 +108,8 @@ func (j *Job) Run(name string, verbose, timestamp bool, f *Flow, stageIndex, act
 			return Failure, err
 		} else {
 			p := clientSet.CoreV1Client.Pods(apiv1.NamespaceDefault)
-
-			if _, err := p.Create(
-				&apiv1.Pod{
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "Pod",
-						APIVersion: "v1",
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name: randomContainerName,
-					},
-					Spec: apiv1.PodSpec{
-						Containers: []apiv1.Container{
-							{
-								Name:  randomContainerName,
-								Image: j.Endpoint,
-								Env: []apiv1.EnvVar{
-									{
-										Name:  "CO_DATA",
-										Value: j.Environments[0]["CO_DATA"],
-									},
-								},
-								Resources: apiv1.ResourceRequirements{
-									Requests: apiv1.ResourceList{
-										apiv1.ResourceCPU:    resource.MustParse(j.Resources.CPU),
-										apiv1.ResourceMemory: resource.MustParse(j.Resources.Memory),
-									},
-								},
-							},
-						},
-						RestartPolicy: apiv1.RestartPolicyNever,
-					},
-				},
-			); err != nil {
+			podTemplate := j.PodTemplates(randomContainerName)
+			if _, err := p.Create(podTemplate); err != nil {
 				j.Status = Failure
 				return Failure, err
 			}
@@ -169,7 +138,7 @@ func (j *Job) Run(name string, verbose, timestamp bool, f *Flow, stageIndex, act
 						return Failure, nil
 					}
 					if strings.Contains(line, "[COUT]") && len(j.Outputs) != 0 {
-						j.GetOutputs(f.Stages[stageIndex].Name, f.Stages[stageIndex].Actions[actionIndex].Name, line)
+						j.FetchOutputs(f.Stages[stageIndex].Name, f.Stages[stageIndex].Actions[actionIndex].Name, line)
 					}
 
 					j.Status = Running
@@ -186,18 +155,72 @@ func (j *Job) Run(name string, verbose, timestamp bool, f *Flow, stageIndex, act
 	return Success, nil
 }
 
-func (j *Job) GetOutputs(stageName, actionName, log string) error {
+func (j *Job) FetchOutputs(stageName, actionName, log string) error {
 	output := strings.TrimPrefix(log, "[COUT]")
 	splits := strings.Split(output, "=")
 	for _, o := range j.Outputs {
 		if strings.TrimSpace(o) == strings.TrimSpace(splits[0]) {
 			key := fmt.Sprintf("%s.%s.%s[%s]", stageName, actionName, j.Name, o)
-			Rlock.Lock()
+			RWlock.Lock()
 			GlobalOutputs[key] = strings.TrimSpace(splits[1])
-			Rlock.Unlock()
+			RWlock.Unlock()
 		}
 	}
 	return nil
+}
+
+func (j *Job) PodTemplates(randomContainerName string) *apiv1.Pod {
+	result := &apiv1.Pod{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Pod",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: randomContainerName,
+		},
+		Spec: apiv1.PodSpec{
+			Containers: []apiv1.Container{
+				{
+					Name:  randomContainerName,
+					Image: j.Endpoint,
+					Resources: apiv1.ResourceRequirements{
+						Requests: apiv1.ResourceList{
+							apiv1.ResourceCPU:    resource.MustParse(j.Resources.CPU),
+							apiv1.ResourceMemory: resource.MustParse(j.Resources.Memory),
+						},
+					},
+				},
+			},
+			RestartPolicy: apiv1.RestartPolicyNever,
+		},
+	}
+	//Add user defined enviroments
+	if len(j.Environments) > 0 {
+		for _, environment := range j.Environments {
+			for k, v := range environment {
+				env := apiv1.EnvVar{
+					Name:  k,
+					Value: v,
+				}
+				result.Spec.Containers[0].Env = append(result.Spec.Containers[0].Env, env)
+			}
+		}
+	}
+	//Add user defined subscrptions
+	if len(j.Subscriptions) > 0 {
+		for _, subscription := range j.Subscriptions {
+			for k, env_key := range subscription {
+				if env_value, ok := GlobalOutputs[k]; ok {
+					env := apiv1.EnvVar{
+						Name:  env_key,
+						Value: env_value,
+					}
+					result.Spec.Containers[0].Env = append(result.Spec.Containers[0].Env, env)
+				}
+			}
+		}
+	}
+	return result
 }
 
 func (r *Resource) JSON() ([]byte, error) {
