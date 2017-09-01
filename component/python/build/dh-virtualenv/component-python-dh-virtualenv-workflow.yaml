@@ -1,0 +1,35 @@
+uri: containerops/component/python-component-dh-virtualenv-build
+title: Component for python combine Debian package with db-virtualenv
+version: 1
+tag: latest
+timeout: 0
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-dh-virtualenv-build
+    title: Component, combine Debian package with dh-virtualenv
+    sequencing: sequence
+    actions:
+      -
+        name: dh-virtualenv-build
+        title: build your Debian package with dh-virtualenv
+        jobs:
+          -
+            type: component
+            kubectl: dh-virtualenv-build.yaml
+            endpoint: hub.opshub.sh/containerops/dh-virtualenv:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/spotify/dh-virtualenv.git upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/dh-virtualenv"
+      -
+  -
+    type: end
+    name: end
+    title: End

@@ -92,7 +92,7 @@ def echo_json():
                     title = soup.find('title').text
                     body = soup.find('body').renderContents()
                     print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps({
-                        "title": title, "body": body, "file": file_name })))
+                        "title": title, "body": str(body, 'utf-8', errors='ignore'), "file": file_name })))
 
 
     return True
