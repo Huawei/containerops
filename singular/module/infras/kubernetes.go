@@ -127,18 +127,18 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 			}
 		case "kube-controller-manager":
 			//Generate Kube-controller-manager systemd service file
-			if err := generateKubeControllerManagerFiles(d.Config, masterIP, etcdEndpoints, infra.Version); err != nil {
+			if files, err := generateKubeControllerManagerFiles(d, masterIP, etcdEndpoints, infra.Version); err != nil {
 				return err
-			}
+			} else {
+				//Upload Kuber-controller-manager systemd service file
+				if err := uploadKubeControllerFiles(files, d, kubeMasterNodes, stdout, timestamp); err != nil {
+					return err
+				}
 
-			//Upload Kuber-controller-manager systemd service file
-			if err := uploadKubeControllerFiles(d.Config, d.Tools.SSH.Private, masterIP, stdout); err != nil {
-				return err
-			}
-
-			//Start Kube-controller-manager
-			if err := startKubeController(d.Tools.SSH.Private, masterIP); err != nil {
-				return err
+				//Start Kube-controller-manager
+				if err := startKubeController(d, kubeMasterNodes, stdout, timestamp); err != nil {
+					return err
+				}
 			}
 		case "kube-scheduler":
 			//Generate Kube-scheduler systemd service file
@@ -615,7 +615,7 @@ func startKubeAPIServer(d *objects.Deployment, masters []objects.Node, stdout io
 	cmd := "systemctl daemon-reload && systemctl enable kube-apiserver && systemctl start --no-block kube-apiserver"
 
 	for _, node := range masters {
-		objects.WriteLog(fmt.Sprintf("exec %s in the %s node start kube-apiserver", cmd, node.IP), stdout, timestamp, d, &d)
+		objects.WriteLog(fmt.Sprintf("exec %s in the %s node start kube-apiserver", cmd, node.IP), stdout, timestamp, d, &node)
 		if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, cmd, stdout, os.Stderr); err != nil {
 			return err
 		}
@@ -624,8 +624,13 @@ func startKubeAPIServer(d *objects.Deployment, masters []objects.Node, stdout io
 	return nil
 }
 
-func generateKubeControllerManagerFiles(src string, masterIP, etcdEndpoints string, version string) error {
-	base := path.Join(src, tools.CAFilesFolder, tools.CAKubernetesFolder)
+//generateKubeControllerManagerFiles generate kube-controller-manager systemd service file.
+func generateKubeControllerManagerFiles(d *objects.Deployment, masterIP, etcdEndpoints string, version string) (map[string]string, error) {
+	base := path.Join(d.Config, tools.CAFilesFolder, tools.CAKubernetesFolder)
+
+	files := map[string]string{
+		tools.KubeControllerManagerSystemdFile: path.Join(base, tools.KubeControllerManagerSystemdFile),
+	}
 
 	master := KubeMaster{
 		MasterIP: masterIP,
@@ -639,28 +644,36 @@ func generateKubeControllerManagerFiles(src string, masterIP, etcdEndpoints stri
 	serviceTp.Execute(&serviceTpl, master)
 	serviceTpFileBytes := serviceTpl.Bytes()
 
-	if err := ioutil.WriteFile(path.Join(base, "kube-controller-manager.service"), serviceTpFileBytes, 0700); err != nil {
-		return err
+	if err := ioutil.WriteFile(files[tools.KubeControllerManagerSystemdFile], serviceTpFileBytes, 0700); err != nil {
+		return files, err
+	}
+
+	return files, nil
+}
+
+//uploadKubeControllerFiles upload kube-controller-manager
+func uploadKubeControllerFiles(files map[string]string, d *objects.Deployment, masters []objects.Node, stdout io.Writer, timestamp bool) error {
+	for _, node := range masters {
+		if cmd, err := tools.DownloadComponent(files[tools.KubeControllerManagerSystemdFile], path.Join(tools.SytemdServerPath, tools.KubeControllerManagerSystemdFile), node.IP, d.Tools.SSH.Private, node.User, stdout); err != nil {
+			return err
+		} else {
+			objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[tools.KubeControllerManagerSystemdFile], node.IP), stdout, timestamp, d, &node)
+		}
 	}
 
 	return nil
 }
 
-func uploadKubeControllerFiles(src, key, ip string, stdout io.Writer) error {
-	base := path.Join(src, tools.CAFilesFolder, tools.CAKubernetesFolder)
-
-	if _, err := tools.DownloadComponent(path.Join(base, "kube-controller-manager.service"), "/etc/systemd/system/kube-controller-manager.service", ip, key, tools.DefaultSSHUser, stdout); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func startKubeController(key, ip string) error {
+//startKubeController start kube-controller-manager in the master nodes.
+func startKubeController(d *objects.Deployment, masters []objects.Node, stdout io.Writer, timestamp bool) error {
 	cmd := "systemctl daemon-reload && systemctl enable kube-controller-manager && systemctl start --no-block kube-controller-manager"
 
-	if err := utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr); err != nil {
-		return err
+	for _, node := range masters {
+		if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, cmd, stdout, os.Stderr); err != nil {
+			return err
+		}
+
+		objects.WriteLog(fmt.Sprintf("Exec %s command start kube-controller-manager in %s node", cmd, node.IP), stdout, timestamp, d, &node)
 	}
 
 	return nil

@@ -126,6 +126,7 @@ func (d *Deployment) URIs() (namespace, repository, name string, err error) {
 	return namespace, repository, name, nil
 }
 
+//
 func (d *Deployment) Output(key, value string) {
 	if d.Outputs == nil {
 		d.Outputs = map[string]interface{}{}

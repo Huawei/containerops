@@ -40,8 +40,9 @@ const (
 	ServiceDockerFile   = "docker.service"
 
 	// Kubectl files Folder Name
-	KubectlFile              = "kubectl"
-	KubectlConfigFile        = "config"
-	KubeTokenCSVFile         = "token.csv"
-	KubeAPIServerSystemdFile = "kube-apiserver.service"
+	KubectlFile                      = "kubectl"
+	KubectlConfigFile                = "config"
+	KubeTokenCSVFile                 = "token.csv"
+	KubeAPIServerSystemdFile         = "kube-apiserver.service"
+	KubeControllerManagerSystemdFile = "kube-controller-manager.service"
 )
