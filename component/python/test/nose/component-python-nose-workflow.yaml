@@ -1,0 +1,35 @@
+uri: containerops/component/python-component-nose-build
+title: Component for python code test with nose
+version: 1
+tag: latest
+timeout: 0
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-nose-build
+    title: Component, python code test with nose
+    sequencing: sequence
+    actions:
+      -
+        name: nose-build
+        title: test your python code with nose
+        jobs:
+          -
+            type: component
+            kubectl: nose-build.yaml
+            endpoint: hub.opshub.sh/containerops/nose:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/nose-devs/nose.git entry-path=unit_tests"
+      -
+  -
+    type: end
+    name: end
+    title: End

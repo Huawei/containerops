@@ -1,0 +1,539 @@
+uri: containerops/component/python-components
+title: Component for python
+version: 1
+tag: latest
+timeout: 0
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-coala-test
+    title: Component, python code analysis with coala
+    sequencing: sequence
+    actions:
+      -
+        name: coala-test
+        title: analysis your python coding style
+        jobs:
+          -
+            type: component
+            kubectl: analysis/coala/coala-test.yaml
+            endpoint: hub.opshub.sh/containerops/coala:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
+      -
+  -
+    type: normal
+    name: component-flake8-test
+    title: Component, python code analysis with flake8
+    sequencing: sequence
+    actions:
+      -
+        name: flake8-test
+        title: analysis your python coding style
+        jobs:
+          -
+            type: component
+            kubectl: analysis/flake8/flake8-test.yaml
+            endpoint: hub.opshub.sh/containerops/flake8:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
+      -
+  -
+    type: normal
+    name: component-line-profiler-test
+    title: Component, python profiling with line_profiler
+    sequencing: sequence
+    actions:
+      -
+        name: line-profiler-test
+        title: analysis your python function line-by-line
+        jobs:
+          -
+            type: component
+            kubectl: analysis/line_profiler/line-profiler-test.yaml
+            endpoint: hub.opshub.sh/containerops/line_profiler:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/istrategylabs/python-profiling entry-file=debug.py"
+      -
+  -
+    type: normal
+    name: component-memory-profiler-test
+    title: Component, python profiling with memory_profiler
+    sequencing: sequence
+    actions:
+      -
+        name: memory-profiler-test
+        title: analysis your python memory usage
+        jobs:
+          -
+            type: component
+            kubectl: analysis/memory_profiler/memory-profiler-test.yaml
+            endpoint: hub.opshub.sh/containerops/memory_profiler:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/fabianp/memory_profiler.git entry-file=test/test_func.py"
+      -
+  -
+    type: normal
+    name: component-pep8-test
+    title: Component, python code analysis with pep8
+    sequencing: sequence
+    actions:
+      -
+        name: pep8-test
+        title: analysis your python coding style
+        jobs:
+          -
+            type: component
+            kubectl: analysis/pep8/pep8-test.yaml
+            endpoint: hub.opshub.sh/containerops/pep8:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
+      -
+  -
+    type: normal
+    name: component-pycallgraph-test
+    title: Component, python call graph visualizations
+    sequencing: sequence
+    actions:
+      -
+        name: pycallgraph-test
+        title: python call graph visualizations
+        jobs:
+          -
+            type: component
+            kubectl: analysis/pycallgraph/pycallgraph-test.yaml
+            endpoint: hub.opshub.sh/containerops/pycallgraph:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pycallgraph"
+      -
+  -
+    type: normal
+    name: component-pylama-test
+    title: Component, python code analysis with pylama
+    sequencing: sequence
+    actions:
+      -
+        name: pylama-test
+        title: analysis your python coding style
+        jobs:
+          -
+            type: component
+            kubectl: analysis/pylama/pylama-test.yaml
+            endpoint: hub.opshub.sh/containerops/pylama:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
+      -
+  -
+    type: normal
+    name: component-pylint-test
+    title: Component, python code analysis with pylint
+    sequencing: sequence
+    actions:
+      -
+        name: pylint-test
+        title: analysis your python coding style
+        jobs:
+          -
+            type: component
+            kubectl: analysis/pylint/pylint-test.yaml
+            endpoint: hub.opshub.sh/containerops/pylint:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
+      -
+  -
+    type: normal
+    name: component-dh-virtualenv-build
+    title: Component, combine Debian package with dh-virtualenv
+    sequencing: sequence
+    actions:
+      -
+        name: dh-virtualenv-build
+        title: build your Debian package with dh-virtualenv
+        jobs:
+          -
+            type: component
+            kubectl: build/dh-virtualenv/dh-virtualenv-build.yaml
+            endpoint: hub.opshub.sh/containerops/dh-virtualenv:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/spotify/dh-virtualenv.git upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/dh-virtualenv"
+      -
+  -
+    type: normal
+    name: component-nuitka-build
+    title: Component, compile python code with nuitka
+    sequencing: sequence
+    actions:
+      -
+        name: nuitka-build
+        title: compile your python code with nuitka
+        jobs:
+          -
+            type: component
+            kubectl: build/nuitka/nuitka-build.yaml
+            endpoint: hub.opshub.sh/containerops/nuitka:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/nuitka"
+      -
+  -
+    type: normal
+    name: component-pybuilder-build
+    title: Component, python code build tool with pybuilder
+    sequencing: sequence
+    actions:
+      -
+        name: pybuilder-build
+        title: build your python code with pybuilder
+        jobs:
+          -
+            type: component
+            kubectl: build/pybuilder/pybuilder-build.yaml
+            endpoint: hub.opshub.sh/containerops/pybuilder:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/blanzp/amazon_examples.git entry-path=. task=run_unit_tests"
+      -
+  -
+    type: normal
+    name: component-pyinstaller-build
+    title: Component, build python code with pyinstaller
+    sequencing: sequence
+    actions:
+      -
+        name: pyinstaller-build
+        title: build your python code with pyinstaller
+        jobs:
+          -
+            type: component
+            kubectl: build/pyinstaller/pyinstaller-build.yaml
+            endpoint: hub.opshub.sh/containerops/pyinstaller:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pyinstaller"
+      -
+  -
+    type: normal
+    name: component-pynsist-build
+    title: Component, build python code with pynsist
+    sequencing: sequence
+    actions:
+      -
+        name: pynsist-build
+        title: build your python code with pynsist
+        jobs:
+          -
+            type: component
+            kubectl: build/pynsist/pynsist-build.yaml
+            endpoint: hub.opshub.sh/containerops/pynsist:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/takluyver/pynsist.git entry-file=examples/console/installer.cfg upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pynsist"
+      -
+  -
+    type: normal
+    name: component-mkdocs-build
+    title: Component, build python document with mkdocs
+    sequencing: sequence
+    actions:
+      -
+        name: mkdocs-build
+        title: build your python document with mkdocs
+        jobs:
+          -
+            type: component
+            kubectl: document/mkdocs/mkdocs-build.yaml
+            endpoint: hub.opshub.sh/containerops/mkdocs:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/mkdocs/mkdocs.git entry-path=."
+      -
+  -
+    type: normal
+    name: component-pdoc-build
+    title: Component, build python package document with pdoc
+    sequencing: sequence
+    actions:
+      -
+        name: pdoc-build
+        title: build your python package document with pdoc
+        jobs:
+          -
+            type: component
+            kubectl: document/pdoc/pdoc-build.yaml
+            endpoint: hub.opshub.sh/containerops/pdoc:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-mod=grapy"
+      -
+  -
+    type: normal
+    name: component-pycco-build
+    title: Component, build python document with pycco
+    sequencing: sequence
+    actions:
+      -
+        name: pycco-build
+        title: build your python document with pycco
+        jobs:
+          -
+            type: component
+            kubectl: document/pycco/pycco-build.yaml
+            endpoint: hub.opshub.sh/containerops/pycco:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/pycco-docs/pycco.git"
+      -
+  -
+    type: normal
+    name: component-sphinx-build
+    title: Component, build python document with sphinx
+    sequencing: sequence
+    actions:
+      -
+        name: sphinx-build
+        title: build your python document with sphinx
+        jobs:
+          -
+            type: component
+            kubectl: document/sphinx/sphinx-build.yaml
+            endpoint: hub.opshub.sh/containerops/sphinx:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-path=docs"
+      -
+  -
+    type: normal
+    name: component-coverage-build
+    title: Component, python code test with coverage
+    sequencing: sequence
+    actions:
+      -
+        name: coverage-build
+        title: test your python code with coverage
+        jobs:
+          -
+            type: component
+            kubectl: test/coverage/coverage-build.yaml
+            endpoint: hub.opshub.sh/containerops/coverage:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=test/test_regex.py"
+      -
+  -
+    type: normal
+    name: component-green-build
+    title: Component, python code test with green
+    sequencing: sequence
+    actions:
+      -
+        name: green-build
+        title: test your python code with green
+        jobs:
+          -
+            type: component
+            kubectl: test/green/green-build.yaml
+            endpoint: hub.opshub.sh/containerops/green:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=."
+      -
+  -
+    type: normal
+    name: component-mamba-build
+    title: Component, python code test with mamba
+    sequencing: sequence
+    actions:
+      -
+        name: mamba-build
+        title: test your python code with mamba
+        jobs:
+          -
+            type: component
+            kubectl: test/mamba/mamba-build.yaml
+            endpoint: hub.opshub.sh/containerops/mamba:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/juanAFernandez/testing-with-python.git entry-file=examples/mamba_example.py"
+      -
+  -
+    type: normal
+    name: component-nose-build
+    title: Component, python code test with nose
+    sequencing: sequence
+    actions:
+      -
+        name: nose-build
+        title: test your python code with nose
+        jobs:
+          -
+            type: component
+            kubectl: test/nose/nose-build.yaml
+            endpoint: hub.opshub.sh/containerops/nose:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/nose-devs/nose.git entry-path=unit_tests"
+      -
+  -
+    type: normal
+    name: component-nose2-build
+    title: Component, python code test with nose2
+    sequencing: sequence
+    actions:
+      -
+        name: nose2-build
+        title: test your python code with nose2
+        jobs:
+          -
+            type: component
+            kubectl: test/nose2/nose2-build.yaml
+            endpoint: hub.opshub.sh/containerops/nose2:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=."
+      -
+  -
+    type: normal
+    name: component-pytest-build
+    title: Component, python code test with pytest
+    sequencing: sequence
+    actions:
+      -
+        name: pytest-build
+        title: test your python code with pytest
+        jobs:
+          -
+            type: component
+            kubectl: test/pytest/pytest-build.yaml
+            endpoint: hub.opshub.sh/containerops/pytest:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=."
+      -
+  -
+    type: normal
+    name: component-tox-build
+    title: Component, python code test with tox
+    sequencing: sequence
+    actions:
+      -
+        name: tox-build
+        title: test your python code with tox
+        jobs:
+          -
+            type: component
+            kubectl: test/tox/tox-build.yaml
+            endpoint: hub.opshub.sh/containerops/tox:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/CleanCut/green.git entry-path=."
+      -
+  -
+    type: normal
+    name: component-unittest-build
+    title: Component, python code test with unittest
+    sequencing: sequence
+    actions:
+      -
+        name: unittest-build
+        title: test your python code with unittest
+        jobs:
+          -
+            type: component
+            kubectl: test/unittest/unittest-build.yaml
+            endpoint: hub.opshub.sh/containerops/unittest:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-module=test.test_regex"
+      -
+  -
+    type: end
+    name: end
+    title: End

@@ -1,0 +1,35 @@
+uri: containerops/component/python-component-pylint-test
+title: Component for python code analysis with pylint
+version: 1
+tag: latest
+timeout: 0
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-pylint-test
+    title: Component, python code analysis with pylint
+    sequencing: sequence
+    actions:
+      -
+        name: pylint-test
+        title: analysis your python coding style
+        jobs:
+          -
+            type: component
+            kubectl: pylint-test.yaml
+            endpoint: hub.opshub.sh/containerops/pylint:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
+      -
+  -
+    type: end
+    name: end
+    title: End
