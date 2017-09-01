@@ -45,4 +45,5 @@ const (
 	KubeTokenCSVFile                 = "token.csv"
 	KubeAPIServerSystemdFile         = "kube-apiserver.service"
 	KubeControllerManagerSystemdFile = "kube-controller-manager.service"
+	KubeSchedulerSystemdFile         = "kube-scheduler.service"
 )
