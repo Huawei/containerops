@@ -75,7 +75,7 @@ stages:
             timeout: 0
             environments:
               - CO_DATA: "prometheus=https://github.com/prometheus/prometheus.git action=release release=hub.opshub.sh/containerops/cncf-demo/demo"
-            output: ["CO_PROMETHEUS_URI", "CO_PROMTOOL_URI"]
+            outputs: ["CO_PROMETHEUS_URI", "CO_PROMTOOL_URI"]
   -
     type: normal
     name: coredns-test-build-release
