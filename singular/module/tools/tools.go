@@ -46,4 +46,5 @@ const (
 	KubeAPIServerSystemdFile         = "kube-apiserver.service"
 	KubeControllerManagerSystemdFile = "kube-controller-manager.service"
 	KubeSchedulerSystemdFile         = "kube-scheduler.service"
+	KubeletSystemdFile               = "kubelet.service"
 )
