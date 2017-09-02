@@ -33,44 +33,48 @@ const (
 //DownloadComponents is download component binary file to the host.
 //If the src is URL, execute curl command in the host.
 //If the src is local file, execute scp command upload to the host.
-func DownloadComponent(src, dest, host, private, user string, stdout io.Writer) error {
+func DownloadComponent(src, dest, host, private, user string, stdout io.Writer) (string, error) {
+	var cmd string
+
 	if u, err := url.Parse(src); err != nil {
-		return fmt.Errorf("Invalid src format, neither URL or local path.")
+		return "", fmt.Errorf("Invalid src format, neither URL or local path.")
 	} else {
 		if u.Scheme == "" {
 			if utils.IsFileExist(src) == true {
-				if err := uploadBinary(src, dest, host, private, user); err != nil {
-					return err
+				if cmd, err = uploadBinary(src, dest, host, private, user); err != nil {
+					return "", err
 				}
 			} else {
-				return fmt.Errorf("The file not exist")
+				return "", fmt.Errorf("The file not exist")
 			}
 		} else {
-			if err := downloadBinary(src, dest, host, private, user, stdout); err != nil {
-				return err
+			if cmd, err = downloadBinary(src, dest, host, private, user, stdout); err != nil {
+				return "", err
 			}
 		}
 
 	}
 
-	return nil
+	return cmd, nil
 }
 
 //downloadBinary exec curl command download binary in the node.
-func downloadBinary(src, dest, host, private, user string, stdout io.Writer) error {
+func downloadBinary(src, dest, host, private, user string, stdout io.Writer) (string, error) {
 	cmd := fmt.Sprintf("curl %s -o %s", src, dest)
 	if err := utils.SSHCommand(user, private, host, DefaultSSHPort, cmd, stdout, os.Stderr); err != nil {
-		return err
+		return cmd, err
 	}
 
-	return nil
+	return cmd, nil
 }
 
 //uploadBinary exec scp command copy local file to the node.
-func uploadBinary(file, dest, host, private, user string) error {
+func uploadBinary(file, dest, host, private, user string) (string, error) {
+	cmd := fmt.Sprintf("scp -i %s %s %s", private, file, dest)
+
 	if err := utils.SSHScp(user, private, host, DefaultSSHPort, file, dest); err != nil {
-		return err
+		return cmd, err
 	}
 
-	return nil
+	return cmd, nil
 }
