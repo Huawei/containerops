@@ -32,49 +32,6 @@ import (
 	t "github.com/Huawei/containerops/singular/module/template"
 )
 
-const (
-	//CA files folder
-	CAFilesFolder = "ssl"
-
-	//CA Root Files Folder Name
-	CARootFilesFolder = "root"
-	//CA Root Files Const Name
-	CARootConfigFile    = "ca-config.json"
-	CARootCSRConfigFile = "ca-csr.json"
-	CARootPemFile       = "ca.pem"
-	CARootCSRFile       = "ca.csr"
-	CARootKeyFile       = "ca-key.pem"
-
-	//CA Etcd Files Folder Name
-	CAEtcdFolder        = "etcd"
-	CAEtcdCSRConfigFile = "etcd-csr.json"
-	CAEtcdKeyPemFile    = "etcd-key.pem"
-	CAEtcdCSRFile       = "etcd.csr"
-	CAEtcdPemFile       = "etcd.pem"
-
-	//CA Flannel Files Folder name
-	CAFlanneldFolder        = "flanneld"
-	CAFlanneldCSRConfigFile = "flanneld-csr.json"
-	CAFlanneldKeyPemFile    = "flanneld-key.pem"
-	CAFlanneldCSRFile       = "flanneld.csr"
-	CAFlanneldPemFile       = "flanneld.pem"
-
-	//CA Docker Files Folder name
-	CADockerFolder = "docker"
-
-	//Kubernetes admin Files
-	CAKubernetesFolder       = "kubernetes"
-	CAKubeAdminCSRConfigFile = "admin-csr.json"
-	CAKubeAdminKeyPemFile    = "admin-key.pem"
-	CAKubeAdminCSRFile       = "admin.csr"
-	CAKubeAdminPemFile       = "admin.pem"
-	//Kubernetes API Server Files
-	CAKubeAPIServerCSRConfigFile = "kubernetes-csr.json"
-	CAKubeAPIServerKeyPemFile    = "kubernetes-key.pem"
-	CAKubeAPIServerCSRFile       = "kubernetes.csr"
-	CAKubeAPIServerPemFile       = "kubernetes.pem"
-)
-
 //GenerateCARootFiles generate root files from template.
 func GenerateCARootFiles(src string) (map[string]string, error) {
 	var caConfigTpl, caCsrTpl bytes.Buffer

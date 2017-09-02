@@ -149,7 +149,7 @@ func generateDockerServiceFile(version, base string) (map[string]string, error) 
 //TODO apt-get install -y bridge-utils aufs-tools cgroupfs-mount libltdl7
 func uploadDockerFiles(files map[string]map[string]string, key string, nodes []objects.Node, stdout io.Writer, timestamp bool) error {
 	for _, node := range nodes {
-		if cmd, err := tools.DownloadComponent(files[node.IP][tools.ServiceDockerFile], path.Join(tools.SytemdServerPath, tools.ServiceDockerFile), node.IP, key, node.User, stdout); err != nil {
+		if cmd, err := tools.DownloadComponent(files[node.IP][tools.ServiceDockerFile], path.Join(tools.SystemdServerPath, tools.ServiceDockerFile), node.IP, key, node.User, stdout); err != nil {
 			return err
 		} else {
 			objects.WriteLog(

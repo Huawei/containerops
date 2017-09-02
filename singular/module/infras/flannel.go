@@ -279,7 +279,7 @@ func uploadFlanneldFiles(files map[string]map[string]string, key string, nodes [
 			stdout, timestamp, &node)
 
 		// Upload Systemd file
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.ServiceFlanneldFile], path.Join(tools.SytemdServerPath, tools.ServiceFlanneldFile), node.IP, key, node.User, stdout)
+		cmd, err = tools.DownloadComponent(files[node.IP][tools.ServiceFlanneldFile], path.Join(tools.SystemdServerPath, tools.ServiceFlanneldFile), node.IP, key, node.User, stdout)
 		objects.WriteLog(
 			fmt.Sprintf("upload %s to %s@%s with %s", files[node.IP][tools.ServiceFlanneldFile], node.IP, path.Join(FlanneldServerConfig, FlanneldServerSSL, tools.ServiceFlanneldFile), cmd),
 			stdout, timestamp, &node)

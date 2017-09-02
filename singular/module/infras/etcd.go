@@ -312,7 +312,7 @@ func uploadEtcdFiles(files map[string]map[string]string, key string, nodes []obj
 			fmt.Sprintf("upload %s to %s@%s with %s", files[node.IP][tools.CAEtcdPemFile], node.IP, path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdPemFile), cmd),
 			stdout, timestamp, &node)
 
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.ServiceEtcdFile], path.Join(tools.SytemdServerPath, tools.ServiceEtcdFile), node.IP, key, user, stdout)
+		cmd, err = tools.DownloadComponent(files[node.IP][tools.ServiceEtcdFile], path.Join(tools.SystemdServerPath, tools.ServiceEtcdFile), node.IP, key, user, stdout)
 		objects.WriteLog(
 			fmt.Sprintf("upload %s to %s@%s with %s", files[node.IP][tools.ServiceEtcdFile], node.IP, path.Join(EtcdServerConfig, EtcdServerSSL, tools.ServiceEtcdFile), cmd),
 			stdout, timestamp, &node)
