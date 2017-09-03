@@ -162,14 +162,14 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 
 			//Upload CA root files to the nodes.
 			for _, node := range d.Nodes {
-				objects.WriteLog(fmt.Sprintf("Upload root CA files %v to node [%s]", roots, node), stdout, timestamp, d, &node)
+				objects.WriteLog(fmt.Sprintf("Upload root CA files %v to %s node", roots, node.IP), stdout, timestamp, d, &node)
 				if err := tools.UploadCARootFiles(d.Tools.SSH.Private, roots, node.IP, node.User, stdout); err != nil {
 					return err
 				}
 			}
 		}
 
-		// Deploy infras
+		//Deploy infras
 		for _, infra := range d.Infras {
 			switch infra.Name {
 			case InfraEtcd:

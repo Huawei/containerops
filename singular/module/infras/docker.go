@@ -118,9 +118,7 @@ func generateDockerFiles(src string, nodes []objects.Node, version string) (map[
 		if files, err := generateDockerServiceFile(version, path.Join(serviceBase, node.IP)); err != nil {
 			return result, err
 		} else {
-			for k, v := range files {
-				result[node.IP][k] = v
-			}
+			result[node.IP] = files
 		}
 	}
 

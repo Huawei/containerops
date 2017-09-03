@@ -178,13 +178,13 @@ func generateEtcdFiles(src string, nodes []objects.Node, etcdEndpoints string, v
 		if files, err := generateEtcdSSLFiles(caFile, caKeyFile, configFile, node, version, sslBase, node.IP); err != nil {
 			return result, err
 		} else {
-			for k, v := range files {
-				result[node.IP][k] = v
-			}
+			result[node.IP] = files
 		}
 
 		//Generate Etcd Systemd File
 		if files, err := generateEtcdServiceFile(node, version, serviceBase, node.IP); err != nil {
+			return result, err
+		} else {
 			for k, v := range files {
 				result[node.IP][k] = v
 			}

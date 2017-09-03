@@ -145,7 +145,7 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 			if files, err := generateKubeSchedulerFiles(d, masterIP, etcdEndpoints, infra.Version); err != nil {
 				return err
 			} else {
-				//Upload Kuber-scheduler systemd service file
+				//Upload Kube-scheduler systemd service file
 				if err := uploadKubeSchedulerFiles(files, d, kubeMasterNodes, stdout, timestamp); err != nil {
 					return err
 				}
@@ -237,8 +237,8 @@ func setKubectlFiles(d *objects.Deployment, link, master string, stdout io.Write
 				return err
 			}
 		} else {
-			cmdDownload := exec.Command("curl", link, "-o", path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlFile), d.Config)
-			objects.WriteLog(fmt.Sprintf("%s", cmdDownload), stdout, timestamp, d)
+			cmdDownload := exec.Command("curl", link, "-o", path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlFile))
+			objects.WriteLog(fmt.Sprintf("curl %s -o %s", link, path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlFile)), stdout, timestamp, d)
 			cmdDownload.Stdout, cmdDownload.Stderr = stdout, os.Stderr
 			if err := cmdDownload.Run(); err != nil {
 				return err
@@ -248,7 +248,7 @@ func setKubectlFiles(d *objects.Deployment, link, master string, stdout io.Write
 
 	//Change mode +x for kubectl
 	cmdChmod := exec.Command("chmod", "+x", path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlFile))
-	objects.WriteLog(fmt.Sprintf("%s", cmdChmod), stdout, timestamp, d)
+	objects.WriteLog(fmt.Sprintf("chmod +x %s", path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlFile)), stdout, timestamp, d)
 	cmdChmod.Stdout, cmdChmod.Stderr = stdout, os.Stderr
 	if err := cmdChmod.Run(); err != nil {
 		return err
@@ -407,6 +407,7 @@ func uploadKubeConfigFiles(d *objects.Deployment, key string, nodes []objects.No
 		var err error
 		var cmd, dest string
 
+		files[node.IP] = map[string]string{}
 		files[node.IP][tools.CAKubeAdminCSRConfigFile] = path.Join(base, tools.CAKubeAdminCSRConfigFile)
 		files[node.IP][tools.CAKubeAdminKeyPemFile] = path.Join(base, tools.CAKubeAdminKeyPemFile)
 		files[node.IP][tools.CAKubeAdminCSRFile] = path.Join(base, tools.CAKubeAdminCSRFile)

@@ -68,7 +68,7 @@ func initEnvironment(key, ip, user, distro string, stdout io.Writer) ([]string, 
 	initCmd := map[string][]string{
 		DistroUbuntu: []string{
 			"systemctl stop ufw",
-			"systemctl disable ufw",
+			"/lib/systemd/systemd-sysv-install disable ufw",
 		},
 		DistroCentOS: []string{},
 	}
