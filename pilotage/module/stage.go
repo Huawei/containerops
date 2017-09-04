@@ -2,13 +2,14 @@ package module
 
 import (
 	"fmt"
-	"time"
 	"strings"
+	"time"
 
+	"github.com/Huawei/containerops/pilotage/model"
 	. "github.com/logrusorgru/aurora"
 )
 
-const(
+const (
 	// Stage Type
 	StartStage  = "start"
 	EndStage    = "end"
@@ -18,6 +19,7 @@ const(
 
 // Stage is
 type Stage struct {
+	ID         int64    `json:"-" yaml:"-"`
 	T          string   `json:"type" yaml:"type"`
 	Name       string   `json:"name" yaml:"name"`
 	Title      string   `json:"title" yaml:"title"`
@@ -27,10 +29,11 @@ type Stage struct {
 	Actions    []Action `json:"actions,omitempty" yaml:"actions,omitempty"`
 }
 
-
 // TODO filter the log print with different color.
 func (s *Stage) Log(log string, verbose, timestamp bool) {
 	s.Logs = append(s.Logs, fmt.Sprintf("[%s] %s", time.Now().String(), log))
+	l := new(model.LogV1)
+	l.Create(model.INFO, model.STAGE, s.ID, log)
 
 	if verbose == true {
 		if timestamp == true {
@@ -41,11 +44,23 @@ func (s *Stage) Log(log string, verbose, timestamp bool) {
 	}
 }
 
-func (s *Stage) SequencingRun(verbose, timestamp bool, f *Flow) (string, error) {
+func (s *Stage) SequencingRun(verbose, timestamp bool, f *Flow, stageIndex int) (string, error) {
 	s.Status = Running
 
 	s.Log(fmt.Sprintf("Stage [%s] status change to %s", s.Name, s.Status), false, timestamp)
 	f.Log(fmt.Sprintf("Stage [%s] status change to %s", s.Name, s.Status), verbose, timestamp)
+
+	// Save Stage into database
+	stage := new(model.StageV1)
+	stageID, err := stage.Put(f.ID, s.T, s.Name, s.Title, s.Sequencing)
+	if err != nil {
+		s.Log(fmt.Sprintf("Save Stage [%s] error: %s", s.Name, err.Error()), false, timestamp)
+	}
+	s.ID = stageID
+
+	// Record stage data
+	stageData := new(model.StageDataV1)
+	startTime := time.Now()
 
 	for i, _ := range s.Actions {
 		action := &s.Actions[i]
@@ -53,7 +68,7 @@ func (s *Stage) SequencingRun(verbose, timestamp bool, f *Flow) (string, error) 
 		s.Log(fmt.Sprintf("The Number [%d] action is running: %s", i, s.Title), false, timestamp)
 		f.Log(fmt.Sprintf("The Number [%d] action is running: %s", i, s.Title), verbose, timestamp)
 
-		if status, err := action.Run(verbose, timestamp, f); err != nil {
+		if status, err := action.Run(verbose, timestamp, f, stageIndex, i); err != nil {
 			s.Status = Failure
 
 			s.Log(fmt.Sprintf("Action [%s] run error: %s", action.Name, err.Error()), false, timestamp)
@@ -68,14 +83,34 @@ func (s *Stage) SequencingRun(verbose, timestamp bool, f *Flow) (string, error) 
 		}
 	}
 
+	currentNumber, err := stageData.GetNumbers(stageID)
+	if err != nil {
+		s.Log(fmt.Sprintf("Get Stage Data [%s] Numbers error: %s", s.Name, err.Error()), verbose, timestamp)
+	}
+	if err := stageData.Put(s.ID, currentNumber+1, s.Status, startTime, time.Now()); err != nil {
+		s.Log(fmt.Sprintf("Save Stage Data [%s] error: %s", s.Name, err.Error()), false, timestamp)
+	}
+
 	return s.Status, nil
 }
 
-func (s *Stage) ParallelRun(verbose, timestamp bool, f *Flow) (string, error) {
+func (s *Stage) ParallelRun(verbose, timestamp bool, f *Flow, stageIndex int) (string, error) {
 	s.Status = Running
 
 	s.Log(fmt.Sprintf("Stage [%s] status change to %s", s.Name, s.Status), false, timestamp)
 	f.Log(fmt.Sprintf("Stage [%s] status change to %s", s.Name, s.Status), verbose, timestamp)
+
+	// Save Stage into database
+	stage := new(model.StageV1)
+	stageID, err := stage.Put(f.ID, s.T, s.Name, s.Title, s.Sequencing)
+	if err != nil {
+		s.Log(fmt.Sprintf("Save Stage [%s] error: %s", s.Name, err.Error()), false, timestamp)
+	}
+	s.ID = stageID
+
+	// Record stage data
+	stageData := new(model.StageDataV1)
+	startTime := time.Now()
 
 	resultChan := make(chan string)
 	defer close(resultChan)
@@ -88,7 +123,7 @@ func (s *Stage) ParallelRun(verbose, timestamp bool, f *Flow) (string, error) {
 			s.Log(fmt.Sprintf("The Number [%d] action is running: %s", index, s.Title), false, timestamp)
 			f.Log(fmt.Sprintf("The Number [%d] action is running: %s", index, s.Title), verbose, timestamp)
 
-			if status, err := action.Run(verbose, timestamp, f); err != nil {
+			if status, err := action.Run(verbose, timestamp, f, stageIndex, index); err != nil {
 				tempStaus = Failure
 
 				s.Log(fmt.Sprintf("Action [%s] run error: %s", action.Name, err.Error()), false, timestamp)
@@ -106,9 +141,18 @@ func (s *Stage) ParallelRun(verbose, timestamp bool, f *Flow) (string, error) {
 			count++
 			s.Status = result
 			if result == Failure || result == Cancel || count == len(s.Actions) {
+
+				currentNumber, err := stageData.GetNumbers(stageID)
+				if err != nil {
+					s.Log(fmt.Sprintf("Get Stage Data [%s] Numbers error: %s", s.Name, err.Error()), verbose, timestamp)
+				}
+				if err := stageData.Put(s.ID, currentNumber+1, s.Status, startTime, time.Now()); err != nil {
+					s.Log(fmt.Sprintf("Save Stage Data [%s] error: %s", s.Name, err.Error()), false, timestamp)
+				}
+
 				return s.Status, nil
 			}
 		}
+
 	}
-	return s.Status, nil
 }

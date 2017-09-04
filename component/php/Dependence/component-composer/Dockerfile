@@ -12,17 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM containerops/composer:latest
+FROM hub.opshub.sh/binary/v1/containerops/component/binary/php:0.1
 MAINTAINER Yang Bin <yangkghjh@gmail.com>
 
-RUN useradd --create-home --no-log-init --shell /bin/bash composer
-RUN adduser composer sudoRUN echo 'composer:composer' | chpasswd
-USER composer
+RUN mkdir -p /root/src
+ADD / /root/src
 
-RUN mkdir -p $GOPATH/src/github.com/Huawei/containerops
-ADD /src/ $GOPATH/src/github.com/Huawei/containerops/
+WORKDIR /root/src
 
-WORKDIR $GOPATH/src/github.com/Huawei/containerops
-RUN go build component/component-composer.go
-
-CMD component-composer
+CMD ./bin/containerops-php Composer

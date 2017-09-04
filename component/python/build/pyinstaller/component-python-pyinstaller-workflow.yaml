@@ -1,0 +1,35 @@
+uri: containerops/component/python-component-pyinstaller-build
+title: Component for build python code with pyinstaller
+version: 1
+tag: latest
+timeout: 0
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-pyinstaller-build
+    title: Component, build python code with pyinstaller
+    sequencing: sequence
+    actions:
+      -
+        name: pyinstaller-build
+        title: build your python code with pyinstaller
+        jobs:
+          -
+            type: component
+            kubectl: pyinstaller-build.yaml
+            endpoint: hub.opshub.sh/containerops/pyinstaller:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pyinstaller"
+      -
+  -
+    type: end
+    name: end
+    title: End

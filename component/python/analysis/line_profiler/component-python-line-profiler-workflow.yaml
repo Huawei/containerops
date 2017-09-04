@@ -1,0 +1,35 @@
+uri: containerops/component/python-component-line-profiler-test
+title: Component for python profiling with line_profiler
+version: 1
+tag: latest
+timeout: 0
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-line-profiler-test
+    title: Component, python profiling with line_profiler
+    sequencing: sequence
+    actions:
+      -
+        name: line-profiler-test
+        title: analysis your python function line-by-line
+        jobs:
+          -
+            type: component
+            kubectl: line-profiler-test.yaml
+            endpoint: hub.opshub.sh/containerops/line_profiler:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/istrategylabs/python-profiling entry-file=debug.py"
+      -
+  -
+    type: end
+    name: end
+    title: End

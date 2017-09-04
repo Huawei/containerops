@@ -1,0 +1,35 @@
+uri: containerops/component/python-component-unittest-build
+title: Component for python code test with unittest
+version: 1
+tag: latest
+timeout: 0
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-unittest-build
+    title: Component, python code test with unittest
+    sequencing: sequence
+    actions:
+      -
+        name: unittest-build
+        title: test your python code with unittest
+        jobs:
+          -
+            type: component
+            kubectl: unittest-build.yaml
+            endpoint: hub.opshub.sh/containerops/unittest:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-module=test.test_regex"
+      -
+  -
+    type: end
+    name: end
+    title: End
