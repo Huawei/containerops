@@ -262,7 +262,7 @@ func setKubectlFiles(d *objects.Deployment, link, master string, stdout io.Write
 	}
 
 	//Generate kubectl config file
-	if file, err := setKubeConfigFile(d.Config, master); err != nil {
+	if file, err := setKubeConfigFile(d, master, stdout, timestamp); err != nil {
 		return err
 	} else {
 		objects.WriteLog(fmt.Sprintf("kubectl config files [%s]", file), stdout, timestamp, d)
@@ -348,21 +348,21 @@ func generateKubeAdminCAFiles(src string) (map[string]string, error) {
 }
 
 //setKubeConfigFile generate kubectl config file
-func setKubeConfigFile(src, master string) (string, error) {
-	base := path.Join(src, tools.KubectlFileFolder)
+func setKubeConfigFile(d *objects.Deployment, masterIP string, stdout io.Writer, timestamp bool) (string, error) {
+	base := path.Join(d.Config, tools.KubectlFileFolder)
 	adminPem := path.Join(base, tools.CAKubeAdminPemFile)
 	adminKey := path.Join(base, tools.CAKubeAdminKeyPemFile)
 
-	kubectl := path.Join(src, tools.KubectlFileFolder, tools.KubectlFile)
-	config := path.Join(src, tools.KubectlFileFolder, tools.KubectlConfigFile)
-	caFile := path.Join(src, tools.CAFilesFolder, tools.CARootFilesFolder, tools.CARootPemFile)
+	kubectl := path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlFile)
+	config := path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlConfigFile)
+	caFile := path.Join(d.Config, tools.CAFilesFolder, tools.CARootFilesFolder, tools.CARootPemFile)
 
 	cmdSetCluster := exec.Command(kubectl, "config", "set-cluster", "kubernetes",
 		fmt.Sprintf("--kubeconfig=%s", config),
 		fmt.Sprintf("--certificate-authority=%s", caFile),
 		"--embed-certs=true",
-		fmt.Sprintf("--server=%s", master))
-	cmdSetCluster.Stdout, cmdSetCluster.Stderr = os.Stdout, os.Stderr
+		fmt.Sprintf("--server=%s", masterIP))
+	cmdSetCluster.Stdout, cmdSetCluster.Stderr = stdout, os.Stderr
 	if err := cmdSetCluster.Run(); err != nil {
 		return caFile, err
 	}
@@ -372,7 +372,7 @@ func setKubeConfigFile(src, master string) (string, error) {
 		fmt.Sprintf("--client-certificate=%s", adminPem),
 		"--embed-certs=true",
 		fmt.Sprintf("--client-key=%s", adminKey))
-	cmdSetCredentials.Stdout, cmdSetCredentials.Stderr = os.Stdout, os.Stderr
+	cmdSetCredentials.Stdout, cmdSetCredentials.Stderr = stdout, os.Stderr
 	if err := cmdSetCredentials.Run(); err != nil {
 		return caFile, err
 	}
@@ -380,7 +380,7 @@ func setKubeConfigFile(src, master string) (string, error) {
 	cmdSetContext := exec.Command(kubectl, "config", "set-context", "kubernetes",
 		fmt.Sprintf("--kubeconfig=%s", config),
 		"--cluster=kubernetes", "--user=admin")
-	cmdSetContext.Stdout, cmdSetContext.Stderr = os.Stdout, os.Stderr
+	cmdSetContext.Stdout, cmdSetContext.Stderr = stdout, os.Stderr
 	if err := cmdSetContext.Run(); err != nil {
 		return caFile, err
 	}
@@ -388,7 +388,7 @@ func setKubeConfigFile(src, master string) (string, error) {
 	cmdUseContext := exec.Command(kubectl, "config", "use-context",
 		fmt.Sprintf("--kubeconfig=%s", config),
 		"kubernetes")
-	cmdUseContext.Stdout, cmdUseContext.Stderr = os.Stdout, os.Stderr
+	cmdUseContext.Stdout, cmdUseContext.Stderr = stdout, os.Stderr
 	if err := cmdUseContext.Run(); err != nil {
 		return caFile, err
 	}

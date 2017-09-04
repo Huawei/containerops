@@ -24,7 +24,7 @@ import (
 
 //Logger is log interface for infra and other objects.
 type Logger interface {
-	WriteLog(log string, writer io.Writer) error
+	WriteLog(log string, writer io.Writer, output bool) error
 }
 
 //WriteLog is global log function for Singular.
@@ -33,75 +33,16 @@ func WriteLog(log string, writer io.Writer, timestamp bool, objects ...Logger) e
 		log = fmt.Sprintf("[%d] %s", time.Now().Unix(), log)
 	}
 
-	for _, obj := range objects {
-		if err := obj.WriteLog(log, writer); err != nil {
-			return err
+	for i, obj := range objects {
+		if i == 0 {
+			if err := obj.WriteLog(log, writer, true); err != nil {
+				return err
+			}
+		} else {
+			if err := obj.WriteLog(log, writer, false); err != nil {
+				return err
+			}
 		}
-	}
-
-	return nil
-}
-
-// Node is
-type Node struct {
-	ID     int      `json:"id" yaml:"id"`
-	IP     string   `json:"ip" yaml:"ip"`
-	User   string   `json:"user" yaml:"user"`
-	Distro string   `json:"distro" yaml:"distro"`
-	Logs   []string `json:"logs,omitempty" yaml:"logs,omitempty"`
-}
-
-//WriteLog implement Logger interface.
-func (n *Node) WriteLog(log string, writer io.Writer) error {
-	n.Logs = append(n.Logs, log)
-
-	if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// Service is
-type Service struct {
-	Provider string `json:"provider" yaml:"provider"`
-	Token    string `json:"token" yaml:"token"`
-	Region   string `json:"region" yaml:"region"`
-	Size     string `json:"size" yaml:"size"`
-	Image    string `json:"image" yaml:"image"`
-	Nodes    int    `json:"nodes" yaml:"nodes"`
-}
-
-// Tools is
-type Tools struct {
-	SSH SSH `json:"ssh" yaml:"ssh"`
-}
-
-// SSH is
-type SSH struct {
-	Private     string `json:"private" yaml:"private"`
-	Public      string `json:"public" yaml:"public"`
-	Fingerprint string `json:"fingerprint" yaml:"fingerprint"`
-}
-
-// Component is
-type Component struct {
-	Binary  string   `json:"binary" yaml:"binary"`
-	URL     string   `json:"url" yaml:"url"`
-	Package bool     `json:"package" yaml:"package"`
-	Systemd string   `json:"systemd" yaml:"systemd"`
-	CA      string   `json:"ca" yaml:"ca"`
-	Before  string   `json:"before" yaml:"before"`
-	After   string   `json:"after" yaml:"after"`
-	Logs    []string `json:"logs,omitempty" yaml:"logs,omitempty"`
-}
-
-//WriteLog implement Logger interface.
-func (c *Component) WriteLog(log string, writer io.Writer) error {
-	c.Logs = append(c.Logs, log)
-
-	if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
-		return err
 	}
 
 	return nil
