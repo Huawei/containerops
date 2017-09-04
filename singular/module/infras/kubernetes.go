@@ -166,7 +166,7 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 			}
 
 			//exec kubectl create clusterrolebinding command
-			if err := setKubeletClusterrolebinding(d, d.Nodes[0], stdout, timestamp); err != nil {
+			if err := setKubeletClusterrolebinding(d, &d.Nodes[0], stdout, timestamp); err != nil {
 				return nil
 			}
 
@@ -798,13 +798,13 @@ func uploadBootstrapFile(file string, d *objects.Deployment, kubeSlaveNodes []ob
 }
 
 //setKubeletClusterrolebinding exec kubectl create clusterrolebinding command in the first slave node in Kubernetes clusters.
-func setKubeletClusterrolebinding(d *objects.Deployment, node objects.Node, stdout io.Writer, timestamp bool) error {
+func setKubeletClusterrolebinding(d *objects.Deployment, node *objects.Node, stdout io.Writer, timestamp bool) error {
 	cmd := "kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap"
 	if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, cmd, stdout, os.Stderr); err != nil {
 		return err
 	}
 
-	objects.WriteLog(fmt.Sprintf("exec %s in the %s node", cmd, node.IP), stdout, timestamp, d, &node)
+	objects.WriteLog(fmt.Sprintf("exec %s in the %s node", cmd, node.IP), stdout, timestamp, d, node)
 
 	return nil
 }

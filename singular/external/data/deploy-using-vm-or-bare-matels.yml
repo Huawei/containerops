@@ -69,7 +69,7 @@ infras:
         package: false
         systemd: docker-17.04.0-ce
         before: "iptables -F && iptables -X && iptables -F -t nat && iptables -X -t nat"
-        after: "iptables -P FORWARD ACCEPT"
+        after: "iptables -w -P FORWARD ACCEPT"
       -
         binary: dockerd
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/dockerd
