@@ -166,7 +166,7 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 			}
 
 			//exec kubectl create clusterrolebinding command
-			if err := setKubeletClusterrolebinding(d, &d.Nodes[0], stdout, timestamp); err != nil {
+			if err := setKubeletClusterrolebinding(d, &kubeSlaveNodes[0], stdout, timestamp); err != nil {
 				return nil
 			}
 
@@ -187,7 +187,7 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 			time.Sleep(10 * time.Second)
 
 			//Approve kubelet certificate key
-			if err := kubeletCertificateApprove(d, kubeSlaveNodes[0], stdout, timestamp); err != nil {
+			if err := kubeletCertificateApprove(d, &kubeSlaveNodes[0], stdout, timestamp); err != nil {
 				return err
 			}
 		case "kube-proxy":
@@ -818,6 +818,8 @@ func generateKubeletSystemdFile(d *objects.Deployment, nodes []objects.Node, ver
 			"IP": node.IP,
 		}
 
+		files[node.IP] = map[string]string{}
+
 		base := path.Join(d.Config, tools.CAFilesFolder, tools.CAKubernetesFolder, node.IP)
 		if utils.IsDirExist(base) == true {
 			os.RemoveAll(base)
@@ -877,14 +879,14 @@ func startKubelet(d *objects.Deployment, kubeSlaveNodes []objects.Node, stdout i
 }
 
 //kubeletCertificateApprove approve kubelet certificate
-func kubeletCertificateApprove(d *objects.Deployment, node objects.Node, stdout io.Writer, timestamp bool) error {
+func kubeletCertificateApprove(d *objects.Deployment, node *objects.Node, stdout io.Writer, timestamp bool) error {
 	cmd := "kubectl certificate approve `kubectl get csr -o name`"
 
 	if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, cmd, stdout, os.Stderr); err != nil {
 		return err
 	}
 
-	objects.WriteLog(fmt.Sprintf("exec %s command approve kubelet certificate in %s node", cmd, node.IP), stdout, timestamp, d, &node)
+	objects.WriteLog(fmt.Sprintf("exec %s command approve kubelet certificate in %s node", cmd, node.IP), stdout, timestamp, d, node)
 
 	return nil
 }
