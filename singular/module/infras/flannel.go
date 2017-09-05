@@ -39,21 +39,21 @@ import (
 )
 
 const (
-	// EtcdServerConfig is flanneld config location in the node.
+	//EtcdServerConfig is flanneld config location in the node.
 	FlanneldServerConfig = "/etc/flanneld"
-	// EtcdServerSSL is the flanneld ssl files folder name in the node.
-	// Full path is /etc/flanneld/ssl
+	//EtcdServerSSL is the flanneld ssl files folder name in the node.
+	//Full path is /etc/flanneld/ssl
 	FlanneldServerSSL = "ssl"
 )
 
-// FlanneldEndpoint is the etcd node struct.
+//FlanneldEndpoint is the etcd node struct.
 type FlanneldEndpoint struct {
 	IP   string
 	Name string
 	Etcd string
 }
 
-// DeployFlannelInCluster is deploy flannel in cluster.
+//DeployFlannelInCluster deploy flannel in cluster.
 func DeployFlannelInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.Writer, timestamp bool) error {
 	//Get nodes of flanneld
 	nodes := []objects.Node{}
@@ -93,35 +93,35 @@ func DeployFlannelInCluster(d *objects.Deployment, infra *objects.Infra, stdout 
 	return nil
 }
 
-// Generate Flanneld systemd and CA ssl files.
+//generateFlanneldFiles generate Flanneld systemd and CA ssl files.
 func generateFlanneldFiles(src string, nodes []objects.Node, etcdEndpoints string, version string) (map[string]map[string]string, error) {
 	result := map[string]map[string]string{}
 
-	// If ca file exist, remove it.
+	//If ca file exist, remove it.
 	base := path.Join(src, tools.CAFilesFolder, tools.CAFlanneldFolder)
 	if utils.IsDirExist(base) == true {
 		os.RemoveAll(base)
 	}
 
-	// Mkdir ssl folder
+	//Mkdir ssl folder
 	os.MkdirAll(base, os.ModePerm)
 
-	// If service folder, remove it.
+	//If service folder, remove it.
 	serviceBase := path.Join(src, tools.ServiceFilesFolder, tools.ServiceFlanneldFolder)
 	if utils.IsDirExist(serviceBase) == true {
 		os.RemoveAll(serviceBase)
 	}
 
-	// Mkdir ssl folder
+	//Mkdir ssl folder
 	os.MkdirAll(serviceBase, os.ModePerm)
 
-	// CA root files
+	//CA root files
 	caFile := path.Join(src, tools.CAFilesFolder, tools.CARootFilesFolder, tools.CARootPemFile)
 	caKeyFile := path.Join(src, tools.CAFilesFolder, tools.CARootFilesFolder, tools.CARootKeyFile)
 	configFile := path.Join(src, tools.CAFilesFolder, tools.CARootFilesFolder, tools.CARootConfigFile)
 
 	for i, node := range nodes {
-		// Mkdir with node ip.
+		//Mkdir with node ip.
 		if utils.IsDirExist(path.Join(base, node.IP)) == false {
 			os.MkdirAll(path.Join(base, node.IP), os.ModePerm)
 		}
@@ -132,14 +132,14 @@ func generateFlanneldFiles(src string, nodes []objects.Node, etcdEndpoints strin
 			Etcd: etcdEndpoints,
 		}
 
-		// generate Flanneld SSL files
+		//generate Flanneld SSL files
 		if files, err := generateFlanneldSSLFiles(caFile, caKeyFile, configFile, n, version, base, node.IP); err != nil {
 			return result, err
 		} else {
 			result[node.IP] = files
 		}
 
-		// generate Flanneld systemd file
+		//generate Flanneld systemd file
 		if files, err := generateFlanneldSystemdFile(n, version, base, node.IP); err != nil {
 			return result, err
 		} else {
@@ -153,7 +153,7 @@ func generateFlanneldFiles(src string, nodes []objects.Node, etcdEndpoints strin
 	return result, nil
 }
 
-// Generate Flanneld SSL files
+//generateFlanneldSSLFiles generate Flanneld SSL files
 func generateFlanneldSSLFiles(caFile, caKeyFile, configFile string, node FlanneldEndpoint, version, base, ip string) (map[string]string, error) {
 	var tpl bytes.Buffer
 	var err error
@@ -223,7 +223,7 @@ func generateFlanneldSSLFiles(caFile, caKeyFile, configFile string, node Flannel
 	return files, nil
 }
 
-//Generate flanneld systemd file
+//generateFlanneldSystemdFile generate flanneld systemd file
 func generateFlanneldSystemdFile(node FlanneldEndpoint, version, base, ip string) (map[string]string, error) {
 	var serviceTpl bytes.Buffer
 	files := map[string]string{
@@ -242,20 +242,20 @@ func generateFlanneldSystemdFile(node FlanneldEndpoint, version, base, ip string
 	return files, nil
 }
 
-//Upload flanneld SSL files and Systemd file
+//uploadFlanneldFiles upload flanneld SSL files and Systemd file
 func uploadFlanneldFiles(files map[string]map[string]string, key string, nodes []objects.Node, stdout io.Writer, timestamp bool) error {
 	for _, node := range nodes {
 		var err error
 		var cmd string
 
-		// Mkdir flanneld ssl folder in server
+		//Mkdir flanneld ssl folder in server
 		initCmd := []string{
 			"mkdir -p /etc/flanneld/ssl",
 		}
 
 		err = utils.SSHCommand(node.User, key, node.IP, tools.DefaultSSHPort, initCmd[0], stdout, os.Stderr)
 
-		// Upload CA SSL files
+		//Upload CA SSL files
 		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAFlanneldCSRConfigFile], path.Join(FlanneldServerConfig, FlanneldServerSSL, tools.CAFlanneldCSRConfigFile), node.IP, key, node.User, stdout)
 		objects.WriteLog(
 			fmt.Sprintf("upload %s to %s@%s with %s", files[node.IP][tools.CAFlanneldCSRConfigFile], node.IP, path.Join(FlanneldServerConfig, FlanneldServerSSL, tools.CAFlanneldCSRConfigFile), cmd),
@@ -276,7 +276,7 @@ func uploadFlanneldFiles(files map[string]map[string]string, key string, nodes [
 			fmt.Sprintf("upload %s to %s@%s with %s", files[node.IP][tools.CAFlanneldPemFile], node.IP, path.Join(FlanneldServerConfig, FlanneldServerSSL, tools.CAFlanneldPemFile), cmd),
 			stdout, timestamp, &node)
 
-		// Upload Systemd file
+		//Upload Systemd file
 		cmd, err = tools.DownloadComponent(files[node.IP][tools.ServiceFlanneldFile], path.Join(tools.SystemdServerPath, tools.ServiceFlanneldFile), node.IP, key, node.User, stdout)
 		objects.WriteLog(
 			fmt.Sprintf("upload %s to %s@%s with %s", files[node.IP][tools.ServiceFlanneldFile], node.IP, path.Join(FlanneldServerConfig, FlanneldServerSSL, tools.ServiceFlanneldFile), cmd),
@@ -290,6 +290,7 @@ func uploadFlanneldFiles(files map[string]map[string]string, key string, nodes [
 	return nil
 }
 
+//beforeFlanneldExecute execute before script of Flanneld
 func beforeFlanneldExecute(key, ip, tplString, etcdEndpoints string) error {
 	node := EtcdEndpoint{
 		Nodes: etcdEndpoints,
@@ -307,6 +308,7 @@ func beforeFlanneldExecute(key, ip, tplString, etcdEndpoints string) error {
 	return nil
 }
 
+//startFlanneldInCluster start Flanneld service in the cluster.
 func startFlanneldInCluster(key string, nodes []objects.Node, stdout io.Writer, timestamp bool) error {
 	cmd := "systemctl daemon-reload && systemctl enable flanneld && systemctl start --no-block flanneld"
 

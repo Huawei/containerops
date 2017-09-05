@@ -79,7 +79,6 @@ func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.
 	for i := 0; i < infra.Master; i++ {
 		//Etcd Notes
 		nodes = append(nodes, d.Nodes[i])
-		//etcdNodes[fmt.Sprintf("etcd-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
 
 		//Etcd endpoints for client
 		etcdEndpoints = append(etcdEndpoints,

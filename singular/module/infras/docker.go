@@ -143,7 +143,7 @@ func generateDockerServiceFile(version, base string) (map[string]string, error) 
 	return files, err
 }
 
-//Upload docker systemd file
+//uploadDockerFiles upload docker systemd file
 //TODO apt-get install -y bridge-utils aufs-tools cgroupfs-mount libltdl7
 func uploadDockerFiles(files map[string]map[string]string, key string, nodes []objects.Node, stdout io.Writer, timestamp bool) error {
 	for _, node := range nodes {
@@ -159,7 +159,7 @@ func uploadDockerFiles(files map[string]map[string]string, key string, nodes []o
 	return nil
 }
 
-// Execute before script
+//beforeDockerExecute execute before script
 func beforeDockerExecute(key, ip, cmd, user string) error {
 	if err := utils.SSHCommand(user, key, ip, tools.DefaultSSHPort, cmd, os.Stdout, os.Stderr); err != nil {
 		return err
@@ -168,7 +168,7 @@ func beforeDockerExecute(key, ip, cmd, user string) error {
 	return nil
 }
 
-// Start docker daemon
+//startDockerDaemon start docker daemon
 func startDockerDaemon(key, ip, user string) error {
 	cmd := "systemctl daemon-reload && systemctl enable docker && systemctl start --no-block docker"
 
@@ -179,7 +179,7 @@ func startDockerDaemon(key, ip, user string) error {
 	return nil
 }
 
-// Execute after daemon start
+//afterDockerExecute execute after daemon start
 func afterDockerExecute(key, ip, cmd, user string) error {
 	if err := utils.SSHCommand(user, key, ip, tools.DefaultSSHPort, cmd, os.Stdout, os.Stderr); err != nil {
 		return err
