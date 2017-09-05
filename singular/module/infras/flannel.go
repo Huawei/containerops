@@ -136,9 +136,7 @@ func generateFlanneldFiles(src string, nodes []objects.Node, etcdEndpoints strin
 		if files, err := generateFlanneldSSLFiles(caFile, caKeyFile, configFile, n, version, base, node.IP); err != nil {
 			return result, err
 		} else {
-			for k, v := range files {
-				result[node.IP][k] = v
-			}
+			result[node.IP] = files
 		}
 
 		// generate Flanneld systemd file

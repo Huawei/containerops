@@ -54,11 +54,13 @@ type Deployment struct {
 }
 
 //WriteLog implement Logger interface.
-func (d *Deployment) WriteLog(log string, writer io.Writer) error {
+func (d *Deployment) WriteLog(log string, writer io.Writer, output bool) error {
 	d.Logs = append(d.Logs, log)
 
-	if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
-		return err
+	if output == true {
+		if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -179,4 +181,87 @@ func initConfigPath(namespace, repository, name, path string, version int) (stri
 	}
 
 	return config, nil
+}
+
+// Node is
+type Node struct {
+	ID     int      `json:"id" yaml:"id"`
+	IP     string   `json:"ip" yaml:"ip"`
+	User   string   `json:"user" yaml:"user"`
+	Distro string   `json:"distro" yaml:"distro"`
+	Logs   []string `json:"logs,omitempty" yaml:"logs,omitempty"`
+}
+
+//WriteLog implement Logger interface.
+func (n *Node) WriteLog(log string, writer io.Writer, output bool) error {
+	n.Logs = append(n.Logs, log)
+
+	if output == true {
+		if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Service is
+type Service struct {
+	Provider string   `json:"provider" yaml:"provider"`
+	Token    string   `json:"token" yaml:"token"`
+	Region   string   `json:"region" yaml:"region"`
+	Size     string   `json:"size" yaml:"size"`
+	Image    string   `json:"image" yaml:"image"`
+	Nodes    int      `json:"nodes" yaml:"nodes"`
+	Logs     []string `json:"logs,omitempty" yaml:"logs,omitempty"`
+}
+
+//WriteLog implement Logger interface.
+func (s *Service) WriteLog(log string, writer io.Writer, output bool) error {
+	s.Logs = append(s.Logs, log)
+
+	if output == true {
+		if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Tools is
+type Tools struct {
+	SSH SSH `json:"ssh" yaml:"ssh"`
+}
+
+// SSH is
+type SSH struct {
+	Private     string `json:"private" yaml:"private"`
+	Public      string `json:"public" yaml:"public"`
+	Fingerprint string `json:"fingerprint" yaml:"fingerprint"`
+}
+
+// Component is
+type Component struct {
+	Binary  string   `json:"binary" yaml:"binary"`
+	URL     string   `json:"url" yaml:"url"`
+	Package bool     `json:"package" yaml:"package"`
+	Systemd string   `json:"systemd" yaml:"systemd"`
+	CA      string   `json:"ca" yaml:"ca"`
+	Before  string   `json:"before" yaml:"before"`
+	After   string   `json:"after" yaml:"after"`
+	Logs    []string `json:"logs,omitempty" yaml:"logs,omitempty"`
+}
+
+//WriteLog implement Logger interface.
+func (c *Component) WriteLog(log string, writer io.Writer, output bool) error {
+	c.Logs = append(c.Logs, log)
+
+	if output == true {
+		if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

@@ -37,11 +37,13 @@ type Infra struct {
 }
 
 //WriteLog implement Logger interface.
-func (i *Infra) WriteLog(log string, writer io.Writer) error {
+func (i *Infra) WriteLog(log string, writer io.Writer, output bool) error {
 	i.Logs = append(i.Logs, log)
 
-	if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
-		return err
+	if output == true {
+		if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
+			return err
+		}
 	}
 
 	return nil

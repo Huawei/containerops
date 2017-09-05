@@ -102,7 +102,7 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 			//Prepare droplet prefix name and tags
 			namespace, repository, name, _ := d.URIs()
 			tags := []string{namespace, repository, name, fmt.Sprintf("version-%d", d.Version), d.Tag}
-			objects.WriteLog(fmt.Sprintf("Droplets is [%v]", tags), stdout, timestamp, d, do)
+			objects.WriteLog(fmt.Sprintf("Droplets tag is %v", tags), stdout, timestamp, d, do)
 
 			//Create DigitalOcean Droplets
 			if err := do.CreateDroplet(d.Service.Nodes, d.Tools.SSH.Fingerprint, fmt.Sprintf("%s-%s", namespace, repository), tags); err != nil {
@@ -162,14 +162,14 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 
 			//Upload CA root files to the nodes.
 			for _, node := range d.Nodes {
-				objects.WriteLog(fmt.Sprintf("Upload root CA files %v to node [%s]", roots, node), stdout, timestamp, d, &node)
+				objects.WriteLog(fmt.Sprintf("Upload root CA files %v to %s node", roots, node.IP), stdout, timestamp, d, &node)
 				if err := tools.UploadCARootFiles(d.Tools.SSH.Private, roots, node.IP, node.User, stdout); err != nil {
 					return err
 				}
 			}
 		}
 
-		// Deploy infras
+		//Deploy infras
 		for _, infra := range d.Infras {
 			switch infra.Name {
 			case InfraEtcd:

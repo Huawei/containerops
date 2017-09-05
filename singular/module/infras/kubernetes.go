@@ -145,7 +145,7 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 			if files, err := generateKubeSchedulerFiles(d, masterIP, etcdEndpoints, infra.Version); err != nil {
 				return err
 			} else {
-				//Upload Kuber-scheduler systemd service file
+				//Upload Kube-scheduler systemd service file
 				if err := uploadKubeSchedulerFiles(files, d, kubeMasterNodes, stdout, timestamp); err != nil {
 					return err
 				}
@@ -166,7 +166,7 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 			}
 
 			//exec kubectl create clusterrolebinding command
-			if err := setKubeletClusterrolebinding(d, d.Nodes[0], stdout, timestamp); err != nil {
+			if err := setKubeletClusterrolebinding(d, &kubeSlaveNodes[0], stdout, timestamp); err != nil {
 				return nil
 			}
 
@@ -187,7 +187,7 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 			time.Sleep(10 * time.Second)
 
 			//Approve kubelet certificate key
-			if err := kubeletCertificateApprove(d, kubeSlaveNodes[0], stdout, timestamp); err != nil {
+			if err := kubeletCertificateApprove(d, &kubeSlaveNodes[0], stdout, timestamp); err != nil {
 				return err
 			}
 		case "kube-proxy":
@@ -237,8 +237,8 @@ func setKubectlFiles(d *objects.Deployment, link, master string, stdout io.Write
 				return err
 			}
 		} else {
-			cmdDownload := exec.Command("curl", link, "-o", path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlFile), d.Config)
-			objects.WriteLog(fmt.Sprintf("%s", cmdDownload), stdout, timestamp, d)
+			cmdDownload := exec.Command("curl", link, "-o", path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlFile))
+			objects.WriteLog(fmt.Sprintf("curl %s -o %s", link, path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlFile)), stdout, timestamp, d)
 			cmdDownload.Stdout, cmdDownload.Stderr = stdout, os.Stderr
 			if err := cmdDownload.Run(); err != nil {
 				return err
@@ -248,7 +248,7 @@ func setKubectlFiles(d *objects.Deployment, link, master string, stdout io.Write
 
 	//Change mode +x for kubectl
 	cmdChmod := exec.Command("chmod", "+x", path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlFile))
-	objects.WriteLog(fmt.Sprintf("%s", cmdChmod), stdout, timestamp, d)
+	objects.WriteLog(fmt.Sprintf("chmod +x %s", path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlFile)), stdout, timestamp, d)
 	cmdChmod.Stdout, cmdChmod.Stderr = stdout, os.Stderr
 	if err := cmdChmod.Run(); err != nil {
 		return err
@@ -262,7 +262,7 @@ func setKubectlFiles(d *objects.Deployment, link, master string, stdout io.Write
 	}
 
 	//Generate kubectl config file
-	if file, err := setKubeConfigFile(d.Config, master); err != nil {
+	if file, err := setKubeConfigFile(d, master, stdout, timestamp); err != nil {
 		return err
 	} else {
 		objects.WriteLog(fmt.Sprintf("kubectl config files [%s]", file), stdout, timestamp, d)
@@ -348,21 +348,21 @@ func generateKubeAdminCAFiles(src string) (map[string]string, error) {
 }
 
 //setKubeConfigFile generate kubectl config file
-func setKubeConfigFile(src, master string) (string, error) {
-	base := path.Join(src, tools.KubectlFileFolder)
+func setKubeConfigFile(d *objects.Deployment, masterIP string, stdout io.Writer, timestamp bool) (string, error) {
+	base := path.Join(d.Config, tools.KubectlFileFolder)
 	adminPem := path.Join(base, tools.CAKubeAdminPemFile)
 	adminKey := path.Join(base, tools.CAKubeAdminKeyPemFile)
 
-	kubectl := path.Join(src, tools.KubectlFileFolder, tools.KubectlFile)
-	config := path.Join(src, tools.KubectlFileFolder, tools.KubectlConfigFile)
-	caFile := path.Join(src, tools.CAFilesFolder, tools.CARootFilesFolder, tools.CARootPemFile)
+	kubectl := path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlFile)
+	config := path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlConfigFile)
+	caFile := path.Join(d.Config, tools.CAFilesFolder, tools.CARootFilesFolder, tools.CARootPemFile)
 
 	cmdSetCluster := exec.Command(kubectl, "config", "set-cluster", "kubernetes",
 		fmt.Sprintf("--kubeconfig=%s", config),
 		fmt.Sprintf("--certificate-authority=%s", caFile),
 		"--embed-certs=true",
-		fmt.Sprintf("--server=%s", master))
-	cmdSetCluster.Stdout, cmdSetCluster.Stderr = os.Stdout, os.Stderr
+		fmt.Sprintf("--server=%s", masterIP))
+	cmdSetCluster.Stdout, cmdSetCluster.Stderr = stdout, os.Stderr
 	if err := cmdSetCluster.Run(); err != nil {
 		return caFile, err
 	}
@@ -372,7 +372,7 @@ func setKubeConfigFile(src, master string) (string, error) {
 		fmt.Sprintf("--client-certificate=%s", adminPem),
 		"--embed-certs=true",
 		fmt.Sprintf("--client-key=%s", adminKey))
-	cmdSetCredentials.Stdout, cmdSetCredentials.Stderr = os.Stdout, os.Stderr
+	cmdSetCredentials.Stdout, cmdSetCredentials.Stderr = stdout, os.Stderr
 	if err := cmdSetCredentials.Run(); err != nil {
 		return caFile, err
 	}
@@ -380,7 +380,7 @@ func setKubeConfigFile(src, master string) (string, error) {
 	cmdSetContext := exec.Command(kubectl, "config", "set-context", "kubernetes",
 		fmt.Sprintf("--kubeconfig=%s", config),
 		"--cluster=kubernetes", "--user=admin")
-	cmdSetContext.Stdout, cmdSetContext.Stderr = os.Stdout, os.Stderr
+	cmdSetContext.Stdout, cmdSetContext.Stderr = stdout, os.Stderr
 	if err := cmdSetContext.Run(); err != nil {
 		return caFile, err
 	}
@@ -388,7 +388,7 @@ func setKubeConfigFile(src, master string) (string, error) {
 	cmdUseContext := exec.Command(kubectl, "config", "use-context",
 		fmt.Sprintf("--kubeconfig=%s", config),
 		"kubernetes")
-	cmdUseContext.Stdout, cmdUseContext.Stderr = os.Stdout, os.Stderr
+	cmdUseContext.Stdout, cmdUseContext.Stderr = stdout, os.Stderr
 	if err := cmdUseContext.Run(); err != nil {
 		return caFile, err
 	}
@@ -407,6 +407,7 @@ func uploadKubeConfigFiles(d *objects.Deployment, key string, nodes []objects.No
 		var err error
 		var cmd, dest string
 
+		files[node.IP] = map[string]string{}
 		files[node.IP][tools.CAKubeAdminCSRConfigFile] = path.Join(base, tools.CAKubeAdminCSRConfigFile)
 		files[node.IP][tools.CAKubeAdminKeyPemFile] = path.Join(base, tools.CAKubeAdminKeyPemFile)
 		files[node.IP][tools.CAKubeAdminCSRFile] = path.Join(base, tools.CAKubeAdminCSRFile)
@@ -797,13 +798,13 @@ func uploadBootstrapFile(file string, d *objects.Deployment, kubeSlaveNodes []ob
 }
 
 //setKubeletClusterrolebinding exec kubectl create clusterrolebinding command in the first slave node in Kubernetes clusters.
-func setKubeletClusterrolebinding(d *objects.Deployment, node objects.Node, stdout io.Writer, timestamp bool) error {
+func setKubeletClusterrolebinding(d *objects.Deployment, node *objects.Node, stdout io.Writer, timestamp bool) error {
 	cmd := "kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap"
 	if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, cmd, stdout, os.Stderr); err != nil {
 		return err
 	}
 
-	objects.WriteLog(fmt.Sprintf("exec %s in the %s node", cmd, node.IP), stdout, timestamp, d, &node)
+	objects.WriteLog(fmt.Sprintf("exec %s in the %s node", cmd, node.IP), stdout, timestamp, d, node)
 
 	return nil
 }
@@ -816,6 +817,8 @@ func generateKubeletSystemdFile(d *objects.Deployment, nodes []objects.Node, ver
 		kubeNode := map[string]string{
 			"IP": node.IP,
 		}
+
+		files[node.IP] = map[string]string{}
 
 		base := path.Join(d.Config, tools.CAFilesFolder, tools.CAKubernetesFolder, node.IP)
 		if utils.IsDirExist(base) == true {
@@ -876,14 +879,14 @@ func startKubelet(d *objects.Deployment, kubeSlaveNodes []objects.Node, stdout i
 }
 
 //kubeletCertificateApprove approve kubelet certificate
-func kubeletCertificateApprove(d *objects.Deployment, node objects.Node, stdout io.Writer, timestamp bool) error {
+func kubeletCertificateApprove(d *objects.Deployment, node *objects.Node, stdout io.Writer, timestamp bool) error {
 	cmd := "kubectl certificate approve `kubectl get csr -o name`"
 
 	if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, cmd, stdout, os.Stderr); err != nil {
 		return err
 	}
 
-	objects.WriteLog(fmt.Sprintf("exec %s command approve kubelet certificate in %s node", cmd, node.IP), stdout, timestamp, d, &node)
+	objects.WriteLog(fmt.Sprintf("exec %s command approve kubelet certificate in %s node", cmd, node.IP), stdout, timestamp, d, node)
 
 	return nil
 }

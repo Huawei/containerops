@@ -45,11 +45,13 @@ type DigitalOcean struct {
 }
 
 //WriteLog implement Logger interface.
-func (d *DigitalOcean) WriteLog(log string, writer io.Writer) error {
+func (d *DigitalOcean) WriteLog(log string, writer io.Writer, output bool) error {
 	d.Logs = append(d.Logs, log)
 
-	if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
-		return err
+	if output == true {
+		if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
+			return err
+		}
 	}
 
 	return nil
