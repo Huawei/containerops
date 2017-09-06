@@ -145,14 +145,19 @@ func generateDockerServiceFile(version, base string) (map[string]string, error) 
 
 //uploadDockerFiles upload docker systemd file
 //TODO apt-get install -y bridge-utils aufs-tools cgroupfs-mount libltdl7
-func uploadDockerFiles(files map[string]map[string]string, key string, nodes []objects.Node, stdout io.Writer, timestamp bool) error {
+func uploadDockerFiles(f map[string]map[string]string, key string, nodes []objects.Node, stdout io.Writer, timestamp bool) error {
 	for _, node := range nodes {
-		if cmd, err := tools.DownloadComponent(files[node.IP][tools.ServiceDockerFile], path.Join(tools.SystemdServerPath, tools.ServiceDockerFile), node.IP, key, node.User, stdout); err != nil {
+		files := []map[string]string{}
+
+		for k, file := range f[node.IP] {
+			files = append(files, map[string]string{
+				"src":  file,
+				"dest": path.Join(tools.SystemdServerPath, k),
+			})
+		}
+
+		if err := tools.DownloadComponent(files, node.IP, key, node.User, stdout); err != nil {
 			return err
-		} else {
-			objects.WriteLog(
-				fmt.Sprintf("upload %s to %s@%s with %s", files[node.IP][tools.CAEtcdCSRConfigFile], node.IP, path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdCSRConfigFile), cmd),
-				stdout, timestamp, &node)
 		}
 	}
 

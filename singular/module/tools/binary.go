@@ -33,48 +33,46 @@ const (
 //DownloadComponents is download component binary file to the host.
 //If the src is URL, execute curl command in the host.
 //If the src is local file, execute scp command upload to the host.
-func DownloadComponent(src, dest, host, private, user string, stdout io.Writer) (string, error) {
-	var cmd string
-
-	if u, err := url.Parse(src); err != nil {
-		return "", fmt.Errorf("Invalid src format, neither URL or local path.")
+func DownloadComponent(files []map[string]string, host, private, user string, stdout io.Writer) error {
+	if u, err := url.Parse(files[0]["src"]); err != nil {
+		return fmt.Errorf("invalid src format, neither url or local path")
 	} else {
 		if u.Scheme == "" {
-			if utils.IsFileExist(src) == true {
-				if cmd, err = uploadBinary(src, dest, host, private, user); err != nil {
-					return "", err
+			if utils.IsFileExist(files[0]["src"]) == true {
+				if err = uploadBinary(files, host, private, user); err != nil {
+					return err
 				}
 			} else {
-				return "", fmt.Errorf("The file not exist")
+				return fmt.Errorf("the file not exist")
 			}
 		} else {
-			if cmd, err = downloadBinary(src, dest, host, private, user, stdout); err != nil {
-				return "", err
+			if err = downloadBinary(files, host, private, user, stdout); err != nil {
+				return err
 			}
 		}
 
 	}
 
-	return cmd, nil
+	return nil
 }
 
 //downloadBinary exec curl command download binary in the node.
-func downloadBinary(src, dest, host, private, user string, stdout io.Writer) (string, error) {
-	cmd := fmt.Sprintf("curl %s -o %s", src, dest)
-	if err := utils.SSHCommand(user, private, host, DefaultSSHPort, cmd, stdout, os.Stderr); err != nil {
-		return cmd, err
+func downloadBinary(files []map[string]string, host, private, user string, stdout io.Writer) error {
+	for _, file := range files {
+		cmd := fmt.Sprintf("curl %s -o %s", file["src"], file["dest"])
+		if err := utils.SSHCommand(user, private, host, DefaultSSHPort, cmd, stdout, os.Stderr); err != nil {
+			return err
+		}
 	}
 
-	return cmd, nil
+	return nil
 }
 
 //uploadBinary exec scp command copy local file to the node.
-func uploadBinary(file, dest, host, private, user string) (string, error) {
-	cmd := fmt.Sprintf("scp -i %s %s %s", private, file, dest)
-
-	if err := utils.SSHScp(user, private, host, DefaultSSHPort, file, dest); err != nil {
-		return cmd, err
+func uploadBinary(files []map[string]string, host, private, user string) error {
+	if err := utils.SSHScp(user, private, host, DefaultSSHPort, files); err != nil {
+		return err
 	}
 
-	return cmd, nil
+	return nil
 }

@@ -89,10 +89,15 @@ func (d *Deployment) ParseFromFile(t string, output string) error {
 //Download binary file and change mode +x
 func (d *Deployment) DownloadBinaryFile(file, url string, nodes []Node, stdout io.Writer, timestamp bool) error {
 	for _, node := range nodes {
-		if downloadCmd, err := tools.DownloadComponent(url, path.Join(tools.BinaryServerPath, file), node.IP, d.Tools.SSH.Private, tools.DefaultSSHUser, stdout); err != nil {
+		files := []map[string]string{
+			{
+				"src":  url,
+				"dest": path.Join(tools.BinaryServerPath, file),
+			},
+		}
+
+		if err := tools.DownloadComponent(files, node.IP, d.Tools.SSH.Private, tools.DefaultSSHUser, stdout); err != nil {
 			return err
-		} else {
-			WriteLog(fmt.Sprintf("%s exec in %s node", downloadCmd, node.IP), stdout, timestamp, d, &node)
 		}
 
 		chmodCmd := fmt.Sprintf("chmod +x %s", path.Join(tools.BinaryServerPath, file))

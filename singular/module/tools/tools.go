@@ -38,6 +38,9 @@ const (
 	ServiceDockerFolder = "docker"
 	ServiceDockerFile   = "docker.service"
 
+	KubeServerConfig = "/etc/kubernetes"
+	KubeServerSSL    = "ssl"
+
 	//Kubectl files Folder Name
 	KubectlFile                      = "kubectl"
 	KubectlConfigFile                = "config"

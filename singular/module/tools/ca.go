@@ -99,11 +99,18 @@ func GenerateCARootFiles(src string) (map[string]string, error) {
 }
 
 //UploadCARootFiles upload root ca files to the node.
-func UploadCARootFiles(key string, files map[string]string, ip, user string, stdout io.Writer) error {
-	for _, f := range files {
-		if _, err := DownloadComponent(f, path.Join("/etc/kubernetes/ssl", path.Base(f)), ip, key, user, stdout); err != nil {
-			return err
-		}
+func UploadCARootFiles(key string, roots map[string]string, ip, user string, stdout io.Writer) error {
+	files := []map[string]string{}
+
+	for _, f := range roots {
+		file := map[string]string{}
+		file["src"] = f
+		file["dest"] = path.Join(KubeServerConfig, KubeServerSSL, path.Base(f))
+		files = append(files, file)
+	}
+
+	if err := DownloadComponent(files, ip, key, user, stdout); err != nil {
+		return err
 	}
 
 	return nil

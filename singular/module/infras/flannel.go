@@ -69,7 +69,7 @@ func DeployFlannelInCluster(d *objects.Deployment, infra *objects.Infra, stdout 
 		objects.WriteLog(fmt.Sprintf("Upload Flannel CA/Systemd/config files: [%v]", files), stdout, timestamp, d, infra)
 
 		//Upload Flanneld files
-		if err := uploadFlanneldFiles(files, d.Tools.SSH.Private, nodes, stdout, timestamp); err != nil {
+		if err := uploadFlanneldFiles(files, d.Tools.SSH.Private, nodes, stdout); err != nil {
 			return err
 		}
 	}
@@ -243,46 +243,34 @@ func generateFlanneldSystemdFile(node FlanneldEndpoint, version, base, ip string
 }
 
 //uploadFlanneldFiles upload flanneld SSL files and Systemd file
-func uploadFlanneldFiles(files map[string]map[string]string, key string, nodes []objects.Node, stdout io.Writer, timestamp bool) error {
+func uploadFlanneldFiles(f map[string]map[string]string, key string, nodes []objects.Node, stdout io.Writer) error {
 	for _, node := range nodes {
-		var err error
-		var cmd string
+		files := []map[string]string{}
 
+		for k, file := range f[node.IP] {
+			if k == tools.ServiceFlanneldFile {
+				files = append(files, map[string]string{
+					"src":  file,
+					"dest": path.Join(tools.SystemdServerPath, tools.ServiceFlanneldFile),
+				})
+			} else {
+				files = append(files, map[string]string{
+					"src":  file,
+					"dest": path.Join(FlanneldServerConfig, FlanneldServerSSL, k),
+				})
+			}
+		}
 		//Mkdir flanneld ssl folder in server
 		initCmd := []string{
 			"mkdir -p /etc/flanneld/ssl",
 		}
 
-		err = utils.SSHCommand(node.User, key, node.IP, tools.DefaultSSHPort, initCmd[0], stdout, os.Stderr)
-
-		//Upload CA SSL files
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAFlanneldCSRConfigFile], path.Join(FlanneldServerConfig, FlanneldServerSSL, tools.CAFlanneldCSRConfigFile), node.IP, key, node.User, stdout)
-		objects.WriteLog(
-			fmt.Sprintf("upload %s to %s@%s with %s", files[node.IP][tools.CAFlanneldCSRConfigFile], node.IP, path.Join(FlanneldServerConfig, FlanneldServerSSL, tools.CAFlanneldCSRConfigFile), cmd),
-			stdout, timestamp, &node)
-
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAFlanneldKeyPemFile], path.Join(FlanneldServerConfig, FlanneldServerSSL, tools.CAFlanneldKeyPemFile), node.IP, key, node.User, stdout)
-		objects.WriteLog(
-			fmt.Sprintf("upload %s to %s@%s with %s", files[node.IP][tools.CAFlanneldKeyPemFile], node.IP, path.Join(FlanneldServerConfig, FlanneldServerSSL, tools.CAFlanneldKeyPemFile), cmd),
-			stdout, timestamp, &node)
-
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAFlanneldCSRFile], path.Join(FlanneldServerConfig, FlanneldServerSSL, tools.CAFlanneldCSRFile), node.IP, key, node.User, stdout)
-		objects.WriteLog(
-			fmt.Sprintf("upload %s to %s@%s with %s", files[node.IP][tools.CAFlanneldCSRFile], node.IP, path.Join(FlanneldServerConfig, FlanneldServerSSL, tools.CAFlanneldCSRFile), cmd),
-			stdout, timestamp, &node)
-
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAFlanneldPemFile], path.Join(FlanneldServerConfig, FlanneldServerSSL, tools.CAFlanneldPemFile), node.IP, key, node.User, stdout)
-		objects.WriteLog(
-			fmt.Sprintf("upload %s to %s@%s with %s", files[node.IP][tools.CAFlanneldPemFile], node.IP, path.Join(FlanneldServerConfig, FlanneldServerSSL, tools.CAFlanneldPemFile), cmd),
-			stdout, timestamp, &node)
+		if err := utils.SSHCommand(node.User, key, node.IP, tools.DefaultSSHPort, initCmd[0], stdout, os.Stderr); err != nil {
+			return err
+		}
 
 		//Upload Systemd file
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.ServiceFlanneldFile], path.Join(tools.SystemdServerPath, tools.ServiceFlanneldFile), node.IP, key, node.User, stdout)
-		objects.WriteLog(
-			fmt.Sprintf("upload %s to %s@%s with %s", files[node.IP][tools.ServiceFlanneldFile], node.IP, path.Join(FlanneldServerConfig, FlanneldServerSSL, tools.ServiceFlanneldFile), cmd),
-			stdout, timestamp, &node)
-
-		if err != nil {
+		if err := tools.DownloadComponent(files, node.IP, key, node.User, stdout); err != nil {
 			return err
 		}
 	}
