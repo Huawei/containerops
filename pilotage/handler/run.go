@@ -91,15 +91,23 @@ func PostFlowRuntime(ctx *macaron.Context) (int, []byte) {
 	flowName := ctx.Params("flow")
 	data, _ := ctx.Req.Body().Bytes()
 
+
 	f := module.Flow{Number: 1, Status: module.Pending}
 	switch ctx.Params("type") {
 	case "json":
 		if err := json.Unmarshal(data, &f); err != nil {
-			f.Log(fmt.Sprintf("Unmarshal the flow file error: %s", err.Error()), true, true)
+			info:=fmt.Sprintf("Unmarshal the flow file error: %s", err.Error())
+			f.Log(info, true, true)
+			result, _ := json.Marshal(map[string]string{"message": info})
+			return http.StatusBadRequest, result
 		}
+
 	case "yaml":
 		if err := yaml.Unmarshal(data, &f); err != nil {
-			f.Log(fmt.Sprintf("Unmarshal the flow file error: %s", err.Error()), true, true)
+			info:=fmt.Sprintf("Unmarshal the flow file error: %s", err.Error())
+			f.Log(info, true, true)
+			result, _ := json.Marshal(map[string]string{"message": info})
+			return http.StatusBadRequest, result
 		}
 	default:
 		result, _ := json.Marshal(map[string]string{
