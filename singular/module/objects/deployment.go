@@ -89,10 +89,15 @@ func (d *Deployment) ParseFromFile(t string, output string) error {
 //Download binary file and change mode +x
 func (d *Deployment) DownloadBinaryFile(file, url string, nodes []Node, stdout io.Writer, timestamp bool) error {
 	for _, node := range nodes {
-		if downloadCmd, err := tools.DownloadComponent(url, path.Join(tools.BinaryServerPath, file), node.IP, d.Tools.SSH.Private, tools.DefaultSSHUser, stdout); err != nil {
+		files := []map[string]string{
+			{
+				"src":  url,
+				"dest": path.Join(tools.BinaryServerPath, file),
+			},
+		}
+
+		if err := tools.DownloadComponent(files, node.IP, d.Tools.SSH.Private, tools.DefaultSSHUser, stdout); err != nil {
 			return err
-		} else {
-			WriteLog(fmt.Sprintf("%s exec in %s node", downloadCmd, node.IP), stdout, timestamp, d, &node)
 		}
 
 		chmodCmd := fmt.Sprintf("chmod +x %s", path.Join(tools.BinaryServerPath, file))
@@ -128,7 +133,7 @@ func (d *Deployment) URIs() (namespace, repository, name string, err error) {
 	return namespace, repository, name, nil
 }
 
-//
+//Output gather data of deployment.
 func (d *Deployment) Output(key, value string) {
 	if d.Outputs == nil {
 		d.Outputs = map[string]interface{}{}
@@ -137,7 +142,7 @@ func (d *Deployment) Output(key, value string) {
 	d.Outputs[key] = value
 }
 
-// Check Sequence: CheckServiceAuth -> TODO Check Other?
+//Check sequence: CheckServiceAuth -> TODO Check Other?
 func (d *Deployment) Check() error {
 	if err := d.CheckServiceAuth(); err != nil {
 		if len(d.Nodes) == 0 {
@@ -148,11 +153,11 @@ func (d *Deployment) Check() error {
 	return nil
 }
 
-// CheckServiceAuth
+//CheckServiceAuth check has service token in deploy template file or environment variables.
 func (d *Deployment) CheckServiceAuth() error {
 	if d.Service.Provider == "" || d.Service.Token == "" {
 		if common.Singular.Provider == "" || common.Singular.Token == "" {
-			return fmt.Errorf("Should provide infra service and auth token in %s", "deploy template, or configuration file")
+			return fmt.Errorf("should provide infra service and auth token in deploy template, or configuration file")
 		} else {
 			d.Service.Provider, d.Service.Token = common.Singular.Provider, common.Singular.Token
 		}
@@ -161,7 +166,7 @@ func (d *Deployment) CheckServiceAuth() error {
 	return nil
 }
 
-// initConfigPath init config files and log files folder.
+//initConfigPath init config files and log files folder.
 func initConfigPath(namespace, repository, name, path string, version int) (string, error) {
 	var config string
 
@@ -183,7 +188,7 @@ func initConfigPath(namespace, repository, name, path string, version int) (stri
 	return config, nil
 }
 
-// Node is
+//Node used for deploy with server already exist.
 type Node struct {
 	ID     int      `json:"id" yaml:"id"`
 	IP     string   `json:"ip" yaml:"ip"`
@@ -205,7 +210,7 @@ func (n *Node) WriteLog(log string, writer io.Writer, output bool) error {
 	return nil
 }
 
-// Service is
+//Service is cloud provider.
 type Service struct {
 	Provider string   `json:"provider" yaml:"provider"`
 	Token    string   `json:"token" yaml:"token"`
@@ -229,19 +234,19 @@ func (s *Service) WriteLog(log string, writer io.Writer, output bool) error {
 	return nil
 }
 
-// Tools is
+//Tools is part of deployment, include SSH and others.
 type Tools struct {
 	SSH SSH `json:"ssh" yaml:"ssh"`
 }
 
-// SSH is
+//SSH is public, private files and fingerprint data.
 type SSH struct {
 	Private     string `json:"private" yaml:"private"`
 	Public      string `json:"public" yaml:"public"`
 	Fingerprint string `json:"fingerprint" yaml:"fingerprint"`
 }
 
-// Component is
+//Component is part of infra
 type Component struct {
 	Binary  string   `json:"binary" yaml:"binary"`
 	URL     string   `json:"url" yaml:"url"`

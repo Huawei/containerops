@@ -31,7 +31,7 @@ const (
 	DORootUser = "root"
 )
 
-// DigitalOcean struct use for manage create/delete DigitalOcean droplets.
+//DigitalOcean struct use for manage create/delete DigitalOcean droplets.
 type DigitalOcean struct {
 	Token    string         `json:"token" yaml:"token"`
 	Region   string         `json:"region" yaml:"region"`
@@ -40,7 +40,7 @@ type DigitalOcean struct {
 	Droplets map[string]int `json:"droplets,omitempty" yaml:"droplets,omitempty"`
 	Logs     []string       `json:"logs,omitempty" yaml:"logs,omitempty"`
 
-	// Runtime Properties
+	//Runtime Properties
 	client *godo.Client
 }
 
@@ -57,12 +57,12 @@ func (d *DigitalOcean) WriteLog(log string, writer io.Writer, output bool) error
 	return nil
 }
 
-// TokenSource is access token of DigitalOcean
+//TokenSource is access token of DigitalOcean
 type TokenSource struct {
 	AccessToken string
 }
 
-//
+//Token is digitalocean need function
 func (t *TokenSource) Token() (*oauth2.Token, error) {
 	token := &oauth2.Token{
 		AccessToken: t.AccessToken,
@@ -70,6 +70,7 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 	return token, nil
 }
 
+//InitClient init digitalocean api client
 func (do *DigitalOcean) InitClient() error {
 	tokenSource := &TokenSource{
 		AccessToken: do.Token,
@@ -81,7 +82,8 @@ func (do *DigitalOcean) InitClient() error {
 	return nil
 }
 
-// TODO Customize SSH key name.
+//UploadSSHKey upload SSH public key file to the digitalocean service.
+//TODO Customize SSH key name.
 func (do *DigitalOcean) UploadSSHKey(publicFile string) error {
 	if public, err := ioutil.ReadFile(publicFile); err != nil {
 		return err
@@ -100,7 +102,8 @@ func (do *DigitalOcean) UploadSSHKey(publicFile string) error {
 	return nil
 }
 
-func (do *DigitalOcean) CreateDroplet(nodes int, fingerprint, name string, tags []string) error {
+//CreateDroplets create droplets in DigitalOcean.
+func (do *DigitalOcean) CreateDroplets(nodes int, fingerprint, name string, tags []string) error {
 	names := []string{}
 
 	for i := 0; i < nodes; i++ {

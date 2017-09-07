@@ -18,13 +18,13 @@ package objects
 
 import (
 	"encoding/json"
-
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io"
+
+	"gopkg.in/yaml.v2"
 )
 
-// Infra is
+//Infra is Singular deploy unit.
 type Infra struct {
 	Name       string                 `json:"name" yaml:"name"`
 	Version    string                 `json:"version" yaml:"version" `
@@ -49,16 +49,17 @@ func (i *Infra) WriteLog(log string, writer io.Writer, output bool) error {
 	return nil
 }
 
-// JSON export deployment data
+//JSON export Infra data of JSON format
 func (i *Infra) JSON() ([]byte, error) {
 	return json.Marshal(&i)
 }
 
-//
+//YAML export Infra data of YAML format
 func (i *Infra) YAML() ([]byte, error) {
 	return yaml.Marshal(&i)
 }
 
+//Output gather export data of infra
 func (i *Infra) Output(key, value string) {
 	if i.Outputs == nil {
 		i.Outputs = map[string]interface{}{}

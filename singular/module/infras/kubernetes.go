@@ -41,10 +41,7 @@ import (
 	"github.com/Huawei/containerops/singular/module/tools"
 )
 
-const (
-	KubeServerConfig = "/etc/kubernetes"
-	KubeServerSSL    = "ssl"
-)
+const ()
 
 //DeployKubernetes is function deployment Kubernetes cluster include master and nodes.
 //Notes:
@@ -106,7 +103,7 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 				return err
 			} else {
 				//Upload Kubernetes Token file
-				if err := uploadTokenFiles(d, files, d.Tools.SSH.Private, masterIP, stdout, timestamp); err != nil {
+				if err := uploadTokenFiles(d, files, d.Tools.SSH.Private, masterIP, stdout); err != nil {
 					return err
 				}
 			}
@@ -116,7 +113,7 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 				return err
 			} else {
 				//Upload Kubernetes API Server SSL files and systemd service file
-				if err := uploadKubeAPIServerCAFiles(files, d, kubeMasterNodes, stdout, timestamp); err != nil {
+				if err := uploadKubeAPIServerCAFiles(files, d, kubeMasterNodes, stdout); err != nil {
 					return err
 				}
 
@@ -130,8 +127,8 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 			if files, err := generateKubeControllerManagerFiles(d, masterIP, etcdEndpoints, infra.Version); err != nil {
 				return err
 			} else {
-				//Upload Kuber-controller-manager systemd service file
-				if err := uploadKubeControllerFiles(files, d, kubeMasterNodes, stdout, timestamp); err != nil {
+				//Upload Kube-controller-manager systemd service file
+				if err := uploadKubeControllerFiles(files, d, kubeMasterNodes, stdout); err != nil {
 					return err
 				}
 
@@ -146,7 +143,7 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 				return err
 			} else {
 				//Upload Kube-scheduler systemd service file
-				if err := uploadKubeSchedulerFiles(files, d, kubeMasterNodes, stdout, timestamp); err != nil {
+				if err := uploadKubeSchedulerFiles(files, d, kubeMasterNodes, stdout); err != nil {
 					return err
 				}
 
@@ -160,13 +157,13 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 			if config, err := generateBootstrapFile(d, masterIP, stdout, timestamp); err != nil {
 				return err
 			} else {
-				if err := uploadBootstrapFile(config, d, kubeSlaveNodes, stdout, timestamp); err != nil {
+				if err := uploadBootstrapFile(config, d, kubeSlaveNodes, stdout); err != nil {
 					return err
 				}
 			}
 
 			//exec kubectl create clusterrolebinding command
-			if err := setKubeletClusterrolebinding(d, &kubeSlaveNodes[0], stdout, timestamp); err != nil {
+			if err := setKubeletClusterrolebinding(d, kubeSlaveNodes, stdout, timestamp); err != nil {
 				return nil
 			}
 
@@ -187,7 +184,7 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 			time.Sleep(10 * time.Second)
 
 			//Approve kubelet certificate key
-			if err := kubeletCertificateApprove(d, &kubeSlaveNodes[0], stdout, timestamp); err != nil {
+			if err := kubeletCertificateApprove(d, kubeSlaveNodes, stdout, timestamp); err != nil {
 				return err
 			}
 		case "kube-proxy":
@@ -218,7 +215,7 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 }
 
 //setKubectlConfig download kubectl and set config file.
-func setKubectlFiles(d *objects.Deployment, link, master string, stdout io.Writer, timestamp bool) error {
+func setKubectlFiles(d *objects.Deployment, link, masterIP string, stdout io.Writer, timestamp bool) error {
 	//Make kubectl folder
 	if utils.IsDirExist(path.Join(d.Config, tools.KubectlFileFolder)) == true {
 		os.RemoveAll(path.Join(d.Config, tools.KubectlFileFolder))
@@ -262,7 +259,7 @@ func setKubectlFiles(d *objects.Deployment, link, master string, stdout io.Write
 	}
 
 	//Generate kubectl config file
-	if file, err := setKubeConfigFile(d, master, stdout, timestamp); err != nil {
+	if file, err := setKubeConfigFile(d, masterIP, stdout); err != nil {
 		return err
 	} else {
 		objects.WriteLog(fmt.Sprintf("kubectl config files [%s]", file), stdout, timestamp, d)
@@ -348,7 +345,7 @@ func generateKubeAdminCAFiles(src string) (map[string]string, error) {
 }
 
 //setKubeConfigFile generate kubectl config file
-func setKubeConfigFile(d *objects.Deployment, masterIP string, stdout io.Writer, timestamp bool) (string, error) {
+func setKubeConfigFile(d *objects.Deployment, masterIP string, stdout io.Writer) (string, error) {
 	base := path.Join(d.Config, tools.KubectlFileFolder)
 	adminPem := path.Join(base, tools.CAKubeAdminPemFile)
 	adminKey := path.Join(base, tools.CAKubeAdminKeyPemFile)
@@ -399,19 +396,9 @@ func setKubeConfigFile(d *objects.Deployment, masterIP string, stdout io.Writer,
 //uploadKubeConfigFiles upload Kubectl config file and ca ssl files.
 func uploadKubeConfigFiles(d *objects.Deployment, key string, nodes []objects.Node, stdout io.Writer, timestamp bool) error {
 	base := path.Join(d.Config, tools.KubectlFileFolder)
-	config := path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlConfigFile)
-
-	files := map[string]map[string]string{}
 
 	for _, node := range nodes {
-		var err error
 		var cmd, dest string
-
-		files[node.IP] = map[string]string{}
-		files[node.IP][tools.CAKubeAdminCSRConfigFile] = path.Join(base, tools.CAKubeAdminCSRConfigFile)
-		files[node.IP][tools.CAKubeAdminKeyPemFile] = path.Join(base, tools.CAKubeAdminKeyPemFile)
-		files[node.IP][tools.CAKubeAdminCSRFile] = path.Join(base, tools.CAKubeAdminCSRFile)
-		files[node.IP][tools.CAKubeAdminPemFile] = path.Join(base, tools.CAKubeAdminPemFile)
 
 		if node.User == tools.DefaultSSHUser {
 			cmd = fmt.Sprintf("mkdir -p /%s/.kube", tools.DefaultSSHUser)
@@ -421,25 +408,35 @@ func uploadKubeConfigFiles(d *objects.Deployment, key string, nodes []objects.No
 			dest = fmt.Sprintf("/home/%s/.kube", node.User)
 		}
 
-		err = utils.SSHCommand(node.User, key, node.IP, tools.DefaultSSHPort, cmd, stdout, os.Stderr)
+		files := []map[string]string{
+			{
+				"src":  path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlConfigFile),
+				"dest": dest,
+			},
+			{
+				"src":  path.Join(base, tools.CAKubeAdminCSRConfigFile),
+				"dest": path.Join(tools.KubeServerConfig, tools.KubeServerSSL, tools.CAKubeAdminCSRConfigFile),
+			},
+			{
+				"src":  path.Join(base, tools.CAKubeAdminKeyPemFile),
+				"dest": path.Join(tools.KubeServerConfig, tools.KubeServerSSL, tools.CAKubeAdminKeyPemFile),
+			},
+			{
+				"src":  path.Join(base, tools.CAKubeAdminCSRFile),
+				"dest": path.Join(tools.KubeServerConfig, tools.KubeServerSSL, tools.CAKubeAdminCSRFile),
+			},
+			{
+				"src":  path.Join(base, tools.CAKubeAdminPemFile),
+				"dest": path.Join(tools.KubeServerConfig, tools.KubeServerSSL, tools.CAKubeAdminPemFile),
+			},
+		}
+
 		objects.WriteLog(fmt.Sprintf("exec %s in %s node", cmd, node.IP), stdout, timestamp, d, &node)
+		if err := utils.SSHCommand(node.User, key, node.IP, tools.DefaultSSHPort, cmd, stdout, os.Stderr); err != nil {
+			return err
+		}
 
-		cmd, err = tools.DownloadComponent(config, dest, node.IP, key, node.User, stdout)
-		objects.WriteLog(fmt.Sprintf("upload %s to %s node", cmd, node.IP), stdout, timestamp, d, &node)
-
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAKubeAdminCSRConfigFile], path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminCSRConfigFile), node.IP, key, node.User, stdout)
-		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[node.IP][tools.CAKubeAdminCSRConfigFile], node.IP), stdout, timestamp, d, &node)
-
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAKubeAdminKeyPemFile], path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminKeyPemFile), node.IP, key, node.User, stdout)
-		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[node.IP][tools.CAKubeAdminKeyPemFile], node.IP), stdout, timestamp, d, &node)
-
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAKubeAdminCSRFile], path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminCSRFile), node.IP, key, node.User, stdout)
-		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[node.IP][tools.CAKubeAdminCSRFile], node.IP), stdout, timestamp, d, &node)
-
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAKubeAdminPemFile], path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAdminPemFile), node.IP, key, node.User, stdout)
-		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[node.IP][tools.CAKubeAdminPemFile], node.IP), stdout, timestamp, d, &node)
-
-		if err != nil {
+		if err := tools.DownloadComponent(files, node.IP, key, node.User, stdout); err != nil {
 			return err
 		}
 	}
@@ -473,12 +470,15 @@ func generateTokenFile(d *objects.Deployment, stdout io.Writer, timestamp bool) 
 	return files, nil
 }
 
-// Upload Token CSV file
-func uploadTokenFiles(d *objects.Deployment, files map[string]string, key, ip string, stdout io.Writer, timestamp bool) error {
-	if cmd, err := tools.DownloadComponent(files[tools.KubeTokenCSVFile], path.Join(KubeServerConfig, tools.KubeTokenCSVFile), ip, key, tools.DefaultSSHUser, stdout); err != nil {
+//uploadTokenFiles upload Token CSV file
+func uploadTokenFiles(d *objects.Deployment, f map[string]string, key, ip string, stdout io.Writer) error {
+	files := []map[string]string{{
+		"src":  f[tools.KubeTokenCSVFile],
+		"dest": path.Join(tools.KubeServerConfig, tools.KubeTokenCSVFile),
+	}}
+
+	if err := tools.DownloadComponent(files, ip, key, tools.DefaultSSHUser, stdout); err != nil {
 		return err
-	} else {
-		objects.WriteLog(fmt.Sprintf("%s upload %s to %s node", cmd, files[tools.KubeTokenCSVFile], ip), stdout, timestamp, d)
 	}
 
 	return nil
@@ -586,27 +586,25 @@ func generateKubeAPIServerFiles(d *objects.Deployment, masterIP, etcdEndpoints s
 }
 
 //uploadKubeAPIServerCAFiles upload Kube API Server systemd file and CA SSL file.
-func uploadKubeAPIServerCAFiles(files map[string]string, d *objects.Deployment, masters []objects.Node, stdout io.Writer, timestamp bool) error {
+func uploadKubeAPIServerCAFiles(f map[string]string, d *objects.Deployment, masters []objects.Node, stdout io.Writer) error {
 	for _, node := range masters {
-		var err error
-		var cmd string
+		files := []map[string]string{}
 
-		cmd, err = tools.DownloadComponent(files[tools.CAKubeAPIServerCSRConfigFile], path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAPIServerCSRConfigFile), node.IP, d.Tools.SSH.Private, node.User, stdout)
-		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[tools.CAKubeAPIServerCSRConfigFile], node.IP), stdout, timestamp, d, &node)
+		for k, file := range f {
+			if k == tools.KubeAPIServerSystemdFile {
+				files = append(files, map[string]string{
+					"src":  file,
+					"dest": path.Join(tools.SystemdServerPath, tools.KubeAPIServerSystemdFile),
+				})
+			} else {
+				files = append(files, map[string]string{
+					"src":  file,
+					"dest": path.Join(tools.KubeServerConfig, tools.KubeServerSSL, k),
+				})
+			}
+		}
 
-		cmd, err = tools.DownloadComponent(files[tools.CAKubeAPIServerKeyPemFile], path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAPIServerKeyPemFile), node.IP, d.Tools.SSH.Private, node.User, stdout)
-		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[tools.CAKubeAPIServerKeyPemFile], node.IP), stdout, timestamp, d, &node)
-
-		cmd, err = tools.DownloadComponent(files[tools.CAKubeAPIServerCSRFile], path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAPIServerCSRFile), node.IP, d.Tools.SSH.Private, node.User, stdout)
-		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[tools.CAKubeAPIServerCSRFile], node.IP), stdout, timestamp, d, &node)
-
-		cmd, err = tools.DownloadComponent(files[tools.CAKubeAPIServerPemFile], path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeAPIServerPemFile), node.IP, d.Tools.SSH.Private, node.User, stdout)
-		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[tools.CAKubeAPIServerPemFile], node.IP), stdout, timestamp, d, &node)
-
-		cmd, err = tools.DownloadComponent(files[tools.KubeAPIServerSystemdFile], path.Join(tools.SystemdServerPath, tools.KubeAPIServerSystemdFile), node.IP, d.Tools.SSH.Private, node.User, stdout)
-		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[tools.KubeAPIServerSystemdFile], node.IP), stdout, timestamp, d, &node)
-
-		if err != nil {
+		if err := tools.DownloadComponent(files, node.IP, d.Tools.SSH.Private, node.User, stdout); err != nil {
 			return err
 		}
 	}
@@ -656,12 +654,15 @@ func generateKubeControllerManagerFiles(d *objects.Deployment, masterIP, etcdEnd
 }
 
 //uploadKubeControllerFiles upload kube-controller-manager
-func uploadKubeControllerFiles(files map[string]string, d *objects.Deployment, masters []objects.Node, stdout io.Writer, timestamp bool) error {
+func uploadKubeControllerFiles(f map[string]string, d *objects.Deployment, masters []objects.Node, stdout io.Writer) error {
 	for _, node := range masters {
-		if cmd, err := tools.DownloadComponent(files[tools.KubeControllerManagerSystemdFile], path.Join(tools.SystemdServerPath, tools.KubeControllerManagerSystemdFile), node.IP, d.Tools.SSH.Private, node.User, stdout); err != nil {
+		files := []map[string]string{{
+			"src":  f[tools.KubeControllerManagerSystemdFile],
+			"dest": path.Join(tools.SystemdServerPath, tools.KubeControllerManagerSystemdFile),
+		}}
+
+		if err := tools.DownloadComponent(files, node.IP, d.Tools.SSH.Private, node.User, stdout); err != nil {
 			return err
-		} else {
-			objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[tools.KubeControllerManagerSystemdFile], node.IP), stdout, timestamp, d, &node)
 		}
 	}
 
@@ -710,12 +711,15 @@ func generateKubeSchedulerFiles(d *objects.Deployment, masterIP, etcdEndpoints s
 }
 
 //uploadKubeSchedulerFiles
-func uploadKubeSchedulerFiles(files map[string]string, d *objects.Deployment, masters []objects.Node, stdout io.Writer, timestamp bool) error {
+func uploadKubeSchedulerFiles(files map[string]string, d *objects.Deployment, masters []objects.Node, stdout io.Writer) error {
 	for _, node := range masters {
-		if cmd, err := tools.DownloadComponent(files[tools.KubeSchedulerSystemdFile], path.Join(tools.SystemdServerPath, tools.KubeSchedulerSystemdFile), node.IP, d.Tools.SSH.Private, node.User, stdout); err != nil {
+		files := []map[string]string{{
+			"src":  files[tools.KubeSchedulerSystemdFile],
+			"dest": path.Join(tools.SystemdServerPath, tools.KubeSchedulerSystemdFile),
+		}}
+
+		if err := tools.DownloadComponent(files, node.IP, d.Tools.SSH.Private, node.User, stdout); err != nil {
 			return err
-		} else {
-			objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[tools.KubeSchedulerSystemdFile], node.IP), stdout, timestamp, d, &node)
 		}
 	}
 
@@ -785,12 +789,15 @@ func generateBootstrapFile(d *objects.Deployment, master string, stdout io.Write
 }
 
 //uploadBootstrapFile upload bootstrap.kubeconfig to kubernetes slave nodes.
-func uploadBootstrapFile(file string, d *objects.Deployment, kubeSlaveNodes []objects.Node, stdout io.Writer, timestamp bool) error {
+func uploadBootstrapFile(file string, d *objects.Deployment, kubeSlaveNodes []objects.Node, stdout io.Writer) error {
 	for _, node := range kubeSlaveNodes {
-		if cmd, err := tools.DownloadComponent(file, path.Join(KubeServerConfig, tools.KubeBootstrapConfig), node.IP, d.Tools.SSH.Private, node.User, stdout); err != nil {
+		files := []map[string]string{{
+			"src":  file,
+			"dest": path.Join(tools.KubeServerConfig, tools.KubeBootstrapConfig),
+		}}
+
+		if err := tools.DownloadComponent(files, node.IP, d.Tools.SSH.Private, node.User, stdout); err != nil {
 			return err
-		} else {
-			objects.WriteLog(fmt.Sprintf("%s upload bootstrap.kubeconfig to %s node", cmd, node.IP), stdout, timestamp, d, &node)
 		}
 	}
 
@@ -798,13 +805,16 @@ func uploadBootstrapFile(file string, d *objects.Deployment, kubeSlaveNodes []ob
 }
 
 //setKubeletClusterrolebinding exec kubectl create clusterrolebinding command in the first slave node in Kubernetes clusters.
-func setKubeletClusterrolebinding(d *objects.Deployment, node *objects.Node, stdout io.Writer, timestamp bool) error {
-	cmd := "kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap"
-	if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, cmd, stdout, os.Stderr); err != nil {
-		return err
+func setKubeletClusterrolebinding(d *objects.Deployment, nodes []objects.Node, stdout io.Writer, timestamp bool) error {
+	for i, node := range nodes {
+		if i == 0 {
+			cmd := "kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap"
+			if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, cmd, stdout, os.Stderr); err != nil {
+				return err
+			}
+			objects.WriteLog(fmt.Sprintf("exec %s in the %s node", cmd, node.IP), stdout, timestamp, d, &node)
+		}
 	}
-
-	objects.WriteLog(fmt.Sprintf("exec %s in the %s node", cmd, node.IP), stdout, timestamp, d, node)
 
 	return nil
 }
@@ -852,12 +862,15 @@ func uploadKubeletFile(files map[string]map[string]string, d *objects.Deployment
 		}
 		objects.WriteLog(fmt.Sprintf("exec %s command in %s node", cmd, node.IP), stdout, timestamp, d, &node)
 
-		if download, err := tools.DownloadComponent(files[node.IP][tools.KubeletSystemdFile], path.Join(tools.SystemdServerPath, tools.KubeletSystemdFile), node.IP, d.Tools.SSH.Private, node.User, stdout); err != nil {
-			return err
-		} else {
-			objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", download, tools.KubeletSystemdFile, node.IP), stdout, timestamp, d, &node)
+		files := []map[string]string{{
+			"src":  files[node.IP][tools.KubeletSystemdFile],
+			"dest": path.Join(tools.SystemdServerPath, tools.KubeletSystemdFile),
+		},
 		}
 
+		if err := tools.DownloadComponent(files, node.IP, d.Tools.SSH.Private, node.User, stdout); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -879,14 +892,16 @@ func startKubelet(d *objects.Deployment, kubeSlaveNodes []objects.Node, stdout i
 }
 
 //kubeletCertificateApprove approve kubelet certificate
-func kubeletCertificateApprove(d *objects.Deployment, node *objects.Node, stdout io.Writer, timestamp bool) error {
-	cmd := "kubectl certificate approve `kubectl get csr -o name`"
-
-	if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, cmd, stdout, os.Stderr); err != nil {
-		return err
+func kubeletCertificateApprove(d *objects.Deployment, nodes []objects.Node, stdout io.Writer, timestamp bool) error {
+	for i, node := range nodes {
+		if i == 0 {
+			cmd := "kubectl certificate approve `kubectl get csr -o name`"
+			if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, cmd, stdout, os.Stderr); err != nil {
+				return err
+			}
+			objects.WriteLog(fmt.Sprintf("exec %s command approve kubelet certificate in %s node", cmd, node.IP), stdout, timestamp, d, &node)
+		}
 	}
-
-	objects.WriteLog(fmt.Sprintf("exec %s command approve kubelet certificate in %s node", cmd, node.IP), stdout, timestamp, d, node)
 
 	return nil
 }
@@ -1038,35 +1053,36 @@ func generateKubeProxyConfigFile(files *map[string]map[string]string, d *objects
 }
 
 //uploadKubeProxyFiles upload kube-proxy CA files, systemd service file and kube-proxy.kubeconfig file to the nodes.
-func uploadKubeProxyFiles(files map[string]map[string]string, d *objects.Deployment, kubeSlaveNodes []objects.Node, stdout io.Writer, timestamp bool) error {
+func uploadKubeProxyFiles(f map[string]map[string]string, d *objects.Deployment, kubeSlaveNodes []objects.Node, stdout io.Writer, timestamp bool) error {
 	for _, node := range kubeSlaveNodes {
-		var err error
-		var cmd string
-
-		cmd = "mkdir -p /var/lib/kube-proxy"
-
-		err = utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, cmd, stdout, os.Stderr)
+		cmd := "mkdir -p /var/lib/kube-proxy"
 		objects.WriteLog(fmt.Sprintf("exec %s command in %s node", cmd, node.IP), stdout, timestamp, d, &node)
+		if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, cmd, stdout, os.Stderr); err != nil {
+			return err
+		}
 
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAKubeProxyServerCSRConfigFile], path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeProxyServerCSRConfigFile), node.IP, d.Tools.SSH.Private, node.User, stdout)
-		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[tools.CAKubeProxyServerCSRConfigFile], node.IP), stdout, timestamp, d, &node)
+		files := []map[string]string{}
+		for k, file := range f[node.IP] {
+			switch k {
+			case tools.KubeProxySystemdFiles:
+				files = append(files, map[string]string{
+					"src":  file,
+					"dest": path.Join(tools.SystemdServerPath, tools.KubeProxySystemdFiles),
+				})
+			case tools.KubeProxyConfigFile:
+				files = append(files, map[string]string{
+					"src":  file,
+					"dest": path.Join(tools.KubeServerConfig, tools.KubeProxyConfigFile),
+				})
+			default:
+				files = append(files, map[string]string{
+					"src":  file,
+					"dest": path.Join(EtcdServerConfig, EtcdServerSSL, k),
+				})
+			}
+		}
 
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAKubeProxyServerKeyPemFile], path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeProxyServerKeyPemFile), node.IP, d.Tools.SSH.Private, node.User, stdout)
-		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[tools.CAKubeProxyServerKeyPemFile], node.IP), stdout, timestamp, d, &node)
-
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAKubeProxyServerCSR], path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeProxyServerCSR), node.IP, d.Tools.SSH.Private, node.User, stdout)
-		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[tools.CAKubeProxyServerCSR], node.IP), stdout, timestamp, d, &node)
-
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAKubeProxyServerPemFile], path.Join(KubeServerConfig, KubeServerSSL, tools.CAKubeProxyServerPemFile), node.IP, d.Tools.SSH.Private, node.User, stdout)
-		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[tools.CAKubeProxyServerPemFile], node.IP), stdout, timestamp, d, &node)
-
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.KubeProxySystemdFiles], path.Join(tools.SystemdServerPath, tools.KubeProxySystemdFiles), node.IP, d.Tools.SSH.Private, node.User, stdout)
-		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[tools.KubeProxySystemdFiles], node.IP), stdout, timestamp, d, &node)
-
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.KubeProxyConfigFile], path.Join(KubeServerConfig, tools.KubeProxyConfigFile), node.IP, d.Tools.SSH.Private, node.User, stdout)
-		objects.WriteLog(fmt.Sprintf("exec %s upload %s to %s node", cmd, files[tools.KubeProxyConfigFile], node.IP), stdout, timestamp, d, &node)
-
-		if err != nil {
+		if err := tools.DownloadComponent(files, node.IP, d.Tools.SSH.Private, node.User, stdout); err != nil {
 			return err
 		}
 	}

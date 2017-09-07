@@ -105,7 +105,7 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 			objects.WriteLog(fmt.Sprintf("Droplets tag is %v", tags), stdout, timestamp, d, do)
 
 			//Create DigitalOcean Droplets
-			if err := do.CreateDroplet(d.Service.Nodes, d.Tools.SSH.Fingerprint, fmt.Sprintf("%s-%s", namespace, repository), tags); err != nil {
+			if err := do.CreateDroplets(d.Service.Nodes, d.Tools.SSH.Fingerprint, fmt.Sprintf("%s-%s", namespace, repository), tags); err != nil {
 				return err
 			}
 

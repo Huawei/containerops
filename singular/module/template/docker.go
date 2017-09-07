@@ -16,8 +16,6 @@ limitations under the License.
 
 package template
 
-var DockerCATemplate = map[string]string{}
-
 var DockerSystemdTemplate = map[string]string{
 	"docker-17.04.0-ce": `
 [Unit]

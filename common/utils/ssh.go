@@ -89,7 +89,7 @@ func SSHCommand(user, privateKey, host string, port int, command string, stdout,
 }
 
 //SSHScp copy local file to remote dest using scp command.
-func SSHScp(user, privateKey, host string, port int, src, dest string) error {
+func SSHScp(user, privateKey, host string, port int, files []map[string]string) error {
 	var (
 		addr         string
 		clientConfig *ssh.ClientConfig
@@ -113,25 +113,26 @@ func SSHScp(user, privateKey, host string, port int, src, dest string) error {
 	if c, err = ssh.Dial("tcp", addr, clientConfig); err != nil {
 		return err
 	}
+	defer c.Close()
 
-	client, err := sftp.NewClient(c)
-	if err != nil {
-		return err
+	for _, file := range files {
+		client, err := sftp.NewClient(c)
+		if err != nil {
+			return err
+		}
+
+		localFile, err := os.Open(file["src"])
+		if err != nil {
+			return err
+		}
+
+		remoteFile, err := client.Create(file["dest"])
+		if err != nil {
+			return err
+		}
+
+		_, err = io.Copy(remoteFile, localFile)
 	}
-	defer client.Close()
 
-	localFile, err := os.Open(src)
-	if err != nil {
-		return err
-	}
-	defer localFile.Close()
-
-	remoteFile, err := client.Create(dest)
-	if err != nil {
-		return err
-	}
-
-	_, err = io.Copy(remoteFile, localFile)
-	return err
-
+	return nil
 }
