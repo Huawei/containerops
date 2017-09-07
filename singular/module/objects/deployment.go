@@ -96,12 +96,12 @@ func (d *Deployment) DownloadBinaryFile(file, url string, nodes []Node, stdout i
 			},
 		}
 
-		if err := tools.DownloadComponent(files, node.IP, d.Tools.SSH.Private, tools.DefaultSSHUser, stdout); err != nil {
+		if err := tools.DownloadComponent(files, node.IP, d.Tools.SSH.Private, node.User, stdout); err != nil {
 			return err
 		}
 
 		chmodCmd := fmt.Sprintf("chmod +x %s", path.Join(tools.BinaryServerPath, file))
-		if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, chmodCmd, stdout, os.Stderr); err != nil {
+		if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, []string{chmodCmd}, stdout, os.Stderr); err != nil {
 			return err
 		}
 		WriteLog(fmt.Sprintf("%s exec in %s node", chmodCmd, node.IP), stdout, timestamp, d, &node)
@@ -253,8 +253,8 @@ type Component struct {
 	Package bool     `json:"package" yaml:"package"`
 	Systemd string   `json:"systemd" yaml:"systemd"`
 	CA      string   `json:"ca" yaml:"ca"`
-	Before  string   `json:"before" yaml:"before"`
-	After   string   `json:"after" yaml:"after"`
+	Before  []string `json:"before" yaml:"before"`
+	After   []string `json:"after" yaml:"after"`
 	Logs    []string `json:"logs,omitempty" yaml:"logs,omitempty"`
 }
 

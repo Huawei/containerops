@@ -60,7 +60,7 @@ func DownloadComponent(files []map[string]string, host, private, user string, st
 func downloadBinary(files []map[string]string, host, private, user string, stdout io.Writer) error {
 	for _, file := range files {
 		cmd := fmt.Sprintf("curl %s -o %s", file["src"], file["dest"])
-		if err := utils.SSHCommand(user, private, host, DefaultSSHPort, cmd, stdout, os.Stderr); err != nil {
+		if err := utils.SSHCommand(user, private, host, DefaultSSHPort, []string{cmd}, stdout, os.Stderr); err != nil {
 			return err
 		}
 	}

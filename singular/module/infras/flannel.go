@@ -74,13 +74,13 @@ func DeployFlannelInCluster(d *objects.Deployment, infra *objects.Infra, stdout 
 		}
 	}
 
-	for i, c := range infra.Components {
+	for _, c := range infra.Components {
 		if err := d.DownloadBinaryFile(c.Binary, c.URL, nodes, stdout, timestamp); err != nil {
 			return err
 		}
 
-		if c.Before != "" && i == 0 {
-			if err := beforeFlanneldExecute(d.Tools.SSH.Private, d.Outputs[fmt.Sprintf("NODE_%d", i)].(string), c.Before, d.Outputs["EtcdEndpoints"].(string)); err != nil {
+		if c.Before != nil && c.Binary == "flanneld" {
+			if err := beforeFlanneldExecute(d.Tools.SSH.Private, nodes[0].IP, c.Before[0], d.Outputs["EtcdEndpoints"].(string), nodes[0].User); err != nil {
 				return err
 			}
 		}
@@ -265,7 +265,7 @@ func uploadFlanneldFiles(f map[string]map[string]string, key string, nodes []obj
 			"mkdir -p /etc/flanneld/ssl",
 		}
 
-		if err := utils.SSHCommand(node.User, key, node.IP, tools.DefaultSSHPort, initCmd[0], stdout, os.Stderr); err != nil {
+		if err := utils.SSHCommand(node.User, key, node.IP, tools.DefaultSSHPort, initCmd, stdout, os.Stderr); err != nil {
 			return err
 		}
 
@@ -279,7 +279,7 @@ func uploadFlanneldFiles(f map[string]map[string]string, key string, nodes []obj
 }
 
 //beforeFlanneldExecute execute before script of Flanneld
-func beforeFlanneldExecute(key, ip, tplString, etcdEndpoints string) error {
+func beforeFlanneldExecute(key, ip, tplString, etcdEndpoints string, user string) error {
 	node := EtcdEndpoint{
 		Nodes: etcdEndpoints,
 	}
@@ -291,18 +291,21 @@ func beforeFlanneldExecute(key, ip, tplString, etcdEndpoints string) error {
 	sslTp.Execute(&tpl, node)
 	cmd := string(tpl.Bytes()[:])
 
-	utils.SSHCommand("root", key, ip, 22, cmd, os.Stdout, os.Stderr)
+	utils.SSHCommand(user, key, ip, 22, []string{cmd}, os.Stdout, os.Stderr)
 
 	return nil
 }
 
 //startFlanneldInCluster start Flanneld service in the cluster.
 func startFlanneldInCluster(key string, nodes []objects.Node, stdout io.Writer, timestamp bool) error {
-	cmd := "systemctl daemon-reload && systemctl enable flanneld && systemctl start --no-block flanneld"
+	commands := []string{
+		"systemctl daemon-reload",
+		"systemctl enable flanneld",
+		"systemctl start --no-block flanneld",
+	}
 
 	for _, node := range nodes {
-		utils.SSHCommand(node.User, key, node.IP, tools.DefaultSSHPort, cmd, stdout, os.Stderr)
-		objects.WriteLog(fmt.Sprintf("%s start flanneld in node %s", cmd, node.IP), stdout, timestamp, &node)
+		utils.SSHCommand(node.User, key, node.IP, tools.DefaultSSHPort, commands, stdout, os.Stderr)
 	}
 
 	return nil
