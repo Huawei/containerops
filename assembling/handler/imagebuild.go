@@ -69,6 +69,7 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 		tarfile = buf
 	}
 
+	log.Infof("Init k8s resources")
 	podClient, serviceClient, err := initK8SResourceInterfaces(common.Assembling.KubeConfig)
 	if err != nil {
 		log.Errorf("Failed to init k8s pod client: %s", err.Error())
@@ -79,6 +80,7 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	podName := fmt.Sprintf("containerops-build-pod-%s", buildId)
 	serviceName := fmt.Sprintf("containerops-build-svc-%s", buildId)
 
+	log.Infof("Create pod %s for build %s", podName, buildId)
 	_, err = createPod(podClient, podName, buildId)
 	if err != nil {
 		log.Errorf("Failed to create pod: %s", err.Error())
@@ -86,19 +88,25 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	}
 	defer deletePod(podClient, podName)
 
-	nodeBalancer, err := createNodeBalancer(serviceClient, serviceName, buildId)
+	log.Infof("Create load balancer for build %s", buildId)
+	loadBalancer, err := createLoadBalancer(serviceClient, serviceName, buildId)
 	if err != nil {
 		log.Errorf("Failed to create pod: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
 
 	servicePort := 2375
-	defer deleteNodeBalancer(serviceClient, serviceName)
+	defer deleteLoadBalancer(serviceClient, serviceName)
 
-	serviceIP := nodeBalancer.Status.LoadBalancer.Ingress[0].IP
+	if len(loadBalancer.Status.LoadBalancer.Ingress) == 0 {
+		log.Errorf("Load balancer: no ingress created")
+		return http.StatusInternalServerError, []byte("{}")
+	}
+	serviceIP := loadBalancer.Status.LoadBalancer.Ingress[0].IP
 	dockerDaemonHost := fmt.Sprintf("%s:%d", serviceIP, servicePort)
 	ctx, dockerClient := initDockerCli(dockerDaemonHost)
 
+	log.Infof("Build image, id: %s", buildId)
 	if err := buildImage(ctx, dockerClient, registry, namespace, image, tag, tarfile); err != nil {
 		log.Errorf("Failed to build image: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
@@ -107,6 +115,7 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	// TODO Support pushing to registries that need authorization
 	authStr, _ := generateAuthStr("", "")
 
+	log.Infof("Push image, id: %s", buildId)
 	if err := pushImage(ctx, dockerClient, registry, namespace, image, tag, authStr); err != nil {
 		log.Errorf("Failed to push image: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
@@ -323,7 +332,7 @@ func pushImage(ctx context.Context, cli *client.Client, host, namespace, imageNa
 	return nil
 }
 
-func createNodeBalancer(serviceClient v1.ServiceInterface, serviceName, buildId string) (*corev1.Service, error) {
+func createLoadBalancer(serviceClient v1.ServiceInterface, serviceName, buildId string) (*corev1.Service, error) {
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: serviceName,
@@ -341,32 +350,32 @@ func createNodeBalancer(serviceClient v1.ServiceInterface, serviceName, buildId 
 		},
 	}
 
-	// Create NodeBalancer
+	// Create LoadBalancer
 	_, err := serviceClient.Create(svc)
 	if err != nil {
 		return nil, err
 	}
 
-	var nodeBalancer *corev1.Service
+	var loadBalancer *corev1.Service
 	var e error
 	start := time.Now()
 
 	for {
-		nodeBalancer, e = serviceClient.Get(serviceName, metav1.GetOptions{})
-		if e != nil || len(nodeBalancer.Status.LoadBalancer.Ingress) != 0 {
+		loadBalancer, e = serviceClient.Get(serviceName, metav1.GetOptions{})
+		if e != nil || len(loadBalancer.Status.LoadBalancer.Ingress) != 0 {
 			break
 		}
 		time.Sleep(time.Second * 3)
 		if time.Since(start).Seconds() > 180 {
-			nodeBalancer, e = nil, fmt.Errorf("NodeBalancer creation timeout")
+			loadBalancer, e = nil, fmt.Errorf("NoadBalancer creation timeout")
 			break
 		}
 	}
 
-	return nodeBalancer, nil
+	return loadBalancer, nil
 }
 
-func deleteNodeBalancer(serviceClient v1.ServiceInterface, serviceName string) error {
+func deleteLoadBalancer(serviceClient v1.ServiceInterface, serviceName string) error {
 	deletePolicy := metav1.DeletePropagationForeground
 	if err := serviceClient.Delete(serviceName, &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
