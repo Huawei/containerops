@@ -50,7 +50,8 @@ infras:
         package: false
         systemd: flannel-0.7.1
         ca: flannel-0.7.1
-        before: "etcdctl --endpoints={{.Nodes}} --ca-file=/etc/kubernetes/ssl/ca.pem --cert-file=/etc/flanneld/ssl/flanneld.pem --key-file=/etc/flanneld/ssl/flanneld-key.pem set /kubernetes/network/config '{\"Network\":\"'172.30.0.0/16'\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\"}}'"
+        before:
+          - "etcdctl --endpoints={{.Nodes}} --ca-file=/etc/kubernetes/ssl/ca.pem --cert-file=/etc/flanneld/ssl/flanneld.pem --key-file=/etc/flanneld/ssl/flanneld-key.pem set /kubernetes/network/config '{\"Network\":\"'172.30.0.0/16'\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\"}}'"
       - 
         binary: mk-docker-opts.sh
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/0.7.1/mk-docker-opts.sh
@@ -68,8 +69,13 @@ infras:
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/docker
         package: false
         systemd: docker-17.04.0-ce
-        before: "iptables -F && iptables -X && iptables -F -t nat && iptables -X -t nat"
-        after: "iptables -w -P FORWARD ACCEPT"
+        before:
+          - "iptables -F"
+          - "iptables -X"
+          - "iptables -F -t nat"
+          - "iptables -X -t nat"
+        after:
+          - "iptables -w -P FORWARD ACCEPT"
       -
         binary: dockerd
         url: https://hub.opshub.sh/binary/v1/containerops/singular/binary/17.04.0-ce/dockerd
