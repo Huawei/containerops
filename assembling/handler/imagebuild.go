@@ -52,6 +52,23 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	image := mctx.Req.Request.FormValue("image")
 	tag := mctx.Req.Request.FormValue("tag")
 
+	isBodyTar, buf, err := isDockerArchive(mctx.Req.Request.Body)
+	if err != nil {
+		log.Errorf("Failed to check gzip format: %s", err.Error())
+		return http.StatusInternalServerError, []byte("{}")
+	}
+	if buf.Len() == 0 {
+		log.Errorf("Empty file")
+		return http.StatusBadRequest, []byte("{}")
+	}
+
+	var tarfile io.Reader
+	if !isBodyTar {
+		tarfile, err = createTarFile(mctx.Req.Request.Body)
+	} else {
+		tarfile = buf
+	}
+
 	podClient, serviceClient, err := initK8SResourceInterfaces(common.Assembling.KubeConfig)
 	if err != nil {
 		log.Errorf("Failed to init k8s pod client: %s", err.Error())
@@ -81,18 +98,6 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	serviceIP := nodeBalancer.Status.LoadBalancer.Ingress[0].IP
 	dockerDaemonHost := fmt.Sprintf("%s:%d", serviceIP, servicePort)
 	ctx, dockerClient := initDockerCli(dockerDaemonHost)
-
-	isBodyTar, buf, err := isDockerArchive(mctx.Req.Request.Body)
-	if err != nil {
-		log.Errorf("Failed to check gzip format: %s", err.Error())
-	}
-
-	var tarfile io.Reader
-	if !isBodyTar {
-		tarfile, err = createTarFile(mctx.Req.Request.Body)
-	} else {
-		tarfile = buf
-	}
 
 	if err := buildImage(ctx, dockerClient, registry, namespace, image, tag, tarfile); err != nil {
 		log.Errorf("Failed to build image: %s", err.Error())
