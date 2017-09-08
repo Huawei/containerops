@@ -22,9 +22,11 @@ import (
 	"io/ioutil"
 	"net"
 	"os"
+	"strings"
 
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
+	"path"
 )
 
 // PublicKeyFile parse private key file, and return ssh.AuthMethod.
@@ -42,13 +44,14 @@ func PublicKeyFile(file string) ssh.AuthMethod {
 }
 
 //SSHCommand execute command from SSH connect in the remote host.
-func SSHCommand(user, privateKey, host string, port int, command string, stdout, stderr io.Writer) error {
+func SSHCommand(user, privateKey, host string, port int, commands []string, stdout, stderr io.Writer) error {
 	var (
 		addr         string
 		clientConfig *ssh.ClientConfig
 		client       *ssh.Client
 		session      *ssh.Session
 		err          error
+		cmd          string
 	)
 
 	clientConfig = &ssh.ClientConfig{
@@ -67,6 +70,7 @@ func SSHCommand(user, privateKey, host string, port int, command string, stdout,
 	if client, err = ssh.Dial("tcp", addr, clientConfig); err != nil {
 		return err
 	}
+	defer client.Close()
 
 	if session, err = client.NewSession(); err != nil {
 		return err
@@ -80,7 +84,20 @@ func SSHCommand(user, privateKey, host string, port int, command string, stdout,
 	session.Stdout = stdout
 	session.Stderr = stderr
 
-	err = session.Run(command)
+	if user != "root" {
+		c := []string{}
+
+		for _, command := range commands {
+			fmt.Println(command)
+			c = append(c, fmt.Sprintf("sudo %s", command))
+		}
+
+		cmd = strings.Join(c, " && ")
+	} else {
+		cmd = strings.Join(commands, " && ")
+	}
+
+	err = session.Run(cmd)
 	if err != nil {
 		return err
 	}
@@ -126,12 +143,30 @@ func SSHScp(user, privateKey, host string, port int, files []map[string]string) 
 			return err
 		}
 
-		remoteFile, err := client.Create(file["dest"])
-		if err != nil {
-			return err
-		}
+		if user == "root" {
+			remoteFile, err := client.Create(file["dest"])
+			if err != nil {
+				return err
+			}
 
-		_, err = io.Copy(remoteFile, localFile)
+			_, err = io.Copy(remoteFile, localFile)
+		} else {
+			tmp := path.Join("/tmp", path.Base(file["dest"]))
+			remoteFile, err := client.Create(tmp)
+			if err != nil {
+				return err
+			}
+
+			_, err = io.Copy(remoteFile, localFile)
+
+			mv := []string{
+				fmt.Sprintf("mv %s %s", tmp, file["dest"]),
+			}
+
+			if err := SSHCommand(user, privateKey, host, port, mv, os.Stdout, os.Stderr); err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil

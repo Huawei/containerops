@@ -121,7 +121,7 @@ func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.
 	}
 
 	//Start etcd
-	if err := startEtcdCluster(d.Tools.SSH.Private, nodes, stdout, timestamp); err != nil {
+	if err := startEtcdCluster(d.Tools.SSH.Private, nodes, stdout); err != nil {
 		return err
 	}
 
@@ -313,12 +313,15 @@ func uploadEtcdFiles(f map[string]map[string]string, key string, nodes []objects
 }
 
 //startEtcdCluster in node must with --no-block
-func startEtcdCluster(key string, nodes []objects.Node, stdout io.Writer, timestamp bool) error {
-	cmd := "systemctl daemon-reload && systemctl enable etcd && systemctl start --no-block etcd"
+func startEtcdCluster(key string, nodes []objects.Node, stdout io.Writer) error {
+	commands := []string{
+		"systemctl daemon-reload",
+		"systemctl enable etcd",
+		"systemctl start --no-block etcd",
+	}
 
 	for _, node := range nodes {
-		utils.SSHCommand(node.User, key, node.IP, 22, cmd, stdout, os.Stderr)
-		objects.WriteLog(fmt.Sprintf("%s start etcd in node %s", cmd, node.IP), stdout, timestamp, &node)
+		utils.SSHCommand(node.User, key, node.IP, 22, commands, stdout, os.Stderr)
 	}
 
 	return nil

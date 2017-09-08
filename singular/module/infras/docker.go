@@ -61,7 +61,7 @@ func DeployDockerInCluster(d *objects.Deployment, infra *objects.Infra, stdout i
 		}
 
 		//Run Docker before scripts
-		if c.Before != "" {
+		if c.Before != nil {
 			for _, node := range nodes {
 				if err := beforeDockerExecute(d.Tools.SSH.Private, node.IP, c.Before, node.User); err != nil {
 					return err
@@ -79,7 +79,7 @@ func DeployDockerInCluster(d *objects.Deployment, infra *objects.Infra, stdout i
 
 	//Run after script
 	for _, c := range infra.Components {
-		if c.After != "" {
+		if c.After != nil {
 			for _, node := range nodes {
 				if err := afterDockerExecute(d.Tools.SSH.Private, node.IP, c.After, node.User); err != nil {
 					return err
@@ -165,7 +165,7 @@ func uploadDockerFiles(f map[string]map[string]string, key string, nodes []objec
 }
 
 //beforeDockerExecute execute before script
-func beforeDockerExecute(key, ip, cmd, user string) error {
+func beforeDockerExecute(key, ip string, cmd []string, user string) error {
 	if err := utils.SSHCommand(user, key, ip, tools.DefaultSSHPort, cmd, os.Stdout, os.Stderr); err != nil {
 		return err
 	}
@@ -175,9 +175,13 @@ func beforeDockerExecute(key, ip, cmd, user string) error {
 
 //startDockerDaemon start docker daemon
 func startDockerDaemon(key, ip, user string) error {
-	cmd := "systemctl daemon-reload && systemctl enable docker && systemctl start --no-block docker"
+	commands := []string{
+		"systemctl daemon-reload",
+		"systemctl enable docker",
+		"systemctl start --no-block docker",
+	}
 
-	if err := utils.SSHCommand(user, key, ip, tools.DefaultSSHPort, cmd, os.Stdout, os.Stderr); err != nil {
+	if err := utils.SSHCommand(user, key, ip, tools.DefaultSSHPort, commands, os.Stdout, os.Stderr); err != nil {
 		return err
 	}
 
@@ -185,7 +189,7 @@ func startDockerDaemon(key, ip, user string) error {
 }
 
 //afterDockerExecute execute after daemon start
-func afterDockerExecute(key, ip, cmd, user string) error {
+func afterDockerExecute(key, ip string, cmd []string, user string) error {
 	if err := utils.SSHCommand(user, key, ip, tools.DefaultSSHPort, cmd, os.Stdout, os.Stderr); err != nil {
 		return err
 	}
