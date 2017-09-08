@@ -82,7 +82,18 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	dockerDaemonHost := fmt.Sprintf("%s:%d", serviceIP, servicePort)
 	ctx, dockerClient := initDockerCli(dockerDaemonHost)
 
-	tarfile, err := createTarFile(mctx.Req.Request.Body)
+	isBodyTar, buf, err := isDockerArchive(mctx.Req.Request.Body)
+	if err != nil {
+		log.Errorf("Failed to check gzip format: %s", err.Error())
+	}
+
+	var tarfile io.Reader
+	if !isBodyTar {
+		tarfile, err = createTarFile(mctx.Req.Request.Body)
+	} else {
+		tarfile = buf
+	}
+
 	if err := buildImage(ctx, dockerClient, registry, namespace, image, tag, tarfile); err != nil {
 		log.Errorf("Failed to build image: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
@@ -98,6 +109,46 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 
 	builtImage := fmt.Sprintf("%s/%s/%s:%s", registry, namespace, image, tag)
 	return http.StatusOK, []byte(fmt.Sprintf("{\"endpoint\":\"%s\"}", builtImage))
+}
+
+func isDockerArchive(src io.Reader) (bool, *bytes.Buffer, error) {
+	var buf bytes.Buffer
+
+	n, err := io.CopyN(&buf, src, 6)
+	if err != nil {
+		return false, nil, err
+	} else if n != 6 {
+		return false, nil, fmt.Errorf("Failed to read first 6 bytes")
+	}
+
+	bs := buf.Bytes()
+	is_docker_tar_file := isBZip(bs) || isGZip(bs) || isXZ(bs)
+	_, err = io.Copy(&buf, src)
+
+	return is_docker_tar_file, &buf, err
+}
+
+func isBZip(header []byte) bool {
+	return len(header) >= 3 &&
+		header[0] == 0x42 &&
+		header[1] == 0x5a &&
+		header[2] == 0x68
+}
+
+func isGZip(header []byte) bool {
+	return len(header) >= 2 &&
+		header[0] == 0x1f &&
+		header[1] == 0x8b
+}
+
+func isXZ(header []byte) bool {
+	return len(header) >= 6 &&
+		header[0] == 0xfd &&
+		header[1] == 0x37 &&
+		header[2] == 0x7a &&
+		header[3] == 0x58 &&
+		header[4] == 0x5a &&
+		header[5] == 0x00
 }
 
 func generateAuthStr(username, password string) (string, error) {
