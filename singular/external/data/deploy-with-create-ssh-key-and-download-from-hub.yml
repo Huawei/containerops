@@ -97,8 +97,10 @@ infras:
   -
     name: kubernetes
     version: kubernetes-1.6.7
-    master: 1
+    master: 3
     minion: 3
+    proxy: 
+      - 222.222.111.222
     dependencies:
       - etcd
       - flannel

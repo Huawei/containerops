@@ -29,7 +29,7 @@ import (
 var cfgFile string
 var verbose, timestamp bool
 
-// RootCmd is
+//RootCmd is
 var RootCmd = &cobra.Command{
 	Use:   "singular",
 	Short: "Singular is deploy and operation tools for ContainerOps platform.",
@@ -38,7 +38,7 @@ mostly focus on Kubernetes, Prometheus, others in the Cloud Native technology st
 We are trying to deploy stack cross cloud, OpenStack, bare metals. `,
 }
 
-// init()
+//init()
 func init() {
 	cobra.OnInitialize(initConfig)
 
@@ -51,7 +51,7 @@ func init() {
 	viper.BindPFlag("timestamp", RootCmd.Flags().Lookup("timestamp"))
 }
 
-// initConfig reads in config file and ENV variables if set.
+//initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if err := common.SetConfig(cfgFile); err != nil {
 		fmt.Println(err)

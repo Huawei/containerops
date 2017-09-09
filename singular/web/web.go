@@ -24,6 +24,7 @@ import (
 	"github.com/Huawei/containerops/singular/router"
 )
 
+//SetSingularMacaron set macaron app configuration.
 func SetSingularMacaron(m *macaron.Macaron, config string) {
 	//Set static file directory,static file access without log output
 	m.Use(macaron.Static("external", macaron.StaticOptions{

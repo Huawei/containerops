@@ -5,14 +5,17 @@ tag: latest
 nodes:
   -
     ip: 138.68.226.204
+    private: 10.222.32.33
     user: root
     distro: ubuntu
   -
     ip: 138.68.247.128
+    private: 10.222.32.32
     user: root
     distro: ubuntu
   -
     ip: 165.227.4.126
+    private: 10.222.32.23
     user: root
     distro: ubuntu
 tools:
