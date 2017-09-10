@@ -190,11 +190,12 @@ func initConfigPath(namespace, repository, name, path string, version int) (stri
 
 //Node used for deploy with server already exist.
 type Node struct {
-	ID     int      `json:"id" yaml:"id"`
-	IP     string   `json:"ip" yaml:"ip"`
-	User   string   `json:"user" yaml:"user"`
-	Distro string   `json:"distro" yaml:"distro"`
-	Logs   []string `json:"logs,omitempty" yaml:"logs,omitempty"`
+	ID      int      `json:"id" yaml:"id"`
+	IP      string   `json:"ip" yaml:"ip"`
+	Private string   `json:"private" yaml:"private"`
+	User    string   `json:"user" yaml:"user"`
+	Distro  string   `json:"distro" yaml:"distro"`
+	Logs    []string `json:"logs,omitempty" yaml:"logs,omitempty"`
 }
 
 //WriteLog implement Logger interface.

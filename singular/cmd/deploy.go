@@ -47,7 +47,7 @@ var templateCmd = &cobra.Command{
 	Run:   templateRun,
 }
 
-// init()
+//init()
 func init() {
 	RootCmd.AddCommand(deployCmd)
 

@@ -27,7 +27,7 @@ var monitorCmd = &cobra.Command{
 Singular don't monitored the applications in the Kubernetes, only cluster status.'`,
 }
 
-// init()
+//init()
 func init() {
 	RootCmd.AddCommand(monitorCmd)
 }

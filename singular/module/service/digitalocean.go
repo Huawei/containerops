@@ -125,7 +125,7 @@ func (do *DigitalOcean) CreateDroplets(nodes int, fingerprint, name string, tags
 		SSHKeys:           []godo.DropletCreateSSHKey{sshFingerprint},
 		Backups:           false,
 		IPv6:              false,
-		PrivateNetworking: false,
+		PrivateNetworking: true,
 		Monitoring:        true,
 		Tags:              tags,
 		UserData:          "",
