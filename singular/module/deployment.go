@@ -148,7 +148,7 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 			if commands, err := tools.InitializationEnvironment(d.Tools.SSH.Private, node.IP, node.User, node.Distro, stdout); err != nil {
 				return err
 			} else {
-				objects.WriteLog(fmt.Sprintf("execute commands %v in the %s node", commands, node.ID), stdout, timestamp, d, &node)
+				objects.WriteLog(fmt.Sprintf("execute commands %v in the %d node", commands, node.ID), stdout, timestamp, d, &node)
 			}
 		}
 
