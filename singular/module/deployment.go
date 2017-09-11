@@ -81,19 +81,19 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 	if d.Service.Provider != "" {
 		switch d.Service.Provider {
 		case "digitalocean":
-			do := new(service.DigitalOcean)
+			do := service.DigitalOcean{}
 			do.Token = d.Service.Token
 			do.Region, do.Size, do.Image = d.Service.Region, d.Service.Size, d.Service.Image
 			//TODO parse do.Image get distro
 			//Init DigitalOcean API client.
-			objects.WriteLog("Create DigitalOcean droplets", stdout, timestamp, d, do)
+			objects.WriteLog("Create DigitalOcean droplets", stdout, timestamp, d, &do)
 
-			objects.WriteLog("Init DigitalOcean client with token", stdout, timestamp, d, do)
+			objects.WriteLog("Init DigitalOcean client with token", stdout, timestamp, d, &do)
 			do.InitClient()
 
 			objects.WriteLog(
 				fmt.Sprintf("Upload ssh public key file [%s] to DigitalOcean", d.Tools.SSH.Public),
-				stdout, timestamp, d, do)
+				stdout, timestamp, d, &do)
 			//Upload ssh public key
 			if err := do.UploadSSHKey(d.Tools.SSH.Public); err != nil {
 				return err
@@ -102,7 +102,7 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 			//Prepare droplet prefix name and tags
 			namespace, repository, name, _ := d.URIs()
 			tags := []string{namespace, repository, name, fmt.Sprintf("version-%d", d.Version), d.Tag}
-			objects.WriteLog(fmt.Sprintf("Droplets tag is %v", tags), stdout, timestamp, d, do)
+			objects.WriteLog(fmt.Sprintf("Droplets tag is %v", tags), stdout, timestamp, d, &do)
 
 			//Create DigitalOcean Droplets
 			if err := do.CreateDroplets(d.Service.Nodes, d.Tools.SSH.Fingerprint, fmt.Sprintf("%s-%s", namespace, repository), tags); err != nil {
@@ -119,13 +119,14 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 					Distro:  tools.DistroUbuntu,
 				}
 
-				objects.WriteLog(fmt.Sprintf("Droplet [%d] ip is [%s/%s]", id, droplet["public"], droplet["private"]), stdout, timestamp, d, do)
+				objects.WriteLog(fmt.Sprintf("Droplet [%d] ip is [%s/%s]", id, droplet["public"], droplet["private"]), stdout, timestamp, d, &do)
 				d.Nodes = append(d.Nodes, node)
 			}
 
-			objects.WriteLog("sleep 60 second for preparing Droplets", stdout, timestamp, d, do)
+			objects.WriteLog("sleep 60 second for preparing Droplets", stdout, timestamp, d, &do)
 			time.Sleep(60 * time.Second)
 
+			d.Service.Logs = do.Logs
 		default:
 			return fmt.Errorf("unsupport service provide: %s", d.Service.Provider)
 		}
