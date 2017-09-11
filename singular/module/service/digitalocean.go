@@ -33,12 +33,12 @@ const (
 
 //DigitalOcean struct use for manage create/delete DigitalOcean droplets.
 type DigitalOcean struct {
-	Token    string         `json:"token" yaml:"token"`
-	Region   string         `json:"region" yaml:"region"`
-	Size     string         `json:"size" yaml:"size"`
-	Image    string         `json:"image" yaml:"image"`
-	Droplets map[string]int `json:"droplets,omitempty" yaml:"droplets,omitempty"`
-	Logs     []string       `json:"logs,omitempty" yaml:"logs,omitempty"`
+	Token    string                    `json:"token" yaml:"token"`
+	Region   string                    `json:"region" yaml:"region"`
+	Size     string                    `json:"size" yaml:"size"`
+	Image    string                    `json:"image" yaml:"image"`
+	Droplets map[int]map[string]string `json:"droplets,omitempty" yaml:"droplets,omitempty"`
+	Logs     []string                  `json:"logs,omitempty" yaml:"logs,omitempty"`
 
 	//Runtime Properties
 	client *godo.Client
@@ -124,7 +124,7 @@ func (do *DigitalOcean) CreateDroplets(nodes int, fingerprint, name string, tags
 		},
 		SSHKeys:           []godo.DropletCreateSSHKey{sshFingerprint},
 		Backups:           false,
-		IPv6:              false,
+		IPv6:              true,
 		PrivateNetworking: true,
 		Monitoring:        true,
 		Tags:              tags,
@@ -142,9 +142,11 @@ func (do *DigitalOcean) CreateDroplets(nodes int, fingerprint, name string, tags
 
 	time.Sleep(10 * time.Second)
 
-	do.Droplets = map[string]int{}
+	do.Droplets = map[int]map[string]string{}
 	for {
 		for _, value := range droplets {
+			do.Droplets[value.ID] = map[string]string{}
+
 			ctx := context.TODO()
 			droplet, _, err := do.client.Droplets.Get(ctx, value.ID)
 
@@ -154,8 +156,17 @@ func (do *DigitalOcean) CreateDroplets(nodes int, fingerprint, name string, tags
 			}
 
 			if len(droplet.Networks.V4) > 0 {
-				v4 := droplet.Networks.V4[0]
-				do.Droplets[v4.IPAddress] = droplet.ID
+				private := droplet.Networks.V4[0]
+				public := droplet.Networks.V4[1]
+
+				do.Droplets[value.ID]["public"] = public.IPAddress
+				do.Droplets[value.ID]["private"] = private.IPAddress
+			}
+
+			if len(droplet.Networks.V6) > 0 {
+				v6 := droplet.Networks.V6[0]
+
+				do.Droplets[value.ID]["v6"] = v6.IPAddress
 			}
 		}
 

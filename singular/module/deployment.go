@@ -110,22 +110,24 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 			}
 
 			//Export droplets IP
-			for ip, id := range do.Droplets {
+			for id, droplet := range do.Droplets {
 				node := objects.Node{
-					ID:     id,
-					IP:     ip,
-					User:   service.DORootUser,
-					Distro: tools.DistroUbuntu,
+					ID:      id,
+					IP:      droplet["public"],
+					Private: droplet["private"],
+					User:    service.DORootUser,
+					Distro:  tools.DistroUbuntu,
 				}
-				objects.WriteLog(fmt.Sprintf("Droplet [%d] ip is [%s]", id, ip), stdout, timestamp, d, do)
+
+				objects.WriteLog(fmt.Sprintf("Droplet [%d] ip is [%s/%s]", id, droplet["public"], droplet["private"]), stdout, timestamp, d, do)
 				d.Nodes = append(d.Nodes, node)
 			}
 
-			objects.WriteLog("Sleep 60 second for preparing Droplets", stdout, timestamp, d, do)
+			objects.WriteLog("sleep 60 second for preparing Droplets", stdout, timestamp, d, do)
 			time.Sleep(60 * time.Second)
 
 		default:
-			return fmt.Errorf("Unsupport service provide: %s", d.Service.Provider)
+			return fmt.Errorf("unsupport service provide: %s", d.Service.Provider)
 		}
 	}
 
