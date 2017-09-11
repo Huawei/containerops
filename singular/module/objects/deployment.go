@@ -43,7 +43,7 @@ type Deployment struct {
 	Version     int                    `json:"version" yaml:"version"`
 	Tag         string                 `json:"tag" yaml:"tag"`
 	Nodes       []Node                 `json:"nodes" yaml:"nodes"`
-	Service     Service                `json:"service" yaml:"service"`
+	Service     *Service               `json:"service" yaml:"service"`
 	Tools       Tools                  `json:"tools" yaml:"tools"`
 	Infras      []Infra                `json:"infra" yaml:"infras"`
 	Description string                 `json:"description" yaml:"description"`
