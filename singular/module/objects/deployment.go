@@ -42,10 +42,10 @@ type Deployment struct {
 	Title       string                 `json:"title" yaml:"title"`
 	Version     int                    `json:"version" yaml:"version"`
 	Tag         string                 `json:"tag" yaml:"tag"`
-	Nodes       []Node                 `json:"nodes" yaml:"nodes"`
+	Nodes       []*Node                `json:"nodes" yaml:"nodes"`
 	Service     *Service               `json:"service" yaml:"service"`
 	Tools       Tools                  `json:"tools" yaml:"tools"`
-	Infras      []Infra                `json:"infra" yaml:"infras"`
+	Infras      []*Infra               `json:"infra" yaml:"infras"`
 	Description string                 `json:"description" yaml:"description"`
 	Short       string                 `json:"short" yaml:"short"`
 	Logs        []string               `json:"logs,omitempty" yaml:"logs,omitempty"`
@@ -87,7 +87,7 @@ func (d *Deployment) ParseFromFile(t string, output string) error {
 }
 
 //Download binary file and change mode +x
-func (d *Deployment) DownloadBinaryFile(file, url string, nodes []Node, stdout io.Writer, timestamp bool) error {
+func (d *Deployment) DownloadBinaryFile(file, url string, nodes []*Node, stdout io.Writer, timestamp bool) error {
 	for _, node := range nodes {
 		files := []map[string]string{
 			{
@@ -104,7 +104,7 @@ func (d *Deployment) DownloadBinaryFile(file, url string, nodes []Node, stdout i
 		if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, []string{chmodCmd}, stdout, os.Stderr); err != nil {
 			return err
 		}
-		WriteLog(fmt.Sprintf("%s exec in %s node", chmodCmd, node.IP), stdout, timestamp, d, &node)
+		WriteLog(fmt.Sprintf("%s exec in %s node", chmodCmd, node.IP), stdout, timestamp, d, node)
 	}
 
 	return nil

@@ -56,7 +56,7 @@ type FlanneldEndpoint struct {
 //DeployFlannelInCluster deploy flannel in cluster.
 func DeployFlannelInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.Writer, timestamp bool) error {
 	//Get nodes of flanneld
-	nodes := []objects.Node{}
+	nodes := []*objects.Node{}
 	for i := 0; i < infra.Master; i++ {
 		nodes = append(nodes, d.Nodes[i])
 	}
@@ -94,7 +94,7 @@ func DeployFlannelInCluster(d *objects.Deployment, infra *objects.Infra, stdout 
 }
 
 //generateFlanneldFiles generate Flanneld systemd and CA ssl files.
-func generateFlanneldFiles(src string, nodes []objects.Node, etcdEndpoints string, version string) (map[string]map[string]string, error) {
+func generateFlanneldFiles(src string, nodes []*objects.Node, etcdEndpoints string, version string) (map[string]map[string]string, error) {
 	result := map[string]map[string]string{}
 
 	//If ca file exist, remove it.
@@ -243,7 +243,7 @@ func generateFlanneldSystemdFile(node FlanneldEndpoint, version, base, ip string
 }
 
 //uploadFlanneldFiles upload flanneld SSL files and Systemd file
-func uploadFlanneldFiles(f map[string]map[string]string, key string, nodes []objects.Node, stdout io.Writer) error {
+func uploadFlanneldFiles(f map[string]map[string]string, key string, nodes []*objects.Node, stdout io.Writer) error {
 	for _, node := range nodes {
 		files := []map[string]string{}
 
@@ -297,7 +297,7 @@ func beforeFlanneldExecute(key, ip, tplString, etcdEndpoints string, user string
 }
 
 //startFlanneldInCluster start Flanneld service in the cluster.
-func startFlanneldInCluster(key string, nodes []objects.Node, stdout io.Writer, timestamp bool) error {
+func startFlanneldInCluster(key string, nodes []*objects.Node, stdout io.Writer, timestamp bool) error {
 	commands := []string{
 		"systemctl daemon-reload",
 		"systemctl enable flanneld",
