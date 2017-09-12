@@ -75,6 +75,8 @@ func DeployFlannelInCluster(d *objects.Deployment, infra *objects.Infra, stdout 
 	}
 
 	for _, c := range infra.Components {
+		objects.WriteLog(fmt.Sprintf("Download %s in deploy notes", c.Binary), stdout, timestamp, d, infra, c)
+
 		if err := d.DownloadBinaryFile(c.Binary, c.URL, nodes, stdout, timestamp); err != nil {
 			return err
 		}

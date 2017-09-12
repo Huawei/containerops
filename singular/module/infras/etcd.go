@@ -115,6 +115,7 @@ func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.
 
 	//Download etcd binary files in nodes.
 	for _, c := range infra.Components {
+		objects.WriteLog(fmt.Sprintf("Download %s in deploy notes", c.Binary), stdout, timestamp, d, infra, c)
 		if err := d.DownloadBinaryFile(c.Binary, c.URL, nodes, stdout, timestamp); err != nil {
 			return err
 		}

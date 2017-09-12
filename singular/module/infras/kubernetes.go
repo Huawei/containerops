@@ -79,6 +79,7 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 
 	//Download binary in slave nodes
 	for _, c := range infra.Components {
+		objects.WriteLog(fmt.Sprintf("Download %s in deploy notes", c.Binary), stdout, timestamp, d, infra, c)
 		if err := d.DownloadBinaryFile(c.Binary, c.URL, kubeSlaveNodes, stdout, timestamp); err != nil {
 			return err
 		}
