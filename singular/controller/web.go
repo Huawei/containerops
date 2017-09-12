@@ -26,14 +26,31 @@ import (
 	"github.com/Huawei/containerops/singular/model"
 )
 
-func GetHtmlDeploymentList() ([]model.HtmlDeployment, error) {
+type HtmlDeployment struct {
+	ID          int64
+	InfraName   string
+	InfraLogo   string
+	InfraLog    template.HTML
+	Components  []HtmlComponent
+	StatusIcon  string
+	StatusColor string
+}
+
+type HtmlComponent struct {
+	Name          string
+	Log           template.HTML
+	ImageSrc, Alt string
+	Width, Height int
+}
+
+func GetHtmlDeploymentList() ([]HtmlDeployment, error) {
 	var deployments []model.DeploymentV1
 	err := model.DB.Find(&deployments).Error
 	if err != nil {
 		return nil, err
 	}
 
-	var retDeployments []model.HtmlDeployment
+	var retDeployments []HtmlDeployment
 	// Find the corresponding infrastructure & components info
 	sig := make(chan error)
 	for i := 0; i < len(deployments); i++ {
@@ -47,14 +64,14 @@ func GetHtmlDeploymentList() ([]model.HtmlDeployment, error) {
 			if deployment.Result == true {
 				statusIcon, statusColor = "check", "green"
 			}
-			retDeployment := model.HtmlDeployment{
+			retDeployment := HtmlDeployment{
 				// Name: deployment.Name,
 				ID:          deployment.ID,
 				InfraName:   infra.Name,
 				StatusIcon:  statusIcon,
 				StatusColor: statusColor,
 			}
-			retComponents := []model.HtmlComponent{}
+			retComponents := []HtmlComponent{}
 
 			for j := 0; j < len(components); j++ {
 				retComponents = append(retComponents, convertComponent(&components[j]))
@@ -76,7 +93,7 @@ func GetHtmlDeploymentList() ([]model.HtmlDeployment, error) {
 	return retDeployments, nil
 }
 
-func GetHtmlDeploymentDetail(deploymentID int) *model.HtmlDeployment {
+func GetHtmlDeploymentDetail(deploymentID int) *HtmlDeployment {
 	var dep model.DeploymentV1
 	var infra model.InfraV1
 	var comps []model.ComponentV1
@@ -89,11 +106,11 @@ func GetHtmlDeploymentDetail(deploymentID int) *model.HtmlDeployment {
 	model.DB.Where("deployment_v1=?", dep.ID).First(&infra)
 	model.DB.Where("infra_v1=?", infra.ID).Find(&comps)
 
-	components := []model.HtmlComponent{}
+	components := []HtmlComponent{}
 	for i := 0; i < len(comps); i++ {
 		components = append(components, convertComponent(&comps[i]))
 	}
-	deployment := model.HtmlDeployment{
+	deployment := HtmlDeployment{
 		InfraName:  getInfraName(infra.Name),
 		InfraLogo:  getInfraLogo(infra.Name),
 		InfraLog:   convertToBr(infra.Log),
@@ -111,7 +128,7 @@ func StringifyComponentsNames(args ...interface{}) (string, error) {
 		return "", fmt.Errorf("Expect 1 argument")
 	}
 
-	if components, ok := v.Index(0).Interface().([]model.HtmlComponent); !ok {
+	if components, ok := v.Index(0).Interface().([]HtmlComponent); !ok {
 		fmt.Fprintln(os.Stderr, "function component_names receives an argument which is not []Component")
 		return "", fmt.Errorf("Argument is not []Component!")
 	} else {
@@ -131,8 +148,8 @@ func convertToBr(src string) template.HTML {
 	// return strings.Join(strings.Split(src, "\n"), "<br />")
 }
 
-func convertComponent(input *model.ComponentV1) model.HtmlComponent {
-	c := model.HtmlComponent{
+func convertComponent(input *model.ComponentV1) HtmlComponent {
+	c := HtmlComponent{
 		Name: input.Name,
 		Log:  convertToBr(input.Log),
 	}
