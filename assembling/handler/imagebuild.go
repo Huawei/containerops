@@ -52,7 +52,7 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	image := mctx.Req.Request.FormValue("image")
 	tag := mctx.Req.Request.FormValue("tag")
 
-	isBodyTar, buf, err := isDockerArchive(mctx.Req.Request.Body)
+	isBodyDockerArchive, buf, err := isDockerArchive(mctx.Req.Request.Body)
 	if err != nil {
 		log.Errorf("Failed to check gzip format: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
@@ -63,7 +63,7 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	}
 
 	var tarfile io.Reader
-	if !isBodyTar {
+	if !isBodyDockerArchive {
 		tarfile, err = createTarFile(mctx.Req.Request.Body)
 	} else {
 		tarfile = buf
@@ -91,7 +91,7 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	log.Infof("Create load balancer for build %s", buildId)
 	loadBalancer, err := createLoadBalancer(serviceClient, serviceName, buildId)
 	if err != nil {
-		log.Errorf("Failed to create pod: %s", err.Error())
+		log.Errorf("Failed to create load balancer: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
 
@@ -122,21 +122,24 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	}
 
 	builtImage := fmt.Sprintf("%s/%s/%s:%s", registry, namespace, image, tag)
+	log.Infof("Image pushed: %s", builtImage)
 	return http.StatusOK, []byte(fmt.Sprintf("{\"endpoint\":\"%s\"}", builtImage))
 }
 
 func isDockerArchive(src io.Reader) (bool, *bytes.Buffer, error) {
 	var buf bytes.Buffer
 
-	n, err := io.CopyN(&buf, src, 6)
-	if err != nil {
+	// We should not make constraint on the number of bytes read, and should skip the io.EOF error
+	// Since the file might not be tar file and the length might be shorter than 265
+	_, err := io.CopyN(&buf, src, 265)
+	if err != nil && err != io.EOF {
 		return false, nil, err
-	} else if n != 6 {
-		return false, nil, fmt.Errorf("Failed to read first 6 bytes")
-	}
+	} /* else if n != 265 {
+		return false, nil, fmt.Errorf("Failed to read first 265 bytes")
+	} */
 
 	bs := buf.Bytes()
-	is_docker_tar_file := isBZip(bs) || isGZip(bs) || isXZ(bs)
+	is_docker_tar_file := isBZip(bs) || isGZip(bs) || isXZ(bs) || isTar(bs)
 	_, err = io.Copy(&buf, src)
 
 	return is_docker_tar_file, &buf, err
@@ -163,6 +166,38 @@ func isXZ(header []byte) bool {
 		header[3] == 0x58 &&
 		header[4] == 0x5a &&
 		header[5] == 0x00
+}
+
+func isTar(header []byte) bool {
+	if len(header) < 264 {
+		return false
+	}
+
+	magic := header[257:265]
+	return isPosixTar(magic) || isGnuTar(magic)
+}
+
+func isPosixTar(magic []byte) bool {
+	return len(magic) >= 8 &&
+		magic[0] == 0x75 &&
+		magic[1] == 0x73 &&
+		magic[2] == 0x74 &&
+		magic[3] == 0x61 &&
+		magic[4] == 0x72 &&
+		magic[5] == 0x00 &&
+		magic[6] == 0x30 &&
+		magic[7] == 0x30
+}
+func isGnuTar(magic []byte) bool {
+	return len(magic) >= 8 &&
+		magic[0] == 0x75 &&
+		magic[1] == 0x73 &&
+		magic[2] == 0x74 &&
+		magic[3] == 0x61 &&
+		magic[4] == 0x72 &&
+		magic[5] == 0x20 &&
+		magic[6] == 0x20 &&
+		magic[7] == 0x00
 }
 
 func generateAuthStr(username, password string) (string, error) {
@@ -367,12 +402,14 @@ func createLoadBalancer(serviceClient v1.ServiceInterface, serviceName, buildId 
 		}
 		time.Sleep(time.Second * 3)
 		if time.Since(start).Seconds() > 180 {
-			loadBalancer, e = nil, fmt.Errorf("NoadBalancer creation timeout")
+			e = fmt.Errorf("NoadBalancer creation timeout")
+			// If the error is not nil, the deletion will most likely to be ignored ouside the function.
+			deleteLoadBalancer(serviceClient, serviceName)
 			break
 		}
 	}
 
-	return loadBalancer, nil
+	return loadBalancer, e
 }
 
 func deleteLoadBalancer(serviceClient v1.ServiceInterface, serviceName string) error {
