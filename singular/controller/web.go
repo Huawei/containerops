@@ -150,7 +150,7 @@ func convertToBr(src string) template.HTML {
 
 func convertComponent(input *model.ComponentV1) HtmlComponent {
 	c := HtmlComponent{
-		Name: input.Name,
+		Name: input.Binary,
 		Log:  convertToBr(input.Log),
 	}
 	// Got the size and icon
