@@ -125,12 +125,12 @@ func StringifyComponentsNames(args ...interface{}) (string, error) {
 	numArgs := v.Len()
 	if numArgs != 1 {
 		fmt.Fprintf(os.Stderr, "component_names function expect 1 argument, but got %d", numArgs)
-		return "", fmt.Errorf("Expect 1 argument")
+		return "", fmt.Errorf("expect 1 argument")
 	}
 
 	if components, ok := v.Index(0).Interface().([]HtmlComponent); !ok {
 		fmt.Fprintln(os.Stderr, "function component_names receives an argument which is not []Component")
-		return "", fmt.Errorf("Argument is not []Component!")
+		return "", fmt.Errorf("argument is not []Component")
 	} else {
 		s := ""
 		for i := 0; i < len(components); i++ {

@@ -30,12 +30,17 @@ import (
 )
 
 const (
+	//InfraEtcd is Etcd flag
 	InfraEtcd       = "etcd"
+	//InfraFlannel is Flannel flg
 	InfraFlannel    = "flannel"
+	//InfraDocker is Docekr flag
 	InfraDocker     = "docker"
+	//InfraKubernetes is Kubernetes flag
 	InfraKubernetes = "kubernetes"
 )
 
+//DeployInfraStacks deploy all infras in the cluster.
 //Deploy Sequence:
 //   Preparing SSH Key files ->
 //   Preparing VM ->

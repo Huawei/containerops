@@ -114,4 +114,9 @@ func templateRun(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		os.Exit(1)
 	}
+
+	//Delete droplets
+	if del == true {
+		
+	}
 }
