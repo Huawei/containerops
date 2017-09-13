@@ -75,6 +75,10 @@ func SetConfig(cfgFile string) error {
 		return err
 	}
 
+	if err := setMailConfig(viper.GetStringMap("mail")); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -171,12 +175,20 @@ type AssemblingConfig struct {
 	KubeConfig        string `json:"kubeconfig" description:"The address of k8s api server"`
 }
 
+type MailConfig struct {
+	SmtpAddress string `json:"smtp_address" yaml:"smtp_address"`
+	SmtpPort    string `json:"smtp_port" yaml:"smtp_port"`
+	User        string `json:"user" yaml:"user"`
+	Password    string `json:"password" yaml:"password"`
+}
+
 var Database DatabaseConfig
 var Web WebConfig
 var Storage StorageConfig
 var Warship WarshipConfig
 var Singular SingularConfig
 var Assembling AssemblingConfig
+var Mail MailConfig
 
 func setDatabaseConfig(config map[string]interface{}) error {
 	bs, err := json.Marshal(&config)
@@ -234,5 +246,18 @@ func setAssemblingConfig(config map[string]interface{}) error {
 		return err
 	}
 
+	return nil
+}
+
+func setMailConfig(config map[string]interface{}) error {
+	bs, err := json.Marshal(&config)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(bs, &Mail)
+	if err != nil {
+		return err
+	}
 	return nil
 }
