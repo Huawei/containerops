@@ -39,8 +39,9 @@ type DeploymentV1 struct {
 	SingularV1 int64      `json:"singular_v1" yaml:"singular_v1" sql:"not null;default:0" gorm:"column:singular_v1;unique_index:singular_deployment"`
 	Tag        string     `json:"tag" yaml:"tag" sql:"not null;type:varchar(255)" gorm:"column:tag;unique_index:singular_deployment"`
 	Version    int64      `json:"version" yaml:"version" sql:"not null;default:0" gorm:"column:version;unique_index:singular_deployment"`
-	Service    string     `json:"service" yaml:"service" sql:"not null;type:varchar(255)" gorm:"column:service;unique_index:singular_deployment"`
-	Result     bool       `json:"result" yaml:"result" sql:"not null" gorm:"column:result"`
+	Service    string     `json:"service" yaml:"service" sql:"null;type:varchar(255)" gorm:"column:service"`
+	Node       int64      `json:"node" yaml:"node" sql:"not null;default:0" gorm:"column:node"`
+	Result     bool       `json:"result" yaml:"result" sql:"null" gorm:"column:result"`
 	Log        string     `json:"log" yaml:"log" sql:"null;type:text" gorm:"column:log"`
 	CreatedAt  time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
 	UpdatedAt  time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
@@ -57,7 +58,7 @@ type InfraV1 struct {
 	Name         string     `json:"name" yaml:"name" sql:"not null;type:varchar(255)" gorm:"column:name"`
 	Version      string     `json:"version" yaml:"version" sql:"not null;type:varchar(255)" gorm:"column:version"`
 	Master       int64      `json:"master" yaml:"master" sql:"not null" gorm:"column:master"`
-	Node         int64      `json:"node" yaml:"node" sql:"not null" gorm:"column:node"`
+	Minion       int64      `json:"minion" yaml:"minion" sql:"not null" gorm:"column:minion"`
 	Log          string     `json:"log" yaml:"log" sql:"null;type:text" gorm:"column:log"`
 	CreatedAt    time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
 	UpdatedAt    time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
@@ -71,13 +72,12 @@ func (i *InfraV1) TableName() string {
 type ComponentV1 struct {
 	ID        int64      `json:"id" yaml:"id"  gorm:"column:id;primary_key"`
 	InfraV1   int64      `json:"infra_v1" yaml:"infra_v1" sql:"not null;default:0" gorm:"column:infra_v1"`
-	Name      string     `json:"name" yaml:"name" sql:"not null;type:varchar(255)" gorm:"column:name"`
+	Binary    string     `json:"binary" yaml:"binary" sql:"not null;type:varchar(255)" gorm:"column:binary"`
 	URL       string     `json:"url" yaml:"url" sql:"not null;type:text" gorm:"column:url"`
 	Package   bool       `json:"package" yaml:"package" sql:"not null;default:false" gorm:"column:package"`
-	Install   string     `json:"install" yaml:"install" sql:"null;type:text" gorm:"column:install"`
 	Systemd   string     `json:"systemd" yaml:"systemd" sql:"null;type:text" gorm:"column:systemd"`
 	Setting   string     `json:"setting" yaml:"setting" sql:"null;type:text" gorm:"column:setting"`
-	SSL       string     `json:"ssl" yaml:"ssl" sql:"null;type:text" gorm:"column:ssl"`
+	CA        string     `json:"ca" yaml:"ca" sql:"null;type:text" gorm:"column:ca"`
 	Before    string     `json:"before" yaml:"before" sql:"null;type:text" gorm:"column:before"`
 	After     string     `json:"after" yaml:"after" sql:"null;type:text" gorm:"column:after"`
 	Log       string     `json:"log" yaml:"log" sql:"null;type:text" gorm:"column:log"`

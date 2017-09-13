@@ -31,8 +31,8 @@ type Infra struct {
 	Master     int                    `json:"master" yaml:"master"`
 	Minion     int                    `json:"minion" yaml:"minion"`
 	Result     bool                   `json:"result,omitempty" yaml:"result,omitempty"`
+	Components []*Component           `json:"components" yaml:"components"`
 	Logs       []string               `json:"logs,omitempty" yaml:"logs,omitempty"`
-	Components []Component            `json:"components" yaml:"components"`
 	Outputs    map[string]interface{} `json:"-" yaml:"-"`
 }
 

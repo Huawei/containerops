@@ -120,7 +120,7 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 				}
 
 				objects.WriteLog(fmt.Sprintf("Droplet [%d] ip is [%s/%s]", id, droplet["public"], droplet["private"]), stdout, timestamp, d, &do)
-				d.Nodes = append(d.Nodes, node)
+				d.Nodes = append(d.Nodes, &node)
 			}
 
 			objects.WriteLog("sleep 60 second for preparing Droplets", stdout, timestamp, d, &do)
@@ -145,11 +145,11 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 
 		//Initialization node environment
 		for _, node := range d.Nodes {
-			objects.WriteLog(fmt.Sprintf("Initializate the %s node environment", node.IP), stdout, timestamp, d, &node)
+			objects.WriteLog(fmt.Sprintf("Initializate the %s node environment", node.IP), stdout, timestamp, d, node)
 			if commands, err := tools.InitializationEnvironment(d.Tools.SSH.Private, node.IP, node.User, node.Distro, stdout); err != nil {
 				return err
 			} else {
-				objects.WriteLog(fmt.Sprintf("execute commands %v in the %d node", commands, node.ID), stdout, timestamp, d, &node)
+				objects.WriteLog(fmt.Sprintf("execute commands %v in the %d node", commands, node.ID), stdout, timestamp, d, node)
 			}
 		}
 
@@ -165,7 +165,7 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 
 			//Upload CA root files to the nodes.
 			for _, node := range d.Nodes {
-				objects.WriteLog(fmt.Sprintf("Upload root CA files %v to %s node", roots, node.IP), stdout, timestamp, d, &node)
+				objects.WriteLog(fmt.Sprintf("Upload root CA files %v to %s node", roots, node.IP), stdout, timestamp, d, node)
 				if err := tools.UploadCARootFiles(d.Tools.SSH.Private, roots, node.IP, node.User, stdout); err != nil {
 					return err
 				}
@@ -176,23 +176,23 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 		for _, infra := range d.Infras {
 			switch infra.Name {
 			case InfraEtcd:
-				objects.WriteLog(fmt.Sprintf("Deploy etcd in cluster"), stdout, timestamp, d, &infra)
-				if err := infras.DeployEtcdInCluster(d, &infra, stdout, timestamp); err != nil {
+				objects.WriteLog(fmt.Sprintf("Deploy etcd in cluster"), stdout, timestamp, d, infra)
+				if err := infras.DeployEtcdInCluster(d, infra, stdout, timestamp); err != nil {
 					return err
 				}
 			case InfraFlannel:
-				objects.WriteLog(fmt.Sprintf("Deploy flannel in cluster"), stdout, timestamp, d, &infra)
-				if err := infras.DeployFlannelInCluster(d, &infra, stdout, timestamp); err != nil {
+				objects.WriteLog(fmt.Sprintf("Deploy flannel in cluster"), stdout, timestamp, d, infra)
+				if err := infras.DeployFlannelInCluster(d, infra, stdout, timestamp); err != nil {
 					return err
 				}
 			case InfraDocker:
-				objects.WriteLog(fmt.Sprintf("Deploy docker in cluster"), stdout, timestamp, d, &infra)
-				if err := infras.DeployDockerInCluster(d, &infra, stdout, timestamp); err != nil {
+				objects.WriteLog(fmt.Sprintf("Deploy docker in cluster"), stdout, timestamp, d, infra)
+				if err := infras.DeployDockerInCluster(d, infra, stdout, timestamp); err != nil {
 					return err
 				}
 			case InfraKubernetes:
-				objects.WriteLog(fmt.Sprintf("Deploy k8s in cluster"), stdout, timestamp, d, &infra)
-				if err := infras.DeployKubernetesInCluster(d, &infra, stdout, timestamp); err != nil {
+				objects.WriteLog(fmt.Sprintf("Deploy k8s in cluster"), stdout, timestamp, d, infra)
+				if err := infras.DeployKubernetesInCluster(d, infra, stdout, timestamp); err != nil {
 					return err
 				}
 			default:

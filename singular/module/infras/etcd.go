@@ -71,7 +71,7 @@ func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.
 	}
 
 	//Init nodes, endpoints and adminEndpoints parameters.
-	nodes := []objects.Node{}
+	nodes := []*objects.Node{}
 	etcdEndpoints, etcdPeerEndpoints := []string{}, []string{}
 
 	//Get nodes from outputs of Deployment to determine etcd cluster nodes.
@@ -115,6 +115,7 @@ func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.
 
 	//Download etcd binary files in nodes.
 	for _, c := range infra.Components {
+		objects.WriteLog(fmt.Sprintf("Download %s in deploy notes", c.Binary), stdout, timestamp, d, infra, c)
 		if err := d.DownloadBinaryFile(c.Binary, c.URL, nodes, stdout, timestamp); err != nil {
 			return err
 		}
@@ -129,7 +130,7 @@ func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.
 }
 
 //Generate Etcd CA SSL and Systemd service Files
-func generateEtcdFiles(src string, nodes []objects.Node, etcdEndpoints string, version string) (map[string]map[string]string, error) {
+func generateEtcdFiles(src string, nodes []*objects.Node, etcdEndpoints string, version string) (map[string]map[string]string, error) {
 	result := map[string]map[string]string{}
 
 	//If ca file exist, remove it.
@@ -285,7 +286,7 @@ func generateEtcdServiceFile(node EtcdEndpoint, version, base, ip string) (map[s
 }
 
 //upload Etcd SSL files and systemd file to nodes
-func uploadEtcdFiles(f map[string]map[string]string, key string, nodes []objects.Node, stdout io.Writer) error {
+func uploadEtcdFiles(f map[string]map[string]string, key string, nodes []*objects.Node, stdout io.Writer) error {
 	for _, node := range nodes {
 		files := []map[string]string{}
 
@@ -313,7 +314,7 @@ func uploadEtcdFiles(f map[string]map[string]string, key string, nodes []objects
 }
 
 //startEtcdCluster in node must with --no-block
-func startEtcdCluster(key string, nodes []objects.Node, stdout io.Writer) error {
+func startEtcdCluster(key string, nodes []*objects.Node, stdout io.Writer) error {
 	commands := []string{
 		"systemctl daemon-reload",
 		"systemctl enable etcd",

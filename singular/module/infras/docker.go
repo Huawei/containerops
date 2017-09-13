@@ -33,7 +33,7 @@ import (
 
 //DeployDockerInCluster deploy Docker in Cluster
 func DeployDockerInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.Writer, timestamp bool) error {
-	nodes := []objects.Node{}
+	nodes := []*objects.Node{}
 
 	for i := 0; i < infra.Master; i++ {
 		nodes = append(nodes, d.Nodes[i])
@@ -92,7 +92,7 @@ func DeployDockerInCluster(d *objects.Deployment, infra *objects.Infra, stdout i
 }
 
 //generateDockerFiles generate Docker systemd service file.
-func generateDockerFiles(src string, nodes []objects.Node, version string) (map[string]map[string]string, error) {
+func generateDockerFiles(src string, nodes []*objects.Node, version string) (map[string]map[string]string, error) {
 	result := map[string]map[string]string{}
 
 	//Preparing the SSL folder
@@ -145,7 +145,7 @@ func generateDockerServiceFile(version, base string) (map[string]string, error) 
 
 //uploadDockerFiles upload docker systemd file
 //TODO apt-get install -y bridge-utils aufs-tools cgroupfs-mount libltdl7
-func uploadDockerFiles(f map[string]map[string]string, key string, nodes []objects.Node, stdout io.Writer, timestamp bool) error {
+func uploadDockerFiles(f map[string]map[string]string, key string, nodes []*objects.Node, stdout io.Writer, timestamp bool) error {
 	for _, node := range nodes {
 		files := []map[string]string{}
 
