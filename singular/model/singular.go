@@ -16,36 +16,56 @@ limitations under the License.
 
 package model
 
-import "time"
+import (
+	"sync"
+	"time"
+)
 
 type SingularV1 struct {
-	ID          int64      `json:"id" yaml:"id" gorm:"column:id;primary_key"`
-	Namespace   string     `json:"namespace" yaml:"namespace" sql:"not null;type:varchar(255)" gorm:"column:namespace;unique_index:singular_repository"`
-	Repository  string     `json:"repository" yaml:"repository" sql:"not null;type:varchar(255)" gorm:"column:repository;unique_index:singular_repository"`
-	Name        string     `json:"name" yaml:"name" sql:"not null;type:varchar(255)" gorm:"column:name;unique_index:singular_repository"`
-	Short       string     `json:"short" yaml:"short" sql:"null;type:text" gorm:"column:short"`
-	Description string     `json:"description" yaml:"description" sql:"null;type:text" gorm:"column:description"`
-	CreatedAt   time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
-	UpdatedAt   time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
-	DeletedAt   *time.Time `json:"delete_at" sql:"index" gorm:"column:delete_at"`
-}
-
-func (b *SingularV1) TableName() string {
-	return "singular_v1"
-}
-
-type DeploymentV1 struct {
 	ID         int64      `json:"id" yaml:"id" gorm:"column:id;primary_key"`
-	SingularV1 int64      `json:"singular_v1" yaml:"singular_v1" sql:"not null;default:0" gorm:"column:singular_v1;unique_index:singular_deployment"`
-	Tag        string     `json:"tag" yaml:"tag" sql:"not null;type:varchar(255)" gorm:"column:tag;unique_index:singular_deployment"`
-	Version    int64      `json:"version" yaml:"version" sql:"not null;default:0" gorm:"column:version;unique_index:singular_deployment"`
-	Service    string     `json:"service" yaml:"service" sql:"null;type:varchar(255)" gorm:"column:service"`
-	Node       int64      `json:"node" yaml:"node" sql:"not null;default:0" gorm:"column:node"`
-	Result     bool       `json:"result" yaml:"result" sql:"null" gorm:"column:result"`
-	Log        string     `json:"log" yaml:"log" sql:"null;type:text" gorm:"column:log"`
+	Namespace  string     `json:"namespace" yaml:"namespace" sql:"not null;type:varchar(255)" gorm:"column:namespace;unique_index:singular_repository"`
+	Repository string     `json:"repository" yaml:"repository" sql:"not null;type:varchar(255)" gorm:"column:repository;unique_index:singular_repository"`
+	Name       string     `json:"name" yaml:"name" sql:"not null;type:varchar(255)" gorm:"column:name;unique_index:singular_repository"`
 	CreatedAt  time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
 	UpdatedAt  time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
 	DeletedAt  *time.Time `json:"delete_at" sql:"index" gorm:"column:delete_at"`
+}
+
+func (s *SingularV1) TableName() string {
+	return "singular_v1"
+}
+
+var singularV1Mutex sync.Mutex
+
+func (s *SingularV1) Put(namespace, repository, name string) error {
+	s.Namespace, s.Repository, s.Name = namespace, repository, name
+
+	singularV1Mutex.Lock()
+	defer singularV1Mutex.Unlock()
+
+	tx := DB.Begin()
+	if err := tx.Debug().Where("namespace = ? AND repository = ? AND name = ?", namespace, repository, name).FirstOrCreate(&s).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
+}
+
+type DeploymentV1 struct {
+	ID          int64      `json:"id" yaml:"id" gorm:"column:id;primary_key"`
+	SingularV1  int64      `json:"singular_v1" yaml:"singular_v1" sql:"not null;default:0" gorm:"column:singular_v1;unique_index:singular_deployment"`
+	Tag         string     `json:"tag" yaml:"tag" sql:"not null;type:varchar(255)" gorm:"column:tag;unique_index:singular_deployment"`
+	Version     int64      `json:"version" yaml:"version" sql:"not null;default:0" gorm:"column:version;unique_index:singular_deployment"`
+	Service     string     `json:"service" yaml:"service" sql:"null;type:varchar(255)" gorm:"column:service"`
+	Node        int64      `json:"node" yaml:"node" sql:"not null;default:0" gorm:"column:node"`
+	Log         string     `json:"log" yaml:"log" sql:"null;type:text" gorm:"column:log"`
+	Description string     `json:"description" yaml:"description" sql:"null;type:text" gorm:"column:description"`
+	Result      bool       `json:"result" yaml:"result" sql:"null" gorm:"column:result"`
+	CreatedAt   time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
+	UpdatedAt   time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
+	DeletedAt   *time.Time `json:"delete_at" sql:"index" gorm:"column:delete_at"`
 }
 
 func (d *DeploymentV1) TableName() string {

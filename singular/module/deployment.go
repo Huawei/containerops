@@ -207,11 +207,18 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 
 	}
 
+	//Save data
+	if db == true {
+		if err := d.Save(); err != nil {
+			return err
+		}
+	}
+
 	return err
 }
 
 //DeleteInfraStacks delete the droplets of stack.
-func DeleteInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timestamp bool) error {
+func DeleteInfraStacks(d *objects.Deployment, stdout io.Writer, timestamp bool) error {
 	if d.Service.Provider != "" {
 		switch d.Service.Provider {
 		case "digitalocean":

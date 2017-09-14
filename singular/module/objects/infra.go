@@ -67,3 +67,8 @@ func (i *Infra) Output(key, value string) {
 
 	i.Outputs[key] = value
 }
+
+//Save infra deployment data
+func (i *Infra) Save(deployment int64) error {
+	return nil
+}

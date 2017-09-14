@@ -166,6 +166,11 @@ func (d *Deployment) CheckServiceAuth() error {
 	return nil
 }
 
+//Save func save deployment data into database
+func (d *Deployment) Save() error {
+	return nil
+}
+
 //initConfigPath init config files and log files folder.
 func initConfigPath(namespace, repository, name, path string, version int) (string, error) {
 	var config string
@@ -269,5 +274,10 @@ func (c *Component) WriteLog(log string, writer io.Writer, output bool) error {
 		}
 	}
 
+	return nil
+}
+
+//Save component deploy data.
+func (c *Component) Save(infra int64) error {
 	return nil
 }
