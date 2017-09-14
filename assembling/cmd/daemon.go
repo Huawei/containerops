@@ -84,8 +84,6 @@ func startDaemon(cmd *cobra.Command, args []string) {
 	address := common.Assembling.Address
 	port := common.Assembling.Port
 
-	common.Assembling.Mode = "unix"
-
 	go func() {
 		switch common.Assembling.Mode {
 		case "https":

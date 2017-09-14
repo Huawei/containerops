@@ -54,7 +54,7 @@ func WebHook(ctx *macaron.Context) (int, []byte) {
 		return http.StatusInternalServerError, []byte("Failed to validate flow URI")
 	}
 	if ns != namespace || repo != repository || name != flowName {
-		log.Error(err)
+		log.Error("Parameters in yaml not equal to those in URL")
 		return http.StatusInternalServerError, []byte("Invalid flow URI")
 	}
 
