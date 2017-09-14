@@ -21,5 +21,6 @@ docker run --rm -e CO_DATA='git-url=https://github.com/blanzp/amazon_examples.gi
 - `version` is one of `python`, `python2`, `python3`, `py3k`.  default is `py3k`
 - `entry-path` is the entry path with `build.py` for pybuilder
 - `task` is the task name of pybuilder
+- `out-put-type` available value: yaml,json
 
 ### Versions 1.0.0

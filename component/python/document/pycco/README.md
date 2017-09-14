@@ -16,5 +16,6 @@ docker run --rm -e CO_DATA='git-url=https://github.com/pycco-docs/pycco.git' con
 
 ### Parameters
 - `git-url` is the source git repo url
+- `out-put-type` available value: yaml,json
 
 ### Versions 1.0.0

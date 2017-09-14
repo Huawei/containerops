@@ -34,7 +34,8 @@ def get_python_cmd(version):
 
 
 def init_env(version):
-    subprocess.run([get_pip_cmd(version), 'install', 'memory_profiler', 'psutil'])
+    subprocess.run([get_pip_cmd(version), 'install', 'memory_profiler',
+        'psutil', 'pyyaml'])
 
 
 def validate_version(version):
@@ -69,8 +70,9 @@ def pip_install(file_name, version='py3k'):
     return True
 
 
-def memory_profiler(file_name, version='py3k'):
+def memory_profiler(file_name, version='py3k', use_yaml = False):
     r = subprocess.run([get_python_cmd(version), '/root/memory_profiler.py',
+                        '--yaml', str(use_yaml),
                         os.path.join(REPO_PATH, file_name)])
 
     passed = True
@@ -85,7 +87,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url', 'entry-file', 'version']
+    validate = ['git-url', 'entry-file', 'version', 'out-put-type']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -142,7 +144,9 @@ def main():
     for file_name in glob.glob('./*/*/requirements.txt'):
         pip_install(file_name, version)
 
-    out = memory_profiler(entry_file, version)
+    use_yaml = argv.get('out-put-type', 'json') == 'yaml'
+
+    out = memory_profiler(entry_file, version, use_yaml)
 
     if out:
         print("[COUT] CO_RESULT = true")
