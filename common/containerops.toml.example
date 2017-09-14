@@ -24,3 +24,9 @@ binaryv1 = "/tmp/binaryv1" # path for binary files of Dockyard Binary V1 Protoco
 domain = "hub.opshub.sh"
 
 [singular]
+
+[mail]
+smtp_address = "smtp.gmail.com"
+smtp_port = "587"
+user = "notify@containerops.sh"
+password = "password"
