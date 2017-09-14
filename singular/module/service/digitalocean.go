@@ -22,9 +22,10 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/digitalocean/godo"
-	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
+
+	"github.com/digitalocean/godo"
+	"github.com/digitalocean/godo/context"
 )
 
 const (
@@ -45,8 +46,8 @@ type DigitalOcean struct {
 }
 
 //WriteLog implement Logger interface.
-func (d *DigitalOcean) WriteLog(log string, writer io.Writer, output bool) error {
-	d.Logs = append(d.Logs, log)
+func (do *DigitalOcean) WriteLog(log string, writer io.Writer, output bool) error {
+	do.Logs = append(do.Logs, log)
 
 	if output == true {
 		if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
@@ -97,6 +98,17 @@ func (do *DigitalOcean) UploadSSHKey(publicFile string) error {
 		if _, _, err := do.client.Keys.Create(ctx, createRequest); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+//DeleteDroplet delete droplet in DigitalOcean.
+func (do *DigitalOcean) DeleteDroplet(id int) error {
+	ctx := context.TODO()
+
+	if _, err := do.client.Droplets.Delete(ctx, id); err != nil {
+		return err
 	}
 
 	return nil

@@ -114,4 +114,12 @@ func templateRun(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		os.Exit(1)
 	}
+
+	//Delete droplets
+	if del == true {
+		if err := module.DeleteInfraStacks(d, db, logWriters, timestamp); err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+			os.Exit(1)
+		}
+	}
 }

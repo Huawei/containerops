@@ -30,12 +30,17 @@ import (
 )
 
 const (
-	InfraEtcd       = "etcd"
-	InfraFlannel    = "flannel"
-	InfraDocker     = "docker"
+	//InfraEtcd is Etcd flag
+	InfraEtcd = "etcd"
+	//InfraFlannel is Flannel flg
+	InfraFlannel = "flannel"
+	//InfraDocker is Docekr flag
+	InfraDocker = "docker"
+	//InfraKubernetes is Kubernetes flag
 	InfraKubernetes = "kubernetes"
 )
 
+//DeployInfraStacks deploy all infras in the cluster.
 //Deploy Sequence:
 //   Preparing SSH Key files ->
 //   Preparing VM ->
@@ -203,4 +208,28 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 	}
 
 	return err
+}
+
+//DeleteInfraStacks delete the droplets of stack.
+func DeleteInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timestamp bool) error {
+	if d.Service.Provider != "" {
+		switch d.Service.Provider {
+		case "digitalocean":
+			do := service.DigitalOcean{}
+			do.Token = d.Service.Token
+			do.InitClient()
+
+			for _, node := range d.Nodes {
+				if err := do.DeleteDroplet(node.ID); err != nil {
+					return err
+				}
+				objects.WriteLog(fmt.Sprintf("Delete %d droplet in DigitalOcaen", node.ID), stdout, timestamp, d)
+			}
+
+		default:
+			return fmt.Errorf("unsupport service provide: %s", d.Service.Provider)
+		}
+	}
+
+	return nil
 }
