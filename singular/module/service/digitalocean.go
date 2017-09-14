@@ -22,9 +22,10 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/digitalocean/godo"
-	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
+
+	"github.com/digitalocean/godo"
+	"github.com/digitalocean/godo/context"
 )
 
 const (

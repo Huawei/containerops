@@ -217,12 +217,13 @@ func DeleteInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 		case "digitalocean":
 			do := service.DigitalOcean{}
 			do.Token = d.Service.Token
+			do.InitClient()
 
-			for id := range do.Droplets {
-				if err := do.DeleteDroplet(id); err != nil {
+			for _, node := range d.Nodes {
+				if err := do.DeleteDroplet(node.ID); err != nil {
 					return err
 				}
-				objects.WriteLog(fmt.Sprintf("Delete %d droplet in DigitalOcaen", id), stdout, timestamp, d, &do)
+				objects.WriteLog(fmt.Sprintf("Delete %d droplet in DigitalOcaen", node.ID), stdout, timestamp, d)
 			}
 
 		default:
