@@ -18,6 +18,10 @@ title: Demo For Cloud Native Computing Foundation CI Working Group
 version: 4
 tag: latest
 timeout: 0
+receivers:
+  -
+    type: mail
+    address: wangqilin@containerops.sh
 stages:
   -
     type: start
