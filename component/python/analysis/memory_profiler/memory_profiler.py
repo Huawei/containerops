@@ -19,6 +19,7 @@ import logging
 import traceback
 from signal import SIGKILL
 import json
+import yaml
 
 
 # TODO: provide alternative when multiprocessing is not available
@@ -1183,6 +1184,10 @@ if __name__ == '__main__':
         '--precision', dest='precision', type='int',
         action='store', default=3,
         help='precision of memory output in number of significant digits')
+    parser.add_option(
+        '--yaml', dest='yaml', type='str',
+        action='store', default='False',
+        help='use yaml')
     parser.add_option('-o', dest='out_filename', type='str',
                       action='store', default=None,
                       help='path to a file where results will be written')
@@ -1223,5 +1228,8 @@ if __name__ == '__main__':
             prof.show_results(stream=out_file)
         else:
             ret = json_results(prof, precision=options.precision)
-            out = json.dumps(ret)
-            print('[COUT] CO_JSON_CONTENT {}'.format(out))
+            if options.yaml == 'True':
+                out = bytes(yaml.safe_dump(ret), 'utf-8')
+                print('[COUT] CO_YAML_CONTENT {}'.format(str(out)[1:]))
+            else:
+                print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(ret)))

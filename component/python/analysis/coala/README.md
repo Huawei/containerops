@@ -20,5 +20,6 @@ docker run --rm -e CO_DATA='git-url=https://github.com/Lupino/python-aio-periodi
 ### Parameters
 
 - `git-url` is the source git repo url
+- `out-put-type` available value: yaml,json
 
 ### Versions 1.0.0

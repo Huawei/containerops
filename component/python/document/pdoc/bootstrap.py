@@ -6,6 +6,7 @@ import sys
 import glob
 from bs4 import BeautifulSoup
 import json
+import anymarkup
 
 REPO_PATH = 'git-repo'
 
@@ -82,7 +83,7 @@ def pdoc(mod):
     return True
 
 
-def echo_json():
+def echo_json(use_yaml):
     for root, dirs, files in os.walk('/tmp/output'):
         for file_name in files:
             if file_name.endswith('.html'):
@@ -91,8 +92,16 @@ def echo_json():
                     soup = BeautifulSoup(data, 'html.parser')
                     title = soup.find('title').text
                     body = soup.find('body').renderContents()
-                    print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps({
-                        "title": title, "body": str(body, 'utf-8', errors='ignore'), "file": file_name })))
+                    data = {
+                        "title": title,
+                        "body": str(body, 'utf-8', errors='ignore'),
+                        "file": file_name
+                    }
+                    if use_yaml:
+                        data = anymarkup.serialize(data, 'yaml')
+                        print('[COUT] CO_YAML_CONTENT {}'.format(str(data)[1:]))
+                    else:
+                        print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
 
 
     return True
@@ -103,7 +112,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url', 'entry-mod', 'version']
+    validate = ['git-url', 'entry-mod', 'version', 'out-put-type']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -162,7 +171,10 @@ def main():
 
 
     out = pdoc(entry_mod)
-    echo_json()
+
+    use_yaml = argv.get('out-put-type', 'json') == 'yaml'
+
+    echo_json(use_yaml)
 
     if out:
         print("[COUT] CO_RESULT = true")

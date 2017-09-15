@@ -19,5 +19,6 @@ docker run --rm -e CO_DATA='git-url=https://github.com/minhhh/regex.git entry-pa
 - `git-url` is the source git repo url
 - `version` is one of `python`, `python2`, `python3`, `py3k`.  default is `py3k`
 - `entry-path` is the entry file or path for coverage
+- `out-put-type` available value: yaml,xml
 
 ### Versions 1.0.0
