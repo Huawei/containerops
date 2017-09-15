@@ -30,6 +30,7 @@ import (
 
 	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/common/utils"
+	"github.com/Huawei/containerops/singular/model"
 	"github.com/Huawei/containerops/singular/module/tools"
 )
 
@@ -168,6 +169,34 @@ func (d *Deployment) CheckServiceAuth() error {
 
 //Save func save deployment data into database
 func (d *Deployment) Save() error {
+	singular := new(model.SingularV1)
+	deploy := new(model.DeploymentV1)
+
+	if err := singular.Put(d.Namespace, d.Repository, d.Name); err != nil {
+		return err
+	}
+
+	if err := deploy.Put(singular.ID, d.Tag); err != nil {
+		return err
+	}
+
+	s, _ := d.Service.YAML()
+	log, _ := yaml.Marshal(d.Logs)
+
+	if err := deploy.Update(deploy.ID, string(s), string(log), d.Description, len(d.Nodes)); err != nil {
+		return err
+	}
+
+	for _, infra := range d.Infras {
+		if err := infra.Save(deploy.ID); err != nil {
+			return err
+		}
+	}
+
+	if err := deploy.UpdateResult(deploy.ID, true); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -240,6 +269,14 @@ func (s *Service) WriteLog(log string, writer io.Writer, output bool) error {
 	return nil
 }
 
+func (s *Service) YAML() ([]byte, error) {
+	return yaml.Marshal(s)
+}
+
+func (s *Service) JSON() ([]byte, error) {
+	return json.Marshal(&s)
+}
+
 //Tools is part of deployment, include SSH and others.
 type Tools struct {
 	SSH SSH `json:"ssh" yaml:"ssh"`
@@ -250,34 +287,4 @@ type SSH struct {
 	Private     string `json:"private" yaml:"private"`
 	Public      string `json:"public" yaml:"public"`
 	Fingerprint string `json:"fingerprint" yaml:"fingerprint"`
-}
-
-//Component is part of infra
-type Component struct {
-	Binary  string   `json:"binary" yaml:"binary"`
-	URL     string   `json:"url" yaml:"url"`
-	Package bool     `json:"package" yaml:"package"`
-	Systemd string   `json:"systemd" yaml:"systemd"`
-	CA      string   `json:"ca" yaml:"ca"`
-	Before  []string `json:"before" yaml:"before"`
-	After   []string `json:"after" yaml:"after"`
-	Logs    []string `json:"logs,omitempty" yaml:"logs,omitempty"`
-}
-
-//WriteLog implement Logger interface.
-func (c *Component) WriteLog(log string, writer io.Writer, output bool) error {
-	c.Logs = append(c.Logs, log)
-
-	if output == true {
-		if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-//Save component deploy data.
-func (c *Component) Save(infra int64) error {
-	return nil
 }

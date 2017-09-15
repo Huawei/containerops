@@ -37,6 +37,7 @@ func (s *SingularV1) TableName() string {
 
 var singularV1Mutex sync.Mutex
 
+//Put get or create singular data
 func (s *SingularV1) Put(namespace, repository, name string) error {
 	s.Namespace, s.Repository, s.Name = namespace, repository, name
 
@@ -57,11 +58,12 @@ type DeploymentV1 struct {
 	ID          int64      `json:"id" yaml:"id" gorm:"column:id;primary_key"`
 	SingularV1  int64      `json:"singular_v1" yaml:"singular_v1" sql:"not null;default:0" gorm:"column:singular_v1;unique_index:singular_deployment"`
 	Tag         string     `json:"tag" yaml:"tag" sql:"not null;type:varchar(255)" gorm:"column:tag;unique_index:singular_deployment"`
-	Version     int64      `json:"version" yaml:"version" sql:"not null;default:0" gorm:"column:version;unique_index:singular_deployment"`
+	Version     int64      `json:"version" yaml:"version" sql:"null;default:0" gorm:"column:version;unique_index:singular_deployment"`
 	Service     string     `json:"service" yaml:"service" sql:"null;type:varchar(255)" gorm:"column:service"`
-	Node        int64      `json:"node" yaml:"node" sql:"not null;default:0" gorm:"column:node"`
+	Node        int        `json:"node" yaml:"node" sql:"not null;default:0" gorm:"column:node"`
 	Log         string     `json:"log" yaml:"log" sql:"null;type:text" gorm:"column:log"`
 	Description string     `json:"description" yaml:"description" sql:"null;type:text" gorm:"column:description"`
+	Data        string     `json:"data" yaml:"data" sql:"null;type:text" gorm:"column:data"`
 	Result      bool       `json:"result" yaml:"result" sql:"null" gorm:"column:result"`
 	CreatedAt   time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
 	UpdatedAt   time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
@@ -72,13 +74,83 @@ func (d *DeploymentV1) TableName() string {
 	return "deployment_v1"
 }
 
+var deploymentV1Mutex sync.Mutex
+
+func (d *DeploymentV1) Put(singularV1 int64, tag string) error {
+	d.SingularV1, d.Tag = singularV1, tag
+
+	deploymentV1Mutex.Lock()
+	defer deploymentV1Mutex.Unlock()
+
+	tx := DB.Begin()
+	if err := tx.Debug().Where("singular_v1 = ? AND tag = ?", singularV1, tag).FirstOrCreate(&d).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Debug().Model(&d).Updates(map[string]int64{"version": d.Version + 1}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
+}
+
+func (d *DeploymentV1) Update(id int64, service, log, description string, node int) error {
+	tx := DB.Begin()
+
+	if err := tx.Debug().Where("id = ?", id).First(&d).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	deploymentV1Mutex.Lock()
+	defer deploymentV1Mutex.Unlock()
+
+	if err := tx.Debug().Model(&d).Update(map[string]interface{}{
+		"service":     service,
+		"log":         log,
+		"description": description,
+		"node":        node,
+	}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
+}
+
+func (d *DeploymentV1) UpdateResult(id int64, result bool) error {
+	tx := DB.Begin()
+
+	if err := tx.Debug().Where("id = ?", id).First(&d).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	deploymentV1Mutex.Lock()
+	defer deploymentV1Mutex.Unlock()
+
+	if err := tx.Debug().Model(&d).Update(map[string]interface{}{
+		"result": result,
+	}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
+}
+
 type InfraV1 struct {
 	ID           int64      `json:"id" yaml:"id"  gorm:"column:id;primary_key"`
 	DeploymentV1 int64      `json:"deployment_v1" yaml:"deployment_v1" sql:"not null;default:0" gorm:"column:deployment_v1"`
 	Name         string     `json:"name" yaml:"name" sql:"not null;type:varchar(255)" gorm:"column:name"`
 	Version      string     `json:"version" yaml:"version" sql:"not null;type:varchar(255)" gorm:"column:version"`
-	Master       int64      `json:"master" yaml:"master" sql:"not null" gorm:"column:master"`
-	Minion       int64      `json:"minion" yaml:"minion" sql:"not null" gorm:"column:minion"`
+	Master       int        `json:"master" yaml:"master" sql:"not null" gorm:"column:master"`
+	Minion       int        `json:"minion" yaml:"minion" sql:"not null" gorm:"column:minion"`
 	Log          string     `json:"log" yaml:"log" sql:"null;type:text" gorm:"column:log"`
 	CreatedAt    time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
 	UpdatedAt    time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
@@ -87,6 +159,43 @@ type InfraV1 struct {
 
 func (i *InfraV1) TableName() string {
 	return "infra_v1"
+}
+
+var infraV1Mutex sync.Mutex
+
+func (i *InfraV1) Put(deploymentID int64, name, version string) error {
+	i.DeploymentV1, i.Name, i.Version = deploymentID, name, version
+
+	infraV1Mutex.Lock()
+	defer infraV1Mutex.Unlock()
+
+	tx := DB.Begin()
+	if err := tx.Debug().Where("deployment_v1 = ? AND name = ?", deploymentID, name).FirstOrCreate(&i).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
+}
+
+func (i *InfraV1) Update(id int64, master, minion int, log string) error {
+	tx := DB.Begin()
+
+	infraV1Mutex.Lock()
+	defer infraV1Mutex.Unlock()
+
+	if err := tx.Debug().Model(&i).Where("id = ?", id).Update(map[string]interface{}{
+		"master": master,
+		"minion": minion,
+		"log":    log,
+	}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
 }
 
 type ComponentV1 struct {
@@ -108,4 +217,42 @@ type ComponentV1 struct {
 
 func (c *ComponentV1) TableName() string {
 	return "component_singular_v1"
+}
+
+var componentV1Mutex sync.Mutex
+
+func (c *ComponentV1) Put(infraID int64, binary string) error {
+	c.InfraV1, c.Binary = infraID, binary
+
+	componentV1Mutex.Lock()
+	defer componentV1Mutex.Unlock()
+
+	tx := DB.Begin()
+	if err := tx.Debug().Where("infra_v1 = ? AND binary = ?", infraID, binary).FirstOrCreate(&c).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
+}
+
+func (c *ComponentV1) Update(id int64, url, before, after string, p bool) error {
+	tx := DB.Begin()
+
+	componentV1Mutex.Lock()
+	defer componentV1Mutex.Unlock()
+
+	if err := tx.Debug().Model(&c).Where("id = ?", id).Update(map[string]interface{}{
+		"url":     url,
+		"before":  before,
+		"after":   after,
+		"package": p,
+	}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
 }

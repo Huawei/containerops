@@ -37,19 +37,19 @@ import (
 	"github.com/Huawei/containerops/dockyard/module"
 )
 
-// GetPingV2Handler is https://github.com/docker/distribution/blob/master/docs/spec/api.md#api-version-check
+//GetPingV2Handler is https://github.com/docker/distribution/blob/master/docs/spec/api.md#api-version-check
 func GetPingV2Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result
 }
 
-// GetCatalogV2Handler is
+//GetCatalogV2Handler is
 func GetCatalogV2Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result
 }
 
-// HeadBlobsV2Handler is
+//HeadBlobsV2Handler is
 func HeadBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	digest := ctx.Params(":digest")
 	tarsum := strings.Split(digest, ":")[1]
@@ -76,9 +76,9 @@ func HeadBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-// PostBlobsV2Handler is
-// Initiate a resumable blob upload. If successful, an upload location will be provided to complete the upload.
-// Optionally, if the digest parameter is present, the request body will be used to complete the upload in a single request.
+//PostBlobsV2Handler is
+//Initiate a resumable blob upload. If successful, an upload location will be provided to complete the upload.
+//Optionally, if the digest parameter is present, the request body will be used to complete the upload in a single request.
 func PostBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	//TODO: If standalone == true, Dockyard will check HEADER Authorization; if standalone == false, Dockyard will check HEADER TOEKN.
 	namespace := ctx.Params(":namespace")
@@ -107,11 +107,13 @@ func PostBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusAccepted, result
 }
 
-// PatchBlobsV2Handler is
-// Upload a chunk of data for the specified upload.
-// Docker 1.9.x above version saves layer in PATCH methord
-// Docker 1.9.x below version saves layer in PUT methord
+//PatchBlobsV2Handler is
+//Upload a chunk of data for the specified upload.
+//Docker 1.9.x above version saves layer in PATCH methord
+//Docker 1.9.x below version saves layer in PUT methord
 func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
+	var file *os.File
+
 	repository := ctx.Params(":repository")
 	namespace := ctx.Params(":namespace")
 
@@ -137,18 +139,18 @@ func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 			os.Remove(uuidFile)
 		}
 
-		if file, err := os.Create(uuidFile); err != nil {
+		if file, err = os.Create(uuidFile); err != nil {
 			log.Errorf("[%s] Create UUID file error: %s", ctx.Req.RequestURI, err.Error())
 
 			result, _ := module.EncodingError(module.BLOB_UPLOAD_UNKNOWN, map[string]string{"namespace": namespace, "repository": repository})
 			return http.StatusBadRequest, result
-		} else {
-			io.Copy(file, ctx.Req.Request.Body)
-
-			size, _ := utils.GetFileSize(uuidFile)
-
-			ctx.Resp.Header().Set("Range", fmt.Sprintf("0-%v", size-1))
 		}
+
+		io.Copy(file, ctx.Req.Request.Body)
+		size, _ := utils.GetFileSize(uuidFile)
+
+		ctx.Resp.Header().Set("Range", fmt.Sprintf("0-%v", size-1))
+
 	}
 
 	state := utils.MD5(fmt.Sprintf("%s/%v", fmt.Sprintf("%s/%s", namespace, repository), time.Now().UnixNano()/int64(time.Millisecond)))
@@ -163,10 +165,11 @@ func PatchBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	return http.StatusOK, result
 }
 
-// PutBlobsV2Handler is
-// Complete the upload specified by uuid, optionally appending the body as the final chunk.
+//PutBlobsV2Handler is
+//Complete the upload specified by uuid, optionally appending the body as the final chunk.
 func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 	var size int64
+	var file *os.File
 
 	repository := ctx.Params(":repository")
 	namespace := ctx.Params(":namespace")
@@ -215,15 +218,15 @@ func PutBlobsV2Handler(ctx *macaron.Context) (int, []byte) {
 		}
 	} else if upload == false {
 		//Docker 1.9.x below version saves layer in PUT methord, save data to file directly.
-		if file, err := os.Create(imageFile); err != nil {
+		if file, err = os.Create(imageFile); err != nil {
 			log.Errorf("Save the file %s error: %s", imageFile, err.Error())
 
 			result, _ := module.EncodingError(module.BLOB_UPLOAD_INVALID, map[string]string{"namespace": namespace, "repository": repository})
 			return http.StatusBadRequest, result
-		} else {
-			io.Copy(file, ctx.Req.Request.Body)
-			size, _ = utils.GetFileSize(imagePath)
 		}
+
+		io.Copy(file, ctx.Req.Request.Body)
+		size, _ = utils.GetFileSize(imagePath)
 	}
 
 	i := new(model.DockerImageV2)
