@@ -4,6 +4,7 @@ import subprocess
 import os
 import sys
 import json
+import yaml
 
 REPO_PATH = 'git-repo'
 
@@ -39,7 +40,7 @@ def validate_version(version):
     return True
 
 
-def pylint(file_name, rcfile):
+def pylint(file_name, rcfile, use_yaml):
     if rcfile:
         rcfile = '--rcfile={}/{}'.format(REPO_PATH, rcfile)
     else:
@@ -57,8 +58,12 @@ def pylint(file_name, rcfile):
         retval.append(o)
 
     if len(retval) > 0:
-        print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps({
-            "results": { "cli": retval } })))
+        out = {"results": { "cli": retval }}
+        if use_yaml:
+            out = bytes(yaml.safe_dump(out), 'utf-8')
+            print('[COUT] CO_YAML_CONTENT {}'.format(str(out)[1:]))
+        else:
+            print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(out)))
 
     return passed
 
@@ -72,7 +77,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url', 'rcfile', 'version']
+    validate = ['git-url', 'rcfile', 'version', 'out-put-type']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -114,11 +119,12 @@ def main():
         return
 
     all_true = True
+    use_yaml = argv.get('out-put-type', 'json') == 'yaml'
 
     for root, dirs, files in os.walk(REPO_PATH):
         for file_name in files:
             if file_name.endswith('.py'):
-                o = pylint(os.path.join(root, file_name), rcfile)
+                o = pylint(os.path.join(root, file_name), rcfile, use_yaml)
                 all_true = all_true and o
 
     if all_true:

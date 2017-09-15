@@ -23,5 +23,6 @@ docker run --rm -e CO_DATA='git-url=https://github.com/CleanCut/green.git entry-
 ### Parameters
 - `git-url` is the source git repo url
 - `entry-path` is the entry path for tox
+- `out-put-type` available value: yaml,json
 
 ### Versions 1.0.0

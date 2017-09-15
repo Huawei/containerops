@@ -52,6 +52,24 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	image := mctx.Req.Request.FormValue("image")
 	tag := mctx.Req.Request.FormValue("tag")
 
+	isBodyDockerArchive, buf, err := isDockerArchive(mctx.Req.Request.Body)
+	if err != nil {
+		log.Errorf("Failed to check gzip format: %s", err.Error())
+		return http.StatusInternalServerError, []byte("{}")
+	}
+	if buf.Len() == 0 {
+		log.Errorf("Empty file")
+		return http.StatusBadRequest, []byte("{}")
+	}
+
+	var tarfile io.Reader
+	if !isBodyDockerArchive {
+		tarfile, err = createTarFile(mctx.Req.Request.Body)
+	} else {
+		tarfile = buf
+	}
+
+	log.Infof("Init k8s resources")
 	podClient, serviceClient, err := initK8SResourceInterfaces(common.Assembling.KubeConfig)
 	if err != nil {
 		log.Errorf("Failed to init k8s pod client: %s", err.Error())
@@ -62,6 +80,7 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	podName := fmt.Sprintf("containerops-build-pod-%s", buildId)
 	serviceName := fmt.Sprintf("containerops-build-svc-%s", buildId)
 
+	log.Infof("Create pod %s for build %s", podName, buildId)
 	_, err = createPod(podClient, podName, buildId)
 	if err != nil {
 		log.Errorf("Failed to create pod: %s", err.Error())
@@ -69,20 +88,25 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	}
 	defer deletePod(podClient, podName)
 
-	nodeBalancer, err := createNodeBalancer(serviceClient, serviceName, buildId)
+	log.Infof("Create load balancer for build %s", buildId)
+	loadBalancer, err := createLoadBalancer(serviceClient, serviceName, buildId)
 	if err != nil {
-		log.Errorf("Failed to create pod: %s", err.Error())
+		log.Errorf("Failed to create load balancer: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
 
 	servicePort := 2375
-	defer deleteNodeBalancer(serviceClient, serviceName)
+	defer deleteLoadBalancer(serviceClient, serviceName)
 
-	serviceIP := nodeBalancer.Status.LoadBalancer.Ingress[0].IP
+	if len(loadBalancer.Status.LoadBalancer.Ingress) == 0 {
+		log.Errorf("Load balancer: no ingress created")
+		return http.StatusInternalServerError, []byte("{}")
+	}
+	serviceIP := loadBalancer.Status.LoadBalancer.Ingress[0].IP
 	dockerDaemonHost := fmt.Sprintf("%s:%d", serviceIP, servicePort)
 	ctx, dockerClient := initDockerCli(dockerDaemonHost)
 
-	tarfile, err := createTarFile(mctx.Req.Request.Body)
+	log.Infof("Build image, id: %s", buildId)
 	if err := buildImage(ctx, dockerClient, registry, namespace, image, tag, tarfile); err != nil {
 		log.Errorf("Failed to build image: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
@@ -91,13 +115,89 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	// TODO Support pushing to registries that need authorization
 	authStr, _ := generateAuthStr("", "")
 
+	log.Infof("Push image, id: %s", buildId)
 	if err := pushImage(ctx, dockerClient, registry, namespace, image, tag, authStr); err != nil {
 		log.Errorf("Failed to push image: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
 
 	builtImage := fmt.Sprintf("%s/%s/%s:%s", registry, namespace, image, tag)
+	log.Infof("Image pushed: %s", builtImage)
 	return http.StatusOK, []byte(fmt.Sprintf("{\"endpoint\":\"%s\"}", builtImage))
+}
+
+func isDockerArchive(src io.Reader) (bool, *bytes.Buffer, error) {
+	var buf bytes.Buffer
+
+	// We should not make constraint on the number of bytes read, and should skip the io.EOF error
+	// Since the file might not be tar file and the length might be shorter than 265
+	_, err := io.CopyN(&buf, src, 265)
+	if err != nil && err != io.EOF {
+		return false, nil, err
+	} /* else if n != 265 {
+		return false, nil, fmt.Errorf("Failed to read first 265 bytes")
+	} */
+
+	bs := buf.Bytes()
+	is_docker_tar_file := isBZip(bs) || isGZip(bs) || isXZ(bs) || isTar(bs)
+	_, err = io.Copy(&buf, src)
+
+	return is_docker_tar_file, &buf, err
+}
+
+func isBZip(header []byte) bool {
+	return len(header) >= 3 &&
+		header[0] == 0x42 &&
+		header[1] == 0x5a &&
+		header[2] == 0x68
+}
+
+func isGZip(header []byte) bool {
+	return len(header) >= 2 &&
+		header[0] == 0x1f &&
+		header[1] == 0x8b
+}
+
+func isXZ(header []byte) bool {
+	return len(header) >= 6 &&
+		header[0] == 0xfd &&
+		header[1] == 0x37 &&
+		header[2] == 0x7a &&
+		header[3] == 0x58 &&
+		header[4] == 0x5a &&
+		header[5] == 0x00
+}
+
+func isTar(header []byte) bool {
+	if len(header) < 264 {
+		return false
+	}
+
+	magic := header[257:265]
+	return isPosixTar(magic) || isGnuTar(magic)
+}
+
+func isPosixTar(magic []byte) bool {
+	return len(magic) >= 8 &&
+		magic[0] == 0x75 &&
+		magic[1] == 0x73 &&
+		magic[2] == 0x74 &&
+		magic[3] == 0x61 &&
+		magic[4] == 0x72 &&
+		magic[5] == 0x00 &&
+		magic[6] == 0x30 &&
+		magic[7] == 0x30
+}
+func isGnuTar(magic []byte) bool {
+	return len(magic) >= 8 &&
+		magic[0] == 0x75 &&
+		magic[1] == 0x73 &&
+		magic[2] == 0x74 &&
+		magic[3] == 0x61 &&
+		magic[4] == 0x72 &&
+		magic[5] == 0x20 &&
+		magic[6] == 0x20 &&
+		magic[7] == 0x00
 }
 
 func generateAuthStr(username, password string) (string, error) {
@@ -267,7 +367,7 @@ func pushImage(ctx context.Context, cli *client.Client, host, namespace, imageNa
 	return nil
 }
 
-func createNodeBalancer(serviceClient v1.ServiceInterface, serviceName, buildId string) (*corev1.Service, error) {
+func createLoadBalancer(serviceClient v1.ServiceInterface, serviceName, buildId string) (*corev1.Service, error) {
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: serviceName,
@@ -285,32 +385,34 @@ func createNodeBalancer(serviceClient v1.ServiceInterface, serviceName, buildId 
 		},
 	}
 
-	// Create NodeBalancer
+	// Create LoadBalancer
 	_, err := serviceClient.Create(svc)
 	if err != nil {
 		return nil, err
 	}
 
-	var nodeBalancer *corev1.Service
+	var loadBalancer *corev1.Service
 	var e error
 	start := time.Now()
 
 	for {
-		nodeBalancer, e = serviceClient.Get(serviceName, metav1.GetOptions{})
-		if e != nil || len(nodeBalancer.Status.LoadBalancer.Ingress) != 0 {
+		loadBalancer, e = serviceClient.Get(serviceName, metav1.GetOptions{})
+		if e != nil || len(loadBalancer.Status.LoadBalancer.Ingress) != 0 {
 			break
 		}
 		time.Sleep(time.Second * 3)
 		if time.Since(start).Seconds() > 180 {
-			nodeBalancer, e = nil, fmt.Errorf("NodeBalancer creation timeout")
+			e = fmt.Errorf("NoadBalancer creation timeout")
+			// If the error is not nil, the deletion will most likely to be ignored ouside the function.
+			deleteLoadBalancer(serviceClient, serviceName)
 			break
 		}
 	}
 
-	return nodeBalancer, nil
+	return loadBalancer, e
 }
 
-func deleteNodeBalancer(serviceClient v1.ServiceInterface, serviceName string) error {
+func deleteLoadBalancer(serviceClient v1.ServiceInterface, serviceName string) error {
 	deletePolicy := metav1.DeletePropagationForeground
 	if err := serviceClient.Delete(serviceName, &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,

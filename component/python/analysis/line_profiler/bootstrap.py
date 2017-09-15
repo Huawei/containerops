@@ -8,6 +8,7 @@ import json
 import line_profiler as profiler
 import linecache
 import inspect
+import yaml
 
 REPO_PATH = 'git-repo'
 
@@ -137,7 +138,7 @@ def show_func(filename, start_lineno, func_name, timings, unit):
     retval['lines'] = lines
     return retval
 
-def line_profiler(file_name):
+def line_profiler(file_name, use_yaml):
     r = subprocess.run(['kernprof', '-l', os.path.join(REPO_PATH, file_name)], stdout=subprocess.PIPE)
 
     passed = True
@@ -146,7 +147,11 @@ def line_profiler(file_name):
 
     st = profiler.load_stats('{}/{}.lprof'.format(REPO_PATH, file_name))
     out = show_json(st.timings, st.unit)
-    print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(out)))
+    if use_yaml:
+        out = bytes(yaml.safe_dump(out), 'utf-8')
+        print('[COUT] CO_YAML_CONTENT {}'.format(str(out)[1:]))
+    else:
+        print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(out)))
 
     return passed
 
@@ -160,7 +165,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url', 'entry-file', 'version']
+    validate = ['git-url', 'entry-file', 'version', 'out-put-type']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -217,7 +222,9 @@ def main():
     for file_name in glob.glob('./*/*/requirements.txt'):
         pip_install(file_name, version)
 
-    out = line_profiler(entry_file)
+    use_yaml = argv.get('out-put-type', 'json') == 'yaml'
+
+    out = line_profiler(entry_file, use_yaml)
 
     if out:
         print("[COUT] CO_RESULT = true")

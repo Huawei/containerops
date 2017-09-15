@@ -4,6 +4,7 @@ import subprocess
 import os
 import sys
 import json
+import yaml
 
 REPO_PATH = 'git-repo'
 
@@ -19,7 +20,7 @@ def git_clone(url):
         return False
 
 
-def coala(file_name, bears):
+def coala(file_name, bears, use_yaml):
     r = subprocess.run(['coala', '--json', '--bears', bears, '--files', file_name], stdout=subprocess.PIPE)
 
     passed = True
@@ -28,7 +29,12 @@ def coala(file_name, bears):
 
     out = str(r.stdout, 'utf-8').strip()
     out = json.loads(out)
-    print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(out)))
+    if len(out['results']['cli']) > 0:
+        if use_yaml:
+            out = bytes(yaml.safe_dump(out), 'utf-8')
+            print('[COUT] CO_YAML_CONTENT {}'.format(str(out)[1:]))
+        else:
+            print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(out)))
 
     return passed
 
@@ -42,7 +48,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url', 'bears']
+    validate = ['git-url', 'bears', 'out-put-type']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -75,11 +81,12 @@ def main():
 
     all_true = True
     bears = argv.get('bears', 'PEP8Bear,PyUnusedCodeBear')
+    use_yaml = argv.get('out-put-type', 'json') == 'yaml'
 
     for root, dirs, files in os.walk(REPO_PATH):
         for file_name in files:
             if file_name.endswith('.py'):
-                o = coala(os.path.join(root, file_name), bears)
+                o = coala(os.path.join(root, file_name), bears, use_yaml)
                 all_true = all_true and o
 
     if all_true:

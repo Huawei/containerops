@@ -4,6 +4,7 @@ import subprocess
 import os
 import sys
 import glob
+import anymarkup
 
 REPO_PATH = 'git-repo'
 
@@ -81,11 +82,17 @@ def unittest(module, version='py3k'):
     return True
 
 
-def echo_xml():
+def echo_xml(use_yaml):
     for root, dirs, files in os.walk('/tmp/output'):
         for file_name in files:
+            file = os.path.join(root, file_name)
+            if use_yaml:
+                data = anymarkup.parse_file(file)
+                data = anymarkup.serialize(data, 'yaml')
+                print('[COUT] CO_YAML_CONTENT {}'.format(str(data)[1:]))
+                continue
             if file_name.endswith('.xml'):
-                with open(os.path.join(root, file_name), 'rb') as f:
+                with open(file, 'rb') as f:
                     data = f.read()
                     print('[COUT] CO_XML_CONTENT {}'.format(str(data)[1:]))
 
@@ -97,7 +104,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url', 'entry-module', 'version']
+    validate = ['git-url', 'entry-module', 'version', 'out-put-type']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -162,7 +169,10 @@ def main():
 
 
     out = unittest(entry_module, version)
-    echo_xml()
+
+    use_yaml = argv.get('out-put-type', 'json') == 'yaml'
+
+    echo_xml(use_yaml)
 
     if not out:
         print("[COUT] CO_RESULT = false")
