@@ -121,7 +121,7 @@ func (c *Component) WriteLog(log string, writer io.Writer, output bool) error {
 func (c *Component) Save(infra int64) error {
 	component := new(model.ComponentV1)
 
-	if err := component.Put(infra, c.Binary); err != nil {
+	if err := component.Put(infra, c.Binary, c.URL); err != nil {
 		return err
 	}
 

@@ -45,7 +45,7 @@ func (s *SingularV1) Put(namespace, repository, name string) error {
 	defer singularV1Mutex.Unlock()
 
 	tx := DB.Begin()
-	if err := tx.Debug().Where("namespace = ? AND repository = ? AND name = ?", namespace, repository, name).FirstOrCreate(&s).Error; err != nil {
+	if err := tx.Where("namespace = ? AND repository = ? AND name = ?", namespace, repository, name).FirstOrCreate(&s).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -83,12 +83,12 @@ func (d *DeploymentV1) Put(singularV1 int64, tag string) error {
 	defer deploymentV1Mutex.Unlock()
 
 	tx := DB.Begin()
-	if err := tx.Debug().Where("singular_v1 = ? AND tag = ?", singularV1, tag).FirstOrCreate(&d).Error; err != nil {
+	if err := tx.Where("singular_v1 = ? AND tag = ?", singularV1, tag).FirstOrCreate(&d).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	if err := tx.Debug().Model(&d).Updates(map[string]int64{"version": d.Version + 1}).Error; err != nil {
+	if err := tx.Model(&d).Updates(map[string]int64{"version": d.Version + 1}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -100,7 +100,7 @@ func (d *DeploymentV1) Put(singularV1 int64, tag string) error {
 func (d *DeploymentV1) Update(id int64, service, log, description string, node int) error {
 	tx := DB.Begin()
 
-	if err := tx.Debug().Where("id = ?", id).First(&d).Error; err != nil {
+	if err := tx.Where("id = ?", id).First(&d).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -125,7 +125,7 @@ func (d *DeploymentV1) Update(id int64, service, log, description string, node i
 func (d *DeploymentV1) UpdateResult(id int64, result bool) error {
 	tx := DB.Begin()
 
-	if err := tx.Debug().Where("id = ?", id).First(&d).Error; err != nil {
+	if err := tx.Where("id = ?", id).First(&d).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -201,9 +201,9 @@ func (i *InfraV1) Update(id int64, master, minion int, log string) error {
 type ComponentV1 struct {
 	ID        int64      `json:"id" yaml:"id"  gorm:"column:id;primary_key"`
 	InfraV1   int64      `json:"infra_v1" yaml:"infra_v1" sql:"not null;default:0" gorm:"column:infra_v1"`
-	Binary    string     `json:"binary" yaml:"binary" sql:"not null;type:varchar(255)" gorm:"column:binary"`
+	Name      string     `json:"name" yaml:"name" sql:"not null;type:varchar(255)" gorm:"column:name"`
 	URL       string     `json:"url" yaml:"url" sql:"not null;type:text" gorm:"column:url"`
-	Package   bool       `json:"package" yaml:"package" sql:"not null;default:false" gorm:"column:package"`
+	Package   bool       `json:"package" yaml:"package" sql:"null;default:false" gorm:"column:package"`
 	Systemd   string     `json:"systemd" yaml:"systemd" sql:"null;type:text" gorm:"column:systemd"`
 	Setting   string     `json:"setting" yaml:"setting" sql:"null;type:text" gorm:"column:setting"`
 	CA        string     `json:"ca" yaml:"ca" sql:"null;type:text" gorm:"column:ca"`
@@ -221,14 +221,14 @@ func (c *ComponentV1) TableName() string {
 
 var componentV1Mutex sync.Mutex
 
-func (c *ComponentV1) Put(infraID int64, binary string) error {
-	c.InfraV1, c.Binary = infraID, binary
+func (c *ComponentV1) Put(infraID int64, binary, url string) error {
+	c.InfraV1, c.Name, c.URL = infraID, binary, url
 
 	componentV1Mutex.Lock()
 	defer componentV1Mutex.Unlock()
 
 	tx := DB.Begin()
-	if err := tx.Debug().Where("infra_v1 = ? AND binary = ?", infraID, binary).FirstOrCreate(&c).Error; err != nil {
+	if err := tx.Where("infra_v1 = ? AND name = ?", infraID, binary).FirstOrCreate(&c).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -243,7 +243,7 @@ func (c *ComponentV1) Update(id int64, url, before, after string, p bool) error 
 	componentV1Mutex.Lock()
 	defer componentV1Mutex.Unlock()
 
-	if err := tx.Debug().Model(&c).Where("id = ?", id).Update(map[string]interface{}{
+	if err := tx.Model(&c).Where("id = ?", id).Update(map[string]interface{}{
 		"url":     url,
 		"before":  before,
 		"after":   after,
