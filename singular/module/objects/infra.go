@@ -21,8 +21,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/Huawei/containerops/singular/model"
 	"gopkg.in/yaml.v2"
+
+	"github.com/Huawei/containerops/singular/model"
 )
 
 //Infra is Singular deploy unit.
