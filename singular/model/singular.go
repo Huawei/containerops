@@ -59,7 +59,7 @@ type DeploymentV1 struct {
 	SingularV1  int64      `json:"singular_v1" yaml:"singular_v1" sql:"not null;default:0" gorm:"column:singular_v1;unique_index:singular_deployment"`
 	Tag         string     `json:"tag" yaml:"tag" sql:"not null;type:varchar(255)" gorm:"column:tag;unique_index:singular_deployment"`
 	Version     int64      `json:"version" yaml:"version" sql:"null;default:0" gorm:"column:version;unique_index:singular_deployment"`
-	Service     string     `json:"service" yaml:"service" sql:"null;type:varchar(255)" gorm:"column:service"`
+	Service     string     `json:"service" yaml:"service" sql:"null;type:text" gorm:"column:service"`
 	Node        int        `json:"node" yaml:"node" sql:"not null;default:0" gorm:"column:node"`
 	Log         string     `json:"log" yaml:"log" sql:"null;type:text" gorm:"column:log"`
 	Description string     `json:"description" yaml:"description" sql:"null;type:text" gorm:"column:description"`
@@ -108,7 +108,7 @@ func (d *DeploymentV1) Update(id int64, service, log, description string, node i
 	deploymentV1Mutex.Lock()
 	defer deploymentV1Mutex.Unlock()
 
-	if err := tx.Debug().Model(&d).Update(map[string]interface{}{
+	if err := tx.Model(&d).Update(map[string]interface{}{
 		"service":     service,
 		"log":         log,
 		"description": description,
@@ -133,7 +133,7 @@ func (d *DeploymentV1) UpdateResult(id int64, result bool) error {
 	deploymentV1Mutex.Lock()
 	defer deploymentV1Mutex.Unlock()
 
-	if err := tx.Debug().Model(&d).Update(map[string]interface{}{
+	if err := tx.Model(&d).Update(map[string]interface{}{
 		"result": result,
 	}).Error; err != nil {
 		tx.Rollback()
@@ -170,7 +170,7 @@ func (i *InfraV1) Put(deploymentID int64, name, version string) error {
 	defer infraV1Mutex.Unlock()
 
 	tx := DB.Begin()
-	if err := tx.Debug().Where("deployment_v1 = ? AND name = ?", deploymentID, name).FirstOrCreate(&i).Error; err != nil {
+	if err := tx.Where("deployment_v1 = ? AND name = ?", deploymentID, name).FirstOrCreate(&i).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -185,7 +185,7 @@ func (i *InfraV1) Update(id int64, master, minion int, log string) error {
 	infraV1Mutex.Lock()
 	defer infraV1Mutex.Unlock()
 
-	if err := tx.Debug().Model(&i).Where("id = ?", id).Update(map[string]interface{}{
+	if err := tx.Model(&i).Where("id = ?", id).Update(map[string]interface{}{
 		"master": master,
 		"minion": minion,
 		"log":    log,
