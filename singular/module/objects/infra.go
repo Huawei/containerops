@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/Huawei/containerops/singular/model"
 	"gopkg.in/yaml.v2"
 )
 
@@ -66,4 +67,70 @@ func (i *Infra) Output(key, value string) {
 	}
 
 	i.Outputs[key] = value
+}
+
+//Save infra deployment data
+func (i *Infra) Save(deployment int64) error {
+	infra := new(model.InfraV1)
+
+	if err := infra.Put(deployment, i.Name, i.Version); err != nil {
+		return err
+	}
+
+	log, _ := i.YAML()
+
+	if err := infra.Update(infra.ID, i.Master, i.Minion, string(log)); err != nil {
+		return err
+	}
+
+	for _, c := range i.Components {
+		if err := c.Save(infra.ID); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+//Component is part of infra
+type Component struct {
+	Binary  string   `json:"binary" yaml:"binary"`
+	URL     string   `json:"url" yaml:"url"`
+	Package bool     `json:"package" yaml:"package"`
+	Systemd string   `json:"systemd" yaml:"systemd"`
+	CA      string   `json:"ca" yaml:"ca"`
+	Before  []string `json:"before" yaml:"before"`
+	After   []string `json:"after" yaml:"after"`
+	Logs    []string `json:"logs,omitempty" yaml:"logs,omitempty"`
+}
+
+//WriteLog implement Logger interface.
+func (c *Component) WriteLog(log string, writer io.Writer, output bool) error {
+	c.Logs = append(c.Logs, log)
+
+	if output == true {
+		if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+//Save component deploy data.
+func (c *Component) Save(infra int64) error {
+	component := new(model.ComponentV1)
+
+	if err := component.Put(infra, c.Binary, c.URL); err != nil {
+		return err
+	}
+
+	before, _ := yaml.Marshal(c.Before)
+	after, _ := yaml.Marshal(c.After)
+
+	if err := component.Update(component.ID, c.URL, string(before), string(after), c.Package); err != nil {
+		return err
+	}
+
+	return nil
 }

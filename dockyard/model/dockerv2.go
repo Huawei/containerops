@@ -21,7 +21,7 @@ import (
 	"time"
 )
 
-// DockerV2
+//DockerV2 save Docker image data which uploading with Docker client follow Docker Distribution protocal
 type DockerV2 struct {
 	ID            int64      `json:"id" gorm:"column:id;primary_key"`
 	Namespace     string     `json:"namespace" sql:"not null;type:varchar(255)"  gorm:"column:namespace;unique_index:dockerv2_repository"`
@@ -38,12 +38,12 @@ type DockerV2 struct {
 	DeletedAt     *time.Time `json:"delete_at" sql:"index" gorm:"column:delete_at"`
 }
 
-// TableName is
+//TableName is table name of DockerV2 model
 func (r *DockerV2) TableName() string {
 	return "docker_v2"
 }
 
-// DockerImageV2 is
+//DockerImageV2 is
 type DockerImageV2 struct {
 	ID              int64      `json:"id" gorm:"primary_key" gorm:"column:id"`
 	ImageID         string     `json:"image_id" sql:"null;type:varchar(255)" gorm:"column:image_id"`
@@ -58,12 +58,12 @@ type DockerImageV2 struct {
 	DeletedAt       *time.Time `json:"delete_at" sql:"index" gorm:"column:delete_at"`
 }
 
-// TableName is
+//TableName is
 func (i *DockerImageV2) TableName() string {
 	return "docker_image_v2"
 }
 
-// DockerTagV2 is
+//DockerTagV2 is
 type DockerTagV2 struct {
 	ID            int64      `json:"id" gorm:"primary_key" gorm:"column:id"`
 	DockerV2      int64      `json:"docker_v2" sql:"not null;default:0" gorm:"column:docker_v2"`
@@ -76,34 +76,35 @@ type DockerTagV2 struct {
 	DeletedAt     *time.Time `json:"delete_at" sql:"index" gorm:"column:delete_at"`
 }
 
-// TableName is
+//TableName is
 func (t *DockerTagV2) TableName() string {
 	return "docker_tag_v2"
 }
 
-// GetTags return tas data of repository.
+//GetTags return tas data of repository.
 func (r *DockerV2) GetTags(namespace, repository string) ([]string, error) {
 	r.Namespace, r.Repository = namespace, repository
 
 	if err := DB.Debug().Where("namespace = ? AND repository = ?", namespace, repository).First(&r).Error; err != nil {
 		return []string{}, err
-	} else {
-		var tags []DockerTagV2
-		result := []string{}
-
-		if err := DB.Debug().Where("docker_v2 = ?", r.ID).Find(&tags).Error; err != nil {
-			return []string{}, err
-		}
-
-		for _, tag := range tags {
-			result = append(result, tag.Tag)
-		}
-
-		return result, nil
 	}
+
+	var tags []DockerTagV2
+	result := []string{}
+
+	if err := DB.Debug().Where("docker_v2 = ?", r.ID).Find(&tags).Error; err != nil {
+		return []string{}, err
+	}
+
+	for _, tag := range tags {
+		result = append(result, tag.Tag)
+	}
+
+	return result, nil
+
 }
 
-// Get is
+//Get is
 func (r *DockerV2) Get(namespace, repository string) error {
 	if err := DB.Debug().Where("namespace = ? AND repository =? ", namespace, repository).First(&r).Error; err != nil {
 		return err
@@ -114,7 +115,7 @@ func (r *DockerV2) Get(namespace, repository string) error {
 
 var dockerv2Mutex sync.Mutex
 
-// Put is
+//Put is
 func (r *DockerV2) Put(namespace, repository string) error {
 	r.Namespace, r.Repository = namespace, repository
 
@@ -131,7 +132,7 @@ func (r *DockerV2) Put(namespace, repository string) error {
 	return nil
 }
 
-// PutAgent is
+//PutAgent is
 func (r *DockerV2) PutAgent(namespace, repository, agent, version string) error {
 	r.Namespace, r.Repository = namespace, repository
 
@@ -151,7 +152,7 @@ func (r *DockerV2) PutAgent(namespace, repository, agent, version string) error 
 	return nil
 }
 
-// Get is
+//Get is
 func (i *DockerImageV2) Get(blobsum string) error {
 	i.BlobSum = blobsum
 
@@ -162,7 +163,7 @@ func (i *DockerImageV2) Get(blobsum string) error {
 	return nil
 }
 
-// Put is
+//Put is
 func (i *DockerImageV2) Put(tarsum, path string, size int64) error {
 	i.BlobSum, i.Path, i.Size = tarsum, path, size
 
@@ -177,7 +178,7 @@ func (i *DockerImageV2) Put(tarsum, path string, size int64) error {
 	return nil
 }
 
-// Get is get DockerTagV2 data
+//Get is get DockerTagV2 data
 func (t *DockerTagV2) Get(namespace, repository, tag string) (*DockerTagV2, error) {
 	r := new(DockerV2)
 
@@ -192,7 +193,7 @@ func (t *DockerTagV2) Get(namespace, repository, tag string) (*DockerTagV2, erro
 	return t, nil
 }
 
-// Put is
+//Put is
 func (t *DockerTagV2) Put(namespace, repository, tag, imageID, manifest, schema string) error {
 	r := new(DockerV2)
 

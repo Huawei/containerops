@@ -193,7 +193,7 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 			if files, err := generateKubeProxyFiles(d, kubeSlaveNodes, infra.Version); err != nil {
 				return err
 			} else {
-				if err := generateKubeProxyConfigFile(&files, d, kubeSlaveNodes, apiServer, stdout, timestamp); err != nil {
+				if err := generateKubeProxyConfigFile(&files, d, kubeSlaveNodes, apiServer); err != nil {
 					return err
 				}
 
@@ -1004,7 +1004,7 @@ func generateKubeProxyFiles(d *objects.Deployment, kubeSlaveNodes []*objects.Nod
 }
 
 //generateKubeProxyConfigFile generate kube-proxy.kubeconfig file.
-func generateKubeProxyConfigFile(files *map[string]map[string]string, d *objects.Deployment, kubeSlaveNodes []*objects.Node, apiServer string, stdout io.Writer, timestamp bool) error {
+func generateKubeProxyConfigFile(files *map[string]map[string]string, d *objects.Deployment, kubeSlaveNodes []*objects.Node, apiServer string) error {
 	kubectl := path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlFile)
 	caFile := path.Join(d.Config, tools.CAFilesFolder, tools.CARootFilesFolder, tools.CARootPemFile)
 
@@ -1021,7 +1021,6 @@ func generateKubeProxyConfigFile(files *map[string]map[string]string, d *objects
 		if err := cmdSetCluster.Run(); err != nil {
 			return err
 		}
-		objects.WriteLog(fmt.Sprintf("generate kube-proxy.kubeconfig file with %s ", cmdSetCluster), stdout, timestamp, d, node)
 
 		cmdSetCredentials := exec.Command(kubectl, "config", "set-credentials", "kube-proxy",
 			fmt.Sprintf("--client-certificate=%s", (*files)[node.IP][tools.CAKubeProxyServerPemFile]),
@@ -1033,7 +1032,6 @@ func generateKubeProxyConfigFile(files *map[string]map[string]string, d *objects
 		if err := cmdSetCredentials.Run(); err != nil {
 			return err
 		}
-		objects.WriteLog(fmt.Sprintf("generate kube-proxy.kubeconfig file with %s ", cmdSetCredentials), stdout, timestamp, d, node)
 
 		cmdSetContext := exec.Command(kubectl, "config", "set-context", "default",
 			fmt.Sprintf("--kubeconfig=%s", config), "--cluster=kubernetes", "--user=kube-proxy")
@@ -1041,7 +1039,6 @@ func generateKubeProxyConfigFile(files *map[string]map[string]string, d *objects
 		if err := cmdSetContext.Run(); err != nil {
 			return err
 		}
-		objects.WriteLog(fmt.Sprintf("generate kube-proxy.kubeconfig file with %s ", cmdSetContext), stdout, timestamp, d, node)
 
 		cmdUseContext := exec.Command(kubectl, "config", "use-context",
 			fmt.Sprintf("--kubeconfig=%s", config),
@@ -1050,7 +1047,6 @@ func generateKubeProxyConfigFile(files *map[string]map[string]string, d *objects
 		if err := cmdUseContext.Run(); err != nil {
 			return err
 		}
-		objects.WriteLog(fmt.Sprintf("generate kube-proxy.kubeconfig file with %s ", cmdUseContext), stdout, timestamp, d, node)
 
 	}
 
