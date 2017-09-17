@@ -1,5 +1,27 @@
 #!/bin/sh
 
+cat > ../ca/cluster-root-ca-csr.json <<EOF
+{
+  "CN": "cluster-root-ca",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "BeiJing",
+      "L": "BeiJing",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}
+EOF
+
+cfssl gencert -initca ../ca/cluster-root-ca-csr.json | cfssljson -bare ../ca/cluster-root-ca
+
+
 cat > ../ca/etcd-ca-config.json <<EOF
 {
     "signing": {
@@ -37,271 +59,68 @@ cat > ../ca/etcd-ca-config.json <<EOF
 }
 EOF
 
-cat > ../ca/etcd-server-00-ca.json <<EOF
+
+cat > ../ca/etcd-server-csr.json <<EOF
 {
-    "CN": "etcd-server-00",
-    "hosts": ["10.138.48.164"],
+    "CN": "server",
+    "hosts": [
+      "10.138.48.164",
+      "10.138.232.252",
+      "10.138.24.24"
+    ],
     "key": {
         "algo": "rsa",
         "size": 2048
     },
     "names": [
         {
-          "C": "CN",
-          "ST": "BeiJing",
-          "L": "BeiJing",
-          "O": "k8s",
-          "OU": "System"
+            "C": "CN",
+            "ST": "BeiJing",
+            "L": "BeiJing",
+            "O": "k8s",
+            "OU": "cloudnative"
         }
     ]
 }
 EOF
 
-cat > ../ca/etcd-server-01-ca.json <<EOF
+cfssl gencert \
+-ca=../ca/cluster-root-ca.pem \
+-ca-key=../ca/cluster-root-ca-key.pem \
+-config=../ca/etcd-ca-config.json \
+-profile=server ../ca/etcd-server-csr.json | cfssljson -bare ../ca/etcd-server
+
+
+cat > ../ca/etcd-peer-csr.json <<EOF
 {
-    "CN": "etcd-server-01",
-    "hosts": ["10.138.232.252"],
+    "CN": "peer",
+    "hosts": [
+      "10.138.48.164",
+      "10.138.232.252",
+      "10.138.24.24"
+    ],
     "key": {
         "algo": "rsa",
         "size": 2048
     },
     "names": [
         {
-          "C": "CN",
-          "ST": "BeiJing",
-          "L": "BeiJing",
-          "O": "k8s",
-          "OU": "System"
+            "C": "CN",
+            "ST": "BeiJing",
+            "L": "BeiJing",
+            "O": "k8s",
+            "OU": "cloudnative"
         }
     ]
 }
 EOF
 
-cat > ../ca/etcd-server-02-ca.json <<EOF
-{
-    "CN": "etcd-server-02",
-    "hosts": ["10.138.24.24"],
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-          "C": "CN",
-          "ST": "BeiJing",
-          "L": "BeiJing",
-          "O": "k8s",
-          "OU": "System"
-        }
-    ]
-}
-EOF
+
 
 cfssl gencert \
-    -ca=../ca/etcd-root-ca.pem \
-    -ca-key=../ca/etcd-root-ca-key.pem \
-    -config=../ca/etcd-ca-config.json \
-    -profile=server ../ca/etcd-server-00-ca.json \
-    | cfssljson -bare ../ca/etcd-server-00-ca
-
-cfssl gencert \
-    -ca=../ca/etcd-root-ca.pem \
-    -ca-key=../ca/etcd-root-ca-key.pem \
-    -config=../ca/etcd-ca-config.json \
-    -profile=server ../ca/etcd-server-01-ca.json \
-    | cfssljson -bare ../ca/etcd-server-01-ca
-
-cfssl gencert \
-    -ca=../ca/etcd-root-ca.pem \
-    -ca-key=../ca/etcd-root-ca-key.pem \
-    -config=../ca/etcd-ca-config.json \
-    -profile=server ../ca/etcd-server-02-ca.json \
-    | cfssljson -bare ../ca/etcd-server-02-ca
-
-cat > ../ca/etcd-peer-00-ca.json <<EOF
-{
-    "CN": "etcd-peer-00",
-    "hosts": ["10.138.48.164"],
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-          "C": "CN",
-          "ST": "BeiJing",
-          "L": "BeiJing",
-          "O": "k8s",
-          "OU": "System"
-        }
-    ]
-}
-EOF
-
-cat > ../ca/etcd-peer-01-ca.json <<EOF
-{
-    "CN": "etcd-peer-01",
-    "hosts": ["10.138.232.252"],
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-          "C": "CN",
-          "ST": "BeiJing",
-          "L": "BeiJing",
-          "O": "k8s",
-          "OU": "System"
-        }
-    ]
-}
-EOF
-
-cat > ../ca/etcd-peer-02-ca.json <<EOF
-{
-    "CN": "etcd-peer-02",
-    "hosts": ["10.138.24.24"],
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-          "C": "CN",
-          "ST": "BeiJing",
-          "L": "BeiJing",
-          "O": "k8s",
-          "OU": "System"
-        }
-    ]
-}
-EOF
-
-cfssl gencert \
-    -ca=../ca/etcd-root-ca.pem \
-    -ca-key=../ca/etcd-root-ca-key.pem \
-    -config=../ca/etcd-ca-config.json \
-    -profile=peer ../ca/etcd-peer-00-ca.json \
-    | cfssljson -bare ../ca/etcd-peer-00-ca
-
-cfssl gencert \
-    -ca=../ca/etcd-root-ca.pem \
-    -ca-key=../ca/etcd-root-ca-key.pem \
-    -config=../ca/etcd-ca-config.json \
-    -profile=peer ../ca/etcd-peer-01-ca.json \
-    | cfssljson -bare ../ca/etcd-peer-01-ca
-
-cfssl gencert \
-    -ca=../ca/etcd-root-ca.pem \
-    -ca-key=../ca/etcd-root-ca-key.pem \
-    -config=../ca/etcd-ca-config.json \
-    -profile=peer ../ca/etcd-peer-02-ca.json \
-    | cfssljson -bare ../ca/etcd-peer-02-ca
-
-
-cat > ../ca/etcd-client-calico-ca.json <<EOF
-{
-    "CN": "etcd-client-calico",
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-          "C": "CN",
-          "ST": "BeiJing",
-          "L": "BeiJing",
-          "O": "k8s",
-          "OU": "System"
-        }
-    ]
-}
-EOF
-
-cfssl gencert \
-    -ca=../ca/etcd-root-ca.pem \
-    -ca-key=../ca/etcd-root-ca-key.pem \
-    -config=../ca/etcd-ca-config.json \
-    -profile=client ../ca/etcd-client-calico-ca.json \
-    | cfssljson -bare ../ca/etcd-client-calico-ca
-
-cat > ../ca/etcd-client-kubernetes-ca.json <<EOF
-{
-    "CN": "etcd-client-kubernetes",
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-          "C": "CN",
-          "ST": "BeiJing",
-          "L": "BeiJing",
-          "O": "k8s",
-          "OU": "System"
-        }
-    ]
-}
-EOF
-
-cfssl gencert \
-    -ca=../ca/etcd-root-ca.pem \
-    -ca-key=../ca/etcd-root-ca-key.pem \
-    -config=../ca/etcd-ca-config.json \
-    -profile=client ../ca/etcd-client-kubernetes-ca.json \
-    | cfssljson -bare ../ca/etcd-client-kubernetes-ca
-
-cat > ../ca/etcd-client-kubedns-ca.json <<EOF
-{
-    "CN": "etcd-client-kubedns",
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-          "C": "CN",
-          "ST": "BeiJing",
-          "L": "BeiJing",
-          "O": "k8s",
-          "OU": "System"
-        }
-    ]
-}
-EOF
-
-cfssl gencert \
-    -ca=../ca/etcd-root-ca.pem \
-    -ca-key=../ca/etcd-root-ca-key.pem \
-    -config=../ca/etcd-ca-config.json \
-    -profile=client ../ca/etcd-client-kubedns-ca.json \
-    | cfssljson -bare ../ca/etcd-client-kubedns-ca
-
-cat > ../ca/etcd-client-other-general-ca.json <<EOF
-{
-    "CN": "etcd-client-other-general",
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-          "C": "CN",
-          "ST": "BeiJing",
-          "L": "BeiJing",
-          "O": "k8s",
-          "OU": "System"
-        }
-    ]
-}
-EOF
-
-cfssl gencert \
-    -ca=../ca/etcd-root-ca.pem \
-    -ca-key=../ca/etcd-root-ca-key.pem \
-    -config=../ca/etcd-ca-config.json \
-    -profile=client ../ca/etcd-client-other-general-ca.json \
-    | cfssljson -bare ../ca/etcd-client-other-general-ca
+-ca=../ca/cluster-root-ca.pem \
+-ca-key=../ca/cluster-root-ca-key.pem \
+-config=../ca/etcd-ca-config.json \
+-profile=peer ../ca/etcd-peer-csr.json | cfssljson -bare ../ca/etcd-peer
 
 

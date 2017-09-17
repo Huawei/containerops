@@ -1,5 +1,6 @@
 #!/bin/sh
 
+
 cat > ../ca/kube-apiserver-ca-config.json <<EOF
 {
     "signing": {
@@ -106,23 +107,24 @@ cat > ../ca/kube-apiserver-02-ca.json <<EOF
 EOF
 
 cfssl gencert \
-    -ca=../ca/kubernetes-root-ca.pem \
-    -ca-key=../ca/kubernetes-root-ca-key.pem \
+    -ca=../ca/cluster-root-ca.pem \
+    -ca-key=../ca/cluster-root-ca-key.pem \
     -config=../ca/kube-apiserver-ca-config.json \
     -profile=kube-apiserver ../ca/kube-apiserver-00-ca.json \
     | cfssljson -bare ../ca/kube-apiserver-00-ca
 
 cfssl gencert \
-    -ca=../ca/kubernetes-root-ca.pem \
-    -ca-key=../ca/kubernetes-root-ca-key.pem \
+    -ca=../ca/cluster-root-ca.pem \
+    -ca-key=../ca/cluster-root-ca-key.pem \
     -config=../ca/kube-apiserver-ca-config.json \
     -profile=kube-apiserver ../ca/kube-apiserver-01-ca.json \
     | cfssljson -bare ../ca/kube-apiserver-01-ca
 
 cfssl gencert \
-    -ca=../ca/kubernetes-root-ca.pem \
-    -ca-key=../ca/kubernetes-root-ca-key.pem \
+    -ca=../ca/cluster-root-ca.pem \
+    -ca-key=../ca/cluster-root-ca-key.pem \
     -config=../ca/kube-apiserver-ca-config.json \
     -profile=kube-apiserver ../ca/kube-apiserver-02-ca.json \
     | cfssljson -bare ../ca/kube-apiserver-02-ca
+
 
