@@ -73,6 +73,18 @@ func init() {
 	viper.BindPFlag("output", templateCmd.Flags().Lookup("output"))
 	viper.BindPFlag("db", templateCmd.Flags().Lookup("db"))
 	viper.BindPFlag("delete", templateCmd.Flags().Lookup("del"))
+
+	folderCmd.Flags().StringVarP(&privateKey, "private-key", "i", "", "ssh identity file")
+	folderCmd.Flags().StringVarP(&publicKey, "public-key", "p", "", "ssh public identity file")
+	folderCmd.Flags().StringVarP(&output, "output", "o", "", "output data folder")
+	folderCmd.Flags().BoolVarP(&db, "db", "d", false, "save deploy data in database.")
+	folderCmd.Flags().BoolVarP(&del, "delete", "r", false, "del the nodes when deploy and test done.")
+
+	viper.BindPFlag("private-key", folderCmd.Flags().Lookup("private-key"))
+	viper.BindPFlag("public-key", folderCmd.Flags().Lookup("public-key"))
+	viper.BindPFlag("output", folderCmd.Flags().Lookup("output"))
+	viper.BindPFlag("db", folderCmd.Flags().Lookup("db"))
+	viper.BindPFlag("delete", folderCmd.Flags().Lookup("del"))
 }
 
 //Deploy the Cloud Native stack with a template file.
@@ -145,10 +157,10 @@ func folderDeploy(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	if files, err := utils.WalkDir(args[0], "*.yml"); err != nil {
+	if files, err := utils.WalkDir(args[0], "yml"); err != nil {
 		fmt.Fprintf(os.Stderr, err.Error())
 		os.Exit(1)
-	} else {
+	} else {	
 		for _, file := range files {
 			if utils.IsFileExist(file) == false {
 				fmt.Fprintf(os.Stderr, "the %s file is not exist\n", file)

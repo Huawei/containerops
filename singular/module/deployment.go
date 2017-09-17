@@ -105,8 +105,8 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 			}
 
 			//Prepare droplet prefix name and tags
-			namespace, repository, name, _ := d.URIs()
-			tags := []string{namespace, repository, name, fmt.Sprintf("version-%d", d.Version), d.Tag}
+			namespace, repository, _, _ := d.URIs()
+			tags := []string{namespace, repository, d.Tag}
 			objects.WriteLog(fmt.Sprintf("Droplets tag is %v", tags), stdout, timestamp, d, &do)
 
 			//Create DigitalOcean Droplets
