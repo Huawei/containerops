@@ -1,40 +1,27 @@
-uri: containerops/singular/deploy-with-local-binary-files
-title: Deploy Kubernetes With Local Binary Files
-version: 1
+uri: containerops/singular/etcd-3.2.3-flanneld-0.7.1-docker-17.04.0-ce-k8s-1.6.7
+title: Deploy Kubernetes With etcd-3.2.3 flanneld-0.7.1 docker-17.04.0-ce k8s-1.6.7
 tag: latest
-nodes:
-  -
-    ip: 138.68.226.204
-    user: root
-    distro: ubuntu
-  -
-    ip: 138.68.247.128
-    user: root
-    distro: ubuntu
-  -
-    ip: 165.227.4.126
-    user: root
-    distro: ubuntu
-tools:
-  ssh:
-    private: /root/.ssh/id_rsa
-    public: /root/.ssh/id_rsa.pub
+service:
+  region: sfo2
+  size: 4gb
+  image: ubuntu-17-04-x64
+  nodes: 3
 infras:
   -
     name: etcd
-    version: etcd-3.2.2
+    version: etcd-3.2.3
     master: 3
     minion: 0
     components:
       -
         binary: etcd
-        url: /root/library/etcd/3.2.2/etcd
+        url: https://binary.nyc3.digitaloceanspaces.com/etcd/3.2.3/etcd
         package: false
-        systemd: etcd-3.2.2
-        ca: etcd-3.2.2
+        systemd: etcd-3.2.3
+        ca: etcd-3.2.3
       -
         binary: etcdctl
-        url: /root/library/etcd/3.2.2/etcdctl
+        url: https://binary.nyc3.digitaloceanspaces.com/etcd/3.2.3/etcdctl
         package: false
   -
     name: flannel
@@ -46,7 +33,7 @@ infras:
     components:
       -
         binary: flanneld
-        url: /root/libary/flannel/0.7.1/flanneld
+        url: https://binary.nyc3.digitaloceanspaces.com/flannel/0.7.1/flanneld
         package: false
         systemd: flannel-0.7.1
         ca: flannel-0.7.1
@@ -54,7 +41,7 @@ infras:
           - "etcdctl --endpoints={{.Nodes}} --ca-file=/etc/kubernetes/ssl/ca.pem --cert-file=/etc/flanneld/ssl/flanneld.pem --key-file=/etc/flanneld/ssl/flanneld-key.pem set /kubernetes/network/config '{\"Network\":\"'172.30.0.0/16'\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\"}}'"
       -
         binary: mk-docker-opts.sh
-        url: /root/libary/flannel/0.7.1/mk-docker-opts.sh
+        url: https://binary.nyc3.digitaloceanspaces.com/flannel/0.7.1/mk-docker-opts.sh
         package: false
   -
     name: docker
@@ -66,7 +53,7 @@ infras:
     components:
       -
         binary: docker
-        url: /root/library/docker/17.04.0-ce/docker
+        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker
         package: false
         systemd: docker-17.04.0-ce
         before:
@@ -78,31 +65,31 @@ infras:
           - "iptables -w -P FORWARD ACCEPT"
       -
         binary: dockerd
-        url: /root/library/docker/17.04.0-ce/dockerd
+        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/dockerd
         package: false
       -
         binary: docker-init
-        url: /root/library/docker/17.04.0-ce/docker-init
+        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker-init
         package: false
       -
         binary: docker-proxy
-        url: /root/library/docker/17.04.0-ce/docker-proxy
+        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker-proxy
         package: false
       -
         binary: docker-runc
-        url: /root/library/docker/17.04.0-ce/docker-runc
+        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker-runc
         package: false
       -
         binary: docker-containerd
-        url: /root/library/docker/17.04.0-ce/docker-containerd
+        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker-containerd
         package: false
       -
         binary: docker-containerd-ctr
-        url: /root/library/docker/17.04.0-ce/docker-containerd-ctr
+        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker-containerd-ctr
         package: false
       -
         binary: docker-containerd-shim
-        url: /root/library/docker/17.04.0-ce/docker-containerd-shim
+        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker-containerd-shim
         package: false
   -
     name: kubernetes
@@ -116,33 +103,33 @@ infras:
     components:
       -
         binary: kube-apiserver
-        url: /root/library/kubernetes/1.6.7/kube-apiserver
+        url: https://binary.nyc3.digitaloceanspaces.com/kubernetes/1.6.7/kube-apiserver
         package: false
         systemd: kube-apiserver-1.6.7
         ca: kubernetes-1.6.7
       -
         binary: kube-controller-manager
-        url: /root/library/kubernetes/1.6.7/kube-controller-manager
+        url: https://binary.nyc3.digitaloceanspaces.com/kubernetes/1.6.7/cloud-controller-manager
         package: false
         systemd: kube-controller-manager-1.6.7
         ca: kubernetes-1.6.7
       -
         binary: kube-scheduler
-        url: /root/library/kubernetes/1.6.7/kube-scheduler
+        url: https://binary.nyc3.digitaloceanspaces.com/kubernetes/1.6.7/kube-scheduler
         package: false
         systemd: kube-scheduler-1.6.7
       -
         binary: kubectl
-        url: /root/library/kubernetes/1.6.7/kubectl
+        url: https://binary.nyc3.digitaloceanspaces.com/kubernetes/1.6.7/kubectl
         package: false
       -
         binary: kubelet
-        url: /root/library/kubernetes/1.6.7/kubelet
+        url: https://binary.nyc3.digitaloceanspaces.com/kubernetes/1.6.7/kubelet
         package: false
         systemd: kubelet-1.6.7
       -
         binary: kube-proxy
-        url: /root/library/kubernetes/1.6.7/kube-proxy
+        url: https://binary.nyc3.digitaloceanspaces.com/kubernetes/1.6.7/kube-proxy
         package: false
         systemd: kube-proxy-1.6.7
         ca: kube-proxy-1.6.7
