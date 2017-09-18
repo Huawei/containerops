@@ -82,13 +82,17 @@ func (d *DeploymentV1) Put(singularV1 int64, tag string) error {
 	deploymentV1Mutex.Lock()
 	defer deploymentV1Mutex.Unlock()
 
+	var count int64
+
 	tx := DB.Begin()
-	if err := tx.Where("singular_v1 = ? AND tag = ?", singularV1, tag).FirstOrCreate(&d).Error; err != nil {
+	if err := tx.Model(&DeploymentV1{}).Where("singular_v1 = ? AND tag = ?", singularV1, tag).Count(&count).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	if err := tx.Model(&d).Updates(map[string]int64{"version": d.Version + 1}).Error; err != nil {
+	d.Version = count + 1
+
+	if err := tx.Where("singular_v1 = ? AND tag = ? AND version = ?", singularV1, tag, count+1).FirstOrCreate(&d).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
