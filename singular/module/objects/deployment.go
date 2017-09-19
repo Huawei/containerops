@@ -50,6 +50,7 @@ type Deployment struct {
 	Description string                 `json:"description" yaml:"description"`
 	Short       string                 `json:"short" yaml:"short"`
 	Logs        []string               `json:"logs,omitempty" yaml:"logs,omitempty"`
+	Template    string                 `json:"template" yaml:"template"`
 	Config      string                 `json:"-" yaml:"-"`
 	Outputs     map[string]interface{} `json:"-" yaml:"-"`
 }
@@ -79,6 +80,7 @@ func (d *Deployment) ParseFromFile(t string, output string) error {
 
 		//Set configs value
 		d.Namespace, d.Repository, d.Name, _ = d.URIs()
+		d.Template = string(data)
 		if d.Config, err = initConfigPath(d.Namespace, d.Repository, d.Name, output, d.Version); err != nil {
 			return err
 		}
@@ -183,7 +185,7 @@ func (d *Deployment) Save() error {
 	s, _ := d.Service.YAML()
 	log, _ := yaml.Marshal(d.Logs)
 
-	if err := deploy.Update(deploy.ID, string(s), string(log), d.Description, len(d.Nodes)); err != nil {
+	if err := deploy.Update(deploy.ID, string(s), string(log), d.Description, len(d.Nodes), d.Template); err != nil {
 		return err
 	}
 

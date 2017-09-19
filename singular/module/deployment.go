@@ -34,7 +34,7 @@ const (
 	InfraEtcd = "etcd"
 	//InfraFlannel is Flannel flg
 	InfraFlannel = "flannel"
-	//InfraDocker is Docekr flag
+	//InfraDocker is Docker flag
 	InfraDocker = "docker"
 	//InfraKubernetes is Kubernetes flag
 	InfraKubernetes = "kubernetes"
