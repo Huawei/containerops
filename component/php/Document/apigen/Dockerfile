@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM hub.opshub.sh/binary/v1/containerops/component/binary/php:0.1
+FROM hub.opshub.sh/containerops/php:latest
 MAINTAINER Yang Bin <yangkghjh@gmail.com>
 
 USER root

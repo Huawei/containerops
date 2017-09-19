@@ -3,13 +3,13 @@
 ## Build
 
 ```shell
-docker build -t hub.opshub.sh/binary/v1/containerops/component/binary/php/phar:0.1 .
+docker build -t hub.opshub.sh/containerops/compile-php-phar:latest .
 ```
 
 ## Run
 
 ```shell
-docker run --env CO_DATA="git-url=https://github.com/SegmentFault/phar-sample.git entry-file=build.php" hub.opshub.sh/binary/v1/containerops/component/binary/php/phar:0.1
+docker run --env CO_DATA="git-url=https://github.com/SegmentFault/phar-sample.git entry-file=build.php" hub.opshub.sh/containerops/compile-php-phar:latest
 ```
 
 ## Options
@@ -24,5 +24,5 @@ Optional:
 - composer
 
 ```shell
-composer=true/false 
+composer=true/false
 ```
