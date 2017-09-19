@@ -185,7 +185,17 @@ func (d *Deployment) Save() error {
 	s, _ := d.Service.YAML()
 	log, _ := yaml.Marshal(d.Logs)
 
-	if err := deploy.Update(deploy.ID, string(s), string(log), d.Description, len(d.Nodes), d.Template); err != nil {
+	files := map[string]string{}
+	for _, key := range []string{tools.CARootConfigFile, tools.CARootCSRConfigFile, tools.CARootPemFile, tools.CARootCSRFile, tools.CARootKeyFile} {
+		if data, err := ioutil.ReadFile(d.Outputs[key].(string)); err != nil {
+			return err
+		} else {
+			files[key] = string(data)
+		}
+	}
+	caData, _ := yaml.Marshal(files)
+
+	if err := deploy.Update(deploy.ID, string(s), string(log), d.Description, len(d.Nodes), d.Template, string(caData)); err != nil {
 		return err
 	}
 

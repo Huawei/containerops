@@ -64,6 +64,7 @@ type DeploymentV1 struct {
 	Log         string     `json:"log" yaml:"log" sql:"null;type:text" gorm:"column:log"`
 	Description string     `json:"description" yaml:"description" sql:"null;type:text" gorm:"column:description"`
 	Data        string     `json:"data" yaml:"data" sql:"null;type:text" gorm:"column:data"`
+	CA          string     `json:"ca" yaml:"ca" sql:"null;type:text" gorm:"column:ca"`
 	Result      bool       `json:"result" yaml:"result" sql:"null" gorm:"column:result"`
 	CreatedAt   time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
 	UpdatedAt   time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
@@ -101,7 +102,7 @@ func (d *DeploymentV1) Put(singularV1 int64, tag string) error {
 	return nil
 }
 
-func (d *DeploymentV1) Update(id int64, service, log, description string, node int, data string) error {
+func (d *DeploymentV1) Update(id int64, service, log, description string, node int, data, ca string) error {
 	tx := DB.Begin()
 
 	if err := tx.Where("id = ?", id).First(&d).Error; err != nil {
@@ -118,6 +119,7 @@ func (d *DeploymentV1) Update(id int64, service, log, description string, node i
 		"description": description,
 		"node":        node,
 		"data":        data,
+		"ca":          ca,
 	}).Error; err != nil {
 		tx.Rollback()
 		return err
@@ -157,6 +159,7 @@ type InfraV1 struct {
 	Master       int        `json:"master" yaml:"master" sql:"not null" gorm:"column:master"`
 	Minion       int        `json:"minion" yaml:"minion" sql:"not null" gorm:"column:minion"`
 	Log          string     `json:"log" yaml:"log" sql:"null;type:text" gorm:"column:log"`
+	CA           string     `json:"ca" yaml:"ca" sql:"null;type:text" gorm:"column:ca"`
 	CreatedAt    time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
 	UpdatedAt    time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
 	DeletedAt    *time.Time `json:"delete_at" sql:"index" gorm:"column:delete_at"`
