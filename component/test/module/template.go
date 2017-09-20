@@ -7,16 +7,12 @@ import (
 	"fmt"
 )
 
-	var filename = "./output.yml"
-	var tphead = "./ext/head.yml"
-	var tpaction = "./ext/action.yml"
-	var tpfoot = "./ext/foot.yml"
+	var poutput = "./output.yml"
+	var tphead = "./module/head.yml"
+	var tpaction = "./module/action.yml"
+	var tpfoot = "./module/foot.yml"
 
 func Buildtp(value string) {
-		var poutput = "./output.yml"
-		var tphead = "./head.yml"
-		var tpaction = "./action.yml"
-		var tpfoot = "./foot.yml"
 		bhead := ReadFile(tphead)
 		baction := ReadFile(tpaction)
 		bfoot := ReadFile(tpfoot)

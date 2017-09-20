@@ -73,10 +73,10 @@ func UploadBinaryFile(filePath, url string) error {
 						fmt.Println(resp.StatusCode)
 						fmt.Println(resp.Header)
 						fmt.Println(body)
-						var jsonobj ext.Image 
-						jsonobj = ext.Json2obj(body.String())
+						var jsonobj module.Image 
+						jsonobj = module.Json2obj(body.String())
 						fmt.Println(jsonobj)
-						ext.Buildtp(jsonobj.Endpoint)
+						module.Buildtp(jsonobj.Endpoint)
 
 						return nil
 					}
