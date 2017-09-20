@@ -8,7 +8,6 @@ RUN git clone https://github.com/Huawei/containerops.git
 RUN cd containerops/component/
 ADD main.go main.go
 ADD module module
-ADD component_dir component_dir
 COPY  dir_reader.sh dir_reader.sh
 RUN ./component-auto-ci.sh
 
