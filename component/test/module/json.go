@@ -1,4 +1,4 @@
-package ext
+package module
 
 import (
 	"encoding/json"
@@ -9,7 +9,6 @@ type Image struct {
 	Endpoint string
 }
 
-//{"endpoint":"hub.opshub.sh/containerops/test-java-gradle-test:latest"}
 func Json2obj(jsonstring string) (obj Image) {
 	
 	Obj := Image{}

@@ -1,4 +1,4 @@
-package ext
+package module
 
 import (
 	"os"
@@ -28,7 +28,7 @@ func ReadFile(readf string) ([]byte){
 	
 func WriteFile(outputb []byte,outputf string) {
 
-	err := ioutil.WriteFile(outputf,outputb, 0666)  //写入文件(字节数组)
+	err := ioutil.WriteFile(outputf,outputb, 0666)  
 	check(err)
 	
 }
