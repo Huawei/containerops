@@ -78,9 +78,9 @@ func (i *Infra) Save(deployment int64) error {
 		return err
 	}
 
-	log, _ := i.YAML()
+	log, _ := yaml.Marshal(i.Logs)
 
-	if err := infra.Update(infra.ID, i.Master, i.Minion, string(log)); err != nil {
+	if err := infra.Update(infra.ID, i.Master, i.Minion, string(log), "", "", ""); err != nil {
 		return err
 	}
 

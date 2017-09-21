@@ -33,7 +33,7 @@ func SetConfig(cfgFile string) error {
 		// Find home directory.
 		home, err := homeDir.Dir()
 		if err != nil {
-			return fmt.Errorf("Read $HOME envrionment error: %s", err.Error())
+			return fmt.Errorf("read $HOME envrionment error: %s", err.Error())
 		}
 
 		// Search config in home directory with name "containerops" (with extension .toml).
@@ -48,7 +48,7 @@ func SetConfig(cfgFile string) error {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	if err := viper.ReadInConfig(); err != nil {
-		return fmt.Errorf("Fatal error config file: %s", err.Error())
+		return fmt.Errorf("fatal error config file: %s", err.Error())
 	}
 
 	if err := setDatabaseConfig(viper.GetStringMap("database")); err != nil {
@@ -129,7 +129,8 @@ domain = "hub.opshub.sh"
 # 5. Configurations for Singular modules.
 
 [singular]
-
+provider = "digitalocean"
+token = "435a054fba66cb11d6b7abeaa3d89aac777d4d1d"
 */
 
 type DatabaseConfig struct {
