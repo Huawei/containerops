@@ -27,12 +27,20 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
+var InfraOrder []string = []string{"etcd", "flannel", "docker", "kubernetes", "rkt"}
+
 func GetIndexPageV1Handler(ctx *macaron.Context) {
 	funcs := template.FuncMap{
-		"component_names": controller.StringifyComponentsNames,
+		// "component_names": controller.StringifyComponentsNames,
+		"component_names": func(args ...interface{}) (string, error) {
+			return "hello", nil
+		},
+		"inc": func(i int) int {
+			return i + 1
+		},
 	}
 
-	deployments, err := controller.GetHtmlDeploymentList()
+	deployments, err := controller.GetHtmlDeploymentList(InfraOrder)
 	if err != nil {
 		log.Errorf("Failed to get deployment list: %s", err.Error())
 		ctx.Resp.WriteHeader(http.StatusInternalServerError)
@@ -47,7 +55,11 @@ func GetIndexPageV1Handler(ctx *macaron.Context) {
 		return
 	}
 
-	err = listTmpl.Execute(ctx.Resp, deployments)
+	renderData := map[string]interface{}{
+		"order":       InfraOrder,
+		"deployments": deployments,
+	}
+	err = listTmpl.Execute(ctx.Resp, renderData)
 	if err != nil {
 		log.Error(err)
 		return

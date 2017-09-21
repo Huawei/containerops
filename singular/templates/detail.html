@@ -5,86 +5,135 @@
     <!--Import Google Icon Font-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!--Import materialize.css-->
-    <link type="text/css" rel="stylesheet" href="public/css/materialize.min.css" media="screen,projection" />
+    <link type="text/css" rel="stylesheet" href="public/css/materialize.min.css" media="screen,projection"
+    />
+
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style type="text/css">
-    .terminal {
-        background-color: black;
-        color: #55ff55;
-        font-family: monospace;
-        padding-top: 5px;
-        padding-left: 5px;
-        display: inline-block;
-        max-height: 400px;
-        overflow: auto;
-        width: 100%;
-        white-space: nowrap;
-    }
+        .terminal {
+            background-color: black;
+            color: #55ff55;
+            font-family: monospace;
+            padding-top: 5px;
+            padding-left: 5px;
+            display: inline-block;
+            max-height: 400px;
+            overflow: auto;
+            width: 100%;
+            white-space: nowrap;
+        }
+        
+        .clickable {
+            cursor: pointer;
+        }
+        
+        .source-code {
+            font-family: monospace;
+            font-size: 12px;
+            padding-left: 10px;
+            padding-top: 10px;
+            background-color: #eeeeee;
+        }
     </style>
 </head>
 
 <body>
     <header class="page-footer blue" style="padding-top:10px; padding-left:20px">
         <div class="container" style="padding-bottom:10px">
-            <h2>Deployment</h2>
+            <h2>{{.SingularName}}</h2>
+            <h4>{{.Tag}} : {{.Version}}</h4>
         </div>
     </header>
+
     <div class="container">
-        <div class="card-panel green-text">
-			<span class="valign-wrapper">
-				<i class="material-icons"><img src="{{.InfraLogo}}" style="width:50px; height:50px; margin-right: 20px"/></i>
-			<h5>{{.InfraName}}</h5>
-			</span>
-		</div>
-        <div class="terminal">{{.InfraLog}}</div>
-        <!-- <div class="card-panel blue-text">{{.InfraLog}}</div> -->
-        <ul class="collapsible" data-collapsible="accordion">
-            {{range .Components}}
-            <li>
-                <div class="collapsible-header active">
-                    <i class="material-icons"><img src="{{.ImageSrc}}" style="width:{{.Width}}px; height:{{.Height}}px"/></i>
-                    <div class="valign-wrapper">{{.Name}}</div>
+        <div class="row">
+            <div class="col s3">
+                <ul class="tabs">
+                    {{range .Infras}}
+                    <li class="tab col s3">
+                        <a href="#{{.Name}}"><img src="{{.Logo}}" style="width:30px;height:30px;margin-top:15px;margin-bottom:10px"
+                            /></a>
+                    </li>
+                    {{end}}
+                </ul>
+            </div>
+
+            <div class="col s3" style="padding-top: 17px">
+                <span class="modal-trigger" href="#yamlModal"><i class="material-icons green-text clickable">insert_drive_file</i><span class="clickable">YAML</span></span>
+                <span style="margin-left: 20px"><i class="material-icons green-text clickable">lock</i><span class="clickable">CA files</span></span>
+                <span style="margin-left: 20px" class="modal-trigger" href="#logModal"><i class="material-icons green-text clickable">insert_drive_file</i><span class="clickable">Logs</span></span>
+            </div>
+
+            <div id="yamlModal" class="modal top">
+                <div class="modal-header right">
+                    <a href="#!" class="modal-action waves-effect waves-green btn">COPY(TBD)</a>
                 </div>
-                <div class="collapsible-body"><span class="terminal">{{.Log}}</span></div>
-            </li>
-            {{end}}
-        </ul>
+				<div style="display: inline-block; max-height: 600px; overflow: auto; width: 100%; white-space: nowrap;">
+                    <pre>
+					<p class="source-code">{{.Data}}</p>
+					</pre>
+                </div>
+            </div>
+
+            <div id="logModal" class="modal top">
+                <div class="modal-header right">
+                    <!-- <a href="#!" class="modal-action modal-close waves-effect waves-green btn">CLOSE</a> -->
+                </div>
+                <div class="modal-content">
+                    <span class="terminal">{{.Log}}</span>
+                </div>
+            </div>
+
+
+            <!-- <div> -->
+            <!--     <span><i class="material-icons">insert_drive_file</i>yaml</span> -->
+            <!--     <span style="margin-left: 50px"><i class="material-icons">lock</i>CA files</span> -->
+            <!-- </div> -->
+
+            <div style="margin-top: 50px">
+
+
+                {{range .Infras}}
+                <div id="{{.Name}}" class="col s12">
+                    <ul class="collapsible" data-collapsible="accordion">
+                        {{range .Components}}
+                        <li>
+                            <div class="collapsible-header">
+                                <i class="material-icons blue-text">settings</i>
+                                <div class="valign-wrapper">{{.Name}}</div>
+                            </div>
+                            <div class="collapsible-body"><span class="terminal">{{.Log}}</span></div>
+                        </li>
+                        {{end}}
+                    </ul>
+                </div>
+                {{end}}
+            </div>
+        </div>
+
     </div>
-    
-    <footer class="page-footer blue" style="padding-bottom: 38px">
-		<div class="container">
-			<span class="right">
+    <footer class="page-footer blue" style="padding-bottom: 25px; position: fixed; left: 0px; right: 0px; bottom: 0px">
+        <div class="container">
+            <span class="right">
 				<a class="grey-text text-lighten-4" href="https://github.com/Huawei/containerops">
 					<img src="public/icons/github.svg" style="width:20px; height:20px" />
 					<div class="right" style="margin-left: 5px"> ContainerOps </div>
 				</a>
 			</span>
-		</div>
-	</footer>
-    <!-- <footer class="page-footer"> -->
-	<!--     <div class="container"> -->
-	<!--         <div class="row"> -->
-	<!--             <div class="white-text"> -->
-	<!--                 This result is powered by ContainerOps -->
-	<!--             </div> -->
-	<!--         </div> -->
-	<!--     </div> -->
-    <!--     <div class="footer-copyright"> -->
-    <!--         <div class="container"> -->
-    <!--             <span class="right"> -->
-    <!--                 <a class="grey-text text-lighten-4" href="https://github.com/Huawei/containerops"> -->
-	<!--                     <img src="public/icons/github.svg" style="width:20px; height:20px" /> -->
-	<!--                     <div class="right" style="margin-left: 5px"> ContainerOps </div> -->
-    <!--                 </a> -->
-    <!--             </span> -->
-    <!--         </div> -->
-    <!--     </div> -->
-    <!-- </footer> -->
-
+        </div>
+    </footer>
     <!--Import jQuery before materialize.js-->
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script type="text/javascript" src="public/js/materialize.min.js"></script>
+
+    <script charset="utf-8">
+        $(document).ready(function()
+        {
+            // the "href" attribute of the modal trigger must specify the modal ID that wants to be triggered
+            $('.modal').modal();
+        });
+    </script>
 </body>
 
 </html>
