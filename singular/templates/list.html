@@ -23,11 +23,14 @@
             <thead>
                 <tr>
                     <th>No.</th>
+					<th>Deployed At</th>
 
-					{{range .order}}
-					<th>{{.}}</th>
+					{{range .infra_titles}}
+					<th>
+						<img src="{{.Logo}}" style="width:30px; height:30px"/>
+						<div style="font-size: 11px">{{.Name}}</div>
+					</th>
 					{{end}}
-
                     <th>Result</th>
                 </tr>
             </thead>
@@ -36,6 +39,7 @@
                 {{range $index, $value := .deployments}}
                 <tr onclick="window.open('/detail?deployment_id={{.ID}}')" onmouseover="this.style.cursor='pointer'">
 					<td> {{ inc $index }} </td>
+					<td> {{ $value.CreatedTime }} </td>
                     {{range $value.Infras}}
                     <td>{{.Version}}</td>
                     {{end}}

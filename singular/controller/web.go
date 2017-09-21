@@ -39,6 +39,7 @@ type HtmlDeployment struct {
 	SingularNamespace  string
 	SingularRepository string
 	SingularName       string
+	CreatedTime        string
 	ID                 int64
 	Infras             []HtmlInfra
 	Data               template.HTML // The YAML file content
@@ -71,7 +72,12 @@ type HtmlComponent struct {
 	Width, Height int
 }
 
-func GetHtmlDeploymentList(order []string) ([]HtmlDeployment, error) {
+type HtmlInfraTitle struct {
+	Name string
+	Logo string
+}
+
+func GetHtmlDeploymentList() ([]HtmlDeployment, error) {
 	var deployments []model.DeploymentV1
 	err := model.DB.Order("create_at desc").Find(&deployments).Error
 	if err != nil {
@@ -88,6 +94,7 @@ func GetHtmlDeploymentList(order []string) ([]HtmlDeployment, error) {
 		}
 		htmlDeployment := HtmlDeployment{
 			// Name: deployment.Name,
+			CreatedTime: deployment.CreatedAt.Format("2006-01-02 15:04:05"),
 			ID:          deployment.ID,
 			StatusIcon:  statusIcon,
 			StatusColor: statusColor,
@@ -106,15 +113,16 @@ func GetHtmlDeploymentList(order []string) ([]HtmlDeployment, error) {
 			}
 
 			htmlInfras := []HtmlInfra{}
-			for i := 0; i < len(order); i++ {
+			for i := 0; i < len(InfraOrder); i++ {
 				found := false
 				var htmlInfra HtmlInfra
 				for j := 0; j < len(infras); j++ {
 					infra := infras[j]
-					if infra.Name == order[i] {
+					if infra.Name == InfraOrder[i] {
 						found = true
 						htmlInfra = HtmlInfra{
 							// ID:      infra.ID,
+							Logo:    getInfraLogo(infra.Name),
 							Name:    infra.Name,
 							Version: getInfraSemver(infra.Name, infra.Version),
 						}
@@ -124,7 +132,7 @@ func GetHtmlDeploymentList(order []string) ([]HtmlDeployment, error) {
 
 				if !found {
 					htmlInfra = HtmlInfra{
-						Name:    order[i],
+						Name:    InfraOrder[i],
 						Version: "N/A",
 					}
 				}
@@ -266,16 +274,52 @@ func getInfraSemver(name, version string) string {
 }
 
 var infraNames map[string]string = map[string]string{
-	"digital_ocean": "Digital Ocean",
-	"gke":           "Google Container Engine",
-	"aws":           "AWS EC2",
-	"azure":         "Microsoft Azure",
+	"kubernetes":  "Kubernetes",
+	"etcd":        "etcd",
+	"flannel":     "Flannel",
+	"docker":      "Docker",
+	"prometheus":  "Prometheus",
+	"opentracing": "OpenTracking",
+	"fluentd":     "Fluentd",
+	"linerd":      "linkerd",
+	"grpc":        "gRPC",
+	"coredns":     "CoreDNS",
+	"containerd":  "containerd",
+	"rkt":         "rkt",
+	"cni":         "CNI",
+	"envoy":       "Envoy",
+	"jaeger":      "Jaeger",
 }
+
 var infraLogos map[string]string = map[string]string{
-	"digital_ocean": "./public/icons/digital-ocean.svg",
-	"gke":           "./public/icons/google-cloud.svg",
-	"aws":           "./public/icons/aws-ec2.svg",
-	"azure":         "./public/icons/azure.svg",
+	"kubernetes":  "./public/icons/kubernetes.png",
+	"etcd":        "./public/icons/etcd.svg",
+	"flannel":     "./public/icons/flannel.svg",
+	"docker":      "./public/icons/docker.svg",
+	"prometheus":  "./public/icons/prometheus.png",
+	"opentracing": "./public/icons/opentracing.png",
+	"fluentd":     "./public/icons/fluentd.png",
+	"linkerd":     "./public/icons/linkerd.png",
+	"grpc":        "./public/icons/grpc.png",
+	"coredns":     "./public/icons/coredns.png",
+	"containerd":  "./public/icons/containerd.png",
+	"rkt":         "./public/icons/rkt.png",
+	"cni":         "./public/icons/cni.png",
+	"envoy":       "./public/icons/envoy.png",
+	"jaeger":      "./public/icons/jaeger.png",
+}
+
+var InfraOrder []string = []string{"kubernetes", "etcd", "flannel", "docker", "prometheus", "opentracing", "fluentd", "linerd", "grpc", "coredns", "containerd", "rkt", "cni", "envoy", "jaeger"}
+var InfraTitles []HtmlInfraTitle
+
+func init() {
+	for i := 0; i < len(InfraOrder); i++ {
+		infra_name := InfraOrder[i]
+		InfraTitles = append(InfraTitles, HtmlInfraTitle{
+			Name: getInfraName(infra_name),
+			Logo: getInfraLogo(infra_name),
+		})
+	}
 }
 
 func getInfraName(key string) string {
