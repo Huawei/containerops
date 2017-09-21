@@ -78,6 +78,10 @@ func (d *Deployment) ParseFromFile(t string, output string) error {
 			return err
 		}
 
+		if d.Service == nil {
+			d.Service = &Service{}
+		}
+
 		//Set configs value
 		d.Namespace, d.Repository, d.Name, _ = d.URIs()
 		d.Template = string(data)
