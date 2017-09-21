@@ -160,6 +160,8 @@ type InfraV1 struct {
 	Minion       int        `json:"minion" yaml:"minion" sql:"not null" gorm:"column:minion"`
 	Log          string     `json:"log" yaml:"log" sql:"null;type:text" gorm:"column:log"`
 	CA           string     `json:"ca" yaml:"ca" sql:"null;type:text" gorm:"column:ca"`
+	Setting      string     `json:"setting" yaml:"setting" sql:"null;type:text" gorm:"column:setting"`
+	Systemd      string     `json:"systemd" yaml:"systemd" sql:"null;type:text" gorm:"column:systemd"`
 	CreatedAt    time.Time  `json:"create_at" sql:"" gorm:"column:create_at"`
 	UpdatedAt    time.Time  `json:"update_at" sql:"" gorm:"column:update_at"`
 	DeletedAt    *time.Time `json:"delete_at" sql:"index" gorm:"column:delete_at"`
@@ -187,16 +189,19 @@ func (i *InfraV1) Put(deploymentID int64, name, version string) error {
 	return nil
 }
 
-func (i *InfraV1) Update(id int64, master, minion int, log string) error {
+func (i *InfraV1) Update(id int64, master, minion int, log, systemd, setting, ca string) error {
 	tx := DB.Begin()
 
 	infraV1Mutex.Lock()
 	defer infraV1Mutex.Unlock()
 
 	if err := tx.Model(&i).Where("id = ?", id).Update(map[string]interface{}{
-		"master": master,
-		"minion": minion,
-		"log":    log,
+		"master":  master,
+		"minion":  minion,
+		"log":     log,
+		"systemd": systemd,
+		"setting": setting,
+		"ca":      ca,
 	}).Error; err != nil {
 		tx.Rollback()
 		return err
@@ -212,9 +217,6 @@ type ComponentV1 struct {
 	Name      string     `json:"name" yaml:"name" sql:"not null;type:varchar(255)" gorm:"column:name"`
 	URL       string     `json:"url" yaml:"url" sql:"not null;type:text" gorm:"column:url"`
 	Package   bool       `json:"package" yaml:"package" sql:"null;default:false" gorm:"column:package"`
-	Systemd   string     `json:"systemd" yaml:"systemd" sql:"null;type:text" gorm:"column:systemd"`
-	Setting   string     `json:"setting" yaml:"setting" sql:"null;type:text" gorm:"column:setting"`
-	CA        string     `json:"ca" yaml:"ca" sql:"null;type:text" gorm:"column:ca"`
 	Before    string     `json:"before" yaml:"before" sql:"null;type:text" gorm:"column:before"`
 	After     string     `json:"after" yaml:"after" sql:"null;type:text" gorm:"column:after"`
 	Log       string     `json:"log" yaml:"log" sql:"null;type:text" gorm:"column:log"`

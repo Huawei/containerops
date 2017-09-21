@@ -136,7 +136,6 @@ func (d *Deployment) URIs() (namespace, repository, name string, err error) {
 	}
 
 	namespace, repository, name = array[0], array[1], array[2]
-
 	return namespace, repository, name, nil
 }
 
@@ -149,7 +148,7 @@ func (d *Deployment) Output(key, value string) {
 	d.Outputs[key] = value
 }
 
-//Check sequence: CheckServiceAuth -> TODO Check Other?
+//Check sequence: CheckServiceAuth
 func (d *Deployment) Check() error {
 	if err := d.CheckServiceAuth(); err != nil {
 		if len(d.Nodes) == 0 {
