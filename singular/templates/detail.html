@@ -18,10 +18,12 @@
             padding-top: 5px;
             padding-left: 5px;
             display: inline-block;
-            max-height: 400px;
-            overflow: auto;
-            width: 100%;
-            white-space: nowrap;
+            overflow-x: hidden;
+            overflow-y: auto;
+            <!-- max-height: 500px;
+            --> width: 100%;
+            <!-- white-space: nowrap;
+            -->
         }
         
         .clickable {
@@ -34,6 +36,10 @@
             padding-left: 10px;
             padding-top: 10px;
             background-color: #eeeeee;
+            white-space: pre;
+            line-height: 11px;
+            overflow-x: hidden;
+            overflow-y: hidden;
         }
     </style>
 </head>
@@ -42,11 +48,20 @@
     <header class="page-footer blue" style="padding-top:10px; padding-left:20px">
         <div class="container" style="padding-bottom:10px">
             <h2>{{.SingularName}}</h2>
-            <h4>{{.Tag}} : {{.Version}}</h4>
+            <!-- <h4>{{.Tag}} : {{.Version}}</h4> -->
+
+            <div class="row">
+                <div class="col s3 right">
+                    <span class="modal-trigger" href="#yamlModal"><i class="material-icons white-text clickable">insert_drive_file</i><span class="clickable">YAML</span></span>
+                    <span style="margin-left: 20px"><i class="material-icons white-text clickable">lock</i><span class="clickable">CA files</span></span>
+                    <span style="margin-left: 20px" class="modal-trigger" href="#logModal"><i class="material-icons white-text clickable">insert_drive_file</i><span class="clickable">Logs</span></span>
+                </div>
+            </div>
         </div>
     </header>
 
     <div class="container">
+
         <div class="row">
             <div class="col s3">
                 <ul class="tabs">
@@ -59,20 +74,18 @@
                 </ul>
             </div>
 
-            <div class="col s3" style="padding-top: 17px">
-                <span class="modal-trigger" href="#yamlModal"><i class="material-icons green-text clickable">insert_drive_file</i><span class="clickable">YAML</span></span>
-                <span style="margin-left: 20px"><i class="material-icons green-text clickable">lock</i><span class="clickable">CA files</span></span>
-                <span style="margin-left: 20px" class="modal-trigger" href="#logModal"><i class="material-icons green-text clickable">insert_drive_file</i><span class="clickable">Logs</span></span>
-            </div>
+            <!-- <div class="col s3" style="padding-top: 17px"> -->
+            <!--     <span class="modal-trigger" href="#yamlModal"><i class="material-icons green-text clickable">insert_drive_file</i><span class="clickable">YAML</span></span> -->
+            <!--     <span style="margin-left: 20px"><i class="material-icons green-text clickable">lock</i><span class="clickable">CA files</span></span> -->
+            <!--     <span style="margin-left: 20px" class="modal-trigger" href="#logModal"><i class="material-icons green-text clickable">insert_drive_file</i><span class="clickable">Logs</span></span> -->
+            <!-- </div> -->
 
             <div id="yamlModal" class="modal top">
                 <div class="modal-header right">
                     <a href="#!" class="modal-action waves-effect waves-green btn">COPY(TBD)</a>
                 </div>
-				<div style="display: inline-block; max-height: 600px; overflow: auto; width: 100%; white-space: nowrap;">
-                    <pre>
-					<p class="source-code">{{.Data}}</p>
-					</pre>
+                <div class="modal-content">
+                    <p class="source-code">{{.Data}}</p>
                 </div>
             </div>
 
@@ -85,17 +98,17 @@
                 </div>
             </div>
 
+        </div>
 
-            <!-- <div> -->
-            <!--     <span><i class="material-icons">insert_drive_file</i>yaml</span> -->
-            <!--     <span style="margin-left: 50px"><i class="material-icons">lock</i>CA files</span> -->
-            <!-- </div> -->
+        <!-- <div> -->
+        <!--     <span><i class="material-icons">insert_drive_file</i>yaml</span> -->
+        <!--     <span style="margin-left: 50px"><i class="material-icons">lock</i>CA files</span> -->
+        <!-- </div> -->
 
-            <div style="margin-top: 50px">
-
-
-                {{range .Infras}}
-                <div id="{{.Name}}" class="col s12">
+        <div class="row">
+            {{range .Infras}}
+            <div id="{{.Name}}" class="col s12">
+                <div class="col s6">
                     <ul class="collapsible" data-collapsible="accordion">
                         {{range .Components}}
                         <li>
@@ -103,17 +116,25 @@
                                 <i class="material-icons blue-text">settings</i>
                                 <div class="valign-wrapper">{{.Name}}</div>
                             </div>
-                            <div class="collapsible-body"><span class="terminal">{{.Log}}</span></div>
+                            <!-- <div class="collapsible-body"><span class="terminal">{{.Log}}</span></div> -->
                         </li>
                         {{end}}
                     </ul>
                 </div>
-                {{end}}
+
+                <div class="col s6 terminal" style="margin-top: 7.5px; max-height: 600px;">
+                    {{.Log}}
+                </div>
+
             </div>
+
+            {{end}}
+
+
         </div>
 
     </div>
-    <footer class="page-footer blue" style="padding-bottom: 25px; position: fixed; left: 0px; right: 0px; bottom: 0px">
+    <footer class="page-footer blue" style="padding-bottom: 35px;">
         <div class="container">
             <span class="right">
 				<a class="grey-text text-lighten-4" href="https://github.com/Huawei/containerops">

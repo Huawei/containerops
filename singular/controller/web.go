@@ -43,6 +43,7 @@ type HtmlDeployment struct {
 	ID                 int64
 	Infras             []HtmlInfra
 	Data               template.HTML // The YAML file content
+	CA                 template.HTML // The YAML file content
 	Log                template.HTML // The log
 
 	Version int64
@@ -192,6 +193,7 @@ func GetHtmlDeploymentDetail(deploymentID int) *HtmlDeployment {
 		Tag:                deployment.Tag,
 		Log:                convertToBr(deployment.Log),
 		Data:               convertToBr(deployment.Data),
+		CA:                 convertToBr(deployment.CA),
 		Infras:             htmlInfras,
 		SingularName:       singular.Name,
 		SingularNamespace:  singular.Namespace,
