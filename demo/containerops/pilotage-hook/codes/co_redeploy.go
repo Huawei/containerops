@@ -27,6 +27,11 @@ import (
 )
 
 func main() {
+	codeChanged := os.Getenv("CO_CODE_CHANGED")
+	if codeChanged == "false" {
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT=true\n")
+		os.Exit(0)
+	}
 
 	data := os.Getenv("CO_DATA")
 	if len(data) == 0 {

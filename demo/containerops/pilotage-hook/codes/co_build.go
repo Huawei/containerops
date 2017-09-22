@@ -8,6 +8,12 @@ import (
 )
 
 func main() {
+	codeChanged := os.Getenv("CO_CODE_CHANGED")
+	if codeChanged == "false" {
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT=true\n")
+		os.Exit(0)
+	}
+
 	data := os.Getenv("CO_DATA")
 	if len(data) == 0 {
 		fmt.Fprintf(os.Stderr, "[COUT] %s\n", "The CO_DATA value is null.")
@@ -27,7 +33,6 @@ func main() {
 		fmt.Fprintf(os.Stderr, "[COUT] Failed to clone git repo: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
 		os.Exit(1)
-		return
 	}
 
 	localFile, err := build(target)
@@ -35,7 +40,6 @@ func main() {
 		fmt.Fprintf(os.Stderr, "[COUT] Failed to build project: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
 		os.Exit(1)
-		return
 	}
 
 	// push
@@ -44,7 +48,6 @@ func main() {
 		fmt.Fprintf(os.Stderr, "[COUT] Failed to upload binary: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
 		os.Exit(1)
-		return
 	}
 
 	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT=true\n")
