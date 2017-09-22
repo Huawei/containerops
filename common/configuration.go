@@ -19,23 +19,24 @@ package common
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	homeDir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
+	"regexp"
 )
 
 // SetConfig is setting config file path/name/type.
 func SetConfig(cfgFile string) error {
+	// Find home directory.
+	home, err := homeDir.Dir()
+	if err != nil {
+		return fmt.Errorf("read $HOME envrionment error: %s", err.Error())
+	}
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Find home directory.
-		home, err := homeDir.Dir()
-		if err != nil {
-			return fmt.Errorf("read $HOME envrionment error: %s", err.Error())
-		}
-
 		// Search config in home directory with name "containerops" (with extension .toml).
 		viper.SetConfigType("toml")
 		viper.SetConfigName("containerops")
@@ -46,9 +47,32 @@ func SetConfig(cfgFile string) error {
 
 	viper.SetEnvPrefix("coops")
 	viper.AutomaticEnv() // read in environment variables that match
+	viper.WatchConfig()
 
 	if err := viper.ReadInConfig(); err != nil {
-		return fmt.Errorf("fatal error config file: %s", err.Error())
+		// If NOT found config file, automatically create it
+		if ok, _ := regexp.MatchString("^Config File.*Not Found in.*", err.Error()); ok {
+			fmt.Println("Not Found Config file, will auto create")
+
+			defaultPath := fmt.Sprintf("%s/.containerops/config", home)
+			if _, err := os.Stat(defaultPath); err != nil {
+				if os.IsNotExist(err) {
+					if err := os.MkdirAll(defaultPath, 0777); err != nil {
+						return nil
+					}
+				} else {
+					return err
+				}
+			}
+
+			newConfigFile, err := os.Create(defaultPath + "/containerops.toml")
+			if err != nil {
+				return fmt.Errorf("Automatically create config file ERROR: %s", err.Error())
+			}
+			defer newConfigFile.Close()
+		} else {
+			return fmt.Errorf("fatal error config file: %s", err.Error())
+		}
 	}
 
 	if err := setDatabaseConfig(viper.GetStringMap("database")); err != nil {
