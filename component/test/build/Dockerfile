@@ -9,6 +9,6 @@ RUN cd containerops/component/
 ADD main.go main.go
 ADD module module
 COPY component-auto-ci.sh component-auto-ci.sh
-RUN ./component-auto-ci.sh
+CMD ./component-auto-ci.sh
 
 
