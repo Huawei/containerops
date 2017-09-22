@@ -30,6 +30,9 @@ func (ad *ActionDataV1) TableName() string {
 }
 
 func (a *ActionV1) Put(stageID int64, name, title string) (actionID int64, err error) {
+	if DisableDB {
+		return -1, nil
+	}
 	a.StageID, a.Name, a.Title = stageID, name, title
 
 	tx := DB.Begin()
@@ -52,6 +55,9 @@ func (a *ActionV1) Put(stageID int64, name, title string) (actionID int64, err e
 }
 
 func (ad *ActionDataV1) Put(actionID, number int64, result string, start, end time.Time) error {
+	if DisableDB {
+		return nil
+	}
 	ad.ActionID, ad.Number, ad.Result, ad.Start, ad.End = actionID, number, result, start, end
 
 	tx := DB.Begin()
@@ -65,6 +71,9 @@ func (ad *ActionDataV1) Put(actionID, number int64, result string, start, end ti
 }
 
 func (ad *ActionDataV1) GetNumbers(actionID int64) (int64, error) {
+	if DisableDB {
+		return -1, nil
+	}
 	tmp := DB.Where("action_id = ?", actionID).Find(&ActionDataV1{})
 	if tmp.RecordNotFound() {
 		return 0, nil

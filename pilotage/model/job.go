@@ -36,6 +36,9 @@ func (jd *JobDataV1) TableName() string {
 }
 
 func (j *JobV1) Put(actionID, timeout int64, name, jobType, endpoint, resources, environments, outputs, subscriptions string) (jobID int64, err error) {
+	if DisableDB {
+		return -1, nil
+	}
 	j.ActionID, j.Name, j.JobType, j.Endpoint, j.Timeout, j.Environments = actionID, name, jobType, endpoint, timeout, environments
 	j.Resources, j.Outputs, j.Subscriptions = resources, outputs, subscriptions
 
@@ -61,6 +64,10 @@ func (j *JobV1) Put(actionID, timeout int64, name, jobType, endpoint, resources,
 }
 
 func (jd *JobDataV1) Put(jobID, number int64, result string, start, end time.Time) error {
+	if DisableDB {
+		return nil
+	}
+
 	jd.JobID, jd.Number, jd.Result, jd.Start, jd.End = jobID, number, result, start, end
 
 	tx := DB.Begin()
@@ -74,6 +81,10 @@ func (jd *JobDataV1) Put(jobID, number int64, result string, start, end time.Tim
 }
 
 func (jd *JobDataV1) GetNumbers(jobID int64) (int64, error) {
+	if DisableDB {
+		return -1, nil
+	}
+
 	tmp := DB.Where("job_id = ?", jobID).Find(&JobDataV1{})
 	if tmp.RecordNotFound() {
 		return 0, nil
