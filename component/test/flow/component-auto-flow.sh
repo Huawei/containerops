@@ -10,14 +10,6 @@ function read_dir(){
 			if [[ $fullpath =~ "images" ]];then
 			continue
 			fi
-			# 如果有yml文件 直接发送给politage
-# 先测试单个流程
-# 在测试email 流程
-#在测试从hub下载flow流程
-# 在测试在yml总加入和修改一些元素测试 比如emial 比如 codata 比如 image name
-
-		#	tar -cvf ./$fullpath.tar -C  $fullpath .
-		#	go run main.go --image $imagename --path ./$fullpath.tar 
 		curl -i -X POST -H 'Content-type':'application/yaml' --data-binary @$fullpath https://flow.opshub.sh/flow/v1/containerops/python_analysis_coala/flow/latest/yaml
 
 		fi
