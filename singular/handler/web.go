@@ -29,7 +29,13 @@ import (
 
 func GetIndexPageV1Handler(ctx *macaron.Context) {
 	funcs := template.FuncMap{
-		"component_names": controller.StringifyComponentsNames,
+		// "component_names": controller.StringifyComponentsNames,
+		"component_names": func(args ...interface{}) (string, error) {
+			return "hello", nil
+		},
+		"inc": func(i int) int {
+			return i + 1
+		},
 	}
 
 	deployments, err := controller.GetHtmlDeploymentList()
@@ -47,7 +53,11 @@ func GetIndexPageV1Handler(ctx *macaron.Context) {
 		return
 	}
 
-	err = listTmpl.Execute(ctx.Resp, deployments)
+	renderData := map[string]interface{}{
+		"infra_titles": controller.InfraTitles,
+		"deployments":  deployments,
+	}
+	err = listTmpl.Execute(ctx.Resp, renderData)
 	if err != nil {
 		log.Error(err)
 		return

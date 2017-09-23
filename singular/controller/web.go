@@ -21,68 +21,129 @@ import (
 	"html/template"
 	"os"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/Huawei/containerops/singular/model"
 )
 
+type HtmlSingular struct {
+	Namespace   string
+	Repository  string
+	Name        string
+	Result      bool
+	Deployments []HtmlDeployment
+}
+
 type HtmlDeployment struct {
-	ID          int64
+	SingularNamespace  string
+	SingularRepository string
+	SingularName       string
+	CreatedTime        string
+	ID                 int64
+	Infras             []HtmlInfra
+	Data               template.HTML // The YAML file content
+	CA                 template.HTML // The YAML file content
+	Log                template.HTML // The log
+
+	Version int64
+	Tag     string
+
 	InfraName   string
 	InfraLogo   string
 	InfraLog    template.HTML
-	Components  []HtmlComponent
 	StatusIcon  string
 	StatusColor string
 }
 
+type HtmlInfra struct {
+	ID         int64
+	Name       string
+	Version    string
+	Logo       string
+	Log        template.HTML
+	Components []HtmlComponent
+}
+
 type HtmlComponent struct {
+	// Log           template.HTML
 	Name          string
-	Log           template.HTML
+	Log           string
 	ImageSrc, Alt string
 	Width, Height int
 }
 
+type HtmlInfraTitle struct {
+	Name string
+	Logo string
+}
+
 func GetHtmlDeploymentList() ([]HtmlDeployment, error) {
 	var deployments []model.DeploymentV1
-	err := model.DB.Find(&deployments).Error
+	err := model.DB.Order("create_at desc").Find(&deployments).Error
 	if err != nil {
 		return nil, err
 	}
 
-	var retDeployments []HtmlDeployment
+	htmlDeployments := []HtmlDeployment{}
+	for i := 0; i < len(deployments); i++ {
+		deployment := deployments[i]
+
+		statusIcon, statusColor := "clear", "red"
+		if deployment.Result == true {
+			statusIcon, statusColor = "check", "green"
+		}
+		htmlDeployment := HtmlDeployment{
+			// Name: deployment.Name,
+			CreatedTime: deployment.CreatedAt.Format("2006-01-02 15:04:05"),
+			ID:          deployment.ID,
+			StatusIcon:  statusIcon,
+			StatusColor: statusColor,
+		}
+		htmlDeployments = append(htmlDeployments, htmlDeployment)
+	}
 	// Find the corresponding infrastructure & components info
 	sig := make(chan error)
 	for i := 0; i < len(deployments); i++ {
-		go func(deployment *model.DeploymentV1) {
-			var infra model.InfraV1
-			model.DB.Where("deployment_v1=?", deployment.ID).First(&infra)
-			var components []model.ComponentV1
-			model.DB.Where("infra_v1=?", infra.ID).Find(&components)
-
-			statusIcon, statusColor := "clear", "red"
-			if deployment.Result == true {
-				statusIcon, statusColor = "check", "green"
-			}
-			retDeployment := HtmlDeployment{
-				// Name: deployment.Name,
-				ID:          deployment.ID,
-				InfraName:   infra.Name,
-				StatusIcon:  statusIcon,
-				StatusColor: statusColor,
-			}
-			retComponents := []HtmlComponent{}
-
-			for j := 0; j < len(components); j++ {
-				retComponents = append(retComponents, convertComponent(&components[j]))
+		go func(htmlDeployment *HtmlDeployment) {
+			var infras []model.InfraV1
+			err := model.DB.Where("deployment_v1=?", htmlDeployment.ID).Find(&infras).Error
+			if err != nil {
+				sig <- err
+				return
 			}
 
-			retDeployment.Components = retComponents
+			htmlInfras := []HtmlInfra{}
+			for i := 0; i < len(InfraOrder); i++ {
+				found := false
+				var htmlInfra HtmlInfra
+				for j := 0; j < len(infras); j++ {
+					infra := infras[j]
+					if infra.Name == InfraOrder[i] {
+						found = true
+						htmlInfra = HtmlInfra{
+							// ID:      infra.ID,
+							Logo:    getInfraLogo(infra.Name),
+							Name:    infra.Name,
+							Version: getInfraSemver(infra.Name, infra.Version),
+						}
+						break
+					}
+				}
 
-			retDeployments = append(retDeployments, retDeployment)
-
+				if !found {
+					htmlInfra = HtmlInfra{
+						Name:    InfraOrder[i],
+						Version: "N/A",
+					}
+				}
+				htmlInfras = append(htmlInfras, htmlInfra)
+			}
+			htmlDeployment.Infras = htmlInfras
 			sig <- nil
-		}(&deployments[i])
+
+			// htmlDeployments = append(htmlDeployments, htmlDeployment)
+		}(&htmlDeployments[i])
 	}
 
 	for i := 0; i < len(deployments); i++ {
@@ -90,34 +151,56 @@ func GetHtmlDeploymentList() ([]HtmlDeployment, error) {
 			return nil, err
 		}
 	}
-	return retDeployments, nil
+	return htmlDeployments, nil
 }
 
 func GetHtmlDeploymentDetail(deploymentID int) *HtmlDeployment {
-	var dep model.DeploymentV1
-	var infra model.InfraV1
-	var comps []model.ComponentV1
+	var singular model.SingularV1
+	var deployment model.DeploymentV1
+	var infras []model.InfraV1
+	htmlInfras := []HtmlInfra{}
 
 	// Get the infra and components
-	err := model.DB.Where("id=?", deploymentID).First(&dep).Error
+	err := model.DB.Where("id=?", deploymentID).First(&deployment).Error
 	if err != nil && err.Error() == "record not found" {
 		return nil
 	}
-	model.DB.Where("deployment_v1=?", dep.ID).First(&infra)
-	model.DB.Where("infra_v1=?", infra.ID).Find(&comps)
 
-	components := []HtmlComponent{}
-	for i := 0; i < len(comps); i++ {
-		components = append(components, convertComponent(&comps[i]))
-	}
-	deployment := HtmlDeployment{
-		InfraName:  getInfraName(infra.Name),
-		InfraLogo:  getInfraLogo(infra.Name),
-		InfraLog:   convertToBr(infra.Log),
-		Components: components,
+	model.DB.Where("id=?", deployment.SingularV1).First(&singular)
+
+	model.DB.Where("deployment_v1=?", deployment.ID).Find(&infras)
+	for i := 0; i < len(infras); i++ {
+		infra := infras[i]
+		var components []model.ComponentV1
+		model.DB.Where("infra_v1=?", infra.ID).Find(&components)
+
+		htmlComponents := []HtmlComponent{}
+		for j := 0; j < len(components); j++ {
+			component := components[j]
+			htmlComponents = append(htmlComponents, HtmlComponent{
+				Name: component.Name,
+				Log:  component.Log,
+			})
+		}
+
+		htmlInfra := convertInfra(&infra)
+		htmlInfra.Components = htmlComponents
+		htmlInfras = append(htmlInfras, htmlInfra)
 	}
 
-	return &deployment
+	htmlDeployment := HtmlDeployment{
+		Version:            deployment.Version,
+		Tag:                deployment.Tag,
+		Log:                convertLog(deployment.Log),
+		Data:               convertToBr(deployment.Data),
+		CA:                 convertToBr(deployment.CA),
+		Infras:             htmlInfras,
+		SingularName:       singular.Name,
+		SingularNamespace:  singular.Namespace,
+		SingularRepository: singular.Repository,
+	}
+
+	return &htmlDeployment
 }
 
 func StringifyComponentsNames(args ...interface{}) (string, error) {
@@ -148,51 +231,109 @@ func convertToBr(src string) template.HTML {
 	// return strings.Join(strings.Split(src, "\n"), "<br />")
 }
 
-func convertComponent(input *model.ComponentV1) HtmlComponent {
-	c := HtmlComponent{
-		Name: input.Name,
-		Log:  convertToBr(input.Log),
+func convertInfra(input *model.InfraV1) HtmlInfra {
+	infra := HtmlInfra{
+		Name:    input.Name,
+		Version: getInfraSemver(input.Name, input.Version),
+		Log:     convertLog(input.Log),
 	}
 	// Got the size and icon
-	switch c.Name {
+	switch infra.Name {
 	case "kubernetes":
-		c.Width = 40
-		c.Height = 40
-		c.ImageSrc = "./public/icons/kubernetes.svg"
+		// infra.Width = 40
+		// infra.Height = 40
+		infra.Logo = "./public/icons/kubernetes.svg"
 		break
 	case "docker":
-		c.Width = 40
-		c.Height = 40
-		c.ImageSrc = "./public/icons/docker.svg"
+		// infra.Width = 40
+		// infra.Height = 40
+		infra.Logo = "./public/icons/docker.svg"
 		break
 	case "flannel":
-		c.Width = 40
-		c.Height = 40
-		c.ImageSrc = "./public/icons/flannel.svg"
+		// infra.Width = 40
+		// infra.Height = 40
+		infra.Logo = "./public/icons/flannel.svg"
 		break
 	case "etcd":
-		c.Width = 40
-		c.Height = 40
-		c.ImageSrc = "./public/icons/etcd.svg"
+		// infra.Width = 40
+		// infra.Height = 40
+		infra.Logo = "./public/icons/etcd.svg"
 		break
 	default:
 		break
 	}
 
-	return c
+	return infra
+}
+
+// The log are stored in array, each element started by -space and quoted by '
+func convertLog(input string) template.HTML {
+	lines := strings.Split(input, "\n")
+	outputStr := ""
+	for i := 0; i < len(lines); i++ {
+		line := lines[i]
+		line = strings.Trim(line, "- '")
+		outputStr += line + "<br />"
+	}
+	return template.HTML(outputStr)
+}
+
+func getInfraSemver(name, version string) string {
+	re := regexp.MustCompile(fmt.Sprintf("%s-", name))
+	locations := re.FindStringIndex(version)
+	if locations == nil {
+		return "N/A"
+	}
+	return version[locations[1]:]
 }
 
 var infraNames map[string]string = map[string]string{
-	"digital_ocean": "Digital Ocean",
-	"gke":           "Google Container Engine",
-	"aws":           "AWS EC2",
-	"azure":         "Microsoft Azure",
+	"kubernetes":  "Kubernetes",
+	"etcd":        "etcd",
+	"flannel":     "Flannel",
+	"docker":      "Docker",
+	"prometheus":  "Prometheus",
+	"opentracing": "OpenTracking",
+	"fluentd":     "Fluentd",
+	"linerd":      "linkerd",
+	"grpc":        "gRPC",
+	"coredns":     "CoreDNS",
+	"containerd":  "containerd",
+	"rkt":         "rkt",
+	"cni":         "CNI",
+	"envoy":       "Envoy",
+	"jaeger":      "Jaeger",
 }
+
 var infraLogos map[string]string = map[string]string{
-	"digital_ocean": "./public/icons/digital-ocean.svg",
-	"gke":           "./public/icons/google-cloud.svg",
-	"aws":           "./public/icons/aws-ec2.svg",
-	"azure":         "./public/icons/azure.svg",
+	"kubernetes":  "./public/icons/kubernetes.png",
+	"etcd":        "./public/icons/etcd.svg",
+	"flannel":     "./public/icons/flannel.svg",
+	"docker":      "./public/icons/docker.svg",
+	"prometheus":  "./public/icons/prometheus.png",
+	"opentracing": "./public/icons/opentracing.png",
+	"fluentd":     "./public/icons/fluentd.png",
+	"linkerd":     "./public/icons/linkerd.png",
+	"grpc":        "./public/icons/grpc.png",
+	"coredns":     "./public/icons/coredns.png",
+	"containerd":  "./public/icons/containerd.png",
+	"rkt":         "./public/icons/rkt.png",
+	"cni":         "./public/icons/cni.png",
+	"envoy":       "./public/icons/envoy.png",
+	"jaeger":      "./public/icons/jaeger.png",
+}
+
+var InfraOrder []string = []string{"kubernetes", "etcd", "flannel", "docker", "prometheus", "opentracing", "fluentd", "linerd", "grpc", "coredns", "containerd", "rkt", "cni", "envoy", "jaeger"}
+var InfraTitles []HtmlInfraTitle
+
+func init() {
+	for i := 0; i < len(InfraOrder); i++ {
+		infra_name := InfraOrder[i]
+		InfraTitles = append(InfraTitles, HtmlInfraTitle{
+			Name: getInfraName(infra_name),
+			Logo: getInfraLogo(infra_name),
+		})
+	}
 }
 
 func getInfraName(key string) string {
