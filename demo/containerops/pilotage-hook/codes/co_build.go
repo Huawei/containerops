@@ -8,6 +8,12 @@ import (
 )
 
 func main() {
+	codeChanged := os.Getenv("CO_CODE_CHANGED")
+	if codeChanged == "false" {
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT=true\n")
+		os.Exit(0)
+	}
+
 	data := os.Getenv("CO_DATA")
 	if len(data) == 0 {
 		fmt.Fprintf(os.Stderr, "[COUT] %s\n", "The CO_DATA value is null.")
@@ -15,7 +21,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	target, hub, namespace, repo, tag, binary, err := parseEnv(data)
+	target, hub, namespace, repo, binary, err := parseEnv(data)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA: %s\n", err.Error())
@@ -27,7 +33,6 @@ func main() {
 		fmt.Fprintf(os.Stderr, "[COUT] Failed to clone git repo: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
 		os.Exit(1)
-		return
 	}
 
 	localFile, err := build(target)
@@ -35,23 +40,28 @@ func main() {
 		fmt.Fprintf(os.Stderr, "[COUT] Failed to build project: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
 		os.Exit(1)
-		return
 	}
 
 	// push
+	tag, err := lastCommitHash(target)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "[COUT] Failed to get last commit hash of project %s: %s\n", target, err.Error())
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
+		os.Exit(1)
+	}
+
 	url, err := push(localFile, hub, namespace, repo, tag, binary)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Failed to upload binary: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
 		os.Exit(1)
-		return
 	}
 
 	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT=true\n")
 	fmt.Fprintf(os.Stdout, "[COUT] CO_URL=%s\n", url)
 }
 
-func parseEnv(env string) (target, hub, namespace, repo, tag, binary string, err error) {
+func parseEnv(env string) (target, hub, namespace, repo, binary string, err error) {
 	files := strings.Fields(env)
 	if len(files) == 0 {
 		err = fmt.Errorf("CO_DATA value is null\n")
@@ -71,8 +81,6 @@ func parseEnv(env string) (target, hub, namespace, repo, tag, binary string, err
 			namespace = value
 		case "repo":
 			repo = value
-		case "tag":
-			tag = value
 		case "binary":
 			binary = value
 		default:
