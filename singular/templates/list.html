@@ -22,13 +22,13 @@
         <table class="hightlight bordered striped">
             <thead>
                 <tr>
-					{{range .infra_titles}}
-					<th>
-						<img src="{{.Logo}}" style="width:30px; height:30px"/>
-						<div style="font-size: 11px">{{.Name}}</div>
-					</th>
-					{{end}}
-					<th>Deployed At</th>
+                    {{range .infra_titles}}
+                    <th>
+                        <img src="{{.Logo}}" style="width:30px; height:30px" />
+                        <div style="font-size: 11px">{{.Name}}</div>
+                    </th>
+                    {{end}}
+                    <th>Deployed At</th>
                     <th>Result</th>
                 </tr>
             </thead>
@@ -39,7 +39,7 @@
                     {{range $value.Infras}}
                     <td>{{.Version}}</td>
                     {{end}}
-					<td> {{ $value.CreatedTime }} </td>
+                    <td> {{ $value.CreatedTime }} </td>
                     <td><i class="material-icons {{$value.StatusColor}}-text">{{$value.StatusIcon}}</i></td>
                 </tr>
                 {{end}}
@@ -59,6 +59,20 @@
     <!--Import jQuery before materialize.js-->
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script type="text/javascript" src="public/js/materialize.min.js"></script>
+    <!-- Global Site Tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86107686-3"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag()
+        {
+            dataLayer.push(arguments)
+        };
+        gtag('js', new Date());
+
+        gtag('config', 'UA-86107686-3');
+    </script>
+
 </body>
 
 </html>
