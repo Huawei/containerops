@@ -37,6 +37,10 @@ func (fd *FlowDataV1) TableName() string {
 }
 
 func (f *FlowV1) Put(namespace, repository, name, tag, title, content string, version, timeout int64) (flowID int64, err error) {
+	if DisableDB {
+		return -1, nil
+	}
+
 	f.Namespace, f.Repository, f.Name, f.Tag, f.Title, f.Content = namespace, repository, name, tag, title, content
 	f.Version, f.Timeout = version, timeout
 
@@ -61,6 +65,10 @@ func (f *FlowV1) Put(namespace, repository, name, tag, title, content string, ve
 }
 
 func (fd *FlowDataV1) Put(flowID, number int64, result string, start, end time.Time) error {
+	if DisableDB {
+		return nil
+	}
+
 	fd.FlowID, fd.Number, fd.Result, fd.Start, fd.End = flowID, number, result, start, end
 
 	tx := DB.Begin()
@@ -74,6 +82,10 @@ func (fd *FlowDataV1) Put(flowID, number int64, result string, start, end time.T
 }
 
 func (fd *FlowDataV1) GetNumbers(flowID int64) (int64, error) {
+	if DisableDB {
+		return -1, nil
+	}
+
 	tmp := DB.Where("flow_id = ?", flowID).Find(&FlowDataV1{})
 	if tmp.RecordNotFound() {
 		return 0, nil
