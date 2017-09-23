@@ -1,5 +1,5 @@
 docs/* linguist-documentation
 design/* linguist-documentation
-joints/src/sass/vendor/* linguist-vendored
-scaffold/src/sass/vendor/* linguist-vendored
-tenant/src/sass/vendor/* linguist-vendored
+joints/* linguist-vendored
+scaffold/* linguist-vendored
+tenant/* linguist-vendored
