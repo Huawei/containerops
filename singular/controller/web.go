@@ -61,7 +61,7 @@ type HtmlInfra struct {
 	Name       string
 	Version    string
 	Logo       string
-	Log        string
+	Log        template.HTML
 	Components []HtmlComponent
 }
 
@@ -191,7 +191,7 @@ func GetHtmlDeploymentDetail(deploymentID int) *HtmlDeployment {
 	htmlDeployment := HtmlDeployment{
 		Version:            deployment.Version,
 		Tag:                deployment.Tag,
-		Log:                convertToBr(deployment.Log),
+		Log:                convertLog(deployment.Log),
 		Data:               convertToBr(deployment.Data),
 		CA:                 convertToBr(deployment.CA),
 		Infras:             htmlInfras,
@@ -233,9 +233,9 @@ func convertToBr(src string) template.HTML {
 
 func convertInfra(input *model.InfraV1) HtmlInfra {
 	infra := HtmlInfra{
-		Name: input.Name,
-		// Log:  convertToBr(input.Log),
-		Log: input.Log,
+		Name:    input.Name,
+		Version: getInfraSemver(input.Name, input.Version),
+		Log:     convertLog(input.Log),
 	}
 	// Got the size and icon
 	switch infra.Name {
@@ -264,6 +264,18 @@ func convertInfra(input *model.InfraV1) HtmlInfra {
 	}
 
 	return infra
+}
+
+// The log are stored in array, each element started by -space and quoted by '
+func convertLog(input string) template.HTML {
+	lines := strings.Split(input, "\n")
+	outputStr := ""
+	for i := 0; i < len(lines); i++ {
+		line := lines[i]
+		line = strings.Trim(line, "- '")
+		outputStr += line + "<br />"
+	}
+	return template.HTML(outputStr)
 }
 
 func getInfraSemver(name, version string) string {

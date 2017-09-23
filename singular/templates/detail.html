@@ -12,13 +12,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style type="text/css">
         .collapsible-header {
-			cursor: default;
-		}
+            cursor: default;
+        }
         
         .terminal {
             background-color: black;
             color: #55ff55;
             font-family: monospace;
+            font-size: 12px;
             padding-top: 5px;
             padding-left: 5px;
             display: inline-block;
@@ -67,12 +68,16 @@
     <div class="container">
 
         <div class="row">
-            <div class="col s3">
+            <div class="col s3" style="margin-top: 10px">
                 <ul class="tabs">
                     {{range .Infras}}
                     <li class="tab col s3">
-                        <a href="#{{.Name}}"><img src="{{.Logo}}" style="width:30px;height:30px;margin-top:15px;margin-bottom:10px"
-                            /></a>
+                        <a href="#{{.Name}}">
+                            <div style="text-align: center">
+								<img src="{{.Logo}}" style="width:30px;height:30px;" />
+								<div style="font-size:12px; margin-top: -13px; line-height: 10px">	{{.Version}} </div>
+                            </div>
+                        </a>
                     </li>
                     {{end}}
                 </ul>
