@@ -1,0 +1,137 @@
+uri: containerops/singular/etcd-3.2.2-flanneld-0.7.1-docker-17.04.0-ce-k8s-1.6.7
+title: Deploy Kubernetes With etcd-3.2.2 flanneld-0.7.1 docker-17.04.0-ce k8s-1.6.7
+tag: latest
+service:
+  region: sfo2
+  size: 4gb
+  image: ubuntu-17-04-x64
+  nodes: 3
+infras:
+  -
+    name: etcd
+    version: etcd-3.2.2
+    master: 3
+    minion: 0
+    components:
+      -
+        binary: etcd
+        url: https://binary.nyc3.digitaloceanspaces.com/etcd/3.2.2/etcd
+        package: false
+        systemd: etcd-3.2.2
+        ca: etcd-3.2.2
+      -
+        binary: etcdctl
+        url: https://binary.nyc3.digitaloceanspaces.com/etcd/3.2.2/etcdctl
+        package: false
+  -
+    name: flannel
+    version: flannel-0.7.1
+    master: 3
+    minion: 0
+    dependencies:
+      - etcd
+    components:
+      -
+        binary: flanneld
+        url: https://binary.nyc3.digitaloceanspaces.com/flannel/0.7.1/flanneld
+        package: false
+        systemd: flannel-0.7.1
+        ca: flannel-0.7.1
+        before:
+          - "etcdctl --endpoints={{.Nodes}} --ca-file=/etc/kubernetes/ssl/ca.pem --cert-file=/etc/flanneld/ssl/flanneld.pem --key-file=/etc/flanneld/ssl/flanneld-key.pem set /kubernetes/network/config '{\"Network\":\"'172.30.0.0/16'\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\"}}'"
+      -
+        binary: mk-docker-opts.sh
+        url: https://binary.nyc3.digitaloceanspaces.com/flannel/0.7.1/mk-docker-opts.sh
+        package: false
+  -
+    name: docker
+    version: docker-17.04.0-ce
+    master: 3
+    minion: 0
+    dependencies:
+      - flannel
+    components:
+      -
+        binary: docker
+        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker
+        package: false
+        systemd: docker-17.04.0-ce
+        before:
+          - "iptables -F"
+          - "iptables -X"
+          - "iptables -F -t nat"
+          - "iptables -X -t nat"
+        after:
+          - "iptables -w -P FORWARD ACCEPT"
+      -
+        binary: dockerd
+        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/dockerd
+        package: false
+      -
+        binary: docker-init
+        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker-init
+        package: false
+      -
+        binary: docker-proxy
+        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker-proxy
+        package: false
+      -
+        binary: docker-runc
+        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker-runc
+        package: false
+      -
+        binary: docker-containerd
+        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker-containerd
+        package: false
+      -
+        binary: docker-containerd-ctr
+        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker-containerd-ctr
+        package: false
+      -
+        binary: docker-containerd-shim
+        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker-containerd-shim
+        package: false
+  -
+    name: kubernetes
+    version: kubernetes-1.6.7
+    master: 1
+    minion: 3
+    dependencies:
+      - etcd
+      - flannel
+      - docker
+    components:
+      -
+        binary: kube-apiserver
+        url: https://binary.nyc3.digitaloceanspaces.com/kubernetes/1.6.6/kube-apiserver
+        package: false
+        systemd: kube-apiserver-1.6.7
+        ca: kubernetes-1.6.7
+      -
+        binary: kube-controller-manager
+        url: https://binary.nyc3.digitaloceanspaces.com/kubernetes/1.6.6/cloud-controller-manager
+        package: false
+        systemd: kube-controller-manager-1.6.7
+        ca: kubernetes-1.6.7
+      -
+        binary: kube-scheduler
+        url: https://binary.nyc3.digitaloceanspaces.com/kubernetes/1.6.6/kube-scheduler
+        package: false
+        systemd: kube-scheduler-1.6.7
+      -
+        binary: kubectl
+        url: https://binary.nyc3.digitaloceanspaces.com/kubernetes/1.6.6/kubectl
+        package: false
+      -
+        binary: kubelet
+        url: https://binary.nyc3.digitaloceanspaces.com/kubernetes/1.6.6/kubelet
+        package: false
+        systemd: kubelet-1.6.7
+      -
+        binary: kube-proxy
+        url: https://binary.nyc3.digitaloceanspaces.com/kubernetes/1.6.6/kube-proxy
+        package: false
+        systemd: kube-proxy-1.6.7
+        ca: kube-proxy-1.6.7
+description: WIP
+short: WIP
