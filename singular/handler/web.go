@@ -66,9 +66,14 @@ func GetIndexPageV1Handler(ctx *macaron.Context) {
 
 func GetDetailPageV1Handler(ctx *macaron.Context) {
 	// Get the deployment information
-	deployment_id := ctx.Req.FormValue("deployment_id")
-	deploymentID, _ := strconv.Atoi(deployment_id)
-	deployment := controller.GetHtmlDeploymentDetail(deploymentID)
+	namespace := ctx.Params("namespace")
+	repository := ctx.Params("repository")
+	name := ctx.Params("name")
+	tag := ctx.Params("tag")
+	versionStr := ctx.Params("version")
+	version, _ := strconv.Atoi(versionStr)
+
+	deployment := controller.GetHtmlDeploymentDetail(namespace, repository, name, tag, int64(version))
 	if deployment == nil {
 		ctx.Resp.WriteHeader(http.StatusNotFound)
 		ctx.Resp.Write([]byte("Deployment not found"))

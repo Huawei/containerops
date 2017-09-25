@@ -46,8 +46,8 @@ type HtmlDeployment struct {
 	CA                 template.HTML // The YAML file content
 	Log                template.HTML // The log
 
-	Version int64
 	Tag     string
+	Version int64
 
 	InfraName   string
 	InfraLogo   string
@@ -61,6 +61,7 @@ type HtmlInfra struct {
 	Name       string
 	Version    string
 	Logo       string
+	Link       string
 	Log        template.HTML
 	Components []HtmlComponent
 }
@@ -76,6 +77,7 @@ type HtmlComponent struct {
 type HtmlInfraTitle struct {
 	Name string
 	Logo string
+	Link string
 }
 
 func GetHtmlDeploymentList() ([]HtmlDeployment, error) {
@@ -85,6 +87,7 @@ func GetHtmlDeploymentList() ([]HtmlDeployment, error) {
 		return nil, err
 	}
 
+	var singular model.SingularV1
 	htmlDeployments := []HtmlDeployment{}
 	for i := 0; i < len(deployments); i++ {
 		deployment := deployments[i]
@@ -93,12 +96,18 @@ func GetHtmlDeploymentList() ([]HtmlDeployment, error) {
 		if deployment.Result == true {
 			statusIcon, statusColor = "check", "green"
 		}
+		model.DB.Where("ID=?", deployment.SingularV1).First(&singular)
 		htmlDeployment := HtmlDeployment{
 			// Name: deployment.Name,
-			CreatedTime: deployment.CreatedAt.Format("2006-01-02 15:04:05"),
-			ID:          deployment.ID,
-			StatusIcon:  statusIcon,
-			StatusColor: statusColor,
+			CreatedTime:        deployment.CreatedAt.Format("2006-01-02 15:04:05"),
+			ID:                 deployment.ID,
+			SingularName:       singular.Name,
+			SingularNamespace:  singular.Namespace,
+			SingularRepository: singular.Repository,
+			Tag:                deployment.Tag,
+			Version:            deployment.Version,
+			StatusIcon:         statusIcon,
+			StatusColor:        statusColor,
 		}
 		htmlDeployments = append(htmlDeployments, htmlDeployment)
 	}
@@ -154,19 +163,20 @@ func GetHtmlDeploymentList() ([]HtmlDeployment, error) {
 	return htmlDeployments, nil
 }
 
-func GetHtmlDeploymentDetail(deploymentID int) *HtmlDeployment {
+func GetHtmlDeploymentDetail(namespace, repository, name, tag string, version int64) *HtmlDeployment {
 	var singular model.SingularV1
 	var deployment model.DeploymentV1
 	var infras []model.InfraV1
 	htmlInfras := []HtmlInfra{}
 
+	// Get Singular
+	model.DB.Where("namespace=? AND repository=? AND name=?", namespace, repository, name).First(&singular)
+
 	// Get the infra and components
-	err := model.DB.Where("id=?", deploymentID).First(&deployment).Error
+	err := model.DB.Where("singular_v1=? AND tag=? AND version=?", singular.ID, tag, version).First(&deployment).Error
 	if err != nil && err.Error() == "record not found" {
 		return nil
 	}
-
-	model.DB.Where("id=?", deployment.SingularV1).First(&singular)
 
 	model.DB.Where("deployment_v1=?", deployment.ID).Find(&infras)
 	for i := 0; i < len(infras); i++ {
@@ -242,22 +252,22 @@ func convertInfra(input *model.InfraV1) HtmlInfra {
 	case "kubernetes":
 		// infra.Width = 40
 		// infra.Height = 40
-		infra.Logo = "./public/icons/kubernetes.svg"
+		infra.Logo = "/public/icons/kubernetes.svg"
 		break
 	case "docker":
 		// infra.Width = 40
 		// infra.Height = 40
-		infra.Logo = "./public/icons/docker.svg"
+		infra.Logo = "/public/icons/docker.svg"
 		break
 	case "flannel":
 		// infra.Width = 40
 		// infra.Height = 40
-		infra.Logo = "./public/icons/flannel.svg"
+		infra.Logo = "/public/icons/flannel.svg"
 		break
 	case "etcd":
 		// infra.Width = 40
 		// infra.Height = 40
-		infra.Logo = "./public/icons/etcd.svg"
+		infra.Logo = "/public/icons/etcd.svg"
 		break
 	default:
 		break
@@ -306,21 +316,39 @@ var infraNames map[string]string = map[string]string{
 }
 
 var infraLogos map[string]string = map[string]string{
-	"kubernetes":  "./public/icons/kubernetes.png",
-	"etcd":        "./public/icons/etcd.svg",
-	"flannel":     "./public/icons/flannel.svg",
-	"docker":      "./public/icons/docker.svg",
-	"prometheus":  "./public/icons/prometheus.png",
-	"opentracing": "./public/icons/opentracing.png",
-	"fluentd":     "./public/icons/fluentd.png",
-	"linkerd":     "./public/icons/linkerd.png",
-	"grpc":        "./public/icons/grpc.png",
-	"coredns":     "./public/icons/coredns.png",
-	"containerd":  "./public/icons/containerd.png",
-	"rkt":         "./public/icons/rkt.png",
-	"cni":         "./public/icons/cni.png",
-	"envoy":       "./public/icons/envoy.png",
-	"jaeger":      "./public/icons/jaeger.png",
+	"kubernetes":  "/public/icons/kubernetes.png",
+	"etcd":        "/public/icons/etcd.svg",
+	"flannel":     "/public/icons/flannel.svg",
+	"docker":      "/public/icons/docker.svg",
+	"prometheus":  "/public/icons/prometheus.png",
+	"opentracing": "/public/icons/opentracing.png",
+	"fluentd":     "/public/icons/fluentd.png",
+	"linkerd":     "/public/icons/linkerd.png",
+	"grpc":        "/public/icons/grpc.png",
+	"coredns":     "/public/icons/coredns.png",
+	"containerd":  "/public/icons/containerd.png",
+	"rkt":         "/public/icons/rkt.png",
+	"cni":         "/public/icons/cni.png",
+	"envoy":       "/public/icons/envoy.png",
+	"jaeger":      "/public/icons/jaeger.png",
+}
+
+var infraLinks map[string]string = map[string]string{
+	"kubernetes":  "https://kubernetes.io",
+	"etcd":        "https://coreos.com/etcd",
+	"flannel":     "https://coreos.com/flannel",
+	"docker":      "https://www.docker.com",
+	"prometheus":  "http://prometheus.io",
+	"opentracing": "http://opentracing.io",
+	"fluentd":     "http://fluentd.org",
+	"linkerd":     "https://www.linkerd.io",
+	"grpc":        "http://www.grpc.io",
+	"coredns":     "https://coredns.io",
+	"containerd":  "http://containerd.io",
+	"rkt":         "https://github.com/rkt/rkt",
+	"cni":         "https://github.com/containernetworking",
+	"envoy":       "https://github.com/envoyproxy/envoy",
+	"jaeger":      "https://github.com/uber/jaeger",
 }
 
 var InfraOrder []string = []string{"kubernetes", "etcd", "flannel", "docker", "prometheus", "opentracing", "fluentd", "linerd", "grpc", "coredns", "containerd", "rkt", "cni", "envoy", "jaeger"}
@@ -332,6 +360,7 @@ func init() {
 		InfraTitles = append(InfraTitles, HtmlInfraTitle{
 			Name: getInfraName(infra_name),
 			Logo: getInfraLogo(infra_name),
+			Link: getInfraLink(infra_name),
 		})
 	}
 }
@@ -347,7 +376,15 @@ func getInfraName(key string) string {
 func getInfraLogo(name string) string {
 	logo := infraLogos[name]
 	if logo == "" {
-		logo = "./public/icons/google-cloud.svg"
+		logo = "/public/icons/google-cloud.svg"
 	}
 	return logo
+}
+
+func getInfraLink(name string) string {
+	link := infraLinks[name]
+	if link == "" {
+		link = "https://www.github.com"
+	}
+	return link
 }

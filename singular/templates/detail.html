@@ -5,8 +5,7 @@
     <!--Import Google Icon Font-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!--Import materialize.css-->
-    <link type="text/css" rel="stylesheet" href="public/css/materialize.min.css" media="screen,projection"
-    />
+    <link type="text/css" rel="stylesheet" href="/public/css/materialize.min.css" media="screen,projection">
 
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -51,7 +50,7 @@
 
 <body>
     <header class="page-footer blue" style="padding-top:10px; padding-left:20px">
-        <div class="container" style="padding-bottom:10px">
+        <div class="container" style="padding-bottom:10px; width: 100%">
             <h2>{{.SingularName}}</h2>
             <!-- <h4>{{.Tag}} : {{.Version}}</h4> -->
 
@@ -65,17 +64,16 @@
         </div>
     </header>
 
-    <div class="container">
-
+    <div class="container" style="width: 100%">
         <div class="row">
             <div class="col s3" style="margin-top: 10px">
                 <ul class="tabs">
                     {{range .Infras}}
                     <li class="tab col s3">
-                        <a href="#{{.Name}}">
-                            <div style="text-align: center">
-								<img src="{{.Logo}}" style="width:30px;height:30px;" />
-								<div style="font-size:12px; margin-top: -13px; line-height: 10px">	{{.Version}} </div>
+                        <a href="#{{.Name}}" class="valign-wrapper" style="display: flex;">
+                            <div>
+                                <img src="{{.Logo}}" style="width:30px;height:30px;" />
+                                <div style="font-size:12px; margin-top: -13px; line-height: 10px"> {{.Version}} </div>
                             </div>
                         </a>
                     </li>
@@ -89,12 +87,15 @@
             <!--     <span style="margin-left: 20px" class="modal-trigger" href="#logModal"><i class="material-icons green-text clickable">insert_drive_file</i><span class="clickable">Logs</span></span> -->
             <!-- </div> -->
 
+            <!-- Trigger -->
             <div id="yamlModal" class="modal top">
                 <div class="modal-header right">
-                    <a href="#!" class="modal-action waves-effect waves-green btn">COPY(TBD)</a>
+                    <i onclick="copyToClipboard()" class="tiny material-icons blue-text" style="cursor: pointer; margin-top: 10px; margin-right: 20px">content_copy</i>
+                    <!-- <a href="#!" class="modal-action waves-effect waves-green btn" onclick="copyToClipboard()"><i class="material-icons">content_copy</i></a> -->
                 </div>
-                <div class="modal-content">
-                    <p class="source-code">{{.Data}}</p>
+
+                <div class="modal-content" style="padding-top: 20px">
+                    <p id="yamlContent" class="source-code">{{.Data}}</p>
                 </div>
             </div>
 
@@ -156,7 +157,7 @@
         <div class="container">
             <span class="right">
 				<a class="grey-text text-lighten-4" href="https://github.com/Huawei/containerops">
-					<img src="public/icons/github.svg" style="width:20px; height:20px" />
+					<img src="/public/icons/github.svg" style="width:20px; height:20px" />
 					<div class="right" style="margin-left: 5px"> ContainerOps </div>
 				</a>
 			</span>
@@ -164,7 +165,7 @@
     </footer>
     <!--Import jQuery before materialize.js-->
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script type="text/javascript" src="public/js/materialize.min.js"></script>
+    <script type="text/javascript" src="/public/js/materialize.min.js"></script>
 
     <script charset="utf-8">
         $(document).ready(function()
@@ -172,6 +173,17 @@
             // the "href" attribute of the modal trigger must specify the modal ID that wants to be triggered
             $('.modal').modal();
         });
+
+        function copyToClipboard()
+        {
+            console.log('copy to clipboard called')
+            var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val($('#yamlContent').text()).select();
+            document.execCommand("copy");
+            $temp.remove();
+			Materialize.toast('Copied', 500)
+        }
     </script>
 </body>
 
