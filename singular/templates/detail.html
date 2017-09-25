@@ -66,14 +66,15 @@
 
     <div class="container" style="width: 100%">
         <div class="row">
-            <div class="col s3" style="margin-top: 10px">
-                <ul class="tabs">
+            <div class="col s2">
+                <!-- infras -->
+                <ul class="tabs" style="overflow: visible;">
                     {{range .Infras}}
-                    <li class="tab col s3">
-                        <a href="#{{.Name}}" class="valign-wrapper" style="display: flex;">
-                            <div>
-                                <img src="{{.Logo}}" style="width:30px;height:30px;" />
-                                <div style="font-size:12px; margin-top: -13px; line-height: 10px"> {{.Version}} </div>
+                    <li class="tab" style="display: list-item;">
+                        <a href="#{{.Name}}" class="valign-wrapper">
+                            <div >
+                                <img src="{{.Logo}}" class="center-align" style="width:30px;height:30px;"/>
+                                <div class="center-align" style="font-size:12px; margin-top: -13px; line-height: 7px"> {{.Version}} </div>
                             </div>
                         </a>
                     </li>
@@ -81,11 +82,31 @@
                 </ul>
             </div>
 
-            <!-- <div class="col s3" style="padding-top: 17px"> -->
-            <!--     <span class="modal-trigger" href="#yamlModal"><i class="material-icons green-text clickable">insert_drive_file</i><span class="clickable">YAML</span></span> -->
-            <!--     <span style="margin-left: 20px"><i class="material-icons green-text clickable">lock</i><span class="clickable">CA files</span></span> -->
-            <!--     <span style="margin-left: 20px" class="modal-trigger" href="#logModal"><i class="material-icons green-text clickable">insert_drive_file</i><span class="clickable">Logs</span></span> -->
-            <!-- </div> -->
+            <div class="col s10">
+                {{range .Infras}}
+                <div id="{{.Name}}" class="row">
+                    <div class="col s3">
+                        <ul class="collapsible" data-collapsible="accordion">
+                            {{range .Components}}
+                            <li>
+                                <div class="collapsible-header">
+                                    <i class="material-icons blue-text">settings</i>
+                                    <div class="valign-wrapper">{{.Name}}</div>
+                                </div>
+                            </li>
+                            {{end}}
+                        </ul>
+                    </div>
+
+                    <div class="col s9 terminal" style="margin-top: 7.5px; max-height: 600px;">
+                        {{.Log}}
+                    </div>
+
+                </div>
+
+                {{end}}
+            </div>
+
 
             <!-- Trigger -->
             <div id="yamlModal" class="modal top">
@@ -116,39 +137,6 @@
                     <span class="terminal">{{.Log}}</span>
                 </div>
             </div>
-
-        </div>
-
-        <!-- <div> -->
-        <!--     <span><i class="material-icons">insert_drive_file</i>yaml</span> -->
-        <!--     <span style="margin-left: 50px"><i class="material-icons">lock</i>CA files</span> -->
-        <!-- </div> -->
-
-        <div class="row">
-            {{range .Infras}}
-            <div id="{{.Name}}" class="col s12">
-                <div class="col s6">
-                    <ul class="collapsible" data-collapsible="accordion">
-                        {{range .Components}}
-                        <li>
-                            <div class="collapsible-header">
-                                <i class="material-icons blue-text">settings</i>
-                                <div class="valign-wrapper">{{.Name}}</div>
-                            </div>
-                            <!-- <div class="collapsible-body"><span class="terminal">{{.Log}}</span></div> -->
-                        </li>
-                        {{end}}
-                    </ul>
-                </div>
-
-                <div class="col s6 terminal" style="margin-top: 7.5px; max-height: 600px;">
-                    {{.Log}}
-                </div>
-
-            </div>
-
-            {{end}}
-
 
         </div>
 
