@@ -2,12 +2,13 @@ package main
 
 import (
 	"bytes"
-	"os"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
-	"flag"
-	"module"
+	"os"
+
+	"github.com/Huawei/containerops/component/test/build/module"
 )
 
 var tag = "latest"
@@ -38,7 +39,7 @@ func main() {
 	buf.Write([]byte(registry))
 	buf.Write([]byte("&namespace="))
 	buf.Write([]byte(namespace))
-	fmt.Println(buf.String()) 
+	fmt.Println(buf.String())
 	UploadBinaryFile(path, buf.String())
 }
 
@@ -73,7 +74,7 @@ func UploadBinaryFile(filePath, url string) error {
 						fmt.Println(resp.StatusCode)
 						fmt.Println(resp.Header)
 						fmt.Println(body)
-						var jsonobj module.Image 
+						var jsonobj module.Image
 						jsonobj = module.Json2obj(body.String())
 						fmt.Println(jsonobj)
 						module.Buildtp(jsonobj.Endpoint)
