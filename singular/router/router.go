@@ -25,6 +25,5 @@ import (
 //SetRouters is setting REST API interface with handler function.
 func SetRouters(m *macaron.Macaron) {
 	m.Get("/", handler.GetIndexPageV1Handler)
-	m.Get("/detail", handler.GetDetailPageV1Handler)
-
+	m.Get("/detail/:namespace/:repository/:name/:tag/:version", handler.GetDetailPageV1Handler)
 }
