@@ -89,10 +89,10 @@
                 <!-- infras -->
                 <ul class="tabs" style="overflow: visible;" style="text-align: center;">
                     {{range .Infras}}
-                    <li id="tab-{{.Name}}" class="tab" style="display: block; margin-top: 20px;" onclick="onTabClick({{.Name}})">
+                    <li id="tab-{{.Name}}" class="tab" style="display: block; margin-top: 20px; height: 60px" onclick="onTabClick({{.Name}})">
                         <a href="#{{.Name}}" style="box-sizing: border-box;">
                             <img class="center-align" src="{{.Logo}}" style="width:30px;height:30px;"/>
-                            <div class="fuck" style="margin-top: -13px; line-height: 7px;"> {{.Version}} </div>
+                            <div class="chip green white-text" style="margin-top: -13px; line-height: 7px; height: 23px; display: block; padding-top: 8px"> {{.Version}} </div>
                         </a>
                     </li>
                     {{end}}
