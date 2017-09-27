@@ -13,6 +13,11 @@
         header footer {
             font-family: 'Roboto Condensed', sans-serif;
         }
+
+        footer {
+            background-color: #24292e;
+        }
+
         body {
             font-family: 'Open Sans', sans-serif;
         }
@@ -63,16 +68,16 @@
 </head>
 
 <body>
-    <header class="page-footer blue" style="padding-top:10px; padding-left:20px">
+    <header class="page-footer" style="padding-top:10px; padding-left:20px; background-color: #eeeeee">
         <div class="container" style="padding-bottom:10px; width: 100%">
-            <h2>{{.SingularName}}</h2>
+            <h2 class="black-text">{{.SingularName}}</h2>
             <!-- <h4>{{.Tag}} : {{.Version}}</h4> -->
 
             <div class="row">
                 <div class="col s3 right">
-                    <span class="modal-trigger" href="#yamlModal"><i class="material-icons white-text clickable">insert_drive_file</i><span class="clickable">YAML</span></span>
-                    <span style="margin-left: 20px" class="modal-trigger" href="#caModal"><i class="material-icons white-text clickable">lock</i><span class="clickable">CA files</span></span>
-                    <span style="margin-left: 20px" class="modal-trigger" href="#logModal"><i class="material-icons white-text clickable">insert_drive_file</i><span class="clickable">Logs</span></span>
+                    <span class="modal-trigger" href="#yamlModal"><i class="material-icons black-text clickable">insert_drive_file</i><span class="clickable black-text">YAML</span></span>
+                    <span style="margin-left: 20px" class="modal-trigger" href="#caModal"><i class="material-icons black-text clickable">lock</i><span class="clickable black-text">CA files</span></span>
+                    <span style="margin-left: 20px" class="modal-trigger" href="#logModal"><i class="material-icons black-text clickable">insert_drive_file</i><span class="clickable black-text">Logs</span></span>
                 </div>
             </div>
         </div>
@@ -110,7 +115,7 @@
                         </ul>
                     </div>
 
-                    <div class="col s9 terminal" style="margin-top: 7.5px; max-height: 600px;">
+                    <div class="col s8 terminal" style="margin-top: 7.5px; max-height: 600px;">
                         {{.Log}}
                     </div>
 
@@ -153,14 +158,14 @@
         </div>
 
     </div>
-    <footer class="page-footer blue" style="padding-bottom: 35px;">
-        <div class="container">
-            <span class="right">
-				<a class="grey-text text-lighten-4" href="https://github.com/Huawei/containerops">
-					<img src="/public/icons/github.svg" style="width:20px; height:20px" />
-					<div class="right" style="margin-left: 5px"> ContainerOps </div>
-				</a>
-			</span>
+    <footer class="page-footer" style="padding-bottom: 45px;">
+        <div class="container" style="width: 100%">
+            <div class="right valign-wrapper" style="display: flex">
+                <div style="margin-left: 5px; margin-right: 20px"> Powered By </div>
+                <a class="grey-text text-lighten-4" href="https://github.com/Huawei/containerops">
+                    <img src="/public/icons/huawei_pure_white.svg" style="width:40px; height:40px" />
+                </a>
+            </div>
         </div>
     </footer>
     <!--Import jQuery before materialize.js-->
