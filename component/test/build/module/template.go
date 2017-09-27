@@ -12,7 +12,7 @@ import (
 	var tpaction = "./module/action.yml"
 	var tpfoot = "./module/foot.yml"
 
-func Buildtp(value string) {
+func Buildyml(value string) {
 		bhead := ReadFile(tphead)
 		baction := ReadFile(tpaction)
 		bfoot := ReadFile(tpfoot)
