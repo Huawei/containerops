@@ -45,6 +45,7 @@ type HtmlDeployment struct {
 	Data               template.HTML // The YAML file content
 	CA                 template.HTML // The YAML file content
 	Log                template.HTML // The log
+	Short              string
 
 	Tag     string
 	Version int64
@@ -207,6 +208,7 @@ func GetHtmlDeploymentDetail(namespace, repository, name, tag string, version in
 		Version:            deployment.Version,
 		Tag:                deployment.Tag,
 		Log:                convertLog(deployment.Log),
+		Short:              deployment.Short,
 		Data:               convertToBr(deployment.Data),
 		CA:                 convertToBr(deployment.CA),
 		Infras:             htmlInfras,

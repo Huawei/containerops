@@ -61,6 +61,7 @@ type DeploymentV1 struct {
 	Version     int64      `json:"version" yaml:"version" sql:"null;default:0" gorm:"column:version;unique_index:singular_deployment"`
 	Service     string     `json:"service" yaml:"service" sql:"null;type:text" gorm:"column:service"`
 	Node        int        `json:"node" yaml:"node" sql:"not null;default:0" gorm:"column:node"`
+	Short       string     `json:"short" yaml:"short" sql:"null;type:varchar(255)" gorm:"column:short"`
 	Log         string     `json:"log" yaml:"log" sql:"null;type:text" gorm:"column:log"`
 	Description string     `json:"description" yaml:"description" sql:"null;type:text" gorm:"column:description"`
 	Data        string     `json:"data" yaml:"data" sql:"null;type:text" gorm:"column:data"`
