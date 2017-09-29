@@ -45,6 +45,7 @@ type HtmlDeployment struct {
 	Data               template.HTML // The YAML file content
 	CA                 template.HTML // The YAML file content
 	Log                template.HTML // The log
+	Short              string
 
 	Tag     string
 	Version int64
@@ -82,7 +83,12 @@ type HtmlInfraTitle struct {
 
 func GetHtmlDeploymentList() ([]HtmlDeployment, error) {
 	var deployments []model.DeploymentV1
-	err := model.DB.Order("create_at desc").Find(&deployments).Error
+	// TODO See if there are some better ways
+	// The original SQL:
+	// select id, singular_v1, create_at from deployment_v1 where create_at in
+	// ( select max(create_at) from deployment_v1 group by singular_v1)
+	// order by create_at desc
+	err := model.DB.Where("create_at in ( select max(create_at) from deployment_v1 group by singular_v1)").Order("create_at desc").Find(&deployments).Error
 	if err != nil {
 		return nil, err
 	}
@@ -202,6 +208,7 @@ func GetHtmlDeploymentDetail(namespace, repository, name, tag string, version in
 		Version:            deployment.Version,
 		Tag:                deployment.Tag,
 		Log:                convertLog(deployment.Log),
+		Short:              deployment.Short,
 		Data:               convertToBr(deployment.Data),
 		CA:                 convertToBr(deployment.CA),
 		Infras:             htmlInfras,
