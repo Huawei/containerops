@@ -15,13 +15,13 @@ infras:
     components:
       -
         binary: etcd
-        url: https://binary.nyc3.digitaloceanspaces.com/etcd/3.2.4/etcd
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/3.2.4/etcd
         package: false
         systemd: etcd-3.2.4
         ca: etcd-3.2.4
       -
         binary: etcdctl
-        url: https://binary.nyc3.digitaloceanspaces.com/etcd/3.2.4/etcdctl
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/3.2.4/etcdctl
         package: false
   -
     name: flannel
@@ -33,7 +33,7 @@ infras:
     components:
       -
         binary: flanneld
-        url: https://binary.nyc3.digitaloceanspaces.com/flannel/0.7.1/flanneld
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/0.7.1/flanneld
         package: false
         systemd: flannel-0.7.1
         ca: flannel-0.7.1
@@ -41,7 +41,7 @@ infras:
           - "etcdctl --endpoints={{.Nodes}} --ca-file=/etc/kubernetes/ssl/ca.pem --cert-file=/etc/flanneld/ssl/flanneld.pem --key-file=/etc/flanneld/ssl/flanneld-key.pem set /kubernetes/network/config '{\"Network\":\"'172.30.0.0/16'\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\"}}'"
       -
         binary: mk-docker-opts.sh
-        url: https://binary.nyc3.digitaloceanspaces.com/flannel/0.7.1/mk-docker-opts.sh
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/0.7.1/mk-docker-opts.sh
         package: false
   -
     name: docker
@@ -53,7 +53,7 @@ infras:
     components:
       -
         binary: docker
-        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/17.04.0-ce/docker
         package: false
         systemd: docker-17.04.0-ce
         before:
@@ -65,31 +65,31 @@ infras:
           - "iptables -w -P FORWARD ACCEPT"
       -
         binary: dockerd
-        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/dockerd
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/17.04.0-ce/dockerd
         package: false
       -
         binary: docker-init
-        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker-init
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/17.04.0-ce/docker-init
         package: false
       -
         binary: docker-proxy
-        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker-proxy
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/17.04.0-ce/docker-proxy
         package: false
       -
         binary: docker-runc
-        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker-runc
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/17.04.0-ce/docker-runc
         package: false
       -
         binary: docker-containerd
-        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker-containerd
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/17.04.0-ce/docker-containerd
         package: false
       -
         binary: docker-containerd-ctr
-        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker-containerd-ctr
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/17.04.0-ce/docker-containerd-ctr
         package: false
       -
         binary: docker-containerd-shim
-        url: https://binary.nyc3.digitaloceanspaces.com/docker/17.04.0-ce/docker-containerd-shim
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/17.04.0-ce/docker-containerd-shim
         package: false
   -
     name: kubernetes
