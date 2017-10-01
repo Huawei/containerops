@@ -5,12 +5,22 @@
     <!--Import Google Icon Font-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!--Import materialize.css-->
-    <link type="text/css" rel="stylesheet" href="public/css/materialize.min.css" media="screen,projection"
-    />
-
+    <link type="text/css" rel="stylesheet" href="/public/css/materialize.min.css" media="screen,projection">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto+Condensed" rel="stylesheet">
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style type="text/css">
+        header footer {
+            font-family: 'Roboto Condensed', sans-serif;
+        }
+
+        footer {
+            background-color: #24292e;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+        }
         .collapsible-header {
             cursor: default;
         }
@@ -46,55 +56,84 @@
             overflow-x: hidden;
             overflow-y: hidden;
         }
+
+        .tabs .tab .active {
+            border-left: 2px solid red;
+        }
+        .indicator {
+            display: none;
+        }
+
     </style>
 </head>
 
 <body>
-    <header class="page-footer blue" style="padding-top:10px; padding-left:20px">
-        <div class="container" style="padding-bottom:10px">
-            <h2>{{.SingularName}}</h2>
+    <header class="page-footer" style="padding-top:10px; padding-left:20px; background-color: #eeeeee">
+        <div class="container" style="padding-bottom:10px; width: 100%">
+            <h2 class="black-text">{{.Short}}</h2>
             <!-- <h4>{{.Tag}} : {{.Version}}</h4> -->
 
             <div class="row">
                 <div class="col s3 right">
-                    <span class="modal-trigger" href="#yamlModal"><i class="material-icons white-text clickable">insert_drive_file</i><span class="clickable">YAML</span></span>
-                    <span style="margin-left: 20px" class="modal-trigger" href="#caModal"><i class="material-icons white-text clickable">lock</i><span class="clickable">CA files</span></span>
-                    <span style="margin-left: 20px" class="modal-trigger" href="#logModal"><i class="material-icons white-text clickable">insert_drive_file</i><span class="clickable">Logs</span></span>
+                    <span class="modal-trigger" href="#yamlModal"><i class="material-icons black-text clickable">insert_drive_file</i><span class="clickable black-text">YAML</span></span>
+                    <span style="margin-left: 20px" class="modal-trigger" href="#caModal"><i class="material-icons black-text clickable">lock</i><span class="clickable black-text">CA files</span></span>
+                    <span style="margin-left: 20px" class="modal-trigger" href="#logModal"><i class="material-icons black-text clickable">insert_drive_file</i><span class="clickable black-text">Logs</span></span>
                 </div>
             </div>
         </div>
     </header>
 
-    <div class="container">
-
+    <div class="container" style="width: 100%">
         <div class="row">
-            <div class="col s3" style="margin-top: 10px">
-                <ul class="tabs">
+            <div class="col s1.5">
+                <!-- infras -->
+                <ul class="tabs" style="overflow: visible;" style="text-align: center;">
                     {{range .Infras}}
-                    <li class="tab col s3">
-                        <a href="#{{.Name}}">
-                            <div style="text-align: center">
-								<img src="{{.Logo}}" style="width:30px;height:30px;" />
-								<div style="font-size:12px; margin-top: -13px; line-height: 10px">	{{.Version}} </div>
-                            </div>
+                    <li id="tab-{{.Name}}" class="tab" style="display: block; margin-top: 20px; height: 60px" onclick="onTabClick({{.Name}})">
+                        <a href="#{{.Name}}" style="box-sizing: border-box;">
+                            <img class="center-align" src="{{.Logo}}" style="width:30px;height:30px;"/>
+                            <div class="chip green white-text" style="margin-top: -13px; line-height: 7px; height: 23px; display: block; padding-top: 8px"> {{.Version}} </div>
                         </a>
                     </li>
                     {{end}}
                 </ul>
             </div>
 
-            <!-- <div class="col s3" style="padding-top: 17px"> -->
-            <!--     <span class="modal-trigger" href="#yamlModal"><i class="material-icons green-text clickable">insert_drive_file</i><span class="clickable">YAML</span></span> -->
-            <!--     <span style="margin-left: 20px"><i class="material-icons green-text clickable">lock</i><span class="clickable">CA files</span></span> -->
-            <!--     <span style="margin-left: 20px" class="modal-trigger" href="#logModal"><i class="material-icons green-text clickable">insert_drive_file</i><span class="clickable">Logs</span></span> -->
-            <!-- </div> -->
+            <div class="col s10">
+                {{range .Infras}}
+                <div id="{{.Name}}" class="row">
+                    <div class="col s3">
+                        <ul class="collapsible" data-collapsible="accordion">
+                            {{range .Components}}
+                            <li>
+                                <div class="collapsible-header">
+                                    <i class="material-icons blue-text">settings</i>
+                                    <div class="valign-wrapper">{{.Name}}</div>
+                                </div>
+                            </li>
+                            {{end}}
+                        </ul>
+                    </div>
 
+                    <div class="col s9 terminal" style="margin-top: 7.5px; max-height: 600px;">
+                        {{.Log}}
+                    </div>
+
+                </div>
+
+                {{end}}
+            </div>
+
+
+            <!-- Trigger -->
             <div id="yamlModal" class="modal top">
                 <div class="modal-header right">
-                    <a href="#!" class="modal-action waves-effect waves-green btn">COPY(TBD)</a>
+                    <i onclick="copyToClipboard()" class="tiny material-icons blue-text" style="cursor: pointer; margin-top: 10px; margin-right: 20px">content_copy</i>
+                    <!-- <a href="#!" class="modal-action waves-effect waves-green btn" onclick="copyToClipboard()"><i class="material-icons">content_copy</i></a> -->
                 </div>
-                <div class="modal-content">
-                    <p class="source-code">{{.Data}}</p>
+
+                <div class="modal-content" style="padding-top: 20px">
+                    <p id="yamlContent" class="source-code">{{.Data}}</p>
                 </div>
             </div>
 
@@ -118,53 +157,20 @@
 
         </div>
 
-        <!-- <div> -->
-        <!--     <span><i class="material-icons">insert_drive_file</i>yaml</span> -->
-        <!--     <span style="margin-left: 50px"><i class="material-icons">lock</i>CA files</span> -->
-        <!-- </div> -->
-
-        <div class="row">
-            {{range .Infras}}
-            <div id="{{.Name}}" class="col s12">
-                <div class="col s6">
-                    <ul class="collapsible" data-collapsible="accordion">
-                        {{range .Components}}
-                        <li>
-                            <div class="collapsible-header">
-                                <i class="material-icons blue-text">settings</i>
-                                <div class="valign-wrapper">{{.Name}}</div>
-                            </div>
-                            <!-- <div class="collapsible-body"><span class="terminal">{{.Log}}</span></div> -->
-                        </li>
-                        {{end}}
-                    </ul>
-                </div>
-
-                <div class="col s6 terminal" style="margin-top: 7.5px; max-height: 600px;">
-                    {{.Log}}
-                </div>
-
-            </div>
-
-            {{end}}
-
-
-        </div>
-
     </div>
-    <footer class="page-footer blue" style="padding-bottom: 35px;">
-        <div class="container">
-            <span class="right">
-				<a class="grey-text text-lighten-4" href="https://github.com/Huawei/containerops">
-					<img src="public/icons/github.svg" style="width:20px; height:20px" />
-					<div class="right" style="margin-left: 5px"> ContainerOps </div>
-				</a>
-			</span>
+    <footer class="page-footer" style="padding-bottom: 45px;">
+        <div class="container" style="width: 100%">
+            <div class="right valign-wrapper" style="display: flex">
+                <div style="margin-left: 5px; margin-right: 20px"> Powered By </div>
+                <a class="grey-text text-lighten-4" href="https://github.com/Huawei/containerops">
+                    <img src="/public/icons/huawei_pure_white.svg" style="width:40px; height:40px" />
+                </a>
+            </div>
         </div>
     </footer>
     <!--Import jQuery before materialize.js-->
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script type="text/javascript" src="public/js/materialize.min.js"></script>
+    <script type="text/javascript" src="/public/js/materialize.min.js"></script>
 
     <script charset="utf-8">
         $(document).ready(function()
@@ -172,6 +178,29 @@
             // the "href" attribute of the modal trigger must specify the modal ID that wants to be triggered
             $('.modal').modal();
         });
+
+        function copyToClipboard()
+        {
+            console.log('copy to clipboard called')
+            var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val($('#yamlContent').text()).select();
+            document.execCommand("copy");
+            $temp.remove();
+			Materialize.toast('Copied', 500)
+        }
+        function onTabClick() {
+            var target = arguments[0]
+            $("li[id^='tab-']").each(function(i, elem) {
+                
+                if (elem.id === ('tab-' + target)) {
+                    $('#'+elem.id).addClass('active')
+                } else {
+                    $('#'+elem.id).removeClass('active')
+                }
+            })
+        }
+
     </script>
 </body>
 
