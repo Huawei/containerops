@@ -103,33 +103,33 @@ infras:
     components:
       -
         binary: kube-apiserver
-        url: https://binary.nyc3.digitaloceanspaces.com/kubernetes/1.6.7/kube-apiserver
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/1.6.7/kube-apiserver
         package: false
         systemd: kube-apiserver-1.6.7
         ca: kubernetes-1.6.7
       -
         binary: kube-controller-manager
-        url: https://binary.nyc3.digitaloceanspaces.com/kubernetes/1.6.7/cloud-controller-manager
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/1.6.7/cloud-controller-manager
         package: false
         systemd: kube-controller-manager-1.6.7
         ca: kubernetes-1.6.7
       -
         binary: kube-scheduler
-        url: https://binary.nyc3.digitaloceanspaces.com/kubernetes/1.6.7/kube-scheduler
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/1.6.7/kube-scheduler
         package: false
         systemd: kube-scheduler-1.6.7
       -
         binary: kubectl
-        url: https://binary.nyc3.digitaloceanspaces.com/kubernetes/1.6.7/kubectl
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/1.6.7/kubectl
         package: false
       -
         binary: kubelet
-        url: https://binary.nyc3.digitaloceanspaces.com/kubernetes/1.6.7/kubelet
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/1.6.7/kubelet
         package: false
         systemd: kubelet-1.6.7
       -
         binary: kube-proxy
-        url: https://binary.nyc3.digitaloceanspaces.com/kubernetes/1.6.7/kube-proxy
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/1.6.7/kube-proxy
         package: false
         systemd: kube-proxy-1.6.7
         ca: kube-proxy-1.6.7
