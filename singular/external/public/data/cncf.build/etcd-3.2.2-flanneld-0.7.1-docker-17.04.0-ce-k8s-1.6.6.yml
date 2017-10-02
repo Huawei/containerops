@@ -1,5 +1,5 @@
-uri: containerops/singular/etcd-3.2.2-flanneld-0.7.1-docker-17.04.0-ce-k8s-1.6.7
-title: Deploy Kubernetes With etcd-3.2.2 flanneld-0.7.1 docker-17.04.0-ce k8s-1.6.7
+uri: containerops/singular/etcd-3.2.2-flanneld-0.7.1-docker-17.04.0-ce-k8s-1.6.6
+title: Deploy Kubernetes With etcd-3.2.2 flanneld-0.7.1 docker-17.04.0-ce k8s-1.6.6
 tag: latest
 service:
   region: sfo2
@@ -109,7 +109,7 @@ infras:
         ca: kubernetes-1.6.7
       -
         binary: kube-controller-manager
-        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/cloud-controller-manager
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/kube-controller-manager
         package: false
         systemd: kube-controller-manager-1.6.7
         ca: kubernetes-1.6.7

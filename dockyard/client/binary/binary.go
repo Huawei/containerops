@@ -24,7 +24,7 @@ import (
 	"path/filepath"
 )
 
-// Upload binary file to the Dockyard service.
+//UploadBinaryFile upload binary file to the Dockyard service.
 func UploadBinaryFile(filePath, domain, namespace, repository, tag string) error {
 	if f, err := os.Open(filePath); err != nil {
 		return err
@@ -48,11 +48,11 @@ func UploadBinaryFile(filePath, domain, namespace, repository, tag string) error
 				case http.StatusOK:
 					return nil
 				case http.StatusBadRequest:
-					return fmt.Errorf("Binary upload failed.")
+					return fmt.Errorf("binary upload failed")
 				case http.StatusUnauthorized:
-					return fmt.Errorf("Action unauthorized.")
+					return fmt.Errorf("action unauthorized")
 				default:
-					return fmt.Errorf("Unknown error.")
+					return fmt.Errorf("unknown error")
 				}
 			}
 		}
@@ -61,7 +61,7 @@ func UploadBinaryFile(filePath, domain, namespace, repository, tag string) error
 	return nil
 }
 
-// Download binary file to the local.
+//DownloadBinaryFile download binary file to the local.
 func DownloadBinaryFile(domain, namespace, repository, filename, tag, filePath string) error {
 	if _, err := os.Stat(filePath); err == nil {
 		os.Remove(filePath)
