@@ -63,13 +63,13 @@ var downloadCmd = &cobra.Command{
 	Short: "Download file form repository build by Dockyard service, `warship binary download <namespace>/<repository>/<tag>/<filename> <path>",
 	Long: `Download file from repository of Dockyard:
 
-warship binary download --domain hub.opshub.sh  containerops/cncf-demo/strichers/warship /tmp
+warship binary download --domain hub.opshub.sh  containerops/cncf-demo/stichers/warship /tmp
 
 The download URI pattern is <namespace>/<repository>/<tag>/<filename>`,
 	Run: downloadBinary,
 }
 
-// init()
+//init()
 func init() {
 	RootCmd.AddCommand(binaryCmd)
 
@@ -79,8 +79,8 @@ func init() {
 
 }
 
-// Upload binary to Dockyard service.
-// curl -i -X PUT -T <filename> -H "Content-Type: text/plain"  https://hub.opshub.sh/binary/v1/:namespace/:repository/binary/:tag/:binary
+//uploadBinary upload binary to Dockyard service.
+//curl -i -X PUT -T <filename> -H "Content-Type: text/plain"  https://hub.opshub.sh/binary/v1/:namespace/:repository/binary/:tag/:binary
 func uploadBinary(cmd *cobra.Command, args []string) {
 	if domain == "" {
 		domain = common.Warship.Domain
@@ -104,6 +104,7 @@ func uploadBinary(cmd *cobra.Command, args []string) {
 	os.Exit(0)
 }
 
+//downloadBinary download binary file from Dockyard service.
 func downloadBinary(cmd *cobra.Command, args []string) {
 	if domain == "" {
 		domain = common.Warship.Domain
