@@ -22,10 +22,11 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
 //UploadBinaryFile upload binary file to the Dockyard service.
-func UploadBinaryFile(filePath, domain, namespace, repository, tag string) error {
+func UploadBinaryFile(filePath, domain, namespace, repository, tag string, force bool) error {
 	if f, err := os.Open(filePath); err != nil {
 		return err
 	} else {
@@ -37,6 +38,7 @@ func UploadBinaryFile(filePath, domain, namespace, repository, tag string) error
 			return err
 		} else {
 			req.Header.Set("Content-Type", "text/plain")
+			req.Header.Set("Binary-Force", strconv.FormatBool(force))
 
 			client := &http.Client{}
 			if resp, err := client.Do(req); err != nil {

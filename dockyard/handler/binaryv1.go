@@ -87,6 +87,8 @@ func PostBinaryV1Handler(ctx *macaron.Context) (int, []byte) {
 				return http.StatusBadRequest, result
 			}
 		}
+	} else {
+
 	}
 
 	result, _ := json.Marshal(map[string]string{})
