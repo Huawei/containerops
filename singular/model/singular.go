@@ -103,7 +103,7 @@ func (d *DeploymentV1) Put(singularV1 int64, tag string) error {
 	return nil
 }
 
-func (d *DeploymentV1) Update(id int64, service, log, description string, node int, data, ca string) error {
+func (d *DeploymentV1) Update(id int64, service, log, short, description string, node int, data, ca string) error {
 	tx := DB.Begin()
 
 	if err := tx.Where("id = ?", id).First(&d).Error; err != nil {
@@ -117,6 +117,7 @@ func (d *DeploymentV1) Update(id int64, service, log, description string, node i
 	if err := tx.Model(&d).Update(map[string]interface{}{
 		"service":     service,
 		"log":         log,
+		"short":       short,
 		"description": description,
 		"node":        node,
 		"data":        data,

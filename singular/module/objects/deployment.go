@@ -198,7 +198,7 @@ func (d *Deployment) Save() error {
 	}
 	caData, _ := yaml.Marshal(files)
 
-	if err := deploy.Update(deploy.ID, string(s), string(log), d.Description, len(d.Nodes), d.Template, string(caData)); err != nil {
+	if err := deploy.Update(deploy.ID, string(s), string(log), d.Short, d.Description, len(d.Nodes), d.Template, string(caData)); err != nil {
 		return err
 	}
 
