@@ -136,5 +136,5 @@ func  CreateYMLwihtURL(path string,imgUrl string){
 	flow :=UnmarshlYML(path)
 	flow.Stages[1].Actions[0].Jobs[0].Environments[0]["CO_DATA"] = imgUrl
 	s,_:=flow.YAML()
-	WriteFile(s,poutput)
+	WriteFile(s,poutput) //to do file name
 }

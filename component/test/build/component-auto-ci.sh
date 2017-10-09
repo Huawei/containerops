@@ -6,21 +6,25 @@ function read_dir(){
 	            read_dir $1"/"$file
 		  elif [ $file = "Dockerfile" ] ;then
 					
-   			echo $1
+   			#echo $1
 			fullpath=$1
-			echo ${1/containerops\/component\//};
+			#echo ${1/containerops\/component\//};
 			   
 			tmpstr=${1/containerops\/component\//};
-			echo ${tmpstr//\//\-};
+			#echo ${tmpstr//\//\-};
 			imagename=${tmpstr//\//\-};
+			
 			if [[ $fullpath =~ "images" ]];then
 			continue
 			fi
-			tar -cvf ./$fullpath.tar -C  $fullpath .
-			go run main.go --image $imagename --path ./$fullpath.tar 
+			echo $imagename
+			echo $fullpath
+			#tar -cvf ./$fullpath.tar -C  $fullpath .
+			#go run main.go --image $imagename --path ./$fullpath.tar 
 		break
 		fi
   done
   }
 	#read_dir containerops/component
+	# 只有python 和nodejs 有ymal 
 	read_dir ../../../component
