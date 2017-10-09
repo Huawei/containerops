@@ -12,12 +12,12 @@ stages:
   title: Component, python code analysis with coala
   sequencing: sequence
   actions:
-  - name: coala-test
+  - name: component-python-analysis-coala
     title: analysis your python coding style
     jobs:
     - type: component
       kubectl: coala-test.yaml
-      endpoint: hub.opshub.sh/containerops/component-python-coala-workflow111:latest
+      endpoint: hub.opshub.sh/containerops/component-python-analysis-coala:latest
       timeout: 0
       resources:
         cpu: "2"
