@@ -23,10 +23,13 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/dockyard/client/binary"
 )
+
+var force bool
 
 var binaryCmd = &cobra.Command{
 	Use:   "binary",
@@ -77,6 +80,9 @@ func init() {
 	binaryCmd.AddCommand(uplaodCmd)
 	binaryCmd.AddCommand(downloadCmd)
 
+	uplaodCmd.Flags().BoolVarP(&force, "force", "f", false, "use the current version of file replace the file in the server")
+	viper.BindPFlag("force", uplaodCmd.Flags().Lookup("force"))
+
 }
 
 //uploadBinary upload binary to Dockyard service.
@@ -95,12 +101,12 @@ func uploadBinary(cmd *cobra.Command, args []string) {
 	repository := strings.Split(args[1], "/")[1]
 	tag := strings.Split(args[1], "/")[2]
 
-	if err := binary.UploadBinaryFile(args[0], domain, namespace, repository, tag); err != nil {
-		fmt.Println("Upload file error: ", err.Error())
+	if err := binary.UploadBinaryFile(args[0], domain, namespace, repository, tag, force); err != nil {
+		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 
-	fmt.Println("Upload file sucessfully.")
+	fmt.Println("Upload file [", args[0], "] sucessfully.")
 	os.Exit(0)
 }
 
