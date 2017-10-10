@@ -7,8 +7,8 @@
            kubectl: python/test.yaml
            endpoint: hub.opshub.sh/containerops/{{.}}
            resources:
-             cpu: 2
-             memory: 4G
+             cpu: 4
+             memory: 8G
            timeout: 0
            environments:
               - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json"

@@ -1,13 +1,15 @@
+
 package main
 
 import (
 	"bytes"
-	"os"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
-	"flag"
-	"module"
+	"os"
+
+	"github.com/Huawei/containerops/component/ctest/build/module"
 )
 
 var tag = "latest"
@@ -19,9 +21,10 @@ func main() {
 
 	var image string
 	flag.StringVar(&image, "image", "test_image", "image name")
-	var path string
-	flag.StringVar(&path, "path", "./", "imagepath")
-
+	
+	var path string //to do with out tar
+	flag.StringVar(&path, "path", "./", "dir path")
+	
 	flag.Parse()
 
 	fmt.Println("image:", image)
@@ -38,14 +41,17 @@ func main() {
 	buf.Write([]byte(registry))
 	buf.Write([]byte("&namespace="))
 	buf.Write([]byte(namespace))
-	fmt.Println(buf.String()) 
-	UploadBinaryFile(path, buf.String())
+	fmt.Println(buf.String())
+	
+	//module.CreateYMLwihtURL(image,path,"hub.opshub.sh/containerops/component-python-coala-workflow111:latest")
+	
+	UploadBinaryFile(image,path, buf.String())
 }
 
 // Upload binary file to the service.
-func UploadBinaryFile(filePath, url string) error {
+func UploadBinaryFile(name,filePath, url string) error {
 
-	if f, err := os.Open(filePath); err != nil {
+	if f, err := os.Open(filePath+".tar"); err != nil {
 		return err
 	} else {
 		defer f.Close()
@@ -73,11 +79,14 @@ func UploadBinaryFile(filePath, url string) error {
 						fmt.Println(resp.StatusCode)
 						fmt.Println(resp.Header)
 						fmt.Println(body)
-						var jsonobj module.Image 
+						var jsonobj module.Image
 						jsonobj = module.Json2obj(body.String())
 						fmt.Println(jsonobj)
-						module.Buildtp(jsonobj.Endpoint)
-
+						// module.Buildyml(jsonobj.Endpoint)
+						//hub.opshub.sh/containerops/component-python-coala-workflow111:latest
+						//module.CreateYMLwihtURL(name,filePath,"hub.opshub.sh/containerops/component-python-coala-workflow111:latest")
+						
+						module.CreateYMLwihtURL(name,filePath,jsonobj.Endpoint)
 						return nil
 					}
 				case http.StatusBadRequest:

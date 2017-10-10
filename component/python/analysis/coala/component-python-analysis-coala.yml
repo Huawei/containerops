@@ -21,7 +21,7 @@ stages:
           -
             type: component
             kubectl: coala-test.yaml
-            endpoint: hub.opshub.sh/containerops/coala:latest
+            endpoint: hub.opshub.sh/python-analysis-coala:latest
             resources:
               cpu: 2
               memory: 4G
