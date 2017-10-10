@@ -1,4 +1,4 @@
-uri: containerops/component/python-component-flake8-test
+uri: containerops/component/python-component-pylama-test
 title: Component for python projects
 version: 1
 tag: latest
@@ -19,13 +19,13 @@ stages:
     sequencing: sequence
     actions:
       -
-        name: component-python-analysis-flake8-action1
-        title: [Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
+        name: component-python-analysis-pylama-action1
+        title: [pylama](https://github.com/klen/pylama) is code audit tool for python.
         jobs:
           -
             type: component
-            kubectl: component-python-analysis-flake8.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-flake8:latest
+            kubectl: component-python-analysis-pylama.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-pylama:latest
             resources:
               cpu: 4
               memory: 8G
@@ -33,13 +33,13 @@ stages:
             environments:
               - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
       -
-        name: component-python-analysis-flake8-action2
-        title: [Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
+        name: component-python-analysis-pylama-action2
+        title: [pylama](https://github.com/klen/pylama) is code audit tool for python.
         jobs:
           -
             type: component
-            kubectl: component-python-analysis-flake8.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-flake8:latest
+            kubectl: component-python-analysis-pylama.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-pylama:latest
             resources:
               cpu: 4
               memory: 8G
@@ -47,13 +47,13 @@ stages:
             environments:
               - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml"
       -
-        name: component-python-analysis-flake8-action3
-        title: [Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
+        name: component-python-analysis-pylama-action3
+        title: [pylama](https://github.com/klen/pylama) is code audit tool for python.
         jobs:
           -
             type: component
-            kubectl: component-python-analysis-flake8.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-flake8:latest
+            kubectl: component-python-analysis-pylama.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-pylama:latest
             resources:
               cpu: 4
               memory: 8G
@@ -61,13 +61,13 @@ stages:
             environments:
               - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml version=python"
       -
-        name: component-python-analysis-flake8-action4
-        title: [Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
+        name: component-python-analysis-pylama-action4
+        title: [pylama](https://github.com/klen/pylama) is code audit tool for python.
         jobs:
           -
             type: component
-            kubectl: component-python-analysis-flake8.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-flake8:latest
+            kubectl: component-python-analysis-pylama.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-pylama:latest
             resources:
               cpu: 4
               memory: 8G

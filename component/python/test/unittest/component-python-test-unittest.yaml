@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+ name: component-python-test-unittest
+spec:
+ containers:
+ - name: unittest
+   image: hub.opshub.sh/containerops/unittest:latest
+   env:
+   - name: CO_DATA
+     value: "git-url=https://github.com/minhhh/regex.git entry-module=test.test_regex"
+   resources:
+     requests:
+       cpu: 4
+       memory: 8G
+ restartPolicy: Never

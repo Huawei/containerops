@@ -1,8 +1,12 @@
 uri: containerops/component/python-component-coala-test
-title: Component for python code analysis with coala
+title: Component for python projects
 version: 1
 tag: latest
 timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
 stages:
   -
     type: start
@@ -10,24 +14,38 @@ stages:
     title: Start
   -
     type: normal
-    name: component-coala-test
-    title: Component, python code analysis with coala
+    name: analysis-python-component
+    title:  Component analysis action
     sequencing: sequence
     actions:
       -
-        name: coala-test
-        title: analysis your python coding style
+        name: component-python-analysis-coala-action1
+        title: [coala](https://github.com/coala/coala) provides a unified command-line interface for linting and fixing all your code,regardless of the programming languages you use.
         jobs:
           -
             type: component
-            kubectl: coala-test.yaml
-            endpoint: hub.opshub.sh/python-analysis-coala:latest
+            kubectl: component-python-analysis-coala.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-coala:latest
             resources:
-              cpu: 2
-              memory: 4G
+              cpu: 4
+              memory: 8G
             timeout: 0
             environments:
               - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
+      -
+        name: component-python-analysis-coala-action2
+        title: [coala](https://github.com/coala/coala) provides a unified command-line interface for linting and fixing all your code,regardless of the programming languages you use.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-coala.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-coala:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml"
       -
   -
     type: end
