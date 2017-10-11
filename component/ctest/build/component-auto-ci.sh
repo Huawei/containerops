@@ -1,28 +1,23 @@
 #!/bin/bash
+mkdir yml
+
 function read_dir(){
     for file in `ls $1`
 		    do
+			fullpath=$1
 		        if  [ -d $1"/"$file ];then
+						if [[ $fullpath =~ "images" || $fullpath =~ "ctest" ]];then #"java" "ctest"
+									continue
+									fi
 	            read_dir $1"/"$file
 		  elif [ $file = "Dockerfile" ] ;then
 					
-			fullpath=$1
 			tmpstr=${1/containerops\/component\//};
 			#echo $tmpstr
 			tmpstr=${tmpstr#*../../../}
 			#echo $tmpstr
 			imagename=${tmpstr//\//\-};
 			#echo $imagename;
-
-			if [[ $fullpath =~ "images" ]];then
-			continue
-			fi
-			#if [[ $fullpath =~ "ctest" ]];then
-			#continue
-			#fi
-			#if [[ $fullpath =~ "java" ]];then
-			#continue
-			#fi
 
             if [[ $fullpath =~ "python" ]] ;then
 			echo "OK"
@@ -33,10 +28,17 @@ function read_dir(){
 			echo $imagename
 			tar -cvf ./$fullpath.tar -C  $fullpath .
 			echo ----------------;
-			go run main.go --image $imagename --path ./$fullpath
+			#go run main.go --image $imagename --path ./$fullpath
+			#f [[ $fullpath =~ $imagename ]] ;then
+			echo ./$imagename.yml
+			cp $fullpath/$imagename.yml yml
 		break
 		fi
   done
   }
 	#read_dir containerops/component
 	read_dir ../../../component	
+
+tar -cvf yml.tar -C  yml .
+curl -XPUT --data-binary @yml.tar https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/yml.tar -i
+	
