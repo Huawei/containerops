@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+ name: component-python-document-sphinx
+spec:
+ containers:
+ - name: sphinx
+   image: hub.opshub.sh/containerops/sphinx:latest
+   env:
+   - name: CO_DATA
+     value: "git-url=https://github.com/Lupino/grapy.git entry-path=docs"
+   resources:
+     requests:
+       cpu: 4
+       memory: 8G
+ restartPolicy: Never
