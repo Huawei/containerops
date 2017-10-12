@@ -20,21 +20,7 @@ stages:
     actions:
       -
         name: component-python-analysis-coala-action1
-        title: action of component-python-analysis-coala wiht ymal output and true co-result
-        jobs:
-          -
-            type: component
-            kubectl: component-python-analysis-coala.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-coala:latest
-            resources:
-              cpu: 4
-              memory: 8G
-            timeout: 0
-            environments:
-              - CO_DATA: "out-put-type=json git-url=https://github.com/Lupino/python-aio-periodic-coresult-false.git"
-      -
-        name: component-python-analysis-coala-action2
-        title: action of component-python-analysis-coala wiht json output and false co-result
+        title: [coala](https://github.com/coala/coala) provides a unified command-line interface for linting and fixing all your code,regardless of the programming languages you use.
         jobs:
           -
             type: component
@@ -46,6 +32,20 @@ stages:
             timeout: 0
             environments:
               - CO_DATA: "out-put-type=ymal git-url=https://github.com/Lupino/python-aio-periodic.git"
+      -
+        name: component-python-analysis-coala-action2
+        title: [coala](https://github.com/coala/coala) provides a unified command-line interface for linting and fixing all your code,regardless of the programming languages you use.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-coala.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-coala:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml"
       -
   -
     type: end

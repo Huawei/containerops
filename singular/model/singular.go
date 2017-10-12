@@ -61,6 +61,7 @@ type DeploymentV1 struct {
 	Version     int64      `json:"version" yaml:"version" sql:"null;default:0" gorm:"column:version;unique_index:singular_deployment"`
 	Service     string     `json:"service" yaml:"service" sql:"null;type:text" gorm:"column:service"`
 	Node        int        `json:"node" yaml:"node" sql:"not null;default:0" gorm:"column:node"`
+	Short       string     `json:"short" yaml:"short" sql:"null;type:varchar(255)" gorm:"column:short"`
 	Log         string     `json:"log" yaml:"log" sql:"null;type:text" gorm:"column:log"`
 	Description string     `json:"description" yaml:"description" sql:"null;type:text" gorm:"column:description"`
 	Data        string     `json:"data" yaml:"data" sql:"null;type:text" gorm:"column:data"`
@@ -102,7 +103,7 @@ func (d *DeploymentV1) Put(singularV1 int64, tag string) error {
 	return nil
 }
 
-func (d *DeploymentV1) Update(id int64, service, log, description string, node int, data, ca string) error {
+func (d *DeploymentV1) Update(id int64, service, log, short, description string, node int, data, ca string) error {
 	tx := DB.Begin()
 
 	if err := tx.Where("id = ?", id).First(&d).Error; err != nil {
@@ -116,6 +117,7 @@ func (d *DeploymentV1) Update(id int64, service, log, description string, node i
 	if err := tx.Model(&d).Update(map[string]interface{}{
 		"service":     service,
 		"log":         log,
+		"short":       short,
 		"description": description,
 		"node":        node,
 		"data":        data,

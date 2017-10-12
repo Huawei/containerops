@@ -72,7 +72,7 @@ func init() {
 	viper.BindPFlag("public-key", templateCmd.Flags().Lookup("public-key"))
 	viper.BindPFlag("output", templateCmd.Flags().Lookup("output"))
 	viper.BindPFlag("db", templateCmd.Flags().Lookup("db"))
-	viper.BindPFlag("delete", templateCmd.Flags().Lookup("del"))
+	viper.BindPFlag("delete", templateCmd.Flags().Lookup("delete"))
 
 	folderCmd.Flags().StringVarP(&privateKey, "private-key", "i", "", "ssh identity file")
 	folderCmd.Flags().StringVarP(&publicKey, "public-key", "p", "", "ssh public identity file")
@@ -84,7 +84,7 @@ func init() {
 	viper.BindPFlag("public-key", folderCmd.Flags().Lookup("public-key"))
 	viper.BindPFlag("output", folderCmd.Flags().Lookup("output"))
 	viper.BindPFlag("db", folderCmd.Flags().Lookup("db"))
-	viper.BindPFlag("delete", folderCmd.Flags().Lookup("del"))
+	viper.BindPFlag("delete", folderCmd.Flags().Lookup("delete"))
 }
 
 //Deploy the Cloud Native stack with a template file.
