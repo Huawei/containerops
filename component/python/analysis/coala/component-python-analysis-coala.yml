@@ -15,7 +15,7 @@ stages:
   -
     type: normal
     name: analysis-python-component
-    title:  Component analysis action
+    title:  coala(https://github.com/coala/coala) provides a unified command-line interface for linting and fixing all your code,regardless of the programming languages you use.
     sequencing: sequence
     actions:
       -
@@ -31,7 +31,7 @@ stages:
               memory: 8G
             timeout: 0
             environments:
-              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
+              - CO_DATA: "out-put-type=ymal git-url=https://github.com/Lupino/python-aio-periodic.git"
       -
         name: component-python-analysis-coala-action2
         title: [coala](https://github.com/coala/coala) provides a unified command-line interface for linting and fixing all your code,regardless of the programming languages you use.
