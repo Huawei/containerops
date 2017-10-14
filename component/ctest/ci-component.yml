@@ -3,10 +3,6 @@ title: CI build and test  for components
 version: 1
 tag: latest
 timeout: 0
-receivers:
-  -
-    type: mail
-    address: lidian@containerops.sh
 stages:
   -
     type: start
@@ -25,7 +21,7 @@ stages:
           -
             type: component
             kubectl:
-            endpoint: hub.opshub.sh/component-ctest-build:latest
+            endpoint: hub.opshub.sh/containerops/component-ctest-build:latest
             resources:
               cpu: 4
               memory: 8G
@@ -38,8 +34,8 @@ stages:
         jobs:
           -
             type: component
-            kubectl: component-python-analysis-coala.yaml
-            endpoint: hub.opshub.sh/component-ctest-flow:latest
+            kubectl:
+            endpoint: hub.opshub.sh/containerops/component-ctest-flow:latest
             resources:
               cpu: 4
               memory: 8G
