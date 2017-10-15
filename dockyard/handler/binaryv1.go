@@ -66,17 +66,46 @@ func PostBinaryV1Handler(ctx *macaron.Context) (int, []byte) {
 		os.MkdirAll(tagPath, os.ModePerm)
 	}
 
+	var file *os.File
+	var err error
+
 	if f.ID == 0 {
 		if _, err := os.Stat(binaryPath); err == nil {
 			os.Remove(binaryPath)
 		}
 
-		if file, err := os.Create(binaryPath); err != nil {
+		if file, err = os.Create(binaryPath); err != nil {
 			log.Errorf("[%s] Create binary file error: %s", ctx.Req.RequestURI, err.Error())
 
 			result, _ := module.EncodingError(module.BLOB_UPLOAD_UNKNOWN, map[string]string{"namespace": namespace, "repository": repository, "file": binary, "tag": tag})
 			return http.StatusBadRequest, result
-		} else {
+		}
+
+		io.Copy(file, ctx.Req.Request.Body)
+
+		size, _ := utils.GetFileSize(binaryPath)
+		sha512, _ := utils.GetFileSHA512(binaryPath)
+
+		if err := f.Put(b.ID, size, binary, tag, sha512, binaryPath); err != nil {
+			result, _ := module.EncodingError(module.BLOB_UPLOAD_UNKNOWN, map[string]string{"namespace": namespace, "repository": repository, "file": binary, "tag": tag})
+			return http.StatusBadRequest, result
+		}
+
+	} else {
+		force, _ := strconv.ParseBool(ctx.Resp.Header().Get("Binary-Force"))
+		exist := utils.IsFileExist(binaryPath)
+
+		if exist == true && force == true {
+			log.Infof("[%s] Remove old file: %s", ctx.Req.RequestURI, binaryPath)
+			os.Remove(binaryPath)
+
+			if file, err = os.Create(binaryPath); err != nil {
+				log.Errorf("[%s] Create binary file error: %s", ctx.Req.RequestURI, err.Error())
+
+				result, _ := module.EncodingError(module.BLOB_UPLOAD_UNKNOWN, map[string]string{"namespace": namespace, "repository": repository, "file": binary, "tag": tag})
+				return http.StatusBadRequest, result
+			}
+
 			io.Copy(file, ctx.Req.Request.Body)
 
 			size, _ := utils.GetFileSize(binaryPath)
@@ -86,6 +115,7 @@ func PostBinaryV1Handler(ctx *macaron.Context) (int, []byte) {
 				result, _ := module.EncodingError(module.BLOB_UPLOAD_UNKNOWN, map[string]string{"namespace": namespace, "repository": repository, "file": binary, "tag": tag})
 				return http.StatusBadRequest, result
 			}
+
 		}
 	}
 
