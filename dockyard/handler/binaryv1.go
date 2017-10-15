@@ -57,16 +57,16 @@ func PostBinaryV1Handler(ctx *macaron.Context) (int, []byte) {
 		return http.StatusBadRequest, result
 	}
 
+	//Storage pattern namespace/repository/tag/file
+	basePath := common.Storage.BinaryV1
+	tagPath := fmt.Sprintf("%s/%s/%s/%s", basePath, namespace, repository, tag)
+	binaryPath := fmt.Sprintf("%s/%s/%s/%s/%s", basePath, namespace, repository, tag, binary)
+
+	if !utils.IsDirExist(tagPath) {
+		os.MkdirAll(tagPath, os.ModePerm)
+	}
+
 	if f.ID == 0 {
-		// Storage pattern namespace/repository/tag/file
-		basePath := common.Storage.BinaryV1
-		tagPath := fmt.Sprintf("%s/%s/%s/%s", basePath, namespace, repository, tag)
-		binaryPath := fmt.Sprintf("%s/%s/%s/%s/%s", basePath, namespace, repository, tag, binary)
-
-		if !utils.IsDirExist(tagPath) {
-			os.MkdirAll(tagPath, os.ModePerm)
-		}
-
 		if _, err := os.Stat(binaryPath); err == nil {
 			os.Remove(binaryPath)
 		}
@@ -87,8 +87,6 @@ func PostBinaryV1Handler(ctx *macaron.Context) (int, []byte) {
 				return http.StatusBadRequest, result
 			}
 		}
-	} else {
-
 	}
 
 	result, _ := json.Marshal(map[string]string{})
