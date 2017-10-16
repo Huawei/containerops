@@ -92,7 +92,7 @@ func PostBinaryV1Handler(ctx *macaron.Context) (int, []byte) {
 		}
 
 	} else {
-		force, _ := strconv.ParseBool(ctx.Resp.Header().Get("Binary-Force"))
+		force, _ := strconv.ParseBool(ctx.Req.Header.Get("Binary-Force"))
 		exist := utils.IsFileExist(binaryPath)
 
 		if exist == true && force == true {

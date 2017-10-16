@@ -37,15 +37,15 @@ var binaryCmd = &cobra.Command{
 	Long: `Use binary sub command to upload or download binary file from repository build by Dockyard service.
 
 Upload file to a repository:
-	
+
   warship binary upload --domain hub.opshub.sh /tmp/warship containerops/cncf-demo/stichers
-	
+
   The upload URI pattern is <namespace>/<repository>/<tag>
-	
+
 Download file from repository of Dockyard:
 
   warship binary download --domain hub.opshub.sh containerops/cncf-demo/strichers/warship
-  
+
   The download URI pattern is <namespace>/<repository>/<tag>/<filename>
 `,
 }
@@ -54,7 +54,7 @@ var uplaodCmd = &cobra.Command{
 	Use:   "upload",
 	Short: "Upload file to repository build by Dockyard service, `warship binary upload --domain hub.opshub.sh <filename> <namespace>/<repository>/<tag>`",
 	Long: `Upload file to a repository of Dockyard:
-	
+
 warship binary upload --domain hub.opshub.sh  /tmp/warship containerops/cncf-demo/stichers
 
 The upload URI pattern is <namespace>/<repository>/<tag>`,
