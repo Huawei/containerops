@@ -15,13 +15,13 @@ infras:
     components:
       -
         binary: etcd
-        url: https://binary.nyc3.digitaloceanspaces.com/etcd/3.2.8/etcd
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/3.2.8/etcd
         package: false
         systemd: etcd-3.2.8
         ca: etcd-3.2.8
       -
         binary: etcdctl
-        url: https://binary.nyc3.digitaloceanspaces.com/etcd/3.2.8/etcdctl
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/3.2.8/etcdctl
         package: false
   -
     name: flannel
