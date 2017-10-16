@@ -1,0 +1,249 @@
+uri: containerops/component/java-gradle-analysis-checkstyle
+title: Component for java gradle project with composer
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: 461382141@qq.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: analysis-java-gradle-checkstyle
+    title: analysis your java coding style
+    sequencing: sequence
+    actions:
+      -
+        name: java-gradle-checkstyle-action1
+        title: analysis your java coding style
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-analysis-checkstyle.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-checkstyle:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json"
+      -
+        name: java-gradle-checkstyle-action2
+        title: analysis your java coding style
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-analysis-checkstyle.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-checkstyle:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=yaml"
+      -
+        name: java-gradle-checkstyle-action3
+        title: analysis your java coding style
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-analysis-checkstyle.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-checkstyle:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json"
+      -
+        name: java-gradle-checkstyle-action4
+        title: analysis your java coding style
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-analysis-checkstyle.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-checkstyle:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/vanniuner/gradle-demo.git"
+      -
+        name: java-gradle-cpd
+        title: find the Duplicate code
+        jobs:
+          -
+            type: component
+            kubectl:
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-cpd:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=xml"
+      -
+        name: java-gradle-dependencies
+        title: print dependencies
+        jobs:
+          -
+            type: component
+            kubectl:
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-dependencies:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git"
+      -
+        name: java-gradle-findbugs
+        title: static code analysis and look for bugs in Java code
+        jobs:
+          -
+            type: component
+            kubectl:
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-findbugs:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json"
+      -
+        name: java-gradle-jdepend
+        title: produces a nicely formatted metrics report based on your project
+        jobs:
+          -
+            type: component
+            kubectl:
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-jdepend:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json"
+      -
+        name: java-gradle-pmd
+        title: source code analyzer PMD can finds common programming flaws
+        jobs:
+          -
+            type: component
+            kubectl:
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-pmd:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json"
+      -
+        name: compile-java-gradle-war
+        title: compile your project to a war file and upload it to the target
+        jobs:
+          -
+            type: component
+            kubectl:
+            endpoint: hub.opshub.sh/containerops/compile-java-gradle-war:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/rominirani/GradleWebAppSample.git target=https://hub.opshub.sh/binary/v1/lidian/test/binary/2.2.4/web.war"
+      -
+        name: compile-java-gradle-jar
+        title: compile your project to a jar file and upload it to the target
+        jobs:
+          -
+            type: component
+            kubectl:
+            endpoint: hub.opshub.sh/containerops/compile-java-gradle-jar:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git target=https://hub.opshub.sh/binary/v1/containerops/component/binary/2.2.4/demo.jar"
+      -
+        name: compile-java-gradle-ear
+        title: compile your project to a ear file and upload it to the target
+        jobs:
+          -
+            type: component
+            kubectl:
+            endpoint: hub.opshub.sh/containerops/compile-java-gradle-ear:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git target=https://hub.opshub.sh/binary/v1/containerops/component/binary/2.2.4/demo.ear"
+      -
+        name: document-java-gradle-javadoc
+        title: generate a javadoc compressed file and upload it to the target
+        jobs:
+          -
+            type: component
+            kubectl:
+            endpoint: hub.opshub.sh/containerops/document-java-gradle-javadoc:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git target=https://hub.opshub.sh/binary/v1/lidian/test/binary/1.1.0/javadoc.tar"
+      -
+        name: test-java-gradle-jacoco
+        title: generate a code coverage report
+        jobs:
+          -
+            type: component
+            kubectl:
+            endpoint: hub.opshub.sh/containerops/test-java-gradle-jacoco:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json"
+      -
+        name: test-java-gradle-junit
+        title: generate a junit report
+        jobs:
+          -
+            type: component
+            kubectl:
+            endpoint: hub.opshub.sh/containerops/test-java-gradle-junit:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json"
+      -
+        name: test-java-gradle-testng
+        title: generate a testng report
+        jobs:
+          -
+            type: component
+            kubectl:
+            endpoint: hub.opshub.sh/containerops/test-java-gradle-testng:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json"
+      -
+  -
+    type: end
+    name: end
+    title: End
