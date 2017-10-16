@@ -24,11 +24,11 @@ stages:
         jobs:
           -
             type: component
-            kubectl:
+            kubectl: component-java-gradle-analysis-dependencies.yaml
             endpoint: hub.opshub.sh/containerops/analysis-java-gradle-dependencies:latest
             resources:
-              cpu: 2
-              memory: 4G
+              cpu: 4
+              memory: 8G
             timeout: 0
             environments:
               - CO_DATA: "git-url=https://github.com/vanniuner/gradle-demo.git"
@@ -38,11 +38,11 @@ stages:
         jobs:
           -
             type: component
-            kubectl:
+            kubectl: component-java-gradle-analysis-dependencies.yaml
             endpoint: hub.opshub.sh/containerops/analysis-java-gradle-dependencies:latest
             resources:
-              cpu: 2
-              memory: 4G
+              cpu: 4
+              memory: 8G
             timeout: 0
             environments:
               - CO_DATA: "version=gradle2 git-url=https://github.com/vanniuner/gradle-demo.git"
@@ -52,11 +52,11 @@ stages:
         jobs:
           -
             type: component
-            kubectl:
+            kubectl: component-java-gradle-analysis-dependencies.yaml
             endpoint: hub.opshub.sh/containerops/analysis-java-gradle-dependencies:latest
             resources:
-              cpu: 2
-              memory: 4G
+              cpu: 4
+              memory: 8G
             timeout: 0
             environments:
               - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git"

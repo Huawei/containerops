@@ -6,7 +6,7 @@ timeout: 0
 receivers:
   -
     type: mail
-    address: 461382141@qq.com
+    address: lidian@containerops.sh
 stages:
   -
     type: start
