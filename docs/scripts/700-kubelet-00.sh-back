@@ -1,0 +1,7 @@
+#!/bin/sh
+
+
+export KUBE_APISERVER_PROXY="https://10.138.232.140:19999"
+
+
+

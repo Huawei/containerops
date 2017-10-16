@@ -38,17 +38,24 @@ const (
 
 // Flow is DevOps orchestration flow struct.
 type Flow struct {
-	ID      int64    `json:"-" yaml:"-"`
-	Model   string   `json:"-" yaml:"-"`
-	URI     string   `json:"uri" yaml:"uri"`
-	Number  int64    `json:",omitempty" yaml:",omitempty"`
-	Title   string   `json:"title" yaml:"title"`
-	Version int64    `json:"version" yaml:"version"`
-	Tag     string   `json:"tag" yaml:"tag"`
-	Timeout int64    `json:"timeout" yaml:"timeout"`
-	Status  string   `json:"status,omitempty" yaml:"status,omitempty"`
-	Logs    []string `json:"logs,omitempty" yaml:"logs,omitempty"`
-	Stages  []Stage  `json:"stages,omitempty" yaml:"stages,omitempty"`
+	ID        int64      `json:"-" yaml:"-"`
+	Model     string     `json:"-" yaml:"-"`
+	URI       string     `json:"uri" yaml:"uri"`
+	Number    int64      `json:",omitempty" yaml:",omitempty"`
+	Title     string     `json:"title" yaml:"title"`
+	Version   int64      `json:"version" yaml:"version"`
+	Tag       string     `json:"tag" yaml:"tag"`
+	Timeout   int64      `json:"timeout" yaml:"timeout"`
+	Status    string     `json:"status,omitempty" yaml:"status,omitempty"`
+	Logs      []string   `json:"logs,omitempty" yaml:"logs,omitempty"`
+	Stages    []Stage    `json:"stages,omitempty" yaml:"stages,omitempty"`
+	Receivers []Receiver `json:"receivers,omitempty" yaml:"receivers,omitempty"`
+}
+
+// Receiver receives the flow execution result
+type Receiver struct {
+	Type    string `json:"type" yaml:"type"`
+	Address string `json:"address" yaml:"address"`
 }
 
 // JSON export flow data without
@@ -174,6 +181,18 @@ func (f *Flow) LocalRun(verbose, timestamp bool) error {
 	}
 	if err := flowData.Put(f.ID, currentNumber+1, f.Status, startTime, time.Now()); err != nil {
 		f.Log(fmt.Sprintf("Save Flow Data [%s] error: %s", f.URI, err.Error()), verbose, timestamp)
+	}
+
+	// Notify result to receivers
+	if len(f.Receivers) > 0 {
+		for _, receiver := range f.Receivers {
+			n := Notifiers[receiver.Type]
+			if err := n.Notify(f, []string{receiver.Address}); err != nil {
+				f.Log(fmt.Sprintf("Notify User Error: %s", err.Error()), verbose, timestamp)
+			} else {
+				f.Log(fmt.Sprintf("Notify User %s Success", receiver.Address), verbose, timestamp)
+			}
+		}
 	}
 
 	return nil

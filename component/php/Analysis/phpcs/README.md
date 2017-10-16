@@ -3,13 +3,13 @@
 ## Build
 
 ```shell
-docker build -t hub.opshub.sh/binary/v1/containerops/component/binary/php/phpcs:0.1 .
+docker build -t hub.opshub.sh/containerops/analysis-php-phpcs:latest .
 ```
 
 ## Run
 
 ```shell
-docker run --env CO_DATA="git-url=https://github.com/squizlabs/PHP_CodeSniffer.git report=full standard=phpcs.xml.dist" hub.opshub.sh/binary/v1/containerops/component/binary/php/phpcs:0.1
+docker run --env CO_DATA="git-url=https://github.com/squizlabs/PHP_CodeSniffer.git report=full standard=phpcs.xml.dist" hub.opshub.sh/containerops/analysis-php-phpcs:latest
 ```
 
 ## Options

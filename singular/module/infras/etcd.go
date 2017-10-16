@@ -71,7 +71,7 @@ func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.
 	}
 
 	//Init nodes, endpoints and adminEndpoints parameters.
-	nodes := []objects.Node{}
+	nodes := []*objects.Node{}
 	etcdEndpoints, etcdPeerEndpoints := []string{}, []string{}
 
 	//Get nodes from outputs of Deployment to determine etcd cluster nodes.
@@ -79,7 +79,6 @@ func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.
 	for i := 0; i < infra.Master; i++ {
 		//Etcd Notes
 		nodes = append(nodes, d.Nodes[i])
-		//etcdNodes[fmt.Sprintf("etcd-node-%d", i)] = d.Outputs[fmt.Sprintf("NODE_%d", i)].(string)
 
 		//Etcd endpoints for client
 		etcdEndpoints = append(etcdEndpoints,
@@ -107,23 +106,23 @@ func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.
 		return err
 	} else {
 		objects.WriteLog(fmt.Sprintf("Etcd CA/Systemd/config files: [%v]", files), stdout, timestamp, d, infra)
-		objects.WriteLog(fmt.Sprintf("Upload Etcd CA/Systemd/config files: [%v]", files), stdout, timestamp, d, infra)
 
 		//Upload Etcd files to node
-		if err := uploadEtcdFiles(files, d.Tools.SSH.Private, nodes, tools.DefaultSSHUser, stdout, timestamp); err != nil {
+		if err := uploadEtcdFiles(files, d.Tools.SSH.Private, nodes, stdout); err != nil {
 			return err
 		}
 	}
 
 	//Download etcd binary files in nodes.
 	for _, c := range infra.Components {
+		objects.WriteLog(fmt.Sprintf("Download %s in deploy notes", c.Binary), stdout, timestamp, d, infra, c)
 		if err := d.DownloadBinaryFile(c.Binary, c.URL, nodes, stdout, timestamp); err != nil {
 			return err
 		}
 	}
 
 	//Start etcd
-	if err := startEtcdCluster(d.Tools.SSH.Private, nodes, stdout, timestamp); err != nil {
+	if err := startEtcdCluster(d.Tools.SSH.Private, nodes, stdout); err != nil {
 		return err
 	}
 
@@ -131,7 +130,7 @@ func DeployEtcdInCluster(d *objects.Deployment, infra *objects.Infra, stdout io.
 }
 
 //Generate Etcd CA SSL and Systemd service Files
-func generateEtcdFiles(src string, nodes []objects.Node, etcdEndpoints string, version string) (map[string]map[string]string, error) {
+func generateEtcdFiles(src string, nodes []*objects.Node, etcdEndpoints string, version string) (map[string]map[string]string, error) {
 	result := map[string]map[string]string{}
 
 	//If ca file exist, remove it.
@@ -178,13 +177,13 @@ func generateEtcdFiles(src string, nodes []objects.Node, etcdEndpoints string, v
 		if files, err := generateEtcdSSLFiles(caFile, caKeyFile, configFile, node, version, sslBase, node.IP); err != nil {
 			return result, err
 		} else {
-			for k, v := range files {
-				result[node.IP][k] = v
-			}
+			result[node.IP] = files
 		}
 
 		//Generate Etcd Systemd File
 		if files, err := generateEtcdServiceFile(node, version, serviceBase, node.IP); err != nil {
+			return result, err
+		} else {
 			for k, v := range files {
 				result[node.IP][k] = v
 			}
@@ -287,37 +286,26 @@ func generateEtcdServiceFile(node EtcdEndpoint, version, base, ip string) (map[s
 }
 
 //upload Etcd SSL files and systemd file to nodes
-func uploadEtcdFiles(files map[string]map[string]string, key string, nodes []objects.Node, user string, stdout io.Writer, timestamp bool) error {
-	var err error
-	var cmd string
-
+func uploadEtcdFiles(f map[string]map[string]string, key string, nodes []*objects.Node, stdout io.Writer) error {
 	for _, node := range nodes {
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAEtcdCSRConfigFile], path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdCSRConfigFile), node.IP, key, node.User, stdout)
-		objects.WriteLog(
-			fmt.Sprintf("upload %s to %s@%s with %s", files[node.IP][tools.CAEtcdCSRConfigFile], node.IP, path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdCSRConfigFile), cmd),
-			stdout, timestamp, &node)
+		files := []map[string]string{}
 
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAEtcdKeyPemFile], path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdKeyPemFile), node.IP, key, user, stdout)
-		objects.WriteLog(
-			fmt.Sprintf("upload %s to %s@%s with %s", files[node.IP][tools.CAEtcdKeyPemFile], node.IP, path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdKeyPemFile), cmd),
-			stdout, timestamp, &node)
+		for k, file := range f[node.IP] {
+			switch k {
+			case tools.ServiceEtcdFile:
+				files = append(files, map[string]string{
+					"src":  file,
+					"dest": path.Join(tools.SystemdServerPath, tools.ServiceEtcdFile),
+				})
+			default:
+				files = append(files, map[string]string{
+					"src":  file,
+					"dest": path.Join(EtcdServerConfig, EtcdServerSSL, k),
+				})
+			}
+		}
 
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAEtcdCSRFile], path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdCSRFile), node.IP, key, user, stdout)
-		objects.WriteLog(
-			fmt.Sprintf("upload %s to %s@%s with %s", files[node.IP][tools.CAEtcdCSRFile], node.IP, path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdCSRFile), cmd),
-			stdout, timestamp, &node)
-
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.CAEtcdPemFile], path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdPemFile), node.IP, key, user, stdout)
-		objects.WriteLog(
-			fmt.Sprintf("upload %s to %s@%s with %s", files[node.IP][tools.CAEtcdPemFile], node.IP, path.Join(EtcdServerConfig, EtcdServerSSL, tools.CAEtcdPemFile), cmd),
-			stdout, timestamp, &node)
-
-		cmd, err = tools.DownloadComponent(files[node.IP][tools.ServiceEtcdFile], path.Join(tools.SystemdServerPath, tools.ServiceEtcdFile), node.IP, key, user, stdout)
-		objects.WriteLog(
-			fmt.Sprintf("upload %s to %s@%s with %s", files[node.IP][tools.ServiceEtcdFile], node.IP, path.Join(EtcdServerConfig, EtcdServerSSL, tools.ServiceEtcdFile), cmd),
-			stdout, timestamp, &node)
-
-		if err != nil {
+		if err := tools.DownloadComponent(files, node.IP, key, node.User, stdout); err != nil {
 			return err
 		}
 	}
@@ -326,12 +314,15 @@ func uploadEtcdFiles(files map[string]map[string]string, key string, nodes []obj
 }
 
 //startEtcdCluster in node must with --no-block
-func startEtcdCluster(key string, nodes []objects.Node, stdout io.Writer, timestamp bool) error {
-	cmd := "systemctl daemon-reload && systemctl enable etcd && systemctl start --no-block etcd"
+func startEtcdCluster(key string, nodes []*objects.Node, stdout io.Writer) error {
+	commands := []string{
+		"systemctl daemon-reload",
+		"systemctl enable etcd",
+		"systemctl start --no-block etcd",
+	}
 
 	for _, node := range nodes {
-		utils.SSHCommand(node.User, key, node.IP, 22, cmd, stdout, os.Stderr)
-		objects.WriteLog(fmt.Sprintf("%s start etcd in node %s", cmd, node.IP), stdout, timestamp, &node)
+		utils.SSHCommand(node.User, key, node.IP, 22, commands, stdout, os.Stderr)
 	}
 
 	return nil

@@ -19,23 +19,24 @@ package common
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	homeDir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
+	"regexp"
 )
 
 // SetConfig is setting config file path/name/type.
 func SetConfig(cfgFile string) error {
+	// Find home directory.
+	home, err := homeDir.Dir()
+	if err != nil {
+		return fmt.Errorf("read $HOME envrionment error: %s", err.Error())
+	}
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Find home directory.
-		home, err := homeDir.Dir()
-		if err != nil {
-			return fmt.Errorf("Read $HOME envrionment error: %s", err.Error())
-		}
-
 		// Search config in home directory with name "containerops" (with extension .toml).
 		viper.SetConfigType("toml")
 		viper.SetConfigName("containerops")
@@ -46,9 +47,32 @@ func SetConfig(cfgFile string) error {
 
 	viper.SetEnvPrefix("coops")
 	viper.AutomaticEnv() // read in environment variables that match
+	viper.WatchConfig()
 
 	if err := viper.ReadInConfig(); err != nil {
-		return fmt.Errorf("Fatal error config file: %s", err.Error())
+		// If NOT found config file, automatically create it
+		if ok, _ := regexp.MatchString("^Config File.*Not Found in.*", err.Error()); ok {
+			fmt.Println("Not Found Config file, will auto create")
+
+			defaultPath := fmt.Sprintf("%s/.containerops/config", home)
+			if _, err := os.Stat(defaultPath); err != nil {
+				if os.IsNotExist(err) {
+					if err := os.MkdirAll(defaultPath, 0777); err != nil {
+						return nil
+					}
+				} else {
+					return err
+				}
+			}
+
+			newConfigFile, err := os.Create(defaultPath + "/containerops.toml")
+			if err != nil {
+				return fmt.Errorf("Automatically create config file ERROR: %s", err.Error())
+			}
+			defer newConfigFile.Close()
+		} else {
+			return fmt.Errorf("fatal error config file: %s", err.Error())
+		}
 	}
 
 	if err := setDatabaseConfig(viper.GetStringMap("database")); err != nil {
@@ -72,6 +96,10 @@ func SetConfig(cfgFile string) error {
 	}
 
 	if err := setAssemblingConfig(viper.GetStringMap("assembling")); err != nil {
+		return err
+	}
+
+	if err := setMailConfig(viper.GetStringMap("mail")); err != nil {
 		return err
 	}
 
@@ -125,7 +153,8 @@ domain = "hub.opshub.sh"
 # 5. Configurations for Singular modules.
 
 [singular]
-
+provider = "digitalocean"
+token = "435a054fba66cb11d6b7abeaa3d89aac777d4d1d"
 */
 
 type DatabaseConfig struct {
@@ -171,12 +200,20 @@ type AssemblingConfig struct {
 	KubeConfig        string `json:"kubeconfig" description:"The address of k8s api server"`
 }
 
+type MailConfig struct {
+	SmtpAddress string `json:"smtp_address" yaml:"smtp_address"`
+	SmtpPort    string `json:"smtp_port" yaml:"smtp_port"`
+	User        string `json:"user" yaml:"user"`
+	Password    string `json:"password" yaml:"password"`
+}
+
 var Database DatabaseConfig
 var Web WebConfig
 var Storage StorageConfig
 var Warship WarshipConfig
 var Singular SingularConfig
 var Assembling AssemblingConfig
+var Mail MailConfig
 
 func setDatabaseConfig(config map[string]interface{}) error {
 	bs, err := json.Marshal(&config)
@@ -234,5 +271,18 @@ func setAssemblingConfig(config map[string]interface{}) error {
 		return err
 	}
 
+	return nil
+}
+
+func setMailConfig(config map[string]interface{}) error {
+	bs, err := json.Marshal(&config)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(bs, &Mail)
+	if err != nil {
+		return err
+	}
 	return nil
 }

@@ -1,0 +1,5 @@
+docs/* linguist-documentation
+design/* linguist-documentation
+joints/* linguist-vendored
+scaffold/* linguist-vendored
+tenant/* linguist-vendored

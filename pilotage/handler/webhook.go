@@ -41,7 +41,7 @@ func WebHook(ctx *macaron.Context) (int, []byte) {
 
 	url := fmt.Sprintf("%s/flow/v1/%s/%s/%s/%s/%s", config.WebHook.Host, namespace, repository, flowName, tag, "yaml")
 
-	flowYamlPath := fmt.Sprintf("%s/%s/%s/%s/flow.yaml", config.WebHook.FlowBaseDir, namespace, repository, tag)
+	flowYamlPath := fmt.Sprintf("%s/%s/%s/%s.yml", config.WebHook.FlowBaseDir, namespace, repository, tag)
 	f := &module.Flow{}
 	if err := f.ParseFlowFromFile(flowYamlPath, module.DaemonRun, false, true); err != nil {
 		log.Error(err)
@@ -54,7 +54,7 @@ func WebHook(ctx *macaron.Context) (int, []byte) {
 		return http.StatusInternalServerError, []byte("Failed to validate flow URI")
 	}
 	if ns != namespace || repo != repository || name != flowName {
-		log.Error(err)
+		log.Error("Parameters in yaml not equal to those in URL")
 		return http.StatusInternalServerError, []byte("Invalid flow URI")
 	}
 

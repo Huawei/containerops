@@ -22,45 +22,48 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/digitalocean/godo"
-	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
+
+	"github.com/digitalocean/godo"
+	"github.com/digitalocean/godo/context"
 )
 
 const (
 	DORootUser = "root"
 )
 
-// DigitalOcean struct use for manage create/delete DigitalOcean droplets.
+//DigitalOcean struct use for manage create/delete DigitalOcean droplets.
 type DigitalOcean struct {
-	Token    string         `json:"token" yaml:"token"`
-	Region   string         `json:"region" yaml:"region"`
-	Size     string         `json:"size" yaml:"size"`
-	Image    string         `json:"image" yaml:"image"`
-	Droplets map[string]int `json:"droplets,omitempty" yaml:"droplets,omitempty"`
-	Logs     []string       `json:"logs,omitempty" yaml:"logs,omitempty"`
+	Token    string                    `json:"token" yaml:"token"`
+	Region   string                    `json:"region" yaml:"region"`
+	Size     string                    `json:"size" yaml:"size"`
+	Image    string                    `json:"image" yaml:"image"`
+	Droplets map[int]map[string]string `json:"droplets,omitempty" yaml:"droplets,omitempty"`
+	Logs     []string                  `json:"logs,omitempty" yaml:"logs,omitempty"`
 
-	// Runtime Properties
+	//Runtime Properties
 	client *godo.Client
 }
 
 //WriteLog implement Logger interface.
-func (d *DigitalOcean) WriteLog(log string, writer io.Writer) error {
-	d.Logs = append(d.Logs, log)
+func (do *DigitalOcean) WriteLog(log string, writer io.Writer, output bool) error {
+	do.Logs = append(do.Logs, log)
 
-	if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
-		return err
+	if output == true {
+		if _, err := io.WriteString(writer, fmt.Sprintf("%s\n", log)); err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
-// TokenSource is access token of DigitalOcean
+//TokenSource is access token of DigitalOcean
 type TokenSource struct {
 	AccessToken string
 }
 
-//
+//Token is digitalocean need function
 func (t *TokenSource) Token() (*oauth2.Token, error) {
 	token := &oauth2.Token{
 		AccessToken: t.AccessToken,
@@ -68,6 +71,7 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 	return token, nil
 }
 
+//InitClient init digitalocean api client
 func (do *DigitalOcean) InitClient() error {
 	tokenSource := &TokenSource{
 		AccessToken: do.Token,
@@ -79,7 +83,8 @@ func (do *DigitalOcean) InitClient() error {
 	return nil
 }
 
-// TODO Customize SSH key name.
+//UploadSSHKey upload SSH public key file to the digitalocean service.
+//TODO Customize SSH key name.
 func (do *DigitalOcean) UploadSSHKey(publicFile string) error {
 	if public, err := ioutil.ReadFile(publicFile); err != nil {
 		return err
@@ -98,7 +103,19 @@ func (do *DigitalOcean) UploadSSHKey(publicFile string) error {
 	return nil
 }
 
-func (do *DigitalOcean) CreateDroplet(nodes int, fingerprint, name string, tags []string) error {
+//DeleteDroplet delete droplet in DigitalOcean.
+func (do *DigitalOcean) DeleteDroplet(id int) error {
+	ctx := context.TODO()
+
+	if _, err := do.client.Droplets.Delete(ctx, id); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+//CreateDroplets create droplets in DigitalOcean.
+func (do *DigitalOcean) CreateDroplets(nodes int, fingerprint, name string, tags []string) error {
 	names := []string{}
 
 	for i := 0; i < nodes; i++ {
@@ -120,7 +137,7 @@ func (do *DigitalOcean) CreateDroplet(nodes int, fingerprint, name string, tags 
 		SSHKeys:           []godo.DropletCreateSSHKey{sshFingerprint},
 		Backups:           false,
 		IPv6:              false,
-		PrivateNetworking: false,
+		PrivateNetworking: true,
 		Monitoring:        true,
 		Tags:              tags,
 		UserData:          "",
@@ -137,9 +154,11 @@ func (do *DigitalOcean) CreateDroplet(nodes int, fingerprint, name string, tags 
 
 	time.Sleep(10 * time.Second)
 
-	do.Droplets = map[string]int{}
+	do.Droplets = map[int]map[string]string{}
 	for {
 		for _, value := range droplets {
+			do.Droplets[value.ID] = map[string]string{}
+
 			ctx := context.TODO()
 			droplet, _, err := do.client.Droplets.Get(ctx, value.ID)
 
@@ -149,8 +168,17 @@ func (do *DigitalOcean) CreateDroplet(nodes int, fingerprint, name string, tags 
 			}
 
 			if len(droplet.Networks.V4) > 0 {
-				v4 := droplet.Networks.V4[0]
-				do.Droplets[v4.IPAddress] = droplet.ID
+				private := droplet.Networks.V4[0]
+				public := droplet.Networks.V4[1]
+
+				do.Droplets[value.ID]["public"] = public.IPAddress
+				do.Droplets[value.ID]["private"] = private.IPAddress
+			}
+
+			if len(droplet.Networks.V6) > 0 {
+				v6 := droplet.Networks.V6[0]
+
+				do.Droplets[value.ID]["v6"] = v6.IPAddress
 			}
 		}
 

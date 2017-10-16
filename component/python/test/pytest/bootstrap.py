@@ -4,6 +4,7 @@ import subprocess
 import os
 import sys
 import glob
+import anymarkup
 
 REPO_PATH = 'git-repo'
 
@@ -79,8 +80,14 @@ def pytest(file_name):
     return True
 
 
-def echo_xml():
-    with open('/tmp/output.xml', 'rb') as f:
+def echo_xml(use_yaml):
+    file = '/tmp/output.xml'
+    if use_yaml:
+        data = anymarkup.parse_file(file)
+        data = anymarkup.serialize(data, 'yaml')
+        print('[COUT] CO_YAML_CONTENT {}'.format(str(data)[1:]))
+        return
+    with open(file, 'rb') as f:
         data = f.read()
         print('[COUT] CO_XML_CONTENT {}'.format(str(data)[1:]))
 
@@ -92,7 +99,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url', 'entry-path', 'version']
+    validate = ['git-url', 'entry-path', 'version', 'out-put-type']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -157,7 +164,10 @@ def main():
 
 
     out = pytest(entry_path)
-    echo_xml()
+
+    use_yaml = argv.get('out-put-type', 'json') == 'yaml'
+
+    echo_xml(use_yaml)
 
     if not out:
         print("[COUT] CO_RESULT = false")

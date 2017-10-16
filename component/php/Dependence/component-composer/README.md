@@ -3,13 +3,13 @@
 ## Build
 
 ```shell
-docker build -t hub.opshub.sh/binary/v1/containerops/component/binary/php/component-composer: .
+docker build -t hub.opshub.sh/containerops/dependence-php-composer:latest .
 ```
 
 ## Run
 
 ```shell
-docker run --env CO_DATA="git-url=https://github.com/sebastianbergmann/phploc.git entry-file=build.php" hub.opshub.sh/binary/v1/containerops/component/binary/php/component-composer:0.1
+docker run --env CO_DATA="git-url=https://github.com/sebastianbergmann/phploc.git entry-file=build.php" hub.opshub.sh/containerops/dependence-php-composer:latest
 ```
 
 ## Options

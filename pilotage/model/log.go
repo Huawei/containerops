@@ -35,6 +35,9 @@ func (l *LogV1) TableName() string {
 }
 
 func (l *LogV1) Create(level, phase string, phaseID int64, content string) error {
+	if DisableDB {
+		return nil
+	}
 
 	l.Level, l.Phase, l.PhaseID, l.Content = level, phase, phaseID, content
 	l.EventTime = time.Now()

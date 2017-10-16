@@ -39,14 +39,14 @@ import (
 var addressOption string
 var portOption int
 
-// webCmd is sub command which start/stop/monitor Singular's REST API daemon.
+//daemonCmd is sub command which start/stop/monitor Singular's REST API daemon.
 var daemonCmd = &cobra.Command{
 	Use:   "daemon",
 	Short: "Web sub command start/stop/monitor Singular's REST API daemon.",
 	Long:  ``,
 }
 
-// start Singular daemon sub command
+//startDaemonCmd start Singular daemon sub command
 var startDaemonCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Start Singular's REST API daemon.",
@@ -54,7 +54,7 @@ var startDaemonCmd = &cobra.Command{
 	Run:   startDaemon,
 }
 
-// stop Singular daemon sub command
+//stopDaemonCmd stop Singular daemon sub command
 var stopDaemonCmd = &cobra.Command{
 	Use:   "stop",
 	Short: "stop Singular's REST API daemon.",
@@ -62,7 +62,7 @@ var stopDaemonCmd = &cobra.Command{
 	Run:   stopDaemon,
 }
 
-// monitor Singular daemon sub command
+//monitorDaemonCmd monitor Singular daemon sub command
 var monitorDaemonCmd = &cobra.Command{
 	Use:   "monitor",
 	Short: "monitor Singular's REST API daemon.",
@@ -70,22 +70,22 @@ var monitorDaemonCmd = &cobra.Command{
 	Run:   monitorDaemon,
 }
 
-// init()
+//init()
 func init() {
 	RootCmd.AddCommand(daemonCmd)
 
-	// Add start sub command
+	//add start sub command
 	daemonCmd.AddCommand(startDaemonCmd)
 	startDaemonCmd.Flags().StringVarP(&addressOption, "address", "a", "", "http or https listen address.")
 	startDaemonCmd.Flags().IntVarP(&portOption, "port", "p", 0, "the port of http.")
 
-	// Add stop sub command
+	//add stop sub command
 	daemonCmd.AddCommand(stopDaemonCmd)
 	// Add daemon sub command
 	daemonCmd.AddCommand(monitorDaemonCmd)
 }
 
-// startDaemon() start Singular's REST API daemon.
+//startDaemon start Singular's REST API daemon.
 func startDaemon(cmd *cobra.Command, args []string) {
 	model.OpenDatabase(&common.Database)
 	m := macaron.New()
@@ -123,24 +123,24 @@ func startDaemon(cmd *cobra.Command, args []string) {
 			}
 
 			if listener, err := net.Listen("unix", listenAddr); err != nil {
-				log.Errorf("Start Dockyard unix socket error: %s\n", err.Error())
+				log.Errorf("start Dockyard unix socket error: %s\n", err.Error())
 			} else {
 				server = &http.Server{Handler: m}
 				if err := server.Serve(listener); err != nil {
-					log.Errorf("Start Dockyard unix socket error: %s\n", err.Error())
+					log.Errorf("start Dockyard unix socket error: %s\n", err.Error())
 				}
 			}
 			break
 		default:
-			log.Fatalf("Invalid listen mode: %s\n", common.Web.Mode)
+			log.Fatalf("invalid listen mode: %s\n", common.Web.Mode)
 			os.Exit(1)
 			break
 		}
 	}()
 
-	// Graceful shutdown
+	//Graceful shutdown
 	<-stopChan // wait for SIGINT
-	log.Errorln("Shutting down server...")
+	log.Errorln("shutting down server...")
 
 	if server != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -148,7 +148,7 @@ func startDaemon(cmd *cobra.Command, args []string) {
 		server.Shutdown(ctx)
 	}
 
-	log.Errorln("Server gracefully stopped")
+	log.Info("server gracefully stopped")
 }
 
 // stopDaemon() stop Singular's REST API daemon.

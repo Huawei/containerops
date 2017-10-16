@@ -17,7 +17,7 @@ MAINTAINER Li Meng Jun <lmjubuntu@gmail.com>
 
 RUN apt-get update && apt-get install -y python3-pip git
 
-RUN pip3 install tox
+RUN pip3 install tox anymarkup
 
 ADD bootstrap.py /usr/local/bin/bootstrap.py
 

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+ name: component-python-analysis-pycallgraph
+spec:
+ containers:
+ - name: pycallgraph
+   image: hub.opshub.sh/containerops/pycallgraph:latest
+   env:
+   - name: CO_DATA
+     value: "git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pycallgraph"
+   resources:
+     requests:
+       cpu: 4
+       memory: 8G
+ restartPolicy: Never

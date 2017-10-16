@@ -17,28 +17,31 @@ limitations under the License.
 package tools
 
 const (
-	// Service files folder
+	//Service files folder
 	ServiceFilesFolder = "service"
 	KubectlFileFolder  = "kubectl"
 
-	// Systemd server location
+	//Systemd server location
 	SystemdServerPath = "/etc/systemd/system"
-	// Default binary location
+	//Default binary location
 	BinaryServerPath = "/usr/local/bin"
 
-	// Service Etcd Files Folder Name
+	//Service Etcd Files Folder Name
 	ServiceEtcdFolder = "etcd"
 	ServiceEtcdFile   = "etcd.service"
 
-	// Service Flannel files Folder Name
+	//Service Flannel files Folder Name
 	ServiceFlanneldFolder = "flanneld"
 	ServiceFlanneldFile   = "flanneld.service"
 
-	// Service Docker files Folder Name
+	//Service Docker files Folder Name
 	ServiceDockerFolder = "docker"
 	ServiceDockerFile   = "docker.service"
 
-	// Kubectl files Folder Name
+	KubeServerConfig = "/etc/kubernetes"
+	KubeServerSSL    = "ssl"
+
+	//Kubectl files Folder Name
 	KubectlFile                      = "kubectl"
 	KubectlConfigFile                = "config"
 	KubeTokenCSVFile                 = "token.csv"

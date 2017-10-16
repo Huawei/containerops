@@ -1,0 +1,35 @@
+uri: containerops/component/php-component-phpunit-test
+title: analysis php project
+version: 1
+tag: latest
+timeout: 0
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-phpunit-test
+    title: analysis php project
+    sequencing: sequence
+    actions:
+      -
+        name: phpunit-test
+        title: analysis php project
+        jobs:
+          -
+            type: component
+            # kubectl: phpunit-test.yaml
+            endpoint: hub.opshub.sh/containerops/unittest-php-phpunit:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/sebastianbergmann/phploc.git --configuration=phpunit.xml composer=true"
+      -
+  -
+    type: end
+    name: end
+    title: End

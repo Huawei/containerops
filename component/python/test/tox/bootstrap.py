@@ -4,6 +4,7 @@ import subprocess
 import os
 import sys
 import json
+import anymarkup
 
 REPO_PATH = 'git-repo'
 
@@ -52,9 +53,13 @@ def tox(file_name):
     return True
 
 
-def echo_json():
+def echo_json(use_yaml):
     data = json.load(open('/tmp/output.json'))
-    print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
+    if use_yaml:
+        data = anymarkup.serialize(data, 'yaml')
+        print('[COUT] CO_YAML_CONTENT {}'.format(str(data)[1:]))
+    else:
+        print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
 
     return True
 
@@ -64,7 +69,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url', 'entry-path']
+    validate = ['git-url', 'entry-path', 'out-put-type']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -102,7 +107,10 @@ def main():
         return
 
     out = tox(entry_path)
-    echo_json()
+
+    use_yaml = argv.get('out-put-type', 'json') == 'yaml'
+
+    echo_json(use_yaml)
 
     if not out:
         print("[COUT] CO_RESULT = false")

@@ -76,11 +76,11 @@ func init() {
 	// Add cli daemon sub command.
 	RootCmd.AddCommand(daemonCmd)
 
-	daemonCmd.PersistentFlags().StringVarP(&addressOption, "address", "a", "0.0.0.0", "The daemon listen address.")
+	daemonCmd.PersistentFlags().StringVarP(&addressOption, "address", "a", "", "The daemon listen address.")
 	daemonCmd.PersistentFlags().StringVarP(&certFile, "cert", "c", "", "The cert file for HTTPS mode")
 	daemonCmd.PersistentFlags().StringVarP(&keyFile, "key", "k", "", "The key file for HTTPS mode")
-	daemonCmd.PersistentFlags().StringVarP(&webMode, "mode", "m", "http", "The http mode")
-	daemonCmd.PersistentFlags().IntVarP(&portOption, "port", "p", 8080, "The port of http.")
+	daemonCmd.PersistentFlags().StringVarP(&webMode, "mode", "m", "", "The http mode")
+	daemonCmd.PersistentFlags().IntVarP(&portOption, "port", "p", 0, "The port of http.")
 
 	viper.BindPFlag("address", daemonCmd.Flags().Lookup("address"))
 	viper.BindPFlag("cert", daemonCmd.Flags().Lookup("cert"))
@@ -111,6 +111,8 @@ func runDaemonFlow(cmd *cobra.Command, args []string) {
 
 	stopChan := make(chan os.Signal)
 	signal.Notify(stopChan, os.Interrupt)
+
+	overrideConfig()
 
 	go func() {
 		switch webMode {
@@ -183,6 +185,8 @@ func startDaemonFlow(cmd *cobra.Command, args []string) {
 	stopChan := make(chan os.Signal)
 	signal.Notify(stopChan, os.Interrupt)
 
+	overrideConfig()
+
 	go func() {
 		switch webMode {
 		case "http":
@@ -237,4 +241,35 @@ func startDaemonFlow(cmd *cobra.Command, args []string) {
 	}
 
 	cmd.Println(Green(("pilotage daemon gracefully stopped")))
+}
+
+func overrideConfig() {
+	if addressOption == "" {
+		if common.Web.Address == "" {
+			addressOption = "0.0.0.0"
+		} else {
+			addressOption = common.Web.Address
+		}
+	}
+	if portOption == 0 {
+		if common.Web.Port == 0 {
+			portOption = 8080
+		} else {
+			portOption = common.Web.Port
+		}
+	}
+	if webMode == "" {
+		if common.Web.Mode == "" {
+			webMode = "http"
+		} else {
+			webMode = common.Web.Mode
+		}
+	}
+	if certFile == "" && common.Web.Cert != "" {
+		certFile = common.Web.Cert
+	}
+	if keyFile == "" && common.Web.Key != "" {
+		keyFile = common.Web.Key
+	}
+
 }

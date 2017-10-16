@@ -56,7 +56,7 @@ func initFolders(key, ip, user string, stdout io.Writer) ([]string, error) {
 		"mkdir -p /var/lib/etcd",
 	}
 
-	if err := utils.SSHCommand(user, key, ip, DefaultSSHPort, strings.Join(initCmd, " && "), stdout, os.Stderr); err != nil {
+	if err := utils.SSHCommand(user, key, ip, DefaultSSHPort, initCmd, stdout, os.Stderr); err != nil {
 		return initCmd, err
 	}
 
@@ -68,12 +68,12 @@ func initEnvironment(key, ip, user, distro string, stdout io.Writer) ([]string, 
 	initCmd := map[string][]string{
 		DistroUbuntu: []string{
 			"systemctl stop ufw",
-			"systemctl disable ufw",
+			"/lib/systemd/systemd-sysv-install disable ufw",
 		},
 		DistroCentOS: []string{},
 	}
 
-	if err := utils.SSHCommand(user, key, ip, DefaultSSHPort, strings.Join(initCmd[distro], " && "), stdout, os.Stderr); err != nil {
+	if err := utils.SSHCommand(user, key, ip, DefaultSSHPort, initCmd[distro], stdout, os.Stderr); err != nil {
 		return initCmd[distro], err
 	}
 

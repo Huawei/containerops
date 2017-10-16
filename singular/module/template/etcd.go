@@ -16,6 +16,7 @@ limitations under the License.
 
 package template
 
+//EtcdCATemplate is CA json template with multi version
 var EtcdCATemplate = map[string]string{
 	"etcd-3.2.2": `
 {
@@ -38,10 +39,335 @@ var EtcdCATemplate = map[string]string{
 		}
 	]
 }`,
+	"etcd-3.2.3": `
+{
+	"CN": "etcd",
+	"hosts": [
+		"127.0.0.1",
+		"{{.IP}}"
+	],
+	"key": {
+		"algo": "rsa",
+		"size": 4096
+	},
+	"names": [
+		{
+			"C": "CN",
+			"ST": "BeiJing",
+			"L": "BeiJing",
+			"O": "k8s",
+			"OU": "System"
+		}
+	]
+}`,
+	"etcd-3.2.4": `
+{
+	"CN": "etcd",
+	"hosts": [
+		"127.0.0.1",
+		"{{.IP}}"
+	],
+	"key": {
+		"algo": "rsa",
+		"size": 4096
+	},
+	"names": [
+		{
+			"C": "CN",
+			"ST": "BeiJing",
+			"L": "BeiJing",
+			"O": "k8s",
+			"OU": "System"
+		}
+	]
+}`,
+	"etcd-3.2.5": `
+{
+	"CN": "etcd",
+	"hosts": [
+		"127.0.0.1",
+		"{{.IP}}"
+	],
+	"key": {
+		"algo": "rsa",
+		"size": 4096
+	},
+	"names": [
+		{
+			"C": "CN",
+			"ST": "BeiJing",
+			"L": "BeiJing",
+			"O": "k8s",
+			"OU": "System"
+		}
+	]
+}`,
+	"etcd-3.2.6": `
+{
+	"CN": "etcd",
+	"hosts": [
+		"127.0.0.1",
+		"{{.IP}}"
+	],
+	"key": {
+		"algo": "rsa",
+		"size": 4096
+	},
+	"names": [
+		{
+			"C": "CN",
+			"ST": "BeiJing",
+			"L": "BeiJing",
+			"O": "k8s",
+			"OU": "System"
+		}
+	]
+}`,
+	"etcd-3.2.7": `
+{
+	"CN": "etcd",
+	"hosts": [
+		"127.0.0.1",
+		"{{.IP}}"
+	],
+	"key": {
+		"algo": "rsa",
+		"size": 4096
+	},
+	"names": [
+		{
+			"C": "CN",
+			"ST": "BeiJing",
+			"L": "BeiJing",
+			"O": "k8s",
+			"OU": "System"
+		}
+	]
+}`,
+	"etcd-3.2.8": `
+{
+	"CN": "etcd",
+	"hosts": [
+		"127.0.0.1",
+		"{{.IP}}"
+	],
+	"key": {
+		"algo": "rsa",
+		"size": 4096
+	},
+	"names": [
+		{
+			"C": "CN",
+			"ST": "BeiJing",
+			"L": "BeiJing",
+			"O": "k8s",
+			"OU": "System"
+		}
+	]
+}`,
 }
 
+//EtcdSystemdTemplate is etcd systemd template with multi verison
 var EtcdSystemdTemplate = map[string]string{
 	"etcd-3.2.2": `
+[Unit]
+Description=Etcd Server
+After=network.target
+After=network-online.target
+Wants=network-online.target
+Documentation=https://github.com/coreos
+
+[Service]
+Type=notify
+WorkingDirectory=/var/lib/etcd/
+ExecStart=/usr/local/bin/etcd \
+  --name={{.Name}} \
+  --cert-file=/etc/etcd/ssl/etcd.pem \
+  --key-file=/etc/etcd/ssl/etcd-key.pem \
+  --peer-cert-file=/etc/etcd/ssl/etcd.pem \
+  --peer-key-file=/etc/etcd/ssl/etcd-key.pem \
+  --trusted-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --peer-trusted-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --initial-advertise-peer-urls=https://{{.IP}}:2380 \
+  --listen-peer-urls=https://{{.IP}}:2380 \
+  --listen-client-urls=https://{{.IP}}:2379,http://127.0.0.1:2379 \
+  --advertise-client-urls=https://{{.IP}}:2379 \
+  --initial-cluster-token=etcd-cluster-0 \
+  --initial-cluster={{.Nodes}} \
+  --initial-cluster-state=new \
+  --data-dir=/var/lib/etcd
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target`,
+	"etcd-3.2.3": `
+[Unit]
+Description=Etcd Server
+After=network.target
+After=network-online.target
+Wants=network-online.target
+Documentation=https://github.com/coreos
+
+[Service]
+Type=notify
+WorkingDirectory=/var/lib/etcd/
+ExecStart=/usr/local/bin/etcd \
+  --name={{.Name}} \
+  --cert-file=/etc/etcd/ssl/etcd.pem \
+  --key-file=/etc/etcd/ssl/etcd-key.pem \
+  --peer-cert-file=/etc/etcd/ssl/etcd.pem \
+  --peer-key-file=/etc/etcd/ssl/etcd-key.pem \
+  --trusted-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --peer-trusted-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --initial-advertise-peer-urls=https://{{.IP}}:2380 \
+  --listen-peer-urls=https://{{.IP}}:2380 \
+  --listen-client-urls=https://{{.IP}}:2379,http://127.0.0.1:2379 \
+  --advertise-client-urls=https://{{.IP}}:2379 \
+  --initial-cluster-token=etcd-cluster-0 \
+  --initial-cluster={{.Nodes}} \
+  --initial-cluster-state=new \
+  --data-dir=/var/lib/etcd
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target`,
+	"etcd-3.2.4": `
+[Unit]
+Description=Etcd Server
+After=network.target
+After=network-online.target
+Wants=network-online.target
+Documentation=https://github.com/coreos
+
+[Service]
+Type=notify
+WorkingDirectory=/var/lib/etcd/
+ExecStart=/usr/local/bin/etcd \
+  --name={{.Name}} \
+  --cert-file=/etc/etcd/ssl/etcd.pem \
+  --key-file=/etc/etcd/ssl/etcd-key.pem \
+  --peer-cert-file=/etc/etcd/ssl/etcd.pem \
+  --peer-key-file=/etc/etcd/ssl/etcd-key.pem \
+  --trusted-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --peer-trusted-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --initial-advertise-peer-urls=https://{{.IP}}:2380 \
+  --listen-peer-urls=https://{{.IP}}:2380 \
+  --listen-client-urls=https://{{.IP}}:2379,http://127.0.0.1:2379 \
+  --advertise-client-urls=https://{{.IP}}:2379 \
+  --initial-cluster-token=etcd-cluster-0 \
+  --initial-cluster={{.Nodes}} \
+  --initial-cluster-state=new \
+  --data-dir=/var/lib/etcd
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target`,
+	"etcd-3.2.5": `
+[Unit]
+Description=Etcd Server
+After=network.target
+After=network-online.target
+Wants=network-online.target
+Documentation=https://github.com/coreos
+
+[Service]
+Type=notify
+WorkingDirectory=/var/lib/etcd/
+ExecStart=/usr/local/bin/etcd \
+  --name={{.Name}} \
+  --cert-file=/etc/etcd/ssl/etcd.pem \
+  --key-file=/etc/etcd/ssl/etcd-key.pem \
+  --peer-cert-file=/etc/etcd/ssl/etcd.pem \
+  --peer-key-file=/etc/etcd/ssl/etcd-key.pem \
+  --trusted-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --peer-trusted-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --initial-advertise-peer-urls=https://{{.IP}}:2380 \
+  --listen-peer-urls=https://{{.IP}}:2380 \
+  --listen-client-urls=https://{{.IP}}:2379,http://127.0.0.1:2379 \
+  --advertise-client-urls=https://{{.IP}}:2379 \
+  --initial-cluster-token=etcd-cluster-0 \
+  --initial-cluster={{.Nodes}} \
+  --initial-cluster-state=new \
+  --data-dir=/var/lib/etcd
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target`,
+	"etcd-3.2.6": `
+[Unit]
+Description=Etcd Server
+After=network.target
+After=network-online.target
+Wants=network-online.target
+Documentation=https://github.com/coreos
+
+[Service]
+Type=notify
+WorkingDirectory=/var/lib/etcd/
+ExecStart=/usr/local/bin/etcd \
+  --name={{.Name}} \
+  --cert-file=/etc/etcd/ssl/etcd.pem \
+  --key-file=/etc/etcd/ssl/etcd-key.pem \
+  --peer-cert-file=/etc/etcd/ssl/etcd.pem \
+  --peer-key-file=/etc/etcd/ssl/etcd-key.pem \
+  --trusted-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --peer-trusted-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --initial-advertise-peer-urls=https://{{.IP}}:2380 \
+  --listen-peer-urls=https://{{.IP}}:2380 \
+  --listen-client-urls=https://{{.IP}}:2379,http://127.0.0.1:2379 \
+  --advertise-client-urls=https://{{.IP}}:2379 \
+  --initial-cluster-token=etcd-cluster-0 \
+  --initial-cluster={{.Nodes}} \
+  --initial-cluster-state=new \
+  --data-dir=/var/lib/etcd
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target`,
+	"etcd-3.2.7": `
+[Unit]
+Description=Etcd Server
+After=network.target
+After=network-online.target
+Wants=network-online.target
+Documentation=https://github.com/coreos
+
+[Service]
+Type=notify
+WorkingDirectory=/var/lib/etcd/
+ExecStart=/usr/local/bin/etcd \
+  --name={{.Name}} \
+  --cert-file=/etc/etcd/ssl/etcd.pem \
+  --key-file=/etc/etcd/ssl/etcd-key.pem \
+  --peer-cert-file=/etc/etcd/ssl/etcd.pem \
+  --peer-key-file=/etc/etcd/ssl/etcd-key.pem \
+  --trusted-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --peer-trusted-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --initial-advertise-peer-urls=https://{{.IP}}:2380 \
+  --listen-peer-urls=https://{{.IP}}:2380 \
+  --listen-client-urls=https://{{.IP}}:2379,http://127.0.0.1:2379 \
+  --advertise-client-urls=https://{{.IP}}:2379 \
+  --initial-cluster-token=etcd-cluster-0 \
+  --initial-cluster={{.Nodes}} \
+  --initial-cluster-state=new \
+  --data-dir=/var/lib/etcd
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target`,
+	"etcd-3.2.8": `
 [Unit]
 Description=Etcd Server
 After=network.target

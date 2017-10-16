@@ -5,6 +5,7 @@ import os
 import sys
 import json
 import pycco.main as pyccoLib
+import anymarkup
 
 REPO_PATH = 'git-repo'
 
@@ -20,14 +21,18 @@ def git_clone(url):
         return False
 
 
-def pycco(file_name):
+def pycco(file_name, use_yaml):
     code = open(file_name, 'rb').read().decode('utf-8')
     language = pyccoLib.get_language(file_name, code)
     sections = pyccoLib.parse(code, language)
     pyccoLib.highlight(sections, language, outdir="docs")
 
     data = { 'file_path': trim_repo_path(file_name), 'sections': sections }
-    print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
+    if use_yaml:
+        data = anymarkup.serialize(data, 'yaml')
+        print('[COUT] CO_YAML_CONTENT {}'.format(str(data)[1:]))
+    else:
+        print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
 
 
     return True
@@ -42,7 +47,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url']
+    validate = ['git-url', 'out-put-type']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -75,10 +80,12 @@ def main():
 
     all_true = True
 
+    use_yaml = argv.get('out-put-type', 'json') == 'yaml'
+
     for root, dirs, files in os.walk(REPO_PATH):
         for file_name in files:
             if file_name.endswith('.py'):
-                o = pycco(os.path.join(root, file_name))
+                o = pycco(os.path.join(root, file_name), use_yaml)
                 all_true = all_true and o
 
     if all_true:

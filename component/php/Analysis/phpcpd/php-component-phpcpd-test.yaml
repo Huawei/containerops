@@ -1,0 +1,34 @@
+uri: containerops/component/php-component-phpcpd-test
+title: analysis php project
+version: 1
+tag: latest
+timeout: 0
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-phpcpd-test
+    title: analysis php project
+    sequencing: sequence
+    actions:
+      -
+        name: phpcpd-test
+        title: analysis php project
+        jobs:
+          -
+            type: component
+            endpoint: hub.opshub.sh/containerops/analysis-php-phpcpd:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/TIGERB/easy-php.git"
+      -
+  -
+    type: end
+    name: end
+    title: End
