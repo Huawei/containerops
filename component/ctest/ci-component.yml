@@ -3,6 +3,13 @@ title: CI build and test  for components
 version: 1
 tag: latest
 timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+  -
+    type: mail
+    address: hubopsnotifier@gmail.com
 stages:
   -
     type: start
@@ -21,7 +28,7 @@ stages:
           -
             type: component
             kubectl:
-            endpoint: hub.opshub.sh/containerops/component-ctest-build:latest
+            endpoint: hub.opshub.sh/containerops/component-ctest-flow:latest
             resources:
               cpu: 4
               memory: 8G
