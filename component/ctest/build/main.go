@@ -46,17 +46,25 @@ func main() {
 	//module.CreateYMLwihtURL(image,path,"hub.opshub.sh/containerops/component-python-coala-workflow111:latest")
 	
 	UploadBinaryFile(image,path, buf.String())
+
+	//Print result
+	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "true")
+	os.Exit(0)
 }
 
 // Upload binary file to the service.
 func UploadBinaryFile(name,filePath, url string) error {
 
 	if f, err := os.Open(filePath+".tar"); err != nil {
+		fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA error: %s\n", err.Error())
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 		return err
 	} else {
 		defer f.Close()
 		if req, err := http.NewRequest(http.MethodPost,
 			url, f); err != nil {
+				fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA error: %s\n", err.Error())
+				fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 			return err
 		} else {
 			req.Header.Set("Content-Type", "text/plain")
@@ -74,6 +82,8 @@ func UploadBinaryFile(name,filePath, url string) error {
 						_, err := body.ReadFrom(resp.Body)
 						if err != nil {
 							log.Fatal(err)
+							fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA error: %s\n", err.Error())
+							fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 						}
 						resp.Body.Close()
 						fmt.Println(resp.StatusCode)
@@ -90,7 +100,11 @@ func UploadBinaryFile(name,filePath, url string) error {
 						return nil
 					}
 				case http.StatusBadRequest:
-					return fmt.Errorf("Binary upload failed.")
+					{
+					
+						return fmt.Errorf("Binary upload failed.")
+						
+					}
 				case http.StatusUnauthorized:
 					return fmt.Errorf("Action unauthorized.")
 				default:
