@@ -1,4 +1,4 @@
-uri: containerops/component/ctest/ci-component
+uri: containerops/auto-test-for-components/ci-component-ctest
 title: CI build and test  for components
 version: 1
 tag: latest
@@ -18,7 +18,7 @@ stages:
   -
     type: normal
     name: build-component
-    title:  Component build and flow action
+    title:  Component auto test action
     sequencing: sequence
     actions:
       -
@@ -28,7 +28,7 @@ stages:
           -
             type: component
             kubectl:
-            endpoint: hub.opshub.sh/containerops/component-ctest-flow:latest
+            endpoint: hub.opshub.sh/containerops/component-ctest-build:latest
             resources:
               cpu: 4
               memory: 8G
