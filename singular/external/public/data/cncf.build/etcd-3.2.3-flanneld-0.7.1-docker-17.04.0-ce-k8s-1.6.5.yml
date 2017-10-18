@@ -1,5 +1,5 @@
-uri: containerops/singular/etcd-3.2.2-flanneld-0.7.1-docker-17.04.0-ce-k8s-1.6.6
-title: Deploy Kubernetes With etcd-3.2.2 flanneld-0.7.1 docker-17.04.0-ce k8s-1.6.6
+uri: containerops/singular/etcd-3.2.3-flanneld-0.7.1-docker-17.04.0-ce-k8s-1.6.5
+title: Deploy Kubernetes With etcd-3.2.3 flanneld-0.7.1 docker-17.04.0-ce k8s-1.6.5
 tag: latest
 service:
   region: sfo2
@@ -9,19 +9,19 @@ service:
 infras:
   -
     name: etcd
-    version: etcd-3.2.2
+    version: etcd-3.2.3
     master: 3
     minion: 0
     components:
       -
         binary: etcd
-        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/3.2.2/etcd
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/3.2.3/etcd
         package: false
-        systemd: etcd-3.2.2
-        ca: etcd-3.2.2
+        systemd: etcd-3.2.3
+        ca: etcd-3.2.3
       -
         binary: etcdctl
-        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/3.2.2/etcdctl
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/3.2.3/etcdctl
         package: false
   -
     name: flannel
@@ -93,7 +93,7 @@ infras:
         package: false
   -
     name: kubernetes
-    version: kubernetes-1.6.6
+    version: kubernetes-1.6.5
     master: 1
     minion: 3
     dependencies:
@@ -103,35 +103,35 @@ infras:
     components:
       -
         binary: kube-apiserver
-        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/1.6.6/kube-apiserver
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/1.6.5/kube-apiserver
         package: false
-        systemd: kube-apiserver-1.6.6
-        ca: kubernetes-1.6.6
+        systemd: kube-apiserver-1.6.5
+        ca: kubernetes-1.6.5
       -
         binary: kube-controller-manager
-        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/1.6.6/kube-controller-manager
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/1.6.5/kube-controller-manager
         package: false
-        systemd: kube-controller-manager-1.6.6
-        ca: kubernetes-1.6.6
+        systemd: kube-controller-manager-1.6.5
+        ca: kubernetes-1.6.5
       -
         binary: kube-scheduler
-        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/1.6.6/kube-scheduler
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/1.6.5/kube-scheduler
         package: false
-        systemd: kube-scheduler-1.6.6
+        systemd: kube-scheduler-1.6.5
       -
         binary: kubectl
-        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/1.6.6/kubectl
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/1.6.5/kubectl
         package: false
       -
         binary: kubelet
-        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/1.6.6/kubelet
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/1.6.5/kubelet
         package: false
-        systemd: kubelet-1.6.6
+        systemd: kubelet-1.6.5
       -
         binary: kube-proxy
-        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/1.6.6/kube-proxy
+        url: https://hub.opshub.sh/binary/v1/containerops/binary/binary/1.6.5/kube-proxy
         package: false
-        systemd: kube-proxy-1.6.6
-        ca: kube-proxy-1.6.6
+        systemd: kube-proxy-1.6.5
+        ca: kube-proxy-1.6.5
 description: WIP
 short: WIP
