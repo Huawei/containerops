@@ -20,7 +20,7 @@ stages:
     actions:
       -
         name: component-python-analysis-pylint-action1
-        title: [Pylint](https://github.com/PyCQA/pylint) is a Python source code analyzer which looks for programming errors, helps enforcing a coding standard and sniffs for some code smells (as defined in Martin Fowler's Refactoring book).
+        title: _[Pylint](https://github.com/PyCQA/pylint) is a Python source code analyzer which looks for programming errors, helps enforcing a coding standard and sniffs for some code smells (as defined in Martin Fowler's Refactoring book).
         jobs:
           -
             type: component
@@ -34,7 +34,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
       -
         name: component-python-analysis-pylint-action2
-        title: [Pylint](https://github.com/PyCQA/pylint) is a Python source code analyzer which looks for programming errors, helps enforcing a coding standard and sniffs for some code smells (as defined in Martin Fowler's Refactoring book).
+        title: _[Pylint](https://github.com/PyCQA/pylint) is a Python source code analyzer which looks for programming errors, helps enforcing a coding standard and sniffs for some code smells (as defined in Martin Fowler's Refactoring book).
         jobs:
           -
             type: component
@@ -48,7 +48,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml"
       -
         name: component-python-analysis-pylint-action3
-        title: [Pylint](https://github.com/PyCQA/pylint) is a Python source code analyzer which looks for programming errors, helps enforcing a coding standard and sniffs for some code smells (as defined in Martin Fowler's Refactoring book).
+        title: _[Pylint](https://github.com/PyCQA/pylint) is a Python source code analyzer which looks for programming errors, helps enforcing a coding standard and sniffs for some code smells (as defined in Martin Fowler's Refactoring book).
         jobs:
           -
             type: component
@@ -62,7 +62,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml version=python"
       -
         name: component-python-analysis-pylint-action4
-        title: [Pylint](https://github.com/PyCQA/pylint) is a Python source code analyzer which looks for programming errors, helps enforcing a coding standard and sniffs for some code smells (as defined in Martin Fowler's Refactoring book).
+        title: _[Pylint](https://github.com/PyCQA/pylint) is a Python source code analyzer which looks for programming errors, helps enforcing a coding standard and sniffs for some code smells (as defined in Martin Fowler's Refactoring book).
         jobs:
           -
             type: component

@@ -20,7 +20,7 @@ stages:
     actions:
       -
         name: component-python-test-nose-action1
-        title: [nose](https://github.com/nose-devs/nose) is nicer testing for python
+        title: _[nose](https://github.com/nose-devs/nose) is nicer testing for python
         jobs:
           -
             type: component
@@ -34,7 +34,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/nose-devs/nose.git entry-path=unit_tests"
       -
         name: component-python-test-nose-action2
-        title: [nose](https://github.com/nose-devs/nose) is nicer testing for python
+        title: _[nose](https://github.com/nose-devs/nose) is nicer testing for python
         jobs:
           -
             type: component
@@ -48,7 +48,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/nose-devs/nose.git entry-path=unit_tests out-put-type=yaml"
       -
         name: component-python-test-nose-action3
-        title: [nose](https://github.com/nose-devs/nose) is nicer testing for python
+        title: _[nose](https://github.com/nose-devs/nose) is nicer testing for python
         jobs:
           -
             type: component
@@ -62,7 +62,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/nose-devs/nose.git entry-path=unit_tests out-put-type=yaml version=python"
       -
         name: component-python-test-nose-action4
-        title: [nose](https://github.com/nose-devs/nose) is nicer testing for python
+        title: _[nose](https://github.com/nose-devs/nose) is nicer testing for python
         jobs:
           -
             type: component

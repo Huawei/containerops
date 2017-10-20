@@ -20,7 +20,7 @@ stages:
     actions:
       -
         name: component-python-test-coverage-action1
-        title: [Coverage.py](https://github.com/nedbat/coveragepy) measures code coverage, typically during test execution. It uses the code analysis tools and tracing hooks provided in the Python standard library to determine which lines are executable, and which have been executed.
+        title: _[Coverage.py](https://github.com/nedbat/coveragepy) measures code coverage, typically during test execution. It uses the code analysis tools and tracing hooks provided in the Python standard library to determine which lines are executable, and which have been executed.
         jobs:
           -
             type: component
@@ -34,7 +34,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=test/test_regex.py"
       -
         name: component-python-test-coverage-action2
-        title: [Coverage.py](https://github.com/nedbat/coveragepy) measures code coverage, typically during test execution. It uses the code analysis tools and tracing hooks provided in the Python standard library to determine which lines are executable, and which have been executed.
+        title: _[Coverage.py](https://github.com/nedbat/coveragepy) measures code coverage, typically during test execution. It uses the code analysis tools and tracing hooks provided in the Python standard library to determine which lines are executable, and which have been executed.
         jobs:
           -
             type: component
@@ -48,7 +48,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=test/test_regex.py out-put-type=yaml"
       -
         name: component-python-test-coverage-action3
-        title: [Coverage.py](https://github.com/nedbat/coveragepy) measures code coverage, typically during test execution. It uses the code analysis tools and tracing hooks provided in the Python standard library to determine which lines are executable, and which have been executed.
+        title: _[Coverage.py](https://github.com/nedbat/coveragepy) measures code coverage, typically during test execution. It uses the code analysis tools and tracing hooks provided in the Python standard library to determine which lines are executable, and which have been executed.
         jobs:
           -
             type: component
@@ -62,7 +62,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=test/test_regex.py out-put-type=yaml version=python"
       -
         name: component-python-test-coverage-action4
-        title: [Coverage.py](https://github.com/nedbat/coveragepy) measures code coverage, typically during test execution. It uses the code analysis tools and tracing hooks provided in the Python standard library to determine which lines are executable, and which have been executed.
+        title: _[Coverage.py](https://github.com/nedbat/coveragepy) measures code coverage, typically during test execution. It uses the code analysis tools and tracing hooks provided in the Python standard library to determine which lines are executable, and which have been executed.
         jobs:
           -
             type: component

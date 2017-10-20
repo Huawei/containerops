@@ -20,7 +20,7 @@ stages:
     actions:
       -
         name: component-python-document-pycco-action1
-        title: [Pycco](https://github.com/pycco-docs/pycco) is a Python port of Docco: the original quick-and-dirty, hundred-line- long, literate-programming-style documentation generator.
+        title: _[Pycco](https://github.com/pycco-docs/pycco) is a Python port of Docco the original quick-and-dirty, hundred-line- long, literate-programming-style documentation generator.
         jobs:
           -
             type: component
@@ -34,7 +34,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/pycco-docs/pycco.git"
       -
         name: component-python-document-pycco-action2
-        title: [Pycco](https://github.com/pycco-docs/pycco) is a Python port of Docco: the original quick-and-dirty, hundred-line- long, literate-programming-style documentation generator.
+        title: _[Pycco](https://github.com/pycco-docs/pycco) is a Python port of Docco the original quick-and-dirty, hundred-line- long, literate-programming-style documentation generator.
         jobs:
           -
             type: component

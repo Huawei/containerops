@@ -20,7 +20,7 @@ stages:
     actions:
       -
         name: component-python-document-mkdocs-action1
-        title: [Mkdocs](https://github.com/mkdocs/mkdocs/) is Project documentation with Markdown.
+        title: _[Mkdocs](https://github.com/mkdocs/mkdocs/) is Project documentation with Markdown.
         jobs:
           -
             type: component
@@ -34,7 +34,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/mkdocs/mkdocs.git entry-path=."
       -
         name: component-python-document-mkdocs-action2
-        title: [Mkdocs](https://github.com/mkdocs/mkdocs/) is Project documentation with Markdown.
+        title: _[Mkdocs](https://github.com/mkdocs/mkdocs/) is Project documentation with Markdown.
         jobs:
           -
             type: component

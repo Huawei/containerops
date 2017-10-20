@@ -20,7 +20,7 @@ stages:
     actions:
       -
         name: component-python-document-pdoc-action1
-        title: [pdoc](https://github.com/BurntSushi/pdoc) is a simple command line tool and library to auto generate API documentation for Python libraries.
+        title: _[pdoc](https://github.com/BurntSushi/pdoc) is a simple command line tool and library to auto generate API documentation for Python libraries.
         jobs:
           -
             type: component
@@ -34,7 +34,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-mod=grapy"
       -
         name: component-python-document-pdoc-action2
-        title: [pdoc](https://github.com/BurntSushi/pdoc) is a simple command line tool and library to auto generate API documentation for Python libraries.
+        title: _[pdoc](https://github.com/BurntSushi/pdoc) is a simple command line tool and library to auto generate API documentation for Python libraries.
         jobs:
           -
             type: component
@@ -48,7 +48,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-mod=grapy version=python"
       -
         name: component-python-document-pdoc-action3
-        title: [pdoc](https://github.com/BurntSushi/pdoc) is a simple command line tool and library to auto generate API documentation for Python libraries.
+        title: _[pdoc](https://github.com/BurntSushi/pdoc) is a simple command line tool and library to auto generate API documentation for Python libraries.
         jobs:
           -
             type: component
@@ -62,7 +62,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-mod=grapy out-put-type=yaml"
       -
         name: component-python-document-pdoc-action4
-        title: [pdoc](https://github.com/BurntSushi/pdoc) is a simple command line tool and library to auto generate API documentation for Python libraries.
+        title: _[pdoc](https://github.com/BurntSushi/pdoc) is a simple command line tool and library to auto generate API documentation for Python libraries.
         jobs:
           -
             type: component

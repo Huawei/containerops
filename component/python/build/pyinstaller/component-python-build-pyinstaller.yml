@@ -20,7 +20,7 @@ stages:
     actions:
       -
         name: component-python-build-pyinstaller-action1
-        title: [PyInstaller](https://github.com/pyinstaller/pyinstaller) bundles a Python application and all its dependencies into a single package. The user can run the packaged app without installing a Python interpreter or any modules.
+        title: _[PyInstaller](https://github.com/pyinstaller/pyinstaller) bundles a Python application and all its dependencies into a single package. The user can run the packaged app without installing a Python interpreter or any modules.
         jobs:
           -
             type: component
@@ -34,7 +34,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pyinstaller"
       -
         name: component-python-build-pyinstaller-action2
-        title: [PyInstaller](https://github.com/pyinstaller/pyinstaller) bundles a Python application and all its dependencies into a single package. The user can run the packaged app without installing a Python interpreter or any modules.
+        title: _[PyInstaller](https://github.com/pyinstaller/pyinstaller) bundles a Python application and all its dependencies into a single package. The user can run the packaged app without installing a Python interpreter or any modules.
         jobs:
           -
             type: component

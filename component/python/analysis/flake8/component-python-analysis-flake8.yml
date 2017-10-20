@@ -20,7 +20,7 @@ stages:
     actions:
       -
         name: component-python-analysis-flake8-action1
-        title: [Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
+        title: _[Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
         jobs:
           -
             type: component
@@ -34,7 +34,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
       -
         name: component-python-analysis-flake8-action2
-        title: [Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
+        title: _[Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
         jobs:
           -
             type: component
@@ -48,7 +48,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml"
       -
         name: component-python-analysis-flake8-action3
-        title: [Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
+        title: _[Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
         jobs:
           -
             type: component
@@ -62,7 +62,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml version=python"
       -
         name: component-python-analysis-flake8-action4
-        title: [Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
+        title: _[Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
         jobs:
           -
             type: component

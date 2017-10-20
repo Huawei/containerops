@@ -20,7 +20,7 @@ stages:
     actions:
       -
         name: component-python-document-sphinx-action1
-        title: [Sphinx](https://github.com/sphinx-doc/sphinx/) is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and licensed under the BSD license.
+        title: _[Sphinx](https://github.com/sphinx-doc/sphinx/) is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and licensed under the BSD license.
         jobs:
           -
             type: component
@@ -34,7 +34,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-path=docs"
       -
         name: component-python-document-sphinx-action2
-        title: [Sphinx](https://github.com/sphinx-doc/sphinx/) is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and licensed under the BSD license.
+        title: _[Sphinx](https://github.com/sphinx-doc/sphinx/) is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and licensed under the BSD license.
         jobs:
           -
             type: component
@@ -48,7 +48,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-path=docs version=python"
       -
         name: component-python-document-sphinx-action3
-        title: [Sphinx](https://github.com/sphinx-doc/sphinx/) is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and licensed under the BSD license.
+        title: _[Sphinx](https://github.com/sphinx-doc/sphinx/) is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and licensed under the BSD license.
         jobs:
           -
             type: component
@@ -62,7 +62,7 @@ stages:
               - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-path=docs out-put-type=yaml"
       -
         name: component-python-document-sphinx-action4
-        title: [Sphinx](https://github.com/sphinx-doc/sphinx/) is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and licensed under the BSD license.
+        title: _[Sphinx](https://github.com/sphinx-doc/sphinx/) is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and licensed under the BSD license.
         jobs:
           -
             type: component
