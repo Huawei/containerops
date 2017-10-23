@@ -85,7 +85,7 @@ then
     exit
 fi
 
-STOUT2 $gradle_version war
+STOUT $gradle_version war
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] gradle war fail\n"

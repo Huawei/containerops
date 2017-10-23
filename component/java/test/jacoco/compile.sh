@@ -99,8 +99,8 @@ then
     cat /root/jacoco.conf >> build.gradle
 fi
 
-STOUT2 $gradle_version test
-STOUT2 $gradle_version jacocoTestReport
+STOUT $gradle_version test
+STOUT $gradle_version jacocoTestReport
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then

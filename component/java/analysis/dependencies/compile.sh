@@ -80,18 +80,17 @@ fi
 havedr=`echo gradle -q tasks --all | grep dependencyReport`
 if [ "$havedr" = "" ]
 then
-    echo -e "\napply plugin: 'project-report'" >> build.gradle
+    echo -e "\nallprojects { apply plugin: 'project-report' }" >> build.gradle
 fi
-
-STOUT2 $gradle_version dependencyReport
+printf "\n[COUT] "
+$gradle_version dependencyReport
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
 
-cat build/reports/project/dependencies.txt
-
+find ./ -name 'dependencies.txt' | xargs cat
 if [ "$?" -eq "0" ]
 then
     printf "[COUT] CO_RESULT = %s\n" "true"

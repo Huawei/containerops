@@ -85,7 +85,7 @@ then
     exit
 fi
 
-STOUT2 $gradle_version ear
+STOUT $gradle_version ear
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] gradle ear fail\n"

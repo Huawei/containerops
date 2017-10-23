@@ -85,7 +85,7 @@ then
     exit
 fi
 
-STOUT2 $gradle_version jar
+STOUT $gradle_version jar
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] gradle jar fail\n"
