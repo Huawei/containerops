@@ -107,7 +107,7 @@ func (j *Job) Run(name string, verbose, timestamp bool, f *Flow, stageIndex, act
 		if clientSet, err := kubernetes.NewForConfig(config); err != nil {
 			return Failure, err
 		} else {
-			p := clientSet.CoreV1Client.Pods(apiv1.NamespaceDefault)
+			p := clientSet.CoreV1().Pods(apiv1.NamespaceDefault)
 			podTemplate := j.PodTemplates(randomContainerName)
 			if _, err := p.Create(podTemplate); err != nil {
 				j.Status = Failure

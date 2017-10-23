@@ -1,0 +1,97 @@
+# Copyright 2016 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+uri: containerops/singular/cd-singular-daemon
+title: Demo For ContainerOps Pilotage Web Hook(Singular Auto Upgrade)
+version: 1
+tag: latest
+timeout: 0
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: detect-singular-code-change
+    title: Detect if there is any changes on singular's code in the last merge.
+    sequencing: sequence
+    actions:
+      -
+        name: detect-singular-code-change
+        title: Tell code changes from the last git merge.
+        jobs:
+          -
+            name: detect-singular-code-change
+            type: component
+            kubectl: prometheus/prometheus-build.yaml
+            endpoint: hub.opshub.sh/containerops/cohook-code-changed:demov3
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "target=singular"
+            outputs: ["CO_CODE_CHANGED"]
+  -
+    type: normal
+    name: build-upload-singular
+    title: Build singular and upload the new version to opshub
+    sequencing: sequence
+    actions:
+      -
+        name: build-upload-singular
+        title: Build and upload singular
+        jobs:
+          -
+            name: build-upload-singular
+            type: component
+            kubectl: coredns/coredns-build.yaml #What's the meaning of kubelct?
+            endpoint: hub.opshub.sh/containerops/cohook-code-build:demov3
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "target=singular hub=hub.opshub.sh namespace=containerops repo=cohook-demo binary=singular"
+            subscriptions:
+                - detect-singular-code-change.detect-singular-code-change.detect-singular-code-change[CO_CODE_CHANGED]: CO_CODE_CHANGED
+            outputs: ["CO_URL"]
+  -
+    type: normal
+    name: redeploy-singular
+    title: Redeploy the singular service.
+    sequencing: sequence
+    actions:
+      -
+        name: redeploy-singular
+        title: Deploy the newly built singular
+        jobs:
+          -
+            type: component
+            kubectl: kubernetes/kubernetes-build.yaml
+            endpoint: hub.opshub.sh/containerops/cohook-code-redeploy:demov3
+            resources:
+              cpu: 2
+              memory: 8G
+            timeout: 0
+            environments:
+                - CO_DATA: "target=singular key=-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEAub6NXNGA9iyTBshZhJ6qntUB4BRWgEilV20XklOFitsqV2iu\nvtDf9+05xhGM64june0+c5eEPFvbFuvXyPqZd+YC0vsFG/Xrqa2Fm4ORvHFfpNn4\n2O/ADq4iO+9VqbMmm0ykkXd8s8VfT4bljT/+cVgT48ctJrvKmgsQnMbZdf6lLE0B\n7pQCcUpY0c1NWPWX7ltJ7Tqq8/ivJgIMmzLUzEF9sVQp0mU6LYOgWovdlmtGRuG9\n5lZETv+4QWSFBdXj8j8lJq5ux6FE9cS8OyCmqUQ0oahKaINvFuFYo8xEGq8GPn/U\nyXXu7j3jh/A4ttLi0hPeVI2NTYKe6Iwx8DV6pQIDAQABAoIBAGLu3uawZEs65Lj5\nH80moeRlulD7JDPB/ec6IRL8T6XtJHlYNbNHF/Q7M8mO8YtG7SnLAreY3YM0vdZQ\nmiffarzVE24C6+6/pt1ComZ5xrcjf/kTbJtH3/kxwORBj1QLKyYOxZ0BkrdCCokW\nZdA9ZK5EZputLBx0a+5utFN9CrjwlokWjsipxFeJjlNrVKYkcJapbBdChjMxKELD\nFjVrgSB1cEazC5JirzL01J1+cjbwNb3EfTJ97pdGs1mjaES/Qyb3ALVdkPzysTrU\n/BbSc66tyWOgW9/JJgmwkPE5fMPexKbvJcyJyjgqkL441S30gqSPXv0bBWNAlCsI\n8yL6WUUCgYEA9EDPvJpV4R5NFgChb5f4hmvlu/zoq9mEwA5I3SfGF8bA9V2pwSIz\nCqbWACS+FX1+OOGpDpj1IY4jCVqPyEfsl9u8JqxXkBWSTSa4dhO+pX+hKINz6bEk\nIh+LaaVD/mslkCp4nSApNV4lPpiALlUbpBM3KN6LOiye91B87eI7++sCgYEAwq1k\nwyVJsCtOl/KbyVNp+/ZVLXrfbMgv9DKTvUSFIkHVN7Dj5XoBQfziPc+BLNiN6eSM\nd08d2Qhi3VnvtEjtKbDdTfVnxYtUxuGfcQGpSP0YcEPUJc90yjaoizwHudXaHT8W\nE94TmLcZThNecaKsXV7xkcOV7Y3Ahdbm4KN0j68CgYEAnyfcNTkb3KSx9jRS/TQ5\nbN3BxMz3j4MdTUgBkpnoKnYIJdnyUzbFq5sqts06TyaGqOniDvD8SfEkQ2QPbKHx\nOMKlx01lgS2NN1iTud0DzTNs/8koLo6OzO1hGmXl+FI5F8eU8E2UjIHcIv2cCJTM\nfg1HVAovDqkkrGJ2BUv1aiECgYATOyG7DVHsLzsCU5sEFlNf6oObjInJqzThgKWL\nittD+RDhAX5hyt2Y8SxAQuFV1saeFk+x8YTXTbbGev3s509WUPxrmRR5NTxYsS0Y\n8rsQVMA3RtwMKCQ3XZLkvjddKjzzqqm5qLRy35OGXO91dkZkqt5eMd37q4cbMZF5\nG2yGTQKBgQCoLe2KZg+tGvfbvlmzwydCt2F39E04DrtJP5u9E8qKekjadQAq0eaw\n/YygmQ9kbZcj/nYR06ciEwnYIREd8EOXAK3NUeJMeglIvwgNBDVL+JyNeI3f46LP\nFXwckiEOPmjcp5c8UTFKTmjJxzhcadubXUEz7LRzCU45WuSQz783bg==\n-----END RSA PRIVATE KEY-----"
+            subscriptions:
+                - detect-singular-code-change.detect-singular-code-change.detect-singular-code-change[CO_CODE_CHANGED]: CO_CODE_CHANGED
+                - build-upload-singular.build-upload-singular.build-upload-singular[CO_URL]: CO_URL
+  -
+    type: end
+    name: end
+    title: End

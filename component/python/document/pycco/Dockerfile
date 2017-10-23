@@ -17,7 +17,7 @@ MAINTAINER Li Meng Jun <lmjubuntu@gmail.com>
 
 RUN apt-get update && apt-get install -y python3-pip git curl
 
-RUN pip3 install pycco
+RUN pip3 install pycco anymarkup
 
 ADD bootstrap.py /usr/local/bin/bootstrap.py
 

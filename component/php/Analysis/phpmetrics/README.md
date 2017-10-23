@@ -3,13 +3,13 @@
 ## Build
 
 ```shell
-docker build -t hub.opshub.sh/binary/v1/containerops/component/binary/php/phpmetrics:0.1 .
+docker build -t hub.opshub.sh/containerops/analysis-php-phpmetrics:latest .
 ```
 
 ## Run
 
 ```shell
-docker run --env CO_DATA="git-url=https://github.com/TIGERB/easy-php.git" hub.opshub.sh/binary/v1/containerops/component/binary/php/phpmetrics:0.1
+docker run --env CO_DATA="git-url=https://github.com/TIGERB/easy-php.git" hub.opshub.sh/containerops/analysis-php-phpmetrics:latest
 ```
 
 ## Options

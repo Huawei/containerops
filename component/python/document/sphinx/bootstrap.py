@@ -5,6 +5,7 @@ import os
 import sys
 import glob
 import json
+import anymarkup
 
 REPO_PATH = 'git-repo'
 
@@ -81,12 +82,16 @@ def sphinx(dir_name):
     return True
 
 
-def echo_json(dir_name):
+def echo_json(dir_name, use_yaml):
     for root, dirs, files in os.walk('{}/{}/_build/json'.format(REPO_PATH, dir_name)):
         for file_name in files:
             if file_name.endswith('.fjson'):
                 data = json.load(open(os.path.join(root, file_name)))
-                print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
+                if use_yaml:
+                    data = anymarkup.serialize(data, 'yaml')
+                    print('[COUT] CO_YAML_CONTENT {}'.format(str(data)[1:]))
+                else:
+                    print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
 
     return True
 
@@ -96,7 +101,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url', 'entry-path', 'version']
+    validate = ['git-url', 'entry-path', 'version', 'out-put-type']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -158,7 +163,9 @@ def main():
         print("[COUT] CO_RESULT = false")
         return
 
-    if not echo_json(entry_path):
+    use_yaml = argv.get('out-put-type', 'json') == 'yaml'
+
+    if not echo_json(entry_path, use_yaml):
         print("[COUT] CO_RESULT = false")
         return
 

@@ -1,0 +1,35 @@
+uri: containerops/component/php-component-phpdox-test
+title: create document
+version: 1
+tag: latest
+timeout: 0
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-phpdox-test
+    title: create document
+    sequencing: sequence
+    actions:
+      -
+        name: phpdox-test
+        title: create document
+        jobs:
+          -
+            type: component
+            # kubectl: phpdox-test.yaml
+            endpoint: hub.opshub.sh/containerops/document-php-phpdox:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/theseer/phpdox.git"
+      -
+  -
+    type: end
+    name: end
+    title: End

@@ -19,5 +19,6 @@ docker run --rm -e CO_DATA='git-url=https://github.com/minhhh/regex.git entry-mo
 - `git-url` is the source git repo url
 - `version` is one of `python`, `python2`, `python3`, `py3k`.  default is `py3k`
 - `entry-module` is the unittest module name you want to test
+- `out-put-type` available value: yaml,xml
 
 ### Versions 1.0.0

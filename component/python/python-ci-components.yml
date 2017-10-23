@@ -1,0 +1,1145 @@
+uri: containerops/component/python-components
+title: Component for python
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-coala-test
+    title: Component, python code analysis with coala
+    sequencing: sequence
+    actions:
+      -
+        name: component-python-analysis-coala-action1
+        title: [coala](https://github.com/coala/coala) provides a unified command-line interface for linting and fixing all your code,regardless of the programming languages you use.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-coala.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-coala:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
+      -
+        name: component-python-analysis-coala-action2
+        title: [coala](https://github.com/coala/coala) provides a unified command-line interface for linting and fixing all your code,regardless of the programming languages you use.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-coala.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-coala:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml"
+      -
+        name: component-python-analysis-flake8-action1
+        title: [Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-flake8.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-flake8:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
+      -
+        name: component-python-analysis-flake8-action2
+        title: [Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-flake8.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-flake8:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml"
+      -
+        name: component-python-analysis-flake8-action3
+        title: [Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-flake8.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-flake8:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml version=python"
+      -
+        name: component-python-analysis-flake8-action4
+        title: [Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-flake8.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-flake8:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git version=python"
+      -
+        name: component-python-analysis-line-profiler-action1
+        title: [line_profiler](https://github.com/rkern/line_profiler) is a module for doing line-by-line profiling of functions.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-line-profiler.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-line-profiler:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/istrategylabs/python-profiling entry-file=debug.py"
+      -
+        name: component-python-analysis-line-profiler-action2
+        title: [line_profiler](https://github.com/rkern/line_profiler) is a module for doing line-by-line profiling of functions.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-line-profiler.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-line-profiler:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/istrategylabs/python-profiling entry-file=debug.py out-put-type=yaml"
+      -
+        name: component-python-analysis-line-profiler-action3
+        title: [line_profiler](https://github.com/rkern/line_profiler) is a module for doing line-by-line profiling of functions.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-line-profiler.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-line-profiler:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/istrategylabs/python-profiling entry-file=debug.py version=python"
+      -
+        name: component-python-analysis-line-profiler-action4
+        title: [line_profiler](https://github.com/rkern/line_profiler) is a module for doing line-by-line profiling of functions.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-line-profiler.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-line-profiler:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/istrategylabs/python-profiling entry-file=debug.py out-put-type=yaml version=python"
+      -
+        name: component-python-analysis-memory-profiler-action1
+        title: [memory_profiler](https://github.com/fabianp/memory_profiler) is a python module for monitoring memory consumption of a process as well as line-by-line analysis of memory consumption for python programs.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-memory-profiler.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-memory-profiler:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/fabianp/memory_profiler.git entry-file=test/test_func.py"
+      -
+        name: component-python-analysis-memory-profiler-action2
+        title: [memory_profiler](https://github.com/fabianp/memory_profiler) is a python module for monitoring memory consumption of a process as well as line-by-line analysis of memory consumption for python programs.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-memory-profiler.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-memory-profiler:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/fabianp/memory_profiler.git entry-file=test/test_func.py out-put-type=yaml"
+      -
+        name: component-python-analysis-memory-profiler-action3
+        title: [memory_profiler](https://github.com/fabianp/memory_profiler) is a python module for monitoring memory consumption of a process as well as line-by-line analysis of memory consumption for python programs.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-memory-profiler.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-memory-profiler:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/fabianp/memory_profiler.git entry-file=test/test_func.py version=python"
+      -
+        name: component-python-analysis-memory-profiler-action4
+        title: [memory_profiler](https://github.com/fabianp/memory_profiler) is a python module for monitoring memory consumption of a process as well as line-by-line analysis of memory consumption for python programs.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-memory-profiler.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-memory-profiler:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/fabianp/memory_profiler.git entry-file=test/test_func.py out-put-type=yaml version=python"
+      -
+        name: component-python-analysis-pep8-action1
+        title: [pep8](https://github.com/PyCQA/pycodestyle) is a tool to check your Python code against some of the style conventions in PEP 8.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pep8.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-pep8:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
+      -
+        name: component-python-analysis-pep8-action2
+        title: [pep8](https://github.com/PyCQA/pycodestyle) is a tool to check your Python code against some of the style conventions in PEP 8.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pep8.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-pep8:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml"
+      -
+        name: component-python-analysis-pep8-action3
+        title: [pep8](https://github.com/PyCQA/pycodestyle) is a tool to check your Python code against some of the style conventions in PEP 8.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pep8.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-pep8:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml version=python"
+      -
+        name: component-python-analysis-pep8-action4
+        title: [pep8](https://github.com/PyCQA/pycodestyle) is a tool to check your Python code against some of the style conventions in PEP 8.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pep8.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-pep8:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git version=python"
+      -
+        name: component-python-analysis-pycallgraph-action1
+        title: [Python Call Graph](https://github.com/gak/pycallgraph) is a Python module that creates call graph visualizations for Python applications.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pycallgraph.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-pycallgraph:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pycallgraph"
+      -
+        name: component-python-analysis-pycallgraph-action2
+        title: [Python Call Graph](https://github.com/gak/pycallgraph) is a Python module that creates call graph visualizations for Python applications.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pycallgraph.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-pycallgraph:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pycallgraph version=python"
+      -
+        name: component-python-analysis-pylama-action1
+        title: [pylama](https://github.com/klen/pylama) is code audit tool for python.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pylama.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-pylama:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
+      -
+        name: component-python-analysis-pylama-action2
+        title: [pylama](https://github.com/klen/pylama) is code audit tool for python.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pylama.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-pylama:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml"
+      -
+        name: component-python-analysis-pylama-action3
+        title: [pylama](https://github.com/klen/pylama) is code audit tool for python.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pylama.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-pylama:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml version=python"
+      -
+        name: component-python-analysis-pylama-action4
+        title: [pylama](https://github.com/klen/pylama) is code audit tool for python.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pylama.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-pylama:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git version=python"
+      -
+        name: component-python-analysis-pylint-action1
+        title: [Pylint](https://github.com/PyCQA/pylint) is a Python source code analyzer which looks for programming errors, helps enforcing a coding standard and sniffs for some code smells (as defined in Martin Fowler's Refactoring book).
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pylint.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-pylint:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
+      -
+        name: component-python-analysis-pylint-action2
+        title: [Pylint](https://github.com/PyCQA/pylint) is a Python source code analyzer which looks for programming errors, helps enforcing a coding standard and sniffs for some code smells (as defined in Martin Fowler's Refactoring book).
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pylint.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-pylint:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml"
+      -
+        name: component-python-analysis-pylint-action3
+        title: [Pylint](https://github.com/PyCQA/pylint) is a Python source code analyzer which looks for programming errors, helps enforcing a coding standard and sniffs for some code smells (as defined in Martin Fowler's Refactoring book).
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pylint.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-pylint:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml version=python"
+      -
+        name: component-python-analysis-pylint-action4
+        title: [Pylint](https://github.com/PyCQA/pylint) is a Python source code analyzer which looks for programming errors, helps enforcing a coding standard and sniffs for some code smells (as defined in Martin Fowler's Refactoring book).
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pylint.yaml
+            endpoint: hub.opshub.sh/component-python-analysis-pylint:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git version=python"
+      -
+        name: component-python-build-dh-virtualenv-action1
+        title: [dh-virtualenv](https://github.com/spotify/dh-virtualenv) is a tool that aims to combine Debian packaging with self-contained virtualenv based Python deployments.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-build-dh-virtualenv.yaml
+            endpoint: hub.opshub.sh/component-python-build-dh-virtualenv:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/spotify/dh-virtualenv.git upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/dh-virtualenv"
+      -
+        name: component-python-build-nuitka-action1
+        title: [Nuitka](https://github.com/kayhayen/Nuitka) is the Python compiler.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-build-nuitka.yaml
+            endpoint: hub.opshub.sh/component-python-build-nuitka:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/nuitka"
+      -
+        name: component-python-build-nuitka-action2
+        title: [Nuitka](https://github.com/kayhayen/Nuitka) is the Python compiler.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-build-nuitka.yaml
+            endpoint: hub.opshub.sh/component-python-build-nuitka:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/nuitka version=python"
+      -
+        name: component-python-build-pybuilder-action1
+        title: [PyBuilder](https://github.com/pybuilder/pybuilder) is a software build tool written in 100% pure Python, mainly targeting Python applications.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-build-pybuilder.yaml
+            endpoint: hub.opshub.sh/component-python-build-pybuilder:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/blanzp/amazon_examples.git entry-path=. task=run_unit_tests"
+      -
+        name: component-python-build-pybuilder-action2
+        title: [PyBuilder](https://github.com/pybuilder/pybuilder) is a software build tool written in 100% pure Python, mainly targeting Python applications.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-build-pybuilder.yaml
+            endpoint: hub.opshub.sh/component-python-build-pybuilder:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/blanzp/amazon_examples.git entry-path=. task=run_unit_tests version=python"
+      -
+        name: component-python-build-pybuilder-action3
+        title: [PyBuilder](https://github.com/pybuilder/pybuilder) is a software build tool written in 100% pure Python, mainly targeting Python applications.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-build-pybuilder.yaml
+            endpoint: hub.opshub.sh/component-python-build-pybuilder:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/blanzp/amazon_examples.git entry-path=. task=run_unit_tests out-put-type=yaml"
+      -
+        name: component-python-build-pybuilder-action4
+        title: [PyBuilder](https://github.com/pybuilder/pybuilder) is a software build tool written in 100% pure Python, mainly targeting Python applications.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-build-pybuilder.yaml
+            endpoint: hub.opshub.sh/component-python-build-pybuilder:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/blanzp/amazon_examples.git entry-path=. task=run_unit_tests version=python out-put-type=yaml"
+      -
+        name: component-python-build-pyinstaller-action1
+        title: [PyInstaller](https://github.com/pyinstaller/pyinstaller) bundles a Python application and all its dependencies into a single package. The user can run the packaged app without installing a Python interpreter or any modules.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-build-pyinstaller.yaml
+            endpoint: hub.opshub.sh/component-python-build-pyinstaller:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pyinstaller"
+      -
+        name: component-python-build-pyinstaller-action2
+        title: [PyInstaller](https://github.com/pyinstaller/pyinstaller) bundles a Python application and all its dependencies into a single package. The user can run the packaged app without installing a Python interpreter or any modules.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-build-pyinstaller.yaml
+            endpoint: hub.opshub.sh/component-python-build-pyinstaller:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pyinstaller version=python"
+      -
+        name: component-python-build-pynsist-action1
+        title: [pynsist](https://github.com/takluyver/pynsist) is a tool to build Windows installers for your Python applications. The installers bundle Python itself, so you can distribute your application to people who don't have Python installed.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-build-pynsist.yaml
+            endpoint: hub.opshub.sh/component-python-build-pynsist:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/takluyver/pynsist.git entry-file=examples/console/installer.cfg upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pynsist"
+      -
+        name: component-python-document-mkdocs-action1
+        title: [Mkdocs](https://github.com/mkdocs/mkdocs/) is Project documentation with Markdown.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-mkdocs.yaml
+            endpoint: hub.opshub.sh/component-python-document-mkdocs:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/mkdocs/mkdocs.git entry-path=."
+      -
+        name: component-python-document-mkdocs-action2
+        title: [Mkdocs](https://github.com/mkdocs/mkdocs/) is Project documentation with Markdown.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-mkdocs.yaml
+            endpoint: hub.opshub.sh/component-python-document-mkdocs:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/mkdocs/mkdocs.git entry-path=. out-put-type=yaml"
+      -
+        name: component-python-document-pdoc-action1
+        title: [pdoc](https://github.com/BurntSushi/pdoc) is a simple command line tool and library to auto generate API documentation for Python libraries.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-pdoc.yaml
+            endpoint: hub.opshub.sh/component-python-document-pdoc:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-mod=grapy"
+      -
+        name: component-python-document-pdoc-action2
+        title: [pdoc](https://github.com/BurntSushi/pdoc) is a simple command line tool and library to auto generate API documentation for Python libraries.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-pdoc.yaml
+            endpoint: hub.opshub.sh/component-python-document-pdoc:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-mod=grapy version=python"
+      -
+        name: component-python-document-pdoc-action3
+        title: [pdoc](https://github.com/BurntSushi/pdoc) is a simple command line tool and library to auto generate API documentation for Python libraries.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-pdoc.yaml
+            endpoint: hub.opshub.sh/component-python-document-pdoc:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-mod=grapy out-put-type=yaml"
+      -
+        name: component-python-document-pdoc-action4
+        title: [pdoc](https://github.com/BurntSushi/pdoc) is a simple command line tool and library to auto generate API documentation for Python libraries.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-pdoc.yaml
+            endpoint: hub.opshub.sh/component-python-document-pdoc:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-mod=grapy version=python out-put-type=yaml"
+      -
+        name: component-python-document-pycco-action1
+        title: [Pycco](https://github.com/pycco-docs/pycco) is a Python port of Docco: the original quick-and-dirty, hundred-line- long, literate-programming-style documentation generator.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-pycco.yaml
+            endpoint: hub.opshub.sh/component-python-document-pycco:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/pycco-docs/pycco.git"
+      -
+        name: component-python-document-pycco-action2
+        title: [Pycco](https://github.com/pycco-docs/pycco) is a Python port of Docco: the original quick-and-dirty, hundred-line- long, literate-programming-style documentation generator.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-pycco.yaml
+            endpoint: hub.opshub.sh/component-python-document-pycco:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/pycco-docs/pycco.git out-put-type=yaml"
+      -
+        name: component-python-document-sphinx-action1
+        title: [Sphinx](https://github.com/sphinx-doc/sphinx/) is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and licensed under the BSD license.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-sphinx.yaml
+            endpoint: hub.opshub.sh/component-python-document-sphinx:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-path=docs"
+      -
+        name: component-python-document-sphinx-action2
+        title: [Sphinx](https://github.com/sphinx-doc/sphinx/) is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and licensed under the BSD license.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-sphinx.yaml
+            endpoint: hub.opshub.sh/component-python-document-sphinx:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-path=docs version=python"
+      -
+        name: component-python-document-sphinx-action3
+        title: [Sphinx](https://github.com/sphinx-doc/sphinx/) is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and licensed under the BSD license.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-sphinx.yaml
+            endpoint: hub.opshub.sh/component-python-document-sphinx:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-path=docs out-put-type=yaml"
+      -
+        name: component-python-document-sphinx-action4
+        title: [Sphinx](https://github.com/sphinx-doc/sphinx/) is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and licensed under the BSD license.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-sphinx.yaml
+            endpoint: hub.opshub.sh/component-python-document-sphinx:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-path=docs version=python out-put-type=yaml"
+      -
+        name: component-python-test-coverage-action1
+        title: [Coverage.py](https://github.com/nedbat/coveragepy) measures code coverage, typically during test execution. It uses the code analysis tools and tracing hooks provided in the Python standard library to determine which lines are executable, and which have been executed.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-coverage.yaml
+            endpoint: hub.opshub.sh/component-python-test-coverage:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=test/test_regex.py"
+      -
+        name: component-python-test-coverage-action2
+        title: [Coverage.py](https://github.com/nedbat/coveragepy) measures code coverage, typically during test execution. It uses the code analysis tools and tracing hooks provided in the Python standard library to determine which lines are executable, and which have been executed.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-coverage.yaml
+            endpoint: hub.opshub.sh/component-python-test-coverage:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=test/test_regex.py out-put-type=yaml"
+      -
+        name: component-python-test-coverage-action3
+        title: [Coverage.py](https://github.com/nedbat/coveragepy) measures code coverage, typically during test execution. It uses the code analysis tools and tracing hooks provided in the Python standard library to determine which lines are executable, and which have been executed.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-coverage.yaml
+            endpoint: hub.opshub.sh/component-python-test-coverage:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=test/test_regex.py out-put-type=yaml version=python"
+      -
+        name: component-python-test-coverage-action4
+        title: [Coverage.py](https://github.com/nedbat/coveragepy) measures code coverage, typically during test execution. It uses the code analysis tools and tracing hooks provided in the Python standard library to determine which lines are executable, and which have been executed.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-coverage.yaml
+            endpoint: hub.opshub.sh/component-python-test-coverage:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=test/test_regex.py version=python"
+      -
+        name: component-python-test-green-action1
+        title: [Green](https://github.com/CleanCut/green) is a clean, colorful, fast python test runner.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-green.yaml
+            endpoint: hub.opshub.sh/component-python-test-green:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=."
+      -
+        name: component-python-test-green-action2
+        title: [Green](https://github.com/CleanCut/green) is a clean, colorful, fast python test runner.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-green.yaml
+            endpoint: hub.opshub.sh/component-python-test-green:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. out-put-type=yaml"
+      -
+        name: component-python-test-green-action3
+        title: [Green](https://github.com/CleanCut/green) is a clean, colorful, fast python test runner.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-green.yaml
+            endpoint: hub.opshub.sh/component-python-test-green:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. out-put-type=yaml version=python"
+      -
+        name: component-python-test-green-action4
+        title: [Green](https://github.com/CleanCut/green) is a clean, colorful, fast python test runner.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-green.yaml
+            endpoint: hub.opshub.sh/component-python-test-green:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. version=python"
+      -
+        name: component-python-test-mamba-action1
+        title: [mamba](https://github.com/nestorsalceda/mamba) is the definitive test runner for Python. Born under the banner of behavior-driven development.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-mamba.yaml
+            endpoint: hub.opshub.sh/component-python-test-mamba:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/juanAFernandez/testing-with-python.git entry-file=examples/mamba_example.py"
+      -
+        name: component-python-test-mamba-action2
+        title: [mamba](https://github.com/nestorsalceda/mamba) is the definitive test runner for Python. Born under the banner of behavior-driven development.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-mamba.yaml
+            endpoint: hub.opshub.sh/component-python-test-mamba:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/juanAFernandez/testing-with-python.git entry-file=examples/mamba_example.py out-put-type=yaml"
+      -
+        name: component-python-test-mamba-action3
+        title: [mamba](https://github.com/nestorsalceda/mamba) is the definitive test runner for Python. Born under the banner of behavior-driven development.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-mamba.yaml
+            endpoint: hub.opshub.sh/component-python-test-mamba:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/juanAFernandez/testing-with-python.git entry-file=examples/mamba_example.py out-put-type=yaml version=python"
+      -
+        name: component-python-test-mamba-action4
+        title: [mamba](https://github.com/nestorsalceda/mamba) is the definitive test runner for Python. Born under the banner of behavior-driven development.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-mamba.yaml
+            endpoint: hub.opshub.sh/component-python-test-mamba:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/juanAFernandez/testing-with-python.git entry-file=examples/mamba_example.py version=python"
+      -
+        name: component-python-test-nose-action1
+        title: [nose](https://github.com/nose-devs/nose) is nicer testing for python
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-nose.yaml
+            endpoint: hub.opshub.sh/component-python-test-nose:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/nose-devs/nose.git entry-path=unit_tests"
+      -
+        name: component-python-test-nose-action2
+        title: [nose](https://github.com/nose-devs/nose) is nicer testing for python
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-nose.yaml
+            endpoint: hub.opshub.sh/component-python-test-nose:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/nose-devs/nose.git entry-path=unit_tests out-put-type=yaml"
+      -
+        name: component-python-test-nose-action3
+        title: [nose](https://github.com/nose-devs/nose) is nicer testing for python
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-nose.yaml
+            endpoint: hub.opshub.sh/component-python-test-nose:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/nose-devs/nose.git entry-path=unit_tests out-put-type=yaml version=python"
+      -
+        name: component-python-test-nose-action4
+        title: [nose](https://github.com/nose-devs/nose) is nicer testing for python
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-nose.yaml
+            endpoint: hub.opshub.sh/component-python-test-nose:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/nose-devs/nose.git entry-path=unit_tests version=python"
+      -
+        name: component-python-test-nose2-action1
+        title: [nose2](https://github.com/nose-devs/nose2) is the next generation of nicer testing for Python, based on the plugins branch of unittest2.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-nose2.yaml
+            endpoint: hub.opshub.sh/component-python-test-nose2:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=."
+      -
+        name: component-python-test-nose2-action2
+        title: [nose2](https://github.com/nose-devs/nose2) is the next generation of nicer testing for Python, based on the plugins branch of unittest2.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-nose2.yaml
+            endpoint: hub.opshub.sh/component-python-test-nose2:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. out-put-type=yaml"
+      -
+        name: component-python-test-nose2-action3
+        title: [nose2](https://github.com/nose-devs/nose2) is the next generation of nicer testing for Python, based on the plugins branch of unittest2.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-nose2.yaml
+            endpoint: hub.opshub.sh/component-python-test-nose2:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. out-put-type=yaml version=python"
+      -
+        name: component-python-test-nose2-action4
+        title: [nose2](https://github.com/nose-devs/nose2) is the next generation of nicer testing for Python, based on the plugins branch of unittest2.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-nose2.yaml
+            endpoint: hub.opshub.sh/component-python-test-nose2:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. version=python"
+      -
+        name: component-python-test-pytest-action1
+        title: The [pytest](https://github.com/pytest-dev/pytest/) framework makes it easy to write small tests, yet scales to support complex functional testing for applications and libraries.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-pytest.yaml
+            endpoint: hub.opshub.sh/component-python-test-pytest:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=."
+      -
+        name: component-python-test-pytest-action2
+        title: The [pytest](https://github.com/pytest-dev/pytest/) framework makes it easy to write small tests, yet scales to support complex functional testing for applications and libraries.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-pytest.yaml
+            endpoint: hub.opshub.sh/component-python-test-pytest:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. out-put-type=yaml"
+      -
+        name: component-python-test-pytest-action3
+        title: The [pytest](https://github.com/pytest-dev/pytest/) framework makes it easy to write small tests, yet scales to support complex functional testing for applications and libraries.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-pytest.yaml
+            endpoint: hub.opshub.sh/component-python-test-pytest:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. out-put-type=yaml version=python"
+      -
+        name: component-python-test-pytest-action4
+        title: The [pytest](https://github.com/pytest-dev/pytest/) framework makes it easy to write small tests, yet scales to support complex functional testing for applications and libraries.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-pytest.yaml
+            endpoint: hub.opshub.sh/component-python-test-pytest:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. version=python"
+      -
+        name: component-python-test-tox-action1
+        title: [Tox](https://github.com/tox-dev/tox) is a generic virtualenv management and test
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-tox.yaml
+            endpoint: hub.opshub.sh/component-python-test-tox:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/CleanCut/green.git entry-path=."
+      -
+        name: component-python-test-tox-action2
+        title: [Tox](https://github.com/tox-dev/tox) is a generic virtualenv management and test
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-tox.yaml
+            endpoint: hub.opshub.sh/component-python-test-tox:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/CleanCut/green.git entry-path=. out-put-type=yaml"
+      -
+        name: component-python-test-unittest-action1
+        title: The [unittest](https://docs.python.org/3/library/unittest.html) unit testing framework was originally inspired by JUnit and has a similar flavor as major unit testing frameworks in other languages.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-unittest.yaml
+            endpoint: hub.opshub.sh/component-python-test-unittest:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-module=test.test_regex"
+      -
+        name: component-python-test-unittest-action2
+        title: The [unittest](https://docs.python.org/3/library/unittest.html) unit testing framework was originally inspired by JUnit and has a similar flavor as major unit testing frameworks in other languages.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-unittest.yaml
+            endpoint: hub.opshub.sh/component-python-test-unittest:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-module=test.test_regex out-put-type=yaml"
+      -
+        name: component-python-test-unittest-action3
+        title: The [unittest](https://docs.python.org/3/library/unittest.html) unit testing framework was originally inspired by JUnit and has a similar flavor as major unit testing frameworks in other languages.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-unittest.yaml
+            endpoint: hub.opshub.sh/component-python-test-unittest:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-module=test.test_regex out-put-type=yaml version=python"
+      -
+        name: component-python-test-unittest-action4
+        title: The [unittest](https://docs.python.org/3/library/unittest.html) unit testing framework was originally inspired by JUnit and has a similar flavor as major unit testing frameworks in other languages.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-unittest.yaml
+            endpoint: hub.opshub.sh/component-python-test-unittest:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-module=test.test_regex version=python"
+      -
+  -
+    type: end
+    name: end
+    title: End

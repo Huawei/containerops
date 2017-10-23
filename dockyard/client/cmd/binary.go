@@ -23,10 +23,13 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/Huawei/containerops/common"
 	"github.com/Huawei/containerops/dockyard/client/binary"
 )
+
+var force bool
 
 var binaryCmd = &cobra.Command{
 	Use:   "binary",
@@ -63,13 +66,13 @@ var downloadCmd = &cobra.Command{
 	Short: "Download file form repository build by Dockyard service, `warship binary download <namespace>/<repository>/<tag>/<filename> <path>",
 	Long: `Download file from repository of Dockyard:
 
-warship binary download --domain hub.opshub.sh  containerops/cncf-demo/strichers/warship /tmp
+warship binary download --domain hub.opshub.sh  containerops/cncf-demo/stichers/warship /tmp
 
 The download URI pattern is <namespace>/<repository>/<tag>/<filename>`,
 	Run: downloadBinary,
 }
 
-// init()
+//init()
 func init() {
 	RootCmd.AddCommand(binaryCmd)
 
@@ -77,10 +80,13 @@ func init() {
 	binaryCmd.AddCommand(uplaodCmd)
 	binaryCmd.AddCommand(downloadCmd)
 
+	uplaodCmd.Flags().BoolVarP(&force, "force", "f", false, "use the current version of file replace the file in the server")
+	viper.BindPFlag("force", uplaodCmd.Flags().Lookup("force"))
+
 }
 
-// Upload binary to Dockyard service.
-// curl -i -X PUT -T <filename> -H "Content-Type: text/plain"  https://hub.opshub.sh/binary/v1/:namespace/:repository/binary/:tag/:binary
+//uploadBinary upload binary to Dockyard service.
+//curl -i -X PUT -T <filename> -H "Content-Type: text/plain"  https://hub.opshub.sh/binary/v1/:namespace/:repository/binary/:tag/:binary
 func uploadBinary(cmd *cobra.Command, args []string) {
 	if domain == "" {
 		domain = common.Warship.Domain
@@ -95,15 +101,16 @@ func uploadBinary(cmd *cobra.Command, args []string) {
 	repository := strings.Split(args[1], "/")[1]
 	tag := strings.Split(args[1], "/")[2]
 
-	if err := binary.UploadBinaryFile(args[0], domain, namespace, repository, tag); err != nil {
-		fmt.Println("Upload file error: ", err.Error())
+	if err := binary.UploadBinaryFile(args[0], domain, namespace, repository, tag, force); err != nil {
+		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 
-	fmt.Println("Upload file sucessfully.")
+	fmt.Println("Upload file [", args[0], "] sucessfully.")
 	os.Exit(0)
 }
 
+//downloadBinary download binary file from Dockyard service.
 func downloadBinary(cmd *cobra.Command, args []string) {
 	if domain == "" {
 		domain = common.Warship.Domain

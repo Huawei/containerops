@@ -30,12 +30,17 @@ import (
 )
 
 const (
-	InfraEtcd       = "etcd"
-	InfraFlannel    = "flannel"
-	InfraDocker     = "docker"
+	//InfraEtcd is Etcd flag
+	InfraEtcd = "etcd"
+	//InfraFlannel is Flannel flg
+	InfraFlannel = "flannel"
+	//InfraDocker is Docker flag
+	InfraDocker = "docker"
+	//InfraKubernetes is Kubernetes flag
 	InfraKubernetes = "kubernetes"
 )
 
+//DeployInfraStacks deploy all infras in the cluster.
 //Deploy Sequence:
 //   Preparing SSH Key files ->
 //   Preparing VM ->
@@ -81,51 +86,54 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 	if d.Service.Provider != "" {
 		switch d.Service.Provider {
 		case "digitalocean":
-			do := new(service.DigitalOcean)
+			do := service.DigitalOcean{}
 			do.Token = d.Service.Token
 			do.Region, do.Size, do.Image = d.Service.Region, d.Service.Size, d.Service.Image
 			//TODO parse do.Image get distro
 			//Init DigitalOcean API client.
-			objects.WriteLog("Create DigitalOcean droplets", stdout, timestamp, d, do)
+			objects.WriteLog("Create DigitalOcean droplets", stdout, timestamp, d, &do)
 
-			objects.WriteLog("Init DigitalOcean client with token", stdout, timestamp, d, do)
+			objects.WriteLog("Init DigitalOcean client with token", stdout, timestamp, d, &do)
 			do.InitClient()
 
 			objects.WriteLog(
 				fmt.Sprintf("Upload ssh public key file [%s] to DigitalOcean", d.Tools.SSH.Public),
-				stdout, timestamp, d, do)
+				stdout, timestamp, d, &do)
 			//Upload ssh public key
 			if err := do.UploadSSHKey(d.Tools.SSH.Public); err != nil {
 				return err
 			}
 
 			//Prepare droplet prefix name and tags
-			namespace, repository, name, _ := d.URIs()
-			tags := []string{namespace, repository, name, fmt.Sprintf("version-%d", d.Version), d.Tag}
-			objects.WriteLog(fmt.Sprintf("Droplets is [%v]", tags), stdout, timestamp, d, do)
+			namespace, repository, _, _ := d.URIs()
+			tags := []string{namespace, repository, d.Tag}
+			objects.WriteLog(fmt.Sprintf("Droplets tag is %v", tags), stdout, timestamp, d, &do)
 
 			//Create DigitalOcean Droplets
-			if err := do.CreateDroplet(d.Service.Nodes, d.Tools.SSH.Fingerprint, fmt.Sprintf("%s-%s", namespace, repository), tags); err != nil {
+			if err := do.CreateDroplets(d.Service.Nodes, d.Tools.SSH.Fingerprint, fmt.Sprintf("%s-%s", namespace, repository), tags); err != nil {
 				return err
 			}
 
 			//Export droplets IP
-			for ip, id := range do.Droplets {
+			for id, droplet := range do.Droplets {
 				node := objects.Node{
-					ID:     id,
-					IP:     ip,
-					User:   service.DORootUser,
-					Distro: tools.DistroUbuntu,
+					ID:      id,
+					IP:      droplet["public"],
+					Private: droplet["private"],
+					User:    service.DORootUser,
+					Distro:  tools.DistroUbuntu,
 				}
-				objects.WriteLog(fmt.Sprintf("Droplet [%d] ip is [%s]", id, ip), stdout, timestamp, d, do)
-				d.Nodes = append(d.Nodes, node)
+
+				objects.WriteLog(fmt.Sprintf("Droplet [%d] ip is [%s/%s]", id, droplet["public"], droplet["private"]), stdout, timestamp, d, &do)
+				d.Nodes = append(d.Nodes, &node)
 			}
 
-			objects.WriteLog("Sleep 60 second for preparing Droplets", stdout, timestamp, d, do)
+			objects.WriteLog("sleep 60 second for preparing Droplets", stdout, timestamp, d, &do)
 			time.Sleep(60 * time.Second)
 
+			d.Service.Logs = do.Logs
 		default:
-			return fmt.Errorf("Unsupport service provide: %s", d.Service.Provider)
+			return fmt.Errorf("unsupport service provide: %s", d.Service.Provider)
 		}
 	}
 
@@ -142,11 +150,11 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 
 		//Initialization node environment
 		for _, node := range d.Nodes {
-			objects.WriteLog(fmt.Sprintf("Initializate the %s node environment", node.IP), stdout, timestamp, d, &node)
+			objects.WriteLog(fmt.Sprintf("Initializate the %s node environment", node.IP), stdout, timestamp, d, node)
 			if commands, err := tools.InitializationEnvironment(d.Tools.SSH.Private, node.IP, node.User, node.Distro, stdout); err != nil {
 				return err
 			} else {
-				objects.WriteLog(fmt.Sprintf("execute commands %v in the %s node", commands, node.ID), stdout, timestamp, d, &node)
+				objects.WriteLog(fmt.Sprintf("execute commands %v in the %d node", commands, node.ID), stdout, timestamp, d, node)
 			}
 		}
 
@@ -162,34 +170,34 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 
 			//Upload CA root files to the nodes.
 			for _, node := range d.Nodes {
-				objects.WriteLog(fmt.Sprintf("Upload root CA files %v to node [%s]", roots, node), stdout, timestamp, d, &node)
+				objects.WriteLog(fmt.Sprintf("Upload root CA files %v to %s node", roots, node.IP), stdout, timestamp, d, node)
 				if err := tools.UploadCARootFiles(d.Tools.SSH.Private, roots, node.IP, node.User, stdout); err != nil {
 					return err
 				}
 			}
 		}
 
-		// Deploy infras
+		//Deploy infras
 		for _, infra := range d.Infras {
 			switch infra.Name {
 			case InfraEtcd:
-				objects.WriteLog(fmt.Sprintf("Deploy etcd in cluster"), stdout, timestamp, d, &infra)
-				if err := infras.DeployEtcdInCluster(d, &infra, stdout, timestamp); err != nil {
+				objects.WriteLog(fmt.Sprintf("Deploy etcd in cluster"), stdout, timestamp, d, infra)
+				if err := infras.DeployEtcdInCluster(d, infra, stdout, timestamp); err != nil {
 					return err
 				}
 			case InfraFlannel:
-				objects.WriteLog(fmt.Sprintf("Deploy flannel in cluster"), stdout, timestamp, d, &infra)
-				if err := infras.DeployFlannelInCluster(d, &infra, stdout, timestamp); err != nil {
+				objects.WriteLog(fmt.Sprintf("Deploy flannel in cluster"), stdout, timestamp, d, infra)
+				if err := infras.DeployFlannelInCluster(d, infra, stdout, timestamp); err != nil {
 					return err
 				}
 			case InfraDocker:
-				objects.WriteLog(fmt.Sprintf("Deploy docker in cluster"), stdout, timestamp, d, &infra)
-				if err := infras.DeployDockerInCluster(d, &infra, stdout, timestamp); err != nil {
+				objects.WriteLog(fmt.Sprintf("Deploy docker in cluster"), stdout, timestamp, d, infra)
+				if err := infras.DeployDockerInCluster(d, infra, stdout, timestamp); err != nil {
 					return err
 				}
 			case InfraKubernetes:
-				objects.WriteLog(fmt.Sprintf("Deploy k8s in cluster"), stdout, timestamp, d, &infra)
-				if err := infras.DeployKubernetesInCluster(d, &infra, stdout, timestamp); err != nil {
+				objects.WriteLog(fmt.Sprintf("Deploy k8s in cluster"), stdout, timestamp, d, infra)
+				if err := infras.DeployKubernetesInCluster(d, infra, stdout, timestamp); err != nil {
 					return err
 				}
 			default:
@@ -199,5 +207,36 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 
 	}
 
+	//Save data
+	if db == true {
+		if err := d.Save(); err != nil {
+			return err
+		}
+	}
+
 	return err
+}
+
+//DeleteInfraStacks delete the droplets of stack.
+func DeleteInfraStacks(d *objects.Deployment, stdout io.Writer, timestamp bool) error {
+	if d.Service.Provider != "" {
+		switch d.Service.Provider {
+		case "digitalocean":
+			do := service.DigitalOcean{}
+			do.Token = d.Service.Token
+			do.InitClient()
+
+			for _, node := range d.Nodes {
+				if err := do.DeleteDroplet(node.ID); err != nil {
+					return err
+				}
+				objects.WriteLog(fmt.Sprintf("Delete %d droplet in DigitalOcaen", node.ID), stdout, timestamp, d)
+			}
+
+		default:
+			return fmt.Errorf("unsupport service provide: %s", d.Service.Provider)
+		}
+	}
+
+	return nil
 }

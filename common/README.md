@@ -62,3 +62,11 @@ domain = "hub.opshub.sh"
 ```toml
 [singular]
 ```
+#####  6. Configurations for Mail Notifier (Optional).
+```toml
+[mail]
+smtp_address = "smtp.gmail.com"
+smtp_port = "587"
+user = "notify@containerops.sh"
+password = "password"
+```

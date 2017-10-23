@@ -17,7 +17,7 @@ MAINTAINER Li Meng Jun <lmjubuntu@gmail.com>
 
 RUN apt-get update && apt-get install -y python3-pip git python-pip python
 
-RUN pip3 install cython && pip3 install line_profiler
+RUN pip3 install cython && pip3 install line_profiler pyyaml
 
 ADD bootstrap.py /usr/local/bin/bootstrap.py
 

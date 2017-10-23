@@ -5,6 +5,7 @@ import os
 import sys
 import glob
 import json
+import anymarkup
 
 REPO_PATH = 'git-repo'
 
@@ -86,7 +87,7 @@ def pybuilder(dir_name, task):
     return True
 
 
-def echo_json(dir_name):
+def echo_json(dir_name, use_yaml):
     if dir_name and dir_name != '.':
         dir_name = '{}/{}'.format(REPO_PATH, dir_name)
     else:
@@ -95,11 +96,15 @@ def echo_json(dir_name):
         for file_name in files:
             if file_name.endswith('.json'):
                 data = json.load(open(os.path.join(root, file_name)))
-                print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
+                if use_yaml:
+                    data = anymarkup.serialize(data, 'yaml')
+                    print('[COUT] CO_YAML_CONTENT {}'.format(str(data)[1:]))
+                else:
+                    print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
 
     return True
 
-def echo_xml(dir_name):
+def echo_xml(dir_name, use_yaml):
     if dir_name and dir_name != '.':
         dir_name = '{}/{}'.format(REPO_PATH, dir_name)
     else:
@@ -107,6 +112,11 @@ def echo_xml(dir_name):
     for root, dirs, files in os.walk('{}/target'.format(dir_name)):
         for file_name in files:
             if file_name.endswith('.xml'):
+                if use_yaml:
+                    data = anymarkup.parse_file(os.path.join(root, file_name))
+                    data = anymarkup.serialize(data, 'yaml')
+                    print('[COUT] CO_YAML_CONTENT {}'.format(str(data)[1:]))
+                    continue
                 with open(os.path.join(root, file_name), 'rb') as f:
                     data = f.read()
                     print('[COUT] CO_XML_CONTENT {}'.format(str(data)[1:]))
@@ -119,7 +129,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url', 'entry-path', 'task', 'version']
+    validate = ['git-url', 'entry-path', 'task', 'version', 'out-put-type']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -174,8 +184,10 @@ def main():
         pip_install(file_name, version)
 
     out = pybuilder(entry_path, task)
-    echo_json(entry_path)
-    echo_xml(entry_path)
+    use_yaml = argv.get('out-put-type', 'json') == 'yaml'
+
+    echo_json(entry_path, use_yaml)
+    echo_xml(entry_path, use_yaml)
 
     if not out:
         print("[COUT] CO_RESULT = false")

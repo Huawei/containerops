@@ -5,6 +5,7 @@ import os
 import sys
 import glob
 import json
+import anymarkup
 
 REPO_PATH = 'git-repo'
 
@@ -89,13 +90,17 @@ def green(dir_name):
     return True
 
 
-def echo_json(dir_name):
+def echo_json(dir_name, use_yaml):
     file_name = '{}/.coverage'.format(get_dir_name(dir_name))
     data = open(file_name).read()
     idx = data.find('{')
     data = data[idx:]
     data = json.loads(data)
-    print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
+    if use_yaml:
+        data = anymarkup.serialize(data, 'yaml')
+        print('[COUT] CO_YAML_CONTENT {}'.format(str(data)[1:]))
+    else:
+        print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
 
 
 def parse_argument():
@@ -103,7 +108,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url', 'entry-path', 'version']
+    validate = ['git-url', 'entry-path', 'version', 'out-put-type']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -168,7 +173,9 @@ def main():
 
     out = green(entry_path)
 
-    echo_json(entry_path)
+    use_yaml = argv.get('out-put-type', 'json') == 'yaml'
+
+    echo_json(entry_path, use_yaml)
 
     if not out:
         print("[COUT] CO_RESULT = false")

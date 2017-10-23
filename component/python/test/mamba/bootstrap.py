@@ -5,6 +5,7 @@ import os
 import sys
 import glob
 import json
+import anymarkup
 
 REPO_PATH = 'git-repo'
 
@@ -81,13 +82,17 @@ def mamba(file_name):
     return True
 
 
-def echo_json():
+def echo_json(use_yaml):
     file_name = '{}/.coverage'.format(REPO_PATH)
     data = open(file_name).read()
     idx = data.find('{')
     data = data[idx:]
     data = json.loads(data)
-    print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
+    if use_yaml:
+        data = anymarkup.serialize(data, 'yaml')
+        print('[COUT] CO_YAML_CONTENT {}'.format(str(data)[1:]))
+    else:
+        print('[COUT] CO_JSON_CONTENT {}'.format(json.dumps(data)))
 
 
 def parse_argument():
@@ -95,7 +100,7 @@ def parse_argument():
     if not data:
         return {}
 
-    validate = ['git-url', 'entry-path', 'version']
+    validate = ['git-url', 'entry-file', 'version', 'out-put-type']
     ret = {}
     for s in data.split(' '):
         s = s.strip()
@@ -160,7 +165,10 @@ def main():
 
 
     out = mamba(entry_file)
-    echo_json()
+
+    use_yaml = argv.get('out-put-type', 'json') == 'yaml'
+
+    echo_json(use_yaml)
 
     if not out:
         print("[COUT] CO_RESULT = false")

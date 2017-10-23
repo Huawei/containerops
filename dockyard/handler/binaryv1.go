@@ -34,7 +34,7 @@ import (
 	"github.com/Huawei/containerops/dockyard/module"
 )
 
-// PostBinaryV1Handler is
+//PostBinaryV1Handler is
 func PostBinaryV1Handler(ctx *macaron.Context) (int, []byte) {
 	repository := ctx.Params(":repository")
 	namespace := ctx.Params(":namespace")
@@ -87,13 +87,15 @@ func PostBinaryV1Handler(ctx *macaron.Context) (int, []byte) {
 				return http.StatusBadRequest, result
 			}
 		}
+	} else {
+
 	}
 
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result
 }
 
-// GetBinaryV1Handler is
+//GetBinaryV1Handler is
 func GetBinaryV1Handler(ctx *macaron.Context) {
 	repository := ctx.Params(":repository")
 	namespace := ctx.Params(":namespace")
@@ -147,13 +149,13 @@ func GetBinaryV1Handler(ctx *macaron.Context) {
 	}
 }
 
-// DeleteBinaryV1Handler is
+//DeleteBinaryV1Handler is
 func DeleteBinaryV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result
 }
 
-// PutBinaryLabelV1Handler is
+//PutBinaryLabelV1Handler is
 func PutBinaryLabelV1Handler(ctx *macaron.Context) (int, []byte) {
 	result, _ := json.Marshal(map[string]string{})
 	return http.StatusOK, result
