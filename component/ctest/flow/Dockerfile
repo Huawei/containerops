@@ -7,14 +7,8 @@ ENV PATH $PATH:$GOROOT/bin:$GOPATH:/bin
 #RUN git clone https://github.com/Huawei/containerops.git
 COPY component-auto-flow.sh component-auto-flow.sh
 COPY main.go main.go
-<<<<<<< HEAD
 RUN go build main.go
 CMD main
-=======
-
-RUN go build main.go
-CMD flow
->>>>>>> 792ad01fdc25eeba1f89f3099ef992ac7dce7b5f
 #CMD ./component-auto-flow.sh
 
 

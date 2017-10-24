@@ -16,5 +16,6 @@ func main() {
 	}
 
 	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
-
+	os.Exit(1)
+	
 }
