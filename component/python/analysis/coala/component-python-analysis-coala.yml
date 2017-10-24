@@ -25,7 +25,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-coala.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-coala:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-coala:latest
             resources:
               cpu: 4
               memory: 8G
@@ -39,7 +39,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-coala.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-coala:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-coala:latest
             resources:
               cpu: 4
               memory: 8G

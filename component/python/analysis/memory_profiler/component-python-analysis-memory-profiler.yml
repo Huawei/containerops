@@ -25,7 +25,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-memory-profiler.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-memory-profiler:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-memory-profiler:latest
             resources:
               cpu: 4
               memory: 8G
@@ -39,7 +39,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-memory-profiler.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-memory-profiler:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-memory-profiler:latest
             resources:
               cpu: 4
               memory: 8G
@@ -53,7 +53,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-memory-profiler.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-memory-profiler:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-memory-profiler:latest
             resources:
               cpu: 4
               memory: 8G
@@ -67,7 +67,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-memory-profiler.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-memory-profiler:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-memory-profiler:latest
             resources:
               cpu: 4
               memory: 8G

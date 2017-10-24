@@ -25,7 +25,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-coala.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-coala:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-coala:latest
             resources:
               cpu: 4
               memory: 8G
@@ -39,7 +39,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-coala.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-coala:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-coala:latest
             resources:
               cpu: 4
               memory: 8G
@@ -53,7 +53,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-flake8.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-flake8:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-flake8:latest
             resources:
               cpu: 4
               memory: 8G
@@ -67,7 +67,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-flake8.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-flake8:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-flake8:latest
             resources:
               cpu: 4
               memory: 8G
@@ -81,7 +81,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-flake8.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-flake8:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-flake8:latest
             resources:
               cpu: 4
               memory: 8G
@@ -95,7 +95,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-flake8.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-flake8:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-flake8:latest
             resources:
               cpu: 4
               memory: 8G
@@ -109,7 +109,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-line-profiler.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-line-profiler:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-line-profiler:latest
             resources:
               cpu: 4
               memory: 8G
@@ -123,7 +123,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-line-profiler.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-line-profiler:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-line-profiler:latest
             resources:
               cpu: 4
               memory: 8G
@@ -137,7 +137,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-line-profiler.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-line-profiler:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-line-profiler:latest
             resources:
               cpu: 4
               memory: 8G
@@ -151,7 +151,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-line-profiler.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-line-profiler:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-line-profiler:latest
             resources:
               cpu: 4
               memory: 8G
@@ -165,7 +165,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-memory-profiler.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-memory-profiler:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-memory-profiler:latest
             resources:
               cpu: 4
               memory: 8G
@@ -179,7 +179,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-memory-profiler.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-memory-profiler:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-memory-profiler:latest
             resources:
               cpu: 4
               memory: 8G
@@ -193,7 +193,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-memory-profiler.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-memory-profiler:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-memory-profiler:latest
             resources:
               cpu: 4
               memory: 8G
@@ -207,7 +207,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-memory-profiler.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-memory-profiler:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-memory-profiler:latest
             resources:
               cpu: 4
               memory: 8G
@@ -221,7 +221,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-pep8.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-pep8:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pep8:latest
             resources:
               cpu: 4
               memory: 8G
@@ -235,7 +235,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-pep8.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-pep8:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pep8:latest
             resources:
               cpu: 4
               memory: 8G
@@ -249,7 +249,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-pep8.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-pep8:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pep8:latest
             resources:
               cpu: 4
               memory: 8G
@@ -263,7 +263,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-pep8.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-pep8:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pep8:latest
             resources:
               cpu: 4
               memory: 8G
@@ -277,7 +277,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-pycallgraph.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-pycallgraph:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pycallgraph:latest
             resources:
               cpu: 4
               memory: 8G
@@ -291,7 +291,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-pycallgraph.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-pycallgraph:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pycallgraph:latest
             resources:
               cpu: 4
               memory: 8G
@@ -305,7 +305,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-pylama.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-pylama:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pylama:latest
             resources:
               cpu: 4
               memory: 8G
@@ -319,7 +319,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-pylama.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-pylama:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pylama:latest
             resources:
               cpu: 4
               memory: 8G
@@ -333,7 +333,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-pylama.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-pylama:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pylama:latest
             resources:
               cpu: 4
               memory: 8G
@@ -347,7 +347,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-pylama.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-pylama:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pylama:latest
             resources:
               cpu: 4
               memory: 8G
@@ -361,7 +361,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-pylint.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-pylint:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pylint:latest
             resources:
               cpu: 4
               memory: 8G
@@ -375,7 +375,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-pylint.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-pylint:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pylint:latest
             resources:
               cpu: 4
               memory: 8G
@@ -389,7 +389,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-pylint.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-pylint:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pylint:latest
             resources:
               cpu: 4
               memory: 8G
@@ -403,7 +403,7 @@ stages:
           -
             type: component
             kubectl: component-python-analysis-pylint.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-pylint:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pylint:latest
             resources:
               cpu: 4
               memory: 8G
@@ -417,7 +417,7 @@ stages:
           -
             type: component
             kubectl: component-python-build-dh-virtualenv.yaml
-            endpoint: hub.opshub.sh/component-python-build-dh-virtualenv:latest
+            endpoint: hub.opshub.sh/containerops/component-python-build-dh-virtualenv:latest
             resources:
               cpu: 4
               memory: 8G
@@ -431,7 +431,7 @@ stages:
           -
             type: component
             kubectl: component-python-build-nuitka.yaml
-            endpoint: hub.opshub.sh/component-python-build-nuitka:latest
+            endpoint: hub.opshub.sh/containerops/component-python-build-nuitka:latest
             resources:
               cpu: 4
               memory: 8G
@@ -445,7 +445,7 @@ stages:
           -
             type: component
             kubectl: component-python-build-nuitka.yaml
-            endpoint: hub.opshub.sh/component-python-build-nuitka:latest
+            endpoint: hub.opshub.sh/containerops/component-python-build-nuitka:latest
             resources:
               cpu: 4
               memory: 8G
@@ -459,7 +459,7 @@ stages:
           -
             type: component
             kubectl: component-python-build-pybuilder.yaml
-            endpoint: hub.opshub.sh/component-python-build-pybuilder:latest
+            endpoint: hub.opshub.sh/containerops/component-python-build-pybuilder:latest
             resources:
               cpu: 4
               memory: 8G
@@ -473,7 +473,7 @@ stages:
           -
             type: component
             kubectl: component-python-build-pybuilder.yaml
-            endpoint: hub.opshub.sh/component-python-build-pybuilder:latest
+            endpoint: hub.opshub.sh/containerops/component-python-build-pybuilder:latest
             resources:
               cpu: 4
               memory: 8G
@@ -487,7 +487,7 @@ stages:
           -
             type: component
             kubectl: component-python-build-pybuilder.yaml
-            endpoint: hub.opshub.sh/component-python-build-pybuilder:latest
+            endpoint: hub.opshub.sh/containerops/component-python-build-pybuilder:latest
             resources:
               cpu: 4
               memory: 8G
@@ -501,7 +501,7 @@ stages:
           -
             type: component
             kubectl: component-python-build-pybuilder.yaml
-            endpoint: hub.opshub.sh/component-python-build-pybuilder:latest
+            endpoint: hub.opshub.sh/containerops/component-python-build-pybuilder:latest
             resources:
               cpu: 4
               memory: 8G
@@ -515,7 +515,7 @@ stages:
           -
             type: component
             kubectl: component-python-build-pyinstaller.yaml
-            endpoint: hub.opshub.sh/component-python-build-pyinstaller:latest
+            endpoint: hub.opshub.sh/containerops/component-python-build-pyinstaller:latest
             resources:
               cpu: 4
               memory: 8G
@@ -529,7 +529,7 @@ stages:
           -
             type: component
             kubectl: component-python-build-pyinstaller.yaml
-            endpoint: hub.opshub.sh/component-python-build-pyinstaller:latest
+            endpoint: hub.opshub.sh/containerops/component-python-build-pyinstaller:latest
             resources:
               cpu: 4
               memory: 8G
@@ -543,7 +543,7 @@ stages:
           -
             type: component
             kubectl: component-python-build-pynsist.yaml
-            endpoint: hub.opshub.sh/component-python-build-pynsist:latest
+            endpoint: hub.opshub.sh/containerops/component-python-build-pynsist:latest
             resources:
               cpu: 4
               memory: 8G
@@ -557,7 +557,7 @@ stages:
           -
             type: component
             kubectl: component-python-document-mkdocs.yaml
-            endpoint: hub.opshub.sh/component-python-document-mkdocs:latest
+            endpoint: hub.opshub.sh/containerops/component-python-document-mkdocs:latest
             resources:
               cpu: 4
               memory: 8G
@@ -571,7 +571,7 @@ stages:
           -
             type: component
             kubectl: component-python-document-mkdocs.yaml
-            endpoint: hub.opshub.sh/component-python-document-mkdocs:latest
+            endpoint: hub.opshub.sh/containerops/component-python-document-mkdocs:latest
             resources:
               cpu: 4
               memory: 8G
@@ -585,7 +585,7 @@ stages:
           -
             type: component
             kubectl: component-python-document-pdoc.yaml
-            endpoint: hub.opshub.sh/component-python-document-pdoc:latest
+            endpoint: hub.opshub.sh/containerops/component-python-document-pdoc:latest
             resources:
               cpu: 4
               memory: 8G
@@ -599,7 +599,7 @@ stages:
           -
             type: component
             kubectl: component-python-document-pdoc.yaml
-            endpoint: hub.opshub.sh/component-python-document-pdoc:latest
+            endpoint: hub.opshub.sh/containerops/component-python-document-pdoc:latest
             resources:
               cpu: 4
               memory: 8G
@@ -613,7 +613,7 @@ stages:
           -
             type: component
             kubectl: component-python-document-pdoc.yaml
-            endpoint: hub.opshub.sh/component-python-document-pdoc:latest
+            endpoint: hub.opshub.sh/containerops/component-python-document-pdoc:latest
             resources:
               cpu: 4
               memory: 8G
@@ -627,7 +627,7 @@ stages:
           -
             type: component
             kubectl: component-python-document-pdoc.yaml
-            endpoint: hub.opshub.sh/component-python-document-pdoc:latest
+            endpoint: hub.opshub.sh/containerops/component-python-document-pdoc:latest
             resources:
               cpu: 4
               memory: 8G
@@ -641,7 +641,7 @@ stages:
           -
             type: component
             kubectl: component-python-document-pycco.yaml
-            endpoint: hub.opshub.sh/component-python-document-pycco:latest
+            endpoint: hub.opshub.sh/containerops/component-python-document-pycco:latest
             resources:
               cpu: 4
               memory: 8G
@@ -655,7 +655,7 @@ stages:
           -
             type: component
             kubectl: component-python-document-pycco.yaml
-            endpoint: hub.opshub.sh/component-python-document-pycco:latest
+            endpoint: hub.opshub.sh/containerops/component-python-document-pycco:latest
             resources:
               cpu: 4
               memory: 8G
@@ -669,7 +669,7 @@ stages:
           -
             type: component
             kubectl: component-python-document-sphinx.yaml
-            endpoint: hub.opshub.sh/component-python-document-sphinx:latest
+            endpoint: hub.opshub.sh/containerops/component-python-document-sphinx:latest
             resources:
               cpu: 4
               memory: 8G
@@ -683,7 +683,7 @@ stages:
           -
             type: component
             kubectl: component-python-document-sphinx.yaml
-            endpoint: hub.opshub.sh/component-python-document-sphinx:latest
+            endpoint: hub.opshub.sh/containerops/component-python-document-sphinx:latest
             resources:
               cpu: 4
               memory: 8G
@@ -697,7 +697,7 @@ stages:
           -
             type: component
             kubectl: component-python-document-sphinx.yaml
-            endpoint: hub.opshub.sh/component-python-document-sphinx:latest
+            endpoint: hub.opshub.sh/containerops/component-python-document-sphinx:latest
             resources:
               cpu: 4
               memory: 8G
@@ -711,7 +711,7 @@ stages:
           -
             type: component
             kubectl: component-python-document-sphinx.yaml
-            endpoint: hub.opshub.sh/component-python-document-sphinx:latest
+            endpoint: hub.opshub.sh/containerops/component-python-document-sphinx:latest
             resources:
               cpu: 4
               memory: 8G
@@ -725,7 +725,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-coverage.yaml
-            endpoint: hub.opshub.sh/component-python-test-coverage:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-coverage:latest
             resources:
               cpu: 4
               memory: 8G
@@ -739,7 +739,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-coverage.yaml
-            endpoint: hub.opshub.sh/component-python-test-coverage:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-coverage:latest
             resources:
               cpu: 4
               memory: 8G
@@ -753,7 +753,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-coverage.yaml
-            endpoint: hub.opshub.sh/component-python-test-coverage:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-coverage:latest
             resources:
               cpu: 4
               memory: 8G
@@ -767,7 +767,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-coverage.yaml
-            endpoint: hub.opshub.sh/component-python-test-coverage:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-coverage:latest
             resources:
               cpu: 4
               memory: 8G
@@ -781,7 +781,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-green.yaml
-            endpoint: hub.opshub.sh/component-python-test-green:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-green:latest
             resources:
               cpu: 4
               memory: 8G
@@ -795,7 +795,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-green.yaml
-            endpoint: hub.opshub.sh/component-python-test-green:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-green:latest
             resources:
               cpu: 4
               memory: 8G
@@ -809,7 +809,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-green.yaml
-            endpoint: hub.opshub.sh/component-python-test-green:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-green:latest
             resources:
               cpu: 4
               memory: 8G
@@ -823,7 +823,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-green.yaml
-            endpoint: hub.opshub.sh/component-python-test-green:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-green:latest
             resources:
               cpu: 4
               memory: 8G
@@ -837,7 +837,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-mamba.yaml
-            endpoint: hub.opshub.sh/component-python-test-mamba:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-mamba:latest
             resources:
               cpu: 4
               memory: 8G
@@ -851,7 +851,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-mamba.yaml
-            endpoint: hub.opshub.sh/component-python-test-mamba:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-mamba:latest
             resources:
               cpu: 4
               memory: 8G
@@ -865,7 +865,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-mamba.yaml
-            endpoint: hub.opshub.sh/component-python-test-mamba:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-mamba:latest
             resources:
               cpu: 4
               memory: 8G
@@ -879,7 +879,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-mamba.yaml
-            endpoint: hub.opshub.sh/component-python-test-mamba:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-mamba:latest
             resources:
               cpu: 4
               memory: 8G
@@ -893,7 +893,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-nose.yaml
-            endpoint: hub.opshub.sh/component-python-test-nose:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose:latest
             resources:
               cpu: 4
               memory: 8G
@@ -907,7 +907,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-nose.yaml
-            endpoint: hub.opshub.sh/component-python-test-nose:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose:latest
             resources:
               cpu: 4
               memory: 8G
@@ -921,7 +921,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-nose.yaml
-            endpoint: hub.opshub.sh/component-python-test-nose:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose:latest
             resources:
               cpu: 4
               memory: 8G
@@ -935,7 +935,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-nose.yaml
-            endpoint: hub.opshub.sh/component-python-test-nose:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose:latest
             resources:
               cpu: 4
               memory: 8G
@@ -949,7 +949,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-nose2.yaml
-            endpoint: hub.opshub.sh/component-python-test-nose2:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose2:latest
             resources:
               cpu: 4
               memory: 8G
@@ -963,7 +963,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-nose2.yaml
-            endpoint: hub.opshub.sh/component-python-test-nose2:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose2:latest
             resources:
               cpu: 4
               memory: 8G
@@ -977,7 +977,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-nose2.yaml
-            endpoint: hub.opshub.sh/component-python-test-nose2:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose2:latest
             resources:
               cpu: 4
               memory: 8G
@@ -991,7 +991,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-nose2.yaml
-            endpoint: hub.opshub.sh/component-python-test-nose2:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose2:latest
             resources:
               cpu: 4
               memory: 8G
@@ -1005,7 +1005,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-pytest.yaml
-            endpoint: hub.opshub.sh/component-python-test-pytest:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-pytest:latest
             resources:
               cpu: 4
               memory: 8G
@@ -1019,7 +1019,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-pytest.yaml
-            endpoint: hub.opshub.sh/component-python-test-pytest:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-pytest:latest
             resources:
               cpu: 4
               memory: 8G
@@ -1033,7 +1033,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-pytest.yaml
-            endpoint: hub.opshub.sh/component-python-test-pytest:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-pytest:latest
             resources:
               cpu: 4
               memory: 8G
@@ -1047,7 +1047,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-pytest.yaml
-            endpoint: hub.opshub.sh/component-python-test-pytest:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-pytest:latest
             resources:
               cpu: 4
               memory: 8G
@@ -1061,7 +1061,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-tox.yaml
-            endpoint: hub.opshub.sh/component-python-test-tox:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-tox:latest
             resources:
               cpu: 4
               memory: 8G
@@ -1075,7 +1075,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-tox.yaml
-            endpoint: hub.opshub.sh/component-python-test-tox:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-tox:latest
             resources:
               cpu: 4
               memory: 8G
@@ -1089,7 +1089,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-unittest.yaml
-            endpoint: hub.opshub.sh/component-python-test-unittest:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-unittest:latest
             resources:
               cpu: 4
               memory: 8G
@@ -1103,7 +1103,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-unittest.yaml
-            endpoint: hub.opshub.sh/component-python-test-unittest:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-unittest:latest
             resources:
               cpu: 4
               memory: 8G
@@ -1117,7 +1117,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-unittest.yaml
-            endpoint: hub.opshub.sh/component-python-test-unittest:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-unittest:latest
             resources:
               cpu: 4
               memory: 8G
@@ -1131,7 +1131,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-unittest.yaml
-            endpoint: hub.opshub.sh/component-python-test-unittest:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-unittest:latest
             resources:
               cpu: 4
               memory: 8G

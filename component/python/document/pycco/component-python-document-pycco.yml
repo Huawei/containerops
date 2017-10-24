@@ -25,7 +25,7 @@ stages:
           -
             type: component
             kubectl: component-python-document-pycco.yaml
-            endpoint: hub.opshub.sh/component-python-document-pycco:latest
+            endpoint: hub.opshub.sh/containerops/component-python-document-pycco:latest
             resources:
               cpu: 4
               memory: 8G
@@ -39,7 +39,7 @@ stages:
           -
             type: component
             kubectl: component-python-document-pycco.yaml
-            endpoint: hub.opshub.sh/component-python-document-pycco:latest
+            endpoint: hub.opshub.sh/containerops/component-python-document-pycco:latest
             resources:
               cpu: 4
               memory: 8G

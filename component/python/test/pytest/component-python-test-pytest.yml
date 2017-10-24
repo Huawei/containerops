@@ -25,7 +25,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-pytest.yaml
-            endpoint: hub.opshub.sh/component-python-test-pytest:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-pytest:latest
             resources:
               cpu: 4
               memory: 8G
@@ -39,7 +39,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-pytest.yaml
-            endpoint: hub.opshub.sh/component-python-test-pytest:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-pytest:latest
             resources:
               cpu: 4
               memory: 8G
@@ -53,7 +53,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-pytest.yaml
-            endpoint: hub.opshub.sh/component-python-test-pytest:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-pytest:latest
             resources:
               cpu: 4
               memory: 8G
@@ -67,7 +67,7 @@ stages:
           -
             type: component
             kubectl: component-python-test-pytest.yaml
-            endpoint: hub.opshub.sh/component-python-test-pytest:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-pytest:latest
             resources:
               cpu: 4
               memory: 8G
