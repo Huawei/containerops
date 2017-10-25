@@ -27,6 +27,7 @@ docker run \
 ### Parameters 
 - `version` gradle version available value: gradle3,gradle4
 - `git-url` where your code is located
+- `build-path` the module which you want to build,default value is project root path
 - `target`  where your package file to upload, curl -i -X PUT -T file target
 ### Versions 1.0.0
 

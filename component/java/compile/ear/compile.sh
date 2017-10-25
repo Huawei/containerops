@@ -96,9 +96,9 @@ fi
 
 if [ "" = "${map["build-path"]}" ]
 then
-    map["build-path"]="build"
+    map["build-path"]=""
 fi
-cd ${map["build-path"]}
+cd ${map["build-path"]}/build
 earpath=$(find `pwd` -name "*.ear")
 if [ "$earpath" = "" ]
 then

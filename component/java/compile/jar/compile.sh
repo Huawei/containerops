@@ -88,7 +88,7 @@ fi
 
 if [ "" = "${map["build-path"]}" ]
 then
-    map["build-path"]="./"
+    map["build-path"]=""
 fi
 cd ${map["build-path"]}
 
