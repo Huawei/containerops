@@ -37,7 +37,6 @@ function read_dir(){
 		fi
   done
   }
-	#read_dir containerops/component
 	read_dir ../../../component	
 
 tar -cvf yml.tar -C  yml .
