@@ -28,10 +28,11 @@ function read_dir(){
 			echo $imagename
 			tar -cvf ./$fullpath.tar -C  $fullpath .
 			echo ----------------;
-			#go run main.go --image $imagename --path ./$fullpath
-			#f [[ $fullpath =~ $imagename ]] ;then
-			echo ./$imagename.yml
-			cp $fullpath/$imagename.yml yml
+			go run main.go --image $imagename --path ./$fullpath
+			if [[ $fullpath =~ $imagename ]] ;then
+				echo ./$imagename.yml
+				cp $fullpath/$imagename.yml yml
+			fi
 		break
 		fi
   done
