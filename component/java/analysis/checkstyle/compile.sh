@@ -77,7 +77,8 @@ if [ "" = "${map["report-path"]}" ]
 then
     map["report-path"]="build/reports/checkstyle"
 fi
-
+mkdir /work
+cd /work
 STOUT git clone ${map["git-url"]}
 if [ "$?" -ne "0" ]
 then
@@ -97,18 +98,21 @@ fi
 havecheckstyle=`echo gradle -q tasks --all | grep checkstyle`
 if [ "$havecheckstyle" = "" ]
 then
-    echo -e "\napply plugin: 'checkstyle'" >> build.gradle
     mkdir -p ./config/checkstyle
-    cp /root/checkstyle.xml ./config/checkstyle/
+    cat /root/checkstyle.conf >> build.gradle
 fi
+find ./ -name "build.gradle" -exec dirname {} \; |awk '{print $1"/config/checkstyle"}'|xargs mkdir -p 1>/dev/null 2>/dev/null
+find ./ -name "build.gradle" -exec dirname {} \; |awk '{print $1"/config/checkstyle"}'| xargs -n 1 cp -v /root/checkstyle.xml 1>/dev/null 2>/dev/null
 
-STOUT2 $gradle_version checkstyleMain
+printf "\n[COUT] "
+$gradle_version checkstyleMain
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
-STOUT2 $gradle_version checkstyleTest
+printf "\n[COUT] "
+$gradle_version checkstyleTest
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] CO_RESULT = %s\n" "false"

@@ -5,15 +5,15 @@ apply plugin : 'java'
 apply plugin: 'application'
 
 mainClassName="Convert"
-repositories {  
-     mavenCentral()  
+repositories {
+     mavenCentral()
 }
 dependencies {
     compile "org.json:json:20170516"
     compile "com.fasterxml.jackson.core:jackson-core:2.8.6"
     compile "com.fasterxml.jackson.core:jackson-databind:2.8.6"
     compile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.6"
-}  
+}
   
 sourceSets {  
     main {  
@@ -29,6 +29,24 @@ jar {
     }
     manifest {
         attributes 'Main-Class': 'Convert'
+    }
+}
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "de.aaschmid.gradle.plugins:gradle-cpd-plugin:0.5"
+    }
+}
+
+allprojects  {
+    apply plugin: "de.aaschmid.cpd"
+    repositories {
+        mavenLocal()
+        mavenCentral()
     }
 }
 

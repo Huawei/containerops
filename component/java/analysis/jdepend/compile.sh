@@ -96,11 +96,11 @@ fi
 havejdepend=`echo gradle -q tasks --all | grep jdepend`
 if [ "$havejdepend" = "" ]
 then
-    echo -e "\napply plugin: 'jdepend'" >> build.gradle
+    echo -e "\nallprojects { apply plugin: 'jdepend' }" >> build.gradle
 fi
-
-STOUT2 $gradle_version jdependMain
-STOUT2 $gradle_version jdependTest
+printf "\n[COUT] "
+$gradle_version jdependMain
+$gradle_version jdependTest
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then

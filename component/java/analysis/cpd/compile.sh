@@ -94,12 +94,13 @@ then
 fi 
 
 havecpd=`echo gradle -q tasks --all | grep cpd | awk '{print $1}'`
+printf "[COUT] "
 if [ "$havecpd" = "" ]
 then
     cat /root/cpd.conf >> build.gradle
-    STOUT2 $gradle_version cpdCheck
+    $gradle_version cpdCheck
 else
-    STOUT2 $gradle_version $havecpd
+    $gradle_version $havecpd
 fi
 
 if [ "${map["out-put-type"]}" = "xml" ]

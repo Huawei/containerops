@@ -87,7 +87,7 @@ fi
 
 cat /root/javadoc.conf >> build.gradle
 
-STOUT2 $gradle_version javadoc
+STOUT $gradle_version javadoc
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] CO_RESULT = %s\n" "false"
