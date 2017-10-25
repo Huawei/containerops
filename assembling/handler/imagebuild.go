@@ -23,8 +23,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/Huawei/containerops/common"
@@ -51,6 +51,15 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	namespace := mctx.Req.Request.FormValue("namespace")
 	image := mctx.Req.Request.FormValue("image")
 	tag := mctx.Req.Request.FormValue("tag")
+	buildArgsJSON := mctx.Req.Request.FormValue("buildargs")
+
+	var buildArgs map[string]*string
+	if buildArgsJSON == "" {
+		buildArgs = map[string]*string{}
+	} else if err := json.Unmarshal([]byte(buildArgsJSON), &buildArgs); err != nil {
+		log.Errorf("Failed to parse buildargs: %s", err.Error())
+		return http.StatusBadRequest, []byte("{}")
+	}
 
 	isBodyDockerArchive, buf, err := isDockerArchive(mctx.Req.Request.Body)
 	if err != nil {
@@ -107,7 +116,7 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	ctx, dockerClient := initDockerCli(dockerDaemonHost)
 
 	log.Infof("Build image, id: %s", buildId)
-	if err := buildImage(ctx, dockerClient, registry, namespace, image, tag, tarfile); err != nil {
+	if err := buildImage(ctx, dockerClient, registry, namespace, image, tag, buildArgs, tarfile); err != nil {
 		log.Errorf("Failed to build image: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
@@ -333,10 +342,11 @@ func createTarFile(dockerfile io.Reader) (io.Reader, error) {
 	return bytes.NewReader(tarBuf.Bytes()), nil
 }
 
-func buildImage(ctx context.Context, cli *client.Client, host, namespace, imageName, tag string, tarFileReader io.Reader) error {
+func buildImage(ctx context.Context, cli *client.Client, host, namespace, imageName, tag string, buildArgs map[string]*string, tarFileReader io.Reader) error {
 	targetTag := fmt.Sprintf("%s/%s/%s:%s", host, namespace, imageName, tag)
 	buildOptions := types.ImageBuildOptions{
-		Tags: []string{targetTag},
+		Tags:      []string{targetTag},
+		BuildArgs: buildArgs,
 	}
 
 	out, err := cli.ImageBuild(ctx, tarFileReader, buildOptions)
@@ -345,8 +355,8 @@ func buildImage(ctx context.Context, cli *client.Client, host, namespace, imageN
 	}
 
 	defer out.Body.Close()
-	io.Copy(ioutil.Discard, out.Body)
-	// io.Copy(os.Stdout, out.Body)
+	// io.Copy(ioutil.Discard, out.Body)
+	io.Copy(os.Stdout, out.Body)
 	return nil
 }
 
@@ -362,8 +372,8 @@ func pushImage(ctx context.Context, cli *client.Client, host, namespace, imageNa
 	}
 
 	defer pushResult.Close()
-	io.Copy(ioutil.Discard, pushResult)
-	// io.Copy(os.Stdout, pushResult)
+	// io.Copy(ioutil.Discard, pushResult)
+	io.Copy(os.Stdout, pushResult)
 	return nil
 }
 
@@ -417,6 +427,7 @@ func deleteLoadBalancer(serviceClient v1.ServiceInterface, serviceName string) e
 	if err := serviceClient.Delete(serviceName, &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
+		log.Errorf("Failed to delete load balancer: %s", err.Error())
 		return err
 	}
 	return nil
