@@ -99,7 +99,7 @@ if [ "$havepmd" = "" ]
 then
     cat /root/pmd.conf >> build.gradle
 fi
-printf "\n[COUT]"
+printf "\n[COUT] "
 $gradle_version pmdMain
 $gradle_version pmdTest
 

@@ -98,7 +98,7 @@ if [ "$havejdepend" = "" ]
 then
     echo -e "\nallprojects { apply plugin: 'jdepend' }" >> build.gradle
 fi
-printf "\n[COUT]"
+printf "\n[COUT] "
 $gradle_version jdependMain
 $gradle_version jdependTest
 
