@@ -106,7 +106,11 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	}
 
 	servicePort := 2375
-	defer deleteLoadBalancer(serviceClient, serviceName)
+	defer func() {
+		if err := deleteLoadBalancer(serviceClient, serviceName); err != nil {
+			log.Errorf("Failed to delete load balancer: %s", err.Error())
+		}
+	}()
 
 	if len(loadBalancer.Status.LoadBalancer.Ingress) == 0 {
 		log.Errorf("Load balancer: no ingress created")
@@ -415,7 +419,9 @@ func createLoadBalancer(serviceClient v1.ServiceInterface, serviceName, buildId 
 		if time.Since(start).Seconds() > 180 {
 			e = fmt.Errorf("NoadBalancer creation timeout")
 			// If the error is not nil, the deletion will most likely to be ignored ouside the function.
-			deleteLoadBalancer(serviceClient, serviceName)
+			if err := deleteLoadBalancer(serviceClient, serviceName); err != nil {
+				log.Errorf("Failed to delete load balancer: %s", err.Error())
+			}
 			break
 		}
 	}
@@ -428,7 +434,6 @@ func deleteLoadBalancer(serviceClient v1.ServiceInterface, serviceName string) e
 	if err := serviceClient.Delete(serviceName, &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
-		log.Errorf("Failed to delete load balancer: %s", err.Error())
 		return err
 	}
 	return nil
