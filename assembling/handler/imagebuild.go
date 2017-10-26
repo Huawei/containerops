@@ -76,7 +76,7 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 
 	var tarfile io.Reader
 	if !isBodyDockerArchive {
-		tarfile, err = createTarFile(mctx.Req.Request.Body)
+		tarfile, err = createTarFile(buf)
 	} else {
 		tarfile = buf
 	}
