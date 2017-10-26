@@ -52,7 +52,7 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	image := mctx.Req.Request.FormValue("image")
 	tag := mctx.Req.Request.FormValue("tag")
 	buildArgsJSON := mctx.Req.Request.FormValue("buildargs")
-	authStr := mctx.Req.Request.FormValue("authstr")
+	authstr := mctx.Req.Request.FormValue("authstr")
 
 	var buildArgs map[string]*string
 	if buildArgsJSON == "" {
@@ -128,6 +128,10 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 
 	// TODO Support pushing to registries that need authorization
 	// authStr, _ := generateAuthStr("", "")
+	authStr := authstr
+	if authStr == "" {
+		authStr, _ = generateAuthStr("", "")
+	}
 
 	log.Infof("Push image, id: %s", buildId)
 	if err := pushImage(ctx, dockerClient, registry, namespace, image, tag, authStr); err != nil {
