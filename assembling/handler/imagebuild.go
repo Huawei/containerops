@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 
@@ -47,12 +48,13 @@ import (
 
 func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	// TODO image, namespace, registry, tag pattern validation with regex
-	registry := mctx.Req.Request.FormValue("registry")
-	namespace := mctx.Req.Request.FormValue("namespace")
-	image := mctx.Req.Request.FormValue("image")
-	tag := mctx.Req.Request.FormValue("tag")
-	buildArgsJSON := mctx.Req.Request.FormValue("buildargs")
-	authstr := mctx.Req.Request.FormValue("authstr")
+	queries := getQueryParameters(mctx.Req.Request.URL)
+	registry := queries["registry"]
+	namespace := queries["namespace"]
+	image := queries["image"]
+	tag := queries["tag"]
+	buildArgsJSON := queries["buildargs"]
+	authstr := queries["authstr"]
 
 	var buildArgs map[string]*string
 	if buildArgsJSON == "" {
@@ -142,6 +144,19 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	builtImage := fmt.Sprintf("%s/%s/%s:%s", registry, namespace, image, tag)
 	log.Infof("Image pushed: %s", builtImage)
 	return http.StatusOK, []byte(fmt.Sprintf("{\"endpoint\":\"%s\"}", builtImage))
+}
+
+// Take the first value of the query
+func getQueryParameters(u *url.URL) map[string]string {
+	ret := map[string]string{}
+	for key, ary := range u.Query() {
+		if len(ary) == 0 {
+			ret[key] = ""
+		} else {
+			ret[key] = ary[0]
+		}
+	}
+	return ret
 }
 
 func isDockerArchive(src io.Reader) (bool, *bytes.Buffer, error) {
