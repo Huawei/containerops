@@ -15,14 +15,16 @@ POST  /assembling/build
 
 - **Parameters**
 
-|Parameter|type|From|
+|Parameter|type|From|Description|
 --|--|--
-|registry|string|Query|
-|namespace|string|Query|
-|image|string|Query|
-|tag|string|Query|
-|buildargs|json string|Query|
-|Dockerfile & archive file|binary|Body|
+|registry|string|Query| The registry where to push the built image |
+|namespace|string|Query| The namespace |
+|image|string|Query| The image name|
+|tag|string|Query| The tag of the image|
+|buildargs|json string|Query| Arguments that will be sent to docker daemon when build, equivalent to the `--build-arg `option of `docker build`|
+|insecure_registry|bool|Query| Is the specified registry insecure, default to false |
+|autstr|string|Query| A base64 encoded auth string, more details could be found [here](https://docs.docker.com/engine/api/v1.30/#section/Authentication) |
+|Dockerfile & archive file|binary|Body| The body, see below |
 
 > The body should be a single Dockerfile or, if some extra files are included, an archive file, which can be in the format of tar, gzip, bzip2 or xz, according to the [Docker Engine API](https://docs.docker.com/engine/api/v1.31/#operation/ImageBuild), section `REQUEST BODY`.
 
@@ -31,7 +33,7 @@ POST  /assembling/build
 - **Example**
 
 ```http
-POST /assembling/build?registry=hub.opshub.sh&namespace=containerops&image=ubuntu&tag=14.04&buildargs={"RELEASE":"1.0.1", "DEV_TAG":"FOXHOUND"}
+POST /assembling/build?registry=hub.opshub.sh&namespace=containerops&image=ubuntu&tag=14.04&buildargs={"RELEASE":"1.0.1", "DEV_TAG":"FOXHOUND"}&insecure_registry=true&authstr=0bdaf9cf38....
 
 Body(Binary file)
 
