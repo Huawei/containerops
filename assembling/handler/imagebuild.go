@@ -48,13 +48,18 @@ import (
 
 func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	// TODO image, namespace, registry, tag pattern validation with regex
-	queries := getQueryParameters(mctx.Req.Request.URL)
+	queries := getFirstQueryParameters(mctx.Req.Request.URL)
 	registry := queries["registry"]
 	namespace := queries["namespace"]
 	image := queries["image"]
 	tag := queries["tag"]
 	buildArgsJSON := queries["buildargs"]
 	authstr := queries["authstr"]
+	isRegistryInsecure := queries["insecure_registry"] == "true"
+	dockerCmdArgs := []string{}
+	if isRegistryInsecure {
+		dockerCmdArgs = append(dockerCmdArgs, fmt.Sprintf("--insecure-registry=%s", registry))
+	}
 
 	var buildArgs map[string]*string
 	if buildArgsJSON == "" {
@@ -93,7 +98,7 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	serviceName := fmt.Sprintf("containerops-build-svc-%s", buildId)
 
 	log.Infof("Create pod %s for build %s", podName, buildId)
-	_, err = createPod(podClient, podName, buildId)
+	_, err = createPod(podClient, podName, buildId, dockerCmdArgs)
 	if err != nil {
 		log.Errorf("Failed to create pod: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
@@ -108,6 +113,7 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	}
 
 	servicePort := 2375
+
 	defer func() {
 		if err := deleteLoadBalancer(serviceClient, serviceName); err != nil {
 			log.Errorf("Failed to delete load balancer: %s", err.Error())
@@ -147,7 +153,7 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 }
 
 // Take the first value of the query
-func getQueryParameters(u *url.URL) map[string]string {
+func getFirstQueryParameters(u *url.URL) map[string]string {
 	ret := map[string]string{}
 	for key, ary := range u.Query() {
 		if len(ary) == 0 {
@@ -263,7 +269,7 @@ func initK8SResourceInterfaces(kubeconfig string) (v1.PodInterface, v1.ServiceIn
 	return podClient, serviceClient, nil
 }
 
-func createPod(podClient v1.PodInterface, podName, buildId string) (*corev1.Pod, error) {
+func createPod(podClient v1.PodInterface, podName, buildId string, args []string) (*corev1.Pod, error) {
 	isPrivileged := true
 	pod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
@@ -278,7 +284,7 @@ func createPod(podClient v1.PodInterface, podName, buildId string) (*corev1.Pod,
 					Name:  "docker-dind",
 					Image: common.Assembling.DockerDaemonImage,
 					// Reservation for Args
-					Args: []string{},
+					Args: args,
 					SecurityContext: &corev1.SecurityContext{
 						Privileged: &isPrivileged,
 					},
