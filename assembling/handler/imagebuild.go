@@ -23,8 +23,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
+	"net/url"
+	"os"
 	"time"
 
 	"github.com/Huawei/containerops/common"
@@ -47,10 +48,21 @@ import (
 
 func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	// TODO image, namespace, registry, tag pattern validation with regex
-	registry := mctx.Req.Request.FormValue("registry")
-	namespace := mctx.Req.Request.FormValue("namespace")
-	image := mctx.Req.Request.FormValue("image")
-	tag := mctx.Req.Request.FormValue("tag")
+	queries := getQueryParameters(mctx.Req.Request.URL)
+	registry := queries["registry"]
+	namespace := queries["namespace"]
+	image := queries["image"]
+	tag := queries["tag"]
+	buildArgsJSON := queries["buildargs"]
+	authstr := queries["authstr"]
+
+	var buildArgs map[string]*string
+	if buildArgsJSON == "" {
+		buildArgs = map[string]*string{}
+	} else if err := json.Unmarshal([]byte(buildArgsJSON), &buildArgs); err != nil {
+		log.Errorf("Failed to parse buildargs: %s", err.Error())
+		return http.StatusBadRequest, []byte("{}")
+	}
 
 	isBodyDockerArchive, buf, err := isDockerArchive(mctx.Req.Request.Body)
 	if err != nil {
@@ -64,7 +76,7 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 
 	var tarfile io.Reader
 	if !isBodyDockerArchive {
-		tarfile, err = createTarFile(mctx.Req.Request.Body)
+		tarfile, err = createTarFile(buf)
 	} else {
 		tarfile = buf
 	}
@@ -96,7 +108,11 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	}
 
 	servicePort := 2375
-	defer deleteLoadBalancer(serviceClient, serviceName)
+	defer func() {
+		if err := deleteLoadBalancer(serviceClient, serviceName); err != nil {
+			log.Errorf("Failed to delete load balancer: %s", err.Error())
+		}
+	}()
 
 	if len(loadBalancer.Status.LoadBalancer.Ingress) == 0 {
 		log.Errorf("Load balancer: no ingress created")
@@ -107,13 +123,17 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	ctx, dockerClient := initDockerCli(dockerDaemonHost)
 
 	log.Infof("Build image, id: %s", buildId)
-	if err := buildImage(ctx, dockerClient, registry, namespace, image, tag, tarfile); err != nil {
+	if err := buildImage(ctx, dockerClient, registry, namespace, image, tag, buildArgs, tarfile); err != nil {
 		log.Errorf("Failed to build image: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
 
 	// TODO Support pushing to registries that need authorization
-	authStr, _ := generateAuthStr("", "")
+	// authStr, _ := generateAuthStr("", "")
+	authStr := authstr
+	if authStr == "" {
+		authStr, _ = generateAuthStr("", "")
+	}
 
 	log.Infof("Push image, id: %s", buildId)
 	if err := pushImage(ctx, dockerClient, registry, namespace, image, tag, authStr); err != nil {
@@ -124,6 +144,19 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	builtImage := fmt.Sprintf("%s/%s/%s:%s", registry, namespace, image, tag)
 	log.Infof("Image pushed: %s", builtImage)
 	return http.StatusOK, []byte(fmt.Sprintf("{\"endpoint\":\"%s\"}", builtImage))
+}
+
+// Take the first value of the query
+func getQueryParameters(u *url.URL) map[string]string {
+	ret := map[string]string{}
+	for key, ary := range u.Query() {
+		if len(ary) == 0 {
+			ret[key] = ""
+		} else {
+			ret[key] = ary[0]
+		}
+	}
+	return ret
 }
 
 func isDockerArchive(src io.Reader) (bool, *bytes.Buffer, error) {
@@ -333,10 +366,11 @@ func createTarFile(dockerfile io.Reader) (io.Reader, error) {
 	return bytes.NewReader(tarBuf.Bytes()), nil
 }
 
-func buildImage(ctx context.Context, cli *client.Client, host, namespace, imageName, tag string, tarFileReader io.Reader) error {
+func buildImage(ctx context.Context, cli *client.Client, host, namespace, imageName, tag string, buildArgs map[string]*string, tarFileReader io.Reader) error {
 	targetTag := fmt.Sprintf("%s/%s/%s:%s", host, namespace, imageName, tag)
 	buildOptions := types.ImageBuildOptions{
-		Tags: []string{targetTag},
+		Tags:      []string{targetTag},
+		BuildArgs: buildArgs,
 	}
 
 	out, err := cli.ImageBuild(ctx, tarFileReader, buildOptions)
@@ -345,8 +379,8 @@ func buildImage(ctx context.Context, cli *client.Client, host, namespace, imageN
 	}
 
 	defer out.Body.Close()
-	io.Copy(ioutil.Discard, out.Body)
-	// io.Copy(os.Stdout, out.Body)
+	// io.Copy(ioutil.Discard, out.Body)
+	io.Copy(os.Stdout, out.Body)
 	return nil
 }
 
@@ -362,8 +396,8 @@ func pushImage(ctx context.Context, cli *client.Client, host, namespace, imageNa
 	}
 
 	defer pushResult.Close()
-	io.Copy(ioutil.Discard, pushResult)
-	// io.Copy(os.Stdout, pushResult)
+	// io.Copy(ioutil.Discard, pushResult)
+	io.Copy(os.Stdout, pushResult)
 	return nil
 }
 
@@ -404,7 +438,9 @@ func createLoadBalancer(serviceClient v1.ServiceInterface, serviceName, buildId 
 		if time.Since(start).Seconds() > 180 {
 			e = fmt.Errorf("NoadBalancer creation timeout")
 			// If the error is not nil, the deletion will most likely to be ignored ouside the function.
-			deleteLoadBalancer(serviceClient, serviceName)
+			if err := deleteLoadBalancer(serviceClient, serviceName); err != nil {
+				log.Errorf("Failed to delete load balancer: %s", err.Error())
+			}
 			break
 		}
 	}
