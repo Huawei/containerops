@@ -20,12 +20,12 @@ stages:
     actions:
       -
         name: component-python-build-nuitka-action1
-        title: [Nuitka](https://github.com/kayhayen/Nuitka) is the Python compiler.
+        title: _[Nuitka](https://github.com/kayhayen/Nuitka) is the Python compiler.
         jobs:
           -
             type: component
             kubectl: component-python-build-nuitka.yaml
-            endpoint: hub.opshub.sh/component-python-build-nuitka:latest
+            endpoint: hub.opshub.sh/containerops/component-python-build-nuitka:latest
             resources:
               cpu: 4
               memory: 8G
@@ -34,12 +34,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/nuitka"
       -
         name: component-python-build-nuitka-action2
-        title: [Nuitka](https://github.com/kayhayen/Nuitka) is the Python compiler.
+        title: _[Nuitka](https://github.com/kayhayen/Nuitka) is the Python compiler.
         jobs:
           -
             type: component
             kubectl: component-python-build-nuitka.yaml
-            endpoint: hub.opshub.sh/component-python-build-nuitka:latest
+            endpoint: hub.opshub.sh/containerops/component-python-build-nuitka:latest
             resources:
               cpu: 4
               memory: 8G

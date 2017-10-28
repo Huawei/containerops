@@ -20,12 +20,12 @@ stages:
     actions:
       -
         name: component-python-test-mamba-action1
-        title: [mamba](https://github.com/nestorsalceda/mamba) is the definitive test runner for Python. Born under the banner of behavior-driven development.
+        title: _[mamba](https://github.com/nestorsalceda/mamba) is the definitive test runner for Python. Born under the banner of behavior-driven development.
         jobs:
           -
             type: component
             kubectl: component-python-test-mamba.yaml
-            endpoint: hub.opshub.sh/component-python-test-mamba:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-mamba:latest
             resources:
               cpu: 4
               memory: 8G
@@ -34,12 +34,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/juanAFernandez/testing-with-python.git entry-file=examples/mamba_example.py"
       -
         name: component-python-test-mamba-action2
-        title: [mamba](https://github.com/nestorsalceda/mamba) is the definitive test runner for Python. Born under the banner of behavior-driven development.
+        title: _[mamba](https://github.com/nestorsalceda/mamba) is the definitive test runner for Python. Born under the banner of behavior-driven development.
         jobs:
           -
             type: component
             kubectl: component-python-test-mamba.yaml
-            endpoint: hub.opshub.sh/component-python-test-mamba:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-mamba:latest
             resources:
               cpu: 4
               memory: 8G
@@ -48,12 +48,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/juanAFernandez/testing-with-python.git entry-file=examples/mamba_example.py out-put-type=yaml"
       -
         name: component-python-test-mamba-action3
-        title: [mamba](https://github.com/nestorsalceda/mamba) is the definitive test runner for Python. Born under the banner of behavior-driven development.
+        title: _[mamba](https://github.com/nestorsalceda/mamba) is the definitive test runner for Python. Born under the banner of behavior-driven development.
         jobs:
           -
             type: component
             kubectl: component-python-test-mamba.yaml
-            endpoint: hub.opshub.sh/component-python-test-mamba:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-mamba:latest
             resources:
               cpu: 4
               memory: 8G
@@ -62,12 +62,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/juanAFernandez/testing-with-python.git entry-file=examples/mamba_example.py out-put-type=yaml version=python"
       -
         name: component-python-test-mamba-action4
-        title: [mamba](https://github.com/nestorsalceda/mamba) is the definitive test runner for Python. Born under the banner of behavior-driven development.
+        title: _[mamba](https://github.com/nestorsalceda/mamba) is the definitive test runner for Python. Born under the banner of behavior-driven development.
         jobs:
           -
             type: component
             kubectl: component-python-test-mamba.yaml
-            endpoint: hub.opshub.sh/component-python-test-mamba:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-mamba:latest
             resources:
               cpu: 4
               memory: 8G

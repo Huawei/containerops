@@ -20,12 +20,12 @@ stages:
     actions:
       -
         name: component-python-test-green-action1
-        title: [Green](https://github.com/CleanCut/green) is a clean, colorful, fast python test runner.
+        title: _[Green](https://github.com/CleanCut/green) is a clean, colorful, fast python test runner.
         jobs:
           -
             type: component
             kubectl: component-python-test-green.yaml
-            endpoint: hub.opshub.sh/component-python-test-green:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-green:latest
             resources:
               cpu: 4
               memory: 8G
@@ -34,12 +34,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=."
       -
         name: component-python-test-green-action2
-        title: [Green](https://github.com/CleanCut/green) is a clean, colorful, fast python test runner.
+        title: _[Green](https://github.com/CleanCut/green) is a clean, colorful, fast python test runner.
         jobs:
           -
             type: component
             kubectl: component-python-test-green.yaml
-            endpoint: hub.opshub.sh/component-python-test-green:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-green:latest
             resources:
               cpu: 4
               memory: 8G
@@ -48,12 +48,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. out-put-type=yaml"
       -
         name: component-python-test-green-action3
-        title: [Green](https://github.com/CleanCut/green) is a clean, colorful, fast python test runner.
+        title: _[Green](https://github.com/CleanCut/green) is a clean, colorful, fast python test runner.
         jobs:
           -
             type: component
             kubectl: component-python-test-green.yaml
-            endpoint: hub.opshub.sh/component-python-test-green:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-green:latest
             resources:
               cpu: 4
               memory: 8G
@@ -62,12 +62,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. out-put-type=yaml version=python"
       -
         name: component-python-test-green-action4
-        title: [Green](https://github.com/CleanCut/green) is a clean, colorful, fast python test runner.
+        title: _[Green](https://github.com/CleanCut/green) is a clean, colorful, fast python test runner.
         jobs:
           -
             type: component
             kubectl: component-python-test-green.yaml
-            endpoint: hub.opshub.sh/component-python-test-green:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-green:latest
             resources:
               cpu: 4
               memory: 8G

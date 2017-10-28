@@ -20,12 +20,12 @@ stages:
     actions:
       -
         name: component-python-analysis-line-profiler-action1
-        title: [line_profiler](https://github.com/rkern/line_profiler) is a module for doing line-by-line profiling of functions.
+        title: _[line_profiler](https://github.com/rkern/line_profiler) is a module for doing line-by-line profiling of functions.
         jobs:
           -
             type: component
             kubectl: component-python-analysis-line-profiler.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-line-profiler:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-line-profiler:latest
             resources:
               cpu: 4
               memory: 8G
@@ -34,12 +34,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/istrategylabs/python-profiling entry-file=debug.py"
       -
         name: component-python-analysis-line-profiler-action2
-        title: [line_profiler](https://github.com/rkern/line_profiler) is a module for doing line-by-line profiling of functions.
+        title: _[line_profiler](https://github.com/rkern/line_profiler) is a module for doing line-by-line profiling of functions.
         jobs:
           -
             type: component
             kubectl: component-python-analysis-line-profiler.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-line-profiler:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-line-profiler:latest
             resources:
               cpu: 4
               memory: 8G
@@ -48,12 +48,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/istrategylabs/python-profiling entry-file=debug.py out-put-type=yaml"
       -
         name: component-python-analysis-line-profiler-action3
-        title: [line_profiler](https://github.com/rkern/line_profiler) is a module for doing line-by-line profiling of functions.
+        title: _[line_profiler](https://github.com/rkern/line_profiler) is a module for doing line-by-line profiling of functions.
         jobs:
           -
             type: component
             kubectl: component-python-analysis-line-profiler.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-line-profiler:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-line-profiler:latest
             resources:
               cpu: 4
               memory: 8G
@@ -62,12 +62,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/istrategylabs/python-profiling entry-file=debug.py version=python"
       -
         name: component-python-analysis-line-profiler-action4
-        title: [line_profiler](https://github.com/rkern/line_profiler) is a module for doing line-by-line profiling of functions.
+        title: _[line_profiler](https://github.com/rkern/line_profiler) is a module for doing line-by-line profiling of functions.
         jobs:
           -
             type: component
             kubectl: component-python-analysis-line-profiler.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-line-profiler:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-line-profiler:latest
             resources:
               cpu: 4
               memory: 8G

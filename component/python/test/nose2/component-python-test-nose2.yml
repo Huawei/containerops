@@ -20,12 +20,12 @@ stages:
     actions:
       -
         name: component-python-test-nose2-action1
-        title: [nose2](https://github.com/nose-devs/nose2) is the next generation of nicer testing for Python, based on the plugins branch of unittest2.
+        title: _[nose2](https://github.com/nose-devs/nose2) is the next generation of nicer testing for Python, based on the plugins branch of unittest2.
         jobs:
           -
             type: component
             kubectl: component-python-test-nose2.yaml
-            endpoint: hub.opshub.sh/component-python-test-nose2:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose2:latest
             resources:
               cpu: 4
               memory: 8G
@@ -34,12 +34,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=."
       -
         name: component-python-test-nose2-action2
-        title: [nose2](https://github.com/nose-devs/nose2) is the next generation of nicer testing for Python, based on the plugins branch of unittest2.
+        title: _[nose2](https://github.com/nose-devs/nose2) is the next generation of nicer testing for Python, based on the plugins branch of unittest2.
         jobs:
           -
             type: component
             kubectl: component-python-test-nose2.yaml
-            endpoint: hub.opshub.sh/component-python-test-nose2:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose2:latest
             resources:
               cpu: 4
               memory: 8G
@@ -48,12 +48,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. out-put-type=yaml"
       -
         name: component-python-test-nose2-action3
-        title: [nose2](https://github.com/nose-devs/nose2) is the next generation of nicer testing for Python, based on the plugins branch of unittest2.
+        title: _[nose2](https://github.com/nose-devs/nose2) is the next generation of nicer testing for Python, based on the plugins branch of unittest2.
         jobs:
           -
             type: component
             kubectl: component-python-test-nose2.yaml
-            endpoint: hub.opshub.sh/component-python-test-nose2:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose2:latest
             resources:
               cpu: 4
               memory: 8G
@@ -62,12 +62,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. out-put-type=yaml version=python"
       -
         name: component-python-test-nose2-action4
-        title: [nose2](https://github.com/nose-devs/nose2) is the next generation of nicer testing for Python, based on the plugins branch of unittest2.
+        title: _[nose2](https://github.com/nose-devs/nose2) is the next generation of nicer testing for Python, based on the plugins branch of unittest2.
         jobs:
           -
             type: component
             kubectl: component-python-test-nose2.yaml
-            endpoint: hub.opshub.sh/component-python-test-nose2:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose2:latest
             resources:
               cpu: 4
               memory: 8G

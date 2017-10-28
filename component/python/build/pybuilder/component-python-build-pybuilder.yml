@@ -20,12 +20,12 @@ stages:
     actions:
       -
         name: component-python-build-pybuilder-action1
-        title: [PyBuilder](https://github.com/pybuilder/pybuilder) is a software build tool written in 100% pure Python, mainly targeting Python applications.
+        title: _[PyBuilder](https://github.com/pybuilder/pybuilder) is a software build tool written in 100% pure Python, mainly targeting Python applications.
         jobs:
           -
             type: component
             kubectl: component-python-build-pybuilder.yaml
-            endpoint: hub.opshub.sh/component-python-build-pybuilder:latest
+            endpoint: hub.opshub.sh/containerops/component-python-build-pybuilder:latest
             resources:
               cpu: 4
               memory: 8G
@@ -34,12 +34,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/blanzp/amazon_examples.git entry-path=. task=run_unit_tests"
       -
         name: component-python-build-pybuilder-action2
-        title: [PyBuilder](https://github.com/pybuilder/pybuilder) is a software build tool written in 100% pure Python, mainly targeting Python applications.
+        title: _[PyBuilder](https://github.com/pybuilder/pybuilder) is a software build tool written in 100% pure Python, mainly targeting Python applications.
         jobs:
           -
             type: component
             kubectl: component-python-build-pybuilder.yaml
-            endpoint: hub.opshub.sh/component-python-build-pybuilder:latest
+            endpoint: hub.opshub.sh/containerops/component-python-build-pybuilder:latest
             resources:
               cpu: 4
               memory: 8G
@@ -48,12 +48,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/blanzp/amazon_examples.git entry-path=. task=run_unit_tests version=python"
       -
         name: component-python-build-pybuilder-action3
-        title: [PyBuilder](https://github.com/pybuilder/pybuilder) is a software build tool written in 100% pure Python, mainly targeting Python applications.
+        title: _[PyBuilder](https://github.com/pybuilder/pybuilder) is a software build tool written in 100% pure Python, mainly targeting Python applications.
         jobs:
           -
             type: component
             kubectl: component-python-build-pybuilder.yaml
-            endpoint: hub.opshub.sh/component-python-build-pybuilder:latest
+            endpoint: hub.opshub.sh/containerops/component-python-build-pybuilder:latest
             resources:
               cpu: 4
               memory: 8G
@@ -62,12 +62,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/blanzp/amazon_examples.git entry-path=. task=run_unit_tests out-put-type=yaml"
       -
         name: component-python-build-pybuilder-action4
-        title: [PyBuilder](https://github.com/pybuilder/pybuilder) is a software build tool written in 100% pure Python, mainly targeting Python applications.
+        title: _[PyBuilder](https://github.com/pybuilder/pybuilder) is a software build tool written in 100% pure Python, mainly targeting Python applications.
         jobs:
           -
             type: component
             kubectl: component-python-build-pybuilder.yaml
-            endpoint: hub.opshub.sh/component-python-build-pybuilder:latest
+            endpoint: hub.opshub.sh/containerops/component-python-build-pybuilder:latest
             resources:
               cpu: 4
               memory: 8G

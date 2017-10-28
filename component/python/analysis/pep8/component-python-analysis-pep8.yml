@@ -20,12 +20,12 @@ stages:
     actions:
       -
         name: component-python-analysis-pep8-action1
-        title: [pep8](https://github.com/PyCQA/pycodestyle) is a tool to check your Python code against some of the style conventions in PEP 8.
+        title: _[pep8](https://github.com/PyCQA/pycodestyle) is a tool to check your Python code against some of the style conventions in PEP 8.
         jobs:
           -
             type: component
             kubectl: component-python-analysis-pep8.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-pep8:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pep8:latest
             resources:
               cpu: 4
               memory: 8G
@@ -34,12 +34,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
       -
         name: component-python-analysis-pep8-action2
-        title: [pep8](https://github.com/PyCQA/pycodestyle) is a tool to check your Python code against some of the style conventions in PEP 8.
+        title: _[pep8](https://github.com/PyCQA/pycodestyle) is a tool to check your Python code against some of the style conventions in PEP 8.
         jobs:
           -
             type: component
             kubectl: component-python-analysis-pep8.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-pep8:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pep8:latest
             resources:
               cpu: 4
               memory: 8G
@@ -48,12 +48,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml"
       -
         name: component-python-analysis-pep8-action3
-        title: [pep8](https://github.com/PyCQA/pycodestyle) is a tool to check your Python code against some of the style conventions in PEP 8.
+        title: _[pep8](https://github.com/PyCQA/pycodestyle) is a tool to check your Python code against some of the style conventions in PEP 8.
         jobs:
           -
             type: component
             kubectl: component-python-analysis-pep8.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-pep8:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pep8:latest
             resources:
               cpu: 4
               memory: 8G
@@ -62,12 +62,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml version=python"
       -
         name: component-python-analysis-pep8-action4
-        title: [pep8](https://github.com/PyCQA/pycodestyle) is a tool to check your Python code against some of the style conventions in PEP 8.
+        title: _[pep8](https://github.com/PyCQA/pycodestyle) is a tool to check your Python code against some of the style conventions in PEP 8.
         jobs:
           -
             type: component
             kubectl: component-python-analysis-pep8.yaml
-            endpoint: hub.opshub.sh/component-python-analysis-pep8:latest
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pep8:latest
             resources:
               cpu: 4
               memory: 8G

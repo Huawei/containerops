@@ -20,12 +20,12 @@ stages:
     actions:
       -
         name: component-python-test-tox-action1
-        title: [Tox](https://github.com/tox-dev/tox) is a generic virtualenv management and test
+        title: _[Tox](https://github.com/tox-dev/tox) is a generic virtualenv management and test
         jobs:
           -
             type: component
             kubectl: component-python-test-tox.yaml
-            endpoint: hub.opshub.sh/component-python-test-tox:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-tox:latest
             resources:
               cpu: 4
               memory: 8G
@@ -34,12 +34,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/CleanCut/green.git entry-path=."
       -
         name: component-python-test-tox-action2
-        title: [Tox](https://github.com/tox-dev/tox) is a generic virtualenv management and test
+        title: _[Tox](https://github.com/tox-dev/tox) is a generic virtualenv management and test
         jobs:
           -
             type: component
             kubectl: component-python-test-tox.yaml
-            endpoint: hub.opshub.sh/component-python-test-tox:latest
+            endpoint: hub.opshub.sh/containerops/component-python-test-tox:latest
             resources:
               cpu: 4
               memory: 8G

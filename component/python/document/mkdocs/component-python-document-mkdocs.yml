@@ -20,12 +20,12 @@ stages:
     actions:
       -
         name: component-python-document-mkdocs-action1
-        title: [Mkdocs](https://github.com/mkdocs/mkdocs/) is Project documentation with Markdown.
+        title: _[Mkdocs](https://github.com/mkdocs/mkdocs/) is Project documentation with Markdown.
         jobs:
           -
             type: component
             kubectl: component-python-document-mkdocs.yaml
-            endpoint: hub.opshub.sh/component-python-document-mkdocs:latest
+            endpoint: hub.opshub.sh/containerops/component-python-document-mkdocs:latest
             resources:
               cpu: 4
               memory: 8G
@@ -34,12 +34,12 @@ stages:
               - CO_DATA: "git-url=https://github.com/mkdocs/mkdocs.git entry-path=."
       -
         name: component-python-document-mkdocs-action2
-        title: [Mkdocs](https://github.com/mkdocs/mkdocs/) is Project documentation with Markdown.
+        title: _[Mkdocs](https://github.com/mkdocs/mkdocs/) is Project documentation with Markdown.
         jobs:
           -
             type: component
             kubectl: component-python-document-mkdocs.yaml
-            endpoint: hub.opshub.sh/component-python-document-mkdocs:latest
+            endpoint: hub.opshub.sh/containerops/component-python-document-mkdocs:latest
             resources:
               cpu: 4
               memory: 8G
