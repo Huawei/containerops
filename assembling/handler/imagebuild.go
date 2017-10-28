@@ -57,7 +57,7 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	authstr := queries["authstr"]
 	isRegistryInsecure := queries["insecure_registry"] == "true"
 	dockerCmdArgs := []string{}
-	if isRegistryInsecure {
+	if isRegistryInsecure && registry != "" { // When registry is empty, push to official hub, which is always considered secure.
 		dockerCmdArgs = append(dockerCmdArgs, fmt.Sprintf("--insecure-registry=%s", registry))
 	}
 
@@ -106,7 +106,7 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	defer deletePod(podClient, podName)
 
 	log.Infof("Create load balancer for build %s", buildId)
-	loadBalancer, err := createLoadBalancer(serviceClient, serviceName, buildId)
+	loadBalancer, err := createService(serviceClient, serviceName, buildId, corev1.ServiceTypeNodePort)
 	if err != nil {
 		log.Errorf("Failed to create load balancer: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
@@ -128,8 +128,14 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	dockerDaemonHost := fmt.Sprintf("%s:%d", serviceIP, servicePort)
 	ctx, dockerClient := initDockerCli(dockerDaemonHost)
 
+	var imageUrl string
+	if registry == "" { // Docker official hub, host is not needed
+		imageUrl = fmt.Sprintf("%s/%s:%s", namespace, image, tag)
+	} else {
+		imageUrl = fmt.Sprintf("%s/%s/%s:%s", registry, namespace, image, tag)
+	}
 	log.Infof("Build image, id: %s", buildId)
-	if err := buildImage(ctx, dockerClient, registry, namespace, image, tag, buildArgs, tarfile); err != nil {
+	if err := buildImage(ctx, dockerClient, imageUrl, buildArgs, tarfile); err != nil {
 		log.Errorf("Failed to build image: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
@@ -142,7 +148,8 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	}
 
 	log.Infof("Push image, id: %s", buildId)
-	if err := pushImage(ctx, dockerClient, registry, namespace, image, tag, authStr); err != nil {
+
+	if err := pushImage(ctx, dockerClient, imageUrl, authStr); err != nil {
 		log.Errorf("Failed to push image: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
@@ -372,10 +379,9 @@ func createTarFile(dockerfile io.Reader) (io.Reader, error) {
 	return bytes.NewReader(tarBuf.Bytes()), nil
 }
 
-func buildImage(ctx context.Context, cli *client.Client, host, namespace, imageName, tag string, buildArgs map[string]*string, tarFileReader io.Reader) error {
-	targetTag := fmt.Sprintf("%s/%s/%s:%s", host, namespace, imageName, tag)
+func buildImage(ctx context.Context, cli *client.Client, imageUrl string, buildArgs map[string]*string, tarFileReader io.Reader) error {
 	buildOptions := types.ImageBuildOptions{
-		Tags:      []string{targetTag},
+		Tags:      []string{imageUrl},
 		BuildArgs: buildArgs,
 	}
 
@@ -390,13 +396,13 @@ func buildImage(ctx context.Context, cli *client.Client, host, namespace, imageN
 	return nil
 }
 
-func pushImage(ctx context.Context, cli *client.Client, host, namespace, imageName, tag, authStr string) error {
+func pushImage(ctx context.Context, cli *client.Client, imageUrl, authStr string) error {
+	fmt.Printf("push image %s, auth str: %s\n", imageUrl, authStr)
 	imagePushOptions := types.ImagePushOptions{
 		RegistryAuth: authStr,
 	}
-	targetTag := fmt.Sprintf("%s/%s/%s:%s", host, namespace, imageName, tag)
 
-	pushResult, err := cli.ImagePush(ctx, targetTag, imagePushOptions)
+	pushResult, err := cli.ImagePush(ctx, imageUrl, imagePushOptions)
 	if err != nil {
 		return err
 	}
@@ -407,7 +413,7 @@ func pushImage(ctx context.Context, cli *client.Client, host, namespace, imageNa
 	return nil
 }
 
-func createLoadBalancer(serviceClient v1.ServiceInterface, serviceName, buildId string) (*corev1.Service, error) {
+func createService(serviceClient v1.ServiceInterface, serviceName, buildId string, serviceType corev1.ServiceType) (*corev1.Service, error) {
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: serviceName,
