@@ -18,12 +18,12 @@ stages:
   -
     type: normal
     name: build-component
-    title:  Component auto test action
+    title: Component auto test action
     sequencing: sequence
     actions:
       -
-        name: build-component
-        title: build-component-action
+        name: flow-component
+        title: flow-component-action
         jobs:
           -
             type: component
