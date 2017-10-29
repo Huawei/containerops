@@ -98,21 +98,22 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	serviceName := fmt.Sprintf("containerops-build-svc-%s", buildId)
 
 	log.Infof("Create pod %s for build %s", podName, buildId)
-	_, err = createPod(podClient, podName, buildId, dockerCmdArgs)
+	var pod *corev1.Pod
+	pod, err = createPod(podClient, podName, buildId, dockerCmdArgs)
 	if err != nil {
 		log.Errorf("Failed to create pod: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
+	bs, _ := json.MarshalIndent(pod, "", "  ")
+	fmt.Println(string(bs))
 	defer deletePod(podClient, podName)
 
 	log.Infof("Create load balancer for build %s", buildId)
-	loadBalancer, err := createService(serviceClient, serviceName, buildId, corev1.ServiceTypeNodePort)
+	service, err := createService(serviceClient, serviceName, buildId, corev1.ServiceType(common.Assembling.ServiceType))
 	if err != nil {
 		log.Errorf("Failed to create load balancer: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
-
-	servicePort := 2375
 
 	defer func() {
 		if err := deleteLoadBalancer(serviceClient, serviceName); err != nil {
@@ -120,12 +121,15 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 		}
 	}()
 
-	if len(loadBalancer.Status.LoadBalancer.Ingress) == 0 {
-		log.Errorf("Load balancer: no ingress created")
-		return http.StatusInternalServerError, []byte("{}")
-	}
-	serviceIP := loadBalancer.Status.LoadBalancer.Ingress[0].IP
-	dockerDaemonHost := fmt.Sprintf("%s:%d", serviceIP, servicePort)
+	// if len(loadBalancer.Status.LoadBalancer.Ingress) == 0 {
+	//     log.Errorf("Load balancer: no ingress created")
+	//     return http.StatusInternalServerError, []byte("{}")
+	// }
+	// serviceIP := loadBalancer.Status.LoadBalancer.Ingress[0].IP
+
+	serviceIP := pod.Status.HostIP
+	dockerDaemonHost := fmt.Sprintf("%s:%d", serviceIP, service.Spec.Ports[0].NodePort)
+	fmt.Println("dockerDaemonHost: ", dockerDaemonHost)
 	ctx, dockerClient := initDockerCli(dockerDaemonHost)
 
 	var imageUrl string
@@ -328,6 +332,9 @@ func createPod(podClient v1.PodInterface, podName, buildId string, args []string
 }
 
 func deletePod(podClient v1.PodInterface, podName string) error {
+	if true {
+		return nil
+	}
 	deletePolicy := metav1.DeletePropagationForeground
 	if err := podClient.Delete(podName, &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
@@ -419,7 +426,7 @@ func createService(serviceClient v1.ServiceInterface, serviceName, buildId strin
 			Name: serviceName,
 		},
 		Spec: corev1.ServiceSpec{
-			Type: corev1.ServiceTypeLoadBalancer,
+			Type: serviceType,
 			Ports: []corev1.ServicePort{
 				corev1.ServicePort{
 					Port: 2375,
@@ -431,19 +438,32 @@ func createService(serviceClient v1.ServiceInterface, serviceName, buildId strin
 		},
 	}
 
-	// Create LoadBalancer
+	// Create service
 	_, err := serviceClient.Create(svc)
 	if err != nil {
 		return nil, err
 	}
+	// TODO Find the way to get the time point when service is REALLY created
+	time.Sleep(time.Second * 5)
 
-	var loadBalancer *corev1.Service
+	// Load Balancer
+	var service *corev1.Service
 	var e error
 	start := time.Now()
 
 	for {
-		loadBalancer, e = serviceClient.Get(serviceName, metav1.GetOptions{})
-		if e != nil || len(loadBalancer.Status.LoadBalancer.Ingress) != 0 {
+		service, e = serviceClient.Get(serviceName, metav1.GetOptions{})
+		isCreated := false
+		switch serviceType {
+		case corev1.ServiceTypeNodePort:
+			isCreated = len(service.Spec.ClusterIP) != 0
+			break
+		case corev1.ServiceTypeLoadBalancer:
+			isCreated = len(service.Status.LoadBalancer.Ingress) != 0
+			break
+		}
+
+		if e != nil || isCreated {
 			break
 		}
 		time.Sleep(time.Second * 3)
@@ -457,10 +477,13 @@ func createService(serviceClient v1.ServiceInterface, serviceName, buildId strin
 		}
 	}
 
-	return loadBalancer, e
+	return service, e
 }
 
 func deleteLoadBalancer(serviceClient v1.ServiceInterface, serviceName string) error {
+	if true {
+		return nil
+	}
 	deletePolicy := metav1.DeletePropagationForeground
 	if err := serviceClient.Delete(serviceName, &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
