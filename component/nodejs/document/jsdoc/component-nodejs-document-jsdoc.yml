@@ -1,0 +1,52 @@
+uri: containerops/component/nodejs-component-jsdoc-test
+title: Component for nodejs projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: document-nodejs-component
+    title:  document jsdoc
+    sequencing: sequence
+    actions:
+      -
+        name: component-nodejs-document-jsdoc-action1
+        title: action of component-nodejs-document-jsdoc with yaml output and true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-document-jsdoc.yaml
+            endpoint: hub.opshub.sh/containerops/document-nodejs-jsdoc:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/gitgrimbo/jsdoc3-examples.git file=js/Book.js config=conf.json"
+      -
+        name: component-nodejs-document-jsdoc-action1
+        title: action of component-nodejs-document-jsdoc with yaml output and true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-document-jsdoc.yaml
+            endpoint: hub.opshub.sh/containerops/document-nodejs-jsdoc:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/yangkghjh/try_react.git config=conf.json"
+  -
+    type: end
+    name: end
+    title: End

@@ -1,0 +1,52 @@
+uri: containerops/component/nodejs-component-eslint-test
+title: Component for nodejs projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: analysis-nodejs-component
+    title:  The pluggable linting utility for JavaScript and JSX
+    sequencing: sequence
+    actions:
+      -
+        name: component-nodejs-analysis-eslint-action1
+        title: action of component-nodejs-analysis-eslint with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-analysis-eslint.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-nodejs-eslint:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/spyl94/react-brunch-demo.git path=src format=json"
+      -
+        name: component-nodejs-analysis-eslint-action2
+        title: action of component-nodejs-analysis-eslint with false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-analysis-eslint.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-nodejs-eslint:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/yangkghjh/containerops-nodejs.git"
+  -
+    type: end
+    name: end
+    title: End

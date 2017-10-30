@@ -1,0 +1,52 @@
+uri: containerops/component/nodejs-component-mocha-test
+title: Component for nodejs projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: test-nodejs-component
+    title:  test mocha
+    sequencing: sequence
+    actions:
+      -
+        name: component-nodejs-test-mocha-action1
+        title: action of component-nodejs-test-mocha with yaml output and true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-test-mocha.yaml
+            endpoint: hub.opshub.sh/containerops/test-nodejs-mocha:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/expressjs/express.git require=test/support/env reporter=spec bail=true check-leaks=test/ path=test/acceptance/"
+      -
+        name: component-nodejs-test-mocha-action2
+        title: action of component-nodejs-test-mocha with yaml output and false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-test-mocha.yaml
+            endpoint: hub.opshub.sh/containerops/test-nodejs-mocha:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/yangkghjh/containerops-nodejs.git require=test/support/env reporter=spec bail=true check-leaks=test/ path=test/acceptance/"
+  -
+    type: end
+    name: end
+    title: End

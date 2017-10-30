@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+ name: component-nodejs-dependence-bower
+spec:
+ containers:
+ - name: bower
+   image: hub.opshub.sh/containerops/dependence-nodejs-bower:latest
+   env:
+   - name: CO_DATA
+     value: "git_url=https://github.com/WildDogTeam/demo-js-wildchat.git"
+   resources:
+     requests:
+       cpu: 2
+       memory: 4G
+ restartPolicy: Never

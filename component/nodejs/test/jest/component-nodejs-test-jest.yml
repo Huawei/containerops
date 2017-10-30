@@ -1,0 +1,52 @@
+uri: containerops/component/nodejs-component-jest-test
+title: Component for nodejs projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: test-nodejs-component
+    title: test jest
+    sequencing: sequence
+    actions:
+      -
+        name: component-nodejs-test-jest-action1
+        title: action of component-nodejs-test-jest with yaml output and true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-test-jest.yaml
+            endpoint: hub.opshub.sh/containerops/test-nodejs-jest:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/ant-design/ant-design.git config=.jest.js"
+      -
+        name: component-nodejs-test-jest-action2
+        title: action of component-nodejs-test-jest with yaml output and false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-test-jest.yaml
+            endpoint: hub.opshub.sh/containerops/test-nodejs-jest:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/yangkghjh/containerops-nodejs.git config=.jest.js"
+  -
+    type: end
+    name: end
+    title: End

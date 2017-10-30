@@ -1,0 +1,52 @@
+uri: containerops/component/nodejs-component-babel-test
+title: Component for nodejs projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: build-nodejs-component
+    title:  Build babel
+    sequencing: sequence
+    actions:
+      -
+        name: component-nodejs-build-babel-action1
+        title: action of component-nodejs-build-babel with yaml output and true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-build-babel.yaml
+            endpoint: hub.opshub.sh/containerops/build-nodejs-babel:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/ronen-e/babel-demo.git file=src/app.js o=dist/app.js"
+      -
+        name: component-nodejs-build-babel-action2
+        title: action of component-nodejs-build-babel with yaml output and false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-build-babel.yaml
+            endpoint: hub.opshub.sh/containerops/build-nodejs-babel:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/yangkghjh/containerops-nodejs.git file=src/app.js o=dist/app.js"
+  -
+    type: end
+    name: end
+    title: End

@@ -1,0 +1,52 @@
+uri: containerops/component/nodejs-component-jshint-test
+title: Component for nodejs projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: analysis-nodejs-component
+    title:  Analysis jshint
+    sequencing: sequence
+    actions:
+      -
+        name: component-nodejs-analysis-jshint-action1
+        title: action of component-nodejs-analysis-jshint with yaml output and true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-analysis-jshint.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-nodejs-jshint:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/jshint/jshint.git path=src"
+      -
+        name: component-nodejs-analysis-jshint-action2
+        title: action of component-nodejs-analysis-jshint with yaml output and false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-analysis-jshint.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-nodejs-jshint:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/yangkghjh/containerops-nodejs.git"
+  -
+    type: end
+    name: end
+    title: End
