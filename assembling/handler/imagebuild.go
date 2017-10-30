@@ -332,9 +332,6 @@ func createPod(podClient v1.PodInterface, podName, buildId string, args []string
 }
 
 func deletePod(podClient v1.PodInterface, podName string) error {
-	if true {
-		return nil
-	}
 	deletePolicy := metav1.DeletePropagationForeground
 	if err := podClient.Delete(podName, &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
@@ -481,9 +478,6 @@ func createService(serviceClient v1.ServiceInterface, serviceName, buildId strin
 }
 
 func deleteLoadBalancer(serviceClient v1.ServiceInterface, serviceName string) error {
-	if true {
-		return nil
-	}
 	deletePolicy := metav1.DeletePropagationForeground
 	if err := serviceClient.Delete(serviceName, &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
