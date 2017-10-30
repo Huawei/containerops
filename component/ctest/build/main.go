@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -21,10 +20,10 @@ func main() {
 
 	var image string
 	flag.StringVar(&image, "image", "test_image", "image name")
-	
+
 	var path string //to do with out tar
 	flag.StringVar(&path, "path", "./", "dir path")
-	
+
 	flag.Parse()
 
 	fmt.Println("image:", image)
@@ -42,10 +41,10 @@ func main() {
 	buf.Write([]byte("&namespace="))
 	buf.Write([]byte(namespace))
 	fmt.Println(buf.String())
-	
+
 	//module.CreateYMLwihtURL(image,path,"hub.opshub.sh/containerops/component-python-coala-workflow111:latest")
-	
-	UploadBinaryFile(image,path, buf.String())
+
+	UploadBinaryFile(image, path, buf.String())
 
 	//Print result
 	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "true")
@@ -53,9 +52,9 @@ func main() {
 }
 
 // Upload binary file to the service.
-func UploadBinaryFile(name,filePath, url string) error {
+func UploadBinaryFile(name, filePath, url string) error {
 
-	if f, err := os.Open(filePath+".tar"); err != nil {
+	if f, err := os.Open(filePath + ".tar"); err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA error: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 		return err
@@ -63,8 +62,8 @@ func UploadBinaryFile(name,filePath, url string) error {
 		defer f.Close()
 		if req, err := http.NewRequest(http.MethodPost,
 			url, f); err != nil {
-				fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA error: %s\n", err.Error())
-				fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
+			fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA error: %s\n", err.Error())
+			fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = %s\n", "false")
 			return err
 		} else {
 			req.Header.Set("Content-Type", "text/plain")
@@ -95,15 +94,15 @@ func UploadBinaryFile(name,filePath, url string) error {
 						// module.Buildyml(jsonobj.Endpoint)
 						//hub.opshub.sh/containerops/component-python-coala-workflow111:latest
 						//module.CreateYMLwihtURL(name,filePath,"hub.opshub.sh/containerops/component-python-coala-workflow111:latest")
-						
-						module.CreateYMLwihtURL(name,filePath,jsonobj.Endpoint)
+
+						module.CreateYMLwihtURL(name, filePath, jsonobj.Endpoint)
 						return nil
 					}
 				case http.StatusBadRequest:
 					{
-					
+
 						return fmt.Errorf("Binary upload failed.")
-						
+
 					}
 				case http.StatusUnauthorized:
 					return fmt.Errorf("Action unauthorized.")
