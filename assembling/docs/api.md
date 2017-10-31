@@ -22,7 +22,7 @@ POST  /assembling/build
 |image|string|Query| The image name|
 |tag|string|Query| The tag of the image|
 |buildargs|json string|Query| Arguments that will be sent to docker daemon when build, equivalent to the `--build-arg `option of `docker build`|
-|insecure_registry|bool|Query| Is the specified registry insecure, default to false |
+|insecure_registry|array of string|Query| Specify insecure registries when starting the docker daemon in dind image, user can specify multiple insecure registries|
 |autstr|string|Query| A base64 encoded auth string, more details could be found [here](https://docs.docker.com/engine/api/v1.30/#section/Authentication) |
 |Dockerfile & archive file|binary|Body| The body, see below |
 
@@ -33,7 +33,7 @@ POST  /assembling/build
 - **Example**
 
 ```http
-POST /assembling/build?registry=hub.opshub.sh&namespace=containerops&image=ubuntu&tag=14.04&buildargs={"RELEASE":"1.0.1", "DEV_TAG":"FOXHOUND"}&insecure_registry=true&authstr=0bdaf9cf38....
+POST /assembling/build?registry=hub.opshub.sh&namespace=containerops&image=ubuntu&tag=14.04&buildargs={"RELEASE":"1.0.1", "DEV_TAG":"FOXHOUND"}&insecure_registry=hub1.myhost&insecure_registry=hub2.myhost&authstr=0bdaf9cf38....
 
 Body(Binary file)
 

@@ -55,10 +55,10 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	tag := queries["tag"]
 	buildArgsJSON := queries["buildargs"]
 	authstr := queries["authstr"]
-	isRegistryInsecure := queries["insecure_registry"] == "true"
+	insecureRegistries := mctx.Req.Request.URL.Query()["insecure_registry"]
 	dockerCmdArgs := []string{}
-	if isRegistryInsecure && registry != "" { // When registry is empty, push to official hub, which is always considered secure.
-		dockerCmdArgs = append(dockerCmdArgs, fmt.Sprintf("--insecure-registry=%s", registry))
+	for _, r := range insecureRegistries { // When registry is empty, push to official hub, which is always considered secure.
+		dockerCmdArgs = append(dockerCmdArgs, fmt.Sprintf("--insecure-registry=%s", r))
 	}
 
 	var buildArgs map[string]*string
@@ -104,8 +104,8 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 		log.Errorf("Failed to create pod: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
-	bs, _ := json.MarshalIndent(pod, "", "  ")
-	fmt.Println(string(bs))
+	// bs, _ := json.MarshalIndent(pod, "", "  ")
+	// fmt.Println(string(bs))
 	defer deletePod(podClient, podName)
 
 	log.Infof("Create load balancer for build %s", buildId)
