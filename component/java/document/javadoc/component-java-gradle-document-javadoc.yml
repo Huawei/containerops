@@ -6,7 +6,7 @@ timeout: 0
 receivers:
   -
     type: mail
-    address: lidian@containerops.sh
+    address: hubopsnotifier@gmail.com
 stages:
   -
     type: start
@@ -27,7 +27,7 @@ stages:
             kubectl: component-java-gradle-document-javadoc.yaml
             endpoint: hub.opshub.sh/containerops/document-java-gradle-javadoc:latest
             resources:
-              cpu: 4
+              cpu: 2
               memory: 8G
             timeout: 0
             environments:
@@ -41,7 +41,7 @@ stages:
             kubectl: component-java-gradle-document-javadoc.yaml
             endpoint: hub.opshub.sh/containerops/document-java-gradle-javadoc:latest
             resources:
-              cpu: 4
+              cpu: 2
               memory: 8G
             timeout: 0
             environments:

@@ -6,7 +6,7 @@ timeout: 0
 receivers:
   -
     type: mail
-    address: lidian@containerops.sh
+    address: hubopsnotifier@gmail.com
 stages:
   -
     type: start
@@ -27,8 +27,8 @@ stages:
             kubectl: component-java-gradle-compile-jar.yaml
             endpoint: hub.opshub.sh/containerops/compile-java-gradle-jar:latest
             resources:
-              cpu: 4
-              memory: 8G
+              cpu: 2
+              memory: 4G
             timeout: 0
             environments:
               - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git"
@@ -41,8 +41,8 @@ stages:
             kubectl: component-java-gradle-compile-jar.yaml
             endpoint: hub.opshub.sh/containerops/compile-java-gradle-jar:latest
             resources:
-              cpu: 4
-              memory: 8G
+              cpu: 2
+              memory: 4G
             timeout: 0
             environments:
               - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git target=https://hub.opshub.sh/binary/v1/containerops/component/binary/2.2.4/demo.jar"

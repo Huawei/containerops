@@ -11,6 +11,6 @@ spec:
      value: "version=gradle3 git-url=https://github.com/rominirani/GradleWebAppSample.git target=https://hub.opshub.sh/binary/v1/lidian/test/binary/2.2.4/web.war"
    resources:
      requests:
-       cpu: 4
-       memory: 8G
+       cpu: 2
+       memory: 4G
  restartPolicy: Never

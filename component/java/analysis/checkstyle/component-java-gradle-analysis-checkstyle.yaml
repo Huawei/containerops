@@ -12,5 +12,5 @@ spec:
    resources:
      requests:
        cpu: 4
-       memory: 8G
+       memory: 4G
  restartPolicy: Never
