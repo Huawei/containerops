@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+ name: component-nodejs-build-browserify
+spec:
+ containers:
+ - name: browserify
+   image: hub.opshub.sh/containerops/build-nodejs-browserify:latest
+   env:
+   - name: CO_DATA
+     value: "git_url=https://github.com/mattdesl/browserify-example.git output=bundle.js file=index.js"
+   resources:
+     requests:
+       cpu: 2
+       memory: 4G
+ restartPolicy: Never

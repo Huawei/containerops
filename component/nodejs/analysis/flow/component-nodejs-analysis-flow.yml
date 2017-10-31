@@ -1,0 +1,52 @@
+uri: containerops/component/nodejs-component-flow-test
+title: Component for nodejs projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: analysis-nodejs-component
+    title:  The asynchronous nature of javascript is what makes it so powerful.
+    sequencing: sequence
+    actions:
+      -
+        name: component-nodejs-analysis-flow-action1
+        title: action of component-nodejs-analysis-flow wiht yaml output and true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-analysis-flow.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-nodejs-flow:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/facebook/flow.git"
+      -
+        name: component-nodejs-analysis-flow-action2
+        title: action of component-nodejs-analysis-flow wiht yaml output and false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-analysis-flow.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-nodejs-flow:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/yangkghjh/containerops-nodejs.git"
+  -
+    type: end
+    name: end
+    title: End

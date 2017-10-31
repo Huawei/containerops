@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+ name: component-nodejs-analysis-jscs
+spec:
+ containers:
+ - name: jscs
+   image: hub.opshub.sh/containerops/analysis-nodejs-jscs:latest
+   env:
+   - name: CO_DATA
+     value: "git_url=https://github.com/spyl94/react-brunch-demo.git path=brunch-config.js preset=airbnb"
+   resources:
+     requests:
+       cpu: 2
+       memory: 4G
+ restartPolicy: Never

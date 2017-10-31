@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+ name: component-nodejs-test-mocha
+spec:
+ containers:
+ - name: mocha
+   image: hub.opshub.sh/containerops/test-nodejs-mocha:latest
+   env:
+   - name: CO_DATA
+     value: "git_url=https://github.com/expressjs/express.git require=test/support/env reporter=spec bail=true check-leaks=test/ path=test/acceptance/"
+   resources:
+     requests:
+       cpu: 2
+       memory: 4G
+ restartPolicy: Never

@@ -1,0 +1,52 @@
+uri: containerops/component/nodejs-component-docco-test
+title: Component for nodejs projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: document-nodejs-component
+    title:  document docco
+    sequencing: sequence
+    actions:
+      -
+        name: component-nodejs-document-docco-action1
+        title: action of component-nodejs-document-docco with yaml output and true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-document-docco.yaml
+            endpoint: hub.opshub.sh/containerops/document-nodejs-docco:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/jonpliske/coffeescript_examples.git file=*.coffee"
+      -
+        name: component-nodejs-document-docco-action2
+        title: action of component-nodejs-document-docco with yaml output and false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-document-docco.yaml
+            endpoint: hub.opshub.sh/containerops/document-nodejs-docco:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "https://github.com/yangkghjh/containerops-nodejs.git file=*.coffee"
+  -
+    type: end
+    name: end
+    title: End

@@ -1,0 +1,52 @@
+uri: containerops/component/nodejs-component-webpack-test
+title: Component for nodejs projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: build-nodejs-component
+    title:  build webpack
+    sequencing: sequence
+    actions:
+      -
+        name: component-nodejs-build-webpack-action1
+        title: action of component-nodejs-build-webpack with yaml output and true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-build-webpack.yaml
+            endpoint: hub.opshub.sh/containerops/build-nodejs-webpack:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/yangkghjh/try_react.git config=webpack.production.config.js"
+      -
+        name: component-nodejs-build-webpack-action2
+        title: action of component-nodejs-build-webpack with yaml output and false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-build-webpack.yaml
+            endpoint: hub.opshub.sh/containerops/build-nodejs-webpack:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/yangkghjh/containerops-nodejs.git config=webpack.production.config.js"
+  -
+    type: end
+    name: end
+    title: End

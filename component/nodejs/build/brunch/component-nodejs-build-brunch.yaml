@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+ name: component-nodejs-build-brunch
+spec:
+ containers:
+ - name: brunch
+   image: hub.opshub.sh/containerops/build-nodejs-brunch:latest
+   env:
+   - name: CO_DATA
+     value: "git_url=https://github.com/brunch/with-es6.git action=build"
+   resources:
+     requests:
+       cpu: 2
+       memory: 4G
+ restartPolicy: Never

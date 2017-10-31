@@ -1,0 +1,52 @@
+uri: containerops/component/nodejs-component-coffee-test
+title: Component for nodejs projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: build-nodejs-component
+    title:  build coffee
+    sequencing: sequence
+    actions:
+      -
+        name: component-nodejs-build-coffee-action1
+        title: action of component-nodejs-build-coffee with yaml output and true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-build-coffee.yaml
+            endpoint: hub.opshub.sh/containerops/build-nodejs-coffee:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/jonpliske/coffeescript_examples.git files=001_function_example.coffee output=bundle.js"
+      -
+        name: component-nodejs-build-coffee-action2
+        title: action of component-nodejs-build-coffee with yaml output and false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-nodejs-build-coffee.yaml
+            endpoint: hub.opshub.sh/containerops/build-nodejs-coffee:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/yangkghjh/containerops-nodejs.git files=bin/test.js output=bundle.js"
+  -
+    type: end
+    name: end
+    title: End
