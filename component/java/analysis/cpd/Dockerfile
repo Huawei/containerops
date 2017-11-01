@@ -18,7 +18,7 @@ ENV PATH /opt/gradle/gradle-4.0/bin:/opt/gradle/gradle-3.5/bin:$PATH
 WORKDIR /root/convert
 COPY ./Convert.java Convert.java
 COPY ./build.gradle build.gradle
-RUN $gradle3/gradle build && \
+RUN $gradle3/gradle jar && \
     cp build/libs/convert.jar /root/convert.jar && \
     rm -rf /root/convert
 

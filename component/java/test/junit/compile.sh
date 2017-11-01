@@ -96,7 +96,7 @@ fi
 
 cat /root/junit.conf >> build.gradle
 
-STOUT2 $gradle_version test
+$gradle_version test
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then

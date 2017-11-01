@@ -29,6 +29,7 @@ declare -A map=(
     ["git-url"]="" 
     ["target"]=""
     ["version"]=""
+    ["build-path"]=""
 )
 data=$(echo $CO_DATA |awk '{print}')
 for i in ${data[@]}
@@ -84,15 +85,18 @@ then
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
-
-STOUT2 $gradle_version war
+if [ "" = "${map["build-path"]}" ]
+then
+    map["build-path"]="./"
+fi
+cd ${map["build-path"]}
+$gradle_version war
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] gradle war fail\n"
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
-
 warpath=$(find `pwd` -name "*.war")
 if [ "$warpath" = "" ]
 then

@@ -29,6 +29,7 @@ declare -A map=(
     ["git-url"]="" 
     ["target"]=""
     ["version"]=""
+    ["build-path"]=""
 )
 data=$(echo $CO_DATA |awk '{print}')
 for i in ${data[@]}
@@ -84,8 +85,8 @@ then
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
-
-STOUT2 $gradle_version ear
+printf "\n[COUT] "
+$gradle_version ear
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] gradle ear fail\n"
@@ -93,6 +94,11 @@ then
     exit
 fi
 
+if [ "" = "${map["build-path"]}" ]
+then
+    map["build-path"]=""
+fi
+cd ${map["build-path"]}/build
 earpath=$(find `pwd` -name "*.ear")
 if [ "$earpath" = "" ]
 then

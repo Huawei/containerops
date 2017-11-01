@@ -95,8 +95,7 @@ fi
 
 cat /root/testng.conf >> build.gradle
 
-STOUT2 $gradle_version test
-
+$gradle_version test
 if [ "${map["out-put-type"]}" = "xml" ]
 then
     for file in ${map["report-path"]}/*

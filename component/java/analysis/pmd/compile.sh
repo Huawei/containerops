@@ -99,9 +99,9 @@ if [ "$havepmd" = "" ]
 then
     cat /root/pmd.conf >> build.gradle
 fi
-
-STOUT2 $gradle_version pmdMain
-STOUT2 $gradle_version pmdTest
+printf "\n[COUT] "
+$gradle_version pmdMain
+$gradle_version pmdTest
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then
