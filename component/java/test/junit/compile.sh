@@ -103,7 +103,7 @@ if [ "${map["out-put-type"]}" = "xml" ]
 then
     for file in `ls ./build/test-results/test`
     do
-        if test -f $file
+        if test -f ./build/test-results/test/$file
         then
             cat ./build/test-results/test/$file
         fi
@@ -111,7 +111,7 @@ then
 else
     for file in `ls ./build/test-results/test`
     do
-        if test -f $file
+        if test -f ./build/test-results/test/$file
         then
             java -jar /root/convert.jar ./build/test-results/test/$file ${map["out-put-type"]}
         fi
