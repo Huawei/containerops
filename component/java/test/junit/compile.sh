@@ -98,9 +98,10 @@ cat /root/junit.conf >> build.gradle
 
 $gradle_version test
 
+cd ${map["report-path"]}/build/test-results/test
 if [ "${map["out-put-type"]}" = "xml" ]
 then
-    for file in ${map["report-path"]}/build/test-results/test
+    for file in `ls`
     do
         if test -f $file
         then
@@ -108,7 +109,7 @@ then
         fi
     done
 else
-    for file in ${map["report-path"]}/build/test-results/test
+    for file in `ls`
     do
         if test -f $file
         then
