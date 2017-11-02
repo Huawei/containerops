@@ -93,15 +93,13 @@ then
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi 
-
+cd ${map["report-path"]}
 cat /root/junit.conf >> build.gradle
-
 $gradle_version test
 
-cd ${map["report-path"]}/build/test-results/test
 if [ "${map["out-put-type"]}" = "xml" ]
 then
-    for file in `ls`
+    for file in `ls build/test-results/test`
     do
         if test -f $file
         then
@@ -109,7 +107,7 @@ then
         fi
     done
 else
-    for file in `ls`
+    for file in `ls build/test-results/test`
     do
         if test -f $file
         then
