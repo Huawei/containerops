@@ -28,7 +28,7 @@ stages:
             endpoint: hub.opshub.sh/containerops/document-java-gradle-javadoc:latest
             resources:
               cpu: 2
-              memory: 8G
+             memory: 4G
             timeout: 0
             environments:
               - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git"
@@ -42,7 +42,7 @@ stages:
             endpoint: hub.opshub.sh/containerops/document-java-gradle-javadoc:latest
             resources:
               cpu: 2
-              memory: 8G
+             memory: 4G
             timeout: 0
             environments:
               - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git target=https://hub.opshub.sh/binary/v1/lidian/test/binary/1.1.0/javadoc.tar"

@@ -28,7 +28,7 @@ stages:
             endpoint: hub.opshub.sh/containerops/compile-java-gradle-war:latest
             resources:
               cpu: 2
-              memory: 8G
+              memory: 4G
             timeout: 0
             environments:
               - CO_DATA: "version=gradle3 git-url=https://github.com/rominirani/GradleWebAppSample.git"
@@ -42,7 +42,7 @@ stages:
             endpoint: hub.opshub.sh/containerops/compile-java-gradle-war:latest
             resources:
               cpu: 2
-              memory: 8G
+              memory: 4G
             timeout: 0
             environments:
               - CO_DATA: "version=gradle3 git-url=https://github.com/rominirani/GradleWebAppSample.git target=https://hub.opshub.sh/binary/v1/lidian/test/binary/2.2.4/web.war"

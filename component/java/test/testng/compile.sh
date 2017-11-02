@@ -75,7 +75,7 @@ fi
 
 if [ "" = "${map["report-path"]}" ]
 then
-    map["report-path"]="build/test-results/test"
+    map["report-path"]="./"
 fi
 
 STOUT git clone ${map["git-url"]}
@@ -98,7 +98,7 @@ cat /root/testng.conf >> build.gradle
 $gradle_version test
 if [ "${map["out-put-type"]}" = "xml" ]
 then
-    for file in ${map["report-path"]}/*
+    for file in ${map["report-path"]}/build/test-results/test
     do
         if test -f $file
         then
@@ -106,7 +106,7 @@ then
         fi
     done
 else
-    for file in ${map["report-path"]}/*
+    for file in ${map["report-path"]}/build/test-results/test
     do
         if test -f $file
         then

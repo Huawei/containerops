@@ -75,7 +75,7 @@ fi
 
 if [ "" = "${map["report-path"]}" ]
 then
-    map["report-path"]="build/reports/cpd/cpdCheck.xml"
+    map["report-path"]="./"
 fi
 
 STOUT git clone ${map["git-url"]}
@@ -105,9 +105,9 @@ fi
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then
-    cat ${map["report-path"]}
+    cat ${map["report-path"]}/build/reports/cpd/cpdCheck.xml
 else
-    java -jar /root/convert.jar ${map["report-path"]} ${map["out-put-type"]}
+    java -jar /root/convert.jar ${map["report-path"]}/build/reports/cpd/cpdCheck.xml ${map["out-put-type"]}
 fi
 
 printf "\n[COUT] CO_RESULT = %s\n" "true"
