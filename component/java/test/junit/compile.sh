@@ -97,8 +97,6 @@ cd ${map["report-path"]}
 cat /root/junit.conf >> build.gradle
 $gradle_version test
 
-ls ./build/test-results/test
-
 if [ "${map["out-put-type"]}" = "xml" ]
 then
     for file in `ls ./build/test-results/test`
