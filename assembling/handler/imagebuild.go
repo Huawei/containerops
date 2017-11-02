@@ -330,7 +330,7 @@ func initDockerCli(registryHost string) (context.Context, *client.Client) {
 	buildClientHeaders := map[string]string{"Content-Type": "application/tar"}
 
 	targetUrl := fmt.Sprintf("http://%s", registryHost)
-	cli, err := client.NewClient(targetUrl, "v1.27", httpClient, buildClientHeaders)
+	cli, err := client.NewClient(targetUrl, "v1.23", httpClient, buildClientHeaders)
 	if err != nil {
 		panic(err)
 	}
