@@ -29,6 +29,7 @@ declare -A map=(
     ["git-url"]=""
     ["target"]=""
     ["version"]=""
+    ["build-path"]=""
 )
 data=$(echo $CO_DATA |awk '{print}')
 for i in ${data[@]}
@@ -85,9 +86,14 @@ then
     exit
 fi
 
+if [ "" = "${map["build-path"]}" ]
+then
+    map["build-path"]="./"
+fi
+cd ${map["build-path"]}
 cat /root/javadoc.conf >> build.gradle
 
-STOUT $gradle_version javadoc
+$gradle_version javadoc
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] CO_RESULT = %s\n" "false"
