@@ -79,18 +79,24 @@ then
 fi
 pdir=`echo ${map["git-url"]} | awk -F '/' '{print $NF}' | awk -F '.' '{print $1}'`
 cd ./$pdir
+
+if [ "" = "${map["build-path"]}" ]
+then
+    map["build-path"]="./"
+fi
+cd ${map["build-path"]}
+
 if [ ! -f "build.gradle" ]
 then
     printf "[COUT] file build.gradle not found! \n"
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
-
-if [ "" = "${map["build-path"]}" ]
+havejar=`echo gradle -q tasks --all | grep jar`
+if [ "$havejar" = "" ]
 then
-    map["build-path"]=""
+    echo -e "\nallprojects { apply plugin: 'jar' }" >> build.gradle
 fi
-cd ${map["build-path"]}
 
 $gradle_version jar
 if [ "$?" -ne "0" ]
