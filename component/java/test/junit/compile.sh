@@ -105,7 +105,7 @@ then
     do
         if test -f $file
         then
-            cat $file
+            cat ./build/test-results/test/$file
         fi
     done
 else
@@ -113,7 +113,7 @@ else
     do
         if test -f $file
         then
-            java -jar /root/convert.jar $file ${map["out-put-type"]}
+            java -jar /root/convert.jar ./build/test-results/test/$file ${map["out-put-type"]}
         fi
     done
 fi
