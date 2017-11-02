@@ -95,6 +95,7 @@ fi
 cd ${map["report-path"]}
 cat /root/testng.conf >> build.gradle
 $gradle_version test
+ls ./build/test-results/test
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then
