@@ -46,11 +46,21 @@ then
     exit 1
 fi
 
-printf "[COUT] Finish git clone, Begin to compress file\n"
+printf "[COUT] Finish git clone, Begin to maven install \n"
 
 pdir=`echo ${map["git-url"]} | awk -F '/' '{print $NF}' | awk -F '.' '{print $1}'`
-cd ./$pdir
 
+cd ./$pdir
+mvn install
+if [ "$?" -ne "0" ]
+then
+    printf "[COUT] Maven install Fail \n"
+    printf "[COUT] CO_RESULT = %s\n" "false"
+    exit 1
+fi
+find ./ -name "*.jar"|awk -F: '{print "cp "$1" ./"}'|sh
+
+printf "[COUT] Finish git clone, Begin to compress file\n"
 tar -cf $pdir.tar *
 if [ "$?" -ne "0" ]
 then
