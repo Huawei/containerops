@@ -94,7 +94,7 @@ then
     exit
 fi 
 cd ${map["report-path"]}
-cat /root/junit.conf >> build.gradle
+cat /root/testng.conf >> build.gradle
 $gradle_version test
 
 if [ "${map["out-put-type"]}" = "xml" ]
