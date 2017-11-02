@@ -95,7 +95,7 @@ fi
 havejar=`echo gradle -q tasks --all | grep jar`
 if [ "$havejar" = "" ]
 then
-    echo -e "\nallprojects { apply plugin: 'jar' }" >> build.gradle
+    echo -e "\nallprojects { apply plugin: 'java' }" >> build.gradle
 fi
 
 $gradle_version jar
