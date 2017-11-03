@@ -79,12 +79,25 @@ then
 fi
 pdir=`echo ${map["git-url"]} | awk -F '/' '{print $NF}' | awk -F '.' '{print $1}'`
 cd ./$pdir
+if [ "" = "${map["build-path"]}" ]
+then
+    map["build-path"]="./"
+fi
+cd ${map["build-path"]}
+
 if [ ! -f "build.gradle" ]
 then
     printf "[COUT] file build.gradle not found! \n"
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
+
+haveear=`echo gradle -q tasks --all | grep ear`
+if [ "$haveear" = "" ]
+then
+    echo -e "\nallprojects { apply plugin: 'ear' }" >> build.gradle
+fi
+
 printf "\n[COUT] "
 $gradle_version ear
 if [ "$?" -ne "0" ]
@@ -93,12 +106,6 @@ then
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
-
-if [ "" = "${map["build-path"]}" ]
-then
-    map["build-path"]=""
-fi
-cd ${map["build-path"]}/build
 earpath=$(find `pwd` -name "*.ear")
 if [ "$earpath" = "" ]
 then

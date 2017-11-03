@@ -75,7 +75,7 @@ fi
 
 if [ "" = "${map["report-path"]}" ]
 then
-    map["report-path"]="build/reports/checkstyle"
+    map["report-path"]="./"
 fi
 mkdir /work
 cd /work
@@ -121,11 +121,11 @@ fi
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then
-    cat ${map["report-path"]}/main.xml
-    cat ${map["report-path"]}/test.xml
+    cat ${map["report-path"]}/build/reports/checkstyle/main.xml
+    cat ${map["report-path"]}/build/reports/checkstyle/test.xml
 else
-    java -jar /root/convert.jar ${map["report-path"]}/main.xml ${map["out-put-type"]}
-    java -jar /root/convert.jar ${map["report-path"]}/test.xml ${map["out-put-type"]}
+    java -jar /root/convert.jar ${map["report-path"]}/build/reports/checkstyle/main.xml ${map["out-put-type"]}
+    java -jar /root/convert.jar ${map["report-path"]}/build/reports/checkstyle/test.xml ${map["out-put-type"]}
 fi
 
 printf "\n[COUT] CO_RESULT = %s\n" "true"
