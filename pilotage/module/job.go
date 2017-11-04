@@ -3,6 +3,7 @@ package module
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -11,7 +12,6 @@ import (
 
 	. "github.com/logrusorgru/aurora"
 	homeDir "github.com/mitchellh/go-homedir"
-
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -116,6 +116,29 @@ func (j *Job) Run(name string, verbose, timestamp bool, f *Flow, stageIndex, act
 
 			j.Status = Pending
 			time.Sleep(time.Second * 5)
+
+			start := time.Now()
+		ForLoop:
+			for {
+				pod, err := p.Get(randomContainerName, metav1.GetOptions{})
+				if err != nil {
+					j.Log(err.Error(), false, timestamp)
+					return Failure, err
+				}
+				switch pod.Status.Phase {
+				case apiv1.PodPending:
+					j.Log(fmt.Sprintf("Job %s is %s, Detail: %s", j.Name, pod.Status.Phase, pod.Status.ContainerStatuses[0].State.String()), verbose, timestamp)
+				case apiv1.PodRunning, apiv1.PodSucceeded:
+					break ForLoop
+				case apiv1.PodFailed, apiv1.PodUnknown:
+					j.Log(fmt.Sprintf("Job %s is %s, Detail: %s", j.Name, pod.Status.Phase, pod.Status.ContainerStatuses[0].State.String()), verbose, timestamp)
+				}
+				duration := time.Now().Sub(start)
+				if duration.Minutes() > 3 {
+					return Failure, errors.New(fmt.Sprintf("Job %s Pending more than 3 minutes", j.Name))
+				}
+				time.Sleep(time.Second * 5)
+			}
 
 			req := p.GetLogs(randomContainerName, &apiv1.PodLogOptions{
 				Follow:     true,
