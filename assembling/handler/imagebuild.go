@@ -104,32 +104,27 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 		log.Errorf("Failed to create pod: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
-	// bs, _ := json.MarshalIndent(pod, "", "  ")
-	// fmt.Println(string(bs))
 	defer deletePod(podClient, podName)
 
-	log.Infof("Create load balancer for build %s", buildId)
+	log.Infof("Create service for build %s", buildId)
 	service, err := createService(serviceClient, serviceName, buildId, corev1.ServiceType(common.Assembling.ServiceType))
 	if err != nil {
-		log.Errorf("Failed to create load balancer: %s", err.Error())
+		log.Errorf("Failed to create service: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
 
 	defer func() {
-		if err := deleteLoadBalancer(serviceClient, serviceName); err != nil {
-			log.Errorf("Failed to delete load balancer: %s", err.Error())
+		if err := deleteService(serviceClient, serviceName); err != nil {
+			log.Errorf("Failed to delete service: %s", err.Error())
 		}
 	}()
 
-	// if len(loadBalancer.Status.LoadBalancer.Ingress) == 0 {
-	//     log.Errorf("Load balancer: no ingress created")
-	//     return http.StatusInternalServerError, []byte("{}")
-	// }
-	// serviceIP := loadBalancer.Status.LoadBalancer.Ingress[0].IP
+	dockerDaemonHost := getDockerDaemonHost(pod, service)
+	if dockerDaemonHost == "" {
+		log.Errorf("Empty docker daemon host from build %s", buildId)
+		return http.StatusInternalServerError, []byte("{}")
+	}
 
-	serviceIP := pod.Status.HostIP
-	dockerDaemonHost := fmt.Sprintf("%s:%d", serviceIP, service.Spec.Ports[0].NodePort)
-	fmt.Println("dockerDaemonHost: ", dockerDaemonHost)
 	ctx, dockerClient := initDockerCli(dockerDaemonHost)
 
 	var imageUrl string
@@ -144,8 +139,6 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 		return http.StatusInternalServerError, []byte("{}")
 	}
 
-	// TODO Support pushing to registries that need authorization
-	// authStr, _ := generateAuthStr("", "")
 	authStr := authstr
 	if authStr == "" {
 		authStr, _ = generateAuthStr("", "")
@@ -262,7 +255,6 @@ func generateAuthStr(username, password string) (string, error) {
 	}
 	authStr := base64.URLEncoding.EncodeToString(encodedJSON)
 	return authStr, nil
-
 }
 
 func initK8SResourceInterfaces(kubeconfig string) (v1.PodInterface, v1.ServiceInterface, error) {
@@ -443,7 +435,6 @@ func createService(serviceClient v1.ServiceInterface, serviceName, buildId strin
 	// TODO Find the way to get the time point when service is REALLY created
 	time.Sleep(time.Second * 5)
 
-	// Load Balancer
 	var service *corev1.Service
 	var e error
 	start := time.Now()
@@ -467,8 +458,8 @@ func createService(serviceClient v1.ServiceInterface, serviceName, buildId strin
 		if time.Since(start).Seconds() > 180 {
 			e = fmt.Errorf("NoadBalancer creation timeout")
 			// If the error is not nil, the deletion will most likely to be ignored ouside the function.
-			if err := deleteLoadBalancer(serviceClient, serviceName); err != nil {
-				log.Errorf("Failed to delete load balancer: %s", err.Error())
+			if err := deleteService(serviceClient, serviceName); err != nil {
+				log.Errorf("Failed to delete service: %s", err.Error())
 			}
 			break
 		}
@@ -477,7 +468,26 @@ func createService(serviceClient v1.ServiceInterface, serviceName, buildId strin
 	return service, e
 }
 
-func deleteLoadBalancer(serviceClient v1.ServiceInterface, serviceName string) error {
+func getDockerDaemonHost(pod *corev1.Pod, service *corev1.Service) string {
+	dockerDaemonHost := ""
+
+	switch service.Spec.Type {
+	case corev1.ServiceTypeNodePort:
+		nodeIP := pod.Status.HostIP
+		dockerDaemonHost = fmt.Sprintf("%s:%d", nodeIP, service.Spec.Ports[0].NodePort)
+		break
+	case corev1.ServiceTypeLoadBalancer:
+		if len(service.Status.LoadBalancer.Ingress) == 0 {
+			log.Errorf("Load balancer: no ingress created")
+		} else {
+			dockerDaemonHost = fmt.Sprintf("%s:2375", service.Status.LoadBalancer.Ingress[0].IP)
+		}
+		break
+	}
+	return dockerDaemonHost
+}
+
+func deleteService(serviceClient v1.ServiceInterface, serviceName string) error {
 	deletePolicy := metav1.DeletePropagationForeground
 	if err := serviceClient.Delete(serviceName, &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
