@@ -10,17 +10,17 @@ type Image struct {
 }
 
 func Json2obj(jsonstring string) (obj Image) {
-	
+
 	Obj := Image{}
-	
+
 	json.Unmarshal([]byte(jsonstring), &Obj)
-		return  Obj
+	return Obj
 }
 
 func Obj2Json(obj Image) (jsonstring string) {
 	s, err := json.Marshal(obj)
 	if err != nil {
 		fmt.Println("error:", err)
-	}	
+	}
 	return string(s)
 }

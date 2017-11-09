@@ -1,0 +1,108 @@
+uri: cncf/demo-for-cncf-ci/build-test-release-deploy
+title: Demo For Cloud Native Computing Foundation CI Working Group
+version: 4
+tag: latest
+timeout: 0
+#receivers:
+#  -
+#    type: mail
+#    address: wangqilin@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: servicecomb-bmi-checkstyle
+    title: Building, testing bmi project.
+    sequencing: sequence
+    actions:
+     -
+       name: checkstyle-bmi
+       title: Checktyle of bmi
+       jobs:
+         -
+           type: component
+           endpoint: 10.229.40.121:8082/system/analysis-java-gradle-checkstyle:latest
+           resources:
+             cpu: 2
+             memory: 4G
+           timeout: 0
+           environments:
+             - CO_DATA: "version=gradle4 git-url=https://github.com/MabinGo/bmi.git out-put-type=json report-path=./webapp/build/reports/checkstyle"
+     -
+       name: build-bmi
+       title: Build bmi image by assembling
+       jobs:
+         -
+           type: component
+           endpoint: 10.229.40.121:8082/system/call-assembling-manven:v0.5
+           resources:
+             cpu: 1
+             memory: 1G
+           timeout: 0
+           environments:
+             - CO_DATA: "git-url=https://github.com/MabinGo/bmi.git assembling-url=https://10.229.40.121:8083 registry-url=10.229.40.121:8082 namespace=servicecomb image=bmi tag=latest insecure-registry=10.229.40.121:8082"
+      -
+        name: deploy-bmi
+        title: Deploy bmi
+        jobs:
+          -
+            name: bmi-calculator
+            type: component
+            endpoint: 10.229.40.121:8082/system/create-deployment:latest
+            resources:
+              cpu: 1
+              memory: 1G
+            environments:
+              - CO_DATA: "api-server-url=http://10.229.49.97:8080 base64-yaml-content=YXBpVmVyc2lvbjogZXh0ZW5zaW9ucy92MWJldGExCmtpbmQ6IERlcGxveW1lbnQKbWV0YWRhdGE6CiAgbmFtZTogYm1pLWNhbGN1bGF0b3IKc3BlYzoKICByZXBsaWNhczogMQogIHRlbXBsYXRlOgogICAgbWV0YWRhdGE6CiAgICAgIGxhYmVsczoKICAgICAgICBuYW1lOiBibWktY2FsY3VsYXRvcgogICAgc3BlYzoKICAgICAgY29udGFpbmVyczoKICAgICAgLSBlbnY6CiAgICAgICAgLSBuYW1lOiBKQVZBX09QVFMKICAgICAgICAgIHZhbHVlOiAtRGNzZS5zZXJ2aWNlLnJlZ2lzdHJ5LmFkZHJlc3M9aHR0cDovLzEwLjIyOS40NS4xNTI6MzAxMDAKICAgICAgICAtIG5hbWU6IEpBUl9OQU1FCiAgICAgICAgICB2YWx1ZTogY2FsY3VsYXRvci0wLjQuMC1TTkFQU0hPVAogICAgICAgIGltYWdlOiAxMC4yMjkuNDAuMTIxOjgwODIvc2VydmljZWNvbWIvYm1pOmxhdGVzdAogICAgICAgIG5hbWU6IGJtaS1jYWxjdWxhdG9y"
+          -
+            name: bmi-webapp-service
+            type: component
+            endpoint: 10.229.40.121:8082/system/create-service:latest
+            resources:
+              cpu: 1
+              memory: 1G
+            environments:
+              - CO_DATA: "api-server-url=http://10.229.49.97:8080 base64-yaml-content=YXBpVmVyc2lvbjogdjEKa2luZDogU2VydmljZQptZXRhZGF0YToKICBuYW1lOiBibWktd2ViYXBwCnNwZWM6CiAgcG9ydHM6CiAgLSBuYW1lOiAiODg4OCIKICAgIHBvcnQ6IDg4ODgKICAgIHRhcmdldFBvcnQ6IDg4ODgKICAgIG5vZGVQb3J0OiA4OTk5CiAgICBwcm90b2NvbDogVENQCiAgdHlwZTogTm9kZVBvcnQKICBzZWxlY3RvcjoKICAgIG5hbWU6IGJtaS13ZWJhcHA="
+          -
+            name: bmi-webapp
+            type: component
+            endpoint: 10.229.40.121:8082/system/create-deployment:latest
+            resources:
+              cpu: 1
+              memory: 1G
+            environments:
+              - CO_DATA: "api-server-url=http://10.229.49.97:8080 base64-yaml-content=YXBpVmVyc2lvbjogZXh0ZW5zaW9ucy92MWJldGExCmtpbmQ6IERlcGxveW1lbnQKbWV0YWRhdGE6CiAgbmFtZTogYm1pLXdlYmFwcApzcGVjOgogIHJlcGxpY2FzOiAxCiAgdGVtcGxhdGU6CiAgICBtZXRhZGF0YToKICAgICAgbGFiZWxzOgogICAgICAgIG5hbWU6IGJtaS13ZWJhcHAKICAgIHNwZWM6CiAgICAgIGNvbnRhaW5lcnM6CiAgICAgIC0gZW52OgogICAgICAgIC0gbmFtZTogSkFWQV9PUFRTCiAgICAgICAgICB2YWx1ZTogLURjc2Uuc2VydmljZS5yZWdpc3RyeS5hZGRyZXNzPWh0dHA6Ly8xMC4yMjkuNDUuMTUyOjMwMTAwCiAgICAgICAgLSBuYW1lOiBKQVJfTkFNRQogICAgICAgICAgdmFsdWU6IHdlYmFwcC0wLjQuMC1TTkFQU0hPVAogICAgICAgIGltYWdlOiAxMC4yMjkuNDAuMTIxOjgwODIvc2VydmljZWNvbWIvYm1pOmxhdGVzdAogICAgICAgIG5hbWU6IGJtaS13ZWJhcHAKICAgICAgICBwb3J0czoKICAgICAgICAtIGNvbnRhaW5lclBvcnQ6IDg4ODg="
+      -
+        name: system-test-bmi
+        title: system test of bmi
+        jobs:
+          -
+            type: component
+            endpoint: 10.229.40.121:8082/servicecomb/bmi:latest
+            resources:
+              cpu: 1
+              memory: 1G
+            environments:
+              - JAVA_OPTS: "-Dwebserver.address=http://10.229.49.97:8999"
+              - JAR_NAME: "system-tests-0.4.0-SNAPSHOT"
+     -
+       name: release-bmi
+       title: release bmi image to huawei cloud
+       jobs:
+         -
+           type: component
+           endpoint: 10.229.40.121:8082/system/call-assembling-manven:v0.5
+           resources:
+             cpu: 1
+             memory: 1G
+           timeout: 0
+           environments:
+             - CO_DATA: "git-url=https://github.com/MabinGo/bmi.git assembling-url=https://10.229.40.121:8083 registry-url=registry.cn-north-1.huaweicloud.com namespace=liuguo image=bmi tag=latest authstr=ewoJInVzZXJuYW1lIjogImNuLW5vcnRoLTFASERFV1lNRFQ5Q1VGRExETDVYVEwiLAoJInBhc3N3b3JkIjogImI5MzQwODM5MzllYjNkMDI4YjI2OWE0ZTU1OGQ4NmFhZjIyNWIxNTQ3NGI0NzY1ZWQ3Mjc4ZWZlN2NhYTA4ZDkiCn0K insecure-registry=10.229.40.121:8082"
+  -
+    type: end
+    name: end
+    title: End
+    
