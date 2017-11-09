@@ -1,0 +1,28 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: bmi-calculator
+  name: bmi-calculator
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: bmi-calculator
+    spec:
+      containers:
+      - env:
+        - name: JAVA_OPTS
+          value: -Dcse.service.registry.address=http://10.229.45.152:30100
+        - name: JAR_NAME
+          value: calculator-0.3.0
+        image: 10.229.40.121:8082/servicecomb/bmi:latest
+        name: bmi-calculator
+        resources:
+          requests:
+            cpu: 200m
+      restartPolicy: Always

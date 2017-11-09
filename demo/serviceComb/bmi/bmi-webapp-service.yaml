@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: bmi-webapp
+  name: bmi-webapp
+spec:
+  ports:
+  - name: "8888"
+    port: 8888
+    targetPort: 8888
+    nodePort: 8999
+    protocol: TCP
+  type: NodePort
+  selector:
+    io.kompose.service: bmi-webapp

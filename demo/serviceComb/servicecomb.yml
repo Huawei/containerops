@@ -1,0 +1,90 @@
+# Copyright 2016 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+uri: cncf/demo-for-cncf-ci/build-test-release-deploy
+title: Demo For Cloud Native Computing Foundation CI Working Group
+version: 4
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: wangqilin@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: servicecomb-bmi-checkstyle
+    title: Building, testing bmi project.
+    sequencing: sequence
+    actions:
+      -
+        name: checkstyle-bmi
+        title: Checktyle of bmi
+        jobs:
+          -
+            type: component
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-checkstyle:latest
+            resources:
+              cpu: 2
+              memory: 2G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/wangkirin/bmi.git out-put-type=json report-path=./webapp/build/reports/checkstyle"
+      -
+        name: build-bmi
+        title: Build bmi image by assembling
+        jobs:
+          -
+            type: component
+            endpoint: hub.opshub.sh/containerops/call-assembling:v0.83
+            resources:
+              cpu: 2
+              memory: 2G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/wangkirin/bmi.git assembling-url=https://build.opshub.sh registry-url=hub.opshub.sh namespace=servicecomb image=bmitest tag=v0.3"
+      -
+        name: deploy-bmi
+        title: Deploy bmi
+        jobs:
+          -
+            type: component
+            kubectl: bmi/bmi-calculator-deployment.yaml
+            endpoint: hub.opshub.sh/servicecomb/bmitest:v0.3
+            resources:
+              cpu: 1
+              memory: 1G
+          -
+            type: component
+            kubectl: bmi-webapp-deployment.yaml
+            endpoint: hub.opshub.sh/servicecomb/bmitest:v0.3
+            resources:
+              cpu: 1
+              memory: 1G
+          -
+            type: component
+            kubectl: bmi-webapp-service.yaml
+            endpoint: hub.opshub.sh/servicecomb/bmitest:v0.3
+            resources:
+              cpu: 1
+              memory: 1G
+  -
+    type: end
+    name: end
+    title: End
+    
