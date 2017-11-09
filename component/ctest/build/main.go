@@ -74,8 +74,6 @@ func gpath(imgpath string){
 	buf.Write([]byte("&namespace="))
 	buf.Write([]byte(namespace))
 	fmt.Println(buf.String())
-
-	//module.CreateYMLwihtURL(image,path,"hub.opshub.sh/containerops/component-python-coala-workflow111:latest")
 	
 	fmt.Println("imgpath:", imgpath)	
 	UploadBinaryFile(image, imgpath, buf.String())
@@ -125,12 +123,6 @@ func UploadBinaryFile(name, filePath, url string) error {
 						var jsonobj module.Image
 						jsonobj = module.Json2obj(body.String())
 						fmt.Println(jsonobj)
-						// module.Buildyml(jsonobj.Endpoint)
-						//hub.opshub.sh/containerops/component-python-coala-workflow111:latest
-						//module.CreateYMLwihtURL(name,filePath,"hub.opshub.sh/containerops/component-python-coala-workflow111:latest")
-						
-						//TODO move to flow componnent 
-						//module.CreateYMLwihtURL(name, filePath, jsonobj.Endpoint)
 						return nil
 					}
 				case http.StatusBadRequest:
