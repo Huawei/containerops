@@ -1,8 +1,8 @@
 package module
 
 import (
-	"os"
 	"io/ioutil"
+	"os"
 )
 
 func check(e error) {
@@ -19,16 +19,16 @@ func checkFileIsExist(filename string) bool {
 	return exist
 }
 
-func ReadFile(readf string) ([]byte){
-		b,err := ioutil.ReadFile(readf)
-		check(err)
-		
-		return b
-}
-	
-func WriteFile(outputb []byte,outputf string) {
-
-	err := ioutil.WriteFile(outputf,outputb, 0666)  
+func ReadFile(readf string) []byte {
+	b, err := ioutil.ReadFile(readf)
 	check(err)
-	
+
+	return b
+}
+
+func WriteFile(outputb []byte, outputf string) {
+
+	err := ioutil.WriteFile(outputf, outputb, 0666)
+	check(err)
+
 }
