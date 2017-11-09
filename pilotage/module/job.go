@@ -108,7 +108,7 @@ func (j *Job) Run(name string, verbose, timestamp bool, f *Flow, stageIndex, act
 			return Failure, err
 		} else {
 			p := clientSet.CoreV1().Pods(apiv1.NamespaceDefault)
-			podTemplate := j.PodTemplates(randomContainerName)
+			podTemplate := j.PodTemplates(randomContainerName, f)
 			if _, err := p.Create(podTemplate); err != nil {
 				j.Status = Failure
 				return Failure, err
@@ -192,7 +192,7 @@ func (j *Job) FetchOutputs(stageName, actionName, log string) error {
 	return nil
 }
 
-func (j *Job) PodTemplates(randomContainerName string) *apiv1.Pod {
+func (j *Job) PodTemplates(randomContainerName string, f *Flow) *apiv1.Pod {
 	result := &apiv1.Pod{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Pod",
@@ -229,6 +229,19 @@ func (j *Job) PodTemplates(randomContainerName string) *apiv1.Pod {
 			}
 		}
 	}
+	//Add flow enviroments
+	if len(f.Environments) > 0 {
+		for _, environment := range f.Environments {
+			for k, v := range environment {
+				env := apiv1.EnvVar{
+					Name:  k,
+					Value: v,
+				}
+				result.Spec.Containers[0].Env = append(result.Spec.Containers[0].Env, env)
+			}
+		}
+	}
+
 	//Add user defined subscrptions
 	if len(j.Subscriptions) > 0 {
 		for _, subscription := range j.Subscriptions {

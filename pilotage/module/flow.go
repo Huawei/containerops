@@ -38,18 +38,19 @@ const (
 
 // Flow is DevOps orchestration flow struct.
 type Flow struct {
-	ID        int64      `json:"-" yaml:"-"`
-	Model     string     `json:"-" yaml:"-"`
-	URI       string     `json:"uri" yaml:"uri"`
-	Number    int64      `json:",omitempty" yaml:",omitempty"`
-	Title     string     `json:"title" yaml:"title"`
-	Version   int64      `json:"version" yaml:"version"`
-	Tag       string     `json:"tag" yaml:"tag"`
-	Timeout   int64      `json:"timeout" yaml:"timeout"`
-	Status    string     `json:"status,omitempty" yaml:"status,omitempty"`
-	Logs      []string   `json:"logs,omitempty" yaml:"logs,omitempty"`
-	Stages    []Stage    `json:"stages,omitempty" yaml:"stages,omitempty"`
-	Receivers []Receiver `json:"receivers,omitempty" yaml:"receivers,omitempty"`
+	ID           int64               `json:"-" yaml:"-"`
+	Model        string              `json:"-" yaml:"-"`
+	URI          string              `json:"uri" yaml:"uri"`
+	Number       int64               `json:",omitempty" yaml:",omitempty"`
+	Title        string              `json:"title" yaml:"title"`
+	Version      int64               `json:"version" yaml:"version"`
+	Tag          string              `json:"tag" yaml:"tag"`
+	Timeout      int64               `json:"timeout" yaml:"timeout"`
+	Environments []map[string]string `json:"environments" yaml:"environments"`
+	Status       string              `json:"status,omitempty" yaml:"status,omitempty"`
+	Logs         []string            `json:"logs,omitempty" yaml:"logs,omitempty"`
+	Stages       []Stage             `json:"stages,omitempty" yaml:"stages,omitempty"`
+	Receivers    []Receiver          `json:"receivers,omitempty" yaml:"receivers,omitempty"`
 }
 
 // Receiver receives the flow execution result
