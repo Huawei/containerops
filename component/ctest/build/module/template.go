@@ -1,13 +1,12 @@
 package module
 
 import (
-	"os"
-	"text/template"
 	"bytes"
 	"fmt"
 	yaml "gopkg.in/yaml.v2"
+	"os"
+	"text/template"
 )
-
 
 var flowfile = "./output1.yml"
 
@@ -73,37 +72,37 @@ type Resource struct {
 	Memory string `json:"memory" yaml:"memory"`
 }
 
-	var poutput = "./output.yml"
-	var tphead = "./module/head.yml"
-	var tpaction = "./module/action.yml"
-	var tpfoot = "./module/foot.yml"
+var poutput = "./output.yml"
+var tphead = "./module/head.yml"
+var tpaction = "./module/action.yml"
+var tpfoot = "./module/foot.yml"
 
 //discard
 func Buildyml(value string) {
-		bhead := ReadFile(tphead)
-		baction := ReadFile(tpaction)
-		bfoot := ReadFile(tpfoot)
+	bhead := ReadFile(tphead)
+	baction := ReadFile(tpaction)
+	bfoot := ReadFile(tpfoot)
 
-		buf := bytes.NewBuffer(bhead)
-		buf.Write(baction)
-		buf.Write(bfoot)
-		var bugString =	buf.String()
-		tmpl, err := template.New("test").Parse(bugString) 
-		if err != nil {
-			panic(err)
-		}
-		err = tmpl.Execute(os.Stdout, value)
-		if err != nil {
-			panic(err)
-		}
+	buf := bytes.NewBuffer(bhead)
+	buf.Write(baction)
+	buf.Write(bfoot)
+	var bugString = buf.String()
+	tmpl, err := template.New("test").Parse(bugString)
+	if err != nil {
+		panic(err)
+	}
+	err = tmpl.Execute(os.Stdout, value)
+	if err != nil {
+		panic(err)
+	}
 
-		fmt.Println("bugString:", bugString)	
-		WriteFile([]byte(bugString),poutput)
-  
-//TO DO: upload to assebling
+	fmt.Println("bugString:", bugString)
+	WriteFile([]byte(bugString), poutput)
+
+	//TO DO: upload to assebling
 }
 
-func UnmarshlYML(flowfile string)  Flow{
+func UnmarshlYML(flowfile string) Flow {
 	//fmt.Println("Hello World!")
 	yml := ReadFile(flowfile)
 	//fmt.Println("yml %s\n", yml)
@@ -113,32 +112,32 @@ func UnmarshlYML(flowfile string)  Flow{
 	//fmt.Println("object %s\n", flow)
 	//fmt.Println("stages %s", flow.Name) //*
 	fmt.Println("stages %s", flow.Title) //* title: Components For Python
-	fmt.Println("stages %s", flow.Tag) //* tag: latest	
-	
-	// todo diff for  stages , build test and flow 
-	fmt.Println("stages %s", flow.Stages[1].Title) //** 	
-	fmt.Println("stages %s", flow.Stages[1].Name) //**
-	fmt.Println("stages %s", flow.Stages[1].Actions[0].Title) //*
-	fmt.Println("stages %s", flow.Stages[1].Actions[0].Name) //*
-	fmt.Println("stages %s", flow.Stages[1].Actions[0].Jobs[0].Endpoint) //*
+	fmt.Println("stages %s", flow.Tag)   //* tag: latest
+
+	// todo diff for  stages , build test and flow
+	fmt.Println("stages %s", flow.Stages[1].Title)                                         //**
+	fmt.Println("stages %s", flow.Stages[1].Name)                                          //**
+	fmt.Println("stages %s", flow.Stages[1].Actions[0].Title)                              //*
+	fmt.Println("stages %s", flow.Stages[1].Actions[0].Name)                               //*
+	fmt.Println("stages %s", flow.Stages[1].Actions[0].Jobs[0].Endpoint)                   //*
 	fmt.Println("stages %s", flow.Stages[1].Actions[0].Jobs[0].Environments[0]["CO_DATA"]) //*
 	for k, v := range flow.Stages[1].Actions[0].Jobs[0].Environments[0] {
 		fmt.Println(k, v)
 	}
 	//fmt.Println("stages %s", flow.Stages.Type)
 	// todo rebuild yml from ex-ymal file
-	return flow 
+	return flow
 }
 
 func (f *Flow) YAML() ([]byte, error) {
 	return yaml.Marshal(f)
 }
 
-func  CreateYMLwihtURL(name ,path,imgUrl string){
-	flow :=UnmarshlYML(path+"/"+name+".yml")
+func CreateYMLwihtURL(name, path, imgUrl string) {
+	flow := UnmarshlYML(path + "/" + name + ".yml")
 	//flow.Stages[1].Actions[0].Jobs[0].Environments[0]["CO_DATA"] = imgUrl
 	flow.Stages[1].Actions[0].Jobs[0].Endpoint = imgUrl
-	flow.Stages[1].Actions[0].Name = name 
-	s,_:=flow.YAML()
-	WriteFile(s,name+".yml") 
+	flow.Stages[1].Actions[0].Name = name
+	s, _ := flow.YAML()
+	WriteFile(s, name+".yml")
 }

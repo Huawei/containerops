@@ -160,7 +160,7 @@ func folderDeploy(cmd *cobra.Command, args []string) {
 	if files, err := utils.WalkDir(args[0], "yml"); err != nil {
 		fmt.Fprintf(os.Stderr, err.Error())
 		os.Exit(1)
-	} else {	
+	} else {
 		for _, file := range files {
 			if utils.IsFileExist(file) == false {
 				fmt.Fprintf(os.Stderr, "the %s file is not exist\n", file)
