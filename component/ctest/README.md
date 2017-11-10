@@ -1,3 +1,19 @@
+## ContainerOps Components Test Flow
+
+### What's the Flow?
+Build And Test ContainerOps Components with orchestration engine
+
+### Component Usage
+```
+$ /.ci-component-run.sh
+
+or
+  
+pilotage cli run cncf-demo.yaml --verbose true --timestamp true
+
+```
+### Flow Configuration File
+```
 uri: containerops/auto-test-for-components/ci-component-ctest
 title: CI build and test  for components
 version: 1
@@ -18,7 +34,7 @@ stages:
   -
     type: normal
     name: build-component
-    title:  Component auto test action
+    title: Component auto test action
     sequencing: sequence
     actions:
       -
@@ -54,3 +70,7 @@ stages:
     type: end
     name: end
     title: End
+```
+
+
+### Versions 1.0.0

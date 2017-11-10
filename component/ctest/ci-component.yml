@@ -22,8 +22,8 @@ stages:
     sequencing: sequence
     actions:
       -
-        name: flow-component
-        title: flow-component-action
+        name: build-component
+        title: build-component-action
         jobs:
           -
             type: component

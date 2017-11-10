@@ -9,7 +9,9 @@ WORKDIR containerops/component/ctest/build
 RUN go get
 ADD main.go main.go
 ADD module module
-COPY component-auto-ci.sh component-auto-ci.sh
-CMD ./component-auto-ci.sh
+RUN go build main.go
+COPY component-auto-tar.sh component-auto-tar.sh
+RUN ./component-auto-tar.sh
+CMD main
 
 
