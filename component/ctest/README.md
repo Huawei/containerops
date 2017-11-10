@@ -9,7 +9,7 @@ $ /.ci-component-run.sh
 
 or
   
-pilotage cli run cncf-demo.yaml --verbose true --timestamp true
+pilotage cli run ci-components.yaml --verbose true --timestamp true
 
 ```
 ### Flow Configuration File
