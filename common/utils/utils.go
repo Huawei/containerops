@@ -32,16 +32,18 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"reflect"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/fernet/fernet-go"
 	"io/ioutil"
 	"log"
 	"path/filepath"
+
+	"github.com/fernet/fernet-go"
 )
 
 type EncryptMethod string
@@ -395,4 +397,32 @@ func WalkDir(dirPth, suffix string) (files []string, err error) {
 	})
 
 	return files, err
+}
+
+// WaitForHostPort wait for the $HOST:$PORT to be ready
+func WaitForHostPort(host string, port int, loopDuration time.Duration, retryTimes int) error {
+	serviceReady := false
+	log.Printf("waiting for %s:%d to be ready\n", host, port)
+	for i := 0; i < retryTimes; i++ {
+		log.Printf("ping %s:%d for the %d time\n", host, port, (i + 1))
+		err := ping(host, port)
+		if err == nil {
+			serviceReady = true
+			break
+		} else {
+			time.Sleep(time.Second * loopDuration)
+		}
+	}
+
+	if serviceReady == true {
+		return nil
+	} else {
+		return fmt.Errorf("timeout(more than %d seconds) waiting for service %s:%d", (int(loopDuration) * retryTimes), host, port)
+	}
+}
+
+func ping(host string, port int) error {
+	addr := fmt.Sprintf("%s:%d", host, port)
+	_, err := net.Dial("tcp", addr)
+	return err
 }
