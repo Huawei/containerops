@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 declare -A map=(
     ["api-server-url"]=""
     ["namespace"]=""
@@ -23,20 +22,29 @@ done
 if [ "" = "${map["namespace"]}" ]
 then
     namespace="default"
-   else
+else
     namespace="${map["namespace"]}"
     # Create the namespace
-    createns=$(kubectl --server="${map["api-server-url"]}" create namespace ${namespace})
-
+    createns=$(kubectl --server="${map["api-server-url"]}" create namespace ${namespace}  >/dev/null 2>&1)
 fi
 
 yaml=$(echo $YAML |awk '{print}')
 echo $yaml | base64 -d > /root/template.yaml
 
 # Before create yaml, clean it
-clean=$(kubectl --server="${map["api-server-url"]}" delete -f /root/template.yaml -n ${namespace} )
+clean=$(kubectl --server="${map["api-server-url"]}" delete -f /root/template.yaml -n ${namespace} >/dev/null 2>&1)
 
 kubectl --server="${map["api-server-url"]}" create -f /root/template.yaml -n  ${namespace}
+if [ "$?" -ne "0" ]
+then
+    printf "[COUT] CO_RESULT = %s\n" "false"
+    exit 1
+fi
+printf "\n[COUT] CO_RESULT = %s\n" "true"
+exit
+
+
+
 
 
 

@@ -46,6 +46,7 @@ type Flow struct {
 	Version      int64               `json:"version" yaml:"version"`
 	Tag          string              `json:"tag" yaml:"tag"`
 	Timeout      int64               `json:"timeout" yaml:"timeout"`
+	Namespace    string              `json:"namespace" yaml:"namespace"`
 	Environments []map[string]string `json:"environments" yaml:"environments"`
 	Status       string              `json:"status,omitempty" yaml:"status,omitempty"`
 	Logs         []string            `json:"logs,omitempty" yaml:"logs,omitempty"`
