@@ -2,10 +2,14 @@ package module
 
 import (
 	"bufio"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -71,6 +75,153 @@ func (j *Job) Log(log string, verbose, timestamp bool) {
 
 func (j *Job) Run(name string, verbose, timestamp bool, f *Flow, stageIndex, actionIndex int) (string, error) {
 
+	j.SaveDatabase(verbose, timestamp, f, stageIndex, actionIndex)
+
+	randomContainerName := fmt.Sprintf("%s-%s", name, utils.RandomString(10))
+	podTemplate := j.PodTemplates(randomContainerName, f)
+
+	if err := j.InvokePod(podTemplate, randomContainerName, verbose, timestamp, f, stageIndex, actionIndex); err != nil {
+		return Failure, err
+	}
+
+	j.Status = Success
+
+	return Success, nil
+}
+
+func (j *Job) RunKubectl(name string, verbose, timestamp bool, f *Flow, stageIndex, actionIndex int) (string, error) {
+
+	j.SaveDatabase(verbose, timestamp, f, stageIndex, actionIndex)
+
+	originYaml := []byte{}
+	if u, err := url.Parse(j.Kubectl); err != nil {
+		return Failure, err
+	} else {
+		if u.Scheme == "" {
+			if utils.IsFileExist(j.Kubectl) == true {
+				// Read YAML file from local
+				data, err := ioutil.ReadFile(j.Kubectl)
+				if err != nil {
+					return Failure, err
+				}
+				originYaml = data
+			} else {
+				return Failure, errors.New("Kubectl PATH is invalid")
+			}
+		} else {
+			// Download YAML from URL
+			resp, err := http.Get(j.Kubectl)
+			if err != nil {
+				return Failure, err
+			}
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return Failure, err
+			}
+			originYaml = body
+		}
+	}
+	base64Yaml := base64.StdEncoding.EncodeToString(originYaml)
+
+	//TODO port and ip address can set from setting
+	home, _ := homeDir.Dir()
+	configFile, err := clientcmd.BuildConfigFromFlags("", fmt.Sprintf("%s/.kube/config", home))
+	if err != nil {
+		return Failure, err
+	}
+	apiServerInsecure := fmt.Sprintf("http:%s:8080", strings.Split(configFile.Host, ":")[1])
+	namespace := "default"
+	if f.Namespace != "" {
+		namespace = f.Namespace
+	}
+	randomContainerName := fmt.Sprintf("kubectl-create-%s", utils.RandomString(10))
+	podTemplate := j.KubectlPodTemplates(randomContainerName, apiServerInsecure, namespace, base64Yaml, f)
+
+	if err := j.InvokePod(podTemplate, randomContainerName, verbose, timestamp, f, stageIndex, actionIndex); err != nil {
+		return Failure, err
+	}
+
+	j.Status = Success
+	return Success, nil
+}
+
+func (j *Job) InvokePod(podTemplate *apiv1.Pod, randomContainerName string, verbose, timestamp bool, f *Flow, stageIndex, actionIndex int) error {
+	home, _ := homeDir.Dir()
+	if config, err := clientcmd.BuildConfigFromFlags("", fmt.Sprintf("%s/.kube/config", home)); err != nil {
+		return err
+	} else {
+		if clientSet, err := kubernetes.NewForConfig(config); err != nil {
+			return err
+		} else {
+			p := clientSet.CoreV1().Pods(apiv1.NamespaceDefault)
+			if _, err := p.Create(podTemplate); err != nil {
+				j.Status = Failure
+				return err
+			}
+
+			j.Status = Pending
+			time.Sleep(time.Second * 2)
+
+			start := time.Now()
+		ForLoop:
+			for {
+				pod, err := p.Get(randomContainerName, metav1.GetOptions{})
+				if err != nil {
+					j.Log(err.Error(), false, timestamp)
+					return err
+				}
+				switch pod.Status.Phase {
+				case apiv1.PodPending:
+					j.Log(fmt.Sprintf("Job %s is %s", j.Name, pod.Status.Phase), verbose, timestamp)
+				case apiv1.PodRunning, apiv1.PodSucceeded:
+					break ForLoop
+				case apiv1.PodUnknown:
+					j.Log(fmt.Sprintf("Job %s is %s, Detail:[%s] \n", j.Name, pod.Status.Phase, pod.Status.ContainerStatuses[0].State.String()), verbose, timestamp)
+				case apiv1.PodFailed:
+					j.Log(fmt.Sprintf("Job %s is %s, Detail:[%s] \n", j.Name, pod.Status.Phase, pod.Status.ContainerStatuses[0].State.String()), verbose, timestamp)
+					break ForLoop
+				}
+				duration := time.Now().Sub(start)
+				if duration.Minutes() > 3 {
+					return errors.New(fmt.Sprintf("Job %s Pending more than 3 minutes", j.Name))
+				}
+				time.Sleep(time.Second * 2)
+			}
+
+			req := p.GetLogs(randomContainerName, &apiv1.PodLogOptions{
+				Follow:     true,
+				Timestamps: false,
+			})
+
+			if read, err := req.Stream(); err != nil {
+				// TODO Parse ContainerCreating error
+			} else {
+				reader := bufio.NewReader(read)
+				for {
+					line, err := reader.ReadString('\n')
+					if err != nil {
+						if err == io.EOF {
+							break
+						}
+						j.Status = Failure
+						return err
+					}
+					if strings.Contains(line, "[COUT]") && len(j.Outputs) != 0 {
+						j.FetchOutputs(f.Stages[stageIndex].Name, f.Stages[stageIndex].Actions[actionIndex].Name, line)
+					}
+
+					j.Status = Running
+
+					j.Log(line, false, timestamp)
+					f.Log(line, verbose, timestamp)
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (j *Job) SaveDatabase(verbose, timestamp bool, f *Flow, stageIndex, actionIndex int) {
 	// Save Job into database
 	job := new(model.JobV1)
 	resources, _ := j.Resources.JSON()
@@ -79,7 +230,7 @@ func (j *Job) Run(name string, verbose, timestamp bool, f *Flow, stageIndex, act
 	subscriptions, _ := json.Marshal(j.Subscriptions)
 	jobID, err := job.Put(f.Stages[stageIndex].Actions[actionIndex].ID, j.Timeout, j.Name, j.T, j.Endpoint, string(resources), string(environments), string(outputs), string(subscriptions))
 	if err != nil {
-		j.Log(fmt.Sprintf("Save Job [%s] error: %s", j.Name, err.Error()), false, timestamp)
+		j.Log(fmt.Sprintf("Save Job [%s] errorK: %s", j.Name, err.Error()), false, timestamp)
 	}
 	j.ID = jobID
 
@@ -96,86 +247,6 @@ func (j *Job) Run(name string, verbose, timestamp bool, f *Flow, stageIndex, act
 			j.Log(fmt.Sprintf("Save Job Data [%s] error: %s", j.Name, err.Error()), false, timestamp)
 		}
 	}()
-
-	home, _ := homeDir.Dir()
-
-	randomContainerName := fmt.Sprintf("%s-%s", name, utils.RandomString(10))
-
-	if config, err := clientcmd.BuildConfigFromFlags("", fmt.Sprintf("%s/.kube/config", home)); err != nil {
-		return Failure, err
-	} else {
-		if clientSet, err := kubernetes.NewForConfig(config); err != nil {
-			return Failure, err
-		} else {
-			p := clientSet.CoreV1().Pods(apiv1.NamespaceDefault)
-			podTemplate := j.PodTemplates(randomContainerName)
-			if _, err := p.Create(podTemplate); err != nil {
-				j.Status = Failure
-				return Failure, err
-			}
-
-			j.Status = Pending
-			time.Sleep(time.Second * 5)
-
-			start := time.Now()
-		ForLoop:
-			for {
-				pod, err := p.Get(randomContainerName, metav1.GetOptions{})
-				if err != nil {
-					j.Log(err.Error(), false, timestamp)
-					return Failure, err
-				}
-				switch pod.Status.Phase {
-				case apiv1.PodPending:
-					j.Log(fmt.Sprintf("Job %s is %s, Detail: %s", j.Name, pod.Status.Phase, pod.Status.ContainerStatuses[0].State.String()), verbose, timestamp)
-				case apiv1.PodRunning, apiv1.PodSucceeded:
-					break ForLoop
-				case apiv1.PodFailed, apiv1.PodUnknown:
-					j.Log(fmt.Sprintf("Job %s is %s, Detail: %s", j.Name, pod.Status.Phase, pod.Status.ContainerStatuses[0].State.String()), verbose, timestamp)
-				}
-				duration := time.Now().Sub(start)
-				if duration.Minutes() > 3 {
-					return Failure, errors.New(fmt.Sprintf("Job %s Pending more than 3 minutes", j.Name))
-				}
-				time.Sleep(time.Second * 5)
-			}
-
-			req := p.GetLogs(randomContainerName, &apiv1.PodLogOptions{
-				Follow:     true,
-				Timestamps: false,
-			})
-
-			if read, err := req.Stream(); err != nil {
-				// TODO Parse ContainerCreating error
-			} else {
-				reader := bufio.NewReader(read)
-				for {
-					line, err := reader.ReadString('\n')
-
-					if err != nil {
-						if err == io.EOF {
-							break
-						}
-
-						j.Status = Failure
-						return Failure, nil
-					}
-					if strings.Contains(line, "[COUT]") && len(j.Outputs) != 0 {
-						j.FetchOutputs(f.Stages[stageIndex].Name, f.Stages[stageIndex].Actions[actionIndex].Name, line)
-					}
-
-					j.Status = Running
-
-					j.Log(line, false, timestamp)
-					f.Log(line, verbose, timestamp)
-				}
-			}
-		}
-	}
-
-	j.Status = Success
-
-	return Success, nil
 }
 
 func (j *Job) FetchOutputs(stageName, actionName, log string) error {
@@ -192,7 +263,61 @@ func (j *Job) FetchOutputs(stageName, actionName, log string) error {
 	return nil
 }
 
-func (j *Job) PodTemplates(randomContainerName string) *apiv1.Pod {
+func (j *Job) KubectlPodTemplates(randomContainerName, apiServer, namespace, yamlContent string, f *Flow) *apiv1.Pod {
+	result := &apiv1.Pod{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Pod",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: randomContainerName,
+		},
+		Spec: apiv1.PodSpec{
+			Containers: []apiv1.Container{
+				{
+					Name: randomContainerName,
+					//TODO can config from settings
+					Image: "hub.opshub.sh/containerops/kubectl-create:1.7.4",
+				},
+			},
+			RestartPolicy: apiv1.RestartPolicyNever,
+		},
+	}
+	//Add api-server address, namespace & yaml content
+	coDataValue := fmt.Sprintf(" api-server-url=%s namespace=%s", apiServer, namespace)
+	result.Spec.Containers[0].Env = append(result.Spec.Containers[0].Env, apiv1.EnvVar{Name: "CO_DATA", Value: coDataValue})
+	result.Spec.Containers[0].Env = append(result.Spec.Containers[0].Env, apiv1.EnvVar{Name: "YAML", Value: yamlContent})
+
+	//Add user defined enviroments
+	if len(j.Environments) > 0 {
+		for _, environment := range j.Environments {
+			for k, v := range environment {
+				env := apiv1.EnvVar{
+					Name:  k,
+					Value: v,
+				}
+				result.Spec.Containers[0].Env = append(result.Spec.Containers[0].Env, env)
+			}
+		}
+	}
+
+	//Add flow enviroments
+	if len(f.Environments) > 0 {
+		for _, environment := range f.Environments {
+			for k, v := range environment {
+				env := apiv1.EnvVar{
+					Name:  k,
+					Value: v,
+				}
+				result.Spec.Containers[0].Env = append(result.Spec.Containers[0].Env, env)
+			}
+		}
+	}
+
+	return result
+}
+
+func (j *Job) PodTemplates(randomContainerName string, f *Flow) *apiv1.Pod {
 	result := &apiv1.Pod{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Pod",
@@ -229,6 +354,19 @@ func (j *Job) PodTemplates(randomContainerName string) *apiv1.Pod {
 			}
 		}
 	}
+	//Add flow enviroments
+	if len(f.Environments) > 0 {
+		for _, environment := range f.Environments {
+			for k, v := range environment {
+				env := apiv1.EnvVar{
+					Name:  k,
+					Value: v,
+				}
+				result.Spec.Containers[0].Env = append(result.Spec.Containers[0].Env, env)
+			}
+		}
+	}
+
 	//Add user defined subscrptions
 	if len(j.Subscriptions) > 0 {
 		for _, subscription := range j.Subscriptions {

@@ -1,0 +1,108 @@
+# Copyright 2016 - 2017 Huawei Technologies Co., Ltd. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+uri: huawei/serviceComb/bmi
+title: Bmi application - quickstart demo of seviceComb
+version: 4
+tag: latest
+timeout: 0
+namespace: servicecomb
+receivers:
+  -
+    type: mail
+    address: wangqilin@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: servicecomb-bmi-checkstyle
+    title: Building, testing bmi project.
+    sequencing: sequence
+    actions:
+      -
+        name: checkstyle-bmi
+        title: Checktyle of bmi
+        jobs:
+          -
+            type: component
+            endpoint: 10.229.40.121:8082/system/analysis-java-gradle-checkstyle:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle4 git-url=https://github.com/MabinGo/bmi.git out-put-type=json report-path=./webapp/build/reports/checkstyle"
+      -
+        name: build-bmi
+        title: Build bmi image by assembling
+        jobs:
+          -
+            type: component
+            endpoint: 10.229.40.121:8082/system/call-assembling-manven:v0.6
+            resources:
+              cpu: 1
+              memory: 1G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/MabinGo/bmi.git assembling-url=https://10.229.40.121:8083 registry-url=10.229.40.121:8082 namespace=servicecomb image=bmi tag=latest insecure-registry=10.229.40.121:8082"
+      -
+        name: deploy-bmi
+        title: Deploy bmi
+        jobs:
+          -
+            name: bmi-calculator
+            type: component
+            kubectl: /root/gopath/src/github.com/Huawei/containerops/demo/serviceComb/bmi/bmi-calculator-deployment.yaml
+          -
+            name: bmi-webapp-service
+            type: component
+            endpoint: 10.229.40.121:8082/system/create-service:temp
+            kubectl: /root/gopath/src/github.com/Huawei/containerops/demo/serviceComb/bmi/bmi-webapp-service.yaml
+          -
+            name: bmi-webapp
+            type: component
+            kubectl: /root/gopath/src/github.com/Huawei/containerops/demo/serviceComb/bmi/bmi-webapp-deployment.yaml
+      -
+        name: system-test-bmi
+        title: system test of bmi
+        jobs:
+          -
+            type: component
+            endpoint: 10.229.40.121:8082/servicecomb/bmi:latest
+            resources:
+              cpu: 1
+              memory: 1G
+            environments:
+              - JAVA_OPTS: "-Dwebserver.address=http://10.229.49.97:8999"
+              - JAR_NAME: "system-tests-0.4.0-SNAPSHOT"
+      -
+        name: release-bmi
+        title: release bmi image to huawei cloud
+        jobs:
+          -
+            type: component
+            endpoint: 10.229.40.121:8082/system/call-assembling-manven:v0.5
+            resources:
+              cpu: 1
+              memory: 1G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/MabinGo/bmi.git assembling-url=https://10.229.40.121:8083 registry-url=registry.cn-north-1.huaweicloud.com namespace=liuguo image=bmi tag=latest authstr=ewoJInVzZXJuYW1lIjogImNuLW5vcnRoLTFASERFV1lNRFQ5Q1VGRExETDVYVEwiLAoJInBhc3N3b3JkIjogImI5MzQwODM5MzllYjNkMDI4YjI2OWE0ZTU1OGQ4NmFhZjIyNWIxNTQ3NGI0NzY1ZWQ3Mjc4ZWZlN2NhYTA4ZDkiCn0K insecure-registry=10.229.40.121:8082"
+  -
+    type: end
+    name: end
+    title: End

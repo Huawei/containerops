@@ -63,9 +63,19 @@ func (a *Action) Run(verbose, timestamp bool, f *Flow, stageIndex, actionIndex i
 
 		a.Log(fmt.Sprintf("The Number [%d] job is running: %s", i, a.Title), false, timestamp)
 		f.Log(fmt.Sprintf("The Number [%d] job is running: %s", i, a.Title), verbose, timestamp)
-		if status, err := job.Run(a.Name, verbose, timestamp, f, stageIndex, actionIndex); err != nil {
-			a.Status = Failure
 
+		var status string
+		var err error
+		//If user specific a URL or yaml file in kubectl , excute yaml in kubernetes cluster
+		if job.Kubectl != "" {
+			status, err = job.RunKubectl(a.Name, verbose, timestamp, f, stageIndex, actionIndex)
+
+		} else {
+			status, err = job.Run(a.Name, verbose, timestamp, f, stageIndex, actionIndex)
+		}
+
+		if err != nil {
+			a.Status = Failure
 			a.Log(fmt.Sprintf("Job [%d] run error: %s", i, err.Error()), false, timestamp)
 			f.Log(fmt.Sprintf("Job [%d] run error: %s", i, err.Error()), verbose, timestamp)
 
