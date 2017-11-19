@@ -42,7 +42,11 @@ class Phpmetrics {
 
             $cmd = "$cmd --report-violations=" . self::reportPath;
 
-            exec("cd " . WORK_DIR . " && $cmd");
+            $lastLine = system("cd " . WORK_DIR . " && $cmd", $result);
+            
+            if ($result != 0) {
+                throw new Exception();
+            }
 
             stdoutReport(self::reportPath, self::reportFormat);
             stdoutln("[COUT] CO_RESULT = true");

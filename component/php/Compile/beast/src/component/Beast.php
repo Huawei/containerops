@@ -34,13 +34,15 @@ class Beast {
             $expire       = trim($conf['expire']);
             $encrypt_type = strtoupper(trim($conf['encrypt_type']));
             if (empty($src_path) || !is_dir($src_path)) {
-                exit("Fatal: source path `{$src_path}' not exists\n\n");
+                stderrln("Fatal: source path `{$src_path}' not exists\n\n");
+                throw new Exception();
             }
             if (empty($dst_path)
                 || (!is_dir($dst_path)
                 && !mkdir($dst_path, 0777)))
             {
-                exit("Fatal: can not create directory `{$dst_path}'\n\n");
+                stderrln("Fatal: can not create directory `{$dst_path}'\n\n");
+                throw new Exception();
             }
             switch ($encrypt_type)
             {

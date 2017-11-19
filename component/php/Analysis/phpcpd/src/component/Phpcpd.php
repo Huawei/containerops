@@ -34,7 +34,10 @@ class Phpcpd {
 
             $cmd = "$cmd --log-pmd=" . self::reportPath;
 
-            exec("cd " . WORK_DIR . " && $cmd");
+            $result = system("cd " . WORK_DIR . " && $cmd");
+            if(!$result) {
+                throw new Exception();
+            }
 
             stdoutReport(self::reportPath, self::reportFormat);
             stdoutln("[COUT] CO_RESULT = true");

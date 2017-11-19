@@ -55,7 +55,11 @@ class Phpcs {
 
             $cmd = "$cmd --report-file=" . self::reportPath;
 
-            exec("cd " . WORK_DIR . " && $cmd");
+            $lastLine = exec("cd " . WORK_DIR . " && $cmd", $output, $result);
+            if ($result != 0) {
+                stderrln($lastLine);
+                throw new Exception();
+            }
 
             stdoutReport(self::reportPath, self::reportFormat);
             stdoutln("[COUT] CO_RESULT = true");

@@ -1,20 +1,33 @@
-# CLI
+## PHP Code Compile Component CLI
 
-## Build
+### What's the Component?
+
+This image is php runtime image, used for run php script. 
+
+### Learn how to build it?
+
+Use the docker build command build the image.
 
 ```shell
 docker build -t hub.opshub.sh/containerops/base-php-cli:latest .
 ```
 
-## Run
+### Component Usage
 
 ```shell
-docker run --env CO_DATA="git-url=https://github.com/wp-cli/wp-cli.git file=./bin/wp composer=true" hub.opshub.sh/containerops/base-php-cli:latest
+docker run \
+    --env CO_DATA=" \
+    git-url=https://github.com/wp-cli/wp-cli.git \
+    file=./bin/wp \
+    composer=true" \
+    hub.opshub.sh/containerops/base-php-cli:latest
 ```
 
-## Options
+### Parameters 
 
 Required:
 
-- git-url
-- file
+- `git-url` where your code is located
+- `file` the script
+
+### Versions 1.0.0

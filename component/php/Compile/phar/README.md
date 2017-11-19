@@ -1,28 +1,36 @@
-# PHAR
+## PHP Code Compile Component PHAR
 
-## Build
+### What's the Component?
+
+This image is php runtime image, used for compile your php project. 
+
+### Learn how to build it?
+
+Use the docker build command build the image.
 
 ```shell
 docker build -t hub.opshub.sh/containerops/compile-php-phar:latest .
 ```
 
-## Run
+### Component Usage
 
 ```shell
-docker run --env CO_DATA="git-url=https://github.com/SegmentFault/phar-sample.git entry-file=build.php" hub.opshub.sh/containerops/compile-php-phar:latest
+docker run \
+    --env CO_DATA=" \
+    git-url=https://github.com/SegmentFault/phar-sample.git \
+    entry-file=build.php" \
+    hub.opshub.sh/containerops/compile-php-phar:latest
 ```
 
-## Options
+### Parameters 
 
 Required:
 
-- git-url
-- entry-file
+- `git-url` where your code is located
+- `entry-file` entry file
 
 Optional:
 
-- composer
+- `composer` true/false
 
-```shell
-composer=true/false
-```
+### Versions 1.0.0

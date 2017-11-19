@@ -1,29 +1,38 @@
-# PHPMETRICS
+## PHP Code Analysis Component PHPMETRICS
 
-## Build
+### What's the Component?
+
+This image is php runtime image, used for analysis your php coding style. 
+
+PhpMetrics provides metrics about PHP project and classes, with beautiful and readable HTML report.
+
+### Learn how to build it?
+
+Use the docker build command build the image.
 
 ```shell
 docker build -t hub.opshub.sh/containerops/analysis-php-phpmetrics:latest .
 ```
 
-## Run
+### Component Usage
 
 ```shell
-docker run --env CO_DATA="git-url=https://github.com/TIGERB/easy-php.git" hub.opshub.sh/containerops/analysis-php-phpmetrics:latest
+docker run \
+    --env CO_DATA=" \
+    git-url=https://github.com/TIGERB/easy-php.git" \
+    hub.opshub.sh/containerops/analysis-php-phpmetrics:latest
 ```
 
-## Options
+### Parameters 
 
 Required:
 
-- git-url
+- `git-url` where your code is located
 
 Optional:
 
-- path
-- exclude
-- ignore-annotations
+- `path`
+- `exclude` List of directories to exclude, separated by a comma (,)
+- `ignore-annotations`
 
-```shell
-exclude=<directory>               List of directories to exclude, separated by a comma (,)
-```
+### Versions 1.0.0

@@ -1,0 +1,52 @@
+uri: containerops/component/php-component-phar-test
+title: compile phar project
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-phar-test
+    title: compile phar project
+    sequencing: sequence
+    actions:
+      -
+        name: component-php-compile-phar-action1
+        title: action of php-compile-phar with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-compile-phar.yml
+            endpoint: hub.opshub.sh/containerops/compile-php-phar:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/SegmentFault/phar-sample.git entry-file=build.php"
+      -
+        name: component-php-compile-phar-action2
+        title: action of php-compile-phar with false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-compile-phar.yml
+            endpoint: hub.opshub.sh/containerops/compile-php-phar:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/SegmentFault/phar-sample.git entry-file=build1.php"
+  -
+    type: end
+    name: end
+    title: End

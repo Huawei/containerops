@@ -1,35 +1,16 @@
-uri: containerops/component/php-component-apigen-test
-title: create document
-version: 1
-tag: latest
-timeout: 0
-stages:
-  -
-    type: start
-    name: start
-    title: Start
-  -
-    type: normal
-    name: component-apigen-test
-    title: create document
-    sequencing: sequence
-    actions:
-      -
-        name: apigen-test
-        title: create document
-        jobs:
-          -
-            type: component
-            # kubectl: apigen-test.yaml
-            endpoint: hub.opshub.sh/containerops/document-php-apigen:latest
-            resources:
-              cpu: 2
-              memory: 4G
-            timeout: 0
-            environments:
-              - CO_DATA: "git-url=https://github.com/TIGERB/easy-php.git path=app destination=docs"
-      -
-  -
-    type: end
-    name: end
-    title: End
+apiVersion: v1
+kind: Pod
+metadata:
+ name: component-php-document-apigen
+spec:
+ containers:
+ - name: apigen
+   image: hub.opshub.sh/containerops/document-php-apigen:latest
+   env:
+   - name: CO_DATA
+     value: "git-url=https://github.com/TIGERB/easy-php.git path=app destination=docs"
+   resources:
+     requests:
+       cpu: 2
+       memory: 4G
+ restartPolicy: Never
