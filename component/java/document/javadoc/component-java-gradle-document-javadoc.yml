@@ -1,0 +1,52 @@
+uri: containerops/component/java-gradle-document-javadoc
+title: Component for java gradle project with composer
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: hubopsnotifier@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: document-java-gradle-javadoc
+    title: generate a javadoc compressed file and upload it to the target
+    sequencing: sequence
+    actions:
+      -
+        name: document-java-gradle-javadoc-action1
+        title: generate a javadoc compressed file and upload it to the target
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-document-javadoc.yaml
+            endpoint: hub.opshub.sh/containerops/document-java-gradle-javadoc:latest
+            resources:
+              cpu: 2
+             memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git"
+      -
+        name: document-java-gradle-javadoc-action2
+        title: generate a javadoc compressed file and upload it to the target
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-document-javadoc.yaml
+            endpoint: hub.opshub.sh/containerops/document-java-gradle-javadoc:latest
+            resources:
+              cpu: 2
+             memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git target=https://hub.opshub.sh/binary/v1/lidian/test/binary/1.1.0/javadoc.tar"
+  -
+    type: end
+    name: end
+    title: End

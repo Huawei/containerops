@@ -1,0 +1,66 @@
+uri: containerops/component/java-gradle-test-jacoco
+title: Component for java gradle project with composer
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: hubopsnotifier@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: test-java-gradle-jacoco
+    title: generate a code coverage report
+    sequencing: sequence
+    actions:
+      -
+        name: test-java-gradle-jacoco-action1
+        title: generate a code coverage report
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-test-jacoco.yaml
+            endpoint: hub.opshub.sh/containerops/test-java-gradle-jacoco:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git"
+      -
+        name: test-java-gradle-jacoco-action2
+        title: generate a code coverage report
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-test-jacoco.yaml
+            endpoint: hub.opshub.sh/containerops/test-java-gradle-jacoco:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json"
+      -
+        name: test-java-gradle-jacoco-action3
+        title: generate a code coverage report
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-test-jacoco.yaml
+            endpoint: hub.opshub.sh/containerops/test-java-gradle-jacoco:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=xml"
+  -
+    type: end
+    name: end
+    title: End

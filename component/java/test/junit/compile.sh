@@ -75,7 +75,7 @@ fi
 
 if [ "" = "${map["report-path"]}" ]
 then
-    map["report-path"]="build/test-results/test"
+    map["report-path"]="./"
 fi
 
 STOUT git clone ${map["git-url"]}
@@ -93,26 +93,25 @@ then
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi 
-
-cat /root/junit.conf >> build.gradle
-
-STOUT2 $gradle_version test
+cd ${map["report-path"]}
+cat /root/testng.conf >> build.gradle
+$gradle_version test
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then
-    for file in ${map["report-path"]}/*
+    for file in `ls ./build/test-results/test`
     do
-        if test -f $file
+        if test -f ./build/test-results/test/$file
         then
-            cat $file
+            cat ./build/test-results/test/$file
         fi
     done
 else
-    for file in ${map["report-path"]}/*
+    for file in `ls ./build/test-results/test`
     do
-        if test -f $file
+        if test -f ./build/test-results/test/$file
         then
-            java -jar /root/convert.jar $file ${map["out-put-type"]}
+            java -jar /root/convert.jar ./build/test-results/test/$file ${map["out-put-type"]}
         fi
     done
 fi

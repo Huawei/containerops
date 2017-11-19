@@ -29,6 +29,7 @@ declare -A map=(
     ["git-url"]="" 
     ["target"]=""
     ["version"]=""
+    ["build-path"]=""
 )
 data=$(echo $CO_DATA |awk '{print}')
 for i in ${data[@]}
@@ -78,14 +79,26 @@ then
 fi
 pdir=`echo ${map["git-url"]} | awk -F '/' '{print $NF}' | awk -F '.' '{print $1}'`
 cd ./$pdir
+
+if [ "" = "${map["build-path"]}" ]
+then
+    map["build-path"]="./"
+fi
+cd ${map["build-path"]}
+
 if [ ! -f "build.gradle" ]
 then
     printf "[COUT] file build.gradle not found! \n"
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
+havejar=`echo gradle -q tasks --all | grep jar`
+if [ "$havejar" = "" ]
+then
+    echo -e "\nallprojects { apply plugin: 'java' }" >> build.gradle
+fi
 
-STOUT2 $gradle_version jar
+$gradle_version jar
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] gradle jar fail\n"
@@ -93,7 +106,7 @@ then
     exit
 fi
 
-jarpath=$(find `pwd` -name "*.jar")
+jarpath=$(find `pwd`/build/libs -name "*.jar")
 if [ "$jarpath" = "" ]
 then
     printf "[COUT] can not find a jar file after project build%s\n"

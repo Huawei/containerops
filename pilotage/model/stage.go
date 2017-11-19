@@ -32,6 +32,10 @@ func (sd *StageDataV1) TableName() string {
 }
 
 func (s *StageV1) Put(flowID int64, stageType, name, title, sequencing string) (stageID int64, err error) {
+	if DisableDB {
+		return -1, nil
+	}
+
 	s.FlowID, s.StageType, s.Name, s.Title, s.Sequencing = flowID, stageType, name, title, sequencing
 
 	tx := DB.Begin()
@@ -56,6 +60,10 @@ func (s *StageV1) Put(flowID int64, stageType, name, title, sequencing string) (
 }
 
 func (sd *StageDataV1) Put(stageID, number int64, result string, start, end time.Time) error {
+	if DisableDB {
+		return nil
+	}
+
 	sd.StageID, sd.Number, sd.Result, sd.Start, sd.End = stageID, number, result, start, end
 
 	tx := DB.Begin()
@@ -69,6 +77,10 @@ func (sd *StageDataV1) Put(stageID, number int64, result string, start, end time
 }
 
 func (sd *StageDataV1) GetNumbers(stageID int64) (int64, error) {
+	if DisableDB {
+		return -1, nil
+	}
+
 	tmp := DB.Where("stage_id = ?", stageID).Find(&StageDataV1{})
 	if tmp.RecordNotFound() {
 		return 0, nil

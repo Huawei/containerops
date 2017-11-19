@@ -1,0 +1,81 @@
+uri: containerops/component/python-component-flake8-test
+title: Component for python projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: analysis-python-component
+    title:  Component analysis action
+    sequencing: sequence
+    actions:
+      -
+        name: component-python-analysis-flake8-action1
+        title: _[Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-flake8.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-flake8:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
+      -
+        name: component-python-analysis-flake8-action2
+        title: _[Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-flake8.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-flake8:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml"
+      -
+        name: component-python-analysis-flake8-action3
+        title: _[Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-flake8.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-flake8:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml version=python"
+      -
+        name: component-python-analysis-flake8-action4
+        title: _[Flake8](https://github.com/PyCQA/flake8) runs all the tools by launching the single flake8 command.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-flake8.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-flake8:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git version=python"
+      -
+  -
+    type: end
+    name: end
+    title: End

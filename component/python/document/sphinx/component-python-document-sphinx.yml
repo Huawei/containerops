@@ -1,0 +1,81 @@
+uri: containerops/component/python-component-sphinx-document
+title: Component for python projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: document-python-component
+    title:  Component document action
+    sequencing: sequence
+    actions:
+      -
+        name: component-python-document-sphinx-action1
+        title: _[Sphinx](https://github.com/sphinx-doc/sphinx/) is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and licensed under the BSD license.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-sphinx.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-document-sphinx:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-path=docs"
+      -
+        name: component-python-document-sphinx-action2
+        title: _[Sphinx](https://github.com/sphinx-doc/sphinx/) is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and licensed under the BSD license.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-sphinx.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-document-sphinx:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-path=docs version=python"
+      -
+        name: component-python-document-sphinx-action3
+        title: _[Sphinx](https://github.com/sphinx-doc/sphinx/) is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and licensed under the BSD license.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-sphinx.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-document-sphinx:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-path=docs out-put-type=yaml"
+      -
+        name: component-python-document-sphinx-action4
+        title: _[Sphinx](https://github.com/sphinx-doc/sphinx/) is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and licensed under the BSD license.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-sphinx.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-document-sphinx:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-path=docs version=python out-put-type=yaml"
+      -
+  -
+    type: end
+    name: end
+    title: End

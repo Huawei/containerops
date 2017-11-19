@@ -75,7 +75,7 @@ fi
 
 if [ "" = "${map["report-path"]}" ]
 then
-    map["report-path"]="build/reports/cpd/cpdCheck.xml"
+    map["report-path"]="./"
 fi
 
 STOUT git clone ${map["git-url"]}
@@ -94,19 +94,20 @@ then
 fi 
 
 havecpd=`echo gradle -q tasks --all | grep cpd | awk '{print $1}'`
+printf "[COUT] "
 if [ "$havecpd" = "" ]
 then
     cat /root/cpd.conf >> build.gradle
-    STOUT2 $gradle_version cpdCheck
+    $gradle_version cpdCheck
 else
-    STOUT2 $gradle_version $havecpd
+    $gradle_version $havecpd
 fi
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then
-    cat ${map["report-path"]}
+    cat ${map["report-path"]}/build/reports/cpd/cpdCheck.xml
 else
-    java -jar /root/convert.jar ${map["report-path"]} ${map["out-put-type"]}
+    java -jar /root/convert.jar ${map["report-path"]}/build/reports/cpd/cpdCheck.xml ${map["out-put-type"]}
 fi
 
 printf "\n[COUT] CO_RESULT = %s\n" "true"

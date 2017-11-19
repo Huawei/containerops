@@ -1,0 +1,81 @@
+uri: containerops/component/python-component-nose2-test
+title: Component for python projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: test-python-component
+    title:  Component test action
+    sequencing: sequence
+    actions:
+      -
+        name: component-python-test-nose2-action1
+        title: _[nose2](https://github.com/nose-devs/nose2) is the next generation of nicer testing for Python, based on the plugins branch of unittest2.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-nose2.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose2:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=."
+      -
+        name: component-python-test-nose2-action2
+        title: _[nose2](https://github.com/nose-devs/nose2) is the next generation of nicer testing for Python, based on the plugins branch of unittest2.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-nose2.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose2:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. out-put-type=yaml"
+      -
+        name: component-python-test-nose2-action3
+        title: _[nose2](https://github.com/nose-devs/nose2) is the next generation of nicer testing for Python, based on the plugins branch of unittest2.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-nose2.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose2:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. out-put-type=yaml version=python"
+      -
+        name: component-python-test-nose2-action4
+        title: _[nose2](https://github.com/nose-devs/nose2) is the next generation of nicer testing for Python, based on the plugins branch of unittest2.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-nose2.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose2:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. version=python"
+      -
+  -
+    type: end
+    name: end
+    title: End

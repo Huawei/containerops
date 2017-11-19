@@ -1,0 +1,66 @@
+uri: containerops/component/java-gradle-analysis-findbugs
+title: Component for java gradle project with composer
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: hubopsnotifier@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: analysis-java-gradle-findbugs
+    title: static code analysis and look for bugs in Java code
+    sequencing: sequence
+    actions:
+      -
+        name: java-gradle-findbugs-action1
+        title: static code analysis and look for bugs in Java code
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-analysis-findbugs.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-findbugs:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/vanniuner/gradle-demo.git"
+      -
+        name: java-gradle-findbugs-action2
+        title: static code analysis and look for bugs in Java code
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-analysis-findbugs.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-findbugs:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json"
+      -
+        name: java-gradle-findbugs-action3
+        title: static code analysis and look for bugs in Java code
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-analysis-findbugs.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-findbugs:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=xml"
+  -
+    type: end
+    name: end
+    title: End

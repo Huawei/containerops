@@ -29,6 +29,7 @@ declare -A map=(
     ["git-url"]="" 
     ["target"]=""
     ["version"]=""
+    ["build-path"]=""
 )
 data=$(echo $CO_DATA |awk '{print}')
 for i in ${data[@]}
@@ -78,21 +79,31 @@ then
 fi
 pdir=`echo ${map["git-url"]} | awk -F '/' '{print $NF}' | awk -F '.' '{print $1}'`
 cd ./$pdir
+if [ "" = "${map["build-path"]}" ]
+then
+    map["build-path"]="./"
+fi
+cd ${map["build-path"]}
+
 if [ ! -f "build.gradle" ]
 then
     printf "[COUT] file build.gradle not found! \n"
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
+havewar=`echo gradle -q tasks --all | grep war`
+if [ "$havewar" = "" ]
+then
+    echo -e "\nallprojects { apply plugin: 'war' }" >> build.gradle
+fi
 
-STOUT2 $gradle_version war
+$gradle_version war
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] gradle war fail\n"
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
-
 warpath=$(find `pwd` -name "*.war")
 if [ "$warpath" = "" ]
 then

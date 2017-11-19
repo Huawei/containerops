@@ -29,6 +29,7 @@ declare -A map=(
     ["git-url"]="" 
     ["target"]=""
     ["version"]=""
+    ["build-path"]=""
 )
 data=$(echo $CO_DATA |awk '{print}')
 for i in ${data[@]}
@@ -78,6 +79,12 @@ then
 fi
 pdir=`echo ${map["git-url"]} | awk -F '/' '{print $NF}' | awk -F '.' '{print $1}'`
 cd ./$pdir
+if [ "" = "${map["build-path"]}" ]
+then
+    map["build-path"]="./"
+fi
+cd ${map["build-path"]}
+
 if [ ! -f "build.gradle" ]
 then
     printf "[COUT] file build.gradle not found! \n"
@@ -85,14 +92,20 @@ then
     exit
 fi
 
-STOUT2 $gradle_version ear
+haveear=`echo gradle -q tasks --all | grep ear`
+if [ "$haveear" = "" ]
+then
+    echo -e "\nallprojects { apply plugin: 'ear' }" >> build.gradle
+fi
+
+printf "\n[COUT] "
+$gradle_version ear
 if [ "$?" -ne "0" ]
 then
     printf "[COUT] gradle ear fail\n"
     printf "[COUT] CO_RESULT = %s\n" "false"
     exit
 fi
-
 earpath=$(find `pwd` -name "*.ear")
 if [ "$earpath" = "" ]
 then

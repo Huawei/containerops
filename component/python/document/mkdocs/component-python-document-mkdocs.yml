@@ -1,0 +1,53 @@
+uri: containerops/component/python-component-mkdocs-document
+title: Component for python projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: document-python-component
+    title:  Component document action
+    sequencing: sequence
+    actions:
+      -
+        name: component-python-document-mkdocs-action1
+        title: _[Mkdocs](https://github.com/mkdocs/mkdocs/) is Project documentation with Markdown.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-mkdocs.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-document-mkdocs:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/mkdocs/mkdocs.git entry-path=."
+      -
+        name: component-python-document-mkdocs-action2
+        title: _[Mkdocs](https://github.com/mkdocs/mkdocs/) is Project documentation with Markdown.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-mkdocs.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-document-mkdocs:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/mkdocs/mkdocs.git entry-path=. out-put-type=yaml"
+      -
+  -
+    type: end
+    name: end
+    title: End

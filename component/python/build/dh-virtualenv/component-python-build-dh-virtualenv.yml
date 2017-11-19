@@ -1,0 +1,39 @@
+uri: containerops/component/python-component-dh-virtualenv-build
+title: Component for python projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: build-python-component
+    title:  Component build action
+    sequencing: sequence
+    actions:
+      -
+        name: component-python-build-dh-virtualenv-action1
+        title: _[dh-virtualenv](https://github.com/spotify/dh-virtualenv) is a tool that aims to combine Debian packaging with self-contained virtualenv based Python deployments.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-build-dh-virtualenv.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-build-dh-virtualenv:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/spotify/dh-virtualenv.git upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/dh-virtualenv"
+      -
+  -
+    type: end
+    name: end
+    title: End

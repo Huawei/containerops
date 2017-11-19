@@ -1,0 +1,53 @@
+uri: containerops/component/python-component-pyinstaller-build
+title: Component for python projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: build-python-component
+    title:  Component build action
+    sequencing: sequence
+    actions:
+      -
+        name: component-python-build-pyinstaller-action1
+        title: _[PyInstaller](https://github.com/pyinstaller/pyinstaller) bundles a Python application and all its dependencies into a single package. The user can run the packaged app without installing a Python interpreter or any modules.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-build-pyinstaller.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-build-pyinstaller:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pyinstaller"
+      -
+        name: component-python-build-pyinstaller-action2
+        title: _[PyInstaller](https://github.com/pyinstaller/pyinstaller) bundles a Python application and all its dependencies into a single package. The user can run the packaged app without installing a Python interpreter or any modules.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-build-pyinstaller.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-build-pyinstaller:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pyinstaller version=python"
+      -
+  -
+    type: end
+    name: end
+    title: End

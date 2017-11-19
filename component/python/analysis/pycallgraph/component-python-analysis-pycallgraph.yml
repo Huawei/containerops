@@ -1,0 +1,53 @@
+uri: containerops/component/python-component-pycallgraph-test
+title: Component for python projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: analysis-python-component
+    title:  Component analysis action
+    sequencing: sequence
+    actions:
+      -
+        name: component-python-analysis-pycallgraph-action1
+        title: _[Python Call Graph](https://github.com/gak/pycallgraph) is a Python module that creates call graph visualizations for Python applications.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pycallgraph.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pycallgraph:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pycallgraph"
+      -
+        name: component-python-analysis-pycallgraph-action2
+        title: _[Python Call Graph](https://github.com/gak/pycallgraph) is a Python module that creates call graph visualizations for Python applications.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pycallgraph.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pycallgraph:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/bpnn.git entry-file=bpnn.py upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pycallgraph version=python"
+      -
+  -
+    type: end
+    name: end
+    title: End

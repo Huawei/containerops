@@ -1,0 +1,52 @@
+uri: containerops/component/java-gradle-compile-war
+title: Component for java gradle project with composer
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: hubopsnotifier@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: compile-java-gradle-war
+    title: compile your project to a war file and upload it to the target
+    sequencing: sequence
+    actions:
+      -
+        name: compile-java-gradle-war-action1
+        title: compile your project to a war file and upload it to the target
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-compile-war.yaml
+            endpoint: hub.opshub.sh/containerops/compile-java-gradle-war:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/rominirani/GradleWebAppSample.git"
+      -
+        name: compile-java-gradle-war-action2
+        title: compile your project to a war file and upload it to the target
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-compile-war.yaml
+            endpoint: hub.opshub.sh/containerops/compile-java-gradle-war:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/rominirani/GradleWebAppSample.git target=https://hub.opshub.sh/binary/v1/lidian/test/binary/2.2.4/web.war"
+  -
+    type: end
+    name: end
+    title: End

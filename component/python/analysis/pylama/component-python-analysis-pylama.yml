@@ -1,0 +1,81 @@
+uri: containerops/component/python-component-pylama-test
+title: Component for python projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: analysis-python-component
+    title:  Component analysis action
+    sequencing: sequence
+    actions:
+      -
+        name: component-python-analysis-pylama-action1
+        title: _[pylama](https://github.com/klen/pylama) is code audit tool for python.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pylama.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pylama:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git"
+      -
+        name: component-python-analysis-pylama-action2
+        title: _[pylama](https://github.com/klen/pylama) is code audit tool for python.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pylama.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pylama:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml"
+      -
+        name: component-python-analysis-pylama-action3
+        title: _[pylama](https://github.com/klen/pylama) is code audit tool for python.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pylama.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pylama:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml version=python"
+      -
+        name: component-python-analysis-pylama-action4
+        title: _[pylama](https://github.com/klen/pylama) is code audit tool for python.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-pylama.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-pylama:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git version=python"
+      -
+  -
+    type: end
+    name: end
+    title: End

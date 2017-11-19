@@ -75,7 +75,7 @@ fi
 
 if [ "" = "${map["report-path"]}" ]
 then
-    map["report-path"]="build/reports/jdepend"
+    map["report-path"]="./"
 fi
 
 STOUT git clone ${map["git-url"]}
@@ -96,19 +96,19 @@ fi
 havejdepend=`echo gradle -q tasks --all | grep jdepend`
 if [ "$havejdepend" = "" ]
 then
-    echo -e "\napply plugin: 'jdepend'" >> build.gradle
+    echo -e "\nallprojects { apply plugin: 'jdepend' }" >> build.gradle
 fi
-
-STOUT2 $gradle_version jdependMain
-STOUT2 $gradle_version jdependTest
+printf "\n[COUT] "
+$gradle_version jdependMain
+$gradle_version jdependTest
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then
-    cat ${map["report-path"]}/main.xml
-    cat ${map["report-path"]}/test.xml
+    cat ${map["report-path"]}/build/reports/jdepend/main.xml
+    cat ${map["report-path"]}/build/reports/jdepend/test.xml
 else
-    java -jar /root/convert.jar ${map["report-path"]}/main.xml ${map["out-put-type"]}
-    java -jar /root/convert.jar ${map["report-path"]}/test.xml ${map["out-put-type"]}
+    java -jar /root/convert.jar ${map["report-path"]}/build/reports/jdepend/main.xml ${map["out-put-type"]}
+    java -jar /root/convert.jar ${map["report-path"]}/build/reports/jdepend/test.xml ${map["out-put-type"]}
 fi
 
 printf "\n[COUT] CO_RESULT = %s\n" "true"

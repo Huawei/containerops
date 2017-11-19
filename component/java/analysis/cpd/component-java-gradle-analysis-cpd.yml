@@ -1,0 +1,66 @@
+uri: containerops/component/java-gradle-analysis-cpd
+title: Component for java gradle project with composer
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: hubopsnotifier@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: analysis-java-gradle-cpd
+    title: find the Duplicate code
+    sequencing: sequence
+    actions:
+      -
+        name: java-gradle-cpd-action1
+        title: find the Duplicate code
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-analysis-cpd.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-cpd:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/vanniuner/gradle-demo.git"
+      -
+        name: java-gradle-cpd-action2
+        title: find the Duplicate code
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-analysis-cpd.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-cpd:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=xml"
+      -
+        name: java-gradle-cpd-action3
+        title: find the Duplicate code
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-analysis-cpd.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-cpd:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json"
+  -
+    type: end
+    name: end
+    title: End

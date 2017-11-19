@@ -24,10 +24,3 @@ const (
 	Failure = "failure"
 	Success = "success"
 )
-
-
-
-
-
-
-

@@ -1,0 +1,81 @@
+uri: containerops/component/python-component-coverage-test
+title: Component for python projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: test-python-component
+    title:  Component test action
+    sequencing: sequence
+    actions:
+      -
+        name: component-python-test-coverage-action1
+        title: _[Coverage.py](https://github.com/nedbat/coveragepy) measures code coverage, typically during test execution. It uses the code analysis tools and tracing hooks provided in the Python standard library to determine which lines are executable, and which have been executed.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-coverage.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-coverage:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=test/test_regex.py"
+      -
+        name: component-python-test-coverage-action2
+        title: _[Coverage.py](https://github.com/nedbat/coveragepy) measures code coverage, typically during test execution. It uses the code analysis tools and tracing hooks provided in the Python standard library to determine which lines are executable, and which have been executed.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-coverage.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-coverage:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=test/test_regex.py out-put-type=yaml"
+      -
+        name: component-python-test-coverage-action3
+        title: _[Coverage.py](https://github.com/nedbat/coveragepy) measures code coverage, typically during test execution. It uses the code analysis tools and tracing hooks provided in the Python standard library to determine which lines are executable, and which have been executed.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-coverage.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-coverage:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=test/test_regex.py out-put-type=yaml version=python"
+      -
+        name: component-python-test-coverage-action4
+        title: _[Coverage.py](https://github.com/nedbat/coveragepy) measures code coverage, typically during test execution. It uses the code analysis tools and tracing hooks provided in the Python standard library to determine which lines are executable, and which have been executed.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-coverage.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-coverage:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=test/test_regex.py version=python"
+      -
+  -
+    type: end
+    name: end
+    title: End

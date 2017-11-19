@@ -1,0 +1,81 @@
+uri: containerops/component/python-component-nose-test
+title: Component for python projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: test-python-component
+    title:  Component test action
+    sequencing: sequence
+    actions:
+      -
+        name: component-python-test-nose-action1
+        title: _[nose](https://github.com/nose-devs/nose) is nicer testing for python
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-nose.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/nose-devs/nose.git entry-path=unit_tests"
+      -
+        name: component-python-test-nose-action2
+        title: _[nose](https://github.com/nose-devs/nose) is nicer testing for python
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-nose.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/nose-devs/nose.git entry-path=unit_tests out-put-type=yaml"
+      -
+        name: component-python-test-nose-action3
+        title: _[nose](https://github.com/nose-devs/nose) is nicer testing for python
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-nose.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/nose-devs/nose.git entry-path=unit_tests out-put-type=yaml version=python"
+      -
+        name: component-python-test-nose-action4
+        title: _[nose](https://github.com/nose-devs/nose) is nicer testing for python
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-nose.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-nose:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/nose-devs/nose.git entry-path=unit_tests version=python"
+      -
+  -
+    type: end
+    name: end
+    title: End

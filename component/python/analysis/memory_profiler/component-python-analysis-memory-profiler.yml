@@ -1,0 +1,81 @@
+uri: containerops/component/python-component-memory-profiler-test
+title: Component for python projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: analysis-python-component
+    title:  Component analysis action
+    sequencing: sequence
+    actions:
+      -
+        name: component-python-analysis-memory-profiler-action1
+        title: _[memory_profiler](https://github.com/fabianp/memory_profiler) is a python module for monitoring memory consumption of a process as well as line-by-line analysis of memory consumption for python programs.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-memory-profiler.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-memory-profiler:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/fabianp/memory_profiler.git entry-file=test/test_func.py"
+      -
+        name: component-python-analysis-memory-profiler-action2
+        title: _[memory_profiler](https://github.com/fabianp/memory_profiler) is a python module for monitoring memory consumption of a process as well as line-by-line analysis of memory consumption for python programs.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-memory-profiler.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-memory-profiler:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/fabianp/memory_profiler.git entry-file=test/test_func.py out-put-type=yaml"
+      -
+        name: component-python-analysis-memory-profiler-action3
+        title: _[memory_profiler](https://github.com/fabianp/memory_profiler) is a python module for monitoring memory consumption of a process as well as line-by-line analysis of memory consumption for python programs.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-memory-profiler.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-memory-profiler:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/fabianp/memory_profiler.git entry-file=test/test_func.py version=python"
+      -
+        name: component-python-analysis-memory-profiler-action4
+        title: _[memory_profiler](https://github.com/fabianp/memory_profiler) is a python module for monitoring memory consumption of a process as well as line-by-line analysis of memory consumption for python programs.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-memory-profiler.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-memory-profiler:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/fabianp/memory_profiler.git entry-file=test/test_func.py out-put-type=yaml version=python"
+      -
+  -
+    type: end
+    name: end
+    title: End

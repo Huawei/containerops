@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+ name: analysis-java-gradle-pmd
+spec:
+ containers:
+ - name: analysis-java-gradle-pmd
+   image: hub.opshub.sh/containerops/analysis-java-gradle-pmd
+   env:
+   - name: CO_DATA
+     value: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json"
+   resources:
+     requests:
+       cpu: 2
+       memory: 4G
+ restartPolicy: Never

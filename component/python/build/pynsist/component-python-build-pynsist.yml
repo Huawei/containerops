@@ -1,0 +1,39 @@
+uri: containerops/component/python-component-pynsist-build
+title: Component for python projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: build-python-component
+    title:  Component build action
+    sequencing: sequence
+    actions:
+      -
+        name: component-python-build-pynsist-action1
+        title: _[pynsist](https://github.com/takluyver/pynsist) is a tool to build Windows installers for your Python applications. The installers bundle Python itself, so you can distribute your application to people who don't have Python installed.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-build-pynsist.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-build-pynsist:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/takluyver/pynsist.git entry-file=examples/console/installer.cfg upload=https://hub.opshub.sh/binary/v1/containerops/component/binary/v0.1/pynsist"
+      -
+  -
+    type: end
+    name: end
+    title: End

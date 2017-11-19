@@ -1,0 +1,81 @@
+uri: containerops/component/python-component-pdoc-document
+title: Component for python projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: document-python-component
+    title:  Component document action
+    sequencing: sequence
+    actions:
+      -
+        name: component-python-document-pdoc-action1
+        title: _[pdoc](https://github.com/BurntSushi/pdoc) is a simple command line tool and library to auto generate API documentation for Python libraries.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-pdoc.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-document-pdoc:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-mod=grapy"
+      -
+        name: component-python-document-pdoc-action2
+        title: _[pdoc](https://github.com/BurntSushi/pdoc) is a simple command line tool and library to auto generate API documentation for Python libraries.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-pdoc.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-document-pdoc:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-mod=grapy version=python"
+      -
+        name: component-python-document-pdoc-action3
+        title: _[pdoc](https://github.com/BurntSushi/pdoc) is a simple command line tool and library to auto generate API documentation for Python libraries.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-pdoc.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-document-pdoc:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-mod=grapy out-put-type=yaml"
+      -
+        name: component-python-document-pdoc-action4
+        title: _[pdoc](https://github.com/BurntSushi/pdoc) is a simple command line tool and library to auto generate API documentation for Python libraries.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-pdoc.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-document-pdoc:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/grapy.git entry-mod=grapy version=python out-put-type=yaml"
+      -
+  -
+    type: end
+    name: end
+    title: End

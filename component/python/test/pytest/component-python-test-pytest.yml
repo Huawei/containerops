@@ -1,0 +1,81 @@
+uri: containerops/component/python-component-pytest-test
+title: Component for python projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: test-python-component
+    title:  Component test action
+    sequencing: sequence
+    actions:
+      -
+        name: component-python-test-pytest-action1
+        title: The [pytest](https://github.com/pytest-dev/pytest/) framework makes it easy to write small tests, yet scales to support complex functional testing for applications and libraries.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-pytest.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-pytest:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=."
+      -
+        name: component-python-test-pytest-action2
+        title: The [pytest](https://github.com/pytest-dev/pytest/) framework makes it easy to write small tests, yet scales to support complex functional testing for applications and libraries.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-pytest.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-pytest:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. out-put-type=yaml"
+      -
+        name: component-python-test-pytest-action3
+        title: The [pytest](https://github.com/pytest-dev/pytest/) framework makes it easy to write small tests, yet scales to support complex functional testing for applications and libraries.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-pytest.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-pytest:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. out-put-type=yaml version=python"
+      -
+        name: component-python-test-pytest-action4
+        title: The [pytest](https://github.com/pytest-dev/pytest/) framework makes it easy to write small tests, yet scales to support complex functional testing for applications and libraries.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-pytest.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-pytest:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-path=. version=python"
+      -
+  -
+    type: end
+    name: end
+    title: End

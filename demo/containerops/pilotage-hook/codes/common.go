@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 func clone() error {
@@ -43,6 +45,25 @@ func build(target string) (string, error) {
 
 	localFile := fmt.Sprintf("%s/%s", buildCmd.Dir, target)
 	return localFile, nil
+}
+
+func lastCommitHash(target string) (string, error) {
+	repoParentPath, err := getGitRepoParentPath()
+	if err != nil {
+		return "", err
+	}
+
+	buildCmd := exec.Command("git", "rev-parse", "HEAD")
+	buildCmd.Dir = fmt.Sprintf("%s/containerops/%s", repoParentPath, target)
+	var buf bytes.Buffer
+	buildCmd.Stdout = &buf
+	buildCmd.Stderr = &buf
+	if err := buildCmd.Run(); err != nil {
+		return "", err
+	}
+	commit := strings.Trim(buf.String(), "\n")
+
+	return commit, nil
 }
 
 func installDependencies() error {

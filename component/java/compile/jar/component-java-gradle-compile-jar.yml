@@ -1,0 +1,52 @@
+uri: containerops/component/java-gradle-compile-jar
+title: Component for java gradle project with composer
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: hubopsnotifier@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: compile-java-gradle-jar
+    title: compile your project to a jar file and upload it to the target
+    sequencing: sequence
+    actions:
+      -
+        name: compile-java-gradle-jar
+        title: compile your project to a jar file and upload it to the target
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-compile-jar.yaml
+            endpoint: hub.opshub.sh/containerops/compile-java-gradle-jar:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git"
+      -
+        name: compile-java-gradle-jar
+        title: compile your project to a jar file and upload it to the target
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-compile-jar.yaml
+            endpoint: hub.opshub.sh/containerops/compile-java-gradle-jar:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git target=https://hub.opshub.sh/binary/v1/containerops/component/binary/2.2.4/demo.jar"
+  -
+    type: end
+    name: end
+    title: End

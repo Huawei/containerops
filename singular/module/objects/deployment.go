@@ -50,6 +50,7 @@ type Deployment struct {
 	Description string                 `json:"description" yaml:"description"`
 	Short       string                 `json:"short" yaml:"short"`
 	Logs        []string               `json:"logs,omitempty" yaml:"logs,omitempty"`
+	Template    string                 `json:"template" yaml:"template"`
 	Config      string                 `json:"-" yaml:"-"`
 	Outputs     map[string]interface{} `json:"-" yaml:"-"`
 }
@@ -77,8 +78,13 @@ func (d *Deployment) ParseFromFile(t string, output string) error {
 			return err
 		}
 
+		if d.Service == nil {
+			d.Service = &Service{}
+		}
+
 		//Set configs value
 		d.Namespace, d.Repository, d.Name, _ = d.URIs()
+		d.Template = string(data)
 		if d.Config, err = initConfigPath(d.Namespace, d.Repository, d.Name, output, d.Version); err != nil {
 			return err
 		}
@@ -130,7 +136,6 @@ func (d *Deployment) URIs() (namespace, repository, name string, err error) {
 	}
 
 	namespace, repository, name = array[0], array[1], array[2]
-
 	return namespace, repository, name, nil
 }
 
@@ -143,7 +148,7 @@ func (d *Deployment) Output(key, value string) {
 	d.Outputs[key] = value
 }
 
-//Check sequence: CheckServiceAuth -> TODO Check Other?
+//Check sequence: CheckServiceAuth
 func (d *Deployment) Check() error {
 	if err := d.CheckServiceAuth(); err != nil {
 		if len(d.Nodes) == 0 {
@@ -183,7 +188,17 @@ func (d *Deployment) Save() error {
 	s, _ := d.Service.YAML()
 	log, _ := yaml.Marshal(d.Logs)
 
-	if err := deploy.Update(deploy.ID, string(s), string(log), d.Description, len(d.Nodes)); err != nil {
+	files := map[string]string{}
+	for _, key := range []string{tools.CARootConfigFile, tools.CARootCSRConfigFile, tools.CARootPemFile, tools.CARootCSRFile, tools.CARootKeyFile} {
+		if data, err := ioutil.ReadFile(d.Outputs[key].(string)); err != nil {
+			return err
+		} else {
+			files[key] = string(data)
+		}
+	}
+	caData, _ := yaml.Marshal(files)
+
+	if err := deploy.Update(deploy.ID, string(s), string(log), d.Short, d.Description, len(d.Nodes), d.Template, string(caData)); err != nil {
 		return err
 	}
 

@@ -75,7 +75,7 @@ fi
 
 if [ "" = "${map["report-path"]}" ]
 then
-    map["report-path"]="build/reports/jacoco/test/jacocoTestReport.xml"
+    map["report-path"]="./"
 fi
 
 STOUT git clone ${map["git-url"]}
@@ -99,14 +99,14 @@ then
     cat /root/jacoco.conf >> build.gradle
 fi
 
-STOUT2 $gradle_version test
-STOUT2 $gradle_version jacocoTestReport
+$gradle_version test
+$gradle_version jacocoTestReport
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then
-    cat ${map["report-path"]}
+    cat ${map["report-path"]}/build/reports/jacoco/test/jacocoTestReport.xml
 else
-    java -jar /root/convert.jar ${map["report-path"]} ${map["out-put-type"]}
+    java -jar /root/convert.jar ${map["report-path"]}/build/reports/jacoco/test/jacocoTestReport.xml ${map["out-put-type"]}
 fi
 
 if [ "$?" -eq "0" ]

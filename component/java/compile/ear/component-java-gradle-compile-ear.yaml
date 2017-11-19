@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+ name: compile-java-gradle-ear
+spec:
+ containers:
+ - name: compile-java-gradle-ear
+   image: hub.opshub.sh/containerops/compile-java-gradle-ear
+   env:
+   - name: CO_DATA
+     value: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git target=https://hub.opshub.sh/binary/v1/containerops/component/binary/2.2.4/demo.ear"
+   resources:
+     requests:
+       cpu: 2
+       memory: 4G
+ restartPolicy: Never

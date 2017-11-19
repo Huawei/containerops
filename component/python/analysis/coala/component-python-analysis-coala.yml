@@ -1,0 +1,53 @@
+uri: containerops/component/python-component-coala-test
+title: Component for python projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: analysis-python-component
+    title:  coala(https://github.com/coala/coala) provides a unified command-line interface for linting and fixing all your code,regardless of the programming languages you use.
+    sequencing: sequence
+    actions:
+      -
+        name: component-python-analysis-coala-action1
+        title: _[coala](https://github.com/coala/coala) provides a unified command-line interface for linting and fixing all your code,regardless of the programming languages you use.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-coala.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-coala:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "out-put-type=ymal git-url=https://github.com/Lupino/python-aio-periodic.git"
+      -
+        name: component-python-analysis-coala-action2
+        title: _[coala](https://github.com/coala/coala) provides a unified command-line interface for linting and fixing all your code,regardless of the programming languages you use.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-analysis-coala.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-analysis-coala:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/Lupino/python-aio-periodic.git out-put-type=yaml"
+      -
+  -
+    type: end
+    name: end
+    title: End

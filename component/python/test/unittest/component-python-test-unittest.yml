@@ -1,0 +1,81 @@
+uri: containerops/component/python-component-unittest-test
+title: Component for python projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: test-python-component
+    title:  Component test action
+    sequencing: sequence
+    actions:
+      -
+        name: component-python-test-unittest-action1
+        title: The [unittest](https://docs.python.org/3/library/unittest.html) unit testing framework was originally inspired by JUnit and has a similar flavor as major unit testing frameworks in other languages.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-unittest.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-unittest:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-module=test.test_regex"
+      -
+        name: component-python-test-unittest-action2
+        title: The [unittest](https://docs.python.org/3/library/unittest.html) unit testing framework was originally inspired by JUnit and has a similar flavor as major unit testing frameworks in other languages.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-unittest.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-unittest:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-module=test.test_regex out-put-type=yaml"
+      -
+        name: component-python-test-unittest-action3
+        title: The [unittest](https://docs.python.org/3/library/unittest.html) unit testing framework was originally inspired by JUnit and has a similar flavor as major unit testing frameworks in other languages.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-unittest.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-unittest:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-module=test.test_regex out-put-type=yaml version=python"
+      -
+        name: component-python-test-unittest-action4
+        title: The [unittest](https://docs.python.org/3/library/unittest.html) unit testing framework was originally inspired by JUnit and has a similar flavor as major unit testing frameworks in other languages.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-test-unittest.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-test-unittest:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/minhhh/regex.git entry-module=test.test_regex version=python"
+      -
+  -
+    type: end
+    name: end
+    title: End

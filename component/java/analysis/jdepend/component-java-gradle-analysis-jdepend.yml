@@ -1,0 +1,66 @@
+uri: containerops/component/java-gradle-analysis-jdepend
+title: Component for java gradle project with composer
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: hubopsnotifier@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: analysis-java-gradle-jdepend
+    title: produces a nicely formatted metrics report based on your project
+    sequencing: sequence
+    actions:
+      -
+        name: java-gradle-jdepend-action1
+        title: produces a nicely formatted metrics report based on your project
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-analysis-jdepend.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-jdepend:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/vanniuner/gradle-demo.git"
+      -
+        name: java-gradle-jdepend-action2
+        title: produces a nicely formatted metrics report based on your project
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-analysis-jdepend.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-jdepend:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json"
+      -
+        name: java-gradle-jdepend-action3
+        title: produces a nicely formatted metrics report based on your project
+        jobs:
+          -
+            type: component
+            kubectl: component-java-gradle-analysis-jdepend.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-java-gradle-jdepend:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=yaml"
+  -
+    type: end
+    name: end
+    title: End

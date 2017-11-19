@@ -27,6 +27,18 @@ import (
 )
 
 func main() {
+	codeChanged := os.Getenv("CO_CODE_CHANGED")
+	if codeChanged == "false" {
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT=true\n")
+		os.Exit(0)
+	}
+
+	url := os.Getenv("CO_URL")
+	if url == "" {
+		fmt.Fprintf(os.Stderr, "[COUT] %s\n", "The CO_URL value is null.")
+		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
+		os.Exit(1)
+	}
 
 	data := os.Getenv("CO_DATA")
 	if len(data) == 0 {
@@ -35,7 +47,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	target, url, key, err := parseEnv(data)
+	target, key, err := parseEnv(data)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[COUT] Parse the CO_DATA: %s\n", err.Error())
 		fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT = false\n")
@@ -53,7 +65,7 @@ func main() {
 	fmt.Fprintf(os.Stdout, "[COUT] CO_RESULT=true\n")
 }
 
-func parseEnv(env string) (target, url, sshKey string, err error) {
+func parseEnv(env string) (target, sshKey string, err error) {
 	// Extract variable 'key'
 	index := strings.Index(env, "key=")
 	sshKey = env[index+4:]
@@ -73,8 +85,6 @@ func parseEnv(env string) (target, url, sshKey string, err error) {
 		switch key {
 		case "target":
 			target = value
-		case "url":
-			url = value
 		// case "key":
 		//     sshKey = value
 		default:

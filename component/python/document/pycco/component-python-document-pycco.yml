@@ -1,0 +1,53 @@
+uri: containerops/component/python-component-pycco-build
+title: Component for python projects
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: lidian@containerops.sh
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: document-python-component
+    title:  Component document action
+    sequencing: sequence
+    actions:
+      -
+        name: component-python-document-pycco-action1
+        title: _[Pycco](https://github.com/pycco-docs/pycco) is a Python port of Docco the original quick-and-dirty, hundred-line- long, literate-programming-style documentation generator.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-pycco.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-document-pycco:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/pycco-docs/pycco.git"
+      -
+        name: component-python-document-pycco-action2
+        title: _[Pycco](https://github.com/pycco-docs/pycco) is a Python port of Docco the original quick-and-dirty, hundred-line- long, literate-programming-style documentation generator.
+        jobs:
+          -
+            type: component
+            kubectl: component-python-document-pycco.yaml
+            endpoint: hub.opshub.sh/containerops/component-python-document-pycco:latest
+            resources:
+              cpu: 4
+              memory: 8G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/pycco-docs/pycco.git out-put-type=yaml"
+      -
+  -
+    type: end
+    name: end
+    title: End

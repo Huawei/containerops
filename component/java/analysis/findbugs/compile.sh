@@ -75,9 +75,8 @@ fi
 
 if [ "" = "${map["report-path"]}" ]
 then
-    map["report-path"]="build/reports/findbugs"
+    map["report-path"]="./"
 fi
-
 STOUT git clone ${map["git-url"]}
 if [ "$?" -ne "0" ]
 then
@@ -96,19 +95,19 @@ fi
 havefindbugs=`echo gradle -q tasks --all | grep findbugs`
 if [ "$havefindbugs" = "" ]
 then
-    echo -e "\napply plugin: 'findbugs'" >> build.gradle
+    echo -e "\nallprojects { apply plugin: 'findbugs' }" >> build.gradle
 fi
-
-STOUT2 $gradle_version findbugsMain
-STOUT2 $gradle_version findbugsTest
+printf "\n[COUT] "
+$gradle_version findbugsMain
+$gradle_version findbugsTest
 
 if [ "${map["out-put-type"]}" = "xml" ]
 then
-    cat ${map["report-path"]}/main.xml
-    cat ${map["report-path"]}/test.xml
+    cat ${map["report-path"]}/build/reports/findbugs/main.xml
+    cat ${map["report-path"]}/build/reports/findbugs/test.xml
 else
-    java -jar /root/convert.jar ${map["report-path"]}/main.xml ${map["out-put-type"]}
-    java -jar /root/convert.jar ${map["report-path"]}/test.xml ${map["out-put-type"]}
+    java -jar /root/convert.jar ${map["report-path"]}/build/reports/findbugs/main.xml ${map["out-put-type"]}
+    java -jar /root/convert.jar ${map["report-path"]}/build/reports/findbugs/test.xml ${map["out-put-type"]}
 fi
 
 printf "\n[COUT] CO_RESULT = %s\n" "true"

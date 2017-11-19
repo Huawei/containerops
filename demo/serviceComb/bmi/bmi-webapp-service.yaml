@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bmi-webapp
+spec:
+  ports:
+  - name: "flow"
+    port: 8888
+    targetPort: 8888
+    nodePort: 8999
+    protocol: TCP
+  type: NodePort
+  selector:
+    name: bmi-webapp

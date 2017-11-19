@@ -125,7 +125,7 @@ stages:
               memory: 4G
             timeout: 0
             environments:
-              - CO-DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git target=https://hub.opshub.sh/binary/v1/containerops/component/binary/2.2.4/demo.jar" 
+              - CO-DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git target=https://hub.opshub.sh/binary/v1/containerops/component/binary/2.2.4/demo.jar"
       -
         name: compile-java-gradle-ear
         title: analysis your java coding style
@@ -139,7 +139,7 @@ stages:
               memory: 4G
             timeout: 0
             environments:
-              - CO-DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git target=https://hub.opshub.sh/binary/v1/containerops/component/binary/2.2.4/demo.ear" 
+              - CO-DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git target=https://hub.opshub.sh/binary/v1/containerops/component/binary/2.2.4/demo.ear"
       -
         name: document-java-gradle-javadoc
         title: build your Debian package with dh-virtualenv
@@ -153,7 +153,7 @@ stages:
               memory: 4G
             timeout: 0
             environments:
-              - CO-DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git target=https://hub.opshub.sh/binary/v1/lidian/test/binary/1.1.0/javadoc.tar" 
+              - CO-DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git target=https://hub.opshub.sh/binary/v1/lidian/test/binary/1.1.0/javadoc.tar"
       -
         name: test-java-gradle-jacoco
         title: compile your java code with jacoco
@@ -167,7 +167,7 @@ stages:
               memory: 4G
             timeout: 0
             environments:
-              - CO-DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json" 
+              - CO-DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json"
       -
         name: test-java-gradle-junit
         title: build your java code with pybuilder
@@ -181,7 +181,7 @@ stages:
               memory: 4G
             timeout: 0
             environments:
-              - CO-DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json" 
+              - CO-DATA: "version=gradle3 git-url=https://github.com/vanniuner/gradle-demo.git out-put-type=json"
       -
         name: test-java-gradle-testng
         title: build your java code with gradle
