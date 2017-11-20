@@ -1,0 +1,52 @@
+uri: containerops/component/php-component-phploc-test
+title: analysis php project
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-phploc-test
+    title: analysis php project
+    sequencing: sequence
+    actions:
+      -
+        name: component-php-analysis-phploc-action1
+        title: action of php-analysis-phploc with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-analysis-phploc.yml
+            endpoint: hub.opshub.sh/containerops/analysis-php-phploc:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/TIGERB/easy-php.git exclude=public"
+      -
+        name: component-php-analysis-phploc-action2
+        title: action of php-analysis-phploc with false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-analysis-phploc.yml
+            endpoint: hub.opshub.sh/containerops/analysis-php-phploc:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/yangkghjh/containerops-php.git path=new"
+  -
+    type: end
+    name: end
+    title: End

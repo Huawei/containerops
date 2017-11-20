@@ -14,11 +14,11 @@ class Phploc {
         try {
             $cmd = "/root/.composer/vendor/bin/phploc ";
 
-            if ($input["path"] == "" || $input["path"] == null) {
+            if ($input["path"] == "" || $input["path"] == null){
                 $input["path"] = ".";
             }
 
-            $cmd = "$cmd " . $input["file"];
+            $cmd = "$cmd " . $input["path"];
 
             $params = [
                 "exclude",
@@ -44,7 +44,11 @@ class Phploc {
 
             $cmd = "$cmd --log-xml=" . self::reportPath;
 
-            exec("cd " . WORK_DIR . " && $cmd");
+            $lastLine = exec("cd " . WORK_DIR . " && $cmd", $output, $result);
+            if ($result != 0) {
+                stderrln($lastLine);
+                throw new Exception();
+            }
 
             stdoutReport(self::reportPath, self::reportFormat);
             stdoutln("[COUT] CO_RESULT = true");

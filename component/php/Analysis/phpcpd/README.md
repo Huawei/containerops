@@ -1,40 +1,42 @@
-# PHPCPD
+## PHP Code Analysis Component PHPcpd
 
-## Build
+### What's the Component?
+
+This image is php runtime image, used for analysis your php coding style. 
+
+`phpcpd` is a Copy/Paste Detector (CPD) for PHP code.
+
+### Learn how to build it?
+
+Use the docker build command build the image.
 
 ```shell
 docker build -t hub.opshub.sh/containerops/analysis-php-phpcpd:latest .
 ```
 
-## Run
+### Component Usage
 
 ```shell
-docker run --env CO_DATA="git-url=https://github.com/TIGERB/easy-php.git" hub.opshub.sh/containerops/analysis-php-phpcpd:latest
+docker run \
+    --env CO_DATA=" \
+    git-url=https://github.com/TIGERB/easy-php.git" \
+    hub.opshub.sh/containerops/analysis-php-phpcpd:latest
 ```
 
-## Options
+### Parameters 
 
 Required:
 
-- git-url
+- `git-url` where your code is located
 
 Optional:
 
-- path
-- names
-- names-exclude
-- regexps-exclude
-- exclude
-- min-lines
-- min-tokens
+- `path` Files and directories to analyze
+- `names` A comma-separated list of file names to check [default: ["*.php"]]
+- `names-exclude` A comma-separated list of file names to exclude
+- `regexps-exclude` A comma-separated list of paths regexps to exclude (example: "#var/.*_tmp#")
+- `exclude` Exclude a directory from 
+- `min-lines` Minimum number of identical lines [default: 5]
+- `min-tokens` inimum number of identical tokens [default: 70]
 
-```shell
-Options:
-    path=.                           Files and directories to analyze
-    names=NAMES                      A comma-separated list of file names to check [default: ["*.php"]]
-    names-exclude=NAMES-EXCLUDE      A comma-separated list of file names to exclude
-    regexps-exclude=REGEXPS-EXCLUDE  A comma-separated list of paths regexps to exclude (example: "#var/.*_tmp#")
-    exclude=EXCLUDE                  Exclude a directory from code analysis (must be relative to source) (multiple values allowed)
-    min-lines=MIN-LINES              Minimum number of identical lines [default: 5]
-    min-tokens=MIN-TOKENS            Minimum number of identical tokens [default: 70]
-```
+### Versions 1.0.0

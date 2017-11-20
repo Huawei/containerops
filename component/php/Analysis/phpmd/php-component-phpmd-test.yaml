@@ -1,35 +1,16 @@
-uri: containerops/component/php-component-phpmd-test
-title: analysis php project
-version: 1
-tag: latest
-timeout: 0
-stages:
-  -
-    type: start
-    name: start
-    title: Start
-  -
-    type: normal
-    name: component-phpmd-test
-    title: analysis php project
-    sequencing: sequence
-    actions:
-      -
-        name: phpmd-test
-        title: analysis php project
-        jobs:
-          -
-            type: component
-            # kubectl: phpmd-test.yaml
-            endpoint: hub.opshub.sh/containerops/analysis-php-phpmd:latest
-            resources:
-              cpu: 2
-              memory: 4G
-            timeout: 0
-            environments:
-              - CO_DATA: "git-url=https://github.com/TIGERB/easy-php.git"
-      -
-  -
-    type: end
-    name: end
-    title: End
+apiVersion: v1
+kind: Pod
+metadata:
+ name: component-php-analysis-phpmd
+spec:
+ containers:
+ - name: phpmd
+   image: hub.opshub.sh/containerops/analysis-php-phpmd:latest
+   env:
+   - name: CO_DATA
+     value: "git-url=https://github.com/TIGERB/easy-php.git path=docs"
+   resources:
+     requests:
+       cpu: 2
+       memory: 4G
+ restartPolicy: Never

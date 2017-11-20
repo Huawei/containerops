@@ -54,9 +54,14 @@ class Phpmd {
 
             $cmd = "$cmd --reportfile " . self::reportPath;
 
-            exec("cd " . WORK_DIR . " && $cmd");
+            $lastLine = system("cd " . WORK_DIR . " && $cmd", $result);
+
+            if ($result != 0) {
+                throw new Exception();
+            }
 
             stdoutReport(self::reportPath, self::reportFormat);
+
             stdoutln("[COUT] CO_RESULT = true");
         } catch (Exception $ex) {
             stderrln("[COUT] CO_RESULT = false");

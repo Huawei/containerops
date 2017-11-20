@@ -1,35 +1,16 @@
-uri: containerops/component/php-component-composer-test
-title: authentication dependency
-version: 1
-tag: latest
-timeout: 0
-stages:
-  -
-    type: start
-    name: start
-    title: Start
-  -
-    type: normal
-    name: component-composer-test
-    title: authentication dependency
-    sequencing: sequence
-    actions:
-      -
-        name: composer-test
-        title: authentication dependency
-        jobs:
-          -
-            type: component
-            # kubectl: composer-test.yaml
-            endpoint: hub.opshub.sh/containerops/dependence-php-composer:latest
-            resources:
-              cpu: 2
-              memory: 4G
-            timeout: 0
-            environments:
-              - CO_DATA: "git-url=https://github.com/sebastianbergmann/phploc.git entry-file=build.php"
-      -
-  -
-    type: end
-    name: end
-    title: End
+apiVersion: v1
+kind: Pod
+metadata:
+ name: component-php-dependency-composer
+spec:
+ containers:
+ - name: composer
+   image: hub.opshub.sh/containerops/dependency-php-composer:latest
+   env:
+   - name: CO_DATA
+     value: "git-url=https://github.com/sebastianbergmann/phploc.git"
+   resources:
+     requests:
+       cpu: 2
+       memory: 4G
+ restartPolicy: Never

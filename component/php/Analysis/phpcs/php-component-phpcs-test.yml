@@ -1,0 +1,52 @@
+uri: containerops/component/php-component-phpcs-test
+title: analysis php project
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-phpcs-test
+    title: analysis php project
+    sequencing: sequence
+    actions:
+      -
+        name: phpcs-test
+        title: action of php-analysis-phpcs with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-analysis-phpcs.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-php-phpcs:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/squizlabs/PHP_CodeSniffer.git report=full standard=phpcs.xml.dist"
+      -
+        name: component-php-analysis-phpcs-action2
+        title: action of php-analysis-phpcs with false co-result
+        jobs:
+          -
+            type: component
+            endpoint: hub.opshub.sh/containerops/analysis-php-phpcs:latest
+            kubectl: component-php-analysis-phpcs.yaml
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/yangkghjh/containerops-php.git report=full standard=phpcs.xml.dist"
+  -
+    type: end
+    name: end
+    title: End

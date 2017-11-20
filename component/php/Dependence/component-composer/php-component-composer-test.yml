@@ -1,0 +1,52 @@
+uri: containerops/component/php-component-composer-test
+title: authentication dependency
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-composer-test
+    title: authentication dependency
+    sequencing: sequence
+    actions:
+      -
+        name: component-php-dependency-composer-action1
+        title: action of php-dependency-composer with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-dependency-composer.yml
+            endpoint: hub.opshub.sh/containerops/dependence-php-composer:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/sebastianbergmann/phploc.git"
+      -
+        name: component-php-dependency-composer-action2
+        title: action of php-dependency-composer with false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-dependency-composer.yml
+            endpoint: hub.opshub.sh/containerops/dependence-php-composer:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/yangkghjh/containerops-php.git"
+  -
+    type: end
+    name: end
+    title: End

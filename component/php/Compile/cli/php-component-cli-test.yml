@@ -1,0 +1,52 @@
+uri: containerops/component/php-component-cli-test
+title: run php cli programs
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-cli-test
+    title: run php cli programs
+    sequencing: sequence
+    actions:
+      -
+        name: component-php-compile-cli-action1
+        title: action of php-compile-cli with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-compile-cli.yml
+            endpoint: hub.opshub.sh/containerops/base-php-cli:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/wp-cli/wp-cli.git file=./bin/wp composer=true"
+      -
+        name: component-php-compile-cli-action2
+        title: action of php-compile-cli with false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-compile-cli.yml
+            endpoint: hub.opshub.sh/containerops/base-php-cli:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/yangkghjh/containerops-php.git file=./bin/wp composer=false"
+  -
+    type: end
+    name: end
+    title: End

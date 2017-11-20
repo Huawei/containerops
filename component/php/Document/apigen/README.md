@@ -1,29 +1,40 @@
-# APIGEN
+## PHP Code Document Component APIGEN
 
-## Build
+### What's the Component?
+
+This image is php runtime image, used for creating document for your php project. 
+
+ApiGen is the simplest, the easiest to use and the most modern api doc generator. It is all PHP 7.1 features ready easy to extend with own Finder, Annotation Subscriber or even Generator.
+
+### Learn how to build it?
+
+Use the docker build command build the image.
 
 ```shell
 docker build -t hub.opshub.sh/containerops/document-php-apigen:latest .
 ```
 
-## Run
+### Component Usage
 
 ```shell
-docker run --env CO_DATA="git-url=https://github.com/TIGERB/easy-php.git path=app destination=docs" hub.opshub.sh/containerops/document-php-apigen:latest
+docker run \
+    --env CO_DATA=" \
+    git-url=https://github.com/TIGERB/easy-php.git \
+    path=app \
+    destination=docs" \
+    hub.opshub.sh/containerops/document-php-apigen:latest
 ```
 
-## Options
+### Parameters 
 
 Required:
 
-- git-url
+- `git-url` where your code is located
 
 Optional:
 
-- path
-- exclude
-- ignore-annotations
+- `path` 
+- `exclude` List of directories to exclude, separated by a comma (,)
+- `ignore-annotations`
 
-```shell
-exclude=<directory>               List of directories to exclude, separated by a comma (,)
-```
+### Versions 1.0.0

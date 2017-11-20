@@ -1,0 +1,52 @@
+uri: containerops/component/php-component-phpdox-test
+title: create document
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-phpdox-test
+    title: create document
+    sequencing: sequence
+    actions:
+      -
+        name: component-php-document-phpdox-action1
+        title: action of php-document-phpdox with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-document-phpdox.yml
+            endpoint: hub.opshub.sh/containerops/document-php-phpdox:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/theseer/phpdox.git"
+      -
+        name: component-php-document-phpdox-action2
+        title: action of php-document-phpdox with false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-document-phpdox.yml
+            endpoint: hub.opshub.sh/containerops/document-php-phpdox:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "https://github.com/yangkghjh/containerops-php.git"
+  -
+    type: end
+    name: end
+    title: End

@@ -1,0 +1,52 @@
+uri: containerops/component/php-component-apigen-test
+title: create document
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-apigen-test
+    title: create document
+    sequencing: sequence
+    actions:
+      -
+        name: component-php-document-apigen-action1
+        title: action of php-document-apigen with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-document-apigen.yml
+            endpoint: hub.opshub.sh/containerops/document-php-apigen:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/TIGERB/easy-php.git path=app destination=docs"
+      -
+        name: component-php-document-apigen-action2
+        title: action of php-document-apigen with false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-document-apigen.yml
+            endpoint: hub.opshub.sh/containerops/document-php-apigen:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/TIGERB/easy-php.git path=app2 destination=docs"
+  -
+    type: end
+    name: end
+    title: End

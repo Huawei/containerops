@@ -1,0 +1,52 @@
+uri: containerops/component/php-component-phpunit-test
+title: analysis php project
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-phpunit-test
+    title: analysis php project
+    sequencing: sequence
+    actions:
+      -
+        name: component-php-test-phpunit-action1
+        title: action of php-test-phpunit with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-test-phpunit.yml
+            endpoint: hub.opshub.sh/containerops/unittest-php-phpunit:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/sebastianbergmann/phploc.git --configuration=phpunit.xml composer=true"
+      -
+        name: component-php-test-phpunit-action2
+        title: action of php-test-phpunit with false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-test-phpunit.yml
+            endpoint: hub.opshub.sh/containerops/unittest-php-phpunit:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/yangkghjh/containerops-php.git --configuration=phpunit1.xml composer=true"
+  -
+    type: end
+    name: end
+    title: End
