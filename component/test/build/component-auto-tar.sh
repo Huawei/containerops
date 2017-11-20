@@ -1,9 +1,7 @@
 #!/bin/bash
 mkdir yml tar
 
-function read_dir(){
-    for file in `ls $1`
-		    do
+
 			fullpath=$1
 		        if  [ -d $1"/"$file ];then
 						if [[ $fullpath =~ "images" || $fullpath =~ "ctest" ]];then #"java" "ctest"
@@ -27,9 +25,4 @@ function read_dir(){
 			echo $fullpath
 			echo $imagename
 			tar -cvf ../../../component/ctest/build/tar/$imagename.tar -C  $fullpath .
-		break
-		fi
-  done
-  }
-	read_dir ../../../component	
 
