@@ -1,5 +1,5 @@
 FROM  maven:3.5-jdk-8
-MAINTAINER wang qilin <qilin.wang@huawei.com>
+MAINTAINER lidian <lidian1@huawei.com>
 
 WORKDIR /root
 COPY run.sh /root/run.sh
