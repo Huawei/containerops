@@ -1,7 +1,7 @@
 ## ContainerOps Components Test Flow
 
 ### What's the Flow?
-Build And Test ContainerOps Components with orchestration engine
+Build And Test One ContainerOps Component with orchestration engine
 
 ### Component Usage
 ```
@@ -9,7 +9,7 @@ $ /.ci-component-run.sh
 
 or
   
-pilotage cli run ci-components.yaml --verbose true --timestamp true
+pilotage cli run ci-component.yaml --verbose true --timestamp true
 
 ```
 ### Flow Configuration File
