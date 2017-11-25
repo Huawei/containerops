@@ -48,13 +48,18 @@ import (
 
 func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	// TODO image, namespace, registry, tag pattern validation with regex
-	queries := getQueryParameters(mctx.Req.Request.URL)
+	queries := getFirstQueryParameters(mctx.Req.Request.URL)
 	registry := queries["registry"]
 	namespace := queries["namespace"]
 	image := queries["image"]
 	tag := queries["tag"]
 	buildArgsJSON := queries["buildargs"]
 	authstr := queries["authstr"]
+	insecureRegistries := mctx.Req.Request.URL.Query()["insecure_registry"]
+	dockerCmdArgs := []string{}
+	for _, r := range insecureRegistries { // When registry is empty, push to official hub, which is always considered secure.
+		dockerCmdArgs = append(dockerCmdArgs, fmt.Sprintf("--insecure-registry=%s", r))
+	}
 
 	var buildArgs map[string]*string
 	if buildArgsJSON == "" {
@@ -93,50 +98,55 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 	serviceName := fmt.Sprintf("containerops-build-svc-%s", buildId)
 
 	log.Infof("Create pod %s for build %s", podName, buildId)
-	_, err = createPod(podClient, podName, buildId)
+	var pod *corev1.Pod
+	pod, err = createPod(podClient, podName, buildId, dockerCmdArgs)
 	if err != nil {
 		log.Errorf("Failed to create pod: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
 	defer deletePod(podClient, podName)
 
-	log.Infof("Create load balancer for build %s", buildId)
-	loadBalancer, err := createLoadBalancer(serviceClient, serviceName, buildId)
+	log.Infof("Create service for build %s", buildId)
+	service, err := createService(serviceClient, serviceName, buildId, corev1.ServiceType(common.Assembling.ServiceType))
 	if err != nil {
-		log.Errorf("Failed to create load balancer: %s", err.Error())
+		log.Errorf("Failed to create service: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
 
-	servicePort := 2375
 	defer func() {
-		if err := deleteLoadBalancer(serviceClient, serviceName); err != nil {
-			log.Errorf("Failed to delete load balancer: %s", err.Error())
+		if err := deleteService(serviceClient, serviceName); err != nil {
+			log.Errorf("Failed to delete service: %s", err.Error())
 		}
 	}()
 
-	if len(loadBalancer.Status.LoadBalancer.Ingress) == 0 {
-		log.Errorf("Load balancer: no ingress created")
+	dockerDaemonHost := getDockerDaemonHost(pod, service)
+	if dockerDaemonHost == "" {
+		log.Errorf("Empty docker daemon host from build %s", buildId)
 		return http.StatusInternalServerError, []byte("{}")
 	}
-	serviceIP := loadBalancer.Status.LoadBalancer.Ingress[0].IP
-	dockerDaemonHost := fmt.Sprintf("%s:%d", serviceIP, servicePort)
+
 	ctx, dockerClient := initDockerCli(dockerDaemonHost)
 
+	var imageUrl string
+	if registry == "" { // Docker official hub, host is not needed
+		imageUrl = fmt.Sprintf("%s/%s:%s", namespace, image, tag)
+	} else {
+		imageUrl = fmt.Sprintf("%s/%s/%s:%s", registry, namespace, image, tag)
+	}
 	log.Infof("Build image, id: %s", buildId)
-	if err := buildImage(ctx, dockerClient, registry, namespace, image, tag, buildArgs, tarfile); err != nil {
+	if err := buildImage(ctx, dockerClient, imageUrl, buildArgs, tarfile); err != nil {
 		log.Errorf("Failed to build image: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
 
-	// TODO Support pushing to registries that need authorization
-	// authStr, _ := generateAuthStr("", "")
 	authStr := authstr
 	if authStr == "" {
 		authStr, _ = generateAuthStr("", "")
 	}
 
 	log.Infof("Push image, id: %s", buildId)
-	if err := pushImage(ctx, dockerClient, registry, namespace, image, tag, authStr); err != nil {
+
+	if err := pushImage(ctx, dockerClient, imageUrl, authStr); err != nil {
 		log.Errorf("Failed to push image: %s", err.Error())
 		return http.StatusInternalServerError, []byte("{}")
 	}
@@ -147,7 +157,7 @@ func BuildImageHandler(mctx *macaron.Context) (int, []byte) {
 }
 
 // Take the first value of the query
-func getQueryParameters(u *url.URL) map[string]string {
+func getFirstQueryParameters(u *url.URL) map[string]string {
 	ret := map[string]string{}
 	for key, ary := range u.Query() {
 		if len(ary) == 0 {
@@ -245,7 +255,6 @@ func generateAuthStr(username, password string) (string, error) {
 	}
 	authStr := base64.URLEncoding.EncodeToString(encodedJSON)
 	return authStr, nil
-
 }
 
 func initK8SResourceInterfaces(kubeconfig string) (v1.PodInterface, v1.ServiceInterface, error) {
@@ -263,7 +272,7 @@ func initK8SResourceInterfaces(kubeconfig string) (v1.PodInterface, v1.ServiceIn
 	return podClient, serviceClient, nil
 }
 
-func createPod(podClient v1.PodInterface, podName, buildId string) (*corev1.Pod, error) {
+func createPod(podClient v1.PodInterface, podName, buildId string, args []string) (*corev1.Pod, error) {
 	isPrivileged := true
 	pod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
@@ -278,7 +287,7 @@ func createPod(podClient v1.PodInterface, podName, buildId string) (*corev1.Pod,
 					Name:  "docker-dind",
 					Image: common.Assembling.DockerDaemonImage,
 					// Reservation for Args
-					Args: []string{},
+					Args: args,
 					SecurityContext: &corev1.SecurityContext{
 						Privileged: &isPrivileged,
 					},
@@ -366,10 +375,9 @@ func createTarFile(dockerfile io.Reader) (io.Reader, error) {
 	return bytes.NewReader(tarBuf.Bytes()), nil
 }
 
-func buildImage(ctx context.Context, cli *client.Client, host, namespace, imageName, tag string, buildArgs map[string]*string, tarFileReader io.Reader) error {
-	targetTag := fmt.Sprintf("%s/%s/%s:%s", host, namespace, imageName, tag)
+func buildImage(ctx context.Context, cli *client.Client, imageUrl string, buildArgs map[string]*string, tarFileReader io.Reader) error {
 	buildOptions := types.ImageBuildOptions{
-		Tags:      []string{targetTag},
+		Tags:      []string{imageUrl},
 		BuildArgs: buildArgs,
 	}
 
@@ -384,13 +392,13 @@ func buildImage(ctx context.Context, cli *client.Client, host, namespace, imageN
 	return nil
 }
 
-func pushImage(ctx context.Context, cli *client.Client, host, namespace, imageName, tag, authStr string) error {
+func pushImage(ctx context.Context, cli *client.Client, imageUrl, authStr string) error {
+	fmt.Printf("push image %s, auth str: %s\n", imageUrl, authStr)
 	imagePushOptions := types.ImagePushOptions{
 		RegistryAuth: authStr,
 	}
-	targetTag := fmt.Sprintf("%s/%s/%s:%s", host, namespace, imageName, tag)
 
-	pushResult, err := cli.ImagePush(ctx, targetTag, imagePushOptions)
+	pushResult, err := cli.ImagePush(ctx, imageUrl, imagePushOptions)
 	if err != nil {
 		return err
 	}
@@ -401,13 +409,13 @@ func pushImage(ctx context.Context, cli *client.Client, host, namespace, imageNa
 	return nil
 }
 
-func createLoadBalancer(serviceClient v1.ServiceInterface, serviceName, buildId string) (*corev1.Service, error) {
+func createService(serviceClient v1.ServiceInterface, serviceName, buildId string, serviceType corev1.ServiceType) (*corev1.Service, error) {
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: serviceName,
 		},
 		Spec: corev1.ServiceSpec{
-			Type: corev1.ServiceTypeLoadBalancer,
+			Type: serviceType,
 			Ports: []corev1.ServicePort{
 				corev1.ServicePort{
 					Port: 2375,
@@ -419,36 +427,67 @@ func createLoadBalancer(serviceClient v1.ServiceInterface, serviceName, buildId 
 		},
 	}
 
-	// Create LoadBalancer
+	// Create service
 	_, err := serviceClient.Create(svc)
 	if err != nil {
 		return nil, err
 	}
+	// TODO Find the way to get the time point when service is REALLY created
+	time.Sleep(time.Second * 5)
 
-	var loadBalancer *corev1.Service
+	var service *corev1.Service
 	var e error
 	start := time.Now()
 
 	for {
-		loadBalancer, e = serviceClient.Get(serviceName, metav1.GetOptions{})
-		if e != nil || len(loadBalancer.Status.LoadBalancer.Ingress) != 0 {
+		service, e = serviceClient.Get(serviceName, metav1.GetOptions{})
+		isCreated := false
+		switch serviceType {
+		case corev1.ServiceTypeNodePort:
+			isCreated = len(service.Spec.ClusterIP) != 0
+			break
+		case corev1.ServiceTypeLoadBalancer:
+			isCreated = len(service.Status.LoadBalancer.Ingress) != 0
+			break
+		}
+
+		if e != nil || isCreated {
 			break
 		}
 		time.Sleep(time.Second * 3)
 		if time.Since(start).Seconds() > 180 {
 			e = fmt.Errorf("NoadBalancer creation timeout")
 			// If the error is not nil, the deletion will most likely to be ignored ouside the function.
-			if err := deleteLoadBalancer(serviceClient, serviceName); err != nil {
-				log.Errorf("Failed to delete load balancer: %s", err.Error())
+			if err := deleteService(serviceClient, serviceName); err != nil {
+				log.Errorf("Failed to delete service: %s", err.Error())
 			}
 			break
 		}
 	}
 
-	return loadBalancer, e
+	return service, e
 }
 
-func deleteLoadBalancer(serviceClient v1.ServiceInterface, serviceName string) error {
+func getDockerDaemonHost(pod *corev1.Pod, service *corev1.Service) string {
+	dockerDaemonHost := ""
+
+	switch service.Spec.Type {
+	case corev1.ServiceTypeNodePort:
+		nodeIP := pod.Status.HostIP
+		dockerDaemonHost = fmt.Sprintf("%s:%d", nodeIP, service.Spec.Ports[0].NodePort)
+		break
+	case corev1.ServiceTypeLoadBalancer:
+		if len(service.Status.LoadBalancer.Ingress) == 0 {
+			log.Errorf("Load balancer: no ingress created")
+		} else {
+			dockerDaemonHost = fmt.Sprintf("%s:2375", service.Status.LoadBalancer.Ingress[0].IP)
+		}
+		break
+	}
+	return dockerDaemonHost
+}
+
+func deleteService(serviceClient v1.ServiceInterface, serviceName string) error {
 	deletePolicy := metav1.DeletePropagationForeground
 	if err := serviceClient.Delete(serviceName, &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,

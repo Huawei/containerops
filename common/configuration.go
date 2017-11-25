@@ -21,9 +21,10 @@ import (
 	"fmt"
 	"os"
 
+	"regexp"
+
 	homeDir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
-	"regexp"
 )
 
 // SetConfig is setting config file path/name/type.
@@ -198,6 +199,7 @@ type AssemblingConfig struct {
 	Cert              string `json:"cert"`
 	DockerDaemonImage string `json:"docker_daemon_image" description:"Image with a docker daemon, providing Docker Engine APIs"`
 	KubeConfig        string `json:"kubeconfig" description:"The address of k8s api server"`
+	ServiceType       string `json:"service_type" description:"The service type of the dind environment, might be 'NodePort' or 'LoadBalancer'"`
 }
 
 type MailConfig struct {
