@@ -1,0 +1,360 @@
+uri: containerops/component/php-components
+title: Component for php
+version: 1
+tag: latest
+timeout: 0
+receivers:
+  -
+    type: mail
+    address: yangkghjh@gmail.com
+stages:
+  -
+    type: start
+    name: start
+    title: Start
+  -
+    type: normal
+    name: component-test
+    title: Test php components
+    sequencing: sequence
+    actions:
+      -
+        name: component-php-analysis-phpcpd-action1
+        title: action of php-analysis-phpcpd with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-analysis-phpcpd.yml
+            endpoint: hub.opshub.sh/containerops/analysis-php-phpcpd:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/TIGERB/easy-php.git"
+      -
+        name: component-php-analysis-phpcpd-action2
+        title: action of php-analysis-phpcpd with false co-result
+        jobs:
+          -
+            type: component
+            endpoint: hub.opshub.sh/containerops/analysis-php-phpcpd:latest
+            kubectl: component-php-analysis-phpcpd.yml
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/yangkghjh/containerops-php.git"
+      -
+        name: phpcs-test
+        title: action of php-analysis-phpcs with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-analysis-phpcs.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-php-phpcs:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/squizlabs/PHP_CodeSniffer.git report=full standard=phpcs.xml.dist"
+      -
+        name: component-php-analysis-phpcs-action2
+        title: action of php-analysis-phpcs with false co-result
+        jobs:
+          -
+            type: component
+            endpoint: hub.opshub.sh/containerops/analysis-php-phpcs:latest
+            kubectl: component-php-analysis-phpcs.yaml
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/yangkghjh/containerops-php.git report=full standard=phpcs.xml.dist"
+      -
+        name: component-php-analysis-phploc-action1
+        title: action of php-analysis-phploc with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-analysis-phploc.yml
+            endpoint: hub.opshub.sh/containerops/analysis-php-phploc:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/TIGERB/easy-php.git exclude=public"
+      -
+        name: component-php-analysis-phploc-action2
+        title: action of php-analysis-phploc with false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-analysis-phploc.yml
+            endpoint: hub.opshub.sh/containerops/analysis-php-phploc:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/yangkghjh/containerops-php.git path=new"        
+      -
+        name: component-php-analysis-phpmd-action1
+        title: action of php-analysis-phpmd with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-analysis-phpmd.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-php-phpmd:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/TIGERB/easy-php.git path=docs"
+      -
+        name: component-php-analysis-phpmd-action2
+        title: action of php-analysis-phpmd with false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-analysis-phpmd.yaml
+            endpoint: hub.opshub.sh/containerops/analysis-php-phpmd:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/yangkghjh/containerops-php.git"
+      -
+        name: component-php-analysis-phpmetrics-action1
+        title: action of php-analysis-phpmetrics with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-analysis-phpmetrics.yml
+            endpoint: hub.opshub.sh/containerops/analysis-php-phpmetrics:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/TIGERB/easy-php.git"
+      -
+        name: component-php-analysis-phpmetrics-action2
+        title: action of php-analysis-phpmetrics with false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-analysis-phpmetrics.yml
+            endpoint: hub.opshub.sh/containerops/analysis-php-phpmetrics:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/yangkghjh/containerops-php.git"
+      -
+        name: component-php-compile-beast-action1
+        title: action of php-compile-beast with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-compile-beast.yml
+            endpoint: hub.opshub.sh/containerops/compile-php-beast:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/TIGERB/easy-php.git"
+      -
+        name: component-php-compile-beast-action2
+        title: action of php-compile-beast with false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-compile-beast.yml
+            endpoint: hub.opshub.sh/containerops/compile-php-beast:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git_url=https://github.com/TIGERB/easy-php.git"
+      -
+        name: component-php-compile-cli-action1
+        title: action of php-compile-cli with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-compile-cli.yml
+            endpoint: hub.opshub.sh/containerops/base-php-cli:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/wp-cli/wp-cli.git file=./bin/wp composer=true"
+      -
+        name: component-php-compile-cli-action2
+        title: action of php-compile-cli with false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-compile-cli.yml
+            endpoint: hub.opshub.sh/containerops/base-php-cli:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/yangkghjh/containerops-php.git file=./bin/wp composer=false"
+      -
+        name: component-php-compile-phar-action1
+        title: action of php-compile-phar with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-compile-phar.yml
+            endpoint: hub.opshub.sh/containerops/compile-php-phar:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/SegmentFault/phar-sample.git entry-file=build.php"
+      -
+        name: component-php-compile-phar-action2
+        title: action of php-compile-phar with false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-compile-phar.yml
+            endpoint: hub.opshub.sh/containerops/compile-php-phar:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/SegmentFault/phar-sample.git entry-file=build1.php"
+      -
+        name: component-php-dependency-composer-action1
+        title: action of php-dependency-composer with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-dependency-composer.yml
+            endpoint: hub.opshub.sh/containerops/dependence-php-composer:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/sebastianbergmann/phploc.git"
+      -
+        name: component-php-dependency-composer-action2
+        title: action of php-dependency-composer with false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-dependency-composer.yml
+            endpoint: hub.opshub.sh/containerops/dependence-php-composer:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/yangkghjh/containerops-php.git"
+      -
+        name: component-php-document-apigen-action1
+        title: action of php-document-apigen with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-document-apigen.yml
+            endpoint: hub.opshub.sh/containerops/document-php-apigen:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/TIGERB/easy-php.git path=app destination=docs"
+      -
+        name: component-php-document-apigen-action2
+        title: action of php-document-apigen with false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-document-apigen.yml
+            endpoint: hub.opshub.sh/containerops/document-php-apigen:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/TIGERB/easy-php.git path=app2 destination=docs"
+      -
+        name: component-php-document-phpdox-action1
+        title: action of php-document-phpdox with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-document-phpdox.yml
+            endpoint: hub.opshub.sh/containerops/document-php-phpdox:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/theseer/phpdox.git"
+      -
+        name: component-php-document-phpdox-action2
+        title: action of php-document-phpdox with false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-document-phpdox.yml
+            endpoint: hub.opshub.sh/containerops/document-php-phpdox:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "https://github.com/yangkghjh/containerops-php.git"
+      -
+        name: component-php-test-phpunit-action1
+        title: action of php-test-phpunit with true co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-test-phpunit.yml
+            endpoint: hub.opshub.sh/containerops/unittest-php-phpunit:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/sebastianbergmann/phploc.git --configuration=phpunit.xml composer=true"
+      -
+        name: component-php-test-phpunit-action2
+        title: action of php-test-phpunit with false co-result
+        jobs:
+          -
+            type: component
+            kubectl: component-php-test-phpunit.yml
+            endpoint: hub.opshub.sh/containerops/unittest-php-phpunit:latest
+            resources:
+              cpu: 2
+              memory: 4G
+            timeout: 0
+            environments:
+              - CO_DATA: "git-url=https://github.com/yangkghjh/containerops-php.git --configuration=phpunit1.xml composer=true"
+  -
+    type: end
+    name: end
+    title: End
