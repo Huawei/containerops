@@ -19,9 +19,9 @@ package module
 import (
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/Huawei/containerops/common"
-	"github.com/Huawei/containerops/common/utils"
 	"github.com/Huawei/containerops/singular/model"
 	"github.com/Huawei/containerops/singular/module/infras"
 	"github.com/Huawei/containerops/singular/module/objects"
@@ -128,20 +128,8 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 				d.Nodes = append(d.Nodes, &node)
 			}
 
-			objects.WriteLog("Wait droplets to be ready(22 port on)", stdout, timestamp, d, &do)
-
-			waitChannel := make(chan error)
-			for _, node := range d.Nodes {
-				go func(node *objects.Node) {
-					// Try to dial the default ssh port on
-					waitChannel <- utils.WaitForHostPort(node.IP, tools.DefaultSSHPort, 10, 10)
-				}(node)
-			}
-			for i := 0; i < len(d.Nodes); i++ {
-				if err := <-waitChannel; err != nil {
-					return err
-				}
-			}
+			objects.WriteLog("sleep 60 second for preparing Droplets", stdout, timestamp, d, &do)
+			time.Sleep(60 * time.Second)
 
 			d.Service.Logs = do.Logs
 		default:
@@ -213,7 +201,7 @@ func DeployInfraStacks(d *objects.Deployment, db bool, stdout io.Writer, timesta
 					return err
 				}
 			default:
-				return fmt.Errorf("unsupport infrastruction software: %s", infra.Name)
+				return fmt.Errorf("unsupport infrastruction software: %s", infra)
 			}
 		}
 

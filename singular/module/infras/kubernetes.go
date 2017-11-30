@@ -229,8 +229,7 @@ func setKubectlFiles(d *objects.Deployment, link, apiServer string, stdout io.Wr
 	} else {
 		if a.Scheme == "" {
 			cmdCopy := exec.Command("cp", link, path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlFile))
-			cmdCopyStr := fmt.Sprintf("cp %s %s", link, path.Join(d.Config, tools.KubectlFileFolder, tools.KubectlFile))
-			objects.WriteLog(fmt.Sprintf("%s", cmdCopyStr), stdout, timestamp, d)
+			objects.WriteLog(fmt.Sprintf("%s", cmdCopy), stdout, timestamp, d)
 			cmdCopy.Stdout, cmdCopy.Stderr = stdout, os.Stderr
 			if err := cmdCopy.Run(); err != nil {
 				return err
@@ -812,11 +811,6 @@ func uploadBootstrapFile(file string, d *objects.Deployment, kubeSlaveNodes []*o
 
 //setKubeletClusterrolebinding exec kubectl create clusterrolebinding command in the first slave node in Kubernetes clusters.
 func setKubeletClusterrolebinding(d *objects.Deployment, nodes []*objects.Node, stdout io.Writer) error {
-	// Make sure the kube-apiserver is ready to serve(retry for 60 seconds at most)
-	masterIP := nodes[0].IP
-	if err := utils.WaitForHostPort(masterIP, 6443, 3, 20); err != nil {
-		return err
-	}
 	for i, node := range nodes {
 		if i == 0 {
 			cmd := "kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap"
