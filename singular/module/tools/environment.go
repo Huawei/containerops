@@ -25,8 +25,9 @@ import (
 )
 
 const (
-	DistroUbuntu = "ubuntu"
-	DistroCentOS = "centos"
+	DistroUbuntu    = "ubuntu"
+	DistroCentOS    = "centos"
+	DistroArchLinux = "archlinux"
 )
 
 //InitializationEnvironment init the environment of node.
@@ -70,7 +71,8 @@ func initEnvironment(key, ip, user, distro string, stdout io.Writer) ([]string, 
 			"systemctl stop ufw",
 			"/lib/systemd/systemd-sysv-install disable ufw",
 		},
-		DistroCentOS: []string{},
+		DistroCentOS:    []string{},
+		DistroArchLinux: []string{},
 	}
 
 	if err := utils.SSHCommand(user, key, ip, DefaultSSHPort, initCmd[distro], stdout, os.Stderr); err != nil {
