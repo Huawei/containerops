@@ -26,6 +26,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"strings"
 	"text/template"
 	"time"
 
@@ -819,7 +820,7 @@ func setKubeletClusterrolebinding(d *objects.Deployment, nodes []*objects.Node, 
 	}
 	for i, node := range nodes {
 		if i == 0 {
-			cmd := "kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap"
+			cmd := "/usr/local/bin/kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap"
 			if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, []string{cmd}, stdout, os.Stderr); err != nil {
 				return err
 			}
@@ -834,8 +835,17 @@ func generateKubeletSystemdFile(d *objects.Deployment, nodes []*objects.Node, ve
 	files := map[string]map[string]string{}
 
 	for _, node := range nodes {
+
+		cmd := "which iptables"
+		var buf bytes.Buffer
+		if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, []string{cmd}, &buf, &buf); err != nil {
+			return nil, err
+		}
+		iptablesAbsolutePath := strings.TrimSpace(buf.String())
+
 		kubeNode := map[string]string{
-			"IP": node.IP,
+			"IP":       node.IP,
+			"iptables": iptablesAbsolutePath,
 		}
 
 		files[node.IP] = map[string]string{}
@@ -906,7 +916,7 @@ func startKubelet(d *objects.Deployment, kubeSlaveNodes []*objects.Node, stdout 
 func kubeletCertificateApprove(d *objects.Deployment, nodes []*objects.Node, stdout io.Writer) error {
 	for i, node := range nodes {
 		if i == 0 {
-			cmd := "kubectl certificate approve `kubectl get csr -o name`"
+			cmd := "/usr/local/bin/kubectl certificate approve `/usr/local/bin/kubectl get csr -o name`"
 			if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, []string{cmd}, stdout, os.Stderr); err != nil {
 				return err
 			}
