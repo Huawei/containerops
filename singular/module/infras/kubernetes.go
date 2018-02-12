@@ -110,7 +110,7 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 			}
 
 			//Generate Kubernetes SSL files and systemd service file
-			if files, err := generateKubeAPIServerFiles(d, masterIP, etcdEndpoints, infra.Version); err != nil {
+			if files, err := generateKubeAPIServerFiles(d, masterIP, etcdEndpoints, infra.Version, stdout, timestamp); err != nil {
 				return err
 			} else {
 				//Upload Kubernetes API Server SSL files and systemd service file
@@ -493,7 +493,7 @@ type KubeMaster struct {
 }
 
 //generateKubeAPIServerFiles generate Kube API Server CA SSL files.
-func generateKubeAPIServerFiles(d *objects.Deployment, masterIP, etcdEndpoints string, version string) (map[string]string, error) {
+func generateKubeAPIServerFiles(d *objects.Deployment, masterIP, etcdEndpoints string, version string, stdout io.Writer, timestamp bool) (map[string]string, error) {
 	base := path.Join(d.Config, tools.CAFilesFolder, tools.CAKubernetesFolder)
 	if utils.IsDirExist(base) == true {
 		os.RemoveAll(base)
@@ -521,8 +521,14 @@ func generateKubeAPIServerFiles(d *objects.Deployment, masterIP, etcdEndpoints s
 	var tpl bytes.Buffer
 	var err error
 
+	// Handle the version
+	tplContent := t.GetK8sCATemplate(version)
+	if tplContent == "" {
+		return files, fmt.Errorf("No kubernetes ca template for version %s or its parent version", version)
+	}
+
 	sslTp := template.New("kube-csr")
-	sslTp, _ = sslTp.Parse(t.KubernetesCATemplate[version])
+	sslTp, _ = sslTp.Parse(tplContent)
 	sslTp.Execute(&tpl, master)
 	csrFileBytes := tpl.Bytes()
 
@@ -569,8 +575,12 @@ func generateKubeAPIServerFiles(d *objects.Deployment, masterIP, etcdEndpoints s
 
 	var serviceTpl bytes.Buffer
 
+	tplContent = t.GetK8sAPIServerSystemdTemplate(version)
+	if tplContent == "" {
+		return files, fmt.Errorf("No kube-apiserver systemd template for version %s or its parent version", version)
+	}
 	serviceTp := template.New("kube-systemd")
-	serviceTp, _ = serviceTp.Parse(t.KubernetesAPIServerSystemdTemplate[version])
+	serviceTp, _ = serviceTp.Parse(tplContent)
 	serviceTp.Execute(&serviceTpl, master)
 	serviceTpFileBytes := serviceTpl.Bytes()
 
@@ -646,8 +656,12 @@ func generateKubeControllerManagerFiles(d *objects.Deployment, masterIP, etcdEnd
 
 	var serviceTpl bytes.Buffer
 
+	tplContent := t.GetK8sControllerManagerSystemdTemplate(version)
+	if tplContent == "" {
+		return files, fmt.Errorf("No kube-controller-manager template for version %s or its parent version", version)
+	}
 	serviceTp := template.New("kube-control-systemd")
-	serviceTp, _ = serviceTp.Parse(t.KubernetesControllerManagerSystemdTemplate[version])
+	serviceTp, _ = serviceTp.Parse(tplContent)
 	serviceTp.Execute(&serviceTpl, master)
 	serviceTpFileBytes := serviceTpl.Bytes()
 
@@ -706,8 +720,12 @@ func generateKubeSchedulerFiles(d *objects.Deployment, masterIP, etcdEndpoints s
 
 	var serviceTpl bytes.Buffer
 
+	tplContent := t.GetK8sSchedulerSystemdTemplate(version)
+	if tplContent == "" {
+		return files, fmt.Errorf("No kube-scheduler template for version %s or its parent version", version)
+	}
 	serviceTp := template.New("kube-scheduler-systemd")
-	serviceTp, _ = serviceTp.Parse(t.KubernetesSchedulerSystemdTemplate[version])
+	serviceTp, _ = serviceTp.Parse(tplContent)
 	serviceTp.Execute(&serviceTpl, master)
 	serviceTpFileBytes := serviceTpl.Bytes()
 
@@ -860,8 +878,12 @@ func generateKubeletSystemdFile(d *objects.Deployment, nodes []*objects.Node, ve
 
 		var serviceTpl bytes.Buffer
 
+		tplContent := t.GetKubeletSystemdTemplate(version)
+		if tplContent == "" {
+			return files, fmt.Errorf("No kubelet systemd template for version %s or its parent version", version)
+		}
 		serviceTp := template.New("kubelet-systemd")
-		serviceTp, _ = serviceTp.Parse(t.KubeletSystemdTemplate[version])
+		serviceTp, _ = serviceTp.Parse(tplContent)
 		serviceTp.Execute(&serviceTpl, kubeNode)
 		serviceTpFileBytes := serviceTpl.Bytes()
 
@@ -951,8 +973,12 @@ func generateKubeProxyFiles(d *objects.Deployment, kubeSlaveNodes []*objects.Nod
 		files[node.IP][tools.CAKubeProxyServerPemFile] = path.Join(base, node.IP, tools.CAKubeProxyServerPemFile)
 		files[node.IP][tools.KubeProxySystemdFiles] = path.Join(base, node.IP, tools.KubeProxySystemdFiles)
 
+		tplContent := t.GetKubeProxyCATemplate(version)
+		if tplContent == "" {
+			return files, fmt.Errorf("No kube-proxy ca template for version %s or its parent version", version)
+		}
 		sslTp := template.New("proxy-csr")
-		sslTp, _ = sslTp.Parse(t.KubeProxyCATemplate[version])
+		sslTp, _ = sslTp.Parse(tplContent)
 		sslTp.Execute(&tpl, nil)
 		csrFileBytes := tpl.Bytes()
 
@@ -999,8 +1025,12 @@ func generateKubeProxyFiles(d *objects.Deployment, kubeSlaveNodes []*objects.Nod
 
 		var serviceTpl bytes.Buffer
 
+		tplContent = t.GetKubeProxySystemdTemplate(version)
+		if tplContent == "" {
+			return files, fmt.Errorf("No kube-proxy systemd template for version %s or its parent version", version)
+		}
 		serviceTp := template.New("proxy-systemd")
-		serviceTp, _ = serviceTp.Parse(t.KubeProxySystemdTemplate[version])
+		serviceTp, _ = serviceTp.Parse(tplContent)
 		serviceTp.Execute(&serviceTpl, map[string]string{"IP": node.IP})
 		serviceTpFileBytes := serviceTpl.Bytes()
 
