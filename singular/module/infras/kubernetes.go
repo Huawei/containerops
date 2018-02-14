@@ -836,6 +836,7 @@ func setKubeletClusterrolebinding(d *objects.Deployment, nodes []*objects.Node, 
 	if err := utils.WaitForHostPort(masterIP, 6443, 3, 20); err != nil {
 		return err
 	}
+	time.Sleep(time.Second * 5)
 	for i, node := range nodes {
 		if i == 0 {
 			cmd := "/usr/local/bin/kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap"
