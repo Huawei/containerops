@@ -857,7 +857,7 @@ func generateKubeletSystemdFile(d *objects.Deployment, nodes []*objects.Node, ve
 
 		cmd := "which iptables"
 		var buf bytes.Buffer
-		if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, []string{cmd}, &buf, &buf); err != nil {
+		if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, []string{cmd}, &buf, ioutil.Discard); err != nil {
 			return nil, err
 		}
 		iptablesAbsolutePath := strings.TrimSpace(buf.String())
