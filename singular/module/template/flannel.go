@@ -57,6 +57,7 @@ ExecStart=/usr/local/bin/flanneld \
   -etcd-certfile=/etc/flanneld/ssl/flanneld.pem \
   -etcd-keyfile=/etc/flanneld/ssl/flanneld-key.pem \
   -etcd-endpoints={{.Etcd}} \
+  -ip-masq=true \
   -etcd-prefix=/kubernetes/network
 ExecStartPost=/usr/local/bin/mk-docker-opts.sh -k DOCKER_NETWORK_OPTIONS -d /run/flannel/docker
 Restart=on-failure
