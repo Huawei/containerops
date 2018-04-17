@@ -43,7 +43,7 @@ func DownloadComponent(files []map[string]string, host, private, user string, st
 					return err
 				}
 			} else {
-				return fmt.Errorf("the file not exist")
+				return fmt.Errorf("the file not exist: %s", files[0]["src"])
 			}
 		} else {
 			if err = downloadBinary(files, host, private, user, stdout); err != nil {

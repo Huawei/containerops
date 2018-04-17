@@ -836,6 +836,7 @@ func setKubeletClusterrolebinding(d *objects.Deployment, nodes []*objects.Node, 
 	if err := utils.WaitForHostPort(masterIP, 6443, 3, 20); err != nil {
 		return err
 	}
+	time.Sleep(time.Second * 5)
 	for i, node := range nodes {
 		if i == 0 {
 			cmd := "/usr/local/bin/kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap"
@@ -856,7 +857,7 @@ func generateKubeletSystemdFile(d *objects.Deployment, nodes []*objects.Node, ve
 
 		cmd := "which iptables"
 		var buf bytes.Buffer
-		if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, []string{cmd}, &buf, &buf); err != nil {
+		if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, []string{cmd}, &buf, ioutil.Discard); err != nil {
 			return nil, err
 		}
 		iptablesAbsolutePath := strings.TrimSpace(buf.String())
