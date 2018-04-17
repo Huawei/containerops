@@ -504,7 +504,7 @@ ExecStart=/usr/local/bin/kubelet \
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
   --require-kubeconfig \
   --cert-dir=/etc/kubernetes/ssl \
-  --cluster-dns=8.8.8.8 \
+  --cluster-dns=10.254.0.2,8.8.8.8 \
   --cluster-domain=cluster.local. \
   --hairpin-mode promiscuous-bridge \
   --allow-privileged=true \
@@ -539,7 +539,7 @@ ExecStart=/usr/local/bin/kubelet \
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
   --require-kubeconfig \
   --cert-dir=/etc/kubernetes/ssl \
-  --cluster-dns=8.8.8.8 \
+  --cluster-dns=10.254.0.2,8.8.8.8 \
   --cluster-domain=cluster.local. \
   --hairpin-mode promiscuous-bridge \
   --allow-privileged=true \
@@ -574,7 +574,7 @@ ExecStart=/usr/local/bin/kubelet \
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
   --require-kubeconfig \
   --cert-dir=/etc/kubernetes/ssl \
-  --cluster-dns=8.8.8.8 \
+  --cluster-dns=10.254.0.2,8.8.8.8 \
   --cluster-domain=cluster.local. \
   --hairpin-mode promiscuous-bridge \
   --allow-privileged=true \
@@ -609,7 +609,7 @@ ExecStart=/usr/local/bin/kubelet \
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
   --require-kubeconfig \
   --cert-dir=/etc/kubernetes/ssl \
-  --cluster-dns=8.8.8.8 \
+  --cluster-dns=10.254.0.2,8.8.8.8 \
   --cluster-domain=cluster.local. \
   --hairpin-mode promiscuous-bridge \
   --allow-privileged=true \
