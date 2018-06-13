@@ -17,6 +17,7 @@ limitations under the License.
 package service
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -25,7 +26,6 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/digitalocean/godo"
-	"github.com/digitalocean/godo/context"
 )
 
 const (
