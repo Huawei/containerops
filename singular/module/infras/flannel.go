@@ -167,6 +167,10 @@ func generateFlanneldSSLFiles(caFile, caKeyFile, configFile string, node Flannel
 		tools.CAFlanneldPemFile:       path.Join(base, ip, tools.CAFlanneldPemFile),
 	}
 
+	if _, exists := t.FlanneldCATemplate[version]; !exists {
+		return nil, fmt.Errorf("flanneld %s is not supported", version)
+	}
+
 	sslTp := template.New("flanneld-csr")
 	sslTp, _ = sslTp.Parse(t.FlanneldCATemplate[version])
 	sslTp.Execute(&tpl, node)
@@ -230,6 +234,10 @@ func generateFlanneldSystemdFile(node FlanneldEndpoint, version, base, ip string
 	var serviceTpl bytes.Buffer
 	files := map[string]string{
 		tools.ServiceFlanneldFile: path.Join(base, ip, tools.ServiceFlanneldFile),
+	}
+
+	if _, exists := t.FlanneldSystemdTemplate[version]; !exists {
+		return nil, fmt.Errorf("flanneld %s is not supported", version)
 	}
 
 	serviceTp := template.New("flanneld-systemd")
