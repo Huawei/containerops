@@ -38,7 +38,7 @@ func getTemplateContent(templates map[string]string, version string) string {
 	return tplContent
 }
 
-var parentVersionPattern *regexp.Regexp = regexp.MustCompile(`[a-z]+-\d{1}\.\d{1}`)
+var parentVersionPattern *regexp.Regexp = regexp.MustCompile(`[a-z]+-\d+\.\d+`)
 
 func getParentVersion(version string) string {
 	parentVersion := parentVersionPattern.FindString(version)
