@@ -38,10 +38,56 @@ var FlanneldCATemplate = map[string]string{
   ]
 }
 `,
+	"flannel-0.10.0": `
+{
+  "CN": "flanneld",
+  "hosts": [
+    "{{.IP}}"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 4096
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "BeiJing",
+      "L": "BeiJing",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}
+`,
 }
 
 var FlanneldSystemdTemplate = map[string]string{
 	"flannel-0.7.1": `
+[Unit]
+Description=Flanneld overlay address etcd agent
+After=network.target
+After=network-online.target
+Wants=network-online.target
+After=etcd.service
+Before=docker.service
+
+[Service]
+Type=notify
+ExecStart=/usr/local/bin/flanneld \
+  -etcd-cafile=/etc/kubernetes/ssl/ca.pem \
+  -etcd-certfile=/etc/flanneld/ssl/flanneld.pem \
+  -etcd-keyfile=/etc/flanneld/ssl/flanneld-key.pem \
+  -etcd-endpoints={{.Etcd}} \
+  -ip-masq=true \
+  -etcd-prefix=/kubernetes/network
+ExecStartPost=/usr/local/bin/mk-docker-opts.sh -k DOCKER_NETWORK_OPTIONS -d /run/flannel/docker
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+RequiredBy=docker.service
+`,
+	"flannel-0.10.0": `
 [Unit]
 Description=Flanneld overlay address etcd agent
 After=network.target
