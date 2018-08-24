@@ -205,6 +205,10 @@ func generateEtcdSSLFiles(caFile, caKeyFile, configFile string, node EtcdEndpoin
 		tools.CAEtcdPemFile:       path.Join(base, ip, tools.CAEtcdPemFile),
 	}
 
+	if _, exists := t.EtcdCATemplate[version]; !exists {
+		return nil, fmt.Errorf("etcd version %s is currently not supported", version)
+	}
+
 	// Generate csr file
 	sslTp := template.New("etcd-csr")
 	sslTp, _ = sslTp.Parse(t.EtcdCATemplate[version])
