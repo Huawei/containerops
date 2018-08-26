@@ -22,9 +22,6 @@ The ContainerOps is a DevOps orchestration platform, and its architecture is mic
 
 * **component** - Some components maintained by ContainerOps team.
 * **pilotage** - The orchestration engine service.
-* **scaffold** - The orchestration engine UI.
-* **joints** - The orchestration engine UI of AngularJS version 1. 
-* **tenant** - The UI of containerops.sh.
 * **crew** - It's a RBAC service.
 * **dockyard** - It's a artifact & container repository.
 * **assembling** - It's a artifact & container build service.
@@ -32,7 +29,6 @@ The ContainerOps is a DevOps orchestration platform, and its architecture is mic
 * **nucleus** - The component manage service.
 * **singular** - The deployment and operations tools.
 * **logarithm** - The log service collect from platform.
-* **dashboard** - The dashboard UI.
 
 ### Database
 
