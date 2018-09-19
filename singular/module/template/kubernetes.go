@@ -346,7 +346,7 @@ var kubernetesAPIServerSystemdTemplate = map[string]string{
 
   [Service]
   ExecStart=/usr/local/bin/kube-apiserver \
-    --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota \
+    --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota \
     --advertise-address={{.MasterIP}} \
     --bind-address={{.MasterIP}} \
     --insecure-bind-address={{.MasterIP}} \
