@@ -756,7 +756,6 @@ ExecStart=/usr/local/bin/kubelet \
   --pod-infra-container-image=registry.access.redhat.com/rhel7/pod-infrastructure:latest \
   --experimental-bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig \
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
-  --require-kubeconfig \
   --cert-dir=/etc/kubernetes/ssl \
   --cluster-dns=10.254.0.2,8.8.8.8 \
   --cluster-domain=cluster.local. \
