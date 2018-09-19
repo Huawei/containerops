@@ -181,10 +181,6 @@ func DeployKubernetesInCluster(d *objects.Deployment, infra *objects.Infra, stdo
 				}
 			}
 
-			//Sleep 60 seconds waiting kubelet service start.
-			objects.WriteLog("Time sleep 60 seconds for awaiting server", stdout, timestamp, d)
-			time.Sleep(60 * time.Second)
-
 			//Approve kubelet certificate key
 			if err := kubeletCertificateApprove(d, kubeSlaveNodes, stdout); err != nil {
 				return err
@@ -839,9 +835,9 @@ func setKubeletClusterrolebinding(d *objects.Deployment, nodes []*objects.Node, 
 	time.Sleep(time.Second * 5)
 	for i, node := range nodes {
 		if i == 0 {
+			cmd := "/usr/local/bin/kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap"
 			retries := 0
 			for {
-				cmd := "/usr/local/bin/kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap"
 				if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, []string{cmd}, stdout, os.Stderr); err == nil {
 					break
 				} else if retries >= 10 {
@@ -946,8 +942,14 @@ func kubeletCertificateApprove(d *objects.Deployment, nodes []*objects.Node, std
 	for i, node := range nodes {
 		if i == 0 {
 			cmd := "/usr/local/bin/kubectl certificate approve `/usr/local/bin/kubectl get csr -o name`"
-			if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, []string{cmd}, stdout, os.Stderr); err != nil {
-				return err
+			retries := 0
+			for {
+				if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, []string{cmd}, stdout, os.Stderr); err == nil {
+					break
+				} else if retries >= 10 {
+					return err
+				}
+				retries++
 			}
 		}
 	}
