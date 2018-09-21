@@ -941,15 +941,31 @@ func startKubelet(d *objects.Deployment, kubeSlaveNodes []*objects.Node, stdout 
 func kubeletCertificateApprove(d *objects.Deployment, nodes []*objects.Node, stdout io.Writer) error {
 	for i, node := range nodes {
 		if i == 0 {
-			cmd := "/usr/local/bin/kubectl certificate approve `/usr/local/bin/kubectl get csr -o name`"
 			retries := 0
+			allCsrReady := false
 			for {
-				if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, []string{cmd}, stdout, os.Stderr); err == nil {
-					break
+				listCsrCmd := "/usr/local/bin/kubectl get csr -o name"
+				var buf bytes.Buffer
+				if e := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, []string{listCsrCmd}, &buf, os.Stderr); e == nil {
+					strs := strings.Split(buf.String(), "\n")
+					if len(strs) >= len(nodes) {
+						allCsrReady = true
+						break
+					}
 				} else if retries >= 10 {
-					return err
+					return e
 				}
-				retries++
+
+				time.Sleep(time.Second * 10)
+			}
+
+			if allCsrReady == false {
+				return fmt.Errorf("Csr not ready within expected time")
+			}
+
+			cmd := "/usr/local/bin/kubectl certificate approve `/usr/local/bin/kubectl get csr -o name`"
+			if err := utils.SSHCommand(node.User, d.Tools.SSH.Private, node.IP, tools.DefaultSSHPort, []string{cmd}, stdout, os.Stderr); err != nil {
+				return err
 			}
 		}
 	}
