@@ -57,4 +57,24 @@ KillMode=process
 [Install]
 WantedBy=multi-user.target
 `,
+	"docker-18.06.1-ce": `
+[Unit]
+Description=Docker Application Container Engine
+Documentation=http://docs.docker.io
+  
+[Service]
+EnvironmentFile=-/run/flannel/docker
+ExecStart=/usr/local/bin/dockerd --log-level=error $DOCKER_NETWORK_OPTIONS --iptables=false --ip-masq=false
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+Delegate=yes
+KillMode=process
+  
+[Install]
+WantedBy=multi-user.target
+`,
 }
