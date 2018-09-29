@@ -24,7 +24,7 @@ import (
 
 	"github.com/Huawei/containerops/pilotage/config"
 	"github.com/Huawei/containerops/pilotage/module"
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	macaron "gopkg.in/macaron.v1"
 )
 

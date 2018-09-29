@@ -29,7 +29,7 @@ import (
 	"time"
 
 	"github.com/Huawei/containerops/common"
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	uuid "github.com/satori/go.uuid"
 	macaron "gopkg.in/macaron.v1"
 	corev1 "k8s.io/api/core/v1"

@@ -68,7 +68,7 @@ func lastCommitHash(target string) (string, error) {
 
 func installDependencies() error {
 	deps := [][]string{
-		{"get", "-v", "github.com/Sirupsen/logrus"},
+		{"get", "-v", "github.com/sirupsen/logrus"},
 		{"get", "-v", "github.com/cloudflare/cfssl/cli"},
 		{"get", "-v", "github.com/cloudflare/cfssl/cli/genkey"},
 		{"get", "-v", "github.com/cloudflare/cfssl/cli/sign"},
