@@ -27,7 +27,7 @@ import (
 	"time"
 
 	web "github.com/Huawei/containerops/assembling/web"
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	macaron "gopkg.in/macaron.v1"
 
 	"github.com/Huawei/containerops/common"

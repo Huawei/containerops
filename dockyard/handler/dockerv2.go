@@ -26,7 +26,7 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/jinzhu/gorm"
 	"github.com/satori/go.uuid"
 	"gopkg.in/macaron.v1"
