@@ -89,13 +89,13 @@ $ cp cp ~/.containerops/singular/containerops/singular/etcd-3.3.9-flanneld-0.10.
 ```
 ### The next step
 
-After deploying the Kubernetes cluster, the in-cluster DNS is not installed by default, a kubernetes cluster usually use CoreDNS or KubeDNS as name server. The yaml files are already there for the newly deployed cluster, you can set them up by:
+After deploying the Kubernetes cluster, the in-cluster DNS is not installed by default, a kubernetes cluster usually use CoreDNS(recommended) or KubeDNS as name server. The yaml files are already there for the newly deployed cluster, you can set them up by:
 ```
-kubectl apply -f $GOPATH/src/github/Huawei/containerops/singular/external/public/data/dns/kubedns.yaml
+kubectl apply -f $GOPATH/src/github/Huawei/containerops/singular/external/public/data/dns/kubedns-latest.yaml
 ```
 Or CoreDNS:
 ```
-kubectl apply -f $GOPATH/src/github/Huawei/containerops/singular/external/public/data/dns/coredns.yaml
+kubectl apply -f $GOPATH/src/github/Huawei/containerops/singular/external/public/data/dns/coredns-latest.yaml
 ```
 
 The `__PILLAR__DNS__SERVER__` and `__PILLAR__DNS__DOMAIN__` are preconfigured according to the kubelet template file(that it, **10.254.0.2** and **cluster.local.**). Feel free to change them to meet your own requirements.
